@@ -1,0 +1,15 @@
+{
+ "generated": "2026-11-06",
+ "sources": {
+  "lexique": "Lexique 3.83, www.lexique.org, CC BY-SA 4.0",
+  "wiktionary": "Wiktionnaire (fr.wiktionary.org) via wiktextract / kaikki.org, CC BY-SA 4.0",
+  "tatoeba": "Tatoeba (tatoeba.org), CC BY 2.0 FR"
+ },
+ "lemmas": 38805,
+ "withChinese": 2028,
+ "withExamples": 5315,
+ "examplePairs": 19674,
+ "droppedTraditional": 0,
+ "files": 308,
+ "bytes": 5427444
+}

@@ -1,0 +1,47 @@
+{
+  "name": "francais-b2-atlas",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "法语词图（基础到 B2）：以 word-atlas 的界面与交互为基准，词条来自可追溯的教材索引与补充资料。",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5190",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 5191",
+    "test": "node --import tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.ts\"",
+    "lexicon:import": "tsx scripts/import-lexicon.ts",
+    "lexicon:freq": "python3 scripts/build-frequency.py",
+    "lexicon:nouns": "python3 scripts/build-nouns.py",
+    "lexicon:ipa": "python3 scripts/build-ipa.py",
+    "lexicon:hl": "python3 scripts/build-highlights.py",
+    "lexicon:conj": "tsx scripts/build-conjugations.ts",
+    "lexicon:forms": "python3 scripts/build-forms.py",
+    "lexicon:dict": "python3 scripts/build-dict.py",
+    "lexicon:audio": "python3 -I scripts/build-audio.py",
+    "lexicon:build": "tsx scripts/build-atlas.ts",
+    "lexicon:grammar": "tsx scripts/build-grammar.ts",
+    "lexicon:check": "tsx scripts/check-lexicon.ts",
+    "e2e": "node scripts/e2e.mjs",
+    "lexicon:ids": "tsx scripts/check-id-stability.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "ts-fsrs": "^5.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "playwright": "^1.64.1",
+    "prettier": "^3.9.10",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3",
+    "vite": "^6.4.1"
+  },
+  "private": true,
+  "license": "MIT"
+}

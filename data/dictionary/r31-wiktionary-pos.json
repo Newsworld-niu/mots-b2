@@ -1,0 +1,334 @@
+{
+ "deux": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "vingt": {
+  "pos": "n.m./f.",
+  "evidence": "nom/mf"
+ },
+ "quatre": {
+  "pos": "n.m./f.",
+  "evidence": "nom/mf"
+ },
+ "zéro": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "gauche": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "cent": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "imparfait": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "salarié": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "laisser": {
+  "pos": "v.",
+  "evidence": "verbe"
+ },
+ "ailleurs": {
+  "pos": "adv.",
+  "evidence": "adverbe"
+ },
+ "droit": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "savoir": {
+  "pos": "v.",
+  "evidence": "verbe"
+ },
+ "z": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "p": {
+  "pos": null,
+  "evidence": "nom"
+ },
+ "directeur": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "mille": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "fort": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "long": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "dur": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "esprit": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "public": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "devant": {
+  "pos": "prép.",
+  "evidence": "préposition"
+ },
+ "faux": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "w": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "tenir": {
+  "pos": "v.",
+  "evidence": "verbe"
+ },
+ "u": {
+  "pos": "v.",
+  "evidence": "verbe"
+ },
+ "révolté": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "direct": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "mal": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "épreuve": {
+  "pos": "n.f.",
+  "evidence": "nom/f"
+ },
+ "cher": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "bien": {
+  "pos": "adv.",
+  "evidence": "adverbe"
+ },
+ "badge": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "patron": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "responsable": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "généreux": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "aisément": {
+  "pos": "adv.",
+  "evidence": "adverbe"
+ },
+ "apprenti": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "bête": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "bricoleur": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "juste": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "nervosité": {
+  "pos": "n.f.",
+  "evidence": "nom/f"
+ },
+ "policier": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "politique": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "retraité": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "usagé": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "différé": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "anti-inflammatoire": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "Polichinelle": {
+  "pos": null,
+  "evidence": null
+ },
+ "arriere": {
+  "pos": "prép.",
+  "evidence": "préposition"
+ },
+ "physique": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "ensemble": {
+  "pos": "adv.",
+  "evidence": "adverbe"
+ },
+ "où": {
+  "pos": null,
+  "evidence": null
+ },
+ "électronique": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "qui": {
+  "pos": null,
+  "evidence": null
+ },
+ "courant": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "superflu": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "mort": {
+  "pos": "n.f.",
+  "evidence": "nom/f"
+ },
+ "technique": {
+  "pos": "n.f.",
+  "evidence": "nom/f"
+ },
+ "musicien": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "déjeuner": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "reçu": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "conducteur": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "serveur": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "comme": {
+  "pos": "adv.",
+  "evidence": "adverbe"
+ },
+ "guide": {
+  "pos": "n.m./f.",
+  "evidence": "nom/mf"
+ },
+ "dîner": {
+  "pos": "v.",
+  "evidence": "verbe"
+ },
+ "super": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "garagiste": {
+  "pos": "n.m./f.",
+  "evidence": "nom/mf"
+ },
+ "amateur": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "piéton": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "juge": {
+  "pos": "n.m./f.",
+  "evidence": "nom/mf"
+ },
+ "fleuriste": {
+  "pos": "n.m./f.",
+  "evidence": "nom/mf"
+ },
+ "conjoint": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "consommateur": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "cravate": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "député": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ },
+ "ophtalmologiste": {
+  "pos": "n.m./f.",
+  "evidence": "nom/mf"
+ },
+ "règle": {
+  "pos": "n.f.",
+  "evidence": "nom/f"
+ },
+ "véridique": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "vôtre": {
+  "pos": "n.f.",
+  "evidence": "nom/f"
+ },
+ "voyageur": {
+  "pos": "adj.",
+  "evidence": "adjectif"
+ },
+ "réfrigérateur": {
+  "pos": "n.m.",
+  "evidence": "nom/m"
+ }
+}

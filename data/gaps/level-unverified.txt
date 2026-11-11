@@ -1,0 +1,16 @@
+# 无教材依据、等级待核实（只来自补充内容）
+collegue	collègue
+teletravail	télétravail
+enseignant	enseignant
+prevention	prévention
+citoyen	citoyen
+mobilite	mobilité
+citoyen-adj	citoyen
+journaliste	journaliste
+verifier	vérifier
+propagande	propagande
+depaysement	dépaysement
+trajet	trajet
+inquietude	inquiétude
+frustration	frustration
+serenite	sérénité

@@ -1,0 +1,32 @@
+{
+  "name": "francais-b2-atlas",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "法语 B2 词图：插画式词卡、法语发音、FSRS 间隔复习的离线优先学习站点。",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5190",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 5191",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
+    "check:words": "tsx scripts/check-words.ts",
+    "e2e": "node scripts/e2e.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "ts-fsrs": "^5.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "playwright-core": "^1.52.0",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3",
+    "vite": "^6.4.1"
+  },
+  "license": "MIT"
+}

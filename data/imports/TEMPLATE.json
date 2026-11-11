@@ -1,0 +1,25 @@
+[
+  {
+    "lemma": "ralentissement",
+    "pos": "n.m.",
+    "level": "unverified",
+    "level_basis": "未核实：逐词等级未确认",
+    "topic": "economy",
+    "zh": "放缓；减速",
+    "fr_def": "Diminution du rythme d'une activité.",
+    "example_fr": "Le ralentissement de la croissance inquiète les économistes.",
+    "example_zh": "增长放缓让经济学家感到担忧。",
+    "col": ["ralentissement économique｜经济放缓"],
+    "fam": ["ralentir (v.)"],
+    "syn": ["décélération (n.f.)"],
+    "ant": ["accélération (n.f.)"],
+    "tip": "ralentissement 是名词；ralentir 是动词。",
+    "origin": "book",
+    "book": "Vocabulaire progressif du français (avancé B2 C1.1) (Claire Miquel).pdf",
+    "kind": "index",
+    "chapter": "L'économie et le commerce",
+    "printed_page": 126,
+    "pdf_page": 127,
+    "review": "unreviewed"
+  }
+]

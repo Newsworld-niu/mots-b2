@@ -1,0 +1,18 @@
+import { chromium } from "playwright";
+const B="http://127.0.0.1:5190/";
+const br=await chromium.launch({executablePath:"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",headless:true});
+const ctx=await br.newContext({viewport:{width:1280,height:900}});
+await ctx.addInitScript(()=>{if(!localStorage.getItem("word-atlas:settings"))localStorage.setItem("word-atlas:settings",JSON.stringify({onboarded:true,splash:false,theme:"dark",sfx:false,autoplay:false}))});
+const p=await ctx.newPage();
+await p.goto(B+"#/"); await p.waitForTimeout(800);
+await p.goto(B+"#/atlas"); await p.waitForTimeout(1200);
+await p.locator("button.tile").first().evaluate(el=>el.click()); await p.waitForTimeout(900);
+const bm=p.locator('[role="dialog"] button[aria-label="收藏"], [role="dialog"] button[aria-label="取消收藏"]').first();
+await bm.click(); await p.waitForTimeout(600);
+console.log("keys after click", await p.evaluate(()=>Object.keys(localStorage)));
+console.log("progress", await p.evaluate(()=>localStorage.getItem("word-atlas:v2:francais-b2-lexicon")));
+await p.reload(); await p.waitForTimeout(900);
+console.log("keys after reload", await p.evaluate(()=>Object.keys(localStorage)));
+console.log("progress2", await p.evaluate(()=>localStorage.getItem("word-atlas:v2:francais-b2-lexicon")));
+console.log("label2", await p.locator('[role="dialog"] button[aria-label="收藏"], [role="dialog"] button[aria-label="取消收藏"]').first().getAttribute("aria-label").catch(()=>null));
+await br.close();

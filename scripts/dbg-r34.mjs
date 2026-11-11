@@ -1,0 +1,22 @@
+import { chromium } from "playwright";
+const B="http://127.0.0.1:5190/";
+const br=await chromium.launch({executablePath:"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",headless:true});
+const ctx=await br.newContext({viewport:{width:1280,height:900}});
+await ctx.addInitScript(()=>{if(!localStorage.getItem("word-atlas:settings"))localStorage.setItem("word-atlas:settings",JSON.stringify({onboarded:true,splash:false,theme:"dark",sfx:false,autoplay:false}))});
+const p=await ctx.newPage();
+await p.goto(B+"#/atlas"); await p.waitForTimeout(1500);
+await p.locator("button.tile").first().evaluate(el=>el.click()); await p.waitForTimeout(1000);
+const bm=p.locator('[role="dialog"] button[aria-label="收藏"], [role="dialog"] button[aria-label="取消收藏"]');
+console.log("sheet bookmark", await bm.count());
+await bm.first().click(); await p.waitForTimeout(800);
+console.log("after click label", await bm.first().getAttribute("aria-label").catch(()=>null));
+console.log("progress", (await p.evaluate(()=>localStorage.getItem("word-atlas:v2:francais-b2-lexicon")))?.slice(0,200));
+// practice
+await p.goto(B+"#/practice"); await p.waitForTimeout(1500);
+console.log("onboard dialog", await p.locator('[aria-label="欢迎"]').count());
+console.log("start btn", await p.getByRole("button",{name:"开始一轮"}).count(), "disabled", await p.getByRole("button",{name:"开始一轮"}).isDisabled().catch(()=>"?"));
+await p.getByRole("button",{name:"开始一轮"}).click();
+await p.waitForTimeout(2500);
+console.log("typing input", await p.locator(".typing-input").count());
+console.log("practice html snippet", (await p.content()).includes("typing-stage"));
+await br.close();

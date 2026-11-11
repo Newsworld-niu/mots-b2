@@ -1,0 +1,196 @@
+{
+ "date": "2026-11-01",
+ "rule": "accent-sensitive identity; case-only differences are not split",
+ "splits": [
+  {
+   "kept_id": "carriere",
+   "kept_lemma": "carriere",
+   "new_id": "carriere-f",
+   "new_lemma": "carrière",
+   "pos": "n.f.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "comprime",
+   "kept_lemma": "comprimé",
+   "new_id": "comprime-m",
+   "new_lemma": "comprime",
+   "pos": "n.m.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "colere",
+   "kept_lemma": "colère",
+   "new_id": "colere-f",
+   "new_lemma": "colere",
+   "pos": "n.f.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "couter",
+   "kept_lemma": "couter",
+   "new_id": "couter-v",
+   "new_lemma": "coûter",
+   "pos": "v.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "cote",
+   "kept_lemma": "cote",
+   "new_id": "cote-f",
+   "new_lemma": "côte",
+   "pos": "n.f.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "elire",
+   "kept_lemma": "élire",
+   "new_id": "elire-v",
+   "new_lemma": "elire",
+   "pos": "v.",
+   "moved_sources": 1,
+   "kept_sources_left": 2,
+   "row_count": 1
+  },
+  {
+   "kept_id": "etat",
+   "kept_lemma": "état",
+   "new_id": "etat-m",
+   "new_lemma": "Etat",
+   "pos": "n.m.",
+   "moved_sources": 1,
+   "kept_sources_left": 2,
+   "row_count": 1
+  },
+  {
+   "kept_id": "fievre",
+   "kept_lemma": "fievre",
+   "new_id": "fievre-f",
+   "new_lemma": "fièvre",
+   "pos": "n.f.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "greve",
+   "kept_lemma": "greve",
+   "new_id": "greve-f",
+   "new_lemma": "grève",
+   "pos": "n.f.",
+   "moved_sources": 2,
+   "kept_sources_left": 1,
+   "row_count": 2
+  },
+  {
+   "kept_id": "levre",
+   "kept_lemma": "levre",
+   "new_id": "levre-f",
+   "new_lemma": "lèvre",
+   "pos": "n.f.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "mise-en-scene",
+   "kept_lemma": "mise en scene",
+   "new_id": "mise-en-scene-f",
+   "new_lemma": "mise en scène",
+   "pos": "n.f.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "piqure",
+   "kept_lemma": "piqure",
+   "new_id": "piqure-f",
+   "new_lemma": "piqûre",
+   "pos": "n.f.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "probleme",
+   "kept_lemma": "probleme",
+   "new_id": "probleme-m",
+   "new_lemma": "problème",
+   "pos": "n.m.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "reglement",
+   "kept_lemma": "reglement",
+   "new_id": "reglement-m",
+   "new_lemma": "règlement",
+   "pos": "n.m.",
+   "moved_sources": 2,
+   "kept_sources_left": 1,
+   "row_count": 2
+  },
+  {
+   "kept_id": "scene",
+   "kept_lemma": "scêne",
+   "new_id": "scene-f",
+   "new_lemma": "scène",
+   "pos": "n.f.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "somnifere",
+   "kept_lemma": "somnifére",
+   "new_id": "somnifere-m",
+   "new_lemma": "somnifère",
+   "pos": "n.m.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "tache",
+   "kept_lemma": "tâche",
+   "new_id": "tache-f",
+   "new_lemma": "tache",
+   "pos": "n.f.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  },
+  {
+   "kept_id": "denoncer",
+   "kept_lemma": "denoncer",
+   "new_id": "denoncer-v",
+   "new_lemma": "dénoncer",
+   "pos": "v.",
+   "moved_sources": 3,
+   "kept_sources_left": 1,
+   "row_count": 3
+  },
+  {
+   "kept_id": "epanouissement",
+   "kept_lemma": "epanouissement",
+   "new_id": "epanouissement-m",
+   "new_lemma": "épanouissement",
+   "pos": "n.m.",
+   "moved_sources": 1,
+   "kept_sources_left": 1,
+   "row_count": 1
+  }
+ ]
+}

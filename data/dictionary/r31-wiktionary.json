@@ -1,0 +1,704 @@
+{
+ "acteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "allié": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "adversaire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "agrégé": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "ambassadeur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "artiste": {
+  "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=artiste&prop=wikitext&format=json&formatversion=2",
+  "pos": "n.m./f.",
+  "marker": "mf",
+  "http": 200
+ },
+ "architecte": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "assistant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "archéologue": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "biographe": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "bibliothécaire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "auditeur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "adjoint": {
+  "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=adjoint&prop=wikitext&format=json&formatversion=2",
+  "pos": "n.m.",
+  "marker": "m",
+  "http": 200
+ },
+ "actionnaire": {
+  "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=actionnaire&prop=wikitext&format=json&formatversion=2",
+  "pos": "n.m./f.",
+  "marker": "mf",
+  "http": 200
+ },
+ "aristocrate": {
+  "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=aristocrate&prop=wikitext&format=json&formatversion=2",
+  "pos": "n.m./f.",
+  "marker": "mf",
+  "http": 200
+ },
+ "bouquiniste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "avocat": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "boursier": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "bureaucrate": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "cameraman": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "capésien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "candidat": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "champion": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "cinéaste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "chercheur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "comédien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "client": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "citoyen": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "complice": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "coéquipier": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "courtisan": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "chômeur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "critique": {
+  "pos": "n.f.",
+  "marker": "f"
+ },
+ "costumier": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "consommateur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "contribuable": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "coupable": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "croyant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "amateur": {
+  "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=amateur&prop=wikitext&format=json&formatversion=2",
+  "pos": "n.m./f.",
+  "marker": "mf",
+  "http": 200
+ },
+ "doctorant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "directeur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "dragueur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "disparu": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "éditeur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "employé": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "DRH": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "énarque": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "électeur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "envoyé": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "enfant": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "fonceur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "gréviste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "historien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "infirmier": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "footballeur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "fonctionnaire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "lauréat": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "étudiant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "jardinier": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "joueur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "lecteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "journaliste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "libraire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "intérimaire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "intermédiaire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "manipulateur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "manifestant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "interlocuteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "marchand": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "maire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "médiéviste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "militant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "ministre": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "menteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "PDG": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "monteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "patron": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "partenaire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "ouvreur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "photographe": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "présentateur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "polytechnicien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "préhistorien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "président": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "producteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "réalisateur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "rédacteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "reporter": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "romancier": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "scénariste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "secrétaire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "séducteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "souverain": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "technicien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "accusé": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "voleur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "salarié": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "spectateur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "agriculteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "comptable": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "conducteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "commerçant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "cousin": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "chanteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "enseignant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "danseur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "informaticien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "guitariste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "ingénieur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "musicien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "prof": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "pianiste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "propriétaire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "retraité": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "sculpteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "locataire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "serveur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "skieur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "stagiaire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "vendeur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "ticket": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "aide-soignant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "voyageur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "élève": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "alpiniste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "artisan": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "standardiste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "apprenti": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "athlète": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "bricoleur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "collégien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "compagnon": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "coiffeur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "cambrioleur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "conjoint": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "concierge": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "consultant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "contrôleur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "automobiliste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "coureur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "destinataire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "fleuriste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "employeur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "gardien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "garagiste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "gastronome": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "instit": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "guide": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "député": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "juge": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "moniteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "kiné": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "participant": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "interprète": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "nageur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "randonneur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "pharmacien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "violoniste": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "patineur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "VRP": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "viticulteur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "voisin": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "parent": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "commercial": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "responsable": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "éducateur": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "millionnaire": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "patient": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "caissier": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "écolo": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "parisien": {
+  "pos": "n.m.",
+  "marker": "m"
+ },
+ "scientifique": {
+  "pos": "n.m./f.",
+  "marker": "mf"
+ },
+ "débutant": {
+  "pos": "n.m.",
+  "marker": "m"
+ }
+}

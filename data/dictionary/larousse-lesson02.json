@@ -1,0 +1,32 @@
+{
+ "parent": {
+  "url": "https://www.larousse.fr/dictionnaires/francais-chinois/parent/28526",
+  "http": "200",
+  "gender": null,
+  "category": "adjectif"
+ },
+ "petit-fils": {
+  "url": "https://www.larousse.fr/dictionnaires/francais-chinois/petit-fils/29463",
+  "http": "200",
+  "gender": "m",
+  "category": "nom masculin"
+ },
+ "oncle": {
+  "url": "https://www.larousse.fr/dictionnaires/francais-chinois/oncle/27765",
+  "http": "200",
+  "gender": "m",
+  "category": "nom masculin"
+ },
+ "centimètre": {
+  "url": "https://www.larousse.fr/dictionnaires/francais-chinois/centim%c3%a8tre/6629",
+  "http": "200",
+  "gender": "m",
+  "category": "nom masculin"
+ },
+ "âge": {
+  "url": "https://www.larousse.fr/dictionnaires/francais-chinois/%c3%a2ge/1009",
+  "http": "200",
+  "gender": "m",
+  "category": "nom masculin"
+ }
+}

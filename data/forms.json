@@ -1,0 +1,1153 @@
+{
+ "entries": {
+  "actif": {
+   "fem": "active"
+  },
+  "administratif": {
+   "fem": "administrative"
+  },
+  "admiratif": {
+   "fem": "admirative"
+  },
+  "adoptif": {
+   "fem": "adoptive"
+  },
+  "aerien": {
+   "fem": "aérienne"
+  },
+  "affectif": {
+   "fem": "affective"
+  },
+  "affectueux": {
+   "fem": "affectueuse"
+  },
+  "affreux": {
+   "fem": "affreuse"
+  },
+  "agneau": {
+   "pl": "agneaux"
+  },
+  "agressif": {
+   "fem": "agressive"
+  },
+  "aide-soignant-n": {
+   "pl": "aides-soignants"
+  },
+  "aigu": {
+   "fem": "aiguë"
+  },
+  "aller-retour-m": {
+   "pl": "allers-retours"
+  },
+  "allusif": {
+   "fem": "allusive"
+  },
+  "alternatif": {
+   "fem": "alternative"
+  },
+  "amateur-": {
+   "fem": "amatrice"
+  },
+  "ambigu": {
+   "fem": "ambiguë"
+  },
+  "ambitieux": {
+   "fem": "ambitieuse"
+  },
+  "amer": {
+   "fem": "amère"
+  },
+  "amical": {
+   "mpl": "amicaux"
+  },
+  "amour-propre": {
+   "pl": "amours-propres"
+  },
+  "amoureux": {
+   "fem": "amoureuse"
+  },
+  "ancien": {
+   "fem": "ancienne",
+   "place": "前：以前的（un ancien élève 老校友）；后：古老的（une maison ancienne 古宅）"
+  },
+  "animal": {
+   "pl": "animaux"
+  },
+  "annuel": {
+   "fem": "annuelle"
+  },
+  "anxieux": {
+   "fem": "anxieuse"
+  },
+  "arc-en-ciel": {
+   "pl": "arcs-en-ciel"
+  },
+  "astucieux": {
+   "fem": "astucieuse"
+  },
+  "attentif-adj": {
+   "fem": "attentive"
+  },
+  "audacieux": {
+   "fem": "audacieuse"
+  },
+  "audiovisuel-adj": {
+   "fem": "audiovisuelle"
+  },
+  "autre": {
+   "place": "放在名词前（une autre fois）"
+  },
+  "autrichien": {
+   "fem": "autrichienne"
+  },
+  "aveu": {
+   "pl": "aveux"
+  },
+  "balai-brosse": {
+   "pl": "balais-brosses"
+  },
+  "bas": {
+   "fem": "basse"
+  },
+  "batailleur": {
+   "fem": "batailleuse"
+  },
+  "bateau": {
+   "pl": "bateaux"
+  },
+  "beau": {
+   "fem": "belle",
+   "mpl": "beaux",
+   "place": "通常放在名词前（un beau jardin）；元音或哑音 h 前的阳性单数用 bel（un bel homme）"
+  },
+  "beau-fils": {
+   "pl": "beaux-fils"
+  },
+  "beau-frere": {
+   "pl": "beaux-frères"
+  },
+  "belle-famille": {
+   "pl": "belles-familles"
+  },
+  "belle-fille": {
+   "pl": "belles-filles"
+  },
+  "bimensuel-adj": {
+   "fem": "bimensuelle"
+  },
+  "blanc": {
+   "fem": "blanche"
+  },
+  "bon": {
+   "fem": "bonne",
+   "place": "通常放在名词前（un bon repas）"
+  },
+  "bougon": {
+   "fem": "bougonne"
+  },
+  "bourguignon": {
+   "fem": "bourguignonne"
+  },
+  "breton": {
+   "fem": "bretonne"
+  },
+  "brutal": {
+   "mpl": "brutaux"
+  },
+  "bureau": {
+   "pl": "bureaux"
+  },
+  "cadeau": {
+   "pl": "cadeaux"
+  },
+  "cameraman": {
+   "pl": "cameramen"
+  },
+  "canal": {
+   "pl": "canaux"
+  },
+  "capital": {
+   "pl": "capitaux"
+  },
+  "capricieux": {
+   "fem": "capricieuse"
+  },
+  "carreau": {
+   "pl": "carreaux"
+  },
+  "central": {
+   "mpl": "centraux"
+  },
+  "cerebral-adj": {
+   "mpl": "cérébraux"
+  },
+  "certain": {
+   "place": "前：某些（certaines personnes）；后：确定的（une chose certaine）"
+  },
+  "cerveau": {
+   "pl": "cerveaux"
+  },
+  "chaleureux": {
+   "fem": "chaleureuse"
+  },
+  "chameau": {
+   "pl": "chameaux"
+  },
+  "chapeau": {
+   "pl": "chapeaux"
+  },
+  "charmeur": {
+   "fem": "charmeuse"
+  },
+  "chateau": {
+   "pl": "châteaux"
+  },
+  "chef-d-reuvre": {
+   "pl": "chefs-d'œuvre"
+  },
+  "cher": {
+   "fem": "chère",
+   "place": "前：亲爱的（mon cher ami）；后：昂贵的（un repas cher）"
+  },
+  "cheval": {
+   "pl": "chevaux"
+  },
+  "cheveu": {
+   "pl": "cheveux"
+  },
+  "chirurgical": {
+   "mpl": "chirurgicaux"
+  },
+  "chretien": {
+   "fem": "chrétienne"
+  },
+  "commemoratif": {
+   "fem": "commémorative"
+  },
+  "commercial": {
+   "mpl": "commerciaux"
+  },
+  "competitif": {
+   "fem": "compétitive"
+  },
+  "complet": {
+   "fem": "complète"
+  },
+  "compulsif-adj": {
+   "fem": "compulsive"
+  },
+  "consciencieux": {
+   "fem": "consciencieuse"
+  },
+  "contagieux-adj": {
+   "fem": "contagieuse"
+  },
+  "continental": {
+   "mpl": "continentaux"
+  },
+  "continuel": {
+   "fem": "continuelle"
+  },
+  "corail": {
+   "pl": "coraux"
+  },
+  "cordial": {
+   "mpl": "cordiaux"
+  },
+  "cordon-bleu": {
+   "pl": "cordons-bleus"
+  },
+  "courageux": {
+   "fem": "courageuse"
+  },
+  "court-circuit": {
+   "pl": "courts-circuits"
+  },
+  "couteau": {
+   "pl": "couteaux"
+  },
+  "creatif": {
+   "fem": "créative"
+  },
+  "crediteur": {
+   "fem": "créditrice"
+  },
+  "creneau": {
+   "pl": "créneaux"
+  },
+  "creux-adj": {
+   "fem": "creuse"
+  },
+  "criminel": {
+   "fem": "criminelle"
+  },
+  "crucial-adj": {
+   "mpl": "cruciaux"
+  },
+  "culturel": {
+   "fem": "culturelle"
+  },
+  "debiteur": {
+   "fem": "débitrice"
+  },
+  "delicieux": {
+   "fem": "délicieuse"
+  },
+  "dieu": {
+   "pl": "dieux"
+  },
+  "diluvien": {
+   "fem": "diluvienne"
+  },
+  "directeur-": {
+   "fem": "directrice"
+  },
+  "douillet": {
+   "fem": "douillette"
+  },
+  "douloureux": {
+   "fem": "douloureuse"
+  },
+  "doux": {
+   "fem": "douce"
+  },
+  "draconien": {
+   "fem": "draconienne"
+  },
+  "drapeau": {
+   "pl": "drapeaux"
+  },
+  "dubitatif": {
+   "fem": "dubitative"
+  },
+  "eau-f": {
+   "pl": "eaux"
+  },
+  "editorial": {
+   "mpl": "éditoriaux"
+  },
+  "editorial-m": {
+   "pl": "éditoriaux"
+  },
+  "educatif": {
+   "fem": "éducative"
+  },
+  "egal": {
+   "mpl": "égaux"
+  },
+  "egyptien": {
+   "fem": "égyptienne"
+  },
+  "electoral": {
+   "mpl": "électoraux"
+  },
+  "emotif": {
+   "fem": "émotive"
+  },
+  "emotionnel": {
+   "fem": "émotionnelle"
+  },
+  "enjeu": {
+   "pl": "enjeux"
+  },
+  "ennuyeux": {
+   "fem": "ennuyeuse"
+  },
+  "environnemental": {
+   "mpl": "environnementaux"
+  },
+  "epais": {
+   "fem": "épaisse"
+  },
+  "escabeau": {
+   "pl": "escabeaux"
+  },
+  "eternel": {
+   "fem": "éternelle"
+  },
+  "etranger": {
+   "fem": "étrangère"
+  },
+  "europeen": {
+   "fem": "européenne"
+  },
+  "exceptionnel": {
+   "fem": "exceptionnelle"
+  },
+  "excessif": {
+   "fem": "excessive"
+  },
+  "executif": {
+   "fem": "exécutive"
+  },
+  "expressif": {
+   "fem": "expressive"
+  },
+  "facultatif-adj": {
+   "fem": "facultative"
+  },
+  "faisceau": {
+   "pl": "faisceaux"
+  },
+  "fameux": {
+   "fem": "fameuse"
+  },
+  "familial": {
+   "mpl": "familiaux"
+  },
+  "faux": {
+   "fem": "fausse"
+  },
+  "ferry": {
+   "pl": "ferries"
+  },
+  "feu": {
+   "pl": "feux"
+  },
+  "figuratif": {
+   "fem": "figurative"
+  },
+  "final": {
+   "mpl": "finaux"
+  },
+  "financier": {
+   "fem": "financière"
+  },
+  "fiscal": {
+   "mpl": "fiscaux"
+  },
+  "fleau": {
+   "pl": "fléaux"
+  },
+  "fluet": {
+   "fem": "fluette"
+  },
+  "formel": {
+   "fem": "formelle"
+  },
+  "fou": {
+   "fem": "folle"
+  },
+  "frais": {
+   "fem": "fraîche"
+  },
+  "franc": {
+   "fem": "franche"
+  },
+  "furieux": {
+   "fem": "furieuse"
+  },
+  "gateau": {
+   "pl": "gâteaux"
+  },
+  "gazeux": {
+   "fem": "gazeuse"
+  },
+  "general": {
+   "mpl": "généraux"
+  },
+  "genereux-adj": {
+   "fem": "généreuse"
+  },
+  "genial": {
+   "mpl": "géniaux"
+  },
+  "genou": {
+   "pl": "genoux"
+  },
+  "gentil": {
+   "fem": "gentille"
+  },
+  "global": {
+   "mpl": "globaux"
+  },
+  "gracieux": {
+   "fem": "gracieuse"
+  },
+  "grand": {
+   "place": "放在名词前多指“伟大的”（un grand homme 伟人），放在后面指“高大的”（un homme grand 高个子男人）"
+  },
+  "grand-pere": {
+   "pl": "grands-pères"
+  },
+  "gras": {
+   "fem": "grasse"
+  },
+  "grec": {
+   "fem": "grecque"
+  },
+  "gros": {
+   "fem": "grosse",
+   "place": "通常放在名词前（un gros chien）"
+  },
+  "harmonieux": {
+   "fem": "harmonieuse"
+  },
+  "hasardeux": {
+   "fem": "hasardeuse"
+  },
+  "haut-adj": {
+   "place": "通常放在名词前（une haute montagne）"
+  },
+  "heureux": {
+   "fem": "heureuse"
+  },
+  "hexagonal": {
+   "mpl": "hexagonaux"
+  },
+  "homosexuel": {
+   "fem": "homosexuelle"
+  },
+  "hopital": {
+   "pl": "hôpitaux"
+  },
+  "ideal": {
+   "mpl": "idéaux"
+  },
+  "illegal-adj": {
+   "mpl": "illégaux"
+  },
+  "impartial": {
+   "mpl": "impartiaux"
+  },
+  "impetueux": {
+   "fem": "impétueuse"
+  },
+  "impulsif": {
+   "fem": "impulsive"
+  },
+  "incomplet-adj": {
+   "fem": "incomplète"
+  },
+  "individuel": {
+   "fem": "individuelle"
+  },
+  "infernal": {
+   "mpl": "infernaux"
+  },
+  "ingenieux": {
+   "fem": "ingénieuse"
+  },
+  "inoffensif-adj": {
+   "fem": "inoffensive"
+  },
+  "intellectuel": {
+   "fem": "intellectuelle"
+  },
+  "intensif": {
+   "fem": "intensive"
+  },
+  "international": {
+   "mpl": "internationaux"
+  },
+  "italien": {
+   "fem": "italienne"
+  },
+  "jaloux": {
+   "fem": "jalouse"
+  },
+  "jeu": {
+   "pl": "jeux"
+  },
+  "jeune": {
+   "place": "通常放在名词前（une jeune femme）"
+  },
+  "joli": {
+   "place": "通常放在名词前（une jolie maison）"
+  },
+  "jolie": {
+   "mpl": "jolie"
+  },
+  "journal": {
+   "pl": "journaux"
+  },
+  "joyeux": {
+   "fem": "joyeuse"
+  },
+  "juif": {
+   "fem": "juive"
+  },
+  "justificatif": {
+   "fem": "justificative"
+  },
+  "leger": {
+   "fem": "légère"
+  },
+  "legislatif": {
+   "fem": "législative"
+  },
+  "lieu": {
+   "pl": "lieux"
+  },
+  "lituanien": {
+   "fem": "lituanienne"
+  },
+  "local-adj": {
+   "mpl": "locaux"
+  },
+  "long": {
+   "fem": "longue",
+   "place": "通常放在名词前（un long voyage）"
+  },
+  "lumineux": {
+   "fem": "lumineuse"
+  },
+  "luxueux": {
+   "fem": "luxueuse"
+  },
+  "madame": {
+   "pl": "mesdames"
+  },
+  "magistral": {
+   "mpl": "magistraux"
+  },
+  "maigrichon": {
+   "fem": "maigrichonne"
+  },
+  "malheureux": {
+   "fem": "malheureuse"
+  },
+  "malin": {
+   "fem": "maligne"
+  },
+  "manteau": {
+   "pl": "manteaux"
+  },
+  "manuel-adj": {
+   "fem": "manuelle"
+  },
+  "marginal-adj": {
+   "mpl": "marginaux"
+  },
+  "marteau": {
+   "pl": "marteaux"
+  },
+  "massif": {
+   "fem": "massive"
+  },
+  "materiau": {
+   "pl": "matériaux"
+  },
+  "maternel-adj": {
+   "fem": "maternelle"
+  },
+  "matinal": {
+   "mpl": "matinaux"
+  },
+  "matrimonial-adj": {
+   "mpl": "matrimoniaux"
+  },
+  "mauvais": {
+   "place": "通常放在名词前（une mauvaise idée）"
+  },
+  "medical": {
+   "mpl": "médicaux"
+  },
+  "medieval": {
+   "mpl": "médiévaux"
+  },
+  "mediterraneen": {
+   "fem": "méditerranéenne"
+  },
+  "meilleur-adj": {
+   "place": "通常放在名词前（le meilleur moment）"
+  },
+  "menager": {
+   "fem": "ménagère"
+  },
+  "mensuel": {
+   "fem": "mensuelle"
+  },
+  "mental": {
+   "mpl": "mentaux"
+  },
+  "menteur-adj": {
+   "fem": "menteuse"
+  },
+  "merveilleux-adj": {
+   "fem": "merveilleuse"
+  },
+  "metal": {
+   "pl": "métaux"
+  },
+  "meticuleux": {
+   "fem": "méticuleuse"
+  },
+  "metis": {
+   "fem": "métisse"
+  },
+  "meurtrier": {
+   "fem": "meurtrière"
+  },
+  "mignon": {
+   "fem": "mignonne"
+  },
+  "milieu": {
+   "pl": "milieux"
+  },
+  "mineral": {
+   "mpl": "minéraux"
+  },
+  "minutieux": {
+   "fem": "minutieuse"
+  },
+  "moelleux": {
+   "fem": "moelleuse"
+  },
+  "mollasson": {
+   "fem": "mollassonne"
+  },
+  "monsieur": {
+   "pl": "messieurs"
+  },
+  "moral": {
+   "pl": "moraux"
+  },
+  "morceau": {
+   "pl": "morceaux"
+  },
+  "mot-cle": {
+   "pl": "mots-clés"
+  },
+  "moyen": {
+   "fem": "moyenne"
+  },
+  "muet": {
+   "fem": "muette"
+  },
+  "multinational": {
+   "mpl": "multinationaux"
+  },
+  "municipal-adj": {
+   "mpl": "municipaux"
+  },
+  "musical": {
+   "mpl": "musicaux"
+  },
+  "national": {
+   "mpl": "nationaux"
+  },
+  "naturel": {
+   "fem": "naturelle"
+  },
+  "negatif": {
+   "fem": "négative"
+  },
+  "nerveux": {
+   "fem": "nerveuse"
+  },
+  "net": {
+   "fem": "nette"
+  },
+  "neuf": {
+   "fem": "neuve"
+  },
+  "niveau": {
+   "pl": "niveaux"
+  },
+  "nocif-adj": {
+   "fem": "nocive"
+  },
+  "nombreux": {
+   "fem": "nombreuse"
+  },
+  "normal": {
+   "mpl": "normaux"
+  },
+  "nouveau": {
+   "mpl": "nouveaux",
+   "place": "通常放在名词前（un nouveau film）；元音或哑音 h 前的阳性单数用 nouvel（un nouvel ami）"
+  },
+  "nuageux": {
+   "fem": "nuageuse"
+  },
+  "nul": {
+   "fem": "nulle"
+  },
+  "nutritionnel-adj": {
+   "fem": "nutritionnelle"
+  },
+  "occidental": {
+   "mpl": "occidentaux"
+  },
+  "odieux": {
+   "fem": "odieuse"
+  },
+  "oeil": {
+   "pl": "yeux"
+  },
+  "officiel": {
+   "fem": "officielle"
+  },
+  "oiseau": {
+   "pl": "oiseaux"
+  },
+  "oisif": {
+   "fem": "oisive"
+  },
+  "onereux-adj": {
+   "fem": "onéreuse"
+  },
+  "operationnel-adj": {
+   "fem": "opérationnelle"
+  },
+  "orageux": {
+   "fem": "orageuse"
+  },
+  "oral": {
+   "mpl": "oraux"
+  },
+  "orgueilleux": {
+   "fem": "orgueilleuse"
+  },
+  "oriental": {
+   "mpl": "orientaux"
+  },
+  "original": {
+   "mpl": "originaux"
+  },
+  "panneau": {
+   "pl": "panneaux"
+  },
+  "paresseux": {
+   "fem": "paresseuse"
+  },
+  "parisien": {
+   "fem": "parisienne"
+  },
+  "partial": {
+   "mpl": "partiaux"
+  },
+  "partiel-adj": {
+   "fem": "partielle"
+  },
+  "passif": {
+   "fem": "passive"
+  },
+  "paternel": {
+   "fem": "paternelle"
+  },
+  "pauvre-adj": {
+   "place": "前：可怜的（le pauvre homme）；后：贫穷的（un homme pauvre）"
+  },
+  "peau": {
+   "pl": "peaux"
+  },
+  "pensif": {
+   "fem": "pensive"
+  },
+  "petit": {
+   "place": "通常放在名词前（un petit village）"
+  },
+  "petit-fils": {
+   "pl": "petits-fils"
+  },
+  "petite-fille": {
+   "pl": "petites-filles"
+  },
+  "peureux": {
+   "fem": "peureuse"
+  },
+  "pieton-adj": {
+   "fem": "piétonne"
+  },
+  "pinceau": {
+   "pl": "pinceaux"
+  },
+  "plate-bande": {
+   "pl": "plates-bandes"
+  },
+  "plateau": {
+   "pl": "plateaux"
+  },
+  "pluvieux": {
+   "fem": "pluvieuse"
+  },
+  "poireau": {
+   "pl": "poireaux"
+  },
+  "ponctuel-adj": {
+   "fem": "ponctuelle"
+  },
+  "portemanteau": {
+   "pl": "portemanteaux"
+  },
+  "positif": {
+   "fem": "positive"
+  },
+  "possessif-adj": {
+   "fem": "possessive"
+  },
+  "postal": {
+   "mpl": "postaux"
+  },
+  "poteau": {
+   "pl": "poteaux"
+  },
+  "pou": {
+   "pl": "poux"
+  },
+  "premier": {
+   "fem": "première",
+   "place": "通常放在名词前（le premier jour）"
+  },
+  "presidentiel": {
+   "fem": "présidentielle"
+  },
+  "prestigieux": {
+   "fem": "prestigieuse"
+  },
+  "pretentieux": {
+   "fem": "prétentieuse"
+  },
+  "primordial-adj": {
+   "mpl": "primordiaux"
+  },
+  "principal": {
+   "mpl": "principaux"
+  },
+  "prochain": {
+   "place": "前：（顺序上的）下一个（la prochaine fois）；后：（时间上的）下一个（la semaine prochaine 下周）"
+  },
+  "productif-adj": {
+   "fem": "productive"
+  },
+  "professionnel": {
+   "fem": "professionnelle"
+  },
+  "proportionnel": {
+   "fem": "proportionnelle"
+  },
+  "propre-adj": {
+   "place": "前：自己的（ma propre voiture）；后：干净的（une voiture propre）"
+  },
+  "provincial": {
+   "mpl": "provinciaux"
+  },
+  "pruneau": {
+   "pl": "pruneaux"
+  },
+  "public-adj": {
+   "fem": "publique"
+  },
+  "quotidien": {
+   "fem": "quotidienne"
+  },
+  "radieux": {
+   "fem": "radieuse"
+  },
+  "radioactif": {
+   "fem": "radioactive"
+  },
+  "rateau": {
+   "pl": "râteaux"
+  },
+  "rationnel": {
+   "fem": "rationnelle"
+  },
+  "reel": {
+   "fem": "réelle"
+  },
+  "regulier": {
+   "fem": "régulière"
+  },
+  "religieux": {
+   "fem": "religieuse"
+  },
+  "reseau": {
+   "pl": "réseaux"
+  },
+  "residentiel": {
+   "fem": "résidentielle"
+  },
+  "respectueux": {
+   "fem": "respectueuse"
+  },
+  "revelateur-adj": {
+   "fem": "révélatrice"
+  },
+  "reveur": {
+   "fem": "rêveuse"
+  },
+  "rideau": {
+   "pl": "rideaux"
+  },
+  "rigoureux": {
+   "fem": "rigoureuse"
+  },
+  "rond-point": {
+   "pl": "ronds-points"
+  },
+  "rouleau": {
+   "pl": "rouleaux"
+  },
+  "routinier": {
+   "fem": "routinière"
+  },
+  "sage-femme": {
+   "pl": "sages-femmes"
+  },
+  "savoureux": {
+   "fem": "savoureuse"
+  },
+  "scandaleux": {
+   "fem": "scandaleuse"
+  },
+  "scrupuleux": {
+   "fem": "scrupuleuse"
+  },
+  "sec": {
+   "fem": "sèche"
+  },
+  "selectif": {
+   "fem": "sélective"
+  },
+  "sentimental": {
+   "mpl": "sentimentaux"
+  },
+  "serieux": {
+   "fem": "sérieuse"
+  },
+  "seul": {
+   "place": "前：唯一的（le seul ami）；后：独自的（un homme seul）"
+  },
+  "significatif-adj": {
+   "fem": "significative"
+  },
+  "silencieux": {
+   "fem": "silencieuse"
+  },
+  "singulier": {
+   "fem": "singulière"
+  },
+  "sketch": {
+   "pl": "sketches"
+  },
+  "social": {
+   "mpl": "sociaux"
+  },
+  "soigneux": {
+   "fem": "soigneuse"
+  },
+  "soutien-gorge": {
+   "pl": "soutiens-gorge"
+  },
+  "special": {
+   "mpl": "spéciaux"
+  },
+  "spirituel": {
+   "fem": "spirituelle"
+  },
+  "sportif": {
+   "fem": "sportive"
+  },
+  "station-service": {
+   "pl": "stations-service"
+  },
+  "suisse": {
+   "fem": "suissesse"
+  },
+  "sujet-adj": {
+   "fem": "sujette"
+  },
+  "superficiel": {
+   "fem": "superficielle"
+  },
+  "tableau": {
+   "pl": "tableaux"
+  },
+  "tatillon": {
+   "fem": "tatillonne"
+  },
+  "taureau": {
+   "pl": "taureaux"
+  },
+  "televisuel-adj": {
+   "fem": "télévisuelle"
+  },
+  "terminal": {
+   "mpl": "terminaux"
+  },
+  "terreau": {
+   "pl": "terreaux"
+  },
+  "theatral": {
+   "mpl": "théâtraux"
+  },
+  "torrentiel": {
+   "fem": "torrentielle"
+  },
+  "total": {
+   "pl": "totaux"
+  },
+  "total-adj": {
+   "mpl": "totaux"
+  },
+  "tout-": {
+   "mpl": "tous"
+  },
+  "traditionnel": {
+   "fem": "traditionnelle"
+  },
+  "travail": {
+   "pl": "travaux"
+  },
+  "travailleur": {
+   "fem": "travailleuse"
+  },
+  "tribunal": {
+   "pl": "tribunaux"
+  },
+  "trimestriel-adj": {
+   "fem": "trimestrielle"
+  },
+  "triomphal": {
+   "mpl": "triomphaux"
+  },
+  "tropical": {
+   "mpl": "tropicaux"
+  },
+  "tuyau": {
+   "pl": "tuyaux"
+  },
+  "veau": {
+   "pl": "veaux"
+  },
+  "vegetarien": {
+   "fem": "végétarienne"
+  },
+  "veuf": {
+   "fem": "veuve"
+  },
+  "vicieux": {
+   "fem": "vicieuse"
+  },
+  "vieux": {
+   "fem": "vieille",
+   "place": "通常放在名词前（un vieux livre）；元音或哑音 h 前的阳性单数用 vieil（un vieil arbre）"
+  },
+  "vif": {
+   "fem": "vive"
+  },
+  "visuel": {
+   "fem": "visuelle"
+  },
+  "voeu": {
+   "pl": "voeux"
+  },
+  "voeu-n": {
+   "pl": "vœux"
+  },
+  "voyageur-": {
+   "fem": "voyageuse"
+  },
+  "wagon-restaurant": {
+   "pl": "wagons-restaurants"
+  }
+ },
+ "meta": {
+  "count": 378,
+  "generated": "2026-11-06",
+  "source": "Lexique 3.83 (CC BY-SA 4.0) + scripts/build-forms.py"
+ }
+}

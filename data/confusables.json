@@ -1,0 +1,2723 @@
+{
+  "version": 1,
+  "groups": [
+    {
+      "id": "ou-ou",
+      "kind": "homophone",
+      "title": "ou / où",
+      "zh": "ou 是“或者”，où 带重音，问地点。",
+      "items": [
+        {
+          "w": "ou",
+          "zh": "或者",
+          "rule": "可以换成 ou bien",
+          "ex": {
+            "fr": "Tu veux du thé ou du café ?",
+            "zh": "你要茶还是咖啡？"
+          }
+        },
+        {
+          "w": "où",
+          "zh": "哪里；在……的地方",
+          "rule": "带重音，问地点或引出地点",
+          "ex": {
+            "fr": "Où habitez-vous ?",
+            "zh": "您住在哪里？"
+          }
+        }
+      ]
+    },
+    {
+      "id": "a-a",
+      "kind": "homophone",
+      "title": "a / à",
+      "zh": "a 是 avoir 的变位（有），à 是介词（在、到）。",
+      "items": [
+        {
+          "w": "a",
+          "zh": "有（avoir 的变位）",
+          "rule": "能换成 avait；à 不行",
+          "ex": {
+            "fr": "Il a deux sœurs.",
+            "zh": "他有两个姐妹。"
+          },
+          "lemma": "avoir"
+        },
+        {
+          "w": "à",
+          "zh": "在；到；给",
+          "rule": "介词，带重音，不能换成 avait",
+          "ex": {
+            "fr": "Je vais à Paris.",
+            "zh": "我去巴黎。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "et-est",
+      "kind": "homophone",
+      "title": "et / est",
+      "zh": "et 是“和”，est 是 être 的变位（是）。",
+      "items": [
+        {
+          "w": "et",
+          "zh": "和",
+          "rule": "能换成 et puis，连接两个并列成分",
+          "ex": {
+            "fr": "Pierre et Marie sont amis.",
+            "zh": "皮埃尔和玛丽是朋友。"
+          }
+        },
+        {
+          "w": "est",
+          "zh": "是（être 的变位）",
+          "rule": "能换成 était",
+          "ex": {
+            "fr": "Il est médecin.",
+            "zh": "他是医生。"
+          },
+          "lemma": "être"
+        }
+      ]
+    },
+    {
+      "id": "son-sont",
+      "kind": "homophone",
+      "title": "son / sont",
+      "zh": "son 是“他的”，后接名词；sont 是 être 的变位，后接形容词或名词。",
+      "items": [
+        {
+          "w": "son",
+          "zh": "他的；她的（阳性）",
+          "rule": "后面接名词，能换成 mon",
+          "ex": {
+            "fr": "Il aime son travail.",
+            "zh": "他喜欢他的工作。"
+          }
+        },
+        {
+          "w": "sont",
+          "zh": "是（être，复数）",
+          "rule": "能换成 étaient",
+          "ex": {
+            "fr": "Ils sont contents.",
+            "zh": "他们很高兴。"
+          },
+          "lemma": "être"
+        }
+      ]
+    },
+    {
+      "id": "on-ont",
+      "kind": "homophone",
+      "title": "on / ont",
+      "zh": "on 是“人们、我们”，ont 是 avoir 的变位。",
+      "items": [
+        {
+          "w": "on",
+          "zh": "人们；我们",
+          "rule": "做主语，能换成 il",
+          "ex": {
+            "fr": "On mange à midi.",
+            "zh": "中午吃饭。"
+          }
+        },
+        {
+          "w": "ont",
+          "zh": "有（avoir，他们）",
+          "rule": "能换成 avaient",
+          "ex": {
+            "fr": "Elles ont faim.",
+            "zh": "她们饿了。"
+          },
+          "lemma": "avoir"
+        }
+      ]
+    },
+    {
+      "id": "ce-se",
+      "kind": "homophone",
+      "title": "ce / se",
+      "zh": "ce 是“这个”，se 是反身代词，后面跟动词。",
+      "items": [
+        {
+          "w": "ce",
+          "zh": "这；这个",
+          "rule": "后接名词或 est",
+          "ex": {
+            "fr": "Ce livre est intéressant.",
+            "zh": "这本书很有趣。"
+          }
+        },
+        {
+          "w": "se",
+          "zh": "自己（反身代词）",
+          "rule": "后接动词，能换成 me / te",
+          "ex": {
+            "fr": "Il se lève à sept heures.",
+            "zh": "他七点起床。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cest-sest",
+      "kind": "homophone",
+      "title": "c'est / s'est",
+      "zh": "c'est 是“这是”，s'est 是反身动词的复合过去时。",
+      "items": [
+        {
+          "w": "c'est",
+          "zh": "这是",
+          "rule": "能换成 cela est",
+          "ex": {
+            "fr": "C'est un bon film.",
+            "zh": "这是一部好电影。"
+          }
+        },
+        {
+          "w": "s'est",
+          "zh": "（反身动词的助动词 + être）",
+          "rule": "前面有 il / elle，后接过去分词",
+          "ex": {
+            "fr": "Elle s'est trompée de route.",
+            "zh": "她走错路了。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ces-ses",
+      "kind": "homophone",
+      "title": "ces / ses",
+      "zh": "ces 是“这些”，ses 是“他的 / 她的”（复数）。",
+      "items": [
+        {
+          "w": "ces",
+          "zh": "这些",
+          "rule": "ce 的复数，指示",
+          "ex": {
+            "fr": "Ces fleurs sont belles.",
+            "zh": "这些花很美。"
+          }
+        },
+        {
+          "w": "ses",
+          "zh": "他的；她的（复数）",
+          "rule": "son / sa 的复数，表示所属",
+          "ex": {
+            "fr": "Elle a perdu ses clés.",
+            "zh": "她丢了她的钥匙。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "la-la",
+      "kind": "homophone",
+      "title": "la / là / l'a",
+      "zh": "la 是阴性定冠词，là 是“那里”（带重音），l'a 是 le / la + a。",
+      "items": [
+        {
+          "w": "la",
+          "zh": "这（阴性定冠词）",
+          "rule": "后接阴性名词",
+          "ex": {
+            "fr": "La maison est grande.",
+            "zh": "房子很大。"
+          }
+        },
+        {
+          "w": "là",
+          "zh": "那里；这里",
+          "rule": "指地点，带重音",
+          "ex": {
+            "fr": "Mets le livre là.",
+            "zh": "把书放在那儿。"
+          }
+        },
+        {
+          "w": "l'a",
+          "zh": "（把它）有……",
+          "rule": "代词 + avoir，能换成 l'avait",
+          "ex": {
+            "fr": "Il l'a vu hier.",
+            "zh": "他昨天看见他了。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mais-mes",
+      "kind": "homophone",
+      "title": "mais / mes",
+      "zh": "mais 是转折“但是”，mes 是“我的”（复数）。",
+      "items": [
+        {
+          "w": "mais",
+          "zh": "但是",
+          "rule": "连词，能换成 pourtant",
+          "ex": {
+            "fr": "Il est petit mais fort.",
+            "zh": "他个子小，但很强壮。"
+          }
+        },
+        {
+          "w": "mes",
+          "zh": "我的（复数）",
+          "rule": "后接复数名词",
+          "ex": {
+            "fr": "Mes amis arrivent demain.",
+            "zh": "我的朋友们明天到。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "quand-quant",
+      "kind": "homophone",
+      "title": "quand / quant à",
+      "zh": "quand 表时间，quant à 是“至于”。",
+      "items": [
+        {
+          "w": "quand",
+          "zh": "当……时；什么时候",
+          "rule": "表示时间",
+          "ex": {
+            "fr": "Quand arrives-tu ?",
+            "zh": "你什么时候到？"
+          }
+        },
+        {
+          "w": "quant à",
+          "zh": "至于",
+          "rule": "固定搭配，后接名词或代词",
+          "ex": {
+            "fr": "Quant à moi, je reste.",
+            "zh": "至于我，我留下。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ni-ny",
+      "kind": "homophone",
+      "title": "ni / n'y",
+      "zh": "ni 是“也不”，n'y 是 ne + y（不……那里）。",
+      "items": [
+        {
+          "w": "ni",
+          "zh": "也不；既不……也不",
+          "rule": "成对出现，前面有 ne",
+          "ex": {
+            "fr": "Il ne boit ni thé ni café.",
+            "zh": "他茶和咖啡都不喝。"
+          }
+        },
+        {
+          "w": "n'y",
+          "zh": "ne + y（不……那里）",
+          "rule": "后接动词",
+          "ex": {
+            "fr": "Je n'y vais jamais.",
+            "zh": "我从不去那里。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "peu-peut",
+      "kind": "homophone",
+      "title": "peu / peut",
+      "zh": "peu 是“很少”，peut 是 pouvoir 的变位（能）。",
+      "items": [
+        {
+          "w": "peu",
+          "zh": "很少；一点点",
+          "rule": "副词，能换成 beaucoup 的反义",
+          "ex": {
+            "fr": "Il mange peu.",
+            "zh": "他吃得很少。"
+          }
+        },
+        {
+          "w": "peut",
+          "zh": "能；可以（pouvoir）",
+          "rule": "动词，能换成 pouvait",
+          "ex": {
+            "fr": "Elle peut venir demain.",
+            "zh": "她明天可以来。"
+          },
+          "lemma": "pouvoir"
+        }
+      ]
+    },
+    {
+      "id": "sans-cent-sang",
+      "kind": "homophone",
+      "title": "sans / cent / sang",
+      "zh": "三个词读音相近：没有、一百、血。",
+      "items": [
+        {
+          "w": "sans",
+          "zh": "没有",
+          "rule": "介词，后接名词",
+          "ex": {
+            "fr": "Je bois mon café sans sucre.",
+            "zh": "我喝咖啡不加糖。"
+          }
+        },
+        {
+          "w": "cent",
+          "zh": "一百",
+          "rule": "数词",
+          "ex": {
+            "fr": "Il y a cent personnes.",
+            "zh": "有一百个人。"
+          }
+        },
+        {
+          "w": "sang",
+          "zh": "血",
+          "rule": "名词，阳性",
+          "ex": {
+            "fr": "Le sang est rouge.",
+            "zh": "血是红色的。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sur-sur",
+      "kind": "homophone",
+      "title": "sur / sûr",
+      "zh": "sur 是“在……上”，sûr 带长音符，是“确定的”。",
+      "items": [
+        {
+          "w": "sur",
+          "zh": "在……上",
+          "rule": "介词，没有长音符",
+          "ex": {
+            "fr": "Le livre est sur la table.",
+            "zh": "书在桌子上。"
+          }
+        },
+        {
+          "w": "sûr",
+          "zh": "确定的；可靠的",
+          "rule": "形容词，带长音符",
+          "ex": {
+            "fr": "Je suis sûr de lui.",
+            "zh": "我对他有把握。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "du-du",
+      "kind": "homophone",
+      "title": "du / dû",
+      "zh": "du 是“一些”，dû 带重音，是 devoir 的过去分词。",
+      "items": [
+        {
+          "w": "du",
+          "zh": "一些；……的（de + le）",
+          "rule": "没有重音",
+          "ex": {
+            "fr": "Je bois du lait.",
+            "zh": "我喝牛奶。"
+          }
+        },
+        {
+          "w": "dû",
+          "zh": "应该；不得不（devoir 的过去分词）",
+          "rule": "带重音，只用于阳性单数",
+          "ex": {
+            "fr": "Il a dû partir.",
+            "zh": "他不得不走了。"
+          },
+          "lemma": "devoir"
+        }
+      ]
+    },
+    {
+      "id": "mur-mur",
+      "kind": "homophone",
+      "title": "mur / mûr",
+      "zh": "mur 是“墙”，mûr 带长音符，是“成熟的”。",
+      "items": [
+        {
+          "w": "mur",
+          "zh": "墙",
+          "rule": "名词，没有长音符",
+          "ex": {
+            "fr": "Il y a une photo sur le mur.",
+            "zh": "墙上有一张照片。"
+          }
+        },
+        {
+          "w": "mûr",
+          "zh": "成熟的",
+          "rule": "形容词，带长音符",
+          "ex": {
+            "fr": "Ce fruit est mûr.",
+            "zh": "这个水果熟了。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tache-tache",
+      "kind": "homophone",
+      "title": "tâche / tache",
+      "zh": "tâche 带长音符，是“任务”；tache 是“污渍”。",
+      "items": [
+        {
+          "w": "tâche",
+          "zh": "任务",
+          "rule": "带长音符",
+          "ex": {
+            "fr": "Cette tâche est difficile.",
+            "zh": "这个任务很难。"
+          }
+        },
+        {
+          "w": "tache",
+          "zh": "污渍",
+          "rule": "没有长音符",
+          "ex": {
+            "fr": "J'ai une tache sur ma chemise.",
+            "zh": "我衬衫上有污渍。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "peche-peche",
+      "kind": "homophone",
+      "title": "pêche / péché",
+      "zh": "pêche 是“桃子 / 钓鱼”，péché 是“罪”。",
+      "items": [
+        {
+          "w": "pêche",
+          "zh": "桃子；钓鱼",
+          "rule": "e 带长音符",
+          "ex": {
+            "fr": "Elle mange une pêche.",
+            "zh": "她在吃一个桃子。"
+          }
+        },
+        {
+          "w": "péché",
+          "zh": "罪",
+          "rule": "é 带锐音符",
+          "ex": {
+            "fr": "Le mensonge est un péché.",
+            "zh": "说谎是一种罪过。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "foi-foie-fois",
+      "kind": "homophone",
+      "title": "foi / foie / fois",
+      "zh": "信仰、肝脏、次数，三个词读音完全一样。",
+      "items": [
+        {
+          "w": "foi",
+          "zh": "信仰；信任",
+          "rule": "阴性名词",
+          "ex": {
+            "fr": "Il a perdu la foi.",
+            "zh": "他失去了信仰。"
+          }
+        },
+        {
+          "w": "foie",
+          "zh": "肝脏",
+          "rule": "身体器官",
+          "ex": {
+            "fr": "Le foie gras est cher.",
+            "zh": "鹅肝很贵。"
+          }
+        },
+        {
+          "w": "fois",
+          "zh": "次",
+          "rule": "表示次数",
+          "ex": {
+            "fr": "Je viens une fois par mois.",
+            "zh": "我每月来一次。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mer-mere-maire",
+      "kind": "homophone",
+      "title": "mer / mère / maire",
+      "zh": "海、母亲、市长，读音一样。",
+      "items": [
+        {
+          "w": "mer",
+          "zh": "海",
+          "rule": "阴性名词",
+          "ex": {
+            "fr": "Nous allons à la mer.",
+            "zh": "我们去海边。"
+          }
+        },
+        {
+          "w": "mère",
+          "zh": "母亲",
+          "rule": "带重音",
+          "ex": {
+            "fr": "Ma mère est professeure.",
+            "zh": "我妈妈是老师。"
+          }
+        },
+        {
+          "w": "maire",
+          "zh": "市长",
+          "rule": "与 mairie（市政厅）同源",
+          "ex": {
+            "fr": "Le maire ouvre la fête.",
+            "zh": "市长为节日揭幕。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vert-verre-ver",
+      "kind": "homophone",
+      "title": "vert / verre / ver",
+      "zh": "绿色、杯子、虫子，读音一样。",
+      "items": [
+        {
+          "w": "vert",
+          "zh": "绿色的",
+          "rule": "形容词",
+          "ex": {
+            "fr": "Le feu est vert.",
+            "zh": "绿灯亮了。"
+          }
+        },
+        {
+          "w": "verre",
+          "zh": "杯子；玻璃",
+          "rule": "双 r",
+          "ex": {
+            "fr": "Je voudrais un verre d'eau.",
+            "zh": "我想要一杯水。"
+          }
+        },
+        {
+          "w": "ver",
+          "zh": "虫子",
+          "rule": "名词，很短",
+          "ex": {
+            "fr": "Il y a un ver dans la pomme.",
+            "zh": "苹果里有条虫。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cou-coup-cout",
+      "kind": "homophone",
+      "title": "cou / coup / coût",
+      "zh": "脖子、一击、成本，读音一样。",
+      "items": [
+        {
+          "w": "cou",
+          "zh": "脖子",
+          "rule": "身体部位",
+          "ex": {
+            "fr": "Elle porte une écharpe autour du cou.",
+            "zh": "她脖子上围着围巾。"
+          }
+        },
+        {
+          "w": "coup",
+          "zh": "一击；一下",
+          "rule": "常见于 coup de + 名词",
+          "ex": {
+            "fr": "Il a donné un coup de pied.",
+            "zh": "他踢了一脚。"
+          }
+        },
+        {
+          "w": "coût",
+          "zh": "成本",
+          "rule": "带长音符，与 coûter（花费）同源",
+          "ex": {
+            "fr": "Le coût de la vie augmente.",
+            "zh": "生活成本在上涨。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "plutot-plus-tot",
+      "kind": "homophone",
+      "title": "plutôt / plus tôt",
+      "zh": "plutôt 是“相当、宁可”，plus tôt 是“更早”，分写。",
+      "items": [
+        {
+          "w": "plutôt",
+          "zh": "相当；宁可",
+          "rule": "一个词",
+          "ex": {
+            "fr": "Il fait plutôt froid ce matin.",
+            "zh": "今天早上相当冷。"
+          }
+        },
+        {
+          "w": "plus tôt",
+          "zh": "更早",
+          "rule": "两个词，反义是 plus tard",
+          "ex": {
+            "fr": "Je me lève plus tôt demain.",
+            "zh": "我明天起得更早。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pret-pres",
+      "kind": "homophone",
+      "title": "prêt / près",
+      "zh": "prêt 是“准备好的”，près 是“靠近”。",
+      "items": [
+        {
+          "w": "prêt",
+          "zh": "准备好的",
+          "rule": "形容词，常接 à",
+          "ex": {
+            "fr": "Es-tu prêt à partir ?",
+            "zh": "你准备好出发了吗？"
+          }
+        },
+        {
+          "w": "près",
+          "zh": "靠近",
+          "rule": "副词，常接 de",
+          "ex": {
+            "fr": "La gare est près d'ici.",
+            "zh": "车站离这儿很近。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ca-sa",
+      "kind": "homophone",
+      "title": "ça / sa",
+      "zh": "ça 是口语的“这、那”，sa 是“他的 / 她的”（阴性）。",
+      "items": [
+        {
+          "w": "ça",
+          "zh": "这；那（口语）",
+          "rule": "能换成 cela",
+          "ex": {
+            "fr": "Ça va bien ?",
+            "zh": "还好吗？"
+          }
+        },
+        {
+          "w": "sa",
+          "zh": "他的；她的（阴性）",
+          "rule": "后接阴性名词",
+          "ex": {
+            "fr": "Elle aime sa sœur.",
+            "zh": "她爱她的姐妹。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cense-sense",
+      "kind": "homophone",
+      "title": "censé / sensé",
+      "zh": "censé 是“理应”，sensé 是“明智的”。",
+      "items": [
+        {
+          "w": "censé",
+          "zh": "被认为应该……",
+          "rule": "后接不定式",
+          "ex": {
+            "fr": "Il est censé arriver à midi.",
+            "zh": "他应该中午到。"
+          }
+        },
+        {
+          "w": "sensé",
+          "zh": "明智的",
+          "rule": "形容词，修饰名词",
+          "ex": {
+            "fr": "C'est un conseil sensé.",
+            "zh": "这是个明智的建议。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "voir-regarder",
+      "kind": "meaning",
+      "title": "voir / regarder",
+      "zh": "voir 是“看见”（自然入眼），regarder 是“看”（有意去看）。",
+      "items": [
+        {
+          "w": "voir",
+          "zh": "看见",
+          "rule": "不一定有意",
+          "ex": {
+            "fr": "Je vois un oiseau dans l'arbre.",
+            "zh": "我看见树上有只鸟。"
+          },
+          "form": "vois"
+        },
+        {
+          "w": "regarder",
+          "zh": "看；注视",
+          "rule": "有意去看，集中注意力",
+          "ex": {
+            "fr": "Je regarde un film.",
+            "zh": "我在看电影。"
+          },
+          "form": "regarde"
+        }
+      ]
+    },
+    {
+      "id": "entendre-ecouter",
+      "kind": "meaning",
+      "title": "entendre / écouter",
+      "zh": "entendre 是“听见”，écouter 是“专心听”。",
+      "items": [
+        {
+          "w": "entendre",
+          "zh": "听见",
+          "rule": "声音自然进入耳朵",
+          "ex": {
+            "fr": "J'entends du bruit.",
+            "zh": "我听到有声音。"
+          },
+          "form": "entends"
+        },
+        {
+          "w": "écouter",
+          "zh": "听；倾听",
+          "rule": "有意去听",
+          "ex": {
+            "fr": "J'écoute de la musique.",
+            "zh": "我在听音乐。"
+          },
+          "form": "écoute"
+        }
+      ]
+    },
+    {
+      "id": "dire-parler",
+      "kind": "meaning",
+      "title": "dire / parler",
+      "zh": "dire 后面接说的内容，parler 是“说话、说某种语言”。",
+      "items": [
+        {
+          "w": "dire",
+          "zh": "说；讲",
+          "rule": "后接内容或从句",
+          "ex": {
+            "fr": "Il dit la vérité.",
+            "zh": "他说实话。"
+          },
+          "form": "dit"
+        },
+        {
+          "w": "parler",
+          "zh": "说话；说（语言）",
+          "rule": "后接语言或 de / à",
+          "ex": {
+            "fr": "Elle parle trois langues.",
+            "zh": "她会说三种语言。"
+          },
+          "form": "parle"
+        }
+      ]
+    },
+    {
+      "id": "savoir-connaitre",
+      "kind": "meaning",
+      "title": "savoir / connaître",
+      "zh": "savoir 是“知道、会”，connaître 是“认识、熟悉”。",
+      "items": [
+        {
+          "w": "savoir",
+          "zh": "知道；会",
+          "rule": "后接从句或不定式",
+          "ex": {
+            "fr": "Je sais nager.",
+            "zh": "我会游泳。"
+          },
+          "form": "sais"
+        },
+        {
+          "w": "connaître",
+          "zh": "认识；熟悉",
+          "rule": "后接人或地点",
+          "ex": {
+            "fr": "Je connais Paris.",
+            "zh": "我熟悉巴黎。"
+          },
+          "form": "connais"
+        }
+      ]
+    },
+    {
+      "id": "porter-mettre",
+      "kind": "meaning",
+      "title": "porter / mettre",
+      "zh": "porter 是“穿着”的状态，mettre 是“穿上”的动作。",
+      "items": [
+        {
+          "w": "porter",
+          "zh": "穿着；携带",
+          "rule": "表示状态",
+          "ex": {
+            "fr": "Elle porte une robe rouge.",
+            "zh": "她穿着一条红裙子。"
+          },
+          "form": "porte"
+        },
+        {
+          "w": "mettre",
+          "zh": "穿上；放",
+          "rule": "表示动作",
+          "ex": {
+            "fr": "Je mets mon manteau.",
+            "zh": "我穿上外套。"
+          },
+          "form": "mets"
+        }
+      ]
+    },
+    {
+      "id": "apporter-amener-emporter-emmener",
+      "kind": "meaning",
+      "title": "apporter / amener / emporter / emmener",
+      "zh": "带来或带走，看对象是物还是人：物用 apporter / emporter，人用 amener / emmener。",
+      "items": [
+        {
+          "w": "apporter",
+          "zh": "带来（物）",
+          "rule": "把物品带到这里",
+          "ex": {
+            "fr": "Apporte du pain, s'il te plaît.",
+            "zh": "请带点面包来。"
+          },
+          "form": "Apporte"
+        },
+        {
+          "w": "amener",
+          "zh": "带来（人）",
+          "rule": "把人带到这里",
+          "ex": {
+            "fr": "J'amène mon frère à la fête.",
+            "zh": "我带哥哥来参加聚会。"
+          },
+          "form": "amène"
+        },
+        {
+          "w": "emporter",
+          "zh": "带走（物）",
+          "rule": "把物品带离这里",
+          "ex": {
+            "fr": "Emporte ton parapluie.",
+            "zh": "带上你的伞。"
+          },
+          "form": "Emporte"
+        },
+        {
+          "w": "emmener",
+          "zh": "带去（人）",
+          "rule": "把人带离这里",
+          "ex": {
+            "fr": "Il emmène les enfants à l'école.",
+            "zh": "他送孩子们去学校。"
+          },
+          "form": "emmène"
+        }
+      ]
+    },
+    {
+      "id": "apprendre-etudier-enseigner",
+      "kind": "meaning",
+      "title": "apprendre / étudier / enseigner",
+      "zh": "apprendre 是“学会”，étudier 是“研究、攻读”，enseigner 是“教”。",
+      "items": [
+        {
+          "w": "apprendre",
+          "zh": "学；学会",
+          "rule": "强调掌握一项技能或知识",
+          "ex": {
+            "fr": "J'apprends le français.",
+            "zh": "我在学法语。"
+          },
+          "form": "apprends"
+        },
+        {
+          "w": "étudier",
+          "zh": "学习；研究",
+          "rule": "系统地钻研一个学科",
+          "ex": {
+            "fr": "Il étudie la médecine.",
+            "zh": "他学医。"
+          },
+          "form": "étudie"
+        },
+        {
+          "w": "enseigner",
+          "zh": "教",
+          "rule": "老师传授知识",
+          "ex": {
+            "fr": "Elle enseigne les maths.",
+            "zh": "她教数学。"
+          },
+          "form": "enseigne"
+        }
+      ]
+    },
+    {
+      "id": "emprunter-preter",
+      "kind": "meaning",
+      "title": "emprunter / prêter",
+      "zh": "emprunter 是“借入”，prêter 是“借出”，中文都说“借”。",
+      "items": [
+        {
+          "w": "emprunter",
+          "zh": "借入（向别人借）",
+          "rule": "我借来的",
+          "ex": {
+            "fr": "J'emprunte un livre à la bibliothèque.",
+            "zh": "我从图书馆借一本书。"
+          },
+          "form": "emprunte"
+        },
+        {
+          "w": "prêter",
+          "zh": "借出（借给别人）",
+          "rule": "我借出去的",
+          "ex": {
+            "fr": "Je te prête mon vélo.",
+            "zh": "我把自行车借给你。"
+          },
+          "form": "prête"
+        }
+      ]
+    },
+    {
+      "id": "retourner-rentrer-revenir",
+      "kind": "meaning",
+      "title": "retourner / rentrer / revenir",
+      "zh": "retourner 是“回到去过的地方”，rentrer 是“回家”，revenir 是“回到说话人这里”。",
+      "items": [
+        {
+          "w": "retourner",
+          "zh": "回到（去过的地方）",
+          "rule": "也有“翻转”的意思",
+          "ex": {
+            "fr": "Il retourne à Lyon demain.",
+            "zh": "他明天回里昂。"
+          },
+          "form": "retourne"
+        },
+        {
+          "w": "rentrer",
+          "zh": "回家；回到住处",
+          "rule": "回到出发点",
+          "ex": {
+            "fr": "Je rentre à la maison à six heures.",
+            "zh": "我六点回家。"
+          },
+          "form": "rentre"
+        },
+        {
+          "w": "revenir",
+          "zh": "回来",
+          "rule": "回到说话人所在处",
+          "ex": {
+            "fr": "Reviens vite !",
+            "zh": "快回来！"
+          },
+          "form": "Reviens"
+        }
+      ]
+    },
+    {
+      "id": "quitter-partir-laisser",
+      "kind": "meaning",
+      "title": "quitter / partir / laisser",
+      "zh": "quitter 后接地点或人，partir 不带宾语，laisser 是“留下”。",
+      "items": [
+        {
+          "w": "quitter",
+          "zh": "离开；辞去",
+          "rule": "必须有宾语",
+          "ex": {
+            "fr": "Il quitte son travail.",
+            "zh": "他辞去工作。"
+          },
+          "form": "quitte"
+        },
+        {
+          "w": "partir",
+          "zh": "出发；离开",
+          "rule": "不带宾语，常接 de / pour",
+          "ex": {
+            "fr": "Nous partons demain matin.",
+            "zh": "我们明天早上出发。"
+          },
+          "form": "partons"
+        },
+        {
+          "w": "laisser",
+          "zh": "留下；让",
+          "rule": "把东西留在某处",
+          "ex": {
+            "fr": "Laisse ton sac ici.",
+            "zh": "把包留在这儿。"
+          },
+          "form": "Laisse"
+        }
+      ]
+    },
+    {
+      "id": "fois-temps-heure",
+      "kind": "meaning",
+      "title": "fois / temps / heure",
+      "zh": "fois 是“次”，temps 是“时间 / 天气”，heure 是“点钟 / 小时”。",
+      "items": [
+        {
+          "w": "fois",
+          "zh": "次",
+          "rule": "数次数",
+          "ex": {
+            "fr": "Je l'ai vu deux fois.",
+            "zh": "我见过他两次。"
+          }
+        },
+        {
+          "w": "temps",
+          "zh": "时间；天气",
+          "rule": "一段时间，或指天气",
+          "ex": {
+            "fr": "Je n'ai pas le temps.",
+            "zh": "我没有时间。"
+          }
+        },
+        {
+          "w": "heure",
+          "zh": "点钟；小时",
+          "rule": "问几点用 Quelle heure",
+          "ex": {
+            "fr": "Quelle heure est-il ?",
+            "zh": "现在几点？"
+          }
+        }
+      ]
+    },
+    {
+      "id": "jour-journee",
+      "kind": "meaning",
+      "title": "jour / journée",
+      "zh": "jour 是“天、日子”，journée 强调一整天的过程。",
+      "items": [
+        {
+          "w": "jour",
+          "zh": "天；日",
+          "rule": "用来数天、说日期",
+          "ex": {
+            "fr": "Quel jour sommes-nous ?",
+            "zh": "今天星期几？"
+          }
+        },
+        {
+          "w": "journée",
+          "zh": "一整天",
+          "rule": "强调从早到晚的过程",
+          "ex": {
+            "fr": "J'ai travaillé toute la journée.",
+            "zh": "我工作了一整天。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "an-annee",
+      "kind": "meaning",
+      "title": "an / année",
+      "zh": "an 用来数年数，année 强调这一年的过程。",
+      "items": [
+        {
+          "w": "an",
+          "zh": "年（数量）",
+          "rule": "前面常有数词",
+          "ex": {
+            "fr": "Elle habite ici depuis un an.",
+            "zh": "她在这儿住了一年。"
+          }
+        },
+        {
+          "w": "année",
+          "zh": "年；年份",
+          "rule": "强调这一年",
+          "ex": {
+            "fr": "Bonne année !",
+            "zh": "新年快乐！"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bon-bien",
+      "kind": "meaning",
+      "title": "bon / bien",
+      "zh": "bon 是形容词，修饰名词；bien 是副词，修饰动词。",
+      "items": [
+        {
+          "w": "bon",
+          "zh": "好的",
+          "rule": "修饰名词",
+          "ex": {
+            "fr": "C'est un bon livre.",
+            "zh": "这是本好书。"
+          }
+        },
+        {
+          "w": "bien",
+          "zh": "好；很好地",
+          "rule": "修饰动词",
+          "ex": {
+            "fr": "Il parle bien français.",
+            "zh": "他法语说得好。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mal-mauvais",
+      "kind": "meaning",
+      "title": "mal / mauvais",
+      "zh": "mauvais 是形容词（坏的），mal 是副词（不好地）。",
+      "items": [
+        {
+          "w": "mauvais",
+          "zh": "坏的；不好的",
+          "rule": "修饰名词，il fait mauvais 说天气",
+          "ex": {
+            "fr": "Il fait mauvais temps.",
+            "zh": "天气不好。"
+          }
+        },
+        {
+          "w": "mal",
+          "zh": "不好地；疼痛",
+          "rule": "修饰动词",
+          "ex": {
+            "fr": "Elle dort mal.",
+            "zh": "她睡不好。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tres-beaucoup",
+      "kind": "meaning",
+      "title": "très / beaucoup",
+      "zh": "très 修饰形容词和副词，beaucoup 修饰动词和名词。",
+      "items": [
+        {
+          "w": "très",
+          "zh": "很",
+          "rule": "放在形容词前",
+          "ex": {
+            "fr": "Il est très fatigué.",
+            "zh": "他很累。"
+          }
+        },
+        {
+          "w": "beaucoup",
+          "zh": "很多；非常",
+          "rule": "修饰动词，或接 de + 名词",
+          "ex": {
+            "fr": "Elle travaille beaucoup.",
+            "zh": "她工作很多。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bibliotheque-librairie",
+      "kind": "meaning",
+      "title": "bibliothèque / librairie",
+      "zh": "bibliothèque 是图书馆，librairie 是书店，别和英语 library 搞混。",
+      "items": [
+        {
+          "w": "bibliothèque",
+          "zh": "图书馆",
+          "rule": "借书的地方",
+          "ex": {
+            "fr": "Je lis à la bibliothèque.",
+            "zh": "我在图书馆看书。"
+          }
+        },
+        {
+          "w": "librairie",
+          "zh": "书店",
+          "rule": "买书的地方",
+          "ex": {
+            "fr": "J'achète un roman à la librairie.",
+            "zh": "我在书店买小说。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "actuellement-en-fait",
+      "kind": "meaning",
+      "title": "actuellement / en fait",
+      "zh": "actuellement 是“目前”，不是英语 actually；“其实”是 en fait。",
+      "items": [
+        {
+          "w": "actuellement",
+          "zh": "目前；现在",
+          "rule": "不是 actually",
+          "ex": {
+            "fr": "Il habite actuellement à Lyon.",
+            "zh": "他目前住在里昂。"
+          }
+        },
+        {
+          "w": "en fait",
+          "zh": "其实；事实上",
+          "rule": "相当于英语 actually",
+          "ex": {
+            "fr": "En fait, je n'ai pas faim.",
+            "zh": "其实我不饿。"
+          },
+          "form": "En fait"
+        }
+      ]
+    },
+    {
+      "id": "assister-aider",
+      "kind": "meaning",
+      "title": "assister / aider",
+      "zh": "assister à 是“出席”，aider 才是“帮助”。",
+      "items": [
+        {
+          "w": "assister",
+          "zh": "出席；观看",
+          "rule": "后接 à + 活动",
+          "ex": {
+            "fr": "Je veux assister à ce concert.",
+            "zh": "我想去听这场音乐会。"
+          }
+        },
+        {
+          "w": "aider",
+          "zh": "帮助",
+          "rule": "后接人",
+          "ex": {
+            "fr": "Peux-tu m'aider ?",
+            "zh": "你能帮我吗？"
+          }
+        }
+      ]
+    },
+    {
+      "id": "quel-quelle-quelle",
+      "kind": "homophone",
+      "title": "quel / quelle / qu'elle",
+      "zh": "quel 配阳性名词，quelle 配阴性名词，qu'elle 是 que + elle。",
+      "items": [
+        {
+          "w": "quel",
+          "zh": "什么；哪个（阳性）",
+          "rule": "疑问或感叹，修饰阳性名词",
+          "ex": {
+            "fr": "Quel âge as-tu ?",
+            "zh": "你多大了？"
+          }
+        },
+        {
+          "w": "quelle",
+          "zh": "什么；哪个（阴性）",
+          "rule": "修饰阴性名词",
+          "ex": {
+            "fr": "Quelle heure est-il ?",
+            "zh": "现在几点？"
+          }
+        },
+        {
+          "w": "qu'elle",
+          "zh": "que + elle",
+          "rule": "连词 que 后接 elle",
+          "ex": {
+            "fr": "Je pense qu'elle viendra.",
+            "zh": "我觉得她会来。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "leur-leurs",
+      "kind": "homophone",
+      "title": "leur / leurs",
+      "zh": "leur 后接单数名词，leurs 后接复数名词。",
+      "items": [
+        {
+          "w": "leur",
+          "zh": "他们的（单数名词）",
+          "rule": "后面是一个东西",
+          "ex": {
+            "fr": "Ils aiment leur maison.",
+            "zh": "他们喜欢他们的房子。"
+          }
+        },
+        {
+          "w": "leurs",
+          "zh": "他们的（复数名词）",
+          "rule": "后面是多个东西",
+          "ex": {
+            "fr": "Ils aiment leurs enfants.",
+            "zh": "他们爱他们的孩子。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tout-tous",
+      "kind": "homophone",
+      "title": "tout / tous",
+      "zh": "tout 用于阳性单数，tous 用于阳性复数。",
+      "items": [
+        {
+          "w": "tout",
+          "zh": "全部；所有（单数）",
+          "rule": "后接单数名词",
+          "ex": {
+            "fr": "Tout le monde est là.",
+            "zh": "大家都在。"
+          }
+        },
+        {
+          "w": "tous",
+          "zh": "所有（阳性复数）",
+          "rule": "后接复数名词，s 在代词用法里要发音",
+          "ex": {
+            "fr": "Tous les jours, il court.",
+            "zh": "他每天都跑步。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tes-tes",
+      "kind": "homophone",
+      "title": "tes / t'es",
+      "zh": "tes 是“你的”（复数），t'es 是口语里的 tu es。",
+      "items": [
+        {
+          "w": "tes",
+          "zh": "你的（复数）",
+          "rule": "后接复数名词",
+          "ex": {
+            "fr": "Où sont tes clés ?",
+            "zh": "你的钥匙在哪儿？"
+          }
+        },
+        {
+          "w": "t'es",
+          "zh": "你是（口语 tu es）",
+          "rule": "只用于口语，书面要写 tu es",
+          "ex": {
+            "fr": "T'es sûr ?",
+            "zh": "你确定吗？"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ma-ma",
+      "kind": "homophone",
+      "title": "ma / m'a",
+      "zh": "ma 是“我的”（阴性），m'a 是 me + a（对我做了……）。",
+      "items": [
+        {
+          "w": "ma",
+          "zh": "我的（阴性）",
+          "rule": "后接阴性名词",
+          "ex": {
+            "fr": "Ma sœur habite à Lyon.",
+            "zh": "我姐姐住在里昂。"
+          }
+        },
+        {
+          "w": "m'a",
+          "zh": "me + a",
+          "rule": "后接过去分词，能换成 m'avait",
+          "ex": {
+            "fr": "Il m'a aidé hier.",
+            "zh": "他昨天帮了我。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "si-sy",
+      "kind": "homophone",
+      "title": "si / s'y",
+      "zh": "si 是“如果”，s'y 是 se + y（在那里……）。",
+      "items": [
+        {
+          "w": "si",
+          "zh": "如果；是否",
+          "rule": "引出条件",
+          "ex": {
+            "fr": "Si tu veux, on sort.",
+            "zh": "如果你愿意，我们出去。"
+          }
+        },
+        {
+          "w": "s'y",
+          "zh": "se + y",
+          "rule": "反身动词里的 y",
+          "ex": {
+            "fr": "Il s'y habitue vite.",
+            "zh": "他很快就习惯了。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dont-donc",
+      "kind": "homophone",
+      "title": "dont / donc",
+      "zh": "dont 是关系代词（……的），donc 是“所以”。",
+      "items": [
+        {
+          "w": "dont",
+          "zh": "关系代词：……的；其中",
+          "rule": "代替 de + 名词",
+          "ex": {
+            "fr": "Voici le livre dont je parle.",
+            "zh": "这就是我说的那本书。"
+          }
+        },
+        {
+          "w": "donc",
+          "zh": "所以；因此",
+          "rule": "表示结果，能换成 alors",
+          "ex": {
+            "fr": "Il pleut, donc je reste.",
+            "zh": "下雨了，所以我留下。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "voix-voie-voit",
+      "kind": "homophone",
+      "title": "voix / voie / voit",
+      "zh": "声音、道路、看见，读音一样。",
+      "items": [
+        {
+          "w": "voix",
+          "zh": "声音",
+          "rule": "阴性名词，复数 voix",
+          "ex": {
+            "fr": "Elle a une belle voix.",
+            "zh": "她嗓音很美。"
+          }
+        },
+        {
+          "w": "voie",
+          "zh": "道路；轨道",
+          "rule": "阴性名词，如 voie ferrée",
+          "ex": {
+            "fr": "Le train est sur la voie 3.",
+            "zh": "火车在三号轨道。"
+          }
+        },
+        {
+          "w": "voit",
+          "zh": "看见（voir 的变位）",
+          "rule": "il / elle 做主语",
+          "ex": {
+            "fr": "Il voit un chat.",
+            "zh": "他看见一只猫。"
+          },
+          "lemma": "voir"
+        }
+      ]
+    },
+    {
+      "id": "pain-peint-pin",
+      "kind": "homophone",
+      "title": "pain / peint / pin",
+      "zh": "面包、画过（peindre）、松树，读音一样。",
+      "items": [
+        {
+          "w": "pain",
+          "zh": "面包",
+          "rule": "阳性名词",
+          "ex": {
+            "fr": "Je mange du pain.",
+            "zh": "我吃面包。"
+          }
+        },
+        {
+          "w": "peint",
+          "zh": "画（peindre 的过去分词）",
+          "rule": "动词形式",
+          "ex": {
+            "fr": "Il a peint le mur.",
+            "zh": "他粉刷了墙。"
+          },
+          "lemma": "peindre"
+        },
+        {
+          "w": "pin",
+          "zh": "松树",
+          "rule": "树名",
+          "ex": {
+            "fr": "Le pin est un arbre.",
+            "zh": "松树是一种树。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chair-cher",
+      "kind": "homophone",
+      "title": "chair / cher",
+      "zh": "chair 是“肉”，cher 是“贵的、亲爱的”。",
+      "items": [
+        {
+          "w": "chair",
+          "zh": "肉；肌肤",
+          "rule": "阴性名词",
+          "ex": {
+            "fr": "J'ai la chair de poule.",
+            "zh": "我起鸡皮疙瘩了。"
+          }
+        },
+        {
+          "w": "cher",
+          "zh": "贵的；亲爱的",
+          "rule": "形容词",
+          "ex": {
+            "fr": "C'est trop cher.",
+            "zh": "这太贵了。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "saut-seau-sot",
+      "kind": "homophone",
+      "title": "saut / seau / sot",
+      "zh": "跳跃、水桶、傻的，读音一样。",
+      "items": [
+        {
+          "w": "saut",
+          "zh": "跳；跳跃",
+          "rule": "阳性名词",
+          "ex": {
+            "fr": "Il fait un saut en hauteur.",
+            "zh": "他跳高。"
+          }
+        },
+        {
+          "w": "seau",
+          "zh": "水桶",
+          "rule": "阳性名词，复数 seaux",
+          "ex": {
+            "fr": "Un seau d'eau.",
+            "zh": "一桶水。"
+          }
+        },
+        {
+          "w": "sot",
+          "zh": "傻的；蠢的",
+          "rule": "形容词",
+          "ex": {
+            "fr": "Il n'est pas sot.",
+            "zh": "他不傻。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mot-maux",
+      "kind": "homophone",
+      "title": "mot / maux",
+      "zh": "mot 是“词”，maux 是 mal（疼痛）的复数。",
+      "items": [
+        {
+          "w": "mot",
+          "zh": "词；字",
+          "rule": "阳性名词",
+          "ex": {
+            "fr": "Quel est ce mot ?",
+            "zh": "这是什么词？"
+          }
+        },
+        {
+          "w": "maux",
+          "zh": "疼痛；弊病（mal 的复数）",
+          "rule": "常见于 maux de tête",
+          "ex": {
+            "fr": "Elle a des maux de tête.",
+            "zh": "她经常头疼。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ancre-encre",
+      "kind": "homophone",
+      "title": "ancre / encre",
+      "zh": "ancre 是“锚”，encre 是“墨水”。",
+      "items": [
+        {
+          "w": "ancre",
+          "zh": "锚",
+          "rule": "船上用的",
+          "ex": {
+            "fr": "L'ancre du bateau est lourde.",
+            "zh": "船的锚很重。"
+          }
+        },
+        {
+          "w": "encre",
+          "zh": "墨水",
+          "rule": "写字用的",
+          "ex": {
+            "fr": "L'encre est bleue.",
+            "zh": "墨水是蓝色的。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cygne-signe",
+      "kind": "homophone",
+      "title": "cygne / signe",
+      "zh": "cygne 是“天鹅”，signe 是“记号、示意”。",
+      "items": [
+        {
+          "w": "cygne",
+          "zh": "天鹅",
+          "rule": "gn 前有 y",
+          "ex": {
+            "fr": "Un cygne nage sur le lac.",
+            "zh": "一只天鹅在湖上游。"
+          }
+        },
+        {
+          "w": "signe",
+          "zh": "记号；手势",
+          "rule": "faire signe：示意",
+          "ex": {
+            "fr": "Il me fait signe.",
+            "zh": "他向我示意。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "temps-tant-tend",
+      "kind": "homophone",
+      "title": "temps / tant / tend",
+      "zh": "时间或天气、那么多、伸出，读音一样。",
+      "items": [
+        {
+          "w": "temps",
+          "zh": "时间；天气",
+          "rule": "阳性名词",
+          "ex": {
+            "fr": "Quel temps fait-il ?",
+            "zh": "天气怎么样？"
+          }
+        },
+        {
+          "w": "tant",
+          "zh": "那么多；这么",
+          "rule": "副词，后接 de",
+          "ex": {
+            "fr": "Il y a tant de monde.",
+            "zh": "人那么多。"
+          }
+        },
+        {
+          "w": "tend",
+          "zh": "伸出（tendre 的变位）",
+          "rule": "il / elle 做主语",
+          "ex": {
+            "fr": "Il tend la main.",
+            "zh": "他伸出手。"
+          },
+          "lemma": "tendre"
+        }
+      ]
+    },
+    {
+      "id": "pate-patte-pate",
+      "kind": "homophone",
+      "title": "pâte / patte / pâté",
+      "zh": "面团、爪子、肉酱，拼写只差一点。",
+      "items": [
+        {
+          "w": "pâte",
+          "zh": "面团；糊",
+          "rule": "带长音符，阴性",
+          "ex": {
+            "fr": "La pâte est prête.",
+            "zh": "面团好了。"
+          }
+        },
+        {
+          "w": "patte",
+          "zh": "（动物的）爪子",
+          "rule": "双 t",
+          "ex": {
+            "fr": "Le chat a mal à la patte.",
+            "zh": "猫的爪子疼。"
+          }
+        },
+        {
+          "w": "pâté",
+          "zh": "肉酱；肉糜",
+          "rule": "带长音符，é 结尾",
+          "ex": {
+            "fr": "J'aime le pâté de campagne.",
+            "zh": "我喜欢乡村肉酱。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cote-cote",
+      "kind": "homophone",
+      "title": "côté / côte",
+      "zh": "côté 是“旁边”，côte 是“海岸、肋骨”。",
+      "items": [
+        {
+          "w": "côté",
+          "zh": "旁边；一侧",
+          "rule": "à côté de：在……旁边",
+          "ex": {
+            "fr": "Il habite à côté de la gare.",
+            "zh": "他住在车站旁边。"
+          }
+        },
+        {
+          "w": "côte",
+          "zh": "海岸；肋骨",
+          "rule": "没有末尾的 é",
+          "ex": {
+            "fr": "La côte bretonne est belle.",
+            "zh": "布列塔尼海岸很美。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sale-salle",
+      "kind": "homophone",
+      "title": "sale / salle",
+      "zh": "sale 是“脏的”，salle 是“房间、厅”，双 l。",
+      "items": [
+        {
+          "w": "sale",
+          "zh": "脏的",
+          "rule": "形容词",
+          "ex": {
+            "fr": "Ma chemise est sale.",
+            "zh": "我的衬衫脏了。"
+          }
+        },
+        {
+          "w": "salle",
+          "zh": "厅；房间",
+          "rule": "阴性名词，如 salle de bains",
+          "ex": {
+            "fr": "La salle est grande.",
+            "zh": "这个厅很大。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fin-faim",
+      "kind": "homophone",
+      "title": "fin / faim",
+      "zh": "fin 是“结束”，faim 是“饥饿”。",
+      "items": [
+        {
+          "w": "fin",
+          "zh": "结束；末尾",
+          "rule": "阴性名词",
+          "ex": {
+            "fr": "À la fin du film, elle pleure.",
+            "zh": "电影结束时她哭了。"
+          }
+        },
+        {
+          "w": "faim",
+          "zh": "饥饿",
+          "rule": "avoir faim：饿",
+          "ex": {
+            "fr": "J'ai très faim.",
+            "zh": "我很饿。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "peau-pot",
+      "kind": "homophone",
+      "title": "peau / pot",
+      "zh": "peau 是“皮肤”，pot 是“罐子”。",
+      "items": [
+        {
+          "w": "peau",
+          "zh": "皮肤；皮",
+          "rule": "阴性名词",
+          "ex": {
+            "fr": "Elle a la peau douce.",
+            "zh": "她皮肤柔滑。"
+          }
+        },
+        {
+          "w": "pot",
+          "zh": "罐；壶",
+          "rule": "阳性名词",
+          "ex": {
+            "fr": "Un pot de confiture.",
+            "zh": "一罐果酱。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lait-laid",
+      "kind": "homophone",
+      "title": "lait / laid",
+      "zh": "lait 是“牛奶”，laid 是“丑的”。",
+      "items": [
+        {
+          "w": "lait",
+          "zh": "牛奶",
+          "rule": "阳性名词",
+          "ex": {
+            "fr": "Je bois du lait.",
+            "zh": "我喝牛奶。"
+          }
+        },
+        {
+          "w": "laid",
+          "zh": "丑的",
+          "rule": "形容词，反义词 beau",
+          "ex": {
+            "fr": "Ce tableau est laid.",
+            "zh": "这幅画很丑。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "doigt-doit",
+      "kind": "homophone",
+      "title": "doigt / doit",
+      "zh": "doigt 是“手指”，doit 是 devoir 的变位。",
+      "items": [
+        {
+          "w": "doigt",
+          "zh": "手指",
+          "rule": "阳性名词",
+          "ex": {
+            "fr": "Elle a mal au doigt.",
+            "zh": "她手指疼。"
+          }
+        },
+        {
+          "w": "doit",
+          "zh": "应该；必须（devoir）",
+          "rule": "il / elle 做主语",
+          "ex": {
+            "fr": "Il doit partir tôt.",
+            "zh": "他得早点走。"
+          },
+          "lemma": "devoir"
+        }
+      ]
+    },
+    {
+      "id": "conte-compte",
+      "kind": "homophone",
+      "title": "conte / compte",
+      "zh": "conte 是“故事”，compte 是“账户、数”。",
+      "items": [
+        {
+          "w": "conte",
+          "zh": "故事；童话",
+          "rule": "阳性名词",
+          "ex": {
+            "fr": "Elle lit un conte de fées.",
+            "zh": "她在读童话。"
+          }
+        },
+        {
+          "w": "compte",
+          "zh": "账户；计数",
+          "rule": "阳性名词",
+          "ex": {
+            "fr": "Il a un compte en banque.",
+            "zh": "他有一个银行账户。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "parler-parle-parlez",
+      "kind": "homophone",
+      "title": "parler / parlé / parlez",
+      "zh": "-er 是原形，-é 是过去分词，-ez 是 vous 的变位，读音相同。",
+      "items": [
+        {
+          "w": "parler",
+          "zh": "说话（原形）",
+          "rule": "前面常是 pour、vouloir、aller 等",
+          "ex": {
+            "fr": "Je veux parler à Paul.",
+            "zh": "我想跟保罗说话。"
+          }
+        },
+        {
+          "w": "parlé",
+          "zh": "说过（过去分词）",
+          "rule": "前面有 avoir，能换成 fini",
+          "ex": {
+            "fr": "Il a parlé hier.",
+            "zh": "他昨天说过了。"
+          },
+          "lemma": "parler"
+        },
+        {
+          "w": "parlez",
+          "zh": "你们说（vous 的变位）",
+          "rule": "前面有 vous，能换成 prenez",
+          "ex": {
+            "fr": "Vous parlez très vite.",
+            "zh": "您说得很快。"
+          },
+          "lemma": "parler"
+        }
+      ]
+    },
+    {
+      "id": "manger-mange-mangez",
+      "kind": "homophone",
+      "title": "manger / mangé / mangez",
+      "zh": "-er 是原形，-é 是过去分词，-ez 是命令式或 vous 的变位。",
+      "items": [
+        {
+          "w": "manger",
+          "zh": "吃（原形）",
+          "rule": "前面是 aller、pouvoir 等",
+          "ex": {
+            "fr": "Nous allons manger.",
+            "zh": "我们要去吃饭了。"
+          }
+        },
+        {
+          "w": "mangé",
+          "zh": "吃过（过去分词）",
+          "rule": "前面有 avoir",
+          "ex": {
+            "fr": "Il a mangé une pomme.",
+            "zh": "他吃了一个苹果。"
+          },
+          "lemma": "manger"
+        },
+        {
+          "w": "mangez",
+          "zh": "你们吃（命令式）",
+          "rule": "对 vous 说话",
+          "ex": {
+            "fr": "Mangez lentement.",
+            "zh": "请慢慢吃。"
+          },
+          "lemma": "manger"
+        }
+      ]
+    },
+    {
+      "id": "rester-habiter-vivre",
+      "kind": "meaning",
+      "title": "rester / habiter / vivre",
+      "zh": "rester 是“待着”，habiter 是“居住在某处”，vivre 是“生活、活着”。",
+      "items": [
+        {
+          "w": "rester",
+          "zh": "留；待着",
+          "rule": "停留，不离开",
+          "ex": {
+            "fr": "Je reste à la maison.",
+            "zh": "我待在家里。"
+          },
+          "form": "reste"
+        },
+        {
+          "w": "habiter",
+          "zh": "居住",
+          "rule": "后接地点",
+          "ex": {
+            "fr": "J'habite à Lyon.",
+            "zh": "我住在里昂。"
+          },
+          "form": "habite"
+        },
+        {
+          "w": "vivre",
+          "zh": "生活；活着",
+          "rule": "强调生活状态，可接 de",
+          "ex": {
+            "fr": "Elle vit à l'étranger.",
+            "zh": "她生活在国外。"
+          },
+          "form": "vit"
+        }
+      ]
+    },
+    {
+      "id": "ouvrir-allumer",
+      "kind": "meaning",
+      "title": "ouvrir / allumer",
+      "zh": "中文都说“开”：门窗用 ouvrir，灯和电器用 allumer。",
+      "items": [
+        {
+          "w": "ouvrir",
+          "zh": "打开（门、窗、盖子）",
+          "rule": "有开口的东西",
+          "ex": {
+            "fr": "Ouvre la fenêtre.",
+            "zh": "把窗户打开。"
+          },
+          "form": "Ouvre"
+        },
+        {
+          "w": "allumer",
+          "zh": "打开（灯、电器）；点燃",
+          "rule": "通电或点火",
+          "ex": {
+            "fr": "Allume la lumière.",
+            "zh": "把灯打开。"
+          },
+          "form": "Allume"
+        }
+      ]
+    },
+    {
+      "id": "fermer-eteindre",
+      "kind": "meaning",
+      "title": "fermer / éteindre",
+      "zh": "中文都说“关”：门窗用 fermer，灯和电器用 éteindre。",
+      "items": [
+        {
+          "w": "fermer",
+          "zh": "关上（门、窗）",
+          "rule": "有开口的东西",
+          "ex": {
+            "fr": "Ferme la porte.",
+            "zh": "把门关上。"
+          },
+          "form": "Ferme"
+        },
+        {
+          "w": "éteindre",
+          "zh": "关掉（灯、电器）；熄灭",
+          "rule": "断电或灭火",
+          "ex": {
+            "fr": "Éteins la télé.",
+            "zh": "把电视关掉。"
+          },
+          "form": "Éteins"
+        }
+      ]
+    },
+    {
+      "id": "perdre-manquer-rater",
+      "kind": "meaning",
+      "title": "perdre / manquer / rater",
+      "zh": "perdre 是“丢失”，manquer 是“想念、缺少”，rater 是“错过、没赶上”。",
+      "items": [
+        {
+          "w": "perdre",
+          "zh": "丢失；输",
+          "rule": "东西不见了，或比赛输了",
+          "ex": {
+            "fr": "J'ai perdu mes clés.",
+            "zh": "我丢了钥匙。"
+          },
+          "form": "perdu"
+        },
+        {
+          "w": "manquer",
+          "zh": "想念；缺少",
+          "rule": "tu me manques：我想你",
+          "ex": {
+            "fr": "Tu me manques.",
+            "zh": "我想你。"
+          },
+          "form": "manques"
+        },
+        {
+          "w": "rater",
+          "zh": "错过；没赶上；搞砸",
+          "rule": "没赶上车、没考好",
+          "ex": {
+            "fr": "J'ai raté le train.",
+            "zh": "我没赶上火车。"
+          },
+          "form": "raté"
+        }
+      ]
+    },
+    {
+      "id": "penser-a-penser-de",
+      "kind": "meaning",
+      "title": "penser à / penser de",
+      "zh": "penser à 是“想到、惦记”，penser de 是“对……的看法”。",
+      "items": [
+        {
+          "w": "penser à",
+          "zh": "想到；惦记",
+          "rule": "想着某人或某事",
+          "ex": {
+            "fr": "Je pense à toi.",
+            "zh": "我想着你。"
+          },
+          "form": "pense à"
+        },
+        {
+          "w": "penser de",
+          "zh": "对……有什么看法",
+          "rule": "常用于问句",
+          "ex": {
+            "fr": "Qu'est-ce que tu penses de ce film ?",
+            "zh": "你觉得这部电影怎么样？"
+          },
+          "form": "penses de"
+        }
+      ]
+    },
+    {
+      "id": "aller-venir",
+      "kind": "meaning",
+      "title": "aller / venir",
+      "zh": "aller 是离开说话人“去”，venir 是朝说话人“来”。",
+      "items": [
+        {
+          "w": "aller",
+          "zh": "去",
+          "rule": "离开说话人所在处",
+          "ex": {
+            "fr": "Je vais à Paris demain.",
+            "zh": "我明天去巴黎。"
+          },
+          "form": "vais"
+        },
+        {
+          "w": "venir",
+          "zh": "来",
+          "rule": "朝说话人所在处",
+          "ex": {
+            "fr": "Viens ici !",
+            "zh": "到这儿来！"
+          },
+          "form": "Viens"
+        }
+      ]
+    },
+    {
+      "id": "attendre-entendre",
+      "kind": "meaning",
+      "title": "attendre / entendre",
+      "zh": "attendre 是“等待”，entendre 是“听见”，拼写和发音都像。",
+      "items": [
+        {
+          "w": "attendre",
+          "zh": "等待",
+          "rule": "等人或等车",
+          "ex": {
+            "fr": "J'attends le bus.",
+            "zh": "我在等公交。"
+          },
+          "form": "attends"
+        },
+        {
+          "w": "entendre",
+          "zh": "听见",
+          "rule": "声音入耳",
+          "ex": {
+            "fr": "Je n'entends rien.",
+            "zh": "我什么也听不见。"
+          },
+          "form": "entends"
+        }
+      ]
+    },
+    {
+      "id": "grand-gros-haut",
+      "kind": "meaning",
+      "title": "grand / gros / haut",
+      "zh": "grand 是“大、高（个子）”，gros 是“粗、胖、厚”，haut 是“高（物体）”。",
+      "items": [
+        {
+          "w": "grand",
+          "zh": "大的；高的（人）",
+          "rule": "人的个子，或大小",
+          "ex": {
+            "fr": "Il est très grand.",
+            "zh": "他个子很高。"
+          }
+        },
+        {
+          "w": "gros",
+          "zh": "粗的；胖的；厚的",
+          "rule": "体积大、厚实",
+          "ex": {
+            "fr": "Un gros livre.",
+            "zh": "一本厚书。"
+          }
+        },
+        {
+          "w": "haut",
+          "zh": "高的（物体）",
+          "rule": "建筑、墙、山的高度",
+          "ex": {
+            "fr": "Un haut mur entoure le jardin.",
+            "zh": "一堵高墙围着花园。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "petit-court-bas",
+      "kind": "meaning",
+      "title": "petit / court / bas",
+      "zh": "petit 是“小、矮”，court 是“短”，bas 是“低、矮（位置）”。",
+      "items": [
+        {
+          "w": "petit",
+          "zh": "小的；矮的",
+          "rule": "大小，或个子",
+          "ex": {
+            "fr": "Un petit chat dort.",
+            "zh": "一只小猫在睡觉。"
+          }
+        },
+        {
+          "w": "court",
+          "zh": "短的",
+          "rule": "长度或时间短",
+          "ex": {
+            "fr": "Le chemin le plus court passe par là.",
+            "zh": "最短的路从那边走。"
+          }
+        },
+        {
+          "w": "bas",
+          "zh": "低的；低声",
+          "rule": "位置低，或声音小",
+          "ex": {
+            "fr": "Parle plus bas, s'il te plaît.",
+            "zh": "请小声一点。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vieux-ancien-age",
+      "kind": "meaning",
+      "title": "vieux / ancien / âgé",
+      "zh": "vieux 是“旧、老”，ancien 是“从前的、古老的”，âgé 专指“年纪大”。",
+      "items": [
+        {
+          "w": "vieux",
+          "zh": "旧的；老的",
+          "rule": "东西旧或人老",
+          "ex": {
+            "fr": "Un vieux livre est sur la table.",
+            "zh": "桌上有一本旧书。"
+          }
+        },
+        {
+          "w": "ancien",
+          "zh": "从前的；古老的",
+          "rule": "放在名词前常表示“前任”",
+          "ex": {
+            "fr": "Mon ancien professeur est parti.",
+            "zh": "我以前的老师走了。"
+          }
+        },
+        {
+          "w": "âgé",
+          "zh": "年纪大的",
+          "rule": "只用于人，比 vieux 委婉",
+          "ex": {
+            "fr": "Mon grand-père est âgé.",
+            "zh": "我爷爷年纪大了。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "nouveau-neuf-recent",
+      "kind": "meaning",
+      "title": "nouveau / neuf / récent",
+      "zh": "nouveau 是“新的（另一个）”，neuf 是“全新的”，récent 是“最近的”。",
+      "items": [
+        {
+          "w": "nouveau",
+          "zh": "新的（刚换的、另一个）",
+          "rule": "放在名词前",
+          "ex": {
+            "fr": "J'ai un nouveau téléphone.",
+            "zh": "我换了新手机。"
+          }
+        },
+        {
+          "w": "neuf",
+          "zh": "全新的（没用过）",
+          "rule": "放在名词后",
+          "ex": {
+            "fr": "Ce vélo est tout neuf.",
+            "zh": "这辆自行车是全新的。"
+          }
+        },
+        {
+          "w": "récent",
+          "zh": "最近的；近期的",
+          "rule": "时间不久前",
+          "ex": {
+            "fr": "C'est un film récent.",
+            "zh": "这是一部近期的电影。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "seul-seulement",
+      "kind": "meaning",
+      "title": "seul / seulement",
+      "zh": "seul 是形容词（单独的），seulement 是副词（只有）。",
+      "items": [
+        {
+          "w": "seul",
+          "zh": "单独的；独自",
+          "rule": "形容词，修饰人或名词",
+          "ex": {
+            "fr": "Je vis seul.",
+            "zh": "我独自生活。"
+          }
+        },
+        {
+          "w": "seulement",
+          "zh": "只；仅仅",
+          "rule": "副词，修饰数量",
+          "ex": {
+            "fr": "Il y a seulement deux places.",
+            "zh": "只有两个座位。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "deja-encore-toujours",
+      "kind": "meaning",
+      "title": "déjà / encore / toujours",
+      "zh": "déjà 是“已经”，encore 是“还、再”，toujours 是“总是、仍然”。",
+      "items": [
+        {
+          "w": "déjà",
+          "zh": "已经",
+          "rule": "事情已发生",
+          "ex": {
+            "fr": "Il est déjà parti.",
+            "zh": "他已经走了。"
+          }
+        },
+        {
+          "w": "encore",
+          "zh": "还；再",
+          "rule": "pas encore：还没有",
+          "ex": {
+            "fr": "Il n'est pas encore là.",
+            "zh": "他还没来。"
+          }
+        },
+        {
+          "w": "toujours",
+          "zh": "总是；仍然",
+          "rule": "一直如此",
+          "ex": {
+            "fr": "Il est toujours là.",
+            "zh": "他一直在这儿。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "depuis-pendant-il-y-a",
+      "kind": "meaning",
+      "title": "depuis / pendant / il y a",
+      "zh": "depuis 是“自从”，pendant 是“持续了”，il y a 是“……以前”。",
+      "items": [
+        {
+          "w": "depuis",
+          "zh": "自……以来",
+          "rule": "还在持续",
+          "ex": {
+            "fr": "J'habite ici depuis deux ans.",
+            "zh": "我在这儿住了两年了。"
+          }
+        },
+        {
+          "w": "pendant",
+          "zh": "在……期间；持续",
+          "rule": "已结束的一段时间",
+          "ex": {
+            "fr": "J'ai travaillé pendant deux heures.",
+            "zh": "我工作了两个小时。"
+          }
+        },
+        {
+          "w": "il y a",
+          "zh": "……以前",
+          "rule": "过去的时间点",
+          "ex": {
+            "fr": "Il est parti il y a deux jours.",
+            "zh": "他两天前走的。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "avant-devant",
+      "kind": "meaning",
+      "title": "avant / devant",
+      "zh": "avant 说时间“在……之前”，devant 说位置“在……前面”。",
+      "items": [
+        {
+          "w": "avant",
+          "zh": "在……之前（时间）",
+          "rule": "时间先后",
+          "ex": {
+            "fr": "Avant le dîner, je lis.",
+            "zh": "晚饭前我看书。"
+          }
+        },
+        {
+          "w": "devant",
+          "zh": "在……前面（位置）",
+          "rule": "空间位置",
+          "ex": {
+            "fr": "Il est devant la porte.",
+            "zh": "他在门前。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dans-en",
+      "kind": "meaning",
+      "title": "dans / en",
+      "zh": "dans 一小时 是“一小时以后”，en 一小时 是“用一小时完成”。",
+      "items": [
+        {
+          "w": "dans",
+          "zh": "在……之后；在……里面",
+          "rule": "时间点：多久以后",
+          "ex": {
+            "fr": "Je reviens dans une heure.",
+            "zh": "我一小时后回来。"
+          }
+        },
+        {
+          "w": "en",
+          "zh": "用（多长时间）；在",
+          "rule": "完成所需时间",
+          "ex": {
+            "fr": "Je fais ça en une heure.",
+            "zh": "我一小时就做完这个。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "peu-un-peu",
+      "kind": "meaning",
+      "title": "peu / un peu",
+      "zh": "peu 是“几乎没有”，带否定意味；un peu 是“有一点”，带肯定意味。",
+      "items": [
+        {
+          "w": "peu",
+          "zh": "很少；几乎没有",
+          "rule": "偏否定",
+          "ex": {
+            "fr": "J'ai peu de temps.",
+            "zh": "我几乎没时间。"
+          }
+        },
+        {
+          "w": "un peu",
+          "zh": "一点；有些",
+          "rule": "偏肯定",
+          "ex": {
+            "fr": "J'ai un peu de temps.",
+            "zh": "我有一点时间。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "voyage-trajet-route",
+      "kind": "meaning",
+      "title": "voyage / trajet / route",
+      "zh": "voyage 是“旅行”，trajet 是“一段路程”，route 是“道路”。",
+      "items": [
+        {
+          "w": "voyage",
+          "zh": "旅行",
+          "rule": "整趟出行",
+          "ex": {
+            "fr": "Bon voyage !",
+            "zh": "旅途愉快！"
+          }
+        },
+        {
+          "w": "trajet",
+          "zh": "路程；行程",
+          "rule": "从甲地到乙地的一段",
+          "ex": {
+            "fr": "Le trajet dure vingt minutes.",
+            "zh": "路程要二十分钟。"
+          }
+        },
+        {
+          "w": "route",
+          "zh": "道路；公路",
+          "rule": "实体的路",
+          "ex": {
+            "fr": "La route est longue.",
+            "zh": "路很长。"
+          }
+        }
+      ]
+    },
+    {
+      "id": "travail-emploi-metier",
+      "kind": "meaning",
+      "title": "travail / emploi / métier",
+      "zh": "travail 是“工作（活）”，emploi 是“岗位”，métier 是“职业、行当”。",
+      "items": [
+        {
+          "w": "travail",
+          "zh": "工作；劳动",
+          "rule": "做的事，或工作本身",
+          "ex": {
+            "fr": "Le travail commence à neuf heures.",
+            "zh": "工作九点开始。"
+          }
+        },
+        {
+          "w": "emploi",
+          "zh": "职位；岗位",
+          "rule": "找工作、有工作",
+          "ex": {
+            "fr": "Elle cherche un emploi.",
+            "zh": "她在找工作。"
+          }
+        },
+        {
+          "w": "métier",
+          "zh": "职业；行当",
+          "rule": "问 Quel est ton métier ?",
+          "ex": {
+            "fr": "Quel est ton métier ?",
+            "zh": "你是做什么职业的？"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sensible-raisonnable",
+      "kind": "meaning",
+      "title": "sensible / raisonnable",
+      "zh": "sensible 是“敏感的”，不是英语 sensible；“理智的”是 raisonnable。",
+      "items": [
+        {
+          "w": "sensible",
+          "zh": "敏感的；易受影响的",
+          "rule": "不是 sensible（明智）",
+          "ex": {
+            "fr": "Il est très sensible.",
+            "zh": "他非常敏感。"
+          }
+        },
+        {
+          "w": "raisonnable",
+          "zh": "理智的；合理的",
+          "rule": "相当于英语 sensible",
+          "ex": {
+            "fr": "Sois raisonnable !",
+            "zh": "要懂事点！"
+          }
+        }
+      ]
+    },
+    {
+      "id": "eventuellement-finalement",
+      "kind": "meaning",
+      "title": "éventuellement / finalement",
+      "zh": "éventuellement 是“可能的话”，不是 eventually；“最终”是 finalement。",
+      "items": [
+        {
+          "w": "éventuellement",
+          "zh": "可能的话；或许",
+          "rule": "不是 eventually",
+          "ex": {
+            "fr": "Tu peux éventuellement venir demain.",
+            "zh": "你可以的话明天来也行。"
+          }
+        },
+        {
+          "w": "finalement",
+          "zh": "最后；终于",
+          "rule": "相当于英语 eventually",
+          "ex": {
+            "fr": "Finalement, il est parti.",
+            "zh": "最后他还是走了。"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,634 @@
+import { useSyncExternalStore } from "react";
+import { migrateAliases as migrateAliasesPure, type AliasMap } from "./aliases";
+import type { Accent } from "../atlas/types";
+import type { CardState, Grade } from "./srs";
+import { getImages, isImageDataUrl, replaceImages } from "./images";
+import { sanitizeTexts, type SavedText } from "../lib/reader";
+
+/**
+ * "gender": choose un / une for a noun (no options list; the two articles are fixed).
+ * "cloze": an example sentence with the word blanked (and its Chinese), choose the French word.
+ * "dictation": hear the example sentence, type the blanked word.
+ */
+export type QuizKind = "meaning" | "picture" | "listen" | "spell" | "gender" | "cloze" | "dictation";
+/** "pairing": match five French words with their meanings; extra practice, never graded (`ids`: the five words). */
+/** `sense`: the sense a deck asks for (index into the entry's senses), shown first and used as the answer's gloss. */
+export type Step =
+  | { id: string; kind: "intro"; sense?: number }
+  | { id: string; kind: "pairing"; ids: string[] }
+  | { id: string; kind: QuizKind; retry?: boolean; options?: string[]; pair?: boolean; sense?: number };
+
+/**
+ * A deck (卡组) the learner made: a list of word ids. Progress belongs to the word, not the deck,
+ * so a word in several decks is learned once. `sense` and `note` are per deck.
+ */
+export interface Deck {
+  id: string;
+  name: string;
+  created: number;
+  words: string[];
+  /** word id → sense index this deck cares about (avocat: 律师 in one deck, 牛油果 in another). */
+  sense?: Record<string, number>;
+  /** word id → the learner's note for this deck ("《小王子》第 3 章"). */
+  note?: Record<string, string>;
+}
+
+export interface UserExample {
+  fr: string;
+  zh: string;
+  /** "tatoeba": taken from the offline dictionary (Tatoeba, CC BY 2.0 FR), not written by the learner. */
+  src?: "tatoeba";
+  /** Where the headword sits in fr (UTF-16), when the dictionary knows it (vont for aller). */
+  hl?: [number, number];
+}
+
+/** A word the learner added that is not in the atlas. Stored under an id "u-…". */
+export interface CustomWord {
+  w: string;
+  /** Part of speech as the atlas writes it: "n.m.", "n.f.", "v.", "adj." … ; n.m. / n.f. give the un / une quiz. */
+  pos: string;
+  zh: string;
+  ipa?: string;
+  ex?: UserExample[];
+  note?: string;
+  created: number;
+  /** Filled from the offline dictionary and not yet checked by the learner (自动填写·待核对). */
+  auto?: boolean;
+  /** The learner chose 不要图片: no picture and no text plate on the card, and no picture question. */
+  noImg?: boolean;
+  /** Collocations, each "French｜中文" (the atlas notation). The note above is shown as the card's 注意点. */
+  col?: string[];
+}
+
+/** The learner's changes to an atlas word, shown in every deck: a gloss for the first sense, own examples (first). */
+export interface WordEdit {
+  zh?: string;
+  ex?: UserExample[];
+  /** 不要图片 for an atlas word (see CustomWord.noImg). */
+  noImg?: boolean;
+  /** Own collocations ("French｜中文"), shown before the atlas ones. */
+  col?: string[];
+  /** Own 注意点, shown before the atlas tip. */
+  tip?: string;
+}
+
+/** The built-in deck: every atlas word except those the learner hid. */
+export const CORE_DECK = "core";
+
+export interface ActiveSession {
+  id: string;
+  started: number;
+  steps: Step[];
+  index: number;
+  /** First-attempt grade per word; retries never change it. */
+  graded: Record<string, Grade>;
+  newIds: string[];
+  reviewIds: string[];
+  /** Answer shown but not yet continued; survives reload without double counting. */
+  pending?: { correct: boolean; value: string; /** right letters, wrong accent: counted correct but graded Hard */ accentOnly?: boolean; /** noun spelled right, article wrong or missing: counted wrong */ articleWrong?: boolean };
+  finished?: number;
+}
+
+export interface DayStat {
+  n: number; // new words met
+  r: number; // graded reviews (first attempts)
+  c: number; // correct first attempts
+  t: number; // active seconds
+}
+
+export interface TypingRound {
+  at: number;
+  mode: "word" | "sentence" | "dictation";
+  items: number;
+  wpm: number;
+  accuracy: number;
+}
+
+export interface Progress {
+  version: 2;
+  datasetId: string;
+  cards: Record<string, CardState>;
+  bookmarks: string[];
+  days: Record<string, DayStat>;
+  typing: TypingRound[];
+  session: ActiveSession | null;
+  /** Rolling list of recent mistakes, newest first. */
+  mistakes: string[];
+  /** Records moved aside by the alias migration when both ids had a record (recoverable, never merged). */
+  aliasArchive?: Record<string, CardState>;
+  /** When the alias migration last changed this progress (epoch ms). */
+  aliasMigratedAt?: number;
+  /** Conjugation cards (变位), one per verb × tense, keyed "verbId|tense". Separate from word cards. */
+  conj?: Record<string, CardState>;
+  /** Conjugation stats per day: n = new cards started, r = graded answers, c = correct. */
+  conjDays?: Record<string, { n: number; r: number; c: number }>;
+  /** Grammar point cards (语法), one per point id; graded once per practice round of the point. */
+  gram?: Record<string, CardState>;
+  /** Grammar drills per day: n = points started, r = drills answered, c = right. */
+  gramDays?: Record<string, { n: number; r: number; c: number }>;
+  /** Grammar drills the learner reported as wrong or ambiguous (drillId), never asked again. */
+  gramSkip?: string[];
+  /** The learner's own decks, in the order made. */
+  decks?: Deck[];
+  /** Atlas words taken out of the initial deck (初始词本); still learned when in another deck. */
+  hidden?: string[];
+  /** Words the learner created, by id ("u-…"). */
+  custom?: Record<string, CustomWord>;
+  /** The learner's changes to atlas words, by id. */
+  edits?: Record<string, WordEdit>;
+  /** Saved texts of 阅读 (pasted, imported or written by the AI), newest first. */
+  texts?: SavedText[];
+}
+
+export interface Settings {
+  accent: Accent;
+  autoplay: boolean;
+  dailyNew: number;
+  retention: number;
+  theme: "system" | "light" | "dark";
+  sfx: boolean;
+  spell: boolean;
+  startLevel: number;
+  onboarded: boolean;
+  dataset: "open" | "private";
+  ambience: "off" | "stars" | "rain" | "sea" | "forest" | "fire" | "voyage" | "cafe";
+  ambienceVolume: number;
+  splash: boolean;
+  /** Tenses practised in 变位; null = follow the start level (A1: présent + passé composé …). */
+  conjTenses: string[] | null;
+  /** New conjugation cards per day. */
+  conjNew: number;
+  /** Topic key new words are drawn from (按主题学); null = the whole learning path. */
+  focusTopic: string | null;
+  /** Decks studied in 今日 (new words and reviews); null = every deck. CORE_DECK is the initial deck. */
+  studyDecks: string[] | null;
+  /** 阅读: colour the words by how well they are known (没学过 / 在学 / 已掌握). */
+  readColors: boolean;
+  /** 阅读: the deck new words go to; null = none chosen yet. */
+  readDeck: string | null;
+}
+
+export const defaultSettings: Settings = {
+  accent: "uk",
+  autoplay: true,
+  dailyNew: 10,
+  retention: 0.9,
+  theme: "dark",
+  sfx: true,
+  spell: true,
+  startLevel: 0,
+  onboarded: false,
+  dataset: "open",
+  ambience: "stars",
+  ambienceVolume: 0.45,
+  splash: true,
+  conjTenses: null,
+  conjNew: 6,
+  focusTopic: null,
+  studyDecks: null,
+  readColors: true,
+  readDeck: null,
+};
+
+export const emptyProgress = (datasetId: string): Progress => ({
+  version: 2,
+  datasetId,
+  cards: {},
+  bookmarks: [],
+  days: {},
+  typing: [],
+  session: null,
+  mistakes: [],
+});
+
+export const dayKey = (d = new Date()) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+const SETTINGS_KEY = "word-atlas:settings";
+const progressKey = (id: string) => `word-atlas:v2:${id}`;
+
+function read<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+}
+function write(key: string, value: unknown) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/* ---------- validation (backups and stored data are untrusted) ---------- */
+
+const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
+const num = (v: unknown, lo = -Infinity, hi = Infinity) => typeof v === "number" && Number.isFinite(v) && v >= lo && v <= hi;
+
+function validCard(v: unknown): v is CardState {
+  return (
+    isObj(v) &&
+    num(v.due, 0) &&
+    num(v.s, 0) &&
+    num(v.d, 0, 11) &&
+    num(v.el, 0) &&
+    num(v.sd, 0) &&
+    num(v.ls, 0) &&
+    num(v.reps, 0) &&
+    num(v.lapses, 0) &&
+    [0, 1, 2, 3].includes(v.st as number) &&
+    (v.last === undefined || num(v.last, 0)) &&
+    num(v.seen, 0)
+  );
+}
+
+export function sanitizeProgress(v: unknown, datasetId: string): Progress {
+  const out = emptyProgress(datasetId);
+  if (!isObj(v) || v.version !== 2) return out;
+  if (isObj(v.cards)) for (const [k, c] of Object.entries(v.cards)) if (validCard(c)) out.cards[k] = c;
+  if (Array.isArray(v.bookmarks)) out.bookmarks = v.bookmarks.filter((x): x is string => typeof x === "string").slice(0, 20000);
+  if (Array.isArray(v.mistakes)) out.mistakes = v.mistakes.filter((x): x is string => typeof x === "string").slice(0, 300);
+  if (isObj(v.aliasArchive)) {
+    const arc: Record<string, CardState> = {};
+    for (const [k, c] of Object.entries(v.aliasArchive)) if (validCard(c)) arc[k] = c;
+    if (Object.keys(arc).length) out.aliasArchive = arc;
+  }
+  if (typeof v.aliasMigratedAt === "number") out.aliasMigratedAt = v.aliasMigratedAt;
+  if (isObj(v.days))
+    for (const [k, d] of Object.entries(v.days))
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isObj(d) && num(d.n, 0) && num(d.r, 0) && num(d.c, 0) && num(d.t, 0))
+        out.days[k] = { n: d.n as number, r: d.r as number, c: d.c as number, t: d.t as number };
+  if (Array.isArray(v.typing))
+    out.typing = v.typing
+      .filter(
+        (t): t is TypingRound =>
+          isObj(t) && num(t.at, 0) && ["word", "sentence", "dictation"].includes(t.mode as string) && num(t.items, 0) && num(t.wpm, 0, 400) && num(t.accuracy, 0, 100),
+      )
+      .slice(-500);
+  if (isObj(v.conj)) {
+    const conj: Record<string, CardState> = {};
+    for (const [k, c] of Object.entries(v.conj)) if (/^[^|]+\|(pres|pc|imp|fut|cond|subj)$/.test(k) && validCard(c)) conj[k] = c;
+    if (Object.keys(conj).length) out.conj = conj;
+  }
+  if (isObj(v.conjDays)) {
+    const days: Record<string, { n: number; r: number; c: number }> = {};
+    for (const [k, d] of Object.entries(v.conjDays))
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isObj(d) && num(d.n, 0) && num(d.r, 0) && num(d.c, 0)) days[k] = { n: d.n as number, r: d.r as number, c: d.c as number };
+    if (Object.keys(days).length) out.conjDays = days;
+  }
+  if (isObj(v.gram)) {
+    const gram: Record<string, CardState> = {};
+    for (const [k, c] of Object.entries(v.gram)) if (/^[a-z0-9-]{2,40}$/.test(k) && validCard(c)) gram[k] = c;
+    if (Object.keys(gram).length) out.gram = gram;
+  }
+  if (isObj(v.gramDays)) {
+    const days: Record<string, { n: number; r: number; c: number }> = {};
+    for (const [k, d] of Object.entries(v.gramDays))
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isObj(d) && num(d.n, 0) && num(d.r, 0) && num(d.c, 0)) days[k] = { n: d.n as number, r: d.r as number, c: d.c as number };
+    if (Object.keys(days).length) out.gramDays = days;
+  }
+  if (Array.isArray(v.gramSkip)) {
+    const skip = [...new Set(v.gramSkip.filter((x): x is string => typeof x === "string" && /^[a-z0-9-]{2,40}:[a-z0-9]{1,12}$/.test(x)))].slice(0, 5000);
+    if (skip.length) out.gramSkip = skip;
+  }
+  Object.assign(out, sanitizeUserData(v));
+  const texts = sanitizeTexts(v.texts);
+  if (texts) out.texts = texts;
+  const s = v.session;
+  if (isObj(s) && typeof s.id === "string" && Array.isArray(s.steps) && num(s.index, 0) && isObj(s.graded))
+    out.session = s as unknown as ActiveSession;
+  return out;
+}
+
+const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+const WORD_ID = /^[\p{L}\p{N}_.'’-]{1,80}$/u;
+export const CUSTOM_ID = /^u-[a-z0-9]{4,24}$/;
+const DECK_ID = /^d-[a-z0-9]{4,24}$/;
+
+function sanitizeExamples(v: unknown): UserExample[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out = v
+    .filter(isObj)
+    .map((x) => {
+      const ex: UserExample = { fr: str(x.fr, 400), zh: str(x.zh, 400) };
+      if (x.src === "tatoeba") ex.src = "tatoeba";
+      const hl = x.hl;
+      if (Array.isArray(hl) && hl.length === 2 && num(hl[0], 0) && num(hl[1], 0) && (hl[0] as number) < (hl[1] as number) && (hl[1] as number) <= ex.fr.length)
+        ex.hl = [hl[0] as number, hl[1] as number];
+      return ex;
+    })
+    .filter((x) => x.fr)
+    .slice(0, 5);
+  return out.length ? out : undefined;
+}
+
+/** Collocations: "French｜中文" strings, at most MAX_COLLOCATIONS. */
+export const MAX_COLLOCATIONS = 8;
+function sanitizeCollocations(v: unknown): string[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out = [...new Set(v.map((x) => str(x, 160)).filter((x) => x && !x.startsWith("｜")))].slice(0, MAX_COLLOCATIONS);
+  return out.length ? out : undefined;
+}
+
+/** Decks, hidden words, custom words and edits from stored data or a backup (untrusted). */
+export function sanitizeUserData(v: Record<string, unknown>): Pick<Progress, "decks" | "hidden" | "custom" | "edits"> {
+  const out: Pick<Progress, "decks" | "hidden" | "custom" | "edits"> = {};
+  const isWord = (x: unknown): x is string => typeof x === "string" && WORD_ID.test(x);
+  if (Array.isArray(v.decks)) {
+    const seen = new Set<string>();
+    const decks: Deck[] = [];
+    for (const d of v.decks) {
+      if (!isObj(d) || typeof d.id !== "string" || !DECK_ID.test(d.id) || seen.has(d.id)) continue;
+      const name = str(d.name, 40);
+      if (!name) continue;
+      seen.add(d.id);
+      const words = Array.isArray(d.words) ? [...new Set(d.words.filter(isWord))].slice(0, 20000) : [];
+      const deck: Deck = { id: d.id, name, created: num(d.created, 0) ? (d.created as number) : 0, words };
+      const inDeck = new Set(words);
+      if (isObj(d.sense)) {
+        const sense: Record<string, number> = {};
+        for (const [k, n] of Object.entries(d.sense)) if (inDeck.has(k) && num(n, 0, 30) && Number.isInteger(n)) sense[k] = n as number;
+        if (Object.keys(sense).length) deck.sense = sense;
+      }
+      if (isObj(d.note)) {
+        const note: Record<string, string> = {};
+        for (const [k, n] of Object.entries(d.note)) if (inDeck.has(k) && str(n, 200)) note[k] = str(n, 200);
+        if (Object.keys(note).length) deck.note = note;
+      }
+      decks.push(deck);
+      if (decks.length >= 300) break;
+    }
+    if (decks.length) out.decks = decks;
+  }
+  if (Array.isArray(v.hidden)) {
+    const hidden = [...new Set(v.hidden.filter(isWord))].slice(0, 20000);
+    if (hidden.length) out.hidden = hidden;
+  }
+  if (isObj(v.custom)) {
+    const custom: Record<string, CustomWord> = {};
+    for (const [id, c] of Object.entries(v.custom)) {
+      if (!CUSTOM_ID.test(id) || !isObj(c)) continue;
+      const w = str(c.w, 80);
+      const zh = str(c.zh, 300);
+      if (!w || !zh) continue;
+      const word: CustomWord = { w, zh, pos: str(c.pos, 16), created: num(c.created, 0) ? (c.created as number) : 0 };
+      const ipa = str(c.ipa, 80);
+      if (ipa) word.ipa = ipa;
+      const ex = sanitizeExamples(c.ex);
+      if (ex) word.ex = ex;
+      const note = str(c.note, 300);
+      if (note) word.note = note;
+      if (c.auto === true) word.auto = true;
+      if (c.noImg === true) word.noImg = true;
+      const col = sanitizeCollocations(c.col);
+      if (col) word.col = col;
+      custom[id] = word;
+      if (Object.keys(custom).length >= 20000) break;
+    }
+    if (Object.keys(custom).length) out.custom = custom;
+  }
+  if (isObj(v.edits)) {
+    const edits: Record<string, WordEdit> = {};
+    for (const [id, e] of Object.entries(v.edits)) {
+      if (!isWord(id) || !isObj(e)) continue;
+      const edit: WordEdit = {};
+      const zh = str(e.zh, 300);
+      if (zh) edit.zh = zh;
+      const ex = sanitizeExamples(e.ex);
+      if (ex) edit.ex = ex;
+      if (e.noImg === true) edit.noImg = true;
+      const col = sanitizeCollocations(e.col);
+      if (col) edit.col = col;
+      const tip = str(e.tip, 300);
+      if (tip) edit.tip = tip;
+      if (edit.zh || edit.ex || edit.noImg || edit.col || edit.tip) edits[id] = edit;
+    }
+    if (Object.keys(edits).length) out.edits = edits;
+  }
+  return out;
+}
+
+export function sanitizeSettings(v: unknown): Settings {
+  const s = { ...defaultSettings };
+  if (!isObj(v)) return s;
+  if (v.accent === "uk" || v.accent === "us") s.accent = v.accent;
+  if (typeof v.autoplay === "boolean") s.autoplay = v.autoplay;
+  if (num(v.dailyNew, 0, 100)) s.dailyNew = Math.round(v.dailyNew as number);
+  if (num(v.retention, 0.7, 0.97)) s.retention = v.retention as number;
+  if (v.theme === "system" || v.theme === "light" || v.theme === "dark") s.theme = v.theme;
+  if (typeof v.sfx === "boolean") s.sfx = v.sfx;
+  if (typeof v.spell === "boolean") s.spell = v.spell;
+  if (num(v.startLevel, 0, 5)) s.startLevel = Math.round(v.startLevel as number);
+  if (typeof v.onboarded === "boolean") s.onboarded = v.onboarded;
+  if (v.dataset === "open" || v.dataset === "private") s.dataset = v.dataset;
+  if (["off", "stars", "rain", "sea", "forest", "fire", "voyage", "cafe"].includes(v.ambience as string)) s.ambience = v.ambience as Settings["ambience"];
+  if (num(v.ambienceVolume, 0, 1)) s.ambienceVolume = v.ambienceVolume as number;
+  if (typeof v.splash === "boolean") s.splash = v.splash;
+  if (Array.isArray(v.conjTenses)) {
+    const t = v.conjTenses.filter((x): x is string => ["pres", "pc", "imp", "fut", "cond", "subj"].includes(x as string));
+    s.conjTenses = t.length ? [...new Set(t)] : null;
+  }
+  if (num(v.conjNew, 0, 50)) s.conjNew = Math.round(v.conjNew as number);
+  if (typeof v.focusTopic === "string" && /^[a-z0-9-]{1,40}$/.test(v.focusTopic)) s.focusTopic = v.focusTopic;
+  if (Array.isArray(v.studyDecks)) {
+    const d = v.studyDecks.filter((x): x is string => typeof x === "string" && (x === CORE_DECK || DECK_ID.test(x)));
+    s.studyDecks = d.length ? [...new Set(d)].slice(0, 300) : null;
+  }
+  if (typeof v.readColors === "boolean") s.readColors = v.readColors;
+  if (typeof v.readDeck === "string" && DECK_ID.test(v.readDeck)) s.readDeck = v.readDeck;
+  return s;
+}
+
+/* ---------- store ---------- */
+
+interface State {
+  progress: Progress;
+  settings: Settings;
+  saveError: boolean;
+}
+
+let state: State = {
+  progress: emptyProgress("word-atlas-open"),
+  settings: sanitizeSettings(read(SETTINGS_KEY)),
+  saveError: false,
+};
+const listeners = new Set<() => void>();
+let saveTimer: number | undefined;
+/** Only write when this tab changed something, so idle tabs never clobber newer data. */
+let dirty = false;
+/** Progress is written only after it has been read from storage for this dataset. */
+let loadedId: string | null = null;
+
+function emit() {
+  listeners.forEach((l) => l());
+}
+
+function scheduleSave() {
+  dirty = true;
+  window.clearTimeout(saveTimer);
+  saveTimer = window.setTimeout(flush, 250);
+}
+
+export function flush() {
+  window.clearTimeout(saveTimer);
+  if (!dirty) return;
+  dirty = false;
+  const progressOk = loadedId !== state.progress.datasetId || write(progressKey(state.progress.datasetId), state.progress);
+  const ok = progressOk && write(SETTINGS_KEY, state.settings);
+  if (ok === state.saveError) {
+    state = { ...state, saveError: !ok };
+    emit();
+  }
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", flush);
+  document.addEventListener("visibilitychange", () => document.visibilityState === "hidden" && flush());
+  // Another tab saved: adopt its data instead of keeping a stale copy.
+  window.addEventListener("storage", (e) => {
+    if (!e.newValue) return;
+    try {
+      if (e.key === SETTINGS_KEY) state = { ...state, settings: sanitizeSettings(JSON.parse(e.newValue)) };
+      else if (e.key === progressKey(state.progress.datasetId))
+        state = { ...state, progress: sanitizeProgress(JSON.parse(e.newValue), state.progress.datasetId) };
+      else return;
+      emit();
+    } catch {
+      /* ignore malformed writes */
+    }
+  });
+}
+
+/* ---------- alias migration with snapshots ---------- */
+
+export const listSnapshots = (datasetId: string) =>
+  Object.keys(localStorage)
+    .filter((k) => k.startsWith(`word-atlas:snapshot:${datasetId}:`))
+    .sort();
+
+/** Keep the five newest snapshots; older ones are removed. */
+function writeSnapshot(p: Progress): string {
+  const key = `word-atlas:snapshot:${p.datasetId}:${Date.now()}`;
+  write(key, p);
+  const keys = listSnapshots(p.datasetId);
+  for (const k of keys.slice(0, Math.max(0, keys.length - 5))) localStorage.removeItem(k);
+  return key;
+}
+
+export const store = {
+  get: () => state,
+  /** Move alias records onto their primary ids. Saves a snapshot first; changes nothing when already migrated. */
+  migrateAliases(aliases: AliasMap) {
+    const { progress, report } = migrateAliasesPure(state.progress, aliases);
+    if (!report.changed) return { ...report, snapshot: null as string | null };
+    const snapshot = writeSnapshot(state.progress);
+    state = { ...state, progress };
+    emit();
+    scheduleSave();
+    flush();
+    return { ...report, snapshot };
+  },
+  /** Replace the current progress with a snapshot taken earlier (keeps everything else). */
+  restoreSnapshot(key: string): boolean {
+    const raw = read<Progress>(key);
+    if (!raw) return false;
+    const restored = sanitizeProgress(raw, state.progress.datasetId);
+    state = { ...state, progress: restored };
+    emit();
+    scheduleSave();
+    flush();
+    return true;
+  },
+  subscribe(l: () => void) {
+    listeners.add(l);
+    return () => listeners.delete(l);
+  },
+  useDataset(datasetId: string) {
+    flush();
+    state = { ...state, progress: sanitizeProgress(read(progressKey(datasetId)), datasetId) };
+    loadedId = datasetId;
+    emit();
+  },
+  progress(fn: (p: Progress) => Progress) {
+    state = { ...state, progress: fn(state.progress) };
+    emit();
+    scheduleSave();
+  },
+  settings(patch: Partial<Settings>) {
+    state = { ...state, settings: { ...state.settings, ...patch } };
+    emit();
+    scheduleSave();
+  },
+};
+
+export function useStore<T>(select: (s: State) => T): T {
+  return useSyncExternalStore(store.subscribe, () => select(state), () => select(state));
+}
+
+export function bumpDay(p: Progress, patch: Partial<DayStat>): Progress {
+  const k = dayKey();
+  const d = p.days[k] ?? { n: 0, r: 0, c: 0, t: 0 };
+  return {
+    ...p,
+    days: {
+      ...p.days,
+      [k]: { n: d.n + (patch.n ?? 0), r: d.r + (patch.r ?? 0), c: d.c + (patch.c ?? 0), t: d.t + (patch.t ?? 0) },
+    },
+  };
+}
+
+export function toggleBookmark(id: string) {
+  store.progress((p) => ({
+    ...p,
+    bookmarks: p.bookmarks.includes(id) ? p.bookmarks.filter((x) => x !== id) : [id, ...p.bookmarks],
+  }));
+}
+
+/* ---------- backup ---------- */
+
+export function exportBackup() {
+  flush();
+  const { progress, settings } = state;
+  const images = getImages();
+  return JSON.stringify({ app: "word-atlas", version: 2, exported: new Date().toISOString(), progress: { ...progress, session: null }, settings, ...(Object.keys(images).length ? { images } : {}) }, null, 1);
+}
+
+function markDirty() {
+  dirty = true;
+}
+
+export function importBackup(text: string): { ok: true; cards: number } | { ok: false; error: string } {
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return { ok: false, error: "文件不是有效的 JSON。" };
+  }
+  if (!isObj(data) || data.app !== "word-atlas" || data.version !== 2 || !isObj(data.progress))
+    return { ok: false, error: "这不是法语词光的学习备份。" };
+  const id = state.progress.datasetId;
+  if (data.progress.datasetId !== id) return { ok: false, error: "备份来自另一个词库，请先切换到对应词库。" };
+  const progress = sanitizeProgress({ ...data.progress, session: null }, id);
+  state = { ...state, progress, settings: { ...sanitizeSettings(data.settings), onboarded: true } };
+  // pictures the learner added (卡组 / 自建词), when the backup has them
+  if (isObj(data.images)) {
+    const imgs: Record<string, string> = {};
+    for (const [k, v] of Object.entries(data.images)) if (WORD_ID.test(k) && isImageDataUrl(v)) imgs[k] = v;
+    void replaceImages(imgs);
+  }
+  emit();
+  markDirty();
+  flush();
+  return { ok: true, cards: Object.keys(progress.cards).length };
+}
+
+export function resetProgress() {
+  state = { ...state, progress: emptyProgress(state.progress.datasetId) };
+  emit();
+  markDirty();
+  flush();
+}

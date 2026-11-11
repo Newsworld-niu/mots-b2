@@ -1,0 +1,7508 @@
+# 没有中文释义（释义待补充）。这些词条在图鉴中可见，但不进入学习与测验
+agenda	agenda
+assistant	assistant
+beurre	beurre
+bureau	bureau
+boulot	boulot
+chef	chef
+chemise	chemise
+chercher	chercher
+commercial	commercial
+chose	chose
+courrier	courrier
+contacter	contacter
+duree	durée
+ecrire	écrire
+emploi	emploi
+employe	employé
+entreprise	entreprise
+essayer	essayer
+joindre	joindre
+message	message
+mail	mail
+moyen	moyen
+mobile	mobile
+note	note
+montre	montre
+photocopie	photocopie
+placard	placard
+portable	portable
+proposer	proposer
+ranger	ranger
+remplir	remplir
+rendez-vous	rendez-vous
+reunion	réunion
+souhaiter	souhaiter
+accueillir	accueillir
+departement	département
+economiser	économiser
+lycee	lycée
+metier	métier
+stage	stage
+tricher	tricher
+usage-m	usage
+cuisse	cuisse
+dent	dent
+joue	joue
+menton	menton
+ongle	ongle
+vitamine	vitamine
+cote-f	côte
+fievre-f	fièvre
+achat	achat
+certain	certain
+change	change
+communication	communication
+cheville	cheville
+doigt	doigt
+donner	donner
+economie	économie
+elever	élever
+etre	être
+faire	faire
+grand	grand
+lettre	lettre
+jour	jour
+mettre	mettre
+moins	moins
+moitie	moitié
+montant	montant
+mot	mot
+operation	opération
+perte	perte
+plus	plus
+poids	poids
+prendre	prendre
+protection	protection
+prive	privé
+produit	produit
+quantite	quantité
+quart	quart
+rentree	rentrée
+rembourser	rembourser
+rien	rien
+rester	rester
+rond	rond
+revenu	revenu
+social	social
+sortie	sortie
+tete	tête
+banque	banque
+billet	billet
+bon-marche	bon marché
+boucherie	boucherie
+boulangerie	boulangerie
+boutique	boutique
+charcuterie	charcuterie
+credit	crédit
+depenser	dépenser
+distributeur	distributeur
+emprunt	emprunt
+epicerie	épicerie
+librairie	librairie
+livraison	livraison
+patisserie	pâtisserie
+pharmacie	pharmacie
+pret	prêt
+recette	recette
+regler	régler
+remboursement	remboursement
+retirer	retirer
+retrait	retrait
+richesse	richesse
+supermarche	supermarché
+taxe	taxe
+tranche	tranche
+versement	versement
+vitrine	vitrine
+agneau	agneau
+ail	ail
+aile	aile
+alimentaire-adj	alimentaire
+ananas	ananas
+aperitif	apéritif
+armagnac	armagnac
+arete	arête
+assiette	assiette
+aubergine	aubergine
+automatique	automatique
+avenue	avenue
+banane	banane
+bancaire-adj	bancaire
+base	base
+basilic	basilic
+biologique	biologique
+biere	bière
+blanquette	blanquette
+boire	boire
+boisson	boisson
+bol	bol
+bouchon	bouchon
+bouf	bouf
+bourguignon	bourguignon
+brie	brie
+brouille	brouillé
+brule	brûlé
+bearnais	béarnais
+cafetiere	cafetière
+cafe	café
+camembert	camembert
+camomille	camomille
+carafe	carafe
+carotte	carotte
+casserole	casserole
+cendrier	cendrier
+centime	centime
+champagne	champagne
+champignon	champignon
+chou-fleur	chou-fleur
+cheque	chèque
+chevre	chèvre
+cidre	cidre
+cocotte	cocotte
+code-m	code
+cognac	cognac
+concombre	concombre
+condiment	condiment
+confiture	confiture
+conserve	conserve
+coquillage	coquillage
+coquille-saint-jacques	coquille Saint-Jacques
+cornichon	cornichon
+courant-	courant
+courgette	courgette
+couvercle	couvercle
+crabe	crabe
+crevette	crevette
+croissant	croissant
+crudite	crudité
+creme-f	crème
+cremerie	crèmerie
+crediteur	créditeur
+cuillere	cuillère
+cuit	cuit
+cotelette	côtelette
+dessert	dessert
+digestif	digestif
+dinde	dinde
+debiteur	débiteur
+decouvert	découvert
+delicieux	délicieux
+deposer	déposer
+eau-f	eau
+entrecote	entrecôte
+escalope	escalope
+espece	espèce
+estragon	estragon
+euro	euro
+faim	faim
+flambe	flambé
+fourchette	fourchette
+fraise	fraise
+franc-m	franc
+fromagerie	fromagerie
+fruit-de-mer	fruit de mer
+gazeux	gazeux
+gigot	gigot
+glace	glace
+gourmand	gourmand
+gouter	goûter
+gateau	gâteau
+haricot	haricot
+huitre	huître
+infusion	infusion
+introduire	introduire
+jambon	jambon
+jus	jus
+kiwi	kiwi
+lait	lait
+liquide	liquide
+lorraine	lorraine
+legume	légume
+macaroni	macaroni
+mayonnaise	mayonnaise
+melon	melon
+menthe	menthe
+menu-m	menu
+millefeuille	millefeuille
+mineral	minéral
+morceau	morceau
+moule	moule
+moule-m	moule
+muscat	muscat
+mur-2	mûr
+nappe	nappe
+oignon	oignon
+olive	olive
+pamplemousse	pamplemousse
+passoire	passoire
+pastis	pastis
+persil	persil
+plateau	plateau
+poire	poire
+poireau	poireau
+pois-chiche	pois chiche
+poissonnerie	poissonnerie
+poivre	poivre
+poivron	poivron
+pomme-de-terre	pomme de terre
+porc	porc
+porto	porto
+poudre	poudre
+poulet	poulet
+provence	Provence
+pruneau	pruneau
+prelever	prélever
+prelevement-m	prélèvement
+pate	pâte
+pate-m	pâté
+petillant	pétillant
+peche	pêche
+quiche	quiche
+quoi	quoi
+radis	radis
+repas	repas
+riche-adj	riche
+riz	riz
+romarin	romarin
+roquefort	roquefort
+rose-adj	rosé
+roti	rôti
+salade	salade
+saladier	saladier
+sardine	sardine
+sauce	sauce
+saucisse	saucisse
+saucisson	saucisson
+sel	sel
+serveur-n	serveur
+soif	soif
+sole	sole
+sorbet	sorbet
+souffle-m	soufflé
+soupe	soupe
+spaghetti	spaghetti
+sucre	sucre
+sucrerie	sucrerie
+tarte	tarte
+tartine	tartine
+tasse	tasse
+thon	thon
+thym	thym
+the	thé
+theiere	théière
+tournesol	tournesol
+truffe	truffe
+ustensile	ustensile
+vanille	vanille
+veau	veau
+vegetarien	vegétarien
+verveine	verveine
+vin	vin
+vinaigre	vinaigre
+vinaigrette	vinaigrette
+volaille	volaille
+whisky	whisky
+yaourt	yaourt
+eclair	éclair
+epinards	épinards
+oeuf	œuf
+acheter	acheter
+affiche	affiche
+administration	administration
+accompagner	accompagner
+arriver	arriver
+appareil-photo	appareil photo
+art	art
+applaudir	applaudir
+applaudissement	applaudissement
+apprendre	apprendre
+assister	assister
+architecte	architecte
+betise	bêtise
+baguette	baguette
+balcon	balcon
+auteur	auteur
+batiment	bâtiment
+bourse	bourse
+central	central
+chambre	chambre
+chanson	chanson
+chant	chant
+chanter	chanter
+chat	chat
+chateau	château
+ciel	ciel
+cinema	cinéma
+combien	combien
+comment	comment
+commenter	commenter
+commun	commun
+cheveu	cheveu
+classe	classe
+chien	chien
+clavier	clavier
+cle	clé
+chirurgien	chirurgien
+chocolat	chocolat
+choisir	choisir
+comprendre	comprendre
+comprime	comprimé
+compte	compte
+collection	collection
+copie	copie
+couteau	couteau
+couverture	couverture
+correspondance	correspondance
+corriger	corriger
+crayon	crayon
+costume	costume
+documentaire	documentaire
+dossier	dossier
+ecole	école
+economique	économique
+dire	dire
+ecrit	écrit
+ecrivain	écrivain
+enseignement	enseignement
+emprunter	emprunter
+entree	entrée
+enfant	enfant
+erreur	erreur
+felicitation	félicitation
+etude	étude
+etudiant	étudiant
+fond	fond
+gris	gris
+gros	gros
+grossir	grossir
+groupe	groupe
+guichet	guichet
+guide	guide
+handicap	handicap
+handicape	handicapé
+herbe	herbe
+heure	heure
+historique	historique
+homosexuel	homosexuel
+huile	huile
+humain	humain
+humour	humour
+immeuble	immeuble
+impot	impôt
+impression	impression
+imprimante	imprimante
+imprimer	imprimer
+instrument	instrument
+intelligence	intelligence
+intelligent	intelligent
+lire	lire
+litteraire	littéraire
+litterature	littérature
+livre	livre
+logiciel	logiciel
+magnifique	magnifique
+maison	maison
+nom	nom
+musee	musée
+musique	musique
+nature	nature
+objet	objet
+monument	monument
+obtenir	obtenir
+oreille	oreille
+participer	participer
+partir	partir
+page	page
+plaque	plaque
+piano	piano
+poche	poche
+poesie	poésie
+place	place
+presentation	présentation
+presenter	présenter
+plan	plan
+preter	prêter
+raison	raison
+principal	principal
+rappeler	rappeler
+question	question
+queue	queue
+rater	rater
+repasser	repasser
+religieux	religieux
+reserver	réserver
+responsable	responsable
+salle	salle
+salon	salon
+restaurant	restaurant
+roman	roman
+scolaire	scolaire
+sculpture	sculpture
+saison	saison
+rideau	rideau
+sein	sein
+sens	sens
+sensible	sensible
+separation	séparation
+serrer	serrer
+serrure	serrure
+service	service
+servir	servir
+soigner	soigner
+soiree	soirée
+sol	sol
+soleil	soleil
+somme	somme
+sport	sport
+sportif	sportif
+station	station
+spectacle	spectacle
+spectateur	spectateur
+surface	surface
+surprise	surprise
+tourner	tourner
+table	table
+taille	taille
+taper	taper
+tapis	tapis
+terrain	terrain
+terre	terre
+terrible	terrible
+tousser	tousser
+theatre	théâtre
+technicien	technicien
+telefilm	téléfilm
+televise	télévisé
+televiseur	téléviseur
+temps	temps
+tennis	tennis
+touche	touche
+tour	tour
+touristique	touristique
+traverser	traverser
+triste	triste
+tristesse	tristesse
+trouver	trouver
+tube	tube
+universite	université
+usine	usine
+vague	vague
+valeur	valeur
+valider	valider
+vase	vase
+voleur	voleur
+cathedrale	cathédrale
+exposition	exposition
+oeuvre	œuvre
+allumer	allumer
+defendre	défendre
+devoir	devoir
+eteindre	éteindre
+grandir	grandir
+signifier	signifier
+sociabilite	sociabilité
+vacances-f	vacances
+allemand	allemand
+anglais	anglais
+bac-m	bac
+enseigner	enseigner
+exercice	exercice
+fac	fac
+geographie	géographie
+maternel	maternel
+maths	maths
+matiere-f	matière
+primaire	primaire
+prof	prof
+recaler	recaler
+redoubler	redoubler
+recu-	reçu
+systeme-m	système
+technique	technique
+terminal-	terminal
+eleve-n	élève
+etudier	étudier
+accident	accident
+accouchement	accouchement
+alcool	alcool
+apparence	apparence
+apporter	apporter
+assis	assis
+an	an
+attendre	attendre
+attraper	attraper
+blesse	blessé
+bon	bon
+bebe	bébé
+but	but
+bout	bout
+bouton	bouton
+bras	bras
+centre	centre
+champion	champion
+competition	compétition
+court	court
+court-adj	court
+couvert	couvert
+corps	corps
+consulter	consulter
+coton	coton
+coucher	coucher
+couloir	couloir
+dormir	dormir
+dos	dos
+double	double
+disputer	disputer
+emporter	emporter
+enceinte	enceinte
+epaule	épaule
+emmener	emmener
+equipe	équipe
+enrhume	enrhumé
+fauteuil	fauteuil
+filet	filet
+fin	fin
+frange	frange
+frapper	frapper
+geste	geste
+frise	frisé
+fort	fort
+gagner	gagner
+grave	grave
+franc	franc
+grippe	grippe
+homme	homme
+lancer	lancer
+jambe	jambe
+jeu	jeu
+jeune	jeune
+joie	joie
+lent	lent
+joueur	joueur
+lever	lever
+marquer	marquer
+mer	mer
+maigrir	maigrir
+match	match
+mechancete	méchanceté
+malade	malade
+maladie	maladie
+medecin	médecin
+medicament	médicament
+mince	mince
+manche	manche
+mousse	mousse
+mouvement	mouvement
+mur	mur
+naissance	naissance
+occasion	occasion
+nez	nez
+patte	patte
+operer	opérer
+pansement	pansement
+peau	peau
+peigne	peigne
+perdre	perdre
+pastille	pastille
+patience	patience
+patient	patient
+poser	poser
+plat	plat
+posture	posture
+physique	physique
+pied	pied
+plafond	plafond
+pomme	pomme
+preservatif	préservatif
+porter	porter
+radio	radio
+raide	raide
+qualite	qualité
+rapide	rapide
+raquette	raquette
+recevoir	recevoir
+ressembler	ressembler
+sang	sang
+roulant	roulant
+saigner	saigner
+rhume	rhume
+suivre	suivre
+visage	visage
+ventre	ventre
+accoucher	accoucher
+ambulance	ambulance
+aspirine	aspirine
+aveugle-adj	aveugle
+ceil-yeux-m	ceil / yeux
+clinique	clinique
+courir	courir
+creve-adj	crevé
+coeur	cœur
+debout	debout
+dentiste-n	dentiste
+estomac	estomac
+fatigue-adj	fatigué
+fesse	fesse
+gueri	guéri
+irrite	irrité
+lentille	lentille
+lunettes	lunettes
+mal-adv	mal
+mieux-adv	mieux
+muscle-m	muscle
+poitrine	poitrine
+sourd-adj	sourd
+tenir-v	tenir
+transporter	transporter
+urgence	urgence
+vue-f	vue
+abricot	abricot
+age	âge
+angle	angle
+allume	allumé
+ami	ami
+ampoule	ampoule
+argent	argent
+ballon	ballon
+bleu	bleu
+bonbon	bonbon
+avoir	avoir
+casser	casser
+bricolage	bricolage
+cerise	cerise
+brosse	brosse
+changer	changer
+carte	carte
+chaud	chaud
+citron	citron
+clair	clair
+client	client
+cote-m	côté
+couleur	couleur
+cru	cru
+difficile	difficile
+electricien	électricien
+electricite	électricité
+electrique	électrique
+environnement	environnement
+energie	énergie
+envoyer	envoyer
+enlever	enlever
+espace	espace
+fermer	fermer
+feu	feu
+feuille	feuille
+fleur	fleur
+fleuve	fleuve
+froid	froid
+fruit	fruit
+foret	forêt
+forme	forme
+gant	gant
+gaz	gaz
+framboise	framboise
+histoire	histoire
+hopital	hôpital
+langue	langue
+jardin	jardin
+jardinage	jardinage
+lavande	lavande
+jaune	jaune
+ligne	ligne
+linge	linge
+marcher	marcher
+macon	maçon
+main	main
+mauvais	mauvais
+malheureux	malheureux
+moutarde	moutarde
+noir	noir
+nuit	nuit
+monde	monde
+neige	neige
+panne	panne
+payer	payer
+or	or
+papier	papier
+peindre	peindre
+peintre	peintre
+peinture	peinture
+pain	pain
+passer	passer
+peur	peur
+pot	pot
+plomb	plomb
+plombier	plombier
+pinceau	pinceau
+raisin	raisin
+prix	prix
+rayon	rayon
+renouvelable	renouvelable
+regarder	regarder
+rentrer	rentrer
+reparer	réparer
+recycler	recycler
+sante	santé
+saumon	saumon
+rose	rose
+rouge	rouge
+rouler	rouler
+sable	sable
+sortir	sortir
+tableau	tableau
+travail	travail
+tomate	tomate
+tomber	tomber
+vitre	vitre
+voir	voir
+vol	vol
+verre	verre
+vert	vert
+vouloir	vouloir
+vrai	vrai
+viande	viande
+vie	vie
+ecologie	écologie
+effet-de-serre	effet de serre
+appareil	appareil
+blog	blog
+canard	canard
+chaine	chaîne
+chapeau	chapeau
+composer	composer
+culture	culture
+dessin	dessin
+domaine	domaine
+ecouter	écouter
+excuser	excuser
+lecteur-m	lecteur
+mois	mois
+ordinateur	ordinateur
+philosophie	philosophie
+photo	photo
+souris	souris
+technologie	technologie
+tele	télé
+texto	texto
+traduire	traduire
+aout	août
+automne	automne
+avance	avance
+avril	avril
+bal	bal
+banlieue	banlieue
+brouillard	brouillard
+climatique	climatique
+demi-heure	demi-heure
+dimanche	dimanche
+decembre	décembre
+defile	défilé
+en-haut	en haut
+falloir	falloir
+feu-d-artifice	feu d'artifice
+ferie	férié
+fevrier	février
+fete	fête
+galette	galette
+hiver	hiver
+huit	huit
+janvier	janvier
+jeudi	jeudi
+juillet	juillet
+juin	juin
+lundi	lundi
+mai	mai
+mardi	mardi
+mars	mars
+mercredi	mercredi
+midi	midi
+militaire	militaire
+minuit	minuit
+muguet	muguet
+neiger	neiger
+novembre	novembre
+nuage	nuage
+octobre	octobre
+offrir	offrir
+orage	orage
+ouvrable	ouvrable
+pendule	pendule
+planete-f	planète
+pleuvoir	pleuvoir
+pluie	pluie
+presse-adj	pressé
+printemps	printemps
+paques-f	Pâques
+quatorze	quatorze
+samedi	samedi
+sapin	sapin
+semaine	semaine
+septembre	septembre
+souffler	souffler
+splendide	splendide
+temperature	température
+tempete	tempête
+tonnerre	tonnerre
+torrent	torrent
+tradition	tradition
+trois	trois
+tot	tôt
+vendredi	vendredi
+vent	vent
+verglas	verglas
+ecologiste-adj	écologiste
+ete	été
+administratif	administratif
+accord	accord
+arret	arrêt
+appeler	appeler
+ancien	ancien
+bizarre	bizarre
+barbe	barbe
+avocat	avocat
+campagne	campagne
+changement	changement
+civil	civil
+chomeur	chômeur
+droite	droite
+developper	développer
+document	document
+domicile	domicile
+eglise	église
+enchante	enchanté
+ennui	ennui
+ennuyeux	ennuyeux
+extraordinaire	extraordinaire
+fisc	fisc
+genial	génial
+formulaire	formulaire
+francais	français
+lecon	leçon
+interessant	intéressant
+liste	liste
+obligatoire	obligatoire
+opinion	opinion
+origine	origine
+partie	partie
+pacs	pacs
+periode	période
+passeport	passeport
+police	police
+raconter	raconter
+repeter	répéter
+reposer	reposer
+republique	république
+reduction	réduction
+roi	roi
+retraite	retraite
+second	second
+securite	sécurité
+societe	société
+sujet	sujet
+transport	transport
+visuel	visuel
+victime	victime
+adolescence	adolescence
+anniversaire	anniversaire
+beau-frere	beau-frère
+belle-fille	belle-fille
+belle-soeur	belle-sœur
+college	collège
+couple	couple
+courses	courses
+enfance	enfance
+grands-parents	grands-parents
+mariage	mariage
+menage	ménage
+noel	Noël
+talent	talent
+accuse-n	accusé
+adolescent-n	adolescent
+adulte	adulte
+affreux	affreux
+africain	africain
+afrique	Afrique
+agriculteur	agriculteur
+aide	aide
+algerie	Algérie
+allemagne	Allemagne
+aller	aller
+aller-chercher	aller chercher
+allumette	allumette
+alpes	Alpes
+alsace	Alsace
+amerique	Amérique
+animal	animal
+anime	animé
+annuaire	annuaire
+annee	année
+antillais	antillais
+antilles	Antilles
+appetit	appétit
+apres	après
+apres-midi	après-midi
+arbre	arbre
+architecture	architecture
+argentine	Argentine
+armoire	armoire
+artisan	artisan
+ascenseur	ascenseur
+asie	Asie
+aspirateur	aspirateur
+au-revoir	au revoir
+australie	Australie
+autriche	Autriche
+autrichien	autrichien
+avant-prep	avant
+avion	avion
+baignoire	baignoire
+bain	bain
+barquette	barquette
+beau-pere-m	beau-père
+beaux-parents	beaux-parents
+belge	belge
+belgique	Belgique
+belle-mere	belle-mère
+bibliotheque-f	bibliothèque
+bidet	bidet
+bien-adv	bien
+biscuit	biscuit
+bise	bise
+bisou	bisou
+blond	blond
+bonjour	bonjour
+bonsoir	bonsoir
+bougie	bougie
+bouquet	bouquet
+bourgeois	bourgeois
+boite-f	boîte
+branche	branche
+bravo	bravo
+bretagne	Bretagne
+britannique	britannique
+brosser	brosser
+brun	brun
+bresil	Brésil
+bulgare	bulgare
+bulgarie	Bulgarie
+bus	bus
+benin	Bénin
+caisse	caisse
+cambodge	Cambodge
+cameroun	Cameroun
+canada	Canada
+canadien	canadien
+canape	canapé
+cantine-f	cantine
+carnet	carnet
+carrefour	carrefour
+cave	cave
+ceci	ceci
+chaise	chaise
+champ	champ
+chance	chance
+chanteur	chanteur
+chariot	chariot
+charme	charme
+chef-d-oeuvre	chef-d'œuvre
+chez	chez
+chili	Chili
+chine	Chine
+chinois	chinois
+chypre	Chypre
+chypriote	chypriote
+chatain	châtain
+chequier	chéquier
+cimetiere	cimetière
+ciseaux	ciseaux
+coin	coin
+colis	colis
+colline	colline
+colombie	Colombie
+comme	comme
+commercant	commerçant
+commissariat	commissariat
+commode-f	commode
+comptable	comptable
+concert	concert
+confortable	confortable
+congo	Congo
+congelateur	congélateur
+connaitre	connaître
+content	content
+contexte	contexte
+continent	continent
+continuer	continuer
+corse	Corse
+coucher-m	coucher
+couette	couette
+coup-de-fil	coup de fil
+cousin	cousin
+coussin	coussin
+critique-f	critique
+cuisine	cuisine
+culturel	culturel
+cote-d-ivoire	Côte d'Ivoire
+d-o-m-c-o-m	D.O.M-C.O.M
+dame	dame
+danemark	Danemark
+danger	danger
+danois	danois
+danse	danse
+danseur	danseur
+date	date
+dedans	dedans
+dehors	dehors
+demander	demander
+demi-litre	demi-litre
+demi-livre	demi-livre
+dentifrice	dentifrice
+derriere	derrière
+description	description
+dessiner	dessiner
+destinataire	destinataire
+deux-pieces	deux-pièces
+devant-prep	devant
+direction	direction
+dizaine	dizaine
+dodo	dodo
+dordogne	Dordogne
+douche	douche
+douzaine	douzaine
+drap	drap
+droit-adv	droit
+declaration	déclaration
+declarer	déclarer
+deces	décès
+decede	décédé
+dejeuner	déjeuner
+demenager	déménager
+deposition	déposition
+desole	désolé
+diner	dîner
+e-mail-	e-mail
+egypte	Egypte
+embrasser	embrasser
+en-bas	en bas
+en-face	en face
+enseignant-n	enseignant
+entre	entre
+entrepreneur	entrepreneur
+enveloppe-f	enveloppe
+escalier	escalier
+espagne	Espagne
+espagnol	espagnol
+est	est
+estonie	Estonie
+estonien	estonien
+europe	Europe
+europeen	européen
+expediteur	expéditeur
+exterieur	extérieur
+facteur	facteur
+facture	facture
+famille	famille
+femme	femme
+femme-de-menage	femme de ménage
+fenetre	fenêtre
+ferme-f	ferme
+fille	fille
+fils	fils
+finistere	Finistère
+finlandais	finlandais
+finlande	Finlande
+finnois	finnois
+france	France
+francophone	francophone
+francophonie	francophonie
+frere	frère
+feliciter	féliciter
+gabon	Gabon
+garage	garage
+garagiste-m	garagiste
+garonne	Garonne
+garcon	garçon
+gendre	gendre
+gens	gens
+gomme	gomme
+gramme	gramme
+grand-mere	grand-mère
+grand-pere	grand-père
+grande-bretagne	Grande-Bretagne
+grece	Grèce
+guadeloupe	Guadeloupe
+guadeloupeen	guadeloupéen
+guitare	guitare
+guitariste	guitariste
+guyanais	guyanais
+guyane	Guyane
+genie	génie
+habitant	habitant
+habiter	habiter
+halle	halle
+hlm	HLM
+hongrie	Hongrie
+hongrois	hongrois
+hotesse-de-l-air	hôtesse de l'air
+ici	ici
+il-faut	il faut
+ile	ile
+immatriculation	immatriculation
+impoli	impoli
+inculte	inculte
+indique	indiqué
+indonesie	Indonésie
+informaticien-n	informaticien
+ingenieur-n	ingénieur
+internet	Internet
+interieur-m	intérieur
+invitation	invitation
+inviter	inviter
+irlandais	irlandais
+irlande	Irlande
+italie	Italie
+italien	italien
+japon	Japon
+je-t-en-prie	je t'en prie
+je-vous-en-prie	je vous en prie
+joli	joli
+journee	journée
+jusqu-a	jusqu'à
+juste-adv	juste
+kenya	Kenya
+kilo	kilo
+lac	lac
+laid	laid
+laisser-v	laisser
+lampe	lampe
+laos	Laos
+lavabo	lavabo
+lave-linge	lave-linge
+lave-vaisselle	lave-vaisselle
+laver	laver
+lessive	lessive
+letton	letton
+lettonie	Lettonie
+lever-m	lever
+linguistique	linguistique
+lit	lit
+litre	litre
+lituanie	Lituanie
+lituanien	lituanien
+livre-f	livre
+livrer	livrer
+locataire	locataire
+logement-m	logement
+loin-adv	loin
+loire	Loire
+loyer	loyer
+lumiere-f	lumière
+luxembourg	Luxembourg
+luxembourgeois	luxembourgeois
+la-bas	là-bas
+machine	machine
+madagascar	Madagascar
+madame	madame
+magasin	magasin
+maltais	maltais
+malte	Malte
+maman	maman
+mamie	mamie
+maquillage	maquillage
+maquiller	maquiller
+mari	mari
+marie	marié
+maroc	Maroc
+marron	marron
+martiniquais	martiniquais
+martinique	Martinique
+matin	matin
+mayotte	Mayotte
+merci	merci
+mesurer	mesurer
+meuble	meuble
+meuse	Meuse
+mexique	Mexique
+minute	minute
+miroir	miroir
+moderne	moderne
+monsieur	monsieur
+montagne	montagne
+moquette	moquette
+mort-	mort
+moustache	moustache
+mouton-m	mouton
+musicien	musicien
+metis	métis
+metropolitain	métropolitain
+nationalite	nationalité
+naitre	naître
+nettoyer-v	nettoyer
+neveu-m	neveu
+niger	Niger
+niece	nièce
+nord	nord
+normandie	Normandie
+nounou	nounou
+nouvelle-caledonie	Nouvelle-Calédonie
+nouvelle-zelande	Nouvelle-Zélande
+ne	né
+neerlandais	néerlandais
+o-i-f	O.I.F.
+occident	Occident
+occidental	occidental
+ocean	océan
+oceanie	Océanie
+officiel	officiel
+oiseau	oiseau
+oncle	oncle
+opera	opéra
+organisation	organisation
+orient	Orient
+oriental	oriental
+ouest	ouest
+ou	où
+paire	paire
+panier	panier
+papa	papa
+papi	papi
+paquet	paquet
+par-terre	par terre
+pardon	pardon
+parent	parent
+paris	Paris
+parisien	parisien
+parking	parking
+parlementaire	parlementaire
+passage-pietons	passage piétons
+pauvre-adj	pauvre
+pays-bas	Pays-Bas
+perdu	perdu
+personne	personne
+petit-fils	petit-fils
+petite-fille	petite-fille
+petits-pois	petits pois
+petits-enfants	petits-enfants
+pianiste	pianiste
+pilote	pilote
+piece-f	pièce
+plier	plier
+poli	poli
+politesse	politesse
+pologne	Pologne
+polonais	polonais
+polynesie	Polynésie
+pompier	pompier
+pont-m	pont
+porte	porte
+porte-monnaie	porte-monnaie
+portefeuille	portefeuille
+portugais	portugais
+portugal	Portugal
+positif	positif
+postal	postal
+poste-f	poste
+poster	poster
+poule	poule
+pour	pour
+poeme-m	poème
+prioritaire	prioritaire
+profession	profession
+proprietaire-n	propriétaire
+provincial	provincial
+pres-adv	près
+pret-adj	prêt
+pyrenees	Pyrénées
+peripherie	périphérie
+petrole	pétrole
+quebec	Québec
+radiateur	radiateur
+raser	raser
+rasoir	rasoir
+recycle	recyclé
+remercier	remercier
+repassage	repassage
+retraite-n	retraité
+rez-de-chaussee	rez-de-chaussée
+rhin	Rhin
+rhone	Rhône
+riviere	rivière
+rond-point	rond-point
+roumain	roumain
+roumanie	Roumanie
+royaume-uni	Royaume-Uni
+russe	russe
+refrigerateur	réfrigérateur
+region	région
+republique-tcheque	République Tchèque
+reunionnais	réunionnais
+reveil	réveil
+s-il-te-plait	s'il te plaît
+s-il-vous-plait	s'il vous plaît
+saint-barthelemy	Saint-Barthélemy
+saint-martin	Saint-Martin
+saint-pierre-et-miquelon	Saint-Pierre-et-Miquelon
+salle-de-bains	salle de bains
+salle-de-sejour	salle de séjour
+salle-a-manger	salle à manger
+salut	salut
+samu	SAMU
+savon	savon
+sculpteur	sculpteur
+secours	secours
+seine	Seine
+serviette-f	serviette
+shampooing	shampooing
+situation	situation
+slovaque	slovaque
+slovaquie	Slovaquie
+slovene	slovène
+slovenie	Slovénie
+sms	sms
+soir	soir
+sonner	sonner
+sonnette	sonnette
+sous-sol	sous-sol
+stagiaire-n	stagiaire
+standardiste	standardiste
+stylo	stylo
+sud	sud
+suisse	suisse
+suisse-f	Suisse
+suede	Suède
+suedois	suédois
+seche-cheveux	sèche-cheveux
+secher	sécher
+senegal	Sénégal
+soeur	sœur
+tablette-f	tablette
+taille-crayon	taille-crayon
+tampon	tampon
+tante	tante
+tatie	tatie
+taxi	taxi
+tcheque	tchèque
+ticket	ticket
+timbre-m	timbre
+togo	Togo
+toilette	toilette
+toit	toit
+tonton	tonton
+tout-	tout
+tout-droit	tout droit
+tracteur	tracteur
+train	train
+tram	tram
+travailler	travailler
+tribunal	tribunal
+trigo	trigo
+trottoir	trottoir
+trousse	trousse
+tu	tu
+tunisie	Tunisie
+telephoner	téléphoner
+telephonique	téléphonique
+union-europeenne	Union Européenne
+unique	unique
+utile	utile
+vache	vache
+vaisselle	vaisselle
+vaucluse	Vaucluse
+vendeur-n	vendeur
+vietnam	Vietnam
+village	village
+ville	ville
+voeu	voeu
+voila	voilà
+voiture	voiture
+voler-	voler
+voudrais	voudrais
+vous	vous
+velo	vélo
+wallis-et-futuna	Wallis-et-Futuna
+week-end	week-end
+yeux-	yeux
+a-bientot	à bientôt
+a-tout-a-l-heure	à tout à l'heure
+age-adj	âgé
+ca-va	ça va
+educatif	éducatif
+electronique-	électronique
+epais	épais
+etage	étage
+etagere	étagère
+etats-unis	États-Unis
+etoile	étoile
+etrennes	étrennes
+evier	évier
+miel	•miel
+abonnement	abonnement
+agence	agence
+article	article
+bas	bas
+autre	autre
+bavard	bavard
+bouche	bouche
+conversation	conversation
+contact	contact
+ecran	écran
+discuter	discuter
+dispute	dispute
+entrer	entrer
+emission	émission
+expliquer	expliquer
+feminin	féminin
+journal	journal
+journaliste-n	journaliste
+kiosque	kiosque
+marchand	marchand
+mensonge	mensonge
+magazine	magazine
+mentir	mentir
+meteo	météo
+media	média
+nouvelle	nouvelle
+numero	numéro
+parler	parler
+photographe	photographe
+plaindre	plaindre
+presse	presse
+professionnel	professionnel
+programme	programme
+quotidien	quotidien
+prononcer	prononcer
+prononciation	prononciation
+renseignement	renseignement
+renseigner	renseigner
+repondre	répondre
+reportage	reportage
+revue	revue
+verite	vérité
+abonne-adj	abonné
+accent	accent
+accepter	accepter
+adresse	adresse
+audiovisuel-adj	audiovisuel
+camescope	caméscope
+compact	compact
+connexion	connexion
+coordonnees	coordonnées
+disque	disque
+dommage	dommage
+explication	explication
+fixe	fixe
+graveur	graveur
+hi-fi	hi-fi
+informatique	informatique
+instant	instant
+la-adv	là
+menteur-adj	menteur
+messagerie	messagerie
+multimedia	multimédia
+patienter	patienter
+phrase	phrase
+proposition	proposition
+public-adj	public
+qui	qui
+refuser	refuser
+repondeur	répondeur
+signification	signification
+site-m	site
+sur-adj	sûr
+tard	tard
+traduction	traduction
+telephone	téléphone
+unite	unité
+video	vidéo
+volontiers	volontiers
+vouloir-dire	vouloir dire
+ca	ça
+egal	égal
+bouteille	bouteille
+discussion	discussion
+eplucher	éplucher
+farine	farine
+fromage	fromage
+four	four
+jouer	jouer
+manger	manger
+ouvrir	ouvrir
+poele	poêle
+preparer	préparer
+revenir	revenir
+tire-bouchon	tire-bouchon
+verser	verser
+aeroport	aéroport
+autoroute	autoroute
+camion	camion
+chauffeur	chauffeur
+circulation	circulation
+conduire	conduire
+croisement	croisement
+decoller	décoller
+descendre	descendre
+embouteillage	embouteillage
+equipement	équipement
+essence	essence
+gare	gare
+mecanicien	mécanicien
+metro	métro
+monter-v	monter
+moteur	moteur
+permis-de-conduire	permis de conduire
+phare	phare
+retard	retard
+route	route
+station-service	station-service
+vehicule	véhicule
+addition-f	addition
+atterrir	atterrir
+cadeau	cadeau
+camping	camping
+confirmer	confirmer
+destination	destination
+embarquement	embarquement
+frontiere	frontière
+hotel	hôtel
+louer	louer
+monnaie	monnaie
+oreiller	oreiller
+piscine	piscine
+sac	sac
+sac-a-dos	sac à dos
+souvenir-m	souvenir
+valise-f	valise
+voyage	voyage
+capitale	capitale
+epargne	épargne
+gauche-f	gauche
+province	province
+aller-retour-m	aller-retour
+assurance	assurance
+atterrissage	atterrissage
+baigner	baigner
+balle	balle
+bicyclette	bicyclette
+bonnet	bonnet
+camper	camper
+caravane	caravane
+club	club
+coffre	coffre
+collectionner	collectionner
+compris	compris
+conducteur-n	conducteur
+console	console
+contravention	contravention
+direct-adj	direct
+discotheque	discothèque
+decollage	décollage
+defaire	défaire
+entrainement	entraînement
+foot	foot
+garer-v	garer
+horodateur	horodateur
+immediat	immédiat
+inclus	inclus
+individuel	individuel
+jouet	jouet
+local-adj	local
+loisir	loisir
+lot	lot
+loto	Loto
+marche-f	marche
+moto	moto
+mots-croises-m	mots croisés
+mecanique	mécanique
+natation	natation
+numerique-adj	numérique
+organise	organisé
+p-v	P. V.
+parasol	parasol
+pique-nique	pique-nique
+pique-niquer	pique-niquer
+piste-	piste
+plage	plage
+poupee	poupée
+pratiquer	pratiquer
+promenade	promenade
+promener	promener
+randonnee	randonnée
+remontee	remontée
+retour	retour
+roue-f	roue
+regle-	règle
+revision	révision
+scrabble	Scrabble®
+ski	ski
+skieur	skieur
+sommet	sommet
+stade	stade
+super-m	super
+tente-f	tente
+tgv	TGV
+trottinette	trottinette
+visa	visa
+vite	vite
+volant-m	volant
+voyager-v	voyager
+voyageur-n	voyageur
+yoga	yoga
+echecs	échecs
+affection	affection
+adorable	adorable
+adorer	adorer
+agressif	agressif
+aimer	aimer
+air	air
+arrogance	arrogance
+arrogant	arrogant
+amateur	amateur
+artiste	artiste
+assez	assez
+amical	amical
+amour	amour
+amoureux	amoureux
+bonheur	bonheur
+calme	calme
+chagrin	chagrin
+cochon	cochon
+cours	cours
+croire	croire
+entendre	entendre
+ennuyer	ennuyer
+eteint	éteint
+etonne	étonné
+facile	facile
+film	film
+gentillesse	gentillesse
+gorge	gorge
+furieux	furieux
+lapin	lapin
+liaison	liaison
+interesser	intéresser
+libre	libre
+joyeux	joyeux
+lune	lune
+mechant	méchant
+modeste	modeste
+modestie	modestie
+nager	nager
+nerveux	nerveux
+pays	pays
+penser	penser
+part	part
+personnalite	personnalité
+possible	possible
+petit	petit
+pleurer	pleurer
+pouvoir-v	pouvoir
+poisson	poisson
+plaire	plaire
+plaisanter	plaisanter
+plaisir	plaisir
+pretentieux	prétentieux
+pretention	prétention
+pris	pris
+quitter	quitter
+relation	relation
+rencontrer	rencontrer
+rendre	rendre
+rire	rire
+vivre	vivre
+voix	voix
+absolument	absolument
+accessoire	accessoire
+activite	activité
+agressivite	agressivité
+amuser	amuser
+anorak	anorak
+antipathique	antipathique
+appartement	appartement
+bague	bague
+beaucoup	beaucoup
+beige	beige
+bijou	bijou
+blouson	blouson
+bonte	bonté
+botte	botte
+boucle-d-oreille	boucle d'oreille
+bracelet	bracelet
+briquet	briquet
+broche	broche
+bete-adj	bête
+cabine	cabine
+caractere-m	caractère
+casquette	casquette
+ceinture	ceinture
+chaleur	chaleur
+chaleureux	chaleureux
+chaussette	chaussette
+chaussure	chaussure
+chic	chic
+chouette	chouette
+col	col
+collant	collant
+collier	collier
+contentement	contentement
+contre	contre
+copain	copain
+copine	copine
+cravate	cravate
+cuir	cuir
+culotte	culotte
+cultive	cultivé
+celibataire-adj	célibataire
+diamant	diamant
+divorce	divorce
+divorcer	divorcer
+divorce-adj	divorcé
+douceur	douceur
+drole	drôle
+defaut	défaut
+demode-adj	démodé
+deshabiller	déshabiller
+desirer	désirer
+ensemble	ensemble
+ensemble-m	ensemble
+expression	expression
+fonce	foncé
+franchise	franchise
+froideur	froideur
+gentil	gentil
+genereux-adj	généreux
+generosite	générosité
+habiller	habiller
+habille	habillé
+haut-adj	haut
+honnete	honnête
+honnetete	honnêteté
+horrible	horrible
+hypocrisie	hypocrisie
+hypocrite	hypocrite
+impatience	impatience
+impatient	impatient
+impermeable	imperméable
+intolerance	intolérance
+intolerant-adj	intolérant
+jaloux	jaloux
+jean	jean
+jogging	jogging
+jupe	jupe
+laine	laine
+maillot-de-bain	maillot de bain
+mairie-f	mairie
+malhonnete	malhonnête
+malhonnetete	malhonnêteté
+manteau	manteau
+marier	marier
+mariee	mariée
+merveilleux	merveilleux
+mode	mode
+modele-m	modèle
+mouchoir	mouchoir
+nu	nu
+nuancer	nuancer
+optimiste	optimiste
+orange	orange
+pantalon	pantalon
+parapluie	parapluie
+paresse	paresse
+paresseux	paresseux
+parka	parka
+passion-f	passion
+pessimiste	pessimiste
+plastique	plastique
+plutot	plutôt
+pointure	pointure
+polo	polo
+pull	pull
+pyjama	pyjama
+quelqu-un	quelqu'un
+remarier	remarier
+robe	robe
+reserve-adj	réservé
+satisfait	satisfait
+savoir-v	savoir
+sensibilite	sensibilité
+seul	seul
+short	short
+slip	slip
+sociable-adj	sociable
+soie	soie
+sourire	sourire
+sous-vetement	sous-vêtement
+soutien-gorge	soutien-gorge
+super-adj	super
+surpris	surpris
+sweat	sweat
+serieux	sérieux
+t-shirt	T-shirt
+tailleur	tailleur
+talon	talon
+tenue	tenue
+timide	timide
+tolerant	tolérant
+travailleur	travailleur
+trop	trop
+tres	très
+veste	veste
+vraiment	vraiment
+vetement	vêtement
+echarpe	écharpe
+egoisme	égoïsme
+egoiste	égoïste
+elegant	élégant
+agrafeuse	agrafeuse
+atteindre	atteindre
+bloc-notes	bloc-notes
+cartouche	cartouche
+cadre	cadre
+contrat	contrat
+echouer	échouer
+doue	doué
+drh	DRH
+embauche	embauche
+fax	fax
+etiquette	étiquette
+gerer	gérer
+mission	mission
+noter	noter
+occuper	occuper
+omelette	omelette
+ordre	ordre
+parti	parti
+poste	poste
+pme	PME
+president	président
+prospecter	prospecter
+prevoir	prévoir
+risque	risque
+scanner	scanner
+reussir	réussir
+tache	tâche
+tiroir	tiroir
+vente	vente
+virer	virer
+contester	contester
+envie	envie
+lutter	lutter
+negocier	négocier
+pression	pression
+reperer	repérer
+cancer	cancer
+cou	cou
+coude	coude
+crane	crâne
+fatigue	fatigue
+genou	genou
+mollet	mollet
+orteil	orteil
+poignet	poignet
+poil	poil
+poumon	poumon
+rein	rein
+ronfler	ronfler
+sage-femme	sage-femme
+son	son
+sourcil	sourcil
+carriere-f	carrière
+levre-f	lèvre
+aide-soignant-n	aide-soignant
+apprenti-n	apprenti
+artisan-n	artisan
+auteur-n	auteur
+categorie	catégorie
+coiffeur-n	coiffeur
+consultant	consultant
+correctement	correctement
+cv	CV
+employeur-n	employeur
+fatigant	fatigant
+fournisseur-m	fournisseur
+interprete	interprète
+juge-n	juge
+kine	kiné
+livreur	livreur
+logistique	logistique
+manuel-adj	manuel
+mecanique-f	mécanique
+naturalise	naturalisé
+salarie-adj	salarié
+socio-professionnel	socio-professionnel
+vrp	VRP
+educateur	éducateur
+accelerer	accélérer
+baisse	baisse
+balance	balance
+benefice	bénéfice
+calculer	calculer
+calculette	calculette
+carre	carré
+coup	coup
+couper	couper
+dette	dette
+doubler	doubler
+escalade	escalade
+exporter	exporter
+exact	exact
+fois	fois
+fortune	fortune
+foule	foule
+hauteur	hauteur
+importer	importer
+loi	loi
+longueur	longueur
+manquer	manquer
+lourd	lourd
+moyenne	moyenne
+nombreux	nombreux
+modere	modéré
+paiement	paiement
+peser	peser
+pourcentage	pourcentage
+ralentir	ralentir
+profond	profond
+secteur	secteur
+signer	signer
+transferer	transférer
+tournant	tournant
+bail	bail
+caddie	caddie
+commande	commande
+embleme	emblème
+endetter	endetter
+estimer	estimer
+heritage	héritage
+heriter	hériter
+marchander	marchander
+mondialisation	mondialisation
+papeterie	papeterie
+peage	péage
+percevoir	percevoir
+placement	placement
+placer	placer
+organiser	organiser
+stationnement	stationnement
+couter-v	coûter
+reglement-m	règlement
+aise	aisé
+alimentation	alimentation
+alimenter	alimenter
+amuse-gueule	amuse-gueule
+appoint	appoint
+approvisionner	approvisionner
+appetissant	appétissant
+apres-vente	après-vente
+atmosphere	atmosphère
+beurre-adj	beurré
+bistrot	bistrot
+bouchee	bouchée
+bouilloire	bouilloire
+bourgogne	bourgogne
+brioche	brioche
+buffet	buffet
+cacahuete	cacahuète
+cahier	cahier
+calvados	calvados
+cigare	cigare
+cigarette	cigarette
+cocktail	cocktail
+cocotte-minute	cocotte-minute
+comptant	comptant
+concentre	concentré
+convive	convive
+copieux	copieux
+coque	coque
+coquetier	coquetier
+corbeille	corbeille
+cordon-bleu	cordon-bleu
+courant-adj	courant
+creux-adj	creux
+croque-monsieur	croque-monsieur
+crepe	crêpe
+dessous-de-plat	dessous-de-plat
+destinataire-n	destinataire
+dictionnaire	dictionnaire
+dollar	dollar
+deboucher	déboucher
+deca	déca
+decouper	découper
+defavorise-adj	défavorisé
+dejeuner-	déjeuner
+delice	délice
+detendu	détendu
+emballer	emballer
+entonnoir	entonnoir
+express	express
+exquis	exquis
+fameux	fameux
+fauche	fauché
+flacon	flacon
+fleuriste-n	fleuriste
+formule	formule
+fortune-adj	fortuné
+fouet	fouet
+frite	frite
+gastronome	gastronome
+gin	gin
+grillade	grillade
+grille-pain	grille-pain
+guide-n	guide
+honoraires	honoraires
+immangeable	immangeable
+kir	kir
+laverie	laverie
+libeller	libeller
+lorrain	lorrain
+louche-f	louche
+luxueux	luxueux
+leche-vitrine	lèche-vitrine
+manche-m	manche
+manique	manique
+maitre-d-hotel	maître d'hôtel
+mensualite	mensualité
+milliardaire	milliardaire
+millionnaire	millionnaire
+mixeur	mixeur
+muesli	muesli
+ouvre-boite	ouvre-boîte
+paquet-cadeau	paquet-cadeau
+parfumerie	parfumerie
+pharmacien-n	pharmacien
+piment	piment
+pizza	pizza
+poivriere	poivrière
+potable	potable
+pouce	pouce
+presse-agrumes	presse-agrumes
+pressing	pressing
+proverbe	proverbe
+prune	prune
+presente	présenté
+puce	puce
+radin	radin
+releve	relevé
+releve-adj	relevé
+respectueux	respectueux
+rien-	rien
+ruine-adj	ruiné
+rape-f	râpe
+regaler	régaler
+reunir	réunir
+saint-emilion	saint-émilion
+saliere	salière
+sale-adj	salé
+sancerre	sancerre
+sandwich	sandwich
+sauternes	sauternes
+savoureux	savoureux
+soda	soda
+solde	solde
+sou	sou
+spatule	spatule
+tabac	tabac
+tablier	tablier
+teinturerie	teinturerie
+terrasse	terrasse
+ticket-m	ticket
+trois-adj	trois
+vingtaine	vingtaine
+virement	virement
+vegetarien-adj	végétarien
+epargner	épargner
+accuser	accuser
+acteur	acteur
+adroit	adroit
+atelier	atelier
+bibliographie	bibliographie
+catalogue	catalogue
+bouquiniste	bouquiniste
+camera	caméra
+candidat	candidat
+bronze	bronze
+chapitre	chapitre
+charge-adj	chargé
+cineaste	cinéaste
+circuler	circuler
+combat	combat
+comedien	comédien
+commettre	commettre
+chiffon	chiffon
+chiffre	chiffre
+chimique	chimique
+chuter	chuter
+coiffure	coiffure
+compter	compter
+concours	concours
+contemporain	contemporain
+controle	contrôle
+doctorat	doctorat
+directeur	directeur
+diriger	diriger
+edition	édition
+engager	engager
+epuise	épuisé
+expose	exposé
+exposer	exposer
+filmer	filmer
+folie	folie
+gestion	gestion
+galerie	galerie
+haine	haine
+hausse	hausse
+heureux	heureux
+humanitaire	humanitaire
+humeur	humeur
+immense	immense
+immigration	immigration
+imposer	imposer
+impulsif	impulsif
+incertain	incertain
+incineration	incinération
+libraire	libraire
+licence	licence
+location	location
+loge	loge
+mention	mention
+master	master
+mat	mat
+metal	métal
+medecine	médecine
+mine	mine
+national	national
+patron	patron
+paysage	paysage
+oral	oral
+orchestre	orchestre
+pedale	pédale
+parcourir	parcourir
+parfait	parfait
+parlant	parlant
+pensee	pensée
+ouvrage	ouvrage
+portrait	portrait
+politique	politique
+preparatoire	préparatoire
+produire	produire
+promettre	promettre
+recale	recalé
+renover	rénover
+recherche	recherche
+repetition	répétition
+respecter	respecter
+reflechir	réfléchir
+responsabilite	responsabilité
+saluer	saluer
+restauration	restauration
+restaurer	restaurer
+science	science
+scolarite	scolarité
+reviser	réviser
+seisme	séisme
+semestre	semestre
+seminaire	séminaire
+sentiment	sentiment
+sentir	sentir
+serie	série
+serre	serre
+siffler	siffler
+signature	signature
+signe	signe
+soigneux	soigneux
+soin	soin
+solaire	solaire
+sombre	sombre
+subir	subir
+subvention	subvention
+sur	sur
+specialise	spécialisé
+sympathiser	sympathiser
+synagogue	synagogue
+taire	taire
+tournoi	tournoi
+trac	trac
+television	télévision
+temoin	témoin
+temple	temple
+titre	titre
+toile	toile
+tremblement	tremblement
+tresor	trésor
+trombone	trombone
+tromper	tromper
+tsunami	tsunami
+turquoise	turquoise
+tuyau	tuyau
+uni	uni
+universitaire	universitaire
+use	usé
+vainqueur	vainqueur
+valoir	valoir
+version	version
+voter	voter
+acces	accès
+visiter	visiter
+autorite-f	autorité
+conge-	congé
+decrire	décrire
+humidite	humidité
+inserer	insérer
+interrompre	interrompre
+mepriser	mépriser
+tutoyer	tutoyer
+vouvoyer	vouvoyer
+scene-f	scène
+tache-f	tache
+attentif-adj	attentif
+calendrier	calendrier
+cartable	cartable
+chimie	chimie
+cinquieme-	cinquième
+civilisation	civilisation
+collegien-n	collégien
+compenser	compenser
+erasmus	Erasmus
+exigeant	exigeant
+feutre	feutre
+gymnase	gymnase
+geo	géo
+indiscipline	indiscipliné
+instit	instit
+lyceen-	lycéen
+mathematiquels	mathématiquels
+maitre	maître
+maitresse	maîtresse
+mediocre	médiocre
+par-coeur	par cœur
+partiel-adj	partiel
+passable	passable
+pause	pause
+perfore	perforé
+physique-	physique
+progres-m	progrès
+psycho	psycho
+recu-adj	reçu
+sixieme	sixième
+socio	socio
+strict	strict
+stylo-bille	stylo-bille
+stylo-plume	stylo-plume
+surveille	surveillé
+selectif	sélectif
+severe	sévère
+technologique	technologique
+these-f	thèse
+viol	viol
+vivant	vivant
+echange	échange
+adversaire	adversaire
+adverse	adverse
+allonge	allongé
+asseoir	asseoir
+appuyer	appuyer
+arbitre	arbitre
+analyse	analyse
+baisser	baisser
+avancer	avancer
+carton	carton
+bouger	bouger
+championnat	championnat
+cardiaque	cardiaque
+cheval	cheval
+classeur	classeur
+couronne	couronne
+couture	couture
+couler	couler
+crise	crise
+continu	continu
+coupe	coupe
+distraire	distraire
+echapper	échapper
+dopage	dopage
+doper	doper
+digerer	digérer
+douleur	douleur
+discipline	discipline
+egalite	égalité
+endormir	endormir
+exceptionnel	exceptionnel
+faute	faute
+figure	figure
+general	général
+glisser	glisser
+front	front
+footballeur	footballeur
+goutte	goutte
+gracieux	gracieux
+gras	gras
+garder	garder
+grimper	grimper
+gazon	gazon
+inscrire	inscrire
+mener	mener
+maigre	maigre
+materiel	matériel
+milieu	milieu
+medical	médical
+mi-temps	mi-temps
+muscle	musclé
+nul	nul
+mordre	mordre
+niveau	niveau
+mourir	mourir
+ordonnance	ordonnance
+os	os
+passage	passage
+pointe	pointe
+piquer	piquer
+polluer	polluer
+prescrire	prescrire
+raie	raie
+rapporter	rapporter
+realiser	réaliser
+reculer	reculer
+remporter	remporter
+refaire	refaire
+sang-froid	sang-froid
+resultat	résultat
+sauter	sauter
+rude	rude
+rugby	rugby
+secouer	secouer
+ride	ride
+ride-adj	ridé
+souffrir	souffrir
+sympathie	sympathie
+tendre	tendre
+victoire	victoire
+alcoolisme	alcoolisme
+atteint	atteint
+battement	battement
+besoin	besoin
+buste	buste
+cerveau	cerveau
+digestion	digestion
+dur-adj	dur
+dependance	dépendance
+depression	dépression
+deprime	déprimé
+enceinte-	enceinte
+encre	encre
+excellent	excellent
+foie	foie
+gout-m	goût
+guerir-v	guerir
+hanche	hanche
+hospitalise	hospitalisé
+intestin	intestin
+lessive-adj	lessivé
+malentendant	malentendant
+malvoyant-adj	malvoyant
+membre	membre
+muscler	muscler
+nage	nage
+nuque	nuque
+odeur	odeur
+odorat	odorat
+organe	organe
+ouie	ouie
+puer	puer
+regard	regard
+repos	repos
+respiration	respiration
+respirer	respirer
+sida	sida
+solide	solide
+squelette	squelette
+sueur	sueur
+tabagisme	tabagisme
+toucher-	toucher
+toxicomanie	toxicomanie
+transpiration	transpiration
+transpirer	transpirer
+urine	urine
+vertebre-f	vertèbre
+enervant	énervant
+enervement	énervement
+enerver	énerver
+affaire	affaire
+arroser	arroser
+arrosoir	arrosoir
+attacher	attacher
+bois	bois
+bordeaux	bordeaux
+catastrophe	catastrophe
+centrale	centrale
+bricoler	bricoler
+brillant	brillant
+briller	briller
+compliment	compliment
+detruit	détruit
+echelle	échelle
+effet	effet
+eolienne	éolienne
+engrais	engrais
+eruption	éruption
+familial	familial
+fer	fer
+fil	fil
+faible	faible
+fuir	fuir
+fuite	fuite
+grille	grillé
+fragile	fragile
+idee	idée
+inondation	inondation
+jeter	jeter
+maree	marée
+magnitude	magnitude
+noce	noce
+noisette	noisette
+nucleaire	nucléaire
+nerf	nerf
+mort-adj	mort
+neutre	neutre
+panneau	panneau
+ordure	ordure
+ouragan	ouragan
+outil	outil
+parole	parole
+pale	pâle
+planter	planter
+plate-bande	plate-bande
+plein	plein
+pousser	pousser
+pince	pince
+pistache	pistache
+planche	planche
+radioactif	radioactif
+prise	prise
+ramasser	ramasser
+raz-de-maree	raz-de-marée
+reparation	réparation
+repousser	repousser
+robinet	robinet
+rose-f	rose
+rosier	rosier
+rouleau	rouleau
+revolution	révolution
+silence	silence
+terne	terne
+velours	velours
+venir	venir
+volcan	volcan
+vernis	vernis
+deforestation	déforestation
+enterrer	enterrer
+fourrure	fourrure
+sauvegarder	sauvegarder
+biologie	biologie
+cable-m	câble
+cle-usb	clé USB
+colonne	colonne
+commentaire	commentaire
+courriel	courriel
+deception	déception
+demarrer	démarrer
+effacer	effacer
+enregistrer	enregistrer
+fichier	fichier
+interviewer	interviewer
+moyen-m	moyen
+parabole	parabole
+paraitre	paraître
+surfer	surfer
+telechargement	téléchargement
+telecharger	télécharger
+transistor	transistor
+utilisation	utilisation
+mise-en-scene-f	mise en scène
+probleme-m	problème
+aboyer	aboyer
+accentuer	accentuer
+actuellement	actuellement
+agricole	agricole
+agriculture	agriculture
+agreable	agréable
+arbuste	arbuste
+arc-en-ciel	arc-en-ciel
+ascension	Ascension
+aujourd-hui	aujourd'hui
+averse	averse
+battant	battant
+ble	blé
+bourrasque	bourrasque
+brise	brise
+bruine	bruine
+brume	brume
+caniculaire	caniculaire
+canicule	canicule
+caresser	caresser
+centimetre	centimètre
+chasse-neige	chasse-neige
+chrysantheme	chrysanthème
+congere	congère
+continental	continental
+cueillir	cueillir
+cyclone	cyclone
+cereale	céréale
+d-affilee	d'affilée
+datation	datation
+dater	dater
+degre	degré
+demain	demain
+demi	demi
+diluvien	diluvien
+dissipation	dissipation
+durable-	durable
+deborder	déborder
+debut	début
+decommander	décommander
+degager	dégager
+degage	dégagé
+degrader	dégrader
+degat	dégât
+depecher	dépêcher
+desastre	désastre
+devaste	dévasté
+endormi	endormi
+ensoleillement	ensoleillement
+entrecouper	entrecouper
+exploitation	exploitation
+extremement	extrêmement
+faner	faner
+fane	fané
+fleuri	fleuri
+fleurir	fleurir
+flocon	flocon
+fossile	fossile
+geler	geler
+giboulee	giboulée
+gite	gite
+givre-m	givre
+glissant	glissant
+griffer	griffer
+grele	grêle
+genetiquement	génétiquement
+geranium	géranium
+hier	hier
+hirondelle	hirondelle
+horaire-adj	horaire
+horriblement	horriblement
+humide	humide
+ideal	idéal
+important-	important
+inferieur	inférieur
+inonde	inondé
+insecte	insecte
+intensif	intensif
+jardiner	jardiner
+kilometre	kilomètre
+mais	mais
+marguerite	marguerite
+massif	massif
+matinal	matinal
+matinee	matinée
+meilleur	meilleur
+miauler	miauler
+midi-	midi
+millenaire	millénaire
+moment	moment
+mousson	mousson
+moustique	moustique
+mediterraneen	méditerranéen
+meteorologique	météorologique
+murir	mürir
+normal-	normal
+nuageux	nuageux
+oceanique	océanique
+ogm	OGM
+orageux	orageux
+organisme	organisme
+parterre	parterre
+pelouse	pelouse
+pentecote	Pentecôte
+pesticide	pesticide
+pile-adv	pile
+pivoine	pivoine
+pleuvoir-v	pleuvoir
+pluvieux	pluvieux
+polaire	polaire
+prairie	prairie
+precipitation	précipitation
+prevision	prévision
+quand	quand
+quatre-adj	quatre
+quel	quel
+quinze	quinze
+rafale	rafale
+rafraichir-v	rafraîchir
+reporter-v	reporter
+retarder	retarder
+ronronner	ronronner
+rossignol	rossignol
+recent	récent
+semence	semence
+sensation	sensation
+siecle-m	siècle
+souffle-2	souffle
+suite	suite
+superbe	superbe
+secheresse	sécheresse
+tempere	tempéré
+terriblement	terriblement
+tondeuse	tondeuse
+tondre	tondre
+tornade	tornade
+torrentiel	torrentiel
+torride	torride
+tous	tous
+toussaint	Toussaint
+transgenique	transgénique
+tropical	tropical
+trefle	trèfle
+tulipe	tulipe
+veille	veille
+vendange	vendange
+vendanger	vendanger
+verger	verger
+vigne	vigne
+vignoble	vignoble
+viticulteur	viticulteur
+viticulture	viticulture
+a-verse	à verse
+eclaircie	éclaircie
+elevage	élevage
+epuiser	épuiser
+agresseur	agresseur
+agression	agression
+alliance	alliance
+antiquite	Antiquité
+assassiner	assassiner
+assemblee	assemblée
+association	association
+augmentation	augmentation
+augmenter	augmenter
+avis	avis
+catholique	catholique
+caution	caution
+cambriolage	cambriolage
+cambrioler	cambrioler
+chantier	chantier
+classique	classique
+controverse	controversé
+conflit	conflit
+crime	crime
+critiquer	critiquer
+cour	cour
+developpement	développement
+devise	devise
+echec	échec
+drapeau	drapeau
+education	éducation
+drogue	drogue
+election	élection
+electoral	électoral
+elu	élu
+epoque	époque
+finance	finance
+fiscal	fiscal
+fraternite	fraternité
+fonctionnaire	fonctionnaire
+gouvernement	gouvernement
+formalite	formalité
+gratuit	gratuit
+hymne	hymne
+identite	identité
+interet	intérêt
+lieu	lieu
+juif	juif
+manifestant	manifestant
+meurtre	meurtre
+militant	militant
+medieval	médiéval
+ministre	ministre
+moyen-age	Moyen Âge
+modifier	modifier
+musulman	musulman
+mosquee	mosquée
+pauvrete	pauvreté
+partager	partager
+peuple	peuple
+point-de-vue	point de vue
+piste	piste
+protestant	protestant
+prison	prison
+projet	projet
+reforme	réforme
+religion	religion
+renaissance	Renaissance
+retrouver	retrouver
+ruine	ruine
+zapper	zapper
+convivialite	convivialité
+deuil	deuil
+integration	intégration
+lien	lien
+recreation	récréation
+abbaye	abbaye
+accrocher	accrocher
+accusation	accusation
+admirable	admirable
+admiratif	admiratif
+adopter	adopter
+adoptif	adoptif
+affectueux	affectueux
+ah-bon	ah bon
+aimable-adj	aimable
+allee	allée
+amaigrissant	amaigrissant
+amande	amande
+amant	amant
+animer	animer
+apres-toi-vous	après toi/vous
+apres-rasage	après-rasage
+asiatique	asiatique
+asile	asile
+athee	athée
+attirant	attirant
+attrister	attrister
+avare	avare
+avenir	avenir
+aine	aîné
+baiser	baiser
+balai	balai
+balai-brosse	balai-brosse
+balayer	balayer
+barbu	barbu
+barrette	barrette
+basane	basané
+beau-fils	beau-fils
+beaute	beauté
+belle-famille	belle-famille
+beur	beur
+bibelot	bibelot
+bientot	bientôt
+bon-	bon
+boucle-adj	bouclé
+bricoleur-n	bricoleur
+bride	bridé
+bruyant	bruyant
+benevolat-m	bénévolat
+benevole-adj	bénévole
+cambrioleur	cambrioleur
+carrelage	carrelage
+chagriner	chagriner
+chapeau-interj	chapeau
+chauffage-m	chauffage
+chauffer	chauffer
+chauve	chauve
+cheminee	cheminée
+chevet	chevet
+chorale	chorale
+cintre	cintre
+cine-club	ciné-club
+cinematheque	cinémathèque
+cirer	cirer
+cloture	clôture
+coiffer	coiffer
+coiffe	coiffé
+comment-adv	comment
+compagnon-n	compagnon
+compassion	compassion
+compositeur	compositeur
+concierge	concierge
+concubinage	concubinage
+condoleances	condoléances
+conjoint-n	conjoint
+connu	connu
+conservatoire	conservatoire
+correct	correct
+coupe-ongles	coupe-ongles
+coupe-adj	coupé
+courage	courage
+croyant-adj	croyant
+cremaillere	crémaillère
+cremation	crémation
+crematorium	crématorium
+cuisiner	cuisiner
+cuisiniere	cuisinière
+celebre	célèbre
+dame-m	dame
+demi-frere-m	demi-frère
+demi-soeur	demi-sœur
+dessus-de-lit	dessus-de-lit
+deux-adj	deux
+devis	devis
+dieu	dieu
+diner-	diner
+discrimination	discrimination
+divan	divan
+diversite	diversité
+dragueur-adj	dragueur
+drap-housse	drap-housse
+debarras	débarras
+debarrasser	débarrasser
+debattre	débattre
+decor	décor
+decoration	décoration
+deceder	décéder
+defense	défense
+degarni	dégarni
+degrade	dégradé
+delit	délit
+demaquillant	démaquillant
+demaquiller	démaquiller
+democratie	démocratie
+democratique	démocratique
+demenagement	déménagement
+demenageur	déménageur
+depute-n	député
+desordre	désordre
+detester	détester
+decu	déçu
+eclat	eclat
+effondrer	effondrer
+eintre	eintre
+einture	einture
+emmenager	emménager
+enfant-m	enfant
+ensemble-	ensemble
+ensoleille	ensoleillé
+enterrement	enterrement
+essuyer	essuyer
+estime	estime
+ex-femme	ex-femme
+ex-mari	ex-mari
+excuse	excuse
+exil	exil
+exile	exilé
+expo	expo
+extreme	extrême
+faire-part	faire-part
+ferme-adj	fermé
+fin-	fin
+foudre	foudre
+four-a-micro-ondes	four à micro-ondes
+frigo	frigo
+felicitations	félicitations
+garde	garde
+gardien-n	gardien
+gerbe	gerbe
+germain	germain
+global	global
+grain	grain
+grenier	grenier
+hair-v	hair
+hall	hall
+harmonieux	harmonieux
+hebdomadaire-adj	hebdomadaire
+il-n-y-a-pas-de-quoi	il n'y a pas de quoi
+immigre-	immigre
+incinerer	incinérer
+inconnu	inconnu
+incroyable	incroyable
+indifference	indifférence
+injustice	injustice
+inspirer	inspirer
+installer	installer
+insultant	insultant
+insecurite	insécurité
+interphone	interphone
+jazz	jazz
+je-t-vous-en-prie	je t/vous en prie
+laideur	laideur
+laicite-f	laïcité
+lendemain	lendemain
+lisse	lisse
+lunettes-f	lunettes
+maghrebin	maghrébin
+maire-m	maire
+maniere-f	manière
+marianne	Marianne
+marseillaise	Marseillaise
+matelas	matelas
+meeting	meeting
+mere	mere
+metteur-en-scene-m	metteur en scène
+miel-m	miel
+mignon	mignon
+minuscule	minuscule
+mobilier	mobilier
+moche	moche
+moelleux	moelleux
+mort-f	mort
+moussant	moussant
+moustachu	moustachu
+multiculturalisme	multiculturalisme
+musicien-	musicien
+melange	mélangé
+mepris	mépris
+nordique	nordique
+neglige	négligé
+obseques	obsèques
+obese-adj	obèse
+originaire	originaire
+orphelin	orphelin
+pacser	pacser
+palier	palier
+parfum	parfum
+parfumer	parfumer
+parquet	parquet
+partage-adj	partagé
+participant	participant
+paternel	paternel
+peigner	peigner
+peint	peint
+penderie	penderie
+pendre	pendre
+petit-dejeuner	petit déjeuner
+pittoresque-adj	pittoresque
+plante	plante
+plomberie	plomberie
+population	population
+portail	portail
+porte-serviettes	porte-serviettes
+portemanteau	portemanteau
+pou	pou
+poubelle	poubelle
+poussiere	poussière
+prochain	prochain
+proche	proche
+propre-adj	propre
+provision	provision
+pere	père
+rap	rap
+ravissant	ravissant
+rebord	rebord
+recommencer	recommencer
+recompose	recomposé
+remerciement	remerciement
+rencontre	rencontre
+repeindre	repeindre
+rincer	rincer
+rock	rock
+rousseur	rousseur
+rupture-f	rupture
+reciter	réciter
+recompenser	récompenser
+reconcilier	réconcilier
+refrigerateur-m	réfrigérateur
+refugie	réfugié
+residence	résidence
+residentiel	résidentiel
+reveiller-v	réveiller
+reveillon	réveillon
+reveillonner	réveillonner
+sanglot	sanglot
+saxophone	saxophone
+secondaire	secondaire
+serpilliere	serpillière
+slave	slave
+soeur-f	soeur
+soigne	soigné
+somme-	somme
+souhait	souhait
+souple-adj	souple
+sourire-	sourire
+soutien	soutien
+studio	studio
+succes-m	succès
+suicider	suicider
+suspendre	suspendre
+sympa	sympa
+symphonique	symphonique
+seduisant	séduisant
+separer	séparer
+tchin-tchin	tchin-tchin
+teint	teint
+tendre-adj	tendre
+terminer	terminer
+tien	tien
+tombe	tombe
+torchon	torchon
+total-adj	total
+tournage	tournage
+travaux	travaux
+trentaine	trentaine
+tresse	tresse
+trinquer	trinquer
+tutoiement	tutoiement
+type	type
+veuf	veuf
+violer	violer
+violeur	violeur
+violoniste	violoniste
+voilage	voilage
+voisin	voisin
+volet	volet
+vouvoiement	vouvoiement
+vulgaire	vulgaire
+votre	vôtre
+voeu-m	vœu
+wagon-bar	wagon-bar
+zero-adj	zéro
+ca-cela	ça / cela
+ca-alors	ça alors
+elire-	élire
+eloigne	éloigné
+eponge	éponge
+epouser	épouser
+equipe-adj	équipé
+etendre	étendre
+abonner	abonner
+annonce	annonce
+annoncer	annoncer
+antenne	antenne
+articulation	articulation
+bavarder	bavarder
+conseil	conseil
+conseiller	conseiller
+crier	crier
+divers	divers
+echanger	échanger
+fait	fait
+exercer	exercer
+exprimer	exprimer
+feuilleton	feuilleton
+evenement	événement
+informer	informer
+lecteur	lecteur
+liberte	liberté
+interroger	interroger
+intervenir	intervenir
+interview	interview
+mensuel	mensuel
+parabolique	parabolique
+precision	précision
+plainte	plainte
+protestation	protestation
+protester	protester
+reclamation	réclamation
+recommander	recommander
+reproche	reproche
+reprocher	reprocher
+reseau	réseau
+silencieux	silencieux
+volume	volume
+absent	absent
+appel	appel
+autoradio	autoradio
+brancher-v	brancher
+cd	CD
+cd-rom	CD-Rom
+coller	coller
+combine	combiné
+compatibilite-f	compatibilité
+compatible-adj	compatible
+contestation	contestation
+couper-coller	couper-coller
+cri	cri
+diese	dièse
+donnee	donnée
+dvd	DVD
+debrancher	débrancher
+deconseiller	déconseiller
+decrocher	décrocher
+derangement	dérangement
+deranger	déranger
+facebook	Facebook
+facilement	facilement
+faxer	faxer
+haut-parleur	haut-parleur
+identifiant	identifiant
+info	info
+injoignable	injoignable
+interrogation	interrogation
+joint	joint
+kit	kit
+lecteur-graveur	lecteur-graveur
+mode-m	mode
+occupe	occupé
+pourquoi	pourquoi
+powerpoint	Powerpoint
+promesse	promesse
+precis	précis
+prevu	prévu
+raccrocher	raccrocher
+reessayer	réessayer
+saisir	saisir
+skype	Skype
+sms-m	sms
+stocker	stocker
+tant-pis	tant pis
+texte	texte
+transmettre	transmettre
+tuner	tuner
+twitter	Twitter
+telecommande	télécommande
+vibreur	vibreur
+web	Web
+wifi	Wifi
+ecran-v	écran
+batteur	batteur
+battre	battre
+fondre	fondre
+larme	larme
+negociation	négociation
+moulin	moulin
+refroidir	refroidir
+rechauffer	réchauffer
+violent	violent
+amende	amende
+attente-f	attente
+bateau	bateau
+casque	casque
+composter	composter
+croisiere	croisière
+depart	départ
+depasser	dépasser
+embarquer	embarquer
+equipage	équipage
+freiner	freiner
+port	port
+quai	quai
+rail	rail
+virage	virage
+voie	voie
+voler	voler
+wagon	wagon
+annuler	annuler
+brochure	brochure
+circuit	circuit
+depliant	dépliant
+douane	douane
+pourboire	pourboire
+depense	dépense
+nation	nation
+opposition	opposition
+parlement	parlement
+affluence	affluence
+alpin	alpin
+alpinisme	alpinisme
+alpiniste	alpiniste
+arrhes	arrhes
+artistique-adj	artistique
+athlete	athlète
+athletisme	athlétisme
+auberge	auberge
+auto-stop	auto-stop
+automobile	automobile
+automobiliste	automobiliste
+aerien	aérien
+aerobic	aérobic
+aerogare	aérogare
+balader	balader
+basket-m	basket
+bord	bord
+bouee	bouée
+boxe	boxe
+boxeur	boxeur
+brasse	brasse
+bronzer	bronzer
+bronze-adj	bronzé
+capitaine	capitaine
+car	car
+carburant	carburant
+chelem	chelem
+chemin-de-fer	chemin de fer
+clignotant-m	clignotant
+co-voiturage	co-voiturage
+colonie	colonie
+consacrer	consacrer
+construction	construction
+controleur-n	contrôleur
+couchage	couchage
+coudre	coudre
+coureur	coureur
+course	course
+coutume	coutume
+crawl	crawl
+cyclisme	cyclisme
+cycliste	cycliste
+danser	danser
+demi-pension	demi-pension
+deux-roues	deux-roues
+diesel	diesel
+domino	domino
+debarquer	débarquer
+defaite	défaite
+deguisement	déguisement
+deguiser	déguiser
+depayse	dépaysé
+deplacer-v	déplacer
+desert	désert
+detaire	détaire
+detendre-v	détendre
+detenir	détenir
+entrainer	entraîner
+entraineur	entraîneur
+escalader	escalader
+escale	escale
+exotique	exotique
+fiche	fiche
+forfaitaire	forfaitaire
+gagnant	gagnant
+garagiste-n	garagiste
+gasoil	gasoil
+gradin	gradin
+gym	gym
+hand	hand
+hippique	hippique
+hote	hôte
+hotesse	hôtesse
+interdit	interdit
+jeunesse	jeunesse
+judo	judo
+judoka	judoka
+limitation	limitation
+limiter	limiter
+luge	luge
+manege	manège
+marathon	marathon
+moniteur-n	moniteur
+musculation	musculation
+medaille	médaille
+nageur	nageur
+nautique	nautique
+noyer	noyer
+occupation	occupation
+olympique	olympique
+p-v-m	P-V
+paquebot	paquebot
+paroi	paroi
+patinage	patinage
+patiner	patiner
+patineur	patineur
+patinoire	patinoire
+payant	payant
+paye	payé
+pension	pension
+perdant	perdant
+permis	permis
+piloter	piloter
+ping-pong	ping-pong
+pieton-adj	piéton
+portiere	portière
+pratique	pratique
+provenance	provenance
+preparatifs	préparatifs
+puzzle	puzzle
+pedaler	pédaler
+quatrieme	quatrième
+rallye	rallye
+randonneur	randonneur
+record	record
+redemarrer	redémarrer
+remboursable	remboursable
+remonte-pente	remonte-pente
+revanche	revanche
+ring	ring
+regle-f	règle
+reservoir	réservoir
+saut	saut
+scooter	scooter
+siege-m	siège
+skier	skier
+sncf	SNCF
+souterrain	souterrain
+squash	squash
+stationner	stationner
+steward	steward
+stretching	stretching
+supporter-m	supporter
+surf	surf
+sejourner	séjourner
+ter	TER
+terrain-	terrain
+tout-droit-adv	tout droit
+traversee	traversée
+trekking	trekking
+tricot	tricot
+tricoter	tricoter
+troisieme	troisième
+vague-f	vague
+vitesse	vitesse
+voile	voile
+volley	volley
+echangeable	échangeable
+epreuve-f	épreuve
+equitation	équitation
+etiquete	étiqueté
+abattu	abattu
+agite	agité
+admiration	admiration
+admirer	admirer
+arreter	arrêter
+amitie	amitié
+attache	attaché
+attention	attention
+attirer	attirer
+blesser	blesser
+aventure	aventure
+chameau	chameau
+changeant	changeant
+cheri	chéri
+communiquer	communiquer
+confiance	confiance
+craquer	craquer
+courageux	courageux
+distraction	distraction
+distrait	distrait
+devenir	devenir
+dynamique	dynamique
+eclater	éclater
+draguer	draguer
+efface	effacé
+entretenir	entretenir
+epouvantable	épouvantable
+eprouver	éprouver
+equilibre-adj	équilibré
+excentrique	excentrique
+etat	état
+fade	fade
+former	former
+gai	gai
+insupportable	insupportable
+manifester	manifester
+mecontent	mécontent
+malheur	malheur
+odieux	odieux
+peine	peine
+original	original
+par-dessus	par-dessus
+pagaille	pagaille
+perseverant	persévérant
+passif	passif
+passionne	passionné
+pitie	pitié
+preuve	preuve
+raisonnable	raisonnable
+prudent	prudent
+radieux	radieux
+reaction	réaction
+rejouir	réjouir
+remettre	remettre
+ressentir	ressentir
+sale	sale
+revoir	revoir
+superieur	supérieur
+tendresse	tendresse
+violon	violon
+acrylique	acrylique
+ambitieux	ambitieux
+amincir	amincir
+assorti	assorti
+au-dessus	au-dessus
+autoritaire	autoritaire
+basket	basket
+bermuda	bermuda
+bottine	bottine
+boucle	boucle
+bretelle	bretelle
+calecon	caleçon
+calme-	calme
+capuche	capuche
+carreau	carreau
+chausser	chausser
+chemisier	chemisier
+combinaison	combinaison
+comme-prep	comme
+competent-adj	compétent
+convaincant	convaincant
+cool	cool
+cravate-f	cravate
+creatif	créatif
+daim	daim
+dentelle	dentelle
+discretion	discrétion
+doudoune	doudoune
+droit-adj	droit
+debardeur	débardeur
+decontracte	décontracté
+detestable	détestable
+en	en
+en-dessous	en dessous
+escarpin	escarpin
+esprit-m	esprit
+essayage	essayage
+expressif	expressif
+fantaisie	fantaisie
+fantastique	fantastique
+formidable	formidable
+foulard	foulard
+froisser	froisser
+gilet	gilet
+genial-	génial
+imagination	imagination
+imprime-adj	imprimé
+imprudent	imprudent
+indiscretion	indiscrétion
+independant-adj	indépendant
+large-adj	large
+legging	legging
+lin	lin
+lingerie	lingerie
+maillot	maillot
+maladroit	maladroit
+mauvais-	mauvais
+mauve	mauve
+merveilleux-adj	merveilleux
+mini-jupe	mini-jupe
+mocassin	mocassin
+motif	motif
+moulant	moulant
+methode	méthode
+methodique	méthodique
+nuance	nuance
+nylon	Nylon
+negatif	négatif
+noeud	nœud
+ouvert-	ouvert
+ouverture	ouverture
+pantoufle	pantoufle
+pape	pape
+papillon	papillon
+parka-m	parka
+pastel	pastel
+peignoir	peignoir
+pendentif	pendentif
+perseverance	persévérance
+pie-f	pie
+plisse	plissé
+pois	pois
+pres-prep	près
+pur	pur
+quelqu-un-	quelqu'un
+rayure	rayure
+rigoureux	rigoureux
+rigueur	rigueur
+roule	roulé
+salopette	salopette
+sandale	sandale
+semelle	semelle
+simple	simple
+smoking	smoking
+sobre	sobre
+socquette	socquette
+super-	super
+superficiel	superficiel
+synthetique	synthétique
+timidite	timidité
+tissu	tissu
+trait-m	trait
+trench	trench
+trente-et-un	trente-et-un
+viscose	viscose
+ecossais	écossais
+etroit	étroit
+a-contrecceur	à contrecceur
+affichage	affichage
+afficher	afficher
+affronter	affronter
+activer	activer
+adjoint	adjoint
+agrafe	agrafe
+agrafer	agrafer
+accomplir	accomplir
+accomplissement	accomplissement
+arrache-agrafes	arrache-agrafes
+annuel	annuel
+appliquer	appliquer
+aspiration	aspiration
+aspirer	aspirer
+ambitionner	ambitionner
+apte	apte
+aptitude	aptitude
+atout	atout
+archive	archive
+badge	badge
+aveu	aveu
+cas	cas
+casier	casier
+coi	COI
+briguer	briguer
+carriere	carriere
+choix	choix
+conge	congé
+come	come
+contenter	contenter
+difficulte	difficulté
+dilemme	dilemme
+diplome-adj	diplômé
+effectu-e-r	effectu e r
+efforcer	efforcer
+elaborer	élaborer
+entreprendre	entreprendre
+electronique	électronique
+envisager	envisager
+e-mail	e-mail
+embarras	embarras
+embaucher	embaucher
+executer	exécuter
+exiger	exiger
+experimenter	expérimenter
+explorer	explorer
+ferme	ferme
+expres	expres
+ficher	ficher
+faillite	faillite
+fourniture	fourniture
+investir	investir
+job	job
+intention	intention
+interimaire	intérimaire
+licencier	licencier
+machinalement	machinalement
+magnetique	magnétique
+maternite	maternité
+mieux	mieux
+objectif	objectif
+offre	offre
+oisif	oisif
+pdg	PDG
+oser	oser
+parier	parier
+partenaire	partenaire
+perplexe	perplexe
+persuader	persuader
+post-it	Post-it
+plein-temps	plein-temps
+photocopier	photocopier
+photocopieuse	photocopieuse
+preferable	préférable
+porte-courrier	porte-courrier
+prime	prime
+ramette	ramette
+projeter	projeter
+renoncer	renoncer
+recommandation	recommandation
+recrutement	recrutement
+rediger	rédiger
+remplacer	remplacer
+reel	réel
+remuneration	rémunération
+resolution	résolution
+risquer	risquer
+reticence	réticence
+reticent	réticent
+reussite	réussite
+reve	rêve
+rever	rêver
+scotch	Scotch
+rh	RH
+secretaire	secrétaire
+soumettre	soumettre
+tatonner	tâtonner
+taureau	taureau
+voici-la-liste-de-mots-qui-est-triee-par-theme-ce-sont-les	Voici la liste de mots qui est triée par thème. Ce sont les
+mots-que-vous-risquez-de-rencontrer-dans-les-documents-pour	mots que vous risquez de rencontrer dans les documents pour
+cela-fait-aussi-partie-de-l-apprentissage-de-chercher-le-mot-et-de	cela fait aussi partie de l'apprentissage de chercher le mot et de
+personnelle-a-travers-les-differentes-techniques-qui-sont	personnelle à travers les différentes techniques qui sont
+proposees-au-debut-de-cet-ouvrage-je-vous-encourage-bien-sur	proposées au début de cet ouvrage. Je vous encourage bien sûr
+a-imprimer-ces-listes	à imprimer ces listes
+des-phrases-avec-ces-mots-tout-en-lisant-la-presse-durant-votre	des phrases avec ces mots. Tout en lisant la presse durant votre
+preparation-a-l-examen	préparation à l'examen
+vous-reconnaissez-dans-cette-liste-quelques-mots-sont-presents	vous reconnaissez dans cette liste. Quelques mots sont présents
+dans-plusieurs-categories	dans plusieurs catégories
+l-education	L'éducation
+le-vocabulaire-de-l-education-et-du-travail-est-assez	Le vocabulaire de l'éducation et du travail est assez
+important	important
+confondent-ce-vocabulaire-est-aussi-tres-utile-a-connaitre-pour	confondent. Ce vocabulaire est aussi très utile à connaître pour
+la-vie-professionnelle-en-france	la vie professionnelle en France
+accoutume-a-faire-qe	accoutumé à faire qe
+agence-d-interim	agence d'intérim
+ailleurs	ailleurs
+aisement	aisément
+aleatoire	aléatoire
+ambiance-de-travail	ambiance de travail
+apprendre-a-faire	apprendre à faire
+apprendre-a	apprendre à
+apprenti	apprenti
+apte-	apte
+attente	attente
+attirer-plus-de-jeunes	attirer plus de jeunes
+attitude-	attitude
+au-terme-de-ce-rapport	au terme de ce rapport
+augmentation-de-salaire	augmentation de salaire
+auto-critique	auto-critique
+autodidacte	autodidacte
+autoriser-a-faire	autoriser. à faire
+avantage-financier	avantage financier
+avoir-acces-a-qe	avoir accès à qe
+avoir-le-merite-de-faire	avoir le mérite de faire
+baccalaureat	baccalauréat
+bachelier	bachelier
+bras-droit	bras droit
+candidater-pour-un-emploi	candidater pour un emploi
+candidature	candidature
+cdd	CDD
+cdi	CDI
+cerebral	cérébral
+chef-	chef
+chef-de-projet	chef de projet
+chercher-un-emploi	chercher un emploi
+chiffre-d-affaires	chiffre d'affaires
+chomeur-	chômeur
+collaborateur	collaborateur
+collegue-de-travail	collègue de travail
+comite-de-direction	comité de direction
+commettre-une-erreur	commettre une erreur
+compabilite	compabilité
+competent	compétent
+complimenter	complimenter
+concentrer-loc	concentrer
+concilier	concilier
+confiance-en-soi	confiance en soi
+conflit-social	conflit social
+conge-parental	congé parental
+conges-payes	congés payés
+constant-	constant
+contrat-de-travail	contrat de travail
+convoquer	convoquer
+copier-coller	copier-coller
+cote-salaries	coté salariés
+cotiser	cotiser
+coupe-budgetaire	coupe budgétaire
+craindre	craindre
+creer-des-emplois	créer des emplois
+critere-de-selection	critère de sélection
+croitre	croître
+culture-generale	culture générale
+curriculum-vitae	curriculum vitae
+cursus-scolaire	cursus scolaire
+declencher-une-greve	déclencher une grève
+decourager	décourager
+decrocher-un-contrat	décrocher un contrat
+defenseur	défenseur
+demarche	démarche
+demissionner-donner-sa-demission	démissionner/donner sa démission
+democratiser	démocratiser
+denoncer	denoncer
+des-mesures-prises	des mesures prises
+desacraliser	désacraliser
+desaffection-pour	désaffection pour
+detourne	détourné
+developper-loc	développer
+diffuser-une-annonce	diffuser une annonce
+diminuer-baisser	diminuer/baisser
+directeur-	directeur
+directive	directive
+dirigeants	dirigeants
+disponible	disponible
+dissuasion	dissuasion
+donner-le-meilleur-se-soi-meme	donner le meilleur se soi-même
+donner-sa-demission	donner sa démission
+efficace-	efficace
+emblematique	emblématique
+employe-	employé
+employeur	employeur
+en-amont	en amont
+enseignante	enseignante
+enseignement-	enseignement
+enseignement-superieur	enseignement supérieur
+entrer-en-conflit	entrer en conflit
+entretien-d-embauche	entretien d'embauche
+equation	équation
+equilibre-	équilibré
+esprit-d-equipe	esprit d'équipe
+estime-de-soi	estime de soi
+etabli	établi
+etre-de-profession	être... de profession
+etre-capable-de	être capable de
+etre-en-a-la-retraite	être en/à la retraite
+etre-fier	être fier
+etre-frustre	étre frustré
+etre-promu	etre promu
+etre-responsable-de-pour	être responsable de/pour
+etudiant-en-science	étudiant en science
+evoluer-dans-sa-carriere	évoluer dans sa carrière
+experience-professionnelle	expérience professionnelle
+experimente	experimenté
+exportation-loc	exportation
+faille	faille
+faire-carriere	faire carrière
+faire-de-son-mieux	faire de son mieux
+faire-la-greve-se-mettre-en-greve	faire la grève/se mettre en grève
+filiere-litteraire	filière littéraire
+filiere-scientifique	filière scientifique
+flexibilite	flexibilité
+flexible	flexible
+fondateur	fondateur
+formation-continue	formation continue
+formation-en-alternance	formation en alternance
+frais-professionnels	frais professionnels
+gagner-sa-vie	gagner sa vie
+habitude	habitude
+harcelement	harcèlement
+heures-supplementaires	heures supplémentaires
+hierarchie	hiérarchie
+horaire-a-la-carte	horaire à la carte
+horaires-de-travail	horaires de travail
+imparfait	imparfait
+import-export	import-export
+incomplet	incomplet
+incomprehensible	incompréhensible
+inconvenient	inconvénient
+industrie	industrie
+inferieur-a	inférieur à
+intolerant	intolérant
+investigation	investigation
+laisser-de-l-espace	laisser de l'espace
+lancer-un-ultimatum	lancer un ultimatum
+le-pari-est-ose	le pari est osé
+lettre-de-motivation	lettre de motivation
+licencier-loc	licencier
+lutte	lutte
+manageur	manageur
+marche-du-travail	marché du travail
+mesurer-a	mesurer à
+mettre-en-avant	mettre. en avant
+motiver	motiver
+negocier-son-salaire	négocier son salaire
+niveau-de-vie	niveau de vie
+objectif-	objectif
+objectif-annuel	objectif annuel
+obliger	obliger
+occuper-un-poste	occuper un poste
+offre-d-emploi	offre d'emploi
+operation-d-encaissement	opération d'encaissement
+ouvrier	ouvrier
+paie	paie
+parier-sur	parier sur
+passion	passion
+patron-	patron
+pdg-president-directeur-general	PDG - Président-directeur général
+perfectionnisme	perfectionnisme
+performant-	performant
+perseverer	persévérer
+personnel	personnel
+pertinent-	pertinent
+plaindre-loc	plaindre
+plus-faible	plus faible
+polyvalent	polyvalent
+population-active	population active
+poser-sa-candidature-a	poser sa candidature à
+otentiel-m	otentiel (m
+precarite	précarité
+prejuge	préjugé
+premisse	prémisse
+prendre-des-mesures	prendre des mesures
+prendre-une-decision	prendre une décision
+preter-a	prêter à
+prime-loc	prime
+priver-de	priver de
+productif	productif
+promoteur	promoteur
+qualifie	qualifié
+raisonne	raisonné
+reconnu	reconnu
+recruter	recruter
+rendre-compte	rendre compte
+resolution-d-un-probleme	résolution d'un problème
+responsable-	responsable
+ressources-pedagogiques	ressources pédagogiques
+reticence-loc	réticence
+retraite-	retraité
+revendiquer	revendiquer
+s-adresser-a	s'adresser à
+s-impliquer-dans	s'impliquer dans
+salaire-brut	salaire brut
+salaire-net	salaire net
+salarie-	salarié
+sciences-sociales	sciences sociales
+scientifiques	scientifiques
+seconder	seconder
+secteur-primaire	secteur primaire
+secteur-secondaire	secteur secondaire
+service-militaire	service militaire
+situer-au-meme-niveau	situer au même niveau
+smic	SMIC
+souple	souple
+specialiser-en	spécialiser en
+stabiliser-loc	stabiliser
+jeth	JETH
+stable-	stable
+stagiaire	stagiaire
+stagner	stagner
+subvenir-a-ses-besoins	subvenir à ses besoins
+supplanter	supplanter
+supprimer-des-emplois	supprimer des emplois
+temps-de-travail	temps de travail
+temps-plein-partiel	temps plein/partiel
+terminale-scientifique	terminale scientifique
+tisser-des-partenariats	tisser des partenariats
+travail-a-plein-temps	travail à plein temps
+travail-a-temps-partiel	travail à temps partiel
+travail-au-noir	travail au noir
+travail-clandestin	travail clandestin
+travail-scolaire	travail scolaire
+travailler-a-son-compte	travailler à son compte
+tromper-loc	tromper
+tyrranique	tyrranique
+un-accomplissement	un accomplissement
+vehiculer	véhiculer
+vente-loc	vente
+viser-a-qo	viser à qo
+la-sante	La santé
+la-sante-est-un-theme-qui-comprend-les-maladies	La santé est un thème qui comprend les maladies
+corps-loc	corps
+acupuncture	acupuncture
+adoucir	adoucir
+aggraver-loc	aggraver
+aide-soignant	aide-soignant
+aigu-	aigu
+ampoule-buvable	ampoule buvable
+anesthesiste	anesthésiste
+angine	angine
+angoisse-	angoissé
+antiseptique	antiseptique
+attraper-une-maladie-tomber-malade	attraper une maladie /tomber malade
+attraper-prendre-froid	attraper/prendre froid
+aveugle	aveugle
+avoir-bonne-mauvaise-mine	avoir bonne/mauvaise mine
+avoir-de-l-embonpoint-etre-corpulent	avoir de l'embonpoint / être corpulent
+avoir-de-la-fievre	avoir de la fièvre
+avoir-de-la-temperature	avoir de la temperature
+avoir-de-troubles-du-sommeil	avoir de troubles du sommeil
+avoir-des-bouffees-de-chaleur	avoir des bouffées de chaleur
+avoir-des-boutons	avoir des boutons
+avoir-des-brulures	avoir des brûlures
+avoir-des-courbatures	avoir des courbatures
+avoir-des-crampes	avoir des crampes
+avoir-des-douleurs-articulaires	avoir des douleurs articulaires
+avoir-des-fourmis-dans-le	avoir des fourmis dans le
+avoir-des-hauts-et-des-bas	avoir des hauts et des bas
+avoir-des-poignees-d-amour	avoir des poignées d'amour
+avoir-du-mal-a-s-endormir	avoir du mal à s'endormir
+avoir-envie-de-vomir	avoir envie de vomir
+avoir-la-nausee	avoir la nausée
+avoir-la-tete-qui-tourne	avoir la tête qui tourne
+avoir-le-hoquet	avoir le hoquet
+avoir-le-mal-a-la-tete-au-crane	avoir le mal à la tete / au crâne
+avoir-le-nez-qui-coule	avoir le nez qui coule
+avoir-les-nerfs-a-fleur-de-peau	avoir les nerfs à fleur de peau
+avoir-mal-au-coeur	avoir mal au cœur
+avoir-recours-a	avoir recours à
+avoir-un-coup-de-barre	avoir un coup de barre
+avoir-un-rage-de-dent	avoir un rage de dent
+avoir-un-rhume	avoir un rhume
+avoir-une-rage-de-dent	avoir une rage de dent
+avoir-une-tendinite	avoir une tendinite
+avoir-une-toux-seche	avoir une toux sèche
+bobo	bobo
+bosse-loc	bosse
+bouche-a-bouche	bouche à bouche
+brulure	brûlure
+cardiologue	cardiologue
+chef-de-clinique	chef de clinique
+chercheur-m	chercheur
+cils	cils
+conseiller-a	conseiller à
+contagieux	contagieux
+contamination	contamination
+contaminer	contaminer
+convalescence	convalescence
+couvrir-loc	couvrir
+creve	crevé
+crise-cardiaque	crise cardiaque
+demanger	démanger
+demanger-loc	démanger
+dentiste	dentiste
+dermatologue	dermatologue
+des-points-de-suture	des points de suture
+diabete	diabète
+diete	diète
+docteur	docteur
+douleur-atroce	douleur atroce
+effet-benefique	effet bénéfique
+eleve-infirmiere	élève-infirmière
+endiguer-une-epidemie	endiguer une épidémie
+enfler-gonfler	enfler/gonfler
+enrhume-	enrhumé
+entourage	entourage
+essouffle	essoufflé
+etablir-un-diagnostic	établir un diagnostic
+etre-bien-portant	être bien-portant
+etre-debout	être debout
+etre-en-surpoids	être en surpoids
+etre-enrhume	être enrhumé
+etre-malade-comme-un-cheval-un-chien	être malade comme un cheval/un chien
+etre-souple	être souple
+evanouissement	évanouissement
+eviter	eviter
+examiner	examiner
+exasperer	exaspérer
+exprimer-un-douleur	exprimer un douleur
+externe	externe
+externe-des-hopitaux	externe des hôpitaux
+faire-une-prise-de-sang	faire une prise de sang
+fatigue-loc	fatigué
+fesses	fesses
+fessier	fessier
+fiable	fiable
+foutu	foutu
+gacher	gâcher
+gastroenterologue	gastroentérologue
+generaliste-m	généraliste
+generaliste-specialiste	généraliste/specialiste
+glande	glande
+gonfler	gonfler
+gouttes	gouttes
+gratter-loc	gratter
+greffe	greffe
+gynecologue	gynécologue
+hematome	hématome
+hemorragie	hémorragie
+homeopathie	homéopathie
+hoquet	hoquet
+inconsciencia	inconsciencia
+infection	infection
+infirmiere	infirmière
+inflammation	inflammation
+insomnie	insomnie
+interne	interne
+jeune-m	jeûne
+le-chef-de-clinique	le chef de clinique
+leger-v	leger
+majeur-m	majeur
+medecin-de-la-famille	médecin de la famille
+medecin-traitant	médecin traitant
+mettre-en-valeur	mettre en valeur
+microbes	microbes
+moelle-epiniere	moelle épinière
+moucher-loc	moucher
+muet-	muet
+n-avoir-que-la-peau-sur-les-os	n'avoir que la peau sur les os
+ne-pas-etre-dans-son-assiette	ne pas être dans son assiette
+nephrologue	néphrologue
+neurologue	neurologue
+nez-bouche	nez bouché
+obese-en-surpoids	obèse / en surpoids
+occuper-loc	occuper
+oeil-les-yeux	œil/les yeux
+ophtalmologiste	ophtalmologiste
+oreillons	oreillons
+oto-rhino-laryngologiste	oto-rhino-laryngologiste
+paisible-	paisible
+patron-m	patron
+pharmacien	pharmacien
+pilule	pilule
+pneumologue	pneumologue
+posologie	posologie
+prendre-froid	prendre froid
+prendre-la-tension-le-pouls	prendre la tension; le pouls
+prendre-le-pouls	prendre le pouls
+proner-a	prôner à
+propager-loc	propager
+psychiatre	psychiatre
+ralentir-sa-consommation	ralentir sa consommation
+rapprocher	rapprocher
+recourir-a	recourir à
+reins	reins
+remede	rèmede
+remedier	remedier
+renifler	renifler
+reposer-loc	reposer
+ressentir-des-picotements	ressentir des picotements
+retablir-loc	rétablir
+reveiller	reveiller
+rhumatologue	rhumatologue
+rougeole	rougeole
+sechement	sèchement
+secreter	secréter
+sedatif	sédatif
+sophrologie	sophrologie
+sourd	sourd
+specialiste-m	spécialiste
+surveillante	surveillante
+tactiturne	tactiturne
+therapeute	thérapeute
+tisane	tisane
+tomber-dans-les-pommes	tomber dans les pommes
+tomber-malade	tomber malade
+transfusion	transfusion
+transfusion-sanguine	transfusion sanguine
+tumeur	tumeur
+veine	veine
+vertebre	vertébre
+vertige	vertige
+vomissements	vomissements
+voute-	vôuté
+maitrise	maîtrise
+comprime-m	comprime
+greve-f	grève
+piqure-f	piqûre
+somnifere-m	somnifère
+actif-m	actif
+abordable	abordable
+actionnaire	actionnaire
+addition	addition
+additionner	additionner
+acceleration	accélération
+ajouter	ajouter
+arrondir	arrondir
+approfondir	approfondir
+arabe	arabe
+bilan	bilan
+avancee	avancée
+bond	bond
+calcul	calcul
+cent	cent
+cessation	cessation
+brut	brut
+cher	cher
+cite-u	cité-U
+competitif	compétitif
+clientele	clientele
+concurrent	concurrent
+courbe	courbe
+conjoncture	conjoncture
+couter	couter
+consommateur	consommateur
+creer	créer
+creneau	créneau
+cote-adj	coté
+creux	creux
+deux	deux
+diviser	diviser
+division	division
+dixieme	dixieme
+dimension	dimension
+diminuer	diminuer
+draconien	draconien
+disproportionne	disproportionné
+egaler	égaler
+en-arriere	en arriere
+en-avant	en avant
+endette	endetté
+eleve	élevé
+epaisseur	épaisseur
+excedentaire	excédentaire
+escroquerie	escroquerie
+exorbitant	exorbitant
+exportation	exportation
+filiale	filiale
+financier	financier
+firme	firme
+excedent	excédent
+fusion	fusion
+fusionner	fusionner
+fortement	fortement
+gamme	gamme
+fraction	fraction
+hardi	hardi
+hec	HEC
+hilarite	hilarité
+importation	importation
+lancement	lancement
+innombrables	innombrables
+large	large
+largeur	largeur
+interieur	intérieur
+lieue	lieue
+kilo-gramme	kilo[gramme]
+long	long
+marasme	marasme
+mental	mental
+mesure	mesure
+metre	metre
+mille	mille
+nombre	nombre
+multinational	multinational
+multiplication	multiplication
+multiplier	multiplier
+multitude	multitude
+nationalisation	nationalisation
+nationaliser	nationaliser
+manter	manter
+niche	niche
+participation	participation
+pas	pas
+pair	pair
+passif-m	passif
+pib	PIB
+pnb	PNB
+pie	pie
+pouvoir	pouvoir
+pile	pile
+proportion	proportion
+proportionnel	proportionnel
+ralentissement	ralentissement
+privatisation	privatisation
+privatiser	privatiser
+quadrupler	quadrupler
+profit	profit
+quatre	quatre
+profondeur	profondeur
+progression	progression
+prohibitif	prohibitif
+rachat	rachat
+racheter	racheter
+recession	récession
+rentable	rentable
+reglement	reglement
+regresser	régresser
+regulier	régulier
+relance	relance
+relancer	relancer
+reprise	reprise
+redressement	redressement
+romain	romain
+retrancher	retrancher
+sort	sort
+succursale	succursale
+suppression	suppression
+supprimer	supprimer
+tater	tâter
+toux	toux
+trouble	trouble
+vendre	vendre
+yeux	yeux
+c-est-un-theme-qui-comprend-un-nombre-important-de-mots	C'est un thème qui comprend un nombre important de mots
+qui-sont-utilises-de-maniere-quotidienne-ils-peuvent-aussi	qui sont utilisés de manière quotidienne. Ils peuvent aussi
+apparaitre-de-maniere-transversale-dans-des-documents-relatifs	apparaître de manière transversale dans des documents relatifs
+abordable-	abordable
+accorder-une-reduction	accorder une réduction
+accumulation	accumulation
+accumuler	accumuler
+achat-en-ligne	achat en ligne
+acheter-a-credit	acheter à crédit
+acheter-d-occasion	acheter d'occasion
+acheter-en-gros	acheter en gros
+acheter-par-correspondance	acheter par correspondance
+acheter-pour-une-bouchee-de-pain	acheter pour une bouchée de pain
+acheter-sur-internet	acheter sur Internet
+acheteur	acheteur
+acompte	acompte
+agence-de-voyage	agence de voyage
+amorce	amorce
+amorcer	amorcer
+antiquaire	antiquaire
+argent-fric-ble	argent = fric = blé
+argent-de-poche	argent de poche
+argent-liquide	argent liquide
+augmentation-de-prix	augmentation de prix
+aupres-de	auprès de
+authenticite	authenticité
+authentique	authentique
+avec-un-bon-d-achat	avec un bon d'achat
+avoir-besoin-d-argent	avoir besoin d'argent
+avoir-a-sa-disposition	avoir... € à sa disposition
+baisser-loc	baisser
+bancaire	bancaire
+biens-de-consommation	biens de consommation
+bijouterie	bijouterie
+blanchiment-d-argent	blanchiment d'argent
+blanchisserie	blanchisserie
+boucher	boucher
+boulanger	boulanger
+bureau-de-tabac	bureau de tabac
+cabine-d-essayage	cabine d'essayage
+campagne-publicitaire	campagne publicitaire
+capital	capital
+carte-bleue	carte bleue
+centre-commercial	centre commercial
+changer-loc	changer
+cher-loc	cher
+chient	chient
+collaborateur-m	collaborateur
+collaboratif	collaboratif
+collaborer	collaborer
+commerce-en-detail	commerce en détail
+commerce-en-gros	commerce en gros
+commerce-exterieur	commerce extérieur
+commerce-interieur	commerce intérieur
+comportement-d-achat	comportement d'achat
+compulsif	compulsif
+configuration	configuration
+confiserie	confiserie
+consommable	consommable
+consommateur-m	consommateur
+consommateur-moyen	consommateur moyen
+consommation-responsable-de-masse	consommation responsable/de masse
+consomme	consommé
+consommer	consommer
+consumerisme	consumérisme
+cout	coût
+creer-des-besoins	créer des besoins
+crise-economique	crise économique
+cycle-de-vie-des-produits	cycle de vie des produits
+d-a-b	D.A.B.
+deballage	déballage
+debourser	débourser
+demander-le-prix-d-un-article	demander le prix d'un article
+demarrer-une-campagne-publicitaire	démarrer une campagne publicitaire
+denommer	dénommer
+depannage	dépannage
+depenser-de-l-argent	dépenser de l'argent
+depenser-trop-d-argent	dépenser trop d'argent
+deposer-verser-de-l-argent-sur-un-livret-d-epargne	déposer/verser de l'argent sur un livret d'épargne
+des-soldes	des soldes
+dettes	dettes
+devoir-de-l-argent-a	devoir de l'argent à
+distribuable	distribuable
+distribution	distribution
+distributivite	distributivité
+droguerie	droguerie
+economiser-pour-inf	économiser pour + inf
+elasticite-prix	élasticité prix
+endettement	endettement
+entrepot	entrepôt
+epargne-economies	épargne /économies
+epargner-pour	épargner pour
+epuise-	épuisé
+equitable	équitable
+essayer-un-vetement	essayer un vêtement
+etal	étal
+etre-a-la-mode	être à la mode
+etude-de-marche	étude de marché
+exonerer	exonérer
+fabricant	fabricant
+faire-de-la-publicite-pour-un-produit	faire de la publicité pour un produit
+faire-des-depenses	faire des dépenses
+faire-des-economies	faire des économies
+faire-du-leche-vitrines	faire du lèche-vitrines
+faire-fructifier	faire fructifier
+faire-plaisir	faire plaisir
+faire-une-bonne-affaire	faire une bonne affaire
+tanatique	tanatique
+fideliser-la-clientele	fidéliser la clientèle
+film-publicitaire	film publicitaire
+financer	financer
+finances	finances
+fiscal-	fiscal
+fleuriste	fleuriste
+fourchette-de-prix	fourchette de prix
+gagner-des-interets	gagner des intérêts
+gagner-loc	gagner
+gagner-se-faire-de-l-argent	gagner= se faire de l'argent
+gain	gain
+gamme-loc	gamme
+garagiste	garagiste
+gaspiller-de-l-argent	gaspiller de l'argent
+gasp-lleur	gaspılleur
+generalisation	généralisation
+generaliser	généraliser
+generer	générer
+gerer-son-argent-son-budget	gérer son argent/son budget
+grand-magasin	grand magasin
+grande-surface	grande surface
+hypermarche	hypermarché
+il-me-manque-de-l-argent	il me manque de l'argent
+il-me-manque-toujours-de-l-argent	il me manque toujours de l'argent
+impots	impôts
+inciter-a-acheter	inciter à acheter
+influence-de-la-publicite	influence de la publicité
+initie	initié
+interets	intérêts
+l-argent-n-a-pas-d-odeur	l'argent n'a pas d'odeur
+l-argent-ne-fait-pas-le-bonheur	l'argent ne fait pas le bonheur
+laisser-tenter-par	laisser tenter par
+lancer-un-produit	lancer un produit
+loueur	loueur
+magas-n	magasın
+magasin-d-electromenager	magasin d'électroménager
+magas-n-de-chaussures	magasın de chaussures
+magas-n-de-jouets	magasın de jouets
+magasin-de-meubles	magasin de meubles
+magasin-de-photos	magasin de photos
+magasin-de-pret-a-porter	magasin de prêt-à-porter
+magasin-de-souvenirs	magasin de souvenirs
+magasin-de-sports	magasin de sports
+manque-d-argent	manque d'argent
+marchand-m	marchand
+marchandage	marchandage
+marketing	marketing
+mettre-de-l-argent-sur-son-compte-bancaire	mettre de l'argent sur son compte bancaire
+mettre-de-cote	mettre... € de côté
+mode-de-vie	mode de vie
+modele-de-societe	modèle de société
+modeste-	modeste
+monetisation	monétisation
+monnale	monnale
+monter	monter
+mutualiste	mutualiste
+mutualite	mutualité
+nuitee	nuitée
+onereux	onéreux
+ouvrir-un-compte-bancaire	ouvrir un compte bancaire
+pan	pan
+par-carte-de-credit	par carte de crédit
+pare-	paré
+partage	partage
+pauvre	pauvre
+payer-a-la-caisse	payer à la caisse
+payer-en-especes-en-liquide	payer en espèces = en liquide
+payer-par-carte-bancaire	payer par carte bancaire
+payer-par-cheque	payer par chéque
+pecule	pécule
+petit-commerce	petit commerce
+phenomene	phénomène
+piece-de-monnaie	pièce de monnaie
+pittoresque	pittoresque
+plat-prepare	plat préparé
+ponctualite	ponctualité
+ponctuel	ponctuel
+ponctuellement	ponctuellement
+porte-a	porté à
+possessif	possessif
+possession	possession
+pouvoir-d-achat	pouvoir d'achat
+prendre-en-compte	prendre en compte
+prestation	prestation
+preter-de-l-argent-a	prêter de l'argent à
+privilege	privilège
+privilegie	privilégié
+privilegier	privilégier
+prix-de-vente	prix de vente
+prix-exorbitant	prix exorbitant
+produit-de-luxe	produit de luxe
+produit-qui-respecte-la-couche-d-ozone	produit qui respecte la couche d'ozone
+proprietaire	propriétaire
+propriete	propriete
+quete	quête
+rabais	rabais
+rapport-qualite-prix	rapport qualité prix
+recettes	recettes
+recevoir-de-l-argent	recevoir de l'argent
+recu	reçu
+reduction-de-prix	réduction de prix
+reduire-les-prix	réduire les prix
+regarder-sans-acheter	regarder sans acheter
+regler-une-facture	régler une facture
+regler-payer-ses-depenses	régler/payer ses dépenses
+remettre-qe-en-question	remettre qe en question
+rendre-la-monnaie	rendre la monnaie
+repondre-aux-besoins-des-consommateurs	répondre aux besoins des consommateurs
+retirer-de-l-argent	retirer de l'argent
+revendeur	revendeur
+revendre	revendre
+revente	revente
+riche	riche
+rue-commercante	rue commerçante
+ruiner	ruiner
+ruiner-loc	ruiner
+service-apres-vente	service après-vente
+servir-le-client	servir le client
+signer-le-livre-blanc-de	signer le livre blanc de
+societe-de-consommation	société de consommation
+soldes	soldes
+somme-loc	somme
+spot-publicitaire	spot publicitaire
+stand	stand
+stock	stock
+superette	supérette
+superflu	superflu
+superflu-m	superflu
+surconsommation	surconsommation
+tendance	tendance
+tenir-un-commerce	tenir un commerce
+terreau	terreau
+tourniquet	tourniquet
+traite-f	traite
+troc	troc
+troquer	troquer
+usage-ponctuel	usage ponctuel
+utiliser-une-carte-bancaire	utiliser une carte bancaire
+vendeur	vendeur
+vendre-au-detail	vendre au détail
+virer-de-l-argent-sur-un-compte-epargne	virer de l'argent sur un compte épargne
+y-mettre	y mettre
+abandonner	abandonner
+achever	achever
+acquisition	acquisition
+abruti	abruti
+abstrait	abstrait
+adequat	adéquat
+admettre	admettre
+agregation	agrégation
+agrege	agrégé
+album	album
+arpege	arpege
+apercevoir	apercevoir
+ambigu	ambigu
+ambigu-ite	ambigu'ité
+amnesique	amnésique
+aquarelle	aquarelle
+amphi-theatre	amphi*[théâtre]
+astucieux	astucieux
+archet	archet
+a-rch-itectu-re	a rch itectu re
+andouille	andouille
+b-ande-d-essinee	B[ande] D[essinée]
+bibliothecaire	bibliothécaire
+bibliotheque	bibliotheque
+attribuer	attribuer
+biographe	biographe
+biographie	biographie
+bande	bande
+blanche	blanche
+autobiographie	autobiographie
+avancement	avancement
+batir	bâtir
+avant-garde	avant-garde
+boitier	boitier
+bd	BD
+beaux-arts	beaux-arts
+bosser	bosser
+b-u	B.U.
+e	e
+cm	CM
+bouquin	bouquin
+bouquiner	bouquiner
+cadrer	cadrer
+boursier	boursier
+cameraman	cameraman
+certitude	certitude
+capes	CAPES
+capesien	capésien
+brouillon	brouillon
+bucher	bücher
+charge	charge
+charmant	charmant
+charmeur	charmeur
+chasse	chasse
+chasser	chasser
+chef-d-reuvre	chef-d'reuvre
+chercheur	chercheur
+cinematographique	cinématographique
+cinephile	cinéphile
+cingle	cinglé
+cinquieme	cinquieme
+circonference	circonférence
+circulaire	circulaire
+citation	citation
+cite	cité
+colorer	colorer
+comble	comblé
+comedie	comédie
+commemoratif	commémoratif
+commemoration	commémoration
+commemorer	commémorer
+commencer	commencer
+commercialiser	commercialiser
+commere	commere
+commode	commode
+chevalet	chevalet
+classement	classement
+classer	classer
+chignon	chignon
+chirurgical	chirurgical
+choc	choc
+comportement	comportement
+chuchotement	chuchotement
+chuchoter	chuchoter
+chute	chute
+cicatrice	cicatrice
+coiffeur	coiffeur
+coince	coincé
+collaboration	collaboration
+colle	colle
+colle-adj	collé
+collecter	collecter
+collectionneur	collectionneur
+collyre	collyre
+compulser	compulser
+concentration	concentration
+concentrer	concentrer
+conception	conception
+concevoir	concevoir
+conclure	conclure
+conclusion	conclusion
+concurrencer	concurrencer
+conviction	conviction
+confus	confus
+copier	copier
+confusion	confusion
+coquin	coquin
+connaltre	connaltre
+corde	corde
+conscience	conscience
+conscient	conscient
+conservateur	conservateur
+conservation	conservation
+costumier	costumier
+construire	construire
+cretin	crétin
+conte	conte
+coulisses	coulisses
+critique	critique
+croche	croche
+coup-de-theatre	coup de théâtre
+couplet	couplet
+droit	droit
+distribuer	distribuer
+dubitatif	dubitatif
+do	do
+doctorant	doctorant
+dialogue	dialogue
+diapason	diapason
+eclairage	éclairage
+doublage	doublage
+dingue	dingue
+doute	doute
+ecriture	écriture
+dirige	dirigé
+douter	douter
+editice	éditice
+edifier	édifier
+editer	éditer
+dramaturge	dramaturge
+editeur	éditeur
+ens	ENS
+entracte	entracte
+en-entier	en entier
+ena	ENA
+enarque	énarque
+encadrer	encadrer
+endommager	endommager
+elephant	éléphant
+engagement	engagement
+embouchure	embouchure
+equivoque	équivoque
+espiegle	espiegle
+espieglerie	espieglerie
+esthetique	esthétique
+expo-sition	expo*[sition]
+festival	festival
+feuilleter	feuilleter
+extrait	extrait
+fiction	fiction
+fa	fa
+fac-ulte	fac*[ulté]
+figuratif	figuratif
+evoquer	évoquer
+final	final
+flash	flash
+flou	flou
+generique	générique
+fresque	fresque
+genre	genre
+foi	foi
+givre	givré
+gouache	gouache
+gourde	gourde
+formel	formel
+fute	futé
+grand-angle	grand-angle
+fosse	fosse
+trais	trais
+grossesse	grossesse
+grotte	grotte
+guerir	guérir
+guerison	guérison
+guerre	guerre
+gueule	gueule
+habile	habile
+hache	hache
+ha-ir	ha'ir
+hausser	hausser
+hebdo-madaire	hebdo*[madaire]
+hectare	hectare
+hero-ine	héro'ine
+heros	héros
+hesitant	hésitant
+hesitation	hésitation
+hesiter	hésiter
+heurter	heurter
+hexagonal	hexagonal
+hexagane	hexagane
+hilare	hilare
+honorable	honorable
+honteux	honteux-
+horreur	horreur
+horrifie	horrifié
+hors-de	hors de
+hospitaliser	hospitaliser
+hostilite	hostilité
+huiler	huiler
+huitieme	huitieme
+humanite	humanité
+hurlement	hurlement
+idiot	idiot
+iep	IEP
+illogique	illogique
+illumination	illumination
+illuminer	illuminer
+illustration	illustration
+imbecile	imbécile
+imiter	imiter
+immediatement	immédiatement
+immigre	immigré
+immuable	immuable
+impair	impair
+impartial	impartial
+imperatrice	impératrice
+impetueux	impétueux
+implanter	implanter
+impopulaire	impopulaire
+impopularite	impopularité
+importance	importance
+imprime	imprimé
+improvisation	improvisation
+improviser	improviser
+inabordable	inabordable
+inadmissible	inadmissible
+inapercu	inaperçu
+inauguration	inauguration
+incarcerer	incarcérer
+incendie	incendie
+incident	incident
+inciter	inciter
+incongru	incongru
+inconstant	inconstant
+incontestable	incontestable
+incredule	incrédule
+indecis	indécis
+indefendable	indéfendable
+indemne	indemne
+indeniable	indéniable
+independance	indépendance
+indetermine	indéterminé
+indice	índice
+indifferent	indifférent
+indigestion	indigestion
+indignation	indignation
+indigne	indigné
+indiscutable	indiscutable
+indispensable	indispensable
+indolent	indolent
+indubitable	indubitable
+inefficace	inefficace
+infarctus	infarctus
+infernal	infernal
+infirme	infirme
+infirmier	infirmier
+infirmite	infirmité
+influencable	influençable
+ingenieur	ingénieur
+ingenieux	ingénieux
+irresponsable	irresponsable
+inscription	inscription
+jaquette	jaquette
+inscrit	inscrit
+laureat	lauréat
+institut	institut
+lecture	lecture
+leger	léger
+intellectuel	intellectuel
+lier	lier
+interpreter	interpréter
+jury	jury
+juste	juste
+intime	intime
+intrigue	intrigue
+la	la
+inventer	inventer
+mefier	méfier
+loin-de	loin de
+melo-drame	mélo*[drame]
+memorable	mémorable
+manuel	manuel
+magistral	magistral
+metrage	métrage
+matiere	matiere
+metronome	métronome
+majeur	majeur
+metteur-en-scene	metteur en scene
+majorite	majorité
+mi	mi
+malin	malin
+mineure	mineure
+mise-en-scene	mise en scene
+muet	muet
+modele	modele
+normal	normal
+normale-sup	Normale Sup
+musical	musical
+nouveaute	nouveauté
+montage	montage
+o	o
+monteur	monteur
+net	net
+mosa-i-que	mosa'i'que
+neuf	neuf
+ceuvre	ceuvre
+par-cceur	par cceur
+parcours-lmd	parcours LMD
+pensif	pensif
+percussion	percussion
+ouvreur	ouvreur
+ovation	ovation
+ovationner	ovationner
+partiel	partiel
+p	p
+partition	partition
+palette	palette
+palmares	palmares
+palme	palme
+pertinent	pertinent
+photo-graphie	photo[graphie]
+poulailler	poulailler
+plume	plume
+poeme	poême
+poete	poête
+piger	piger
+polar	polar
+pique	piqué
+policier	policier
+piston	piston
+polytechnicien	polytechnicien
+prepa	prépa
+polytechnique	polytechnique
+portee	portée
+plancher	plancher
+raisonnement	raisonnement
+primer	primer
+psychologique	psychologique
+pupitre	pupitre
+a	a
+rang	rang
+producteur	producteur
+rare	rare
+rate	raté
+projecteur	projecteur
+premesse	premesse
+re	ré
+realisateur	réalisateur
+reflexion	réflexion
+refrain	refrain
+recit	récit
+reimpression	réimpression
+reimprimer	réimprimer
+recompense	récompense
+rejeter	rejeter
+reponse	réponse
+relache	relâche
+repose	reposé
+recueil	recueil
+representation	représentation
+relief	relief
+reproduction	reproduction
+rememorer	remémorer
+reediter	rééditer
+reedition	réédition
+reference	référence
+rimer	rimer
+restau-u	restau-U
+sans-conteste	sans conteste
+saugrenu	saugrenu
+role	rôle
+retoucher	retoucher
+romance	romancé
+savoir	savoir
+romancier	romancier
+retracer	retracer
+ronde	ronde
+scenario	scénario
+scenariste	scénariste
+scene	scêne
+sceptique	sceptique
+reussi	réussi
+science-fiction	science-fiction
+sciences-po	Sciences-Po
+sculpte	sculpté
+s	s
+seduction	séduction
+sembler	sembler
+semer	semer
+senat	sénat
+senile	sénile
+sentimental	sentimental
+seringue	seringue
+serre-adj	serré
+serrurier	serrurier
+serviabilite	serviabilité
+serviable	serviable
+set	set
+si	si
+sidere	sidéré
+siecle	siécle
+siege	siége
+sieste	sieste
+signaler	signaler
+situer	situer
+solfege	solfége
+sollicitation	sollicitation
+solliciter	solliciter
+sombrer	sombrer
+sommaire	sommaire
+somme-m	somme
+somnifere	somnifére
+sondage	sondage
+sonder	sonder
+sous-expose	sous-exposé
+spherique	sphérique
+spirale	spirale
+spirituel	spirituel
+spontane	spontané
+stabilisation	stabilisation
+stabiliser	stabiliser
+stable	stable
+stagnation	stagnation
+star	star
+statue	statue
+strapontin	strapontin
+strategie	stratégie
+stresse	stressé
+stupefait	stupéfait
+stupide	stupide
+style	style
+subtiliser	subtiliser
+subventionner	subventionner
+successeur	successeur
+superieurement	supérieurement
+sous-titrer	sous-titrer
+soustraction	soustraction
+soustraire	soustraire
+soutenance	soutenance
+surexpose	surexposé
+souvenir	souvenir
+specialiste	spécialiste
+surligneur	surligneur
+surmenage	surmenage
+survoler	survoler
+susciter	susciter
+suspect	suspect
+suspecter	suspecter
+suspens	suspens
+svelte	svelte
+syndicat	syndicat
+terminal	terminal
+td	TD
+tabouret	tabouret
+tact	tact
+tailler	tailler
+tamise	tamisé
+taquiner	taquiner
+tas	tas
+terreur	terreur
+terrifiant	terrifiant
+terrifie	terrifié
+tournevis	tournevis
+tout	tout
+traditionnel	traditionnel
+trafic	trafic
+trafiquant	trafiquant
+tete-a-tete	tête-à-tête
+tetu	têtu
+theatral	théâtral
+theme	théme
+thesard	thésard
+these	thése
+tic	tic
+tiers	tiers
+tilleul	tilleul
+traiter	traiter
+transformer	transformer
+tatillon	tatillon
+tatonnement	tâtonnement
+tire	tiré
+taux	taux
+telecopie	télécopie
+teleobjectif	téléobjectif
+telespectateur	téléspectateur
+temperament	tempérament
+temporaire	temporaire
+tenace	tenace
+tension	tension
+tentative	tentative
+tenter	tenter
+titulaire	titulaire
+tome	tome
+ton	ton
+tonne	tonne
+topo	topo
+toque	toqué
+tordre	tordre
+tordu	tordu
+tort	tort
+total	total
+toucher	toucher
+travai-iler	travai Iler
+travers	travers
+tremblant	tremblant
+trembler	trembler
+trempe	trempé
+tri	tri
+triangle	triangle
+triangulaire	triangulaire
+trier	trier
+triomphal	triomphal
+triomphe	triomphe
+tripler	tripler
+trais-	trais
+trois-quarts	trois-quarts
+trompette	trompette
+trou	trou
+trouble-m	trouble
+trouillard	trouillard
+trouille	trouille
+troupe	troupe
+tuer	tuer
+turbulent	turbulent
+tuteur	tuteur
+typhon	typhon
+u	u
+ufr	UFR
+ulcere	ulcéré
+une	une
+usage	usagé
+usager	usager
+vacherie	vacherie
+vaincu	vaincu
+valable	valable
+vapeur	vapeur
+volontaire	volontaire
+vers	vers
+vomissement	vomissement
+vestiaire	vestiaire
+w	w
+zinzin	zinzin
+c-est-un-theme-qui-comprend-le-cinema	C'est un thème qui comprend le cinéma
+acceder-a	accéder à
+artistique	artistique
+attraction	attraction
+attraction-touristique	attraction touristique
+blague	blague
+chasser-le-stress	chasser le stress
+chasser-les-idees-noires	chasser les idées noires
+cineaste-m	cinéaste
+circuit-touristique	circuit touristique
+court-metrage	court métrage
+derision	dérision
+detendre	détendre
+detente	détente
+eclater-de-rire	éclater de rire
+editeur-m	éditeur
+emission-satirique	émission satirique
+humour-politique	humour politique
+loisirs-culturels	loisirs culturels
+long-metrage	long métrage
+maison-d-edition	maison d'édition
+marrer	marrer
+oublier-la-crise	oublier la crise
+oublier-les-situations-dramatiques	oublier les situations dramatiques
+palais	palais
+piece-de-theatre	pièce de théâtre
+public-m	public
+rire-de-ses-peurs	rire de ses peurs
+sketch	sketch
+spectacle-humoristique	spectacle humoristique
+spectacles-d-humoristes	spectacles d'humoristes
+spectateur-m	spectateur
+tour-loc	tour
+tourner-un-film	tourner un film
+visite	visite
+visite-guidee	visite guidée
+a-long-terme	à long terme
+abondance-i	abondance I'
+abonne-	abonné
+aboutir-a-qo	aboutir à qo
+acquerir	acquérir
+adherer-a	adhérer à
+agence-publicitaire	agence publicitaire
+alimentaire	alimentaire
+allocation-chomage	allocation chômage
+allocations-familiales-f	allocations familiales
+amateur-	amateur
+amplifier	amplifier
+aneantir	anéantir
+apercevoir-de	apercevoir de
+apparaitre	apparaître
+appartenir-a	appartenir à
+arret-maladie	arrêt-maladie
+artisanat	artisanat
+assemblee-nationale	Assemblée nationale
+assistance-sociale	assistance sociale
+associer-a	associer à
+assurance-vieillesse	assurance-vieillesse
+attentif-loc	attentif
+attrait	attrait
+au-cours-de	au cours de
+audacieux-loc	audacieux
+augmentation-de-salaire-f	augmentation de salaire
+autoroute-l	autoroute l'
+avantages-sociaux	avantages sociaux
+avocats	avocats
+avoir-confiance-en	avoir confiance en
+bac	bac
+bagages-m	bagages
+base-de-donnees	base de données
+bateau-	bateau
+benefice-	bénéfice
+beneficier-de	bénéficier de
+benevolat	bénévolat
+bombe-atomique	bombe atomique
+bouquin-loc	bouquin
+brancher	brancher
+bulletin-	bulletin
+cadre-v	cadre
+caisse-maladie	Caisse-maladie
+calotte-glaciaire	calotte glaciaire
+camion-	camion
+candidature-v	candidature
+cantine	cantine
+capable	capable
+capitalisme-	capitalisme
+cargo-	cargo
+cas-social	cas social
+cathedrale-	cathédrale
+ceder-a	céder à
+centrale-nucleaire	centrale nucléaire
+centre-commercial-loc	centre commercial
+chaine-de-montage	chaîne de montage
+chaine-hi-fi	chaîne hi-fi
+chasse-loc	chasse
+chateau-	château
+chauffage	chauffage
+chauffeur-	chauffeur
+chemin-	chemin
+chiffre-d-affaires-loc	chiffre d'affaires
+chomage-	chômage
+chomeur-loc	chômeur
+cineaste-	cinéaste
+circonscription	circonscription
+circuit-touristique-loc	circuit touristique
+circulation-	circulation
+cite-	cité
+citoyen-loc	citoyen
+classement-	classement
+clavier-v	clavier
+cle-usb-loc	clé USB
+clim	clim
+code	code
+cohabitation-	cohabitation
+college-	collège
+collegien-loc	collégien
+combattre	combattre
+commerce-equitable	commerce équitable
+communaute	communauté
+commune-	commune
+compagnon-loc	compagnon
+compartiment-	compartiment
+compatibilite	compatibilité
+compatible	compatible
+competitivite	compétitivité
+comportement-	comportement
+comptabilite-	comptabilité
+compte-	compte
+concurrence-	concurrence
+conditions-de-travail	conditions de travail
+conditions-de-vie	conditions de vie
+conducteur-	conducteur
+confier-a	confier à
+configuration-	configuration
+configurer	configurer
+confondre-avec	confondre / avec
+conge-maternite	congé maternité
+conge-parental-loc	congé parental
+conges-payes-m	congés payés
+connaissance-	connaissance
+conquerir	conquérir
+conscience-	conscience
+consentir-a	consentir à
+considerer	considérer
+consigne-	consigne
+consommateur-	consommateur
+consommation-	consommation
+consumerisme-	consumérisme
+contamination-	contamination
+contenir	contenir
+contenu-	contenu
+contrat-a-duree-determinee	Contrat à Durée Déterminée
+convaincre-de	convaincre de
+convenir	convenir
+convivialite-	convivialité
+copier-coller-v	copier-coller
+correspondre-a	correspondre à
+cotisation	cotisation
+cotiser-v	cotiser
+couche-d-ozone-loc	couche d'ozone
+couche-sociale	couche sociale
+couple-	couple
+cour-	cour
+courses-m	courses
+court-metrage-loc	court métrage
+cout-de-la-vie	coût de la vie
+covoiturage-	covoiturage
+crise-economique-loc	crise économique
+croisement-	croisement
+croissance-demographique	croissance démographique
+curriculum-vitae-loc	Curriculum vitae
+deboisement	déboisement
+decaler	décaler
+deceler	déceler
+decevoir	décevoir
+decharge-	décharge
+dechets	déchets
+declaration-de-revenus	déclaration de revenus
+dedaigner	dédaigner
+deduire-qe-de	déduire qe de
+defavorise	défavorisé
+defier	défier
+degager-qe-de	dégager qe de
+degradation	dégradation
+delinquant	délinquant
+demande-d-emploi	demande d'emploi
+demande	demande
+dementir	démentir
+demographique	démographique
+demolir	démolir
+denree	denrée
+depart-	départ
+departement-des-ressources-humaines	département des ressources humaines
+deplacer	déplacer
+depute-	député
+desamorcer	désamorcer
+desertification-	désertification
+destruction-	destruction
+detour-	détour
+dettes-loc	dettes
+developpement-durable-loc	développement durable
+deviation-	déviation
+difficulte-	difficulte
+dioxyde-de-carbone-loc	dioxyde de carbone
+diplome-	diplôme
+discipline-	discipline
+disposer-de	disposer de
+dispositit	dispositit
+disque-dur-loc	disque dur
+distribution-	distribution
+donne	donne
+douane-	douane
+douceur-doux-douce	douceur [doux ; douce]
+doue-loc	doué
+droit-aux-prestations	droit aux prestations
+droits-de-l-homme	droits de l'homme
+eau-douce	eau douce
+eau-salee	eau salée
+ecart	écart
+echeance	échéance
+ecolier-m	écolier
+ecologiste-loc	écologiste
+economie-de-marche	économie de marché
+education-civique	éducation civique
+effacer-supprimer	effacer/supprimer
+effluents	effluents
+elever-a	élever à
+emerger	émerger
+emissions-nocives	émissions nocives
+emploi-a-plein-temps	emploi à plein temps
+emploi-a-temps-partiel	emploi à temps partiel
+emploi-saisonnier	emploi saisonnier
+emploi-l	emploi . l'
+emploi-a-mi-temps	emploi à mi-temps
+employe-employee	employé /employée
+emprunter-de-l-argent-a	emprunter de l'argent à
+en-ligne	en ligne
+en-panne	en panne
+en-permanence	en permanence
+energie-eolienne	énergie éolienne
+energie-epuisable	énergie épuisable
+energie-renouvelable	énergie renouvelable
+energie-solaire	énergie solaire
+enjeu	enjeu
+epanouissement-personnel	épanouissement personnel
+epoux-m	époux
+equipe-loc	équipé
+espace-public	espace public
+espece-en-voie-d-extinction	espèce en voie d'extinction
+espece-protegee	espèce protégée
+espoir-v	espoir
+essence-loc	essence
+etre-concerne	être concerné
+exclure	exclure
+exercer-un-metier	exercer un métier
+experimente-loc	expérimenté
+expose-loc	exposé
+fabricant-	fabricant
+fabrication-en-masse	fabrication en masse
+faiblir	faiblir
+faillite-	faillite
+famille-recomposee-loc	famille recomposée
+famine	famine
+faune-	faune
+favorise	favorisé
+feu-rouge-loc	feu rouge
+feuille-de-maladie	feuille de maladie
+fiance-loc	fiancé
+fiche-de-paie	fiche de paie
+fichier-v	fichier
+filiere-v	filière
+flore-v	flore
+foire	foire
+force-publique	force publique
+foret-	forêt
+formation-continue-loc	formation continue
+formation-pour-adultes	formation pour adultes
+formation-professionnelle	formation professionnelle
+formation-	formation
+fortune-	fortune
+forum-loc	forum
+fournisseur	fournisseur
+foyer	foyer
+fragile-	fragile
+fragment	fragment
+franchir	franchir
+fromage-a-tartiner	fromage à tartiner
+fusion-	fusion
+gagner-de-l-argent	gagner de l'argent
+gare-v	gare
+garer	garer
+gaspillage-	gaspillage
+gasp-ller	gaspıller
+gaz-toxique	gaz toxique
+gele	gele
+geothermie	géothermie
+gestion-de-l-entreprise	gestion de l'entreprise
+gouvernement-	gouvernement
+gravure	gravure
+greve-	grève
+guerir-de	guérir de
+guichet-	guichet
+guide-	guide
+hair	haïr
+handicape-loc	handicapé
+harceler	harceler
+heriter-de	hériter de
+heures-supplementaires-f	heures supplémentaires
+homme-d-affaires	homme d'affaires
+hors-connexion	hors connexion
+hum-lier	humılier
+hydrocarbures	hydrocarbures
+icone	icône
+immigre-m	immigré
+immiscer-dans	immiscer dans
+imposer-loc	imposer
+impot-sur-le-revenu	impôt sur le revenu
+incivilite	incivilité
+inclure	inclure
+indemnite-maladie	indemnité maladie
+indissociable	indissociable
+inoffensif	inoffensif
+inquieter	inquiéter
+interimaire-loc	intérimaire
+intimider	intimider
+intitule-le-titre	intitulé [le titre
+irradier	irradier
+jeu-interactif	jeu interactif
+jeu-video	jeu vidéo
+juge-	juge
+laicite	laïcité
+le-cours	le cours
+les-liens-sociaux	les liens sociaux
+lettre-de-motivation-loc	lettre de motivation
+liberer-de	libérer de
+libre-circulation	libre-circulation
+libre-echange-	libre-échange
+libre-service	libre-service
+licenciement-	licenciement
+lien-	lien
+lier-a	lier à
+logement	logement
+logiciel-	logiciel
+long-metrage-loc	long métrage
+lycee-	lycée
+lyceen-loc	lycéen
+main-d-oeuvre	main-d'œuvre
+maire-v	maire
+mairie	mairie
+maison-d-edition-loc	maison d'édition
+majorite-	majorité
+malsain	malsain
+malvoyant	malvoyant
+manier	manier
+manifestation-	manifestation
+manoeuvre	manœuvre
+marche-	marché
+marcher-fonctionner	marcher/fonctionner
+maree-noire-loc	marée noire
+marginal	marginal
+matrimonial-loc	matrimonial
+mecanicien-	mécanicien
+mefier-de	méfier de
+memoriser	mémoriser
+menace-loc	menacé
+menacer-de	menacer de
+menage-	ménage
+menager-v	ménager
+metro-	métro
+mettre-qe-en-scene	mettre qe en scène
+migration	migration
+migrer	migrer
+milieu-naturel	milieu naturel
+minorite	minorité
+mise-en-page	mise en page
+modem	modem
+monument-	monument
+mosquee-	mosquée
+mot-de-passe-loc	mot de passe
+moteur-	moteur
+mousse-	mousse
+mouton	mouton
+moyen-de-communication	moyen de communication
+musee-	musée
+nappe-phreatique	nappe phréatique
+negliger	négliger
+negociation-	négociation
+niveau-de-vie-loc	niveau de vie
+non-epuisable	non épuisable
+notable	notable
+note-	note
+notoriete	notoriété
+nourriture	nourriture
+nuire-a	nuire à
+numerique	numérique
+nutritionnel	nutritionnel
+obese	obèse
+obesite	obésité
+omettre	omettre
+operationnel	opérationnel
+ordinateur-portable-loc	ordinateur portable
+ordures	ordures
+organisme-genetiquement-modifie	organisme génétiquement modifié
+orientation	orientation
+ouvrier-qualifie	ouvrier qualifié
+ouvrier-m	ouvrier
+page-d-accueil-loc	page d'accueil
+palais-	palais
+panneaux-solaires	panneaux solaires
+parent-isole-loc	parent isolé
+partage-	partage
+partager-avec	partager avec
+patrimoine-	patrimoine
+pauvrete-	pauvreté
+pays-en-voie-de-developpement	pays en voie de développement
+peintre-v	peintre
+peinture-v	peinture
+pension-alimentaire-loc	pension alimentaire
+penurie-	pénurie
+performant-loc	performant
+periode-d-essai	période d'essai
+permis-de-conduire-loc	permis de conduire
+perspectives-d-avenir	perspectives d'avenir
+perte-	perte
+phare-v	phare
+piece-de-theatre-loc	pièce de théâtre
+piece-jointe	pièce Jointe
+pieton-	piéton
+plaindre-de	plaindre de
+planete-	planète
+poids-lourd-loc	poids lourd
+politicien	politicien
+polluant-loc	polluant
+pollue	pollué
+pollution-	pollution
+population-active-loc	population active
+port-	port
+pouvoir-d-achat-loc	pouvoir d'achat
+precariat	précariat
+preceder	précéder
+predire	prédire
+prelevement	prélèvement
+pression-	pression
+prestation-de-service	prestation de service
+prestation-sociale	prestation sociale
+prestation-	prestation
+produit-interieur-brut	produit intérieur brut
+produits-du-terroir	produits du terroir
+profusion	profusion
+programmeur-	programmeur
+promulgation	promulgation
+promulguer	promulguer
+proner	prôner
+proprietaire-v	propriétaire
+propriete-	propriété
+prosperite-	prospérité
+protection-	protection
+proviseur-	proviseur
+quai-	quai
+rail-	rail
+reacteur	réacteur
+recolte	récolte
+reconversion	reconversion
+recreation-loc	récréation
+rectifier	rectifier
+recyclage-	recyclage
+rediger-qe	rédiger qe
+refractaire	réfractaire
+regime-	régime
+remuneration-	rémunération
+remunere	rémunéré
+remunerer	rémunérer
+renoncer-a	renoncer à
+renseignements	renseignements
+repartir-qe	répartir qe
+repartition	répartition
+repercussion	répercussion
+representation-	représentation
+reseau-social-loc	réseau social
+reseau-loc	réseau
+resoudre-loc	résoudre
+responsabilite-	responsabilité
+ressembler-a	ressembler à
+ressources	ressources
+restreindre	restreindre
+restriction	restriction
+retraite-anticipee	retraite anticipée
+reussite-	réussite
+revenu-	revenu
+richesse-	richesse
+role-	rôle
+roue	roue
+route-	route
+rue-	rue
+rupture-v	rupture
+sacrifier	sacrifier
+sain	sain
+salaire-v	salaire
+sans-papiers	sans-papiers
+sauvegarde-	sauvegarde
+sauvetage-	sauvetage
+scene-	scène
+secteur-industriel	secteur industriel
+securite-sociale	Sécurité sociale
+sejour-	séjour
+semestre-v	semestre
+senat-	Sénat
+separation-	séparation
+serveur-	serveur
+sevir	sévir
+siege-social	siège social
+site	site
+smartphone	smartphone
+sociable	sociable
+societe-	société
+sol-	sol
+solitude-	solitude
+solution-	solution
+solvabilite	solvabilité
+souffrir-de	souffrir de
+souris-	souris
+spectateur-loc	spectateur
+stage-	stage
+stagiaire-loc	stagiaire
+station-	station
+statut-social	statut social
+substances-toxiques	substances toxiques
+succeder-a	succéder à
+succursale-	succursale
+suffire	suffire
+surdoue-loc	surdoué
+synagogue-	synagogue
+syndicat-	syndicat
+systeme-d-exploitation	système d'exploitation
+tableau-	tableau
+tablette	tablette
+tactile	tactile
+talent-	talent
+taux-de-croissance	taux de croissance
+telephone-portable	téléphone portable
+terminus-	terminus
+terroir-v	terroir
+texto-	texto
+tiers-monde	tiers-monde
+titre-de-transport-loc	titre de transport
+touche-	touche
+toucher-de-l-argent	toucher de l'argent
+tour-	tour
+toxicite	toxicité
+toxique	toxique
+traitement-	traitement
+travail-au-noir-clandestin	travail au noir/clandestin
+travail-par-interim	travail par intérim
+travailler-en-par-interim	travailler en/par Intérim
+tri-des-dechets	tri des déchets
+trimestre-v	trimestre
+trimestriel-loc	trimestriel
+unir-a	unir à
+urbain	urbain
+utilisateur	utilisateur
+vaincre	vaincre
+valise-	valise
+vedette-	vedette
+veh-cule	véhıcule
+chicule	chicule
+venger-de	venger de
+vente-par-correspondance	vente par correspondance
+verifier-q	vérifier q
+victime-	victime
+violence	violence
+visite-guidee-loc	visite guidée
+visite-	visite
+vole	vole
+vol-	vol
+volant	volant
+vote-	vote
+voyageur-	voyageur
+vue	vue
+vulnerable	vulnérable
+wagon-	wagon
+zone-rurale	zone rurale
+reconnaitre	reconnaître
+colere-f	colere
+elire-v	elire
+epanouissement-m	épanouissement
+accuse	accusé
+acne	acné
+action	action
+agiter	agiter
+allaiter	allaiter
+ai-ler	ai ler
+antibiotique	antibiotique
+antidepresseur	antidépresseur
+arriere	arriere
+anti-inflammatoire	anti-inflammatoire
+arrondi	arrondi
+allonger	allonger
+allure	allure
+ambition	ambition
+amener	amener
+approcher	approcher
+asthmatique	asthmatique
+arbitrer	arbitrer
+asthme	asthme
+attaquant	attaquant
+biberon	biberon
+balayage	balayage
+bien	bien
+bigoudi	bigoudi
+attitude	attitude
+baile	baile
+bandage	bandage
+bande-adj	bandé
+baraque	baraqué
+ausculter	ausculter
+blessure	blessure
+bati	bâti
+avant	avant
+battu	battu
+boiter	boiter
+bosse	bosse
+bequille	béquille
+bouffi	bouffi
+buter	buter
+cabinet	cabinet
+cachet	cachet
+cage	cage
+calmer	calmer
+cerne	cerne
+cerne-adj	cerné
+camp	camp
+canne	canne
+bronchite	bronchite
+chandelle	chandelle
+brushing	brushing
+carie	carie
+complet	complet
+complication	complication
+complice	complice
+complicite	complicité
+compliquer	compliquer
+coequipier	coéquipier
+cicatriser	cicatriser
+cogner	cogner
+contusion	contusion
+confondre	confondre
+comer	comer
+corpulent	corpulent
+costaud	costaud
+consultation	consultation
+couche-adj	couché
+croise	croisé
+croiser	croiser
+contre-attaquer	contre-attaquer
+devant	devant
+diagnostiquer	diagnostiquer
+ecarter	écarter
+diffus	diffus
+ecorcher	écorcher
+ecorchure	écorchure
+douillet	douillet
+douloureux	douloureux
+eczema	eczéma
+effort	effort
+empote	empoté
+egaliser	égaliser
+entorse	entorse
+entrarnement	entrarnement
+entrarner	entrarner
+elance	élancé
+entrarneur	·entrarneur
+en-but	en-but
+encaisser	encaisser
+enveloppe	enveloppé
+endurance	endurance
+endurant	endurant
+eliminatoire	éliminatoire
+envoi	envoi
+emacie	émacié
+enfler	enfler
+enfuir	enfuir
+epreuve	épreuve
+equilibre	équilibre
+empecher	empêcher
+essai	essai
+faux	faux
+faveur	faveur
+etablir	établir
+exploit	exploit
+eternuement	éternuement
+eternuer	éternuer
+etirer	étirer
+fievre	fievre
+face-a	face à
+finale	finale
+gel	gel
+gelule	gélule
+generaliste	généraliste
+frele	frêle
+genereux	généreux
+fluet	fluet
+gesticuler	gesticuler
+frisson	frisson
+gigoter	gigoter
+frissonner	frissonner
+foot-ball	foot[ball]
+force	force
+gout	goüt
+gratter	gratter
+gardien	gardien
+grievement	grievement
+fracture	fracture
+gauche	gauche
+grimace	grimace
+grippe-adj	grippé
+lacher	lâcher
+laisser	laisser
+irriter	irriter
+laque	laque
+insomniaque	insomniaque
+joufflu	joufflu
+juge	juge
+melee	mêlée
+loucher	loucher
+lumbago	lumbago
+marque	marqué
+menu	menu
+maigrichon	maigrichon
+mal	mal
+meche	meche
+malaise	malaise
+migraine	migraine
+mincir	mincir
+mise	mise
+mise-en-plis	mise en plis
+nourrir	nourrir
+moindre	moindre
+naturel	naturel
+nausee	nausée
+morsure	morsure
+mouche	mouche
+oie	oie
+moucher	moucher
+ordinaire	ordinaire
+paralyse	paralysé
+penalty	penalty
+pencher	pencher
+ouate	ouate
+ouvert	ouvert
+percuter	percuter
+performance	performance
+permanente	permanente
+passe	passe
+position	position
+platre	plâtre
+plie	plié
+poteau	poteau
+pouls	pouls
+poing	poing
+precipiter	précipiter
+piqure	piqure
+pommade	pommade
+plaie	plaie
+prescription	prescription
+presence	présence
+rafraichir	rafraIchir
+prouesse	prouesse
+ramasseur	ramasseur
+ramener	ramener
+probleme	probleme
+qualification	qualification
+qualifier	qualifier
+profil	profil
+quarantaine	quarantaine
+quelconque	quelconque
+rase	rasé
+quick	quick
+prolongation	prolongation
+rattraper	rattraper
+raccourcir	raccourcir
+racine	racine
+regle	regle
+renvoyer	renvoyer
+recoiffer	recoiffer
+recuperer	récupérer
+remise	remise
+reflexe	réflexe
+retenir	retenir
+retourner	retourner
+rondouillard	rondouillard
+score	score
+revers	revers
+sec	sec
+sachet	sachet
+silhouette	silhouette
+sirop	sirop
+sosie	sosie
+soulager	soulager
+soulever	soulever
+sujet-adj	sujet
+suppositoire	suppositoire
+sparadrap	sparadrap
+trait	• trait
+trancher	trancher
+tirage	tirage
+tenir	tenir
+tergiverser	tergiverser
+vedette	vedette
+vieillir	vieillir
+vieux	vieux
+zero	zéro
+vingt	vingt
+violation	violation
+acier	acier
+abimer	abimer
+acajou	acajou
+aigu	aigu
+arme	arme
+arracher	arracher
+arrosage	arrosage
+alternatif	alternatif
+appartenir	appartenir
+atomique	atomique
+bete	bête
+beton	béton
+binette	binette
+blafard	blafard
+blanc	blanc
+blanchir	blanchir
+avalanche	avalanche
+boite	boite
+beau	beau
+aveuglant	aveuglant
+aveugler	aveugler
+beche	bêche
+bouche-adj	bouché
+casse	cassé
+boulet	boulet
+cataclysme	cataclysme
+boulon	boulon
+cercle	cercle
+bricole	bricole
+bricoleur	bricoleur
+brique	brique
+brouette	brouette
+caractere	caractere
+carbone	carbone
+bulbe	bulbe
+bulletin	bulletin
+chatoyant	chatoyant
+completer	compléter
+clignotant	clignotant
+clignoter	clignoter
+clou	clou
+clouer	clouer
+creur	creur
+coloration	coloration
+coquelicot	coquelicot
+court-circuit	court-circuit
+corai	corai!
+cousu	cousu
+cordon	cordon
+cratere	cratere
+creme	creme
+creuser	creuser
+couche	couche
+conteneur	conteneur
+coupure	coupure
+croix	croix
+courant	courant
+detruire	détruire
+droit-	droit
+devaster	dévaster
+dur	dur
+durable	durable
+devisser	dévisser
+eau	eau
+diagonale	diagonale
+eblouir	éblouir
+diametre	diametre
+eblouissant	éblouissant
+domestique	domestique
+echappement	échappement
+eclairer	éclairer
+ecolo-giste	écolo*[giste]
+dioxyde	dioxyde
+doux	doux
+disparu	disparu
+dresser	dresser
+ensevelir	ensevelir
+environnemental	environnemental
+enfermer	enfermer
+enfoncer	enfoncer
+faisceau	faisceau
+escabeau	escabeau
+exploiter	exploiter
+fertile	fertile
+etincelant	étincelant
+etinceler	étinceler
+facher	fâcher
+fil-de-fer	fil de fer
+fixer	fixer
+fluorescent	fluorescent
+geometrique	géométrique
+frotter	frotter
+graine	graine
+gaspillage	gaspillage
+gaspiller	gaspiller
+grincer	grincer
+hurler	hurler
+influencer	influencer
+info-rmation	info*[rmation]
+jacinthe	jacinthe
+inonder	inonder
+jade	jade
+jalousie	jalousie
+jardinier	jardinier
+lave	lave
+layette	layette
+jonquille	jonquille
+intense	intense
+levre	levre
+lime	lime
+limer	limer
+interrupteur	interrupteur
+limpide	limpide
+losange	losange
+lueur	lueur
+marbre	marbre
+menager	ménager
+lumiere	lumiere
+lumineux	lumineux
+marine	marine
+marteau	marteau
+materiau	matériau
+noircir	noircir
+multicolore	multicolore
+norme	norme
+mur-adj	mur
+molette	molette
+nuisible	nuisible
+obscur	obscur
+moral	moral
+morne	morne
+ocre	ocre
+mort	mort
+ceil-yeux	ceil/yeux
+ombre	ombre
+opaque	opaque
+parallele	parallele
+pare	pare
+pelle	pelle
+penombre	pénombre
+percer	percer
+perceuse	perceuse
+ovale	ovale
+ozone	ozone
+perpendiculaire	perpendiculaire
+planete	planête
+pourpre	pourpre
+piece	piêce
+pierre	pierre
+polluant	polluant
+poncer	poncer
+radioactivite	radioactivité
+rage	rage
+quadrature	quadrature
+rateau	râteau
+ratisser	ratisser
+rayonnant	rayonnant
+rayonnement	rayonnement
+rayonner	rayonner
+reboucher	reboucher
+renverser	renverser
+reparateur	réparateur
+recoller	recoller
+recolter	récolter
+rectangle	rectangle
+rectangulaire	rectangulaire
+reflet	reflet
+refleter	refléter
+ressort	ressort
+retablir	rétablir
+scie	scie
+rougir	rougir
+rouille	rouille
+scier	scier
+scintiller	scintiller
+secateur	sécateur
+sinistre	sinistré
+source	source
+succes	succés
+sphere	sphére
+tournee	tournée
+terrorise	terrorisé
+transformation	transformation
+transparent	transparent
+tirer	tirer
+toilettes	toilettes
+visser	visser
+verdir	verdir
+verdoyant	verdoyant
+verdure	verdure
+volcanique	volcanique
+vermillon	vermillon
+valer	valer
+vomir	vomir
+vraisemblable	vraisemblable
+vicieux	vicieux
+vif	vif
+vis	vis
+c-est-un-theme-qui-est-de-plus-en-plus-present-dans-l-actualite	C'est un thème qui est de plus en plus présent dans l'actualité
+et-donc-dans-les-documents-qui-vous-seront-proposes-pour	et donc dans les documents qui vous seront proposés pour
+l-examen-on-pourra-vous-parler-d-environnement-a-travers-le	l'examen. On pourra vous parler d'environnement à travers le
+abonder	abonder
+acclimatation	acclimatation
+accoupler-avec	accoupler avec
+accuser-de	accuser de
+adversaire-acharne	adversaire acharné
+agence-pour-la-protection-de-l-environnement	Agence pour la protection de l'environnement
+aneantir-une-espece	anéantir une espèce
+argument-pour-contreelectrique	argument pour/contreélectrique
+arreter-l-importation	arrêter l'importation
+assainissement	assainissement
+biodegradable	biodégradable
+bouteille-consignee	bouteille consignée
+braconner	braconner
+braconnier	braconnier
+charbon	charbon
+clandestin	clandestin
+commerce-de-l-ivoire	commerce de l'ivoire
+condamnation	condamnation
+condamner-a-une-amende	condamner à une amende
+consommation-ecologique	consommation écologique
+controler	contrôler
+couche-d-ozone	couche d'ozone
+decharge	décharge
+dechets-industriels	déchets industriels
+dechets-radioactifs	déchets radioactifs
+defenseur-m	défenseur
+depollution	dépollution
+desertification	désertification
+desherbant	désherbant
+destruction	destruction
+deterioration-de-l-environnement	détérioration de l'environnement
+dioxyde-de-carbone	dioxyde de carbone
+ecologique-	écologique
+ecologiste	écologiste
+economiser-l-energie	économiser l'énergie
+elimination-des-dechets	élimination des déchets
+emanation-de-dioxyde-de-carbone	émanation de dioxyde de carbone
+emballage-perdu	emballage perdu
+en-danger-d-extinction	en danger d'extinction
+eolienne-m	éolienne
+epuration	épuration
+etre-abonne-a	être abonné à
+etre-conscient-de	être conscient de
+etre-consterne-par	être consterné par
+etre-menace-de	être menacé de
+etre-sans-danger-pour-l-environnement	être sans danger pour l'environnement
+etre-soutenu-par	être soutenu par
+exiger-des-solutions	exiger des solutions
+expert	expert
+faire-campagne-pour	faire campagne pour
+faune	faune
+flore	flore
+gagner-en-popularite	gagner en popularité
+gardien-charge-de-la-protection-des-animaux	gardien chargé de la protection des animaux
+gaz-carbonique	gaz carbonique
+gaz-d-echappement	gaz d'échappement
+geothermique	géothermique
+impot-ecologique	impôt écologique
+incinerateur	incinérateur
+ingenieur-agronome	ingénieur agronome
+interdire	interdire
+interdire-la-chasse	interdire la chasse
+interrompre-la-construction-de	interrompre la construction de
+lancer-une-petition	lancer une pétition
+loi-sur-l-environnement	loi sur l'environnement
+maitriser	maîtriser
+maree-noire	marée noire
+menacer-la-survie	menacer la survie
+mesures-severes	mesures sévères
+ministere-de-l-environnement	ministère de l'Environnement
+mouvement-ecologique	mouvement écologique
+mouvements-pour-la-protection-des-animaux	mouvements pour la protection des animaux
+nappe-de-petrole	nappe de pétrole
+nature-loc	nature
+naturel-	naturel
+ncinerateur	ncinérateur
+nettoyer	nettoyer
+nocif	nocif
+nuage-toxique	nuage toxique
+nuisance	nuisance
+nuisances-sonores	nuisances sonores
+opposer-a	opposer à
+ordures-menageres	ordures ménagères
+paille	paille
+papier-recycle	papier recyclé
+parc-naturel	parc naturel
+petrole-brut	pétrole brut
+piege	piège
+politique-ecologique	politique écologique
+polluant-	polluant
+propre	propre
+protection-de-l-environnement	protection de l'environnement
+protection-de-la-faune	protection de la faune
+prouver	prouver
+purifier	purifier
+reboisement	reboisement
+rechauffement-de-la-planete	réchauffement de la planète
+recuperation	récupération
+reintroduire	réintroduire
+remettre-en-liberte	remettre en liberté
+remuer-l-opinion-publique-to-demonstrate-in-favour-of	remuer l'opinion publique to demonstrate in favour of =>
+manifester-pour	manifester pour
+reparer-les-dommages	réparer les dommages
+reutiliser	réutiliser
+sanction	sanction
+sauvage	sauvage
+sauvegarde	sauvegarde
+sauver	sauver
+seuil-de-danger	seuil de danger
+specialiste-de-la-vie-des-animaux-sauvages	spécialiste de la vie des animaux sauvages
+stockage	stockage
+subir-des-tests	subir des tests
+surveiller-la-pollution	surveiller la pollution
+terroir	terroir
+traiter-l-eau	traiter l'eau
+traiter-les-dechets	traiter les déchets
+traquer-une-proie	traquer une proie
+trou-dans-la-couche-d-ozone	trou dans la couche d'ozone
+usine-d-incineration	usine d'incinération
+zoologiste	zoologiste
+les-nouvelles-technologies	Les nouvelles technologies
+il-s-agit-la-egalement-d-un-theme-recurrent-qui-prend-de	Il s'agit là également d'un thème récurrent qui prend de
+l-importance-etant-donne-le-developpement-ininterrompu-de-la	l'importance étant donné le développement ininterrompu de la
+technologie-cette-liste-inclus-aussi-le-vocabulaire-des-medias	technologie. Cette liste inclus aussi le vocabulaire des médias
+a-la-pointe-du-progres	à la pointe du progrès
+abonne	abonné
+abonner-a	abonner à
+acceder-a-l-information	accéder à l'information
+acces-a-internet	accès à Internet
+accro-a-qe	accro à qe
+activite-physique	activité physique
+adresse-e-mail	adresse e-mail
+adresser-a	adresser à
+agence-de-presse	agence de presse
+ami-en-chair-et-en-os	ami en chair et en os
+ami-en-ligne	ami en ligne
+analyser	analyser
+animateur	animateur
+annonceur	annonceur
+apparition	apparition
+approche-scientifique	approche scientifique
+arbitraire	arbitraire
+astrologue	astrologue
+astronaute	astronaute
+astronomie	astronomie
+atteinte	atteinte
+audimat	audimat
+audiovisuel	audiovisuel
+auditeur-m	auditeur
+augmenter-baisser-le-volume	augmenter/baisser le volume
+avoir-bonne-presse	avoir bonne presse
+avoir-consciene-que	avoir consciene que
+baisser-le-volume	baisser le volume
+bande-dessinee	bande dessinée
+banque-de-donnees	banque de données
+banque-en-ligne	banque en ligne
+bimensuel	bimensuel
+biologiste	biologiste
+bouc-emissaire	bouc-émissaire
+brevet-d-invention	brevet d'invention
+cameraman-m	caméraman
+canal	canal
+capter-une-chaine	capter une chaîne
+caricature	caricature
+censurer	censurer
+chaine-privee	chaîne privée
+chaine-publique	chaîne publique
+changer-de-chaine	changer de chaîne
+chatter	chatter
+chimiste	chimiste
+chronique	chronique
+chroniqueur	chroniqueur
+chronophage	chronophage
+cible	cible
+citer	citer
+clip	clip
+cliquer	cliquer
+clonage	clonage
+cloner	cloner
+colonne-loc	colonne
+comporter	comporter
+compte-sur-les-reseaux-sociaux	compte sur les reseaux sociaux
+condamnation-f	condamnation
+conference-de-presse	conférence de presse
+connecter	connecter
+contraire-a-l-ethique	contraire à l'éthique
+contribuer-a	contribuer à
+correcteur-orthographique	correcteur orthographique
+correspondant	correspondant
+crucial	crucial
+crypte	crypté
+culpabilite	culpabilité
+curseur	curseur
+cyberdependant-e	cyberdépendant/e
+cyberespace	cyberespace
+dangers	dangers
+de-la-politique-francais-international	de la politique français / international
+debat-televise	débat télévisé
+declencher	déclencher
+declencheur	déclencheur
+deconnecter	déconnecter
+decouverte	découverte
+defouler	défouler
+defouloir	défouloir
+demode	démodé
+denigrer	dénigrer
+depeche	dépêche
+depositaire	dépositaire
+derapage	dérapage
+desinformation	désinformation
+dessin-anime	dessin animé
+diffuser-en-clair	diffuser en clair
+diffuser-en-differe	diffuser en différé
+diffuser-en-direct	diffuser en direct
+discours	discours
+disparaitre	disparaître
+disque-dur	disque dur
+divertissant	divertissant
+donnees	données
+echapper-a	échapper à
+economie-et-social	économie et social
+ecouter-la-radio	écouter la radio
+editorial-m	éditorial
+effectuer	effectuer
+effets-speciaux	effets spéciaux
+emission-en-direct	émission en direct
+empieter	empiéter
+en-direct	en direct
+endommage	endommagé
+ennuyeux-	ennuyeux
+enquete-loc	enquête
+enqueter	enquêter
+enregistrement	enregistrement
+enrichir	enrichir
+envoye-special	envoyé spécial
+envoyer-un-courriel-electronique	envoyer un courriel électronique
+episode	épisode
+ethique	éthique
+etre-a-jour	être à jour
+etre-a-l-antenne	être à l'antenne
+etre-au-courant-de	être au courant de
+etre-cole-aux-ecrans	être colé aux écrans
+etre-curieux-euse	être curieux/euse
+etre-decu-e	être déçu/e
+etre-rive-a	être rivé à
+etre-une-atteinte-a	être une atteinte à
+evader-de	évader de
+face-a-loc	face à
+faire-confiance-a	faire confiance à
+faire-des-recherches	faire des recherches
+faire-faire-a	faire faire à
+faire-la-critique	faire la critique
+faire-la-une	faire la une
+fait-divers	fait divers
+faits	faits
+fausse-nouvelle	fausse nouvelle
+feuille-de-chou	feuille de chou
+feuilleter-loc	feuilleter
+flash-d-information	flash d'information
+flot-d-information	flot d'information
+fm-radio	FM (radio
+forum	forum
+forum-de-discussion	forum de discussion
+fusillade	fusillade
+gamin	gamin
+grand-public	grand public
+grands-titres-de-l-actualite	grands titres de l'actualité
+grille-des-programmes	grille des programmes
+gros-titre	gros titre
+hebdomadaire	hebdomadaire
+heure-de-grande-ecoute	heure de grande écoute
+illegal	illégal
+illustration-loc	illustration
+impopulaire-v	impopulaire
+imprimante-loc	imprimante
+inciter-a-faire	inciter à faire
+inedit	inédit
+infographie	infographie
+informaticien	informaticien
+informer-sur	informer sur
+infos	infos
+innovant	innovant
+insignifiant-	insignifiant
+invention	invention
+inventivite	inventivité
+invite	invité
+jeu-televise	jeu télévisé
+jeux-videeo-en-ligne	jeux vidéeo en ligne
+jeux	jeux
+journal-d-information-en-ligne	journal d'information en ligne
+journal-en-ligne	journal en ligne
+journal-intime	journal intime
+journal-scolaire	journal scolaire
+journal-televise	journal télévisé
+journaliste-m	journaliste
+l-abonne	l'abonné
+l-animateur-le-presentateur	l'animateur le présentateur
+l-audimat	l'audimat
+l-entrefilet	l'entrefilet
+laboratoire	laboratoire
+lecteurs	lecteurs
+lectorat	lectorat
+lent-loc	lent
+les-faits-divers	les faits divers
+les-jeux	les jeux
+liberer	libérer
+liberte-d-information	liberté d'information
+liberte-d-information-de-la-presse	liberté d'information / de la presse
+liberte-de-l-expression	liberté de l'expression
+liberte-de-la-presse	liberté de la presse
+livre-electronique	livre électronique
+local	local
+logique-f	logique
+loin	loin
+longueur-d-onde	longueur d'onde
+manchette	manchette
+manipuler	manipuler
+marchand-de-journaux	marchand de journaux
+mathematicien	mathématicien
+mathematiques	mathématiques
+mauvaise-reputation	mauvaise réputation
+medias-numeriques	médias numériques
+medias	médias
+mediatique-	médiatique
+mefier-loc	méfier
+mensuel-m	mensuel
+ment-r-a	mentır à
+mettre-en-forme	mettre en forme
+mettre-moins-plus-fort	mettre moins/plus fort
+moniteur	moniteur
+mot-de-passe	mot de passe
+mot-cle	mot-clé
+moteur-de-recherche	moteur de recherche
+mots-croises	mots-croisés
+moyen-d-information	moyen d'information
+moyen-moyenne	moyen/moyenne
+moyenne-loc	moyenne
+navigateur	navigateur
+naviguer-surfer-sur-internet	naviguer/surfer sur internet
+nefaste	néfaste
+nouer-des-amities	nouer des amitiés
+nouvelles-breves	nouvelles brèves
+nouvelles	nouvelles
+nuisible-	nuisible
+obeir	obéir
+on-fait-des-retouches	on fait des retouches
+ondes-courtes-longues	ondes courtes / longues
+onereux-loc	onéreux
+ordinateur-portable	ordinateur portable
+organisme-de-recherche	organisme de recherche
+ovni	ovni
+page-d-accueil	page d'accueil
+page-de-publicite	page de publicité
+page-web	page web
+parmi	parmi
+partial-unbiased-impartial	partial ; unbiased : impartial
+passionnant-	passionnant
+periodique	périodique
+pesanteur-loc	pesanteur
+petit-ecran	petit écran
+petite-annonce	petite annonce
+petites-annonces	petites annonces
+peu-pratique	peu pratique
+photographie	photographie
+physique-f	physique
+pigiste	pigiste
+plage-de-pub	plage de pub
+portable-m	portable
+potins	potins
+pourtant-loc	pourtant
+precaire	précaire
+precision-loc	précision
+premiere-page	première page
+pres	près
+presentateur-m	présentateur
+presse-a-scandale	presse à scandale
+presse-a-sensation	presse à sensation
+presse-feminine	presse féminine
+presse-hebdomadaire	presse hebdomadaire
+presse-mensuelle	presse mensuelle
+presse-nationale	presse nationale
+presse-people	presse people
+presse-regionale	presse régionale
+presse-specialisee	presse spécialisée
+pressentir	pressentir
+prise-de-conscience	prise de conscience
+prive-	privé
+producteur-m	producteur
+production	production
+programmeur	programmeur
+prouver-loc	prouver
+public-cible	public cible
+publicitaire	publicitaire
+pubs	pubs
+puce-electronique	puce électronique
+punir	punir
+punition	punition
+question-d-actualite	question d'actualité
+quotidien-m	quotidien
+radio-loc	radio
+radiophonique	radiophonique
+rapide-loc	rapide
+rapporter-loc	rapporter
+realisateur-m	réalisateur
+realisation	réalisation
+reality-show	reality show
+reapparaitre	réapparaître
+reception	réception
+redacteur-m	rédacteur
+redacteur-en-chef	rédacteur en chef
+redaction	rédaction
+redevance-audiovisuelle	redevance audiovisuelle
+rediffusion	rediffusion
+reel-m	réel
+regarder-la-tele	regarder la télé
+regional-	régional
+remise-en-question	remise en question
+rendre-garder-l-antenne	rendre / garder l'antenne
+renseigner-loc	renseigner
+repandre	répandre
+reparer-loc	réparer
+reporter-m	reporter
+reseau-sans-fil	réseau sans fil
+reseau-social	réseau social
+reseaux-sociaux	réseaux sociaux
+retransmettre-loc	retransmettre
+retroprojecteur	rétroprojecteur
+revelateur	révélateur
+revolutionnaire-v	révolutionnaire
+revue-pour-des-jeunes	revue pour des jeunes
+risque-d-addiction	risque d'addiction
+risque-de-desinformation	risque de désinformation
+rive-a-son-ecran	rivé à son écran
+rubrique-des-chiens-ecrases	rubrique des chiens écrasés
+rubrique-sportive	rubrique sportive
+s-abetir	s'abêtir
+s-abonner-a	s'abonner à
+sans-fil	sans fil
+satirique-	satirique
+savant	savant
+scanner-m	scanner
+sciences-de-la-terre	sciences de la Terre
+scientifique	scientifique
+scoop	scoop
+selon-moi	selon moi
+sensibiliser	sensibiliser
+serie-tele	série télé
+serveur	serveur
+service-de-depannage	service de dépannage
+service-public	service public
+site-internet-web	site internet/web
+site-participatif	site participatif
+site-personnel	site personnel
+social-m	social
+sociologie	sociologie
+solitaire	solitaire
+sources-d-information	sources d'information
+sous-titre	sous-titre
+specialise-	spécialisé
+sponsor	sponsor
+sports	sports
+supplement	supplément
+sur-internet	sur internet
+sur-loc	sûr
+surmene	surmené
+surmener	surmener
+surprenant	surprenant
+survie	survie
+survoler-loc	survoler
+susceptible	susceptible
+tabloid	tabloïd
+tapper-un-texto	tapper un texto
+techniques-de-l-information	techniques de l'information
+tele-realite	télé-réalité
+telescope	téléscope
+telespectateur-m	téléspectateur
+televisuel	télévisuel
+teloche	téloche
+theorie-du-complot	théorie du complot
+exemplaires	... exemplaires
+tirer-a	tirer à
+titre-les-gros-titres	titre / les gros titres
+tomber-en-panne	tomber en panne
+truque	truqué
+vendeur-de-journaux	vendeur de journaux
+veridique	véridique
+virtuel	virtuel
+denoncer-v	dénoncer
+affaiblir	affaiblir
+affaiblissement	affaiblissement
+abattre	abattre
+aberrant	aberrant
+acte	acte
+absolu	absolu
+adaptation	adaptation
+adapter	adapter
+absurde	absurde
+aggravation	aggravation
+aggraver	aggraver
+adn	ADN
+agrandir	agrandir
+agrandissement	agrandissement
+adresser	adresser
+accroissement	accroissement
+agresser	agresser
+accroitre	accroitre
+accueil	accueil
+argument	argument
+aristocrate	aristocrate
+aristocratie	aristocratie
+arme-adj	armé
+armement	armement
+allie	allié
+allier	allier
+allocation	allocation
+antique	antique
+allongement	allongement
+ambassade	ambassade
+ambassadeur	ambassadeur
+appreciation	appréciation
+assassinat	assassinat
+amelioration	amélioration
+ameliorer	améliorer
+assommant	assommant
+archeologique	archéologique
+archeologue	archéologue
+atrocite	atrocité
+attaquer	attaquer
+bagarre	bagarre
+attestation	attestation
+barbant	barbant
+barbarie	barbarie
+baroque	baroque
+bataille	bataille
+avenement	avenement
+bombardement	bombardement
+bombarder	bombarder
+beneficier	bénéficier
+bureaucrate	bureaucrate
+bureaucratie	bureaucratie
+bureaucratique	bureaucratique
+casse-pieds	casse-pieds
+bouleversement	bouleversement
+bouleverser	bouleverser
+catholicisme	catholicisme
+caverne	caverne
+cependant	cependant
+ceremonie	cérémonie
+cessez-le-feu	cessez-le-feu
+capitulation	capitulation
+capituler	capituler
+captivant	captivant
+brulant	brülant
+captiver	captiver
+chantage	chantage
+citoyen-n	citoyen
+clarte	clarté
+chretien	chrétien
+christianisme	christianisme
+chronologie	chronologie
+condamner	condamner
+conferer	conférer
+couronnement	couronnement
+couronner	couronner
+courtisan	courtisan
+conserver	conserver
+corrompu	corrompu
+constant	constant
+corruption	corruption
+constater	constater
+cote	cote
+criminalite	criminalité
+criminel	criminel
+critiquable	critiquable
+contestable	contestable
+conteste	contesté
+continuite	continuité
+coupable	coupable
+contribuable	contribuable
+contribuer	contribuer
+contribution	contribution
+croyant	croyant
+controverse-f	controverse
+detourner	détourner
+diverger	diverger
+ebloui	ébloui
+diplomatique	diplomatique
+discutable	discutable
+drame	drame
+empereur	empereur
+empire	empire
+entendement	entendement
+emprisonner	emprisonner
+entierement	entierement
+egyptien	égyptien
+elargir	élargir
+elargissement	élargissement
+electeur	électeur
+elire	élire
+emballe	emballé
+embeter	embêter
+emerveille	émerveillé
+emettre	émettre
+ennemi	ennemi
+enquete	enquête
+enqueteur	enquêteur
+escroc	escroc
+falsifier	falsifier
+escroquer	escroquer
+exclu	exclu
+exclusion	exclusion
+executif	exécutif
+expansion	expansion
+essor	essor
+experience	expérience
+eternel	éternel
+etranger	étranger
+evident	évident
+evoluer	évoluer
+evolution	évolution
+exacerber	exacerber
+fleau	fléau
+fraude	fraude
+fonctionnement	fonctionnement
+fonds	fonds
+gouverner	gouverner
+fouille	fouille
+grec	grec
+greve	greve
+greviste	gréviste
+hasardeux	hasardeux
+historien	historien
+homicide	homicide
+identifier	identifier
+la-ic	la'ic
+la-icite	la'icité
+innocence	innocence
+islam	islam
+insense	insensé
+institution	institution
+legislatif	législatif
+lenteur	lenteur
+intensifier	intensifier
+juda-isme	juda'isme
+judiciaire	judiciaire
+intermediaire	intermédiaire
+juger	juger
+justificatif	justificatif
+invasion	invasion
+logique	logique
+manif-estation	manif*(estation]
+louche	louche
+menace	menace
+menacer	menacer
+massacre	massacre
+merveille	merveille
+massacrer	massacrer
+maintenir	maintenir
+maintien	maintien
+maire	maire
+meurtrier	meurtrier
+militer	militer
+medieviste	médiéviste
+mouvemente	mouvementé
+misere	misere
+nommer	nommer
+modernisation	modernisation
+municipale	municipale
+moderniser	moderniser
+nouveau	nouveau
+monarchie	monarchie
+oblige	obligé
+navet	navet
+observer	observer
+nier	nier
+noble	noble
+noblesse	noblesse
+palpitant	palpitant
+parite	parité
+performant	performant
+perime	périmé
+pacte	pacte
+permanent	permanent
+permettre	permettre
+paix	paix
+personnage	personnage
+passionnant	passionnant
+personnification	personnification
+pesanteur	pesanteur
+pourparlers	pourparlers
+poursuite	poursuite
+poursuivre	poursuivre
+pourtant	pourtant
+prehistoire	préhistoire
+prehistorien	préhistorien
+prehistorique	préhistorique
+premier	premier
+prenant	prenant
+populaire	populaire
+popularite	popularité
+preservation	préservation
+preserver	préserver
+presidentiel	présidentiel
+propagation	propagation
+propager	propager
+prospere	prospere
+prosperite	prospérité
+prier	prier
+priere	priere
+protestantisme	protestantisme
+rallonger	rallonger
+probable	probable
+preces	preces
+progres	progres
+progresser	progresser
+quittance	quittance
+rationnel	rationnel
+prolongement	prolongement
+prolonger	prolonger
+realiste	réaliste
+reformer	réformer
+renouveler	renouveler
+renouvellement	renouvellement
+renovation	rénovation
+regir	régir
+regner	régner
+rechercher	rechercher
+regression	régression
+reine	reine
+reinsertion	réinsertion
+reintegrer	réintégrer
+rejoindre	rejoindre
+recrudescence	recrudescence
+relacher	relâcher
+reprendre	reprendre
+recul	recul
+representer	représenter
+republicain	républicain
+remanter	remanter
+reduire	réduire
+reserve	réserve
+respect	respect
+renforcement	renforcement
+renforcer	renforcer
+ridicule	ridicule
+risque-adj	risqué
+satisfaction	satisfaction
+retablissement	rétablissement
+sauvagement	sauvagement
+rompre	rompre
+retrecir	rétrécir
+revendication	revendication
+royaute	royauté
+revolutionnaire	révolutionnaire
+revolver	revolver
+salarie	salarié
+soumis	soumis
+super	super
+souverain	souverain
+terrorisme	terrorisme
+traite	traité
+vestige	vestige
+voute	vouté
+z	z
+ce-theme-contient-des-mots-relatifs-a-la-famille	Ce thème contient des mots relatifs à la famille
+adolescent	adolescent
+age-adulte	âge adulte
+allocations-familiales	allocations familiales
+attentif	attentif
+autorite	autorité
+baccalaureat-m	baccalauréat
+bapteme	baptême
+beau-tils	beau-tils
+beau-pere	beau-père
+celibataire	célibataire
+cohabitation	cohabitation
+cohabiter	cohabiter
+collegien	collégien
+collegienne	collégienne
+compagne	compagne
+compagnon	compagnon
+comprehensible	compréhensible
+confidence	confidence
+conjoint	conjoint
+demi-frere	demi-frère
+dialogue-interculturel	dialogue interculturel
+doue-	doué
+echouer-a-un-examen	échouer à un examen
+ecolier	écolier
+eduquer	éduquer
+emigration	émigration
+emigrer	émigrer
+entants	entants
+epanouissement	epanouissement
+epoux	époux
+etablissement	établissement
+etre-dans-la-force-de-l-age	être dans la « force de l'âge »
+etudes	études
+etudiant-m	étudiant
+exiler	exiler
+expatrier	expatrier
+famille-recomposee	famille recomposée
+fetes-de-fin-d-annee	fêtes de fin d'année
+fiance	fiancé
+filiere	filière
+funerailles	funérailles
+individu	individu
+instituteur	instituteur
+institutrice	institutrice
+integrer	intégrer
+interesser-a	intéresser à
+interruption-volontaire-de-grossesse	interruption volontaire de grossesse
+issu-de	issu de
+juvenile	juvénile
+lyceen	lycéen
+lyceenne	lycéenne
+matrimonial	matrimonial
+maturite	maturité
+neveu	neveu
+obeir-a	obéir à
+orientation-professionnelle	orientation professionnelle
+paques	Pâques
+parent-isole	parent isolé
+parents-adoptifs	parents adoptifs
+parents-biologiques	parents biologiques
+penible-	pénible
+pension-alimentaire	pension alimentaire
+proviseur	proviseur
+puberte	puberté
+quatrieme-age	quatrième âge
+racines	racines
+resoudre	résoudre
+rompre-avec	rompre avec
+rupture	rupture
+sagesse	sagesse
+scolaire-v	scolaire
+se-tromper	se tromper
+senior	senior
+societe-multiculturelle	société multiculturelle
+solitude	solitude
+solution	solution
+surdoue	surdoué
+taches-domestiques	tâches domestiques
+trimestre	trimestre
+trimestriel	trimestriel
+a-demi-mot	à demi-mot
+affirmation	affirmation
+aborder	aborder
+agir	agir
+allusif	allusif
+allusion	allusion
+articuler	articuler
+assurer	assurer
+ane	âne
+bafouiller	bafouiller
+balbutier	balbutier
+audio-visuel	audio-visuel
+baragouiner	baragouiner
+biague	biague
+auditeur	auditeur
+averer	avérer
+bavardage	bavardage
+a-verti-r	a verti r
+avertissement	avertissement
+begaiement	bégaiement
+begayer	bégayer
+avouer	avouer
+bougon	bougon
+cable	câblé
+categorique	catégorique
+censure	censure
+bredouiller	bredouiller
+calomnie	calomnie
+calomnier	calomnier
+brievement	brievement
+certifier	certifier
+chatne	chaTne
+clairement	clairement
+communique	communiqué
+conference	conférence
+convaincre	convaincre
+coq	coq
+couvrir	couvrir
+consentir	consentir
+contenu	contenu
+continuel	continuel
+dissuader	dissuader
+du-tac-au-tac	du tac au tac
+divulguer	divulguer
+devoiler	dévoiler
+diffamation	diffamation
+differe	différé
+diffuser	diffuser
+diffusion	diffusion
+doucement	doucement
+direct	direct
+editorial	éditorial
+entrevue	entrevue
+envoye	envoyé
+eloge	éloge
+engueulade	engueulade
+engueuler	engueuler*
+exemplaire	exemplaire
+explicite	explicite
+fidele	fidele
+face-a-face	face-à-face
+figurer	figurer
+facon	façon
+frequence	fréquence
+gaffe	gaffe
+graphique	graphique
+fournir	fournir
+gazouiller	gazouiller
+haut	haut
+injure	injure
+lapsus	lapsus
+insister	insister
+legende	légende
+insulte	insulte
+journalisme	journalisme
+jt	JT
+interlocuteur	interlocuteur
+international	international
+inutile	inutile
+maniere	maniere
+menteur	menteur
+marmonner	marmonner
+mentionner	mentionner
+malentendu	malentendu
+mediatique	médiatique
+mediatisation	médiatisation
+non	non
+murmurer	murmurer
+modulation	modulation
+moquer	moquer
+onde	onde
+oui	oui
+parution	parution
+persister	persister
+persuasion	persuasion
+potin	potin
+preciser	préciser
+polichinelle	Polichinelle
+presentateur	présentateur
+plaisanterie	plaisanterie
+pretendre	prétendre
+radoter	radoter
+prevenir	prévenir
+raler	râler
+raleur	râleur*
+public	public
+publication	publication
+publier	publier
+questionner	questionner
+quiproquo	quiproquo
+regional	régional
+reclamer	réclamer
+repartie	repartie
+reporter	reporter
+remarquer	remarquer
+redacteur	rédacteur
+satellite	satellite
+satirique	satirique
+ronchonner	ronchonner
+retransmettre	retransmettre
+retransmission	retransmission
+reveler	révéler
+rouspeter	rouspéter
+rubrique	rubrique
+secret	secret
+soi-disant	soi-disant
+sous-entendu	sous-entendu
+timbre	timbré
+assaisonner	assaisonner
+beire	beire
+bouffe	bouffe
+bouffer	bouffer
+bouillir	bouillir
+brochette	brochette
+entamer	entamer
+exageration	exagération
+frire	frire
+gratin	gratin
+gratine	gratiné
+gastronomie	gastronomie
+griller	griller
+melanger	mélanger
+malbouffe	malbouffe
+mijoter	mijoter
+ceuf	ceuf
+papillote	papillote
+peler	peler
+picoler	picoler
+rape	râpé
+raper	râper
+rechauffe	réchauffé
+remuer	remuer
+rondelle	rondelle
+rotir	rôtir
+le-vocabulaire-des-transports-se-trouve-parfois-dans-le-theme	Le vocabulaire des transports se trouve parfois dans le thème
+des-loisirs-il-est-egalement-en-lien-avec-celui-de	des loisirs . Il est également en lien avec celui de
+l-environnement-vous-entendrez-regulierement-parler-de	l'environnement. Vous entendrez régulièrement parler de
+transports-en-commun	transports en commun
+accelerateur	accélérateur
+ccident-m	ccident (m
+agence-de-voyages	agence de voyages
+aire	aire
+aller-et-retour	aller et retour
+aller-simple	aller simple
+arrivee	arrivée
+atterr-r	atterrır
+autopartage	autopartage
+bagages	bagages
+cargo	cargo
+chemin	chemin
+compartiment	compartiment
+conducteur	conducteur
+consigne	consigne
+covoiturage	covoiturage
+desservir	desservir
+detour	détour
+deviation	déviation
+distributeur-de-tickets	distributeur de tickets
+ecraser	écraser
+equiper	équiper
+faire-de-l-auto-stop	faire de l'auto-stop
+faire-le-plein	faire le plein
+ferry	ferry
+feu-rouge	feu rouge
+gare-routiere	gare routière
+garer-se-garer	garer/se garer
+heures-de-pointe	heures de pointe
+horaire	horaire
+manquer-loc	manquer
+passager	passager
+pieton	piéton
+poids-lourd	poids lourd
+raccourci	raccourci
+rue	rue
+sauvetage	sauvetage
+se-deplacer	se déplacer
+souven-r-m	souvenır (m
+terminus	terminus
+titre-de-transport	titre de transport
+transports-collectifs-transports-en-commun	transports collectifs/transports en commun
+usager-m	usager
+valise	valise
+voyageur	voyageur
+vtt	VTT
+wagon-restaurant	wagon-restaurant
+comme-mentionne-plus-haut	Comme mentionné plus haut
+dediee-aux-moyens-de-transport	dédiée aux moyens de transport
+a-l-etranger	à l'étranger
+a-pied	à pied
+adaptateur-pour-prise-electrique	adaptateur pour prise électrique
+agence-de-voyage-f	agence de voyage
+agent-de-voyages	agent de voyages
+agent-des-douanes	agent des douanes
+aller-recuperer-quelqu-un-quelque-part	aller récupérer quelqu'un quelque part
+aller-retour	aller retour
+annule	annulé
+annuler-une-reservation	annuler une réservation
+anti-moustiques	anti-moustiques
+aquarium	aquarium
+assurance-voyage	assurance voyage
+auberge-de-jeunesse	auberge de jeunesse
+autochtone-un-habitant	autochtone / un habitant
+avoir-le-mal-de-mer	avoir le mal de mer
+bateau-de-croisiere	bateau de croisière
+billet-un-ticket	billet / un ticket
+billets	billets
+bloc-note	bloc-note
+bord-de-mer	bord de mer
+boussole	boussole
+bureau-d-information	bureau d'information
+carnet-journal-de-voyage	carnet/journal de voyage
+carte-d-embarquement	carte d'embarquement
+carte-postale	carte postale
+carte-telephonique	carte téléphonique
+chambre-a-deux-lits-separes	chambre à deux lits séparés
+chambre-d-hotes	chambre d'hôtes
+chambre-double	chambre double
+chambre-simple	chambre simple
+client-m	client
+climatisation	climatisation
+coffre-fort	coffre fort
+compagnie-aerienne	compagnie aérienne
+consigne-a-bagage	consigne à bagage
+controle-des-passeports	contrôle des passeports
+controleur	contrôleur
+coucher-de-soleil	coucher de soleil
+couverture-loc	couverture
+creme-solaire	crème solaire
+cuisine-locale	cuisine locale
+decalage-horaire	décalage horaire
+dependre-du-tourisme	dépendre du tourisme
+deposer-quelqu-un	déposer quelqu'un
+documents-de-voyage	documents de voyage
+douanier	douanier
+en-avion	en avion
+en-bateau	en bateau
+en-bus-autobus	en bus/autobus
+en-ferry	en ferry
+en-moto	en moto
+en-train	en train
+en-velo	en vélo
+en-voiture	en voiture
+endroit-a-visiter	endroit à visiter
+etranger-m	étranger
+etre-assure	être assuré
+etre-en-vacances	être en vacances
+explorer-les-environs	explorer les environs
+facultatif	facultatif
+faire-de-l-auto-stop-loc	faire de l'auto-stop
+faire-de-l-escalade	faire de l'escalade
+faire-de-la-plongee	faire de la plongée
+faire-du-camping	faire du camping
+faire-du-kayak	faire du kayak
+faure-du-ski	faure du ski
+faire-du-tourisme	faire du tourisme
+faire-du-trek	faire du trek
+faire-escale	faire escale
+faire-un-safari	faire un safari
+faire-un-voyage-organise	faire un voyage organisé
+fuseau-horaire	fuseau horaire
+gouter-la-cuisine-locale	goûter la cuisine locale
+guide-de-conversation	guide de conversation
+guide-de-voyage	guide de voyage
+handicape-m	handicapé
+jour-ferie	jour férié
+lampe-de-poche	lampe de poche
+lever-de-soleil	lever de soleil
+libre-disponible	libre / disponible
+lunettes-de-soleil	lunettes de soleil
+maison-de-campagne	maison de campagne
+manuel-de-conversation	manuel de conversation
+monnaie-devise	monnaie / devise
+monter-a-bord	monter à bord
+nuitee-loc	nuitée
+numero-de-wagon	numéro de wagon
+office-du-tourisme	office du tourisme
+parc-d-attractions	parc d'attractions
+partir-en-vacances	partir en vacances
+partir-en-voyage	partir en voyage
+partir-en-voyage-organise	partir en voyage organisé
+partir-loc	partir
+pays-etranger	pays étranger
+pieces	pièces
+piege-a-touriste	piège à touriste
+piles	piles
+planter-une-tente	planter une tente
+plongee-avec-tuba	plongée avec tuba
+plongee-sous-marine	plongée sous-marine
+pont	pont
+premiere-classe	première classe
+prendre-des-coups-de-soleil	prendre des coups de soleil
+prendre-des-photos	prendre des photos
+prise-electrique	prise électrique
+prix-du-trajet	prix du trajet
+prix-forfaitaire	prix forfaitaire
+prix-raisonnable-exorbitant	prix raisonnable / exorbitant
+projeter-prendre-des-vacances	projeter/prendre des vacances
+receptionniste	réceptionniste
+reclamation-plainte	réclamation/plainte
+regler-la-note	régler la note
+regler-la-note-d-hotel	régler la note d'hôtel
+relaxer	relaxer
+rendre-un-bain-de-soleil	rendre un bain de soleil
+reservation-directe	réservation directe
+retarde	retardé
+s-enregistrer-faire-l-enregistrement	s'enregistrer/faire l'enregistrement
+sac-a-main	sac à main
+sac-de-couchage	sac de couchage
+sac-de-voyage	sac de voyage
+saison-basse	saison basse
+saison-haute	saison haute
+saison-haute-basse	saison haute/basse
+saison-touristique	saison touristique
+serviette	serviette
+siege-une-place	siège / une place
+site-attraction-touristique	site/attraction touristique
+sortir-des-sentiers-battus	sortir des sentiers battus
+sortir-le-soir	sortir le soir
+souffrir-du-decalage-horaire	souffrir du décalage horaire
+soute-a-bagages	soute à bagages
+station-balneaire	station balnéaire
+station-de-vacances	station de vacances
+suivre-le-circuit-touristique	suivre le circuit touristique
+sur-reservation	sur réservation
+tarit	tarit
+tente	tente
+terrain-de-camping	terrain de camping
+timbres	timbres
+tongs	tongs
+tourisme-de-masse	tourisme de masse
+touriste	touriste
+tout-inclus-tout-compris	tout inclus / tout compris
+trousse-de-premiers-secours	trousse de premiers secours
+tva	TVA
+vacances	vacances
+visiter-loc	visiter
+voyage-d-affaires	voyage d'affaires
+voyage-d-une-journee	voyage d'une journée
+voyage-organise	voyage organisé
+voyager	voyager
+voyager-autour-du-monde	voyager autour du monde
+voyager-leger	voyager léger
+l-economie-et-la-politique	L'économie et la politique
+c-est-un-theme-qui-est-tres-present-dans-l-actualite-l-economie	C'est un thème qui est très présent dans l'actualité. L'économie
+et-la-politique-vont-souvent-de-pair-l-economie-est-comme-le	et la politique vont souvent de pair. L'économie est comme le
+aimable	aimable
+associer	associer
+benevole	bénévole
+budgetaire	budgétaire
+capitalisme	capitalisme
+cocher	cocher
+commune	commune
+comparer	comparer
+competivite	compétivité
+comptabilite	comptabilité
+compte-rendu	compte rendu
+contestable-	contestable
+contredire	contredire
+cooperation	coopération
+deficit	déficit
+demographie	démographie
+depute	député
+desespere	désespéré
+desinteret	désintérêt
+determine	déterminé
+developpement-durable	développement durable
+dictateur	dictateur
+dictature	dictature
+discutable-	discutable
+distinguer	distinguer
+embargo	embargo
+etat-d-esprit	état d'esprit
+etre-ancre-dans	être ancré dans
+etre-confronte	être confronté
+fiscalite	fiscalité
+fmi	FMI
+hotel-de-ville	hôtel de ville
+independant	indépendant
+industrialisation	industrialisation
+inflation-loc	inflation
+infrastructure	infrastructure
+international-	international
+intervenant	intervenant
+justifier	justifier
+liberalisme	libéralisme
+libre-echange	libre-échange
+macroeconomie	macroéconomie
+mettre-en-scene	mettre en scène
+microeconomie	microéconomie
+ministre-m	ministre
+monetaire	monétaire
+monopole	monopole
+municipal	municipal
+national-	national
+occasion-loc	occasion
+passionne-	passionné
+patrie	patrie
+penurie	pénurie
+politique-f	politique
+porter-son-attention	porter son attention
+prendre-conscience	prendre conscience
+preoccupation	préoccupation
+president-m	Président
+primordial	primordial
+productivite	productivité
+prospere-v	prospère
+protectionnisme	protectionnisme
+puissance	puissance
+puissant	puissant
+redistribution	redistribution
+reforme-loc	réforme
+reformuler	reformuler
+relever-un-defi	relever un défi
+rendement	rendement
+secteur-tertiaire	secteur tertiaire
+significatif	significatif
+sous-developpement	sous-développement
+speculation	spéculation
+statistique	statistique
+valoriser	valoriser
+visee	visée
+vote	vote
+etat-m	Etat
+a-l-improviste	à l'improviste
+affectif	affectif
+abasourdi	abasourdi
+affinite	affinité
+actif	actif
+affirmer	affirmer
+affolement	affolement
+affoler	affoler
+agacant	agaçant
+agacer	agacer
+absorbe	absorbé
+accable	accablé
+accorder	accorder
+ange	ange
+angoissant	angoissant
+angoisse	angoisse
+angoisse-adj	angoissé
+animosite	animosité
+antipathie	antipathie
+anxieux	anxieux
+apaiser	apaiser
+apprecier	apprécier
+apprehender	appréhender
+apprehension	appréhension
+amer	amer
+amertume	amertume
+amour-propre	amour-propre
+atome	atome
+atroce	atroce
+ardent	ardent
+aneanti	anéanti
+attachant	attachant
+bacler	bâcler
+attentionne	attentionné
+atterre	atterré
+biche	biche
+attirance	attirance
+banal	banal
+au-depourvu	au dépourvu
+audacieux	audacieux
+batailleur	batailleur
+boheme	boheme
+aversion	aversion
+beguin	béguin
+bouillant	bouillant
+cassant	cassant
+bute	buté
+bouleversant	bouleversant
+bouleverse	bouleversé
+cacher	cacher
+cafard	cafard
+canaille	canaille
+briser	briser
+brouiller	brouiller
+capricieux	capricieux
+brusque	brusque
+brutal	brutal
+chatte	chatte
+choquant	choquant
+choque	choqué
+cordial	cordial
+consciencieux	consciencieux
+cordialite	cordialité
+cran	cran
+crapule	crapule
+craquant	craquant
+constemation	constemation
+consteme	constemé
+crispant	crispant
+crochu	crochu
+contrairement	contrairement
+ebahi	ébahi
+eberlue	éberlué
+dogue	dogue
+dote	doté
+dragueur	dragueur
+dissimuler	dissimuler
+effare	effaré
+efficace	efficace
+emporte	emporté
+effroyable	effroyable
+entete	entêté
+emu	ému
+encourager	encourager
+envahir	envahir
+energique	énergique
+enerve	énervé
+eloigner	éloigner
+enfer	enfer
+epanoui	épanoui
+epanouir	épanouir
+embarrasse	embarrassé
+epris	épris
+emotif	émotif
+emotionnel	émotionnel
+erudit	érudit
+emouvant	émouvant
+erudition	érudition
+esbroufe	esbroufe
+falot	falot
+excessif	excessif
+fanfaron	fanfaron
+fantaisiste	fantaisiste
+farfelu	farfelu
+espoir	espoir
+esprit	esprit
+febrile	fébrile
+feindre	feindre
+etalage	étalage
+etaler	étaler
+exterioriser	extérioriser
+etourderie	étourderie
+etrange	étrange
+extravagant	extravagant
+fier	fier
+fignoler	fignoler
+euphorie	euphorie
+euphorique	euphorique
+faillir	faillir
+exagerer	exagérer
+exasperant	exaspérant
+gene	gêne
+flatter	flatter
+gene-adj	gêné
+frayeur	frayeur
+frime	frime
+frimer	frimer
+frimeur	frimeur
+fripouille	fripouille
+fonceur	fonceur
+foncierement	foncierement
+friser	friser
+forger	forger
+gaiete	gaieté
+fou	fou
+galop	galop
+hardiment	hardiment
+hate	hâte
+irresistible	irrésistible
+irresolu	irrésolu
+initiative	initiative
+irritation	irritation
+inou-i	inou'i
+insignifiant	insignifiant
+interloque	interloqué
+intrepide	intrépide
+lache	lâche
+meduse	médusé
+maniaque	maniaque
+melancolique	mélancolique
+manipulateur	manipulateur
+manque	manque
+marre	marre
+meprisant	méprisant
+massacrant	massacrant
+mesure-adj	mesuré
+meticuleux	méticuleux
+maussade	maussade
+mal-a-l-aise	mal à l'aise
+mecontentement	mécontentement
+malleable	malléable
+malveillance	malveillance
+minutieux	minutieux
+nonchalant	nonchalant
+noue	noué
+mollasson	mollasson
+mom-ent	mom·ent
+negligent	négligent
+morose	morose
+nervosite	nervosité
+mou	mou
+offusque	offusqué
+panique	panique
+paniquer	paniquer
+opiniatre	opiniâtre
+pedant	pédant
+pedanterie	pédanterie
+ordonne	ordonné
+parader	parader
+parattre	paraTtre
+orgueil	orgueil
+orgueilleux	orgueilleux
+penible	pénible
+outre	outré
+perfectionniste	perfectionniste
+paisible	paisible
+palpable	palpable
+pervers	pervers
+perversite	perversité
+posseder	posséder
+peureux	peureux
+pouffer	pouffer
+plonger	plonger
+pinson	pinson
+pondere	pondéré
+porte-bonheur	porte-bonheur
+prevenant	prévenant
+provoquer	provoquer
+rancceur	rancceur
+rancune	rancune
+rapport	rapport
+ras-le-bol	ras-le-bol
+rassurer	rassurer
+regretter	regretter
+reconforte	réconforté
+rejouissance	réjouissance
+redouter	redouter
+repugner	répugner
+repulsion	répulsion
+resolu	résolu
+reflechi	réfléchi
+ressentiment	ressentiment
+rigolade	rigolade
+rigoler	rigoler
+retourne	retourné
+scandale	scandale
+scandaleux	scandaleux
+scandalise	scandalisé
+scie-adj	scié
+reveur	rêveur
+scrupuleusement	scrupuleusement
+scrupuleux	scrupuleux
+revolte	révolté
+sacre	sacré
+salaud	salaud
+seducteur	séducteur
+sincere	sincére
+singulier	singulier
+souffle	soufflé
+supporter	supporter
+soutenir	soutenir
+soutenu	soutenu
+special	spécial
+systeme	systéme
+trahir	trahir
+trainer	trainer
+velleitaire	velléitaire
+viser	viser
+veritable	véritable
+volonte	volonté
+versatile	versatile
+vexer	vexer
+western	western

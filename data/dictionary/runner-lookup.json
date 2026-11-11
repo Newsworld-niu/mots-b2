@@ -1,0 +1,2884 @@
+{
+ "voie": {
+  "word": "voie",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/voie/",
+    "status": "ok",
+    "headword": "voie",
+    "zh": "道路"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/voie",
+    "status": "ok",
+    "headword": "voie",
+    "category": "nom féminin",
+    "definition": "1. Tout ce qui mène, permet d'aller d'un endroit à un autre, sur terre, sur l'eau et dans les airs : Une voie d'accès à l'usine. Voie navigable. Synonymes : chemin - itinéraire - passage - route - trajet"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=voie&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "voie",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "mise en scène": {
+  "word": "mise en scène",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/mise%20en%20sc%C3%A8ne/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/mise%20en%20sc%C3%A8ne",
+    "status": "headword_mismatch",
+    "headword": "mise"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=mise%20en%20sc%C3%A8ne&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "mise en scène",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "problème": {
+  "word": "problème",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/probl%C3%A8me/",
+    "status": "ok",
+    "headword": "problème",
+    "zh": "题"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/probl%C3%A8me",
+    "status": "ok",
+    "headword": "problème",
+    "category": "nom masculin",
+    "definition": "1. Point sur lequel on s'interroge, question qui prête à discussion, qui fait l'objet d'argumentations, de théories diverses, en particulier dans le domaine de la connaissance : Le problème de l'origine de l'homme."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=probl%C3%A8me&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "problème",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "circonférence": {
+  "word": "circonférence",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/circonf%C3%A9rence/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/circonf%C3%A9rence",
+    "status": "ok",
+    "headword": "circonférence",
+    "category": "nom féminin",
+    "definition": "1. Ligne courbe, plane, fermée, bordant une aire, en particulier un cercle. Synonymes : cercle - orbite - rond"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=circonf%C3%A9rence&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "circonférence",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "chevalet": {
+  "word": "chevalet",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/chevalet/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/chevalet",
+    "status": "ok",
+    "headword": "chevalet",
+    "category": "nom masculin",
+    "definition": "1. Support, réglable en hauteur, sur lequel les peintres posent un tableau en cours d'exécution."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=chevalet&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "chevalet",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "cincquieme": {
+  "word": "cincquieme",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/cincquieme/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/cincquieme",
+    "status": "no_entry"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=cincquieme&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "headword_mismatch"
+ },
+ "xyzzyword": {
+  "word": "xyzzyword",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/xyzzyword/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/xyzzyword",
+    "status": "no_entry"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=xyzzyword&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "headword_mismatch"
+ },
+ "Argentine": {
+  "word": "Argentine",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/Argentine/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/Argentine",
+    "status": "headword_mismatch",
+    "headword": "argentin, argentine"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=Argentine&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "Argentine",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "Chili": {
+  "word": "Chili",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/Chili/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/Chili",
+    "status": "ok",
+    "headword": "chili, chiles",
+    "category": "nom masculin",
+    "definition": "Petit piment rouge d'origine mexicaine."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=Chili&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "ok"
+ },
+ "Dordogne": {
+  "word": "Dordogne",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/Dordogne/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/Dordogne",
+    "status": "no_entry"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=Dordogne&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "headword_mismatch"
+ },
+ "africain": {
+  "word": "africain",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/africain/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/africain",
+    "status": "ok",
+    "headword": "africain, africaine",
+    "category": "adjectif et nom",
+    "definition": "D'Afrique."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=africain&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "africain",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "amorce": {
+  "word": "amorce",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/amorce/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/amorce",
+    "status": "ok",
+    "headword": "amorce",
+    "category": "nom féminin",
+    "definition": "1. Produit servant à attirer les poissons. Synonyme : appât"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=amorce&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "amorce",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "anesthésiste": {
+  "word": "anesthésiste",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/anesth%C3%A9siste/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/anesth%C3%A9siste",
+    "status": "ok",
+    "headword": "anesthésiste",
+    "category": "nom",
+    "definition": "Médecin qui pratique l' anesthésie ."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=anesth%C3%A9siste&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "anesthésiste",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "antillais": {
+  "word": "antillais",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/antillais/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/antillais",
+    "status": "ok",
+    "headword": "antillais, antillaise",
+    "category": "adjectif et nom",
+    "definition": "Des Antilles."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=antillais&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "antillais",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "antiseptique": {
+  "word": "antiseptique",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/antiseptique/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/antiseptique",
+    "status": "ok",
+    "headword": "antiseptique",
+    "category": "adjectif et nom masculin",
+    "definition": "Produit utilisé pour lutter contre les germes de la peau et des muqueuses. Synonymes : antiputride - désinfectant - stérilisant"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=antiseptique&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "antiseptique",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "avocats": {
+  "word": "avocats",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/avocats/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/avocats",
+    "status": "headword_mismatch",
+    "headword": "avocat, avocate"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=avocats&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "avocats",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "chinois": {
+  "word": "chinois",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/chinois/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/chinois",
+    "status": "ok",
+    "headword": "chinois, chinoise",
+    "category": "adjectif et nom",
+    "definition": "1. De Chine."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=chinois&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "chinois",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "cinématographique": {
+  "word": "cinématographique",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/cin%C3%A9matographique/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/cin%C3%A9matographique",
+    "status": "ok",
+    "headword": "cinématographique",
+    "category": "adjectif",
+    "definition": "Relatif au cinéma ."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=cin%C3%A9matographique&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "cinématographique",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "coincé": {
+  "word": "coincé",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/coinc%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/coinc%C3%A9",
+    "status": "headword_mismatch",
+    "headword": "coincer"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=coinc%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "coincé",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "comblé": {
+  "word": "comblé",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/combl%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/combl%C3%A9",
+    "status": "headword_mismatch",
+    "headword": "combler"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=combl%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "comblé",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "commere": {
+  "word": "commere",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/commere/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/commere",
+    "status": "ok",
+    "headword": "commère",
+    "category": "nom féminin",
+    "definition": "1. Vieux. Marraine d'un enfant par rapport au parrain (ou compère)."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=commere&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "ok"
+ },
+ "commémoratif": {
+  "word": "commémoratif",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/comm%C3%A9moratif/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/comm%C3%A9moratif",
+    "status": "ok",
+    "headword": "commémoratif, commémorative",
+    "category": "adjectif",
+    "definition": "Qui rappelle le souvenir de quelqu'un, d'un événement : Plaque commémorative. Synonyme : votif"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=comm%C3%A9moratif&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "commémoratif",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "commémoration": {
+  "word": "commémoration",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/comm%C3%A9moration/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/comm%C3%A9moration",
+    "status": "ok",
+    "headword": "commémoration",
+    "category": "nom féminin",
+    "definition": "1. Action de commémorer, de rappeler le souvenir d'un événement, d'une personne ; cérémonie faite à cette occasion. Synonymes : célébration - fête"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=comm%C3%A9moration&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "commémoration",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "contentement": {
+  "word": "contentement",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/contentement/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/contentement",
+    "status": "ok",
+    "headword": "contentement",
+    "category": "nom masculin",
+    "definition": "1. Action de contenter, de satisfaire un désir, un besoin, etc. ; assouvissement. Synonymes : assouvissement - satisfaction"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=contentement&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "contentement",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "cyberdépendant/e": {
+  "word": "cyberdépendant/e",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/cyberd%C3%A9pendant/e/",
+    "status": "network_error"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/cyberd%C3%A9pendant/e",
+    "status": "network_error"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=cyberd%C3%A9pendant/e&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "network_error"
+ },
+ "diminuer/baisser": {
+  "word": "diminuer/baisser",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/diminuer/baisser/",
+    "status": "network_error"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/diminuer/baisser",
+    "status": "network_error"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=diminuer/baisser&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "network_error"
+ },
+ "démocratiser": {
+  "word": "démocratiser",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/d%C3%A9mocratiser/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/d%C3%A9mocratiser",
+    "status": "ok",
+    "headword": "démocratiser",
+    "category": "verbe transitif",
+    "definition": "1. Rendre quelque chose accessible à toutes les classes sociales, le mettre à la portée de tous : Démocratiser le transport aérien en abaissant les tarifs. Synonymes : généraliser - populariser - vulgariser"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=d%C3%A9mocratiser&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "démocratiser",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "désacraliser": {
+  "word": "désacraliser",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/d%C3%A9sacraliser/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/d%C3%A9sacraliser",
+    "status": "ok",
+    "headword": "désacraliser",
+    "category": "verbe transitif",
+    "definition": "Dépouiller quelque chose de son caractère sacré ."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=d%C3%A9sacraliser&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "désacraliser",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "détaire": {
+  "word": "détaire",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/d%C3%A9taire/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/d%C3%A9taire",
+    "status": "no_entry"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=d%C3%A9taire&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "headword_mismatch"
+ },
+ "eclat": {
+  "word": "eclat",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/eclat/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/eclat",
+    "status": "ok",
+    "headword": "éclat",
+    "category": "nom masculin",
+    "definition": "1. Fragment détaché soudainement d'un corps dur ou projeté par un corps qui se brise ; marque qui en résulte à la surface de ce corps : Il y a un éclat sur la marqueterie du meuble. Synonymes : brisure - éclisse - esquille - morceau"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=eclat&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "ok"
+ },
+ "effacer/supprimer": {
+  "word": "effacer/supprimer",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/effacer/supprimer/",
+    "status": "network_error"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/effacer/supprimer",
+    "status": "network_error"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=effacer/supprimer&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "network_error"
+ },
+ "enfler/gonfler": {
+  "word": "enfler/gonfler",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/enfler/gonfler/",
+    "status": "network_error"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/enfler/gonfler",
+    "status": "network_error"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=enfler/gonfler&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "network_error"
+ },
+ "européen": {
+  "word": "européen",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/europ%C3%A9en/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/europ%C3%A9en",
+    "status": "ok",
+    "headword": "européen, européenne",
+    "category": "adjectif et nom",
+    "definition": "1. D'Europe."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=europ%C3%A9en&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "européen",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "froideur": {
+  "word": "froideur",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/froideur/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/froideur",
+    "status": "ok",
+    "headword": "froideur",
+    "category": "nom féminin",
+    "definition": "1. Littéraire. Qualité, état de ce qui est froid : La froideur du marbre."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=froideur&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "froideur",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "gele": {
+  "word": "gele",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/gele/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/gele",
+    "status": "ok",
+    "headword": "gelé, gelée",
+    "category": "adjectif",
+    "definition": "1. Très froid ; glacé : Avoir les pieds gelés. Synonyme : glacé"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=gele&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "ok"
+ },
+ "guyanais": {
+  "word": "guyanais",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/guyanais/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/guyanais",
+    "status": "ok",
+    "headword": "guyanais, guyanaise",
+    "category": "adjectif et nom",
+    "definition": "De Guyane."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=guyanais&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "guyanais",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "généraliste/specialiste": {
+  "word": "généraliste/specialiste",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/g%C3%A9n%C3%A9raliste/specialiste/",
+    "status": "network_error"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/g%C3%A9n%C3%A9raliste/specialiste",
+    "status": "network_error"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=g%C3%A9n%C3%A9raliste/specialiste&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "network_error"
+ },
+ "handicapé": {
+  "word": "handicapé",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/handicap%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/handicap%C3%A9",
+    "status": "ok",
+    "headword": "handicapé, handicapée",
+    "category": "nom",
+    "definition": "Personne atteinte d'une infirmité ou défavorisée sur un point quelconque : Un handicapé moteur."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=handicap%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "handicapé",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "huitieme": {
+  "word": "huitieme",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/huitieme/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/huitieme",
+    "status": "ok",
+    "headword": "huitième",
+    "category": "adjectif numéral ordinal",
+    "definition": "1. Qui occupe le rang marqué par le nombre huit : Au début du huitième siècle. Arriver le huitième."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=huitieme&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "ok"
+ },
+ "immigré": {
+  "word": "immigré",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/immigr%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/immigr%C3%A9",
+    "status": "ok",
+    "headword": "immigré, immigrée",
+    "category": "adjectif et nom",
+    "definition": "Qui a quitté son pays d'origine pour s'installer dans un autre pays."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=immigr%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "immigré",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "imprimé": {
+  "word": "imprimé",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/imprim%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/imprim%C3%A9",
+    "status": "ok",
+    "headword": "imprimé",
+    "category": "nom masculin",
+    "definition": "1. Livre, brochure, feuille ou formule administrative imprimés : Imprimés pour la déclaration d'impôts."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=imprim%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "imprimé",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "inconsciencia": {
+  "word": "inconsciencia",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/inconsciencia/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/inconsciencia",
+    "status": "no_entry"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=inconsciencia&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "headword_mismatch"
+ },
+ "indignation": {
+  "word": "indignation",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/indignation/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/indignation",
+    "status": "ok",
+    "headword": "indignation",
+    "category": "nom féminin",
+    "definition": "Sentiment de colère ou de révolte que provoque quelqu'un ou quelque chose : Les journalistes ont crié leur indignation devant le sort réservé à leur consœur."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=indignation&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "indignation",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "indigné": {
+  "word": "indigné",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/indign%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/indign%C3%A9",
+    "status": "ok",
+    "headword": "indigné, indignée",
+    "category": "adjectif et nom",
+    "definition": "1. Qui éprouve de l'indignation : Un rassemblement d'indignés."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=indign%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "indigné",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "indiqué": {
+  "word": "indiqué",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/indiqu%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/indiqu%C3%A9",
+    "status": "headword_mismatch",
+    "headword": "indiquer"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=indiqu%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "indiqué",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "indolent": {
+  "word": "indolent",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/indolent/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/indolent",
+    "status": "ok",
+    "headword": "indolent, indolente",
+    "category": "adjectif et nom",
+    "definition": "Qui évite de se donner de la peine, qui agit avec mollesse : Un enfant indolent. Un geste indolent. Synonymes : amorphe - apathique - atone - avachi - engourdi - languissant - mollasse - mollasson - mou - nonchalant - paresseux Contraires : actif - ardent - brusque - diligent - dynamique - empressé "
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=indolent&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "indolent",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "indubitable": {
+  "word": "indubitable",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/indubitable/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/indubitable",
+    "status": "ok",
+    "headword": "indubitable",
+    "category": "adjectif",
+    "definition": "Dont on ne peut douter : Une preuve indubitable. Synonymes : authentique - certain - évident - incontestable - indéniable - indiscutable - irrécusable - irréfragable - irréfutable - manifeste - réel - sûr - tangible - véritable - vrai Contraires : douteux - hypothétique - improbable - incertain"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=indubitable&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "indubitable",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "indéfendable": {
+  "word": "indéfendable",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/ind%C3%A9fendable/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/ind%C3%A9fendable",
+    "status": "ok",
+    "headword": "indéfendable",
+    "category": "adjectif",
+    "definition": "1. Se dit de quelqu'un dont les actes sont condamnables ; se dit d'une conduite injustifiable : Cette manière d'agir est indéfendable. Synonyme : insoutenable Contraires : défendable - excusable - justifiable"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=ind%C3%A9fendable&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "indéfendable",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "inefficace": {
+  "word": "inefficace",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/inefficace/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/inefficace",
+    "status": "ok",
+    "headword": "inefficace",
+    "category": "adjectif",
+    "definition": "Qui n'est pas efficace : Médicament inefficace. Synonymes : anodin - infructueux - inopérant - inutile - stérile - vain Contraires : actif - efficace"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=inefficace&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "inefficace",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "insultant": {
+  "word": "insultant",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/insultant/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/insultant",
+    "status": "ok",
+    "headword": "insultant, insultante",
+    "category": "adjectif",
+    "definition": "Qui contient ou constitue une insulte : Des propos insultants. Synonymes : blessant - injurieux - offensant - outrageant"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=insultant&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "insultant",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "intolérance": {
+  "word": "intolérance",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/intol%C3%A9rance/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/intol%C3%A9rance",
+    "status": "ok",
+    "headword": "intolérance",
+    "category": "nom féminin",
+    "definition": "1. Refus d'admettre l'existence d'idées, de croyances ou d'opinions différentes des siennes. (Le sujet va jusqu'à persécuter ceux qui les soutiennent.) Synonymes : intransigeance - rigueur Contraires : compréhension - indulgence - tolérance"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=intol%C3%A9rance&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "intolérance",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "jusqu'à": {
+  "word": "jusqu'à",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/jusqu%27%C3%A0/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/jusqu%27%C3%A0",
+    "status": "headword_mismatch",
+    "headword": "à"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=jusqu%27%C3%A0&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "headword_mismatch"
+ },
+ "laïcité": {
+  "word": "laïcité",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/la%C3%AFcit%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/la%C3%AFcit%C3%A9",
+    "status": "ok",
+    "headword": "laïcité",
+    "category": "nom féminin",
+    "definition": "1. Conception et organisation de la société fondée sur la séparation de l'Église et de l'État et qui exclut les Églises de l'exercice de tout pouvoir politique ou administratif, et, en particulier, de l'organisation de l'enseignement. (Le principe de la laïcité de l'État est posé par l'article 1 er "
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=la%C3%AFcit%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "laïcité",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "lecteurs": {
+  "word": "lecteurs",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/lecteurs/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/lecteurs",
+    "status": "headword_mismatch",
+    "headword": "lecteur, lectrice"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=lecteurs&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "lecteurs",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "marcher/fonctionner": {
+  "word": "marcher/fonctionner",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/marcher/fonctionner/",
+    "status": "network_error"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/marcher/fonctionner",
+    "status": "network_error"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=marcher/fonctionner&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "network_error"
+ },
+ "mariée": {
+  "word": "mariée",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/mari%C3%A9e/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/mari%C3%A9e",
+    "status": "headword_mismatch",
+    "headword": "marié, mariée"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=mari%C3%A9e&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "mariée",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "martiniquais": {
+  "word": "martiniquais",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/martiniquais/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/martiniquais",
+    "status": "ok",
+    "headword": "martiniquais, martiniquaise",
+    "category": "adjectif et nom",
+    "definition": "De Martinique."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=martiniquais&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "martiniquais",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "microbes": {
+  "word": "microbes",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/microbes/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/microbes",
+    "status": "headword_mismatch",
+    "headword": "microbe"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=microbes&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "microbes",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "moyen/moyenne": {
+  "word": "moyen/moyenne",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/moyen/moyenne/",
+    "status": "network_error"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/moyen/moyenne",
+    "status": "network_error"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=moyen/moyenne&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "network_error"
+ },
+ "neurologue": {
+  "word": "neurologue",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/neurologue/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/neurologue",
+    "status": "headword_mismatch",
+    "headword": "neurologiste"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=neurologue&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "neurologue",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "nuancer": {
+  "word": "nuancer",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/nuancer/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/nuancer",
+    "status": "ok",
+    "headword": "nuancer",
+    "category": "verbe transitif",
+    "definition": "1. Ménager des gradations dans les couleurs : Nuancer les bleus dans un tableau. Synonymes : dégrader - fondre - noyer"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=nuancer&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "nuancer",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "néphrologue": {
+  "word": "néphrologue",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/n%C3%A9phrologue/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/n%C3%A9phrologue",
+    "status": "ok",
+    "headword": "néphrologue",
+    "category": "nom",
+    "definition": "Spécialiste des maladies rénales."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=n%C3%A9phrologue&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "néphrologue",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "occidental": {
+  "word": "occidental",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/occidental/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/occidental",
+    "status": "ok",
+    "headword": "occidental, occidentale, occidentaux",
+    "category": "adjectif",
+    "definition": "1. Qui est situé à l'occident, à l'ouest : La côte occidentale de l'Amérique. Contraire : oriental"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=occidental&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "occidental",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "oriental": {
+  "word": "oriental",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/oriental/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/oriental",
+    "status": "ok",
+    "headword": "oriental, orientale, orientaux",
+    "category": "adjectif et nom",
+    "definition": "1. Qui est situé à l'est : La côte orientale de la Corse."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=oriental&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "oriental",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "parisien": {
+  "word": "parisien",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/parisien/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/parisien",
+    "status": "ok",
+    "headword": "parisien, parisienne",
+    "category": "adjectif et nom",
+    "definition": "1. De Paris ; de ses habitants."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=parisien&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "parisien",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "pique-niquer": {
+  "word": "pique-niquer",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/pique-niquer/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/pique-niquer",
+    "status": "headword_mismatch",
+    "headword": "pique-niquer (Réf. ortho. piqueniquer )"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=pique-niquer&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "pique-niquer",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "polonais": {
+  "word": "polonais",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/polonais/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/polonais",
+    "status": "ok",
+    "headword": "polonais, polonaise",
+    "category": "adjectif et nom",
+    "definition": "De Pologne."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=polonais&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "polonais",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "pressentir": {
+  "word": "pressentir",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/pressentir/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/pressentir",
+    "status": "ok",
+    "headword": "pressentir",
+    "category": "verbe transitif",
+    "definition": "1. Prévoir vaguement quelque chose, par intuition : Je pressens qu'il va y avoir du nouveau. Synonymes : augurer - conjecturer - entrevoir - flairer - percer - percevoir - présager - s'attendre à - soupçonner - subodorer"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=pressentir&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "pressentir",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "privilégier": {
+  "word": "privilégier",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/privil%C3%A9gier/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/privil%C3%A9gier",
+    "status": "ok",
+    "headword": "privilégier",
+    "category": "verbe transitif",
+    "definition": "1. Accorder à quelqu'un un privilège : Le régime fiscal privilégie ceux qui vivent maritalement. Synonymes : avantager - favoriser"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=privil%C3%A9gier&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "privilégier",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "près": {
+  "word": "près",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/pr%C3%A8s/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/pr%C3%A8s",
+    "status": "ok",
+    "headword": "près",
+    "category": "adverbe",
+    "definition": "1. Indique le peu de distance de quelque chose, d'un lieu, de quelqu'un ; à côté (de), à proximité (de), par opposition à loin : Asseyez-vous près de moi. Synonymes : à côté de - auprès - aux côtés de"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=pr%C3%A8s&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "près",
+    "category": "adverbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "russe": {
+  "word": "russe",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/russe/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/russe",
+    "status": "ok",
+    "headword": "russe",
+    "category": "adjectif et nom",
+    "definition": "De Russie ou (anciennement) d'U.R.S.S."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=russe&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "russe",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "réclamation/plainte": {
+  "word": "réclamation/plainte",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/r%C3%A9clamation/plainte/",
+    "status": "network_error"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/r%C3%A9clamation/plainte",
+    "status": "network_error"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=r%C3%A9clamation/plainte&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "network_error"
+ },
+ "réunionnais": {
+  "word": "réunionnais",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/r%C3%A9unionnais/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/r%C3%A9unionnais",
+    "status": "ok",
+    "headword": "réunionnais, réunionnaise",
+    "category": "adjectif et nom",
+    "definition": "De l'île de la Réunion."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=r%C3%A9unionnais&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "réunionnais",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "réveillonner": {
+  "word": "réveillonner",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/r%C3%A9veillonner/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/r%C3%A9veillonner",
+    "status": "ok",
+    "headword": "réveillonner",
+    "category": "verbe intransitif",
+    "definition": "Prendre part à un réveillon ."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=r%C3%A9veillonner&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "réveillonner",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "serviabilité": {
+  "word": "serviabilité",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/serviabilit%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/serviabilit%C3%A9",
+    "status": "ok",
+    "headword": "serviabilité",
+    "category": "nom féminin",
+    "definition": "Caractère de quelqu'un de serviable . Synonymes : complaisance - gentillesse - obligeance - prévenance"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=serviabilit%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "serviabilité",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "sidéré": {
+  "word": "sidéré",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/sid%C3%A9r%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/sid%C3%A9r%C3%A9",
+    "status": "headword_mismatch",
+    "headword": "sidérer"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=sid%C3%A9r%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "sidéré",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "solfége": {
+  "word": "solfége",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/solf%C3%A9ge/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/solf%C3%A9ge",
+    "status": "no_entry"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=solf%C3%A9ge&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "solfége",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "sollicitation": {
+  "word": "sollicitation",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/sollicitation/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/sollicitation",
+    "status": "ok",
+    "headword": "sollicitation",
+    "category": "nom féminin",
+    "definition": "1. Prière instante, démarche pressante en faveur de quelqu'un : Un ministre assailli de sollicitations. Synonymes : instance - requête - supplique"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=sollicitation&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "sollicitation",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "sous-titrer": {
+  "word": "sous-titrer",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/sous-titrer/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/sous-titrer",
+    "status": "ok",
+    "headword": "sous-titrer",
+    "category": "verbe transitif",
+    "definition": "1. Mettre un sous-titre à un texte destiné à la publication : Sous-titrer un article de revue."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=sous-titrer&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "sous-titrer",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "sphérique": {
+  "word": "sphérique",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/sph%C3%A9rique/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/sph%C3%A9rique",
+    "status": "ok",
+    "headword": "sphérique",
+    "category": "adjectif",
+    "definition": "1. Qui a la forme d'une sphère . Synonyme : rond"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=sph%C3%A9rique&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "sphérique",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "stabilisation": {
+  "word": "stabilisation",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/stabilisation/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/stabilisation",
+    "status": "ok",
+    "headword": "stabilisation",
+    "category": "nom féminin",
+    "definition": "1. Action de stabiliser ; fait de se stabiliser : La stabilisation de la situation."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=stabilisation&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "stabilisation",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "stagnation": {
+  "word": "stagnation",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/stagnation/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/stagnation",
+    "status": "ok",
+    "headword": "stagnation",
+    "category": "nom féminin",
+    "definition": "1. État d'un fluide qui stagne . Synonyme : immobilité"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=stagnation&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "stagnation",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "stratégie": {
+  "word": "stratégie",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/strat%C3%A9gie/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/strat%C3%A9gie",
+    "status": "ok",
+    "headword": "stratégie",
+    "category": "nom féminin",
+    "definition": "1. Art de combiner l'action de forces militaires en vue d'atteindre un but de guerre déterminé par le pouvoir politique."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=strat%C3%A9gie&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "stratégie",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "stressé": {
+  "word": "stressé",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/stress%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/stress%C3%A9",
+    "status": "headword_mismatch",
+    "headword": "stresser"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=stress%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "stressé",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "subtiliser": {
+  "word": "subtiliser",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/subtiliser/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/subtiliser",
+    "status": "ok",
+    "headword": "subtiliser",
+    "category": "verbe transitif",
+    "definition": "Familier. Dérober quelque chose adroitement, sans se faire remarquer : Subtiliser un document dans un dossier. Synonymes : chiper (familier) - escamoter - faucher (populaire) - piquer (familier)"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=subtiliser&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "subtiliser",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "supplanter": {
+  "word": "supplanter",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/supplanter/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/supplanter",
+    "status": "ok",
+    "headword": "supplanter",
+    "category": "verbe transitif",
+    "definition": "1. Écarter quelqu'un de la place qu'il occupe pour se substituer à lui : Son adjoint a fini par le supplanter. Synonymes : déposséder - détrôner - évincer - se substituer à"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=supplanter&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "supplanter",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "surexposé": {
+  "word": "surexposé",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/surexpos%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/surexpos%C3%A9",
+    "status": "headword_mismatch",
+    "headword": "surexposer"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=surexpos%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "surexposé",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "surligneur": {
+  "word": "surligneur",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/surligneur/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/surligneur",
+    "status": "ok",
+    "headword": "surligneur",
+    "category": "nom masculin",
+    "definition": "Feutre servant à mettre en valeur une partie d'un texte à l'aide d'une encre transparente très lumineuse."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=surligneur&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "surligneur",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "surpris": {
+  "word": "surpris",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/surpris/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/surpris",
+    "status": "headword_mismatch",
+    "headword": "surprendre"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=surpris&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "surpris",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "séduction": {
+  "word": "séduction",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/s%C3%A9duction/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/s%C3%A9duction",
+    "status": "ok",
+    "headword": "séduction",
+    "category": "nom féminin",
+    "definition": "1. Action, fait de séduire quelqu'un, de l'attirer irrésistiblement, de le charmer par un pouvoir plus ou moins indéfinissable : Pouvoir de séduction de l'argent. Synonyme : conquête"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=s%C3%A9duction&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "séduction",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "tamisé": {
+  "word": "tamisé",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/tamis%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/tamis%C3%A9",
+    "status": "headword_mismatch",
+    "headword": "tamiser"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=tamis%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "tamisé",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "tarit": {
+  "word": "tarit",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/tarit/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/tarit",
+    "status": "headword_mismatch",
+    "headword": "tarir"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=tarit&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "tarit",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "tatillon": {
+  "word": "tatillon",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/tatillon/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/tatillon",
+    "status": "ok",
+    "headword": "tatillon, tatillonne",
+    "category": "adjectif et nom",
+    "definition": "Qui fait preuve d'une minutie excessive, qui s'arrête aux moindres détails : Un esprit tatillon. Synonymes : méticuleux - minutieux - pointilleux - vétilleux"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=tatillon&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "tatillon",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "tchin-tchin": {
+  "word": "tchin-tchin",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/tchin-tchin/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/tchin-tchin",
+    "status": "headword_mismatch",
+    "headword": "tchin !"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=tchin-tchin&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "tchin-tchin",
+    "category": "interjection"
+   }
+  ],
+  "status": "ok"
+ },
+ "terrifiant": {
+  "word": "terrifiant",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/terrifiant/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/terrifiant",
+    "status": "ok",
+    "headword": "terrifiant, terrifiante",
+    "category": "adjectif",
+    "definition": "1. Qui terrifie : Une histoire terrifiante. Synonymes : effrayant - effroyable - épouvantable - horrifiant - terrible"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=terrifiant&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "terrifiant",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "terrifié": {
+  "word": "terrifié",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/terrifi%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/terrifi%C3%A9",
+    "status": "headword_mismatch",
+    "headword": "terrifier"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=terrifi%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "terrifié",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "théme": {
+  "word": "théme",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/th%C3%A9me/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/th%C3%A9me",
+    "status": "no_entry"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=th%C3%A9me&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "headword_mismatch"
+ },
+ "thésard": {
+  "word": "thésard",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/th%C3%A9sard/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/th%C3%A9sard",
+    "status": "ok",
+    "headword": "thésard, thésarde",
+    "category": "nom",
+    "definition": "Familier. Personne qui prépare une thèse de doctorat."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=th%C3%A9sard&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "thésard",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "tiré": {
+  "word": "tiré",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/tir%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/tir%C3%A9",
+    "status": "ok",
+    "headword": "tiré",
+    "category": "nom masculin",
+    "definition": "1. Personne désignée comme devant payer à l'échéance une lettre de change, un chèque."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=tir%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "tiré",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "topo": {
+  "word": "topo",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/topo/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/topo",
+    "status": "ok",
+    "headword": "topo",
+    "category": "nom masculin",
+    "definition": "1. Vieux. Plan, croquis."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=topo&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "topo",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "toqué": {
+  "word": "toqué",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/toqu%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/toqu%C3%A9",
+    "status": "ok",
+    "headword": "toqué, toquée",
+    "category": "adjectif et nom",
+    "definition": "Familier. Se dit de quelqu'un qui est bizarre, un peu fou. Synonymes : cinglé (populaire) - dérangé - détraqué - dingue (familier) - maboul (familier) - piqué (familier) - sonné (populaire) - timbré (familier)"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=toqu%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "toqué",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "tout": {
+  "word": "tout",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/tout/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/tout",
+    "status": "ok",
+    "headword": "tout, toute, tous, toutes",
+    "category": "adjectif indéfini",
+    "definition": "1. Au singulier, devant un nom, et comme seul déterminant, indique la considération de chaque élément d'un ensemble indifféremment ; n'importe quel, chaque : Toute vérité n'est pas bonne à dire ; exprime l'intensité (surtout avec de, à, en ) : S'exprimer en toute liberté ; exprime la restriction, l'"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=tout&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "tout",
+    "category": "adverbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "trempé": {
+  "word": "trempé",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/tremp%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/tremp%C3%A9",
+    "status": "ok",
+    "headword": "trempé",
+    "category": "nom masculin",
+    "definition": "Méthode d'application des peintures, vernis, etc., consistant à plonger l'objet à revêtir dans un bain contenant le produit à appliquer."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=tremp%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "trempé",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "trois-quarts": {
+  "word": "trois-quarts",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/trois-quarts/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/trois-quarts",
+    "status": "ok",
+    "headword": "trois-quarts",
+    "category": "nom masculin invariable",
+    "definition": "1. Petit violon d'enfant."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=trois-quarts&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "trois-quarts",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "trouillard": {
+  "word": "trouillard",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/trouillard/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/trouillard",
+    "status": "ok",
+    "headword": "trouillard, trouillarde",
+    "category": "adjectif et nom",
+    "definition": "Populaire. Qui a la trouille , qui est peureux. Synonymes : froussard (familier) - poltron - timoré"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=trouillard&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "trouillard",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "truqué": {
+  "word": "truqué",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/truqu%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/truqu%C3%A9",
+    "status": "headword_mismatch",
+    "headword": "truquer"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=truqu%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "truqué",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "typhon": {
+  "word": "typhon",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/typhon/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/typhon",
+    "status": "ok",
+    "headword": "typhon",
+    "category": "nom masculin",
+    "definition": "Cyclone tropical du Pacifique occidental et de la mer de Chine. Synonymes : cyclone - tornade - trombe"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=typhon&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "typhon",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "tâtonnement": {
+  "word": "tâtonnement",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/t%C3%A2tonnement/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/t%C3%A2tonnement",
+    "status": "ok",
+    "headword": "tâtonnement",
+    "category": "nom masculin",
+    "definition": "1. Fait de tâtonner , de chercher à tâtons : Les tâtonnements d'un aveugle."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=t%C3%A2tonnement&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "tâtonnement",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "téléobjectif": {
+  "word": "téléobjectif",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/t%C3%A9l%C3%A9objectif/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/t%C3%A9l%C3%A9objectif",
+    "status": "ok",
+    "headword": "téléobjectif",
+    "category": "nom masculin",
+    "definition": "Objectif photographique de longue focale comportant un élément divergent permettant de diminuer son tirage."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=t%C3%A9l%C3%A9objectif&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "téléobjectif",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "ulcéré": {
+  "word": "ulcéré",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/ulc%C3%A9r%C3%A9/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/ulc%C3%A9r%C3%A9",
+    "status": "headword_mismatch",
+    "headword": "ulcérer"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=ulc%C3%A9r%C3%A9&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "ulcéré",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "vacherie": {
+  "word": "vacherie",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/vacherie/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/vacherie",
+    "status": "ok",
+    "headword": "vacherie",
+    "category": "nom féminin",
+    "definition": "1. Caractère sévère de quelqu'un qui se comporte de manière très dure : Les examinateurs ont été d'une grande vacherie."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=vacherie&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "vacherie",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "vaincu": {
+  "word": "vaincu",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/vaincu/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/vaincu",
+    "status": "ok",
+    "headword": "vaincu, vaincue",
+    "category": "nom",
+    "definition": "1. Personne qui a essuyé une défaite dans un combat, une compétition. Contraire : vainqueur"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=vaincu&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "vaincu",
+    "category": "adjectif"
+   }
+  ],
+  "status": "ok"
+ },
+ "voeu": {
+  "word": "voeu",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/voeu/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/voeu",
+    "status": "headword_mismatch",
+    "headword": "vœu"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=voeu&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "voeu",
+    "category": "nom"
+   }
+  ],
+  "status": "ok"
+ },
+ "voudrais": {
+  "word": "voudrais",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/voudrais/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/voudrais",
+    "status": "headword_mismatch",
+    "headword": "vouloir"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=voudrais&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "voudrais",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "véhiculer": {
+  "word": "véhiculer",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/v%C3%A9hiculer/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/v%C3%A9hiculer",
+    "status": "ok",
+    "headword": "véhiculer",
+    "category": "verbe transitif",
+    "definition": "1. Transporter quelque chose au moyen d'un véhicule : Véhiculer des marchandises."
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=v%C3%A9hiculer&prop=wikitext&format=json&formatversion=2",
+    "status": "ok",
+    "headword": "véhiculer",
+    "category": "verbe"
+   }
+  ],
+  "status": "ok"
+ },
+ "índice": {
+  "word": "índice",
+  "checks": [
+   {
+    "source": "larousse-zh",
+    "url": "https://www.larousse.fr/dictionnaires/francais-chinois/%C3%ADndice/",
+    "status": "headword_mismatch"
+   },
+   {
+    "source": "larousse-fr",
+    "url": "https://www.larousse.fr/dictionnaires/francais/%C3%ADndice",
+    "status": "no_entry"
+   },
+   {
+    "source": "wiktionary",
+    "url": "https://fr.wiktionary.org/w/api.php?action=parse&page=%C3%ADndice&prop=wikitext&format=json&formatversion=2",
+    "status": "no_entry"
+   }
+  ],
+  "status": "headword_mismatch"
+ }
+}

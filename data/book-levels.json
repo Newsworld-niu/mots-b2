@@ -1,0 +1,50 @@
+{
+  "_note": "Book-level evidence only. A stated target level describes the book, not each word. Words get a 推定 (estimate) from their source books; the word level itself stays 等级待核实 until checked. `span` = the CEFR bands the book covers; words of a book spanning two bands are split by corpus frequency (scripts/lexicon/levels.ts).",
+  "Vocabulaire DELF B2 3000 mots.pdf": {
+    "stated": "B2",
+    "basis": "书名 DELF B2；目录（PDF 第 6 页，OCR）「3000 mots pour réussir le DELF B2」「Vocabulaire DELF B2 par thème」",
+    "checked": [
+      "PDF 第 6 页 目录 OCR",
+      "PDF 第 44 页 主题词表 OCR"
+    ],
+    "span": [
+      "B2",
+      "B2"
+    ]
+  },
+  "Vocabulaire progressif du français (avancé B2 C1.1) (Claire Miquel).pdf": {
+    "stated": "B2/C1",
+    "basis": "前言：「adresse à des adultes et adolescents abordant le niveau B2/C1」（PDF 第 4 页，文字层）",
+    "checked": [
+      "PDF 第 4 页 前言 文字层"
+    ],
+    "span": [
+      "B2",
+      "B2"
+    ]
+  },
+  "Vocabulaire progressif du français A2-B1 (Anne Goliot-Lété Claire Miquel).pdf": {
+    "stated": "B1",
+    "basis": "封面「A2 B1 INTERMÉDIAIRE」（PDF 第 1 页，OCR）；前言「abordant le niveau B1」（PDF 第 5 页，OCR，置信度 1.0）",
+    "checked": [
+      "PDF 第 1 页 封面 OCR",
+      "PDF 第 5 页 前言 OCR"
+    ],
+    "span": [
+      "A2",
+      "B1"
+    ]
+  },
+  "法语词汇渐进初级 Vocabulaire Progressif Du Français Debutant (Claire Miquel).pdf": {
+    "stated": "A1",
+    "basis": "封面「A1 DÉBUTANT」（PDF 第 1 页，OCR）；前言「niveau faux-débutant」（PDF 第 3 页，OCR，置信度 1.0）",
+    "checked": [
+      "PDF 第 1 页 封面 OCR",
+      "PDF 第 3 页 前言 OCR"
+    ],
+    "span": [
+      "A1",
+      "A2"
+    ]
+  }
+}
