@@ -22,11 +22,12 @@ references/wiktionary-raw/
 
 # lexicon snapshots taken before each batch edit (about 1 GB); kept on the author's machine only
 data/snapshots/
-# recorded pronunciations (about 420 MB, 30,000 files); rebuild with `npm run lexicon:audio`
-public/atlas/audio/
 # working files transcribed from the textbooks (index rows, lesson pages, batch inputs); kept on the author's machine only
 data/imports/*
 !data/imports/TEMPLATE.csv
 !data/imports/TEMPLATE.json
 data/lessons/
 data/batches/
+
+# built Android packages
+*.apk

@@ -2,12 +2,16 @@
 
 以 word-atlas 的界面与交互为基准的法语词汇学习站点。数据来自四本教材的索引，每个词条标注来源页码。
 
+## 网站
+
+推送到 `main` 后，`.github/workflows/pages.yml` 会自动构建并发布到 GitHub Pages：<https://newsworld-niu.github.io/mots-b2/>。网站是公开的（页面带 `noindex`，不让搜索引擎收录），学习进度存在各人自己的浏览器里；AI 功能和 Azure 朗读在网站上不可用，只在本地 `npm run dev` / `preview` 和安卓应用里可用。
+
 ## 来源与授权
 本项目由 [designfuchen/word-atlas](https://github.com/designfuchen/word-atlas)（英语词汇学习站点）修改而来：界面、交互、记忆算法的接法和构建脚本的框架出自原项目，法语词库、语法、阅读、成句练习、离线词典和 AI 接口是在它之上改写和新增的。
 
 - 代码：MIT，见 [`LICENSE`](LICENSE)，保留原项目的版权声明。
 - 内容：各部分的授权不同，见 [`CONTENT_LICENSE.md`](CONTENT_LICENSE.md)。**取自教材的词条顺序、页码和例句版权属于原出版方，不在本项目的授权范围内。**
-- 仓库里不含教材本身（`references/books/`）、从教材转录的工作文件（`data/imports/`、`data/lessons/`、`data/batches/`）、录音（`public/atlas/audio/`）和词库的历史快照（`data/snapshots/`）。录音用 `npm run lexicon:audio` 重新生成；`data/imports/` 里只留了两个导入模板；各 `verify-lessons*` 等一次性核对脚本要读转录文件，克隆下来的仓库里不能运行，其余命令不受影响。
+- 仓库里不含教材本身（`references/books/`）、从教材转录的工作文件（`data/imports/`、`data/lessons/`、`data/batches/`）和词库的历史快照（`data/snapshots/`）。录音（`public/atlas/audio/`，约 420 MB）在仓库里，新增词条后用 `npm run lexicon:audio` 补录；`data/imports/` 里只留了两个导入模板；各 `verify-lessons*` 等一次性核对脚本要读转录文件，克隆下来的仓库里不能运行，其余命令不受影响。
 
 ## 当前状态（诚实版）
 实时统计见 **[`data/STATS.md`](data/STATS.md)**（由 `python3 scripts/report-stats.py` 从 `data/lexicon.json` 生成，避免手工数字过时）。要点：
