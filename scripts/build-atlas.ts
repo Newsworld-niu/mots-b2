@@ -1,6 +1,6 @@
 /* Generate public/atlas/ (index.json + entries/N.json) from data/lexicon.json, in the format the app reads.
  * Words are ordered as a learning path by corpus frequency (data/frequency.json, most frequent first);
- * entries without a frequency follow, by level (A1→C2, unverified last), then topic, then lexicon order.
+ * entries without a frequency follow, by level (A1→C2), then topic, then lexicon order.
  * The learner's start level still filters this path (src/store/session.ts nextNew). */
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -25,7 +25,8 @@ if (problems.length) {
   process.exit(1);
 }
 
-const LEVEL_NAMES = [...LEVELS]; // index used by the app: 0..5 = A1..C2, 6 = unverified
+// index used by the app: 0..5 = A1..C2. "unverified" is a lexicon state only: every word is shown under a band.
+const LEVEL_NAMES = LEVELS.filter((l) => l !== "unverified");
 
 // Book-level evidence (data/book-levels.json). A word gets a 推定 band from its source books and its corpus frequency
 // (scripts/lexicon/levels.ts: book span, split by frequency, capped by frequency); it is never an official level.
@@ -50,7 +51,8 @@ const levelOf = (e: LexEntry): LevelResult | null => {
   }
   return levelCache.get(e.id)!;
 };
-const estimateOf = (e: LexEntry) => levelOf(e)?.band ?? null;
+// a word with no book evidence at all (an author supplement without a level) is filed under B2, the level the atlas aims at
+const estimateOf = (e: LexEntry): Band => levelOf(e)?.band ?? "B2";
 const HOW: Record<string, (r: LevelResult, f: number | null) => string> = {
   book: (r) => `教材定位 ${r.span[0]}${r.span[0] === r.span[1] ? "" : "–" + r.span[1]}`,
   "split-common": (r, f) => `教材覆盖 ${r.span[0]}–${r.span[1]}，词频每百万词 ${Math.round(f!)} 次（常用），归 ${r.band}`,
@@ -59,11 +61,12 @@ const HOW: Record<string, (r: LevelResult, f: number | null) => string> = {
   "freq-cap": (r, f) => `教材定位 ${r.from}，语料中每百万词 ${Math.round(f!)} 次，调整为 ${r.band}`,
 };
 const levelBasisOf = (e: LexEntry) => {
+  // a level set by hand in the lexicon carries its own reason
+  if (e.level !== "unverified" && e.levelBasis) return e.levelBasis;
   const r = levelOf(e);
-  return r ? `推定 ${r.band}（逐词未核实）。依据：${HOW[r.how](r, measuredFreq(e.id))}；${basisOf(e)}` : e.levelBasis;
+  return r ? `推定 ${r.band}（逐词未核实）。依据：${HOW[r.how](r, measuredFreq(e.id))}；${basisOf(e)}` : `没有教材依据，归入 B2。${e.levelBasis}`;
 };
 const basisOf = (e: LexEntry) => [...new Set(e.sources.map((s) => bookLevels[s.book]).filter(Boolean).map((b) => `${b!.stated}：${b!.basis}`))].join("；");
-const LEVEL_LABEL: Record<string, string> = { A1: "A1", A2: "A2", B1: "B1", B2: "B2", C1: "C1", C2: "C2", unverified: "等级待核实" };
 const CHUNK = 100;
 
 // Corpus frequency per entry (data/frequency.json, from Lexique 3.83 via scripts/build-frequency.py).
@@ -133,8 +136,8 @@ const ordered = [...visible].sort((a, b) => {
     if (fa !== fb) return fb - fa;
   }
   // 2. Ties and entries without frequency keep the previous order: level, topic, lexicon position.
-  const la = LEVEL_NAMES.indexOf(estimateOf(a) ?? "unverified");
-  const lb = LEVEL_NAMES.indexOf(estimateOf(b) ?? "unverified");
+  const la = LEVEL_NAMES.indexOf(estimateOf(a));
+  const lb = LEVEL_NAMES.indexOf(estimateOf(b));
   if (la !== lb) return la - lb;
   const ta = TOPICS.findIndex((t) => t.key === a.topic);
   const tb = TOPICS.findIndex((t) => t.key === b.topic);
@@ -162,8 +165,8 @@ const toEntry = (e: LexEntry) => ({
   syn: e.syn,
   ant: e.ant,
   tip: e.tip,
-  cefr: estimateOf(e) ?? "unverified",
-  levelStatus: estimateOf(e) ? "estimated" : "unverified",
+  cefr: estimateOf(e),
+  levelStatus: "estimated",
   forms: e.forms,
   topic: e.topic,
   note: e.note,
@@ -193,15 +196,15 @@ const index = {
   illustrated: 0,
   chunk: CHUNK,
   topics: TOPICS.map((t) => [t.key, t.zh]),
-  cefr: LEVEL_NAMES.map((l) => LEVEL_LABEL[l]),
-  words: ordered.map((e) => [e.id, e.lemma, e.senses.find((s) => s.zh)?.zh || "释义待补充", ipaOf(e.id), LEVEL_NAMES.indexOf(estimateOf(e) ?? "unverified"), TOPICS.findIndex((t) => t.key === e.topic), mediaOf(e.id), quizGender(e), ...moreGlosses(e)]),
+  cefr: LEVEL_NAMES,
+  words: ordered.map((e) => [e.id, e.lemma, e.senses.find((s) => s.zh)?.zh || "释义待补充", ipaOf(e.id), LEVEL_NAMES.indexOf(estimateOf(e)), TOPICS.findIndex((t) => t.key === e.topic), mediaOf(e.id), quizGender(e), ...moreGlosses(e)]),
 };
 writeFileSync(resolve(out, "index.json"), JSON.stringify(index));
 for (let n = 0; n * CHUNK < ordered.length; n++) {
   writeFileSync(resolve(out, "entries", `${n}.json`), JSON.stringify(ordered.slice(n * CHUNK, (n + 1) * CHUNK).map(toEntry)));
 }
 const byLevel: Record<string, number> = {};
-for (const e of ordered) { const k = estimateOf(e) ? `推定 ${estimateOf(e)}` : "等级待核实"; byLevel[k] = (byLevel[k] ?? 0) + 1; }
+for (const e of ordered) { const k = `推定 ${estimateOf(e)}`; byLevel[k] = (byLevel[k] ?? 0) + 1; }
 console.log(`atlas: ${ordered.length} words, ${index.examples} examples, chunks=${Math.ceil(ordered.length / CHUNK)}`, byLevel);
 console.log("recordings:", Object.fromEntries(AUDIO_BITS.map(([dir], i) => [dir, recorded[i][1].size])));
 

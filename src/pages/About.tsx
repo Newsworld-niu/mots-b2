@@ -14,7 +14,7 @@ export function About() {
           <p className="eyebrow">关于法语词光</p>
           <h1 className="display">基础到 B2，一词一个来历。</h1>
           <p className="lede">
-            这是一份法语词图：界面与交互沿用 word-atlas，词条来自可追溯的教材索引与 DELF 词表。目前收录 {atlas.count.toLocaleString()} 个可见词条，每个词条标注来源文件与页码。没有来源的释义与例句单独标为「补充」，等级未核实的词条显示为「等级待核实」，不套用教材封面的等级。释义与译文多为补充翻译，状态为「待核对」，整库尚未逐条人工核实。
+            这是一份法语词图：界面与交互沿用 word-atlas，词条来自可追溯的教材索引与 DELF 词表。目前收录 {atlas.count.toLocaleString()} 个可见词条，每个词条标注来源文件与页码。没有来源的释义与例句单独标为「补充」，词条等级是按所在教材和词频推定的（显示为「推定」），没有逐词核实。释义与译文多为补充翻译，状态为「待核对」，整库尚未逐条人工核实。
           </p>
           <p className="lede">它免费、开源、无需注册。代码用 MIT，词库用 CC BY 4.0，谁都可以拿去用。</p>
           <div className="about-actions">

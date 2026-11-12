@@ -1,12 +1,12 @@
 import { Check, Eye, EyeOff, Volume2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { azureSpeak, azureVoices, listModels, type AzureVoice } from "../ai/clients";
-import { DEFAULT_MODELS, setAiConfig, useAiConfig, type AiConfig, type TextProvider, type VisionProvider } from "../ai/config";
+import { azureSpeak, azureVoices, listImageModels, listModels, type AzureVoice } from "../ai/clients";
+import { DEFAULT_IMAGE_MODELS, DEFAULT_MODELS, IMAGE_PROVIDERS, TEXT_PROVIDERS, VISION_PROVIDERS, setAiConfig, useAiConfig, type AiConfig, type TextProvider } from "../ai/config";
 import { proxyAvailable } from "../ai/proxy";
 import { clearTtsCache, ttsCacheSize } from "../ai/tts";
 import { toast } from "./Toast";
 
-const LABEL: Record<TextProvider, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic" };
+const LABEL: Record<TextProvider, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic", openrouter: "OpenRouter" };
 
 function KeyField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder: string }) {
   const [show, setShow] = useState(false);
@@ -26,12 +26,15 @@ function KeyField({ label, value, onChange, placeholder }: { label: string; valu
 /** Test a service by listing its models; the list also feeds the model fields. */
 function useModels() {
   const [models, setModels] = useState<Partial<Record<TextProvider, string[]>>>({});
+  // OpenRouter keeps its image models in a list of their own
+  const [imageModels, setImageModels] = useState<string[] | undefined>();
   const [testing, setTesting] = useState<TextProvider | null>(null);
   const test = async (p: TextProvider) => {
     setTesting(p);
     try {
       const list = await listModels(p);
       setModels((m) => ({ ...m, [p]: list }));
+      if (p === "openrouter") void listImageModels().then(setImageModels, () => undefined);
       toast(`${LABEL[p]} 连接成功，有 ${list.length} 个模型可选`, "ok");
     } catch (e) {
       toast((e as Error).message, "warn");
@@ -39,14 +42,15 @@ function useModels() {
       setTesting(null);
     }
   };
-  return { models, testing, test };
+  return { models, imageModels, testing, test };
 }
 
-function ModelField({ provider, value, onChange, models }: { provider: TextProvider; value: string; onChange: (v: string) => void; models?: string[] }) {
-  const id = `ai-models-${provider}`;
+function ModelField({ provider, value, onChange, models, image }: { provider: TextProvider; value: string; onChange: (v: string) => void; models?: string[]; image?: boolean }) {
+  const id = `ai-models-${provider}${image ? "-image" : ""}`;
+  const fallback = image && (provider === "openai" || provider === "openrouter") ? DEFAULT_IMAGE_MODELS[provider] : DEFAULT_MODELS[provider];
   return (
     <>
-      <input list={id} value={value} onChange={(e) => onChange(e.target.value)} placeholder={DEFAULT_MODELS[provider]} spellCheck={false} />
+      <input list={id} value={value} onChange={(e) => onChange(e.target.value)} placeholder={fallback} spellCheck={false} />
       <datalist id={id}>{(models ?? []).map((m) => <option key={m} value={m} />)}</datalist>
     </>
   );
@@ -57,7 +61,7 @@ export function AiSettings() {
   const c = useAiConfig();
   const set = (patch: Partial<AiConfig>) => setAiConfig(patch);
   const setKey = (k: keyof AiConfig["keys"], v: string) => setAiConfig((x) => ({ ...x, keys: { ...x.keys, [k]: v } }));
-  const { models, testing, test } = useModels();
+  const { models, imageModels, testing, test } = useModels();
   const [proxy, setProxy] = useState<boolean | null>(null);
   const [voices, setVoices] = useState<AzureVoice[] | null>(null);
   const [azBusy, setAzBusy] = useState(false);
@@ -99,7 +103,7 @@ export function AiSettings() {
 
   return (
     <div className="ai-settings">
-      {proxy === false && <p className="wf-hint wf-warn">现在打开的页面没有转发服务：AI 功能需要用 npm run dev 或 npm run preview 运行本站。</p>}
+      {proxy === false && <p className="wf-hint wf-warn">现在打开的页面没有转发服务：AI 功能需要用 npm run dev 或 npm run preview 运行本站，或者使用安卓应用。</p>}
       <p className="wf-hint">Key 只保存在这台设备的浏览器里，不会写进备份。请求经本机的开发服务转发到各家接口。</p>
 
       <h3 className="eyebrow">接口 Key</h3>
@@ -115,13 +119,17 @@ export function AiSettings() {
         <KeyField label="Anthropic" value={c.keys.anthropic} onChange={(v) => setKey("anthropic", v)} placeholder="sk-ant-…" />
         {testBtn("anthropic")}
       </div>
+      <div className="ai-row">
+        <KeyField label="OpenRouter" value={c.keys.openrouter} onChange={(v) => setKey("openrouter", v)} placeholder="sk-or-…" />
+        {testBtn("openrouter")}
+      </div>
 
       <h3 className="eyebrow">分工</h3>
       <div className="ai-job">
         <b>拍照识别 · 识图</b>
-        <small>读照片、扫描件和 PDF。DeepSeek 不能看图。</small>
+        <small>读照片、扫描件和 PDF。DeepSeek 不能看图；用 OpenRouter 时要选一个能看图的模型。</small>
         <div className="segmented">
-          {(["openai", "anthropic"] as VisionProvider[]).map((p) => (
+          {VISION_PROVIDERS.map((p) => (
             <button key={p} className={c.vision.provider === p ? "is-on" : ""} onClick={() => set({ vision: { provider: p, model: DEFAULT_MODELS[p] } })}>
               {LABEL[p]}
             </button>
@@ -133,7 +141,7 @@ export function AiSettings() {
         <b>生成卡片 · 文本</b>
         <small>给新词写中文释义、词性和例句（整套生成、AI 补全）。</small>
         <div className="segmented">
-          {(["deepseek", "openai", "anthropic"] as TextProvider[]).map((p) => (
+          {TEXT_PROVIDERS.map((p) => (
             <button key={p} className={c.text.provider === p ? "is-on" : ""} onClick={() => set({ text: { provider: p, model: DEFAULT_MODELS[p] } })}>
               {LABEL[p]}
             </button>
@@ -143,8 +151,21 @@ export function AiSettings() {
       </div>
       <div className="ai-job">
         <b>生成图片</b>
-        <small>只有 OpenAI 能生成图片，用上面的 OpenAI Key。</small>
-        <ModelField provider="openai" value={c.image.model} onChange={(m) => set({ image: { model: m } })} models={models.openai?.filter((m) => /image|dall/.test(m))} />
+        <small>给词条画一张图。用上面对应服务的 Key；OpenRouter 可以选它的任何一个图片模型。</small>
+        <div className="segmented">
+          {IMAGE_PROVIDERS.map((p) => (
+            <button key={p} className={c.image.provider === p ? "is-on" : ""} onClick={() => set({ image: { provider: p, model: DEFAULT_IMAGE_MODELS[p] } })}>
+              {LABEL[p]}
+            </button>
+          ))}
+        </div>
+        <ModelField
+          image
+          provider={c.image.provider}
+          value={c.image.model}
+          onChange={(m) => set({ image: { ...c.image, model: m } })}
+          models={c.image.provider === "openrouter" ? imageModels : models.openai?.filter((m) => /image|dall/.test(m))}
+        />
       </div>
 
       <h3 className="eyebrow">语音 · Azure AI Speech</h3>

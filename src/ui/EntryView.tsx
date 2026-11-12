@@ -19,7 +19,8 @@ import { AUX_NOTE, VerbConjugation } from "./ConjTable";
 import { liaisonPoints } from "../lib/liaison";
 import { useConj } from "../atlas/conj";
 
-const EX_TAG: Record<string, string> = { book: "书中例句", supplement: "补充例句", mine: "我的例句", tatoeba: "Tatoeba 例句" };
+/** Where an example comes from; supplement examples carry no tag. */
+const EX_TAG: Record<string, string> = { book: "书中例句", mine: "我的例句", tatoeba: "Tatoeba 例句" };
 const ART_TITLE: Record<string, string> = { un: "阳性名词", une: "阴性名词", "un/une": "阴阳同形", des: "复数形式" };
 
 export function Highlight({ text, word, span }: { text: string; word: string; span?: Span | null }) {
@@ -182,7 +183,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
             {mine ? (
               <span className="chip chip-mine">自建词</span>
             ) : (
-              <span className={`chip chip-level lv-${entry.cefr}`}>{entry.cefr === "unverified" ? "等级待核实" : entry.levelStatus === "estimated" ? `推定 ${entry.cefr}` : entry.cefr}</span>
+              <span className={`chip chip-level lv-${entry.cefr}`}>{entry.levelStatus === "estimated" ? `推定 ${entry.cefr}` : entry.cefr}</span>
             )}
             {edited && <span className="chip chip-mine">改过</span>}
             {autoFilled && (
@@ -273,7 +274,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
             <ul className="examples">
               {entry.ex.map((x, i) => (
                 <li key={i}>
-                  <span className={`ex-tag ${x.origin === "supplement" ? "is-supplement" : x.origin === "mine" || x.origin === "tatoeba" ? "is-mine" : ""}`}>{EX_TAG[x.origin ?? "book"]}</span>
+                  {x.origin !== "supplement" && <span className={`ex-tag ${x.origin === "mine" || x.origin === "tatoeba" ? "is-mine" : ""}`}>{EX_TAG[x.origin ?? "book"]}</span>}
                   <p className="ex-en" lang="fr">
                     <Highlight text={x.en} word={entry.w} span={x.hl} />
                     <ExampleSpeak entry={entry} index={i} text={x.en} />

@@ -11,6 +11,7 @@ const UPSTREAM: Record<string, (rest: string) => string | null> = {
   openai: (rest) => `https://api.openai.com/${rest}`,
   deepseek: (rest) => `https://api.deepseek.com/${rest}`,
   anthropic: (rest) => `https://api.anthropic.com/${rest}`,
+  openrouter: (rest) => `https://openrouter.ai/${rest}`,
   // /ai-proxy/azure/<region>/<path> → https://<region>.tts.speech.microsoft.com/<path>
   azure: (rest) => {
     const m = rest.match(/^([a-z0-9]{2,30})\/(.*)$/);

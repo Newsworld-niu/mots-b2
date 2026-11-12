@@ -307,6 +307,8 @@ function TypingRound({ mode, entries, onExit, onAgain }: { mode: TypingMode; ent
                   onPick={(v) => {
                     setExVoice(v);
                     void playSentence(v);
+                    // the picker keeps its click from the stage, so put the caret back for typing
+                    input.current?.focus();
                   }}
                 />
               </span>

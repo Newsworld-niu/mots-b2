@@ -290,9 +290,9 @@ function LevelPath() {
     }
     return out;
   }, [atlas, cards]);
-  const NAMES = ["入门", "基础", "进阶", "中高", "高级", "精通", "待核实"];
-  // levels with no words (C1, C2: nothing is rated that high) and the unverified station are left out
-  const bands = levels.filter((l, i) => l.total > 0 && i < 6);
+  const NAMES = ["入门", "基础", "进阶", "中高", "高级", "精通"];
+  // levels with no words (C1, C2: nothing is rated that high) are left out
+  const bands = levels.filter((l) => l.total > 0);
   return (
     <section className="panel path-panel">
       <div className="panel-head">
@@ -303,8 +303,7 @@ function LevelPath() {
       </div>
       <ol className="route">
         {levels.map((l, i) => {
-          // the unverified station (index 6) holds stray words, not a level to work through
-          if (l.total === 0 || i >= 6) return null;
+          if (l.total === 0) return null;
           const seen = l.seen / Math.max(1, l.total);
           const done = l.mastered / Math.max(1, l.total);
           return (

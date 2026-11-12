@@ -124,7 +124,7 @@ export function Galaxy({
     eng.setStates(states);
   }, [layout, cards, highlightSet, ignite]);
 
-  // Session summary: stars light up one after another, then a soft voice line.
+  // Session summary: stars light up one after another (the spoken line was dropped: it interrupted study).
   useEffect(() => {
     const eng = engine.current;
     if (!eng || !ignite || !highlightSet.size) return;
@@ -138,11 +138,7 @@ export function Galaxy({
         if (sfx && k < 12) void cue("ignite");
       }, 1400 + k * 180),
     );
-    const voice = window.setTimeout(() => sfx && void playFile("voice-galaxy-lit.mp3", 0.9), 1600 + ids.length * 180);
-    return () => {
-      timers.forEach(clearTimeout);
-      clearTimeout(voice);
-    };
+    return () => timers.forEach(clearTimeout);
   }, [ignite, highlightSet, layout]);
 
   useEffect(() => {

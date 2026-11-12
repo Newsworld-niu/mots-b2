@@ -4,11 +4,15 @@
  */
 import { useSyncExternalStore } from "react";
 
-export type TextProvider = "openai" | "deepseek" | "anthropic";
-export type VisionProvider = "openai" | "anthropic";
+export type TextProvider = "openai" | "deepseek" | "anthropic" | "openrouter";
+export type VisionProvider = "openai" | "anthropic" | "openrouter";
+export const TEXT_PROVIDERS: TextProvider[] = ["deepseek", "openai", "anthropic", "openrouter"];
+export const VISION_PROVIDERS: VisionProvider[] = ["openai", "anthropic", "openrouter"];
+export type ImageProvider = "openai" | "openrouter";
+export const IMAGE_PROVIDERS: ImageProvider[] = ["openai", "openrouter"];
 
 export interface AiConfig {
-  keys: { openai: string; deepseek: string; anthropic: string; azure: string };
+  keys: { openai: string; deepseek: string; anthropic: string; openrouter: string; azure: string };
   azureRegion: string;
   /** Azure neural voice name, e.g. fr-FR-DeniseNeural. */
   azureVoice: string;
@@ -16,7 +20,7 @@ export interface AiConfig {
   tts: boolean;
   vision: { provider: VisionProvider; model: string };
   text: { provider: TextProvider; model: string };
-  image: { model: string };
+  image: { provider: ImageProvider; model: string };
 }
 
 /** Defaults; every model can be changed in the settings. */
@@ -24,17 +28,19 @@ export const DEFAULT_MODELS: Record<TextProvider, string> = {
   openai: "gpt-5-mini",
   deepseek: "deepseek-chat",
   anthropic: "claude-opus-5-5",
+  // OpenRouter names models <maker>/<model>; this one reads pictures too
+  openrouter: "openai/gpt-5-mini",
 };
-export const DEFAULT_IMAGE_MODEL = "gpt-image-1";
+export const DEFAULT_IMAGE_MODELS: Record<ImageProvider, string> = { openai: "gpt-image-1", openrouter: "openai/gpt-image-1-mini" };
 
 export const defaultAiConfig = (): AiConfig => ({
-  keys: { openai: "", deepseek: "", anthropic: "", azure: "" },
+  keys: { openai: "", deepseek: "", anthropic: "", openrouter: "", azure: "" },
   azureRegion: "",
   azureVoice: "fr-FR-DeniseNeural",
   tts: false,
   vision: { provider: "openai", model: DEFAULT_MODELS.openai },
   text: { provider: "deepseek", model: DEFAULT_MODELS.deepseek },
-  image: { model: DEFAULT_IMAGE_MODEL },
+  image: { provider: "openai", model: DEFAULT_IMAGE_MODELS.openai },
 });
 
 const KEY = "word-atlas:ai:v1";
@@ -45,16 +51,17 @@ export function sanitizeAiConfig(v: unknown): AiConfig {
   if (!v || typeof v !== "object") return d;
   const o = v as Record<string, any>;
   const keys = o.keys ?? {};
-  const vp = o.vision?.provider === "anthropic" ? "anthropic" : "openai";
-  const tp: TextProvider = ["openai", "deepseek", "anthropic"].includes(o.text?.provider) ? o.text.provider : d.text.provider;
+  const vp: VisionProvider = VISION_PROVIDERS.includes(o.vision?.provider) ? o.vision.provider : d.vision.provider;
+  const tp: TextProvider = TEXT_PROVIDERS.includes(o.text?.provider) ? o.text.provider : d.text.provider;
+  const ip: ImageProvider = IMAGE_PROVIDERS.includes(o.image?.provider) ? o.image.provider : d.image.provider;
   return {
-    keys: { openai: str(keys.openai), deepseek: str(keys.deepseek), anthropic: str(keys.anthropic), azure: str(keys.azure) },
+    keys: { openai: str(keys.openai), deepseek: str(keys.deepseek), anthropic: str(keys.anthropic), openrouter: str(keys.openrouter), azure: str(keys.azure) },
     azureRegion: str(o.azureRegion, 40).toLowerCase().replace(/[^a-z0-9]/g, ""),
     azureVoice: str(o.azureVoice, 80) || d.azureVoice,
     tts: o.tts === true,
     vision: { provider: vp, model: str(o.vision?.model, 80) || DEFAULT_MODELS[vp] },
     text: { provider: tp, model: str(o.text?.model, 80) || DEFAULT_MODELS[tp] },
-    image: { model: str(o.image?.model, 80) || DEFAULT_IMAGE_MODEL },
+    image: { provider: ip, model: str(o.image?.model, 80) || DEFAULT_IMAGE_MODELS[ip] },
   };
 }
 
@@ -96,6 +103,6 @@ export function useAiConfig() {
 export const ready = {
   vision: (c = config) => !!c.keys[c.vision.provider],
   text: (c = config) => !!c.keys[c.text.provider],
-  image: (c = config) => !!c.keys.openai,
+  image: (c = config) => !!c.keys[c.image.provider],
   tts: (c = config) => c.tts && !!c.keys.azure && !!c.azureRegion,
 };

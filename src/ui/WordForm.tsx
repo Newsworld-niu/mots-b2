@@ -533,11 +533,11 @@ function PictureField({
   );
 }
 
-/** AI 生成: a picture drawn by the OpenAI image model from the word and its meaning. */
+/** AI 生成: a picture drawn by the image model (OpenAI or OpenRouter) from the word and its meaning. */
 function AiPicture({ word, meaning, onPick }: { word: string; meaning: string; onPick: (v: string) => void }) {
   const ai = useAiConfig();
   const [busy, setBusy] = useState(false);
-  if (!ready.image(ai)) return <p className="wf-hint">先在「我的 → AI 接口」填 OpenAI 的 Key，才能生成图片。</p>;
+  if (!ready.image(ai)) return <p className="wf-hint">先在「我的 → AI 接口」填 {ai.image.provider === "openrouter" ? "OpenRouter" : "OpenAI"} 的 Key，才能生成图片。</p>;
   const run = async () => {
     setBusy(true);
     try {

@@ -4,6 +4,7 @@ import { ready, useAiConfig } from "../ai/config";
 import { AiSettings } from "../ui/AiSettings";
 import { Sheet } from "../ui/Sheet";
 import { useAtlas } from "../atlas/context";
+import { isNative, shareFileNative } from "../lib/native";
 import { isMastered } from "../store/srs";
 import { dayKey, exportBackup, importBackup, resetProgress, store, useStore, type Settings } from "../store/store";
 import { toast } from "../ui/Toast";
@@ -40,9 +41,11 @@ export function Me() {
   const set = (patch: Partial<Settings>) => store.settings(patch);
   const download = () => {
     const blob = new Blob([exportBackup()], { type: "application/json" });
+    const name = `atlas-du-francais-backup-${dayKey()}.json`;
+    if (isNative()) return void shareFileNative(blob, name, "学习备份").catch(() => toast("备份导出失败，请稍后再试", "warn"));
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `atlas-du-francais-backup-${dayKey()}.json`;
+    a.download = name;
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };

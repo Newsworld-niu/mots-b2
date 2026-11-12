@@ -2,6 +2,7 @@ import type { Atlas } from "../atlas/types";
 import { sessionStats } from "../store/session";
 import { Rating } from "../store/srs";
 import type { ActiveSession } from "../store/store";
+import { shareFileNative } from "../lib/native";
 import { toast } from "./Toast";
 
 const SERIF = '"Fraunces Variable", "Songti SC", "Noto Serif SC", Georgia, serif';
@@ -79,6 +80,7 @@ export async function shareSession(atlas: Atlas, s: ActiveSession) {
     const blob = await new Promise<Blob | null>((r) => c.toBlob(r, "image/png"));
     if (!blob) throw new Error();
     const file = new File([blob], `atlas-du-francais-${d.toISOString().slice(0, 10)}.png`, { type: "image/png" });
+    if (await shareFileNative(blob, file.name)) return;
     if (navigator.canShare?.({ files: [file] })) {
       await navigator.share({ files: [file] }).catch(() => null);
       return;

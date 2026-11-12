@@ -70,9 +70,9 @@ npm run e2e            # 浏览器端到端（需 dev 服务与本机 Chrome）
 
 | 功能 | 可选服务 | 入口 |
 |---|---|---|
-| 拍照识别（课文、单词表、PDF） | OpenAI、Anthropic | 卡组 → 导入词 → 拍照识别 / 导入文件 |
-| 生成卡片（释义、词性、例句） | DeepSeek、OpenAI、Anthropic | 导入词 → 整套生成 / AI 补全 |
-| 生成图片 | OpenAI | 编辑词 → 图片 → AI 生成 |
+| 拍照识别（课文、单词表、PDF） | OpenAI、Anthropic、OpenRouter（要选能看图的模型） | 卡组 → 导入词 → 拍照识别 / 导入文件 |
+| 生成卡片（释义、词性、例句） | DeepSeek、OpenAI、Anthropic、OpenRouter | 导入词 → 整套生成 / AI 补全 |
+| 生成图片 | OpenAI、OpenRouter（它的图片模型） | 编辑词 → 图片 → AI 生成 |
 | 朗读 | Azure AI Speech | 开启后，没有录音的词和例句用 Azure 朗读，按文字缓存在本机 |
 
 扫描出错的词：词库、自建词和离线词典都确认不了拼写的词标「拼写未经核实」，默认不勾选，并给出相近的真实单词（会考虑 rn/m、cl/d、li/h 这类常见识别混淆，词表释义对得上的排在前面）；识图模型看不清的行标「照片上看不清」；点词头旁的铅笔可以直接改拼写，改完重新查词库和查重。
@@ -82,6 +82,31 @@ npm run e2e            # 浏览器端到端（需 dev 服务与本机 Chrome）
 加词或编辑词时可以填「常用搭配」和「注意点」，也可以点「AI 推荐搭配和注意点」从推荐里点选；导入时勾选「含搭配和注意点」，AI 补全会一起生成。
 
 查重由代码按规则做（`src/lib/wordlist.ts`），不交给 AI：拼写完全相同且阴阳性不冲突的词直接关联已有词条；只差重音或阴阳性的词会提示“可能是同一个词”，由你决定；已在卡组的词不能重复加入。
+
+## 安卓应用
+同一套页面用 [Capacitor](https://capacitorjs.com) 装进安卓应用（工程在 `android/`，应用名「法语词光」，包名 `com.newsworld.motsb2`）。应用里的内容都在安装包里，不联网也能学；录音放在 `public/atlas/audio/` 时会一起打包（约 420 MB）。
+
+和浏览器里不同的地方（`src/lib/native.ts`、`src/ai/proxy.ts`）：
+
+- **AI 接口直连**：应用里没有 `ai-proxy.ts`，请求经系统的网络通道（CapacitorHttp）直接发到 OpenAI / DeepSeek / Anthropic / OpenRouter / Azure，不受浏览器跨域限制。Key 仍只存在本机。回答是整段返回的，不是流式；取消一个请求只是不再等它。
+- **自己加的词的发音**：在「我的 → AI 接口」填 Azure 的 Key 和区域并打开朗读后，没有录音的词和句子第一次朗读时由 Azure 生成，存在这台手机上，之后不再请求。没有设置 Azure 时用手机自带的法语声音（系统的文字转语音，需要装有法语语音数据）。
+- **导出备份、分享卡片**：打开系统的分享面板，可以存到文件或发到别的应用。
+- **返回键**：回到上一个页面；在第一个页面时把应用放到后台。
+- 不注册离线缓存（`sw.js`），更新安装包后不会留着旧文件。
+
+打包（需要 Android Studio；用它自带的 Java 和它下载的 SDK）：
+
+```bash
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+export ANDROID_HOME="$HOME/Library/Android/sdk"
+npm run android:apk    # 构建网页 → 同步到 android/ → 生成 android/app/build/outputs/apk/release/app-release.apk
+```
+
+第一次打包时 Gradle 会下载一份 Java 21 到 `~/.gradle/jdks`（有的插件要用它编译，Android Studio 自带的 Java 更新）。这份文件在 GitHub 上，网络要走代理时给 Gradle 加上代理参数，例如 `cd android && ./gradlew assembleRelease -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=7897`。
+
+签名：`android/keystore.properties`（不进 git）写明密钥库的位置和密码，`android/app/build.gradle` 读它来签名。**以后每次更新都要用同一个密钥库签名，否则手机会拒绝覆盖安装**，只能卸载重装，学习进度随之丢失。密钥库和这个文件要另外备份。
+
+更新应用：改完内容（比如补上图片后运行 `npm run lexicon:build`）再运行 `npm run android:apk`，把新的 APK 装到手机上覆盖旧的，学习进度、Key 和已生成的语音都保留。想让系统显示新的版本号，改 `android/app/build.gradle` 里的 `versionCode`（只能增大）和 `versionName`。
 
 ## 导入新资料
 见 `data/IMPORT.md`。模板：`data/imports/TEMPLATE.csv` 与 `TEMPLATE.json`。

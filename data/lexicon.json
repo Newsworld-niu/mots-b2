@@ -36,6 +36,16 @@
           "fr": "J'ai un entretien d'embauche lundi matin.",
           "zh": "周一早上我有一场求职面试。",
           "origin": "supplement"
+        },
+        {
+          "fr": "L'entretien de cette vieille maison coûte cher.",
+          "zh": "这栋老房子的维护费用很高。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le ministre a accordé un entretien au journal Le Monde.",
+          "zh": "部长接受了《世界报》的采访。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -339,8 +349,8 @@
       "id": "collegue",
       "lemma": "collègue",
       "pos": "n.m./f.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "work",
       "senses": [
         {
@@ -406,6 +416,11 @@
         {
           "fr": "Il possède de solides compétences en informatique.",
           "zh": "他具备扎实的计算机技能。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Cette affaire ne relève pas de la compétence du tribunal.",
+          "zh": "这个案子不属于该法院的管辖权限。",
           "origin": "supplement"
         }
       ],
@@ -551,8 +566,8 @@
       "id": "teletravail",
       "lemma": "télétravail",
       "pos": "n.m.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "work",
       "senses": [
         {
@@ -764,6 +779,11 @@
         {
           "fr": "Les ressources naturelles de la région s'épuisent très vite.",
           "zh": "该地区的自然资源正在迅速枯竭。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Cette famille vit avec des ressources très modestes.",
+          "zh": "这个家庭靠很微薄的收入生活。",
           "origin": "supplement"
         }
       ],
@@ -1283,8 +1303,8 @@
       "id": "citoyen",
       "lemma": "citoyen",
       "pos": "n.m.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "society",
       "senses": [
         {
@@ -1408,6 +1428,16 @@
         {
           "fr": "Des milliers de personnes ont participé à la manifestation.",
           "zh": "数千人参加了这次游行。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le festival est la plus grande manifestation culturelle de la ville.",
+          "zh": "这个艺术节是全市最大的文化活动。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ses larmes étaient une manifestation de joie.",
+          "zh": "她的眼泪是喜悦的表现。",
           "origin": "supplement"
         }
       ],
@@ -1598,8 +1628,8 @@
       "id": "mobilite",
       "lemma": "mobilité",
       "pos": "n.f.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "society",
       "senses": [
         {
@@ -1617,6 +1647,11 @@
         {
           "fr": "La mobilité sociale reste faible dans certains pays.",
           "zh": "一些国家的社会流动性依然较低。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Après son accident, il a retrouvé peu à peu sa mobilité.",
+          "zh": "事故之后，他渐渐恢复了行动能力。",
           "origin": "supplement"
         }
       ],
@@ -1669,6 +1704,11 @@
         {
           "fr": "La tolérance religieuse est un principe fondamental de la laïcité.",
           "zh": "宗教宽容是世俗原则的基本内容。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "La tolérance à ce médicament varie d'un patient à l'autre.",
+          "zh": "对这种药的耐受性因人而异。",
           "origin": "supplement"
         }
       ],
@@ -2003,8 +2043,8 @@
       "id": "prevention",
       "lemma": "prévention",
       "pos": "n.f.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "health",
       "senses": [
         {
@@ -2069,6 +2109,11 @@
         {
           "fr": "Après des semaines de travail intense, elle souffre d'épuisement.",
           "zh": "经过几周高强度的工作，她感到极度疲惫。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "L'épuisement des réserves de pétrole inquiète les experts.",
+          "zh": "石油储量的耗尽令专家担忧。",
           "origin": "supplement"
         }
       ],
@@ -2135,6 +2180,11 @@
         {
           "fr": "Le médecin a posé un diagnostic après plusieurs examens.",
           "zh": "经过几次检查后，医生做出了诊断。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Avant de vendre la maison, il faut faire un diagnostic énergétique.",
+          "zh": "卖房之前，需要做一份能耗评估。",
           "origin": "supplement"
         }
       ],
@@ -2279,6 +2329,11 @@
           "fr": "Roseline fait un régime.",
           "zh": "罗斯琳在节食。",
           "origin": "book"
+        },
+        {
+          "fr": "Le pays est passé d'un régime autoritaire à une démocratie.",
+          "zh": "这个国家从专制政体过渡到了民主制度。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -2525,6 +2580,11 @@
         {
           "fr": "Cette formation dure six mois et comprend plusieurs stages.",
           "zh": "这个培训为期六个月，包括多次实习。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "La formation des jeunes est une priorité pour le gouvernement.",
+          "zh": "培养年轻人是政府的优先事项。",
           "origin": "supplement"
         }
       ],
@@ -2829,8 +2889,8 @@
       "id": "enseignant",
       "lemma": "enseignant",
       "pos": "n.m.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "education",
       "senses": [
         {
@@ -2897,6 +2957,11 @@
         {
           "fr": "Sa curiosité l'a poussé à étudier la philosophie.",
           "zh": "好奇心促使他去研究哲学。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce château est l'une des principales curiosités de la région.",
+          "zh": "这座城堡是该地区的主要名胜之一。",
           "origin": "supplement"
         }
       ],
@@ -2978,6 +3043,16 @@
           "fr": "L'apprentissage d'une langue demande de la régularité.",
           "zh": "学习一门语言需要持之以恒。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il a choisi l'apprentissage pour devenir boulanger.",
+          "zh": "他选择了学徒制来成为面包师。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Pendant son apprentissage, il travaille trois jours par semaine chez un patron.",
+          "zh": "学徒期间，他每周在师傅那里工作三天。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -3047,6 +3122,11 @@
         {
           "fr": "Sa mémoire visuelle l'aide à retenir les dates importantes.",
           "zh": "他的视觉记忆帮助他记住重要的日期。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle doit rendre son mémoire de master avant la fin du mois de juin.",
+          "zh": "她必须在六月底之前交硕士论文。",
           "origin": "supplement"
         }
       ],
@@ -3638,6 +3718,11 @@
           "fr": "La consommation des ménages a diminué pendant l'hiver.",
           "zh": "冬季居民消费有所下降。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Cette voiture a une consommation de cinq litres aux cent kilomètres.",
+          "zh": "这辆车的油耗是每百公里五升。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -3996,8 +4081,8 @@
       "id": "journaliste",
       "lemma": "journaliste",
       "pos": "n.m./f.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "media",
       "senses": [
         {
@@ -4118,6 +4203,11 @@
         {
           "fr": "Les réseaux sociaux ont une grande influence sur les jeunes.",
           "zh": "社交网络对年轻人有很大的影响。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce professeur a eu une bonne influence sur ses élèves.",
+          "zh": "这位老师对学生产生了良好的影响。",
           "origin": "supplement"
         }
       ],
@@ -4470,6 +4560,11 @@
           "fr": "Cette émission a attiré une audience record cette semaine.",
           "zh": "这档节目本周创下了收视纪录。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le ministre a accordé une audience aux représentants des syndicats.",
+          "zh": "部长接见了工会代表。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -4504,8 +4599,8 @@
       "id": "propagande",
       "lemma": "propagande",
       "pos": "n.f.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "media",
       "senses": [
         {
@@ -4547,8 +4642,8 @@
       "id": "depaysement",
       "lemma": "dépaysement",
       "pos": "n.m.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "travel",
       "senses": [
         {
@@ -4719,6 +4814,11 @@
         {
           "fr": "Nous avons choisi un itinéraire panoramique le long de la côte.",
           "zh": "我们选择了一条沿海岸的风景路线。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le GPS propose un autre itinéraire pour éviter les embouteillages.",
+          "zh": "导航建议走另一条路线以避开堵车。",
           "origin": "supplement"
         }
       ],
@@ -5240,8 +5340,8 @@
       "id": "trajet",
       "lemma": "trajet",
       "pos": "n.m.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "travel",
       "senses": [
         {
@@ -5305,6 +5405,11 @@
           "fr": "Quel soulagement d'apprendre que tout le monde va bien !",
           "zh": "得知大家都平安，真是松了一口气！",
           "origin": "supplement"
+        },
+        {
+          "fr": "Ce médicament apporte un soulagement rapide de la douleur.",
+          "zh": "这种药能迅速缓解疼痛。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -5348,8 +5453,8 @@
       "id": "inquietude",
       "lemma": "inquiétude",
       "pos": "n.f.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "emotion",
       "senses": [
         {
@@ -5709,8 +5814,8 @@
       "id": "frustration",
       "lemma": "frustration",
       "pos": "n.f.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "emotion",
       "senses": [
         {
@@ -5753,8 +5858,8 @@
       "id": "serenite",
       "lemma": "sérénité",
       "pos": "n.f.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "emotion",
       "senses": [
         {
@@ -5867,8 +5972,8 @@
       "id": "citoyen-adj",
       "lemma": "citoyen",
       "pos": "adj.",
-      "level": "unverified",
-      "levelBasis": "原创补充词条：未对照任何教材核实等级",
+      "level": "B2",
+      "levelBasis": "原创补充词条：没有教材依据，由作者指定归入 B2",
       "topic": "society",
       "senses": [
         {
@@ -5896,6 +6001,16 @@
         {
           "fr": "Chaque geste citoyen contribue à la qualité de vie collective.",
           "zh": "每一个有公民意识的举动都有助于集体生活质量。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Tout citoyen a le droit de s'exprimer librement.",
+          "zh": "每个公民都有自由表达的权利。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Les habitants ont lancé une initiative citoyenne pour nettoyer la plage.",
+          "zh": "居民们发起了一项民间行动来清理海滩。",
           "origin": "supplement"
         }
       ],
@@ -5938,6 +6053,11 @@
         {
           "fr": "Il prépare un mémoire sur l'histoire contemporaine de l'Europe.",
           "zh": "他正在撰写一篇关于欧洲当代史的学位论文。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Avec l'âge, mon grand-père perd un peu la mémoire.",
+          "zh": "随着年龄增长，我祖父的记忆力有些衰退。",
           "origin": "supplement"
         }
       ],
@@ -5997,6 +6117,11 @@
           "fr": "Félix a les traits fins mais accusés (naturellement marqués).",
           "zh": "费利克斯的五官清秀，但轮廓分明（天生如此）。",
           "origin": "book"
+        },
+        {
+          "fr": "L'accusé a répondu calmement aux questions du juge.",
+          "zh": "被告平静地回答了法官的问题。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -6101,6 +6226,11 @@
         {
           "fr": "Il a accepté à contrecœur de travailler ce dimanche.",
           "zh": "他勉强答应了这个星期天加班。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle a signé le contrat à contrecœur, sans vraiment être convaincue.",
+          "zh": "她不情愿地签了合同，其实并没有被说服。",
           "origin": "supplement"
         }
       ],
@@ -6387,6 +6517,11 @@
           "fr": "Range tes affaires.",
           "zh": "收拾好你的东西。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Les affaires marchent bien cette année.",
+          "zh": "今年生意很好。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -6520,6 +6655,11 @@
           "fr": "Elle va aller dans une librairie pour acheter le livre.",
           "zh": "她要去书店买这本书。",
           "origin": "book"
+        },
+        {
+          "fr": "J'ai acheté du pain et du fromage au marché.",
+          "zh": "我在市场买了面包和奶酪。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -7746,6 +7886,11 @@
           "fr": "Il est actif, vif, efficace.",
           "zh": "他积极、机敏、高效。",
           "origin": "book"
+        },
+        {
+          "fr": "L'actif de cette société comprend plusieurs immeubles.",
+          "zh": "这家公司的资产包括几栋楼房。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -7924,6 +8069,11 @@
         {
           "fr": "L'entreprise a des actifs importants.",
           "zh": "这家公司资产可观。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Malgré son âge, mon grand-père reste très actif.",
+          "zh": "尽管年纪大了，我祖父仍然很活跃。",
           "origin": "supplement"
         }
       ],
@@ -8910,6 +9060,11 @@
           "fr": "je demande des renseignements à une agence de voyages",
           "zh": "我向旅行社咨询信息。",
           "origin": "book"
+        },
+        {
+          "fr": "Cette agence immobilière propose des appartements à louer.",
+          "zh": "这家房产中介提供出租公寓。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -13186,6 +13341,11 @@
           "fr": "où est l'arrêt du bus 96",
           "zh": "96 路公交站在哪里？",
           "origin": "book"
+        },
+        {
+          "fr": "Je descends au prochain arrêt.",
+          "zh": "我在下一站下车。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -15371,6 +15531,11 @@
           "fr": "Le fils chante dans une chorale d'amateurs, mais il n'est pas chanteur professionnel.",
           "zh": "儿子在一个业余合唱团唱歌，但他不是职业歌手。",
           "origin": "book"
+        },
+        {
+          "fr": "C'est une équipe de football amateur.",
+          "zh": "这是一支业余足球队。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -17649,6 +17814,11 @@
           "fr": "Doté(e) d'un réel sens de la négociation, vous serez apte à traiter des dossiers délicats.",
           "zh": "具备真正的谈判意识，您将能够处理棘手的案件。",
           "origin": "book"
+        },
+        {
+          "fr": "Le médecin l'a déclaré apte au travail.",
+          "zh": "医生认定他能够工作。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -19348,6 +19518,11 @@
         {
           "fr": "Elle étudie l'architecture à Paris.",
           "zh": "她在巴黎学建筑。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "J'admire l'architecture moderne de ce musée.",
+          "zh": "我很欣赏这座博物馆的现代建筑。",
           "origin": "supplement"
         }
       ],
@@ -24715,6 +24890,11 @@
           "fr": "L'avant de l'équipe a marqué un but décisif hier soir.",
           "zh": "球队的前锋昨晚打进了一个决定性的球。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Je me lave les mains avant le repas.",
+          "zh": "我饭前洗手。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -24984,6 +25164,11 @@
           "fr": "il fait du jogging dans les bois",
           "zh": "他在树林里慢跑。",
           "origin": "book"
+        },
+        {
+          "fr": "Cette table est en bois.",
+          "zh": "这张桌子是木头做的。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -25165,6 +25350,16 @@
         {
           "fr": "On sort dans une boîte sympa tous les samedis soirs.",
           "zh": "我们每周六晚上都去一家不错的夜店。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "J'ai mis les photos dans une boîte en carton.",
+          "zh": "我把照片放进了一个纸盒里。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ouvre une boîte de thon pour la salade.",
+          "zh": "开一罐金枪鱼罐头做沙拉。",
           "origin": "supplement"
         }
       ],
@@ -25704,6 +25899,11 @@
         {
           "fr": "Il faut avertir les voisins avant les travaux.",
           "zh": "施工前要通知邻居。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je t'avertis : si tu recommences, tu seras puni.",
+          "zh": "我警告你：再这样就要受罚。",
           "origin": "supplement"
         }
       ],
@@ -27633,6 +27833,11 @@
           "fr": "un(e) employé(e) travaille dans un bureau",
           "zh": "职员在办公室工作。",
           "origin": "book"
+        },
+        {
+          "fr": "Mon ordinateur est posé sur le bureau de ma chambre.",
+          "zh": "我的电脑放在卧室的书桌上。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -28301,6 +28506,11 @@
           "fr": "Les Bleus ont marqué 3 buts.",
           "zh": "法国队（Les Bleus）打进了 3 个球。",
           "origin": "book"
+        },
+        {
+          "fr": "Son but est de devenir médecin.",
+          "zh": "他的目标是成为医生。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -30243,6 +30453,11 @@
           "fr": "a une bourse d'études",
           "zh": "有一笔助学金。",
           "origin": "book"
+        },
+        {
+          "fr": "Les prix des actions ont baissé à la Bourse de Paris.",
+          "zh": "巴黎证券交易所的股价下跌了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -30951,6 +31166,11 @@
           "fr": "Appuie sur le bouton rouge.",
           "zh": "按一下红色按钮。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle a un bouton sur le nez.",
+          "zh": "她鼻子上长了一颗痘痘。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -31124,6 +31344,11 @@
           "fr": "Les centrales nucléaires produisent de l'électricité, mais aussi des déchets nucléaires (radioactifs) dangereux pour l'environnement.",
           "zh": "核电站发电，但也产生对环境有害的核（放射性）废料。",
           "origin": "book"
+        },
+        {
+          "fr": "Une nouvelle centrale solaire a été construite dans le sud.",
+          "zh": "南部新建了一座太阳能发电站。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -32069,6 +32294,11 @@
           "fr": "Les bricoleurs et les bricoleuses aiment bricoler.",
           "zh": "喜欢动手修理的男男女女都喜欢做手工活。",
           "origin": "book"
+        },
+        {
+          "fr": "Mon père est un bon bricoleur : il répare tout à la maison.",
+          "zh": "我父亲很会动手：家里什么都是他修。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -34984,6 +35214,11 @@
           "fr": "Damien a changé de voiture",
           "zh": "Damien 换了车。",
           "origin": "book"
+        },
+        {
+          "fr": "Je voudrais changer des euros en dollars.",
+          "zh": "我想把欧元兑换成美元。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -35798,6 +36033,11 @@
           "fr": "Pour cette raison, j'ai voté blanc aux élections: j'ai mis un bulletin blanc dans l'urne.",
           "zh": "因此，我在选举中投了白票：我把一张空白选票放进了投票箱。",
           "origin": "book"
+        },
+        {
+          "fr": "Les parents reçoivent le bulletin scolaire à la fin du trimestre.",
+          "zh": "学期末家长会收到成绩单。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -37761,6 +38001,11 @@
           "fr": "Chaque citoyen a le droit de voter.",
           "zh": "每位公民都有投票的权利。",
           "origin": "supplement"
+        },
+        {
+          "fr": "C'est un geste citoyen de trier ses déchets.",
+          "zh": "垃圾分类是一种有公民意识的行为。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -38678,6 +38923,11 @@
           "fr": "Il a d'abord occupé un poste d'ingénieur commercial, mais il est vite devenu chef de service avant d'obtenir une promotion plus brillante.",
           "zh": "他先是担任商务工程师，但很快成为部门主管，之后又获得了更耀眼的晋升。",
           "origin": "book"
+        },
+        {
+          "fr": "Le commercial a présenté les nouveaux produits aux clients.",
+          "zh": "销售人员向客户介绍了新产品。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -38889,6 +39139,11 @@
         {
           "fr": "Ce nouvel appartement est très commode pour aller à l'université.",
           "zh": "这套新公寓去大学很方便。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle range ses pulls dans la commode de sa chambre.",
+          "zh": "她把毛衣收在卧室的五斗柜里。",
           "origin": "supplement"
         }
       ],
@@ -39546,6 +39801,11 @@
           "fr": "Clément a bon caractère, il est facile de communiquer avec lui.",
           "zh": "克莱门特脾气好，和他沟通很容易。",
           "origin": "book"
+        },
+        {
+          "fr": "Le directeur a communiqué les résultats à toute l'équipe.",
+          "zh": "经理把结果传达给了整个团队。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -40798,6 +41058,11 @@
           "fr": "Au carrefour, le feu de circulation orange clignote, c'est un feu clignotant.",
           "zh": "在十字路口，橙色交通灯闪烁，这是闪烁信号灯。",
           "origin": "book"
+        },
+        {
+          "fr": "N'oublie pas de mettre ton clignotant avant de tourner.",
+          "zh": "转弯前别忘了打转向灯。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -44713,6 +44978,11 @@
           "fr": "Sur un court de tennis",
           "zh": "在网球场上。",
           "origin": "book"
+        },
+        {
+          "fr": "Ce film est trop court.",
+          "zh": "这部电影太短了。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -44877,6 +45147,11 @@
           "fr": "Elle a les cheveux courts et raides.",
           "zh": "她有一头短直发。",
           "origin": "book"
+        },
+        {
+          "fr": "Ils ont réservé un court de tennis pour samedi.",
+          "zh": "他们订了周六的网球场。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -45367,6 +45642,11 @@
         {
           "fr": "Tu connais ce restaurant ?",
           "zh": "你知道这家餐厅吗？",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je connais Marie depuis dix ans.",
+          "zh": "我认识玛丽十年了。",
           "origin": "supplement"
         }
       ],
@@ -46128,6 +46408,11 @@
         {
           "fr": "Il fait froid, prends une couverture.",
           "zh": "天冷，拿条毯子。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "La couverture de ce livre est très belle.",
+          "zh": "这本书的封面很漂亮。",
           "origin": "supplement"
         }
       ],
@@ -47026,6 +47311,11 @@
         {
           "fr": "Le consommateur compare les prix.",
           "zh": "消费者比较价格。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Les pays consommateurs de pétrole cherchent d'autres énergies.",
+          "zh": "石油消费国在寻找其他能源。",
           "origin": "supplement"
         }
       ],
@@ -48168,6 +48458,11 @@
           "fr": "Bien sûr, je consulte mon répondeur",
           "zh": "当然，我查看我的电话留言。",
           "origin": "book"
+        },
+        {
+          "fr": "Tu devrais consulter un médecin pour cette toux.",
+          "zh": "你咳成这样应该去看医生。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -48314,6 +48609,11 @@
         {
           "fr": "L'économie traverse un creux difficile depuis le début de l'année.",
           "zh": "自年初以来，经济正在经历一个艰难的低谷期。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Cet arbre est creux à l'intérieur.",
+          "zh": "这棵树里面是空的。",
           "origin": "supplement"
         }
       ],
@@ -48943,6 +49243,11 @@
           "fr": "Jean et Léa se couchent.",
           "zh": "Jean 和 Léa 上床睡觉。",
           "origin": "book"
+        },
+        {
+          "fr": "Nous avons admiré le coucher du soleil sur la mer.",
+          "zh": "我们欣赏了海上的日落。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -49718,6 +50023,11 @@
           "fr": "Un critique d'art porte un jugement esthétique sur les œuvres ou les expositions.",
           "zh": "艺术评论家对作品或展览作出审美判断。",
           "origin": "book"
+        },
+        {
+          "fr": "Ce film a reçu de bonnes critiques dans la presse.",
+          "zh": "这部电影在报刊上获得了好评。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -51214,6 +51524,11 @@
           "fr": "Ce croyant pratique va à l'église tous les dimanches matins.",
           "zh": "这位虔诚的信徒每个周日早晨都去教堂。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle est très croyante et prie tous les jours.",
+          "zh": "她非常虔诚，每天祈祷。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -51325,6 +51640,11 @@
           "fr": "Heureusement, ce n'est pas une panne de courant ni un court-circuit!",
           "zh": "幸好，这不是停电也不是短路！",
           "origin": "book"
+        },
+        {
+          "fr": "C'est une expression très courante en français.",
+          "zh": "这是法语里很常见的说法。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -51597,6 +51917,11 @@
           "fr": "Certaines universités gardent l'ancien système des facultés (des lettres, de droit, de médecine).",
           "zh": "有些大学仍保留旧的学院制（文学院、法学院、医学院）。",
           "origin": "supplement"
+        },
+        {
+          "fr": "La route est toute droite jusqu'au village.",
+          "zh": "到村子的路是笔直的。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -51782,6 +52107,11 @@
         {
           "fr": "Tournez à droite.",
           "zh": "向右转。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle étudie le droit à l'université de Lyon.",
+          "zh": "她在里昂大学学习法律。",
           "origin": "supplement"
         }
       ],
@@ -52184,6 +52514,11 @@
           "fr": "En fin de compte (finalement), la police a compris que c'était «un règlement de comptes» (une vengeance) entre deux bandes de gangsters.",
           "zh": "最终，警方明白这是两个黑帮团伙之间的「清算」（报复）。",
           "origin": "book"
+        },
+        {
+          "fr": "J'ai deux frères et une sœur.",
+          "zh": "我有两个兄弟和一个姐妹。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -52872,6 +53207,11 @@
           "fr": "on donne les photos à développer",
           "zh": "人们把照片送去冲洗。",
           "origin": "book"
+        },
+        {
+          "fr": "Cette entreprise veut développer ses activités à l'étranger.",
+          "zh": "这家公司想在国外发展业务。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -55795,6 +56135,11 @@
           "fr": "un sac à dos",
           "zh": "一个背包。",
           "origin": "book"
+        },
+        {
+          "fr": "Écrivez votre nom au dos de l'enveloppe.",
+          "zh": "请在信封背面写上您的名字。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -56689,6 +57034,11 @@
         {
           "fr": "Il double un camion.",
           "zh": "他超过一辆卡车。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce film américain a été doublé en français.",
+          "zh": "这部美国电影被配成了法语。",
           "origin": "supplement"
         }
       ],
@@ -57695,6 +58045,11 @@
           "fr": "Le directeur dirige l'école.",
           "zh": "校长管理学校。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le comité directeur prendra la décision demain.",
+          "zh": "领导委员会明天作出决定。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -58122,6 +58477,11 @@
           "fr": "Il fait bon = doux : la température est agréable pour la saison.",
           "zh": "天气宜人，温度适中。",
           "origin": "book"
+        },
+        {
+          "fr": "Ce miel est très doux.",
+          "zh": "这种蜂蜜很甜。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -58636,6 +58996,11 @@
         {
           "fr": "Ce dragueur aborde toutes les filles au bar.",
           "zh": "这个爱搭讪的人在酒吧接近所有女孩。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il est un peu trop dragueur à mon goût.",
+          "zh": "在我看来他有点太爱搭讪了。",
           "origin": "supplement"
         }
       ],
@@ -59232,6 +59597,11 @@
         {
           "fr": "La ligne éditoriale du journal reste très neutre.",
           "zh": "这家报纸的编辑路线保持非常中立。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "L'éditorial de ce matin critique la réforme.",
+          "zh": "今天早上的社论批评了这项改革。",
           "origin": "supplement"
         }
       ],
@@ -59930,6 +60300,11 @@
         {
           "fr": "Vous pouvez effectuer le paiement en ligne.",
           "zh": "您可以在线付款。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Les ouvriers ont effectué les travaux en deux semaines.",
+          "zh": "工人们两周内完成了工程。",
           "origin": "supplement"
         }
       ],
@@ -61858,6 +62233,11 @@
           "fr": "L'équipe a un entraînement tous les mardis.",
           "zh": "球队每周二训练。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Ce moteur utilise un système d'entraînement par courroie.",
+          "zh": "这台发动机采用皮带传动系统。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -62004,6 +62384,11 @@
         {
           "fr": "Il s'entraîne tous les soirs.",
           "zh": "他每天晚上训练。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le courant a entraîné la barque loin de la rive.",
+          "zh": "水流把小船带离了岸边。",
           "origin": "supplement"
         }
       ],
@@ -62607,6 +62992,11 @@
         {
           "fr": "Elle encadre une équipe de dix personnes.",
           "zh": "她管理一个十人团队。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "J'ai fait encadrer cette photo de famille.",
+          "zh": "我请人把这张全家福装了框。",
           "origin": "supplement"
         }
       ],
@@ -63529,6 +63919,11 @@
           "fr": "une ampoule électrique",
           "zh": "一个电灯泡。",
           "origin": "book"
+        },
+        {
+          "fr": "Il a acheté une voiture électrique.",
+          "zh": "他买了一辆电动汽车。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -66837,6 +67232,11 @@
           "fr": "Mon père m'a engueulé parce que je suis rentré tard.",
           "zh": "我回家晚了，被我爸骂了一顿。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Arrête de m'engueuler, ce n'est pas ma faute !",
+          "zh": "别骂我了，这不是我的错！",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -66887,6 +67287,11 @@
         {
           "fr": "Après le marathon, il est épuisé.",
           "zh": "马拉松之后，他精疲力竭。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce livre est épuisé, on ne le trouve plus en librairie.",
+          "zh": "这本书已售罄，书店里买不到了。",
           "origin": "supplement"
         }
       ],
@@ -66965,6 +67370,11 @@
         {
           "fr": "La radio émet toute la nuit.",
           "zh": "电台整夜广播。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il a émis des doutes sur ce projet.",
+          "zh": "他对这个项目提出了疑问。",
           "origin": "supplement"
         }
       ],
@@ -67486,6 +67896,11 @@
           "fr": "entre deux équipes",
           "zh": "两支球队之间。",
           "origin": "book"
+        },
+        {
+          "fr": "Notre équipe a gagné le match.",
+          "zh": "我们队赢了比赛。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -68270,6 +68685,11 @@
           "fr": "Patricia a un rhume, elle est enrhumée.",
           "zh": "帕特里夏感冒了。",
           "origin": "book"
+        },
+        {
+          "fr": "Je suis enrhumé depuis trois jours.",
+          "zh": "我感冒三天了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -70220,6 +70640,11 @@
           "fr": "Un joueur peut transformer un essai, c'est-à-dire envoyer le ballon posé au sol entre les poteaux.",
           "zh": "球员可以把达阵转化，也就是把放在地上的球踢到球门柱之间。",
           "origin": "book"
+        },
+        {
+          "fr": "Après plusieurs essais, il a enfin réussi.",
+          "zh": "经过几次尝试，他终于成功了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -71437,6 +71862,11 @@
           "fr": "Il est en état de (grand) stress.",
           "zh": "他处于（极度）紧张状态。",
           "origin": "book"
+        },
+        {
+          "fr": "L'État finance les écoles publiques.",
+          "zh": "国家出资办公立学校。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -71777,6 +72207,11 @@
           "fr": "Anne n'a pas dormi cette nuit, la pauvre, elle n'a pas fermé 5.",
           "zh": "安娜昨晚没睡，可怜的，她没能合眼5分钟。",
           "origin": "book"
+        },
+        {
+          "fr": "Ils passent leurs vacances dans une ferme à la campagne.",
+          "zh": "他们在乡下的农场度假。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -71878,6 +72313,11 @@
         {
           "fr": "Nous avons vu une exposition de Monet au musée.",
           "zh": "我们在博物馆看了一个莫奈的展览。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "L'exposition de peintures est ouverte jusqu'à dimanche.",
+          "zh": "画展开放到周日。",
           "origin": "supplement"
         }
       ],
@@ -73631,6 +74071,16 @@
           "fr": "Jane habite en France, mais elle est étrangère",
           "zh": "Jane 住在法国，但她是外国人。",
           "origin": "book"
+        },
+        {
+          "fr": "Il aime voyager à l'étranger.",
+          "zh": "他喜欢去国外旅行。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Dans ce village, on voit rarement des étrangers.",
+          "zh": "在这个村子里很少见到外国人。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -76619,6 +77069,11 @@
           "fr": "Est-ce que vous voulez du gel ou de la mousse pour que la coiffure tienne bien?",
           "zh": "您想要发胶还是摩丝，好让发型保持得久一些？",
           "origin": "book"
+        },
+        {
+          "fr": "Le gel a abîmé les fleurs du jardin.",
+          "zh": "霜冻冻坏了花园里的花。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -76913,6 +77368,11 @@
           "fr": "Son amie Corinne frappe à la porte.",
           "zh": "他的朋友科琳娜敲门。",
           "origin": "book"
+        },
+        {
+          "fr": "Il a frappé le ballon de toutes ses forces.",
+          "zh": "他用尽全力击球。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -77551,6 +78011,11 @@
         {
           "fr": "Mon médecin généraliste m'a recommandé un spécialiste compétent.",
           "zh": "我的全科医生给我推荐了一位专科医生。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je vais d'abord voir mon généraliste.",
+          "zh": "我先去看我的全科医生。",
           "origin": "supplement"
         }
       ],
@@ -80382,6 +80847,11 @@
           "fr": "Le goût - Est-ce que tu sens le goût de la vanille?",
           "zh": "味道——你尝到香草味了吗？",
           "origin": "book"
+        },
+        {
+          "fr": "Avec ce rhume, j'ai perdu le goût.",
+          "zh": "这次感冒让我尝不出味道了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -82996,6 +83466,11 @@
           "fr": "Iannis est grec",
           "zh": "Iannis 是希腊人。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle apprend le grec à l'université.",
+          "zh": "她在大学学希腊语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -83321,6 +83796,11 @@
         {
           "fr": "Le gardien a arrêté un penalty décisif en finale.",
           "zh": "守门员在决赛中扑出了一个决定性的点球。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le gardien de l'immeuble habite au rez-de-chaussée.",
+          "zh": "大楼的看门人住在底层。",
           "origin": "supplement"
         }
       ],
@@ -84073,6 +84553,11 @@
           "fr": "J'ai la raie sur le côté gauche.",
           "zh": "我的头发向左边分。",
           "origin": "book"
+        },
+        {
+          "fr": "En France, la gauche a gagné les élections.",
+          "zh": "在法国，左派赢得了选举。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -84475,6 +84960,11 @@
           "fr": "il est honnête et franc.",
           "zh": "他诚实而坦率。",
           "origin": "book"
+        },
+        {
+          "fr": "Avant l'euro, les Français payaient en francs.",
+          "zh": "在欧元之前，法国人用法郎付款。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -84660,6 +85150,11 @@
           "fr": "Michel est français",
           "zh": "Michel 是法国人。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle parle très bien le français.",
+          "zh": "她法语说得很好。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -85435,6 +85930,11 @@
           "fr": "j'achète un guide touristique du pays où je vais",
           "zh": "我买我要去的国家的旅游指南。",
           "origin": "book"
+        },
+        {
+          "fr": "Le guide nous a montré les plus beaux endroits de la ville.",
+          "zh": "导游带我们看了城里最美的地方。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -85661,6 +86161,11 @@
           "fr": "Il hait l'hypocrisie.",
           "zh": "他痛恨虚伪。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Je hais le mensonge.",
+          "zh": "我憎恨谎言。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -85774,6 +86279,11 @@
           "fr": "Damien est handicapé, il est dans un fauteuil roulant.",
           "zh": "达米安是残疾人，他坐在轮椅上。",
           "origin": "book"
+        },
+        {
+          "fr": "Cette place de parking est réservée aux handicapés.",
+          "zh": "这个停车位是残疾人专用的。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -86135,6 +86645,11 @@
           "fr": "En haut, à droite.",
           "zh": "在上面，右边。",
           "origin": "book"
+        },
+        {
+          "fr": "Cette montagne est très haute.",
+          "zh": "这座山很高。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -89797,6 +90312,11 @@
           "fr": "Remplissez cet imprimé et signez en bas.",
           "zh": "填好这份表格，在下面签名。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle porte une jupe imprimée.",
+          "zh": "她穿着一条印花裙。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -92283,6 +92803,11 @@
           "fr": "La laïcité est un principe fondamental de la République française.",
           "zh": "政教分离是法兰西共和国的一项基本原则。",
           "origin": "supplement"
+        },
+        {
+          "fr": "En France, la laïcité sépare l'État et les religions.",
+          "zh": "在法国，政教分离原则把国家与宗教分开。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -93529,6 +94054,11 @@
           "fr": "Il marchait de long en large pour se calmer.",
           "zh": "他来回踱步，让自己冷静下来。",
           "origin": "book"
+        },
+        {
+          "fr": "Cette rue est très large.",
+          "zh": "这条街很宽。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -96354,6 +96884,11 @@
           "fr": "Il y a un beau lever de soleil.",
           "zh": "有一次美丽的日出。",
           "origin": "book"
+        },
+        {
+          "fr": "Levez la main si vous connaissez la réponse.",
+          "zh": "知道答案的请举手。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -97447,6 +97982,11 @@
           "fr": "Le produit intérieur brut (PIB) est inclus dans le produit national brut (PNB): c'est la valeur financière de tout ce qui est produit par le pays.",
           "zh": "国内生产总值（GDP）包含在国民生产总值（GNP）中：它是一个国家所生产的一切的货币价值。",
           "origin": "book"
+        },
+        {
+          "fr": "Il fait plus chaud à l'intérieur de la maison.",
+          "zh": "屋子里面更暖和。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -98841,6 +99381,11 @@
         {
           "fr": "Sa remarque était parfaitement juste et bien argumentée.",
           "zh": "他的评论完全正确且论据充分。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je viens juste d'arriver.",
+          "zh": "我刚刚到。",
           "origin": "supplement"
         }
       ],
@@ -100415,6 +100960,11 @@
           "fr": "Ce n'est ni logique, ni rationnel.",
           "zh": "这既不合逻辑，也不理性。",
           "origin": "book"
+        },
+        {
+          "fr": "Je ne comprends pas la logique de sa décision.",
+          "zh": "我不明白他这个决定的逻辑。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -101128,6 +101678,11 @@
           "fr": "Il sait manifester sa reconnaissance envers ses amis.",
           "zh": "他懂得向朋友们表达感激之情。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Les étudiants manifestent contre la réforme.",
+          "zh": "学生们游行反对这项改革。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -101343,6 +101898,11 @@
         {
           "fr": "Son comportement louche attire l'attention des voisins inquiets.",
           "zh": "他可疑的行为引起了不安邻居们的注意。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Sers la soupe avec la louche.",
+          "zh": "用汤勺盛汤。",
           "origin": "supplement"
         }
       ],
@@ -101697,6 +102257,11 @@
           "fr": "Zoé cherche un manuel scolaire dont elle a besoin pour ce cours.",
           "zh": "佐伊在找一本这门课需要的教科书。",
           "origin": "book"
+        },
+        {
+          "fr": "Il préfère le travail manuel au travail de bureau.",
+          "zh": "比起办公室工作，他更喜欢体力劳动。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -102174,6 +102739,11 @@
           "fr": "On peut acheter des légumes et des fruits frais chez le marchand de fruits et légumes.",
           "zh": "可以在水果蔬菜商那里买到新鲜的蔬菜和水果。",
           "origin": "book"
+        },
+        {
+          "fr": "Le marchand de journaux ouvre à six heures.",
+          "zh": "报刊商贩六点开门。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -102623,6 +103193,11 @@
           "fr": "Un quotidien paraît tous les jours, un hebdomadaire paraît toutes les semaines, et un mensuel, tous les mois.",
           "zh": "日报每天出版，周报每周出版，月刊每月出版。",
           "origin": "book"
+        },
+        {
+          "fr": "Le loyer mensuel est de six cents euros.",
+          "zh": "月租是六百欧元。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -102897,6 +103472,11 @@
           "fr": "Il a toujours été menteur.",
           "zh": "他一直爱撒谎。",
           "origin": "book"
+        },
+        {
+          "fr": "Ce menteur nous a encore trompés.",
+          "zh": "这个骗子又骗了我们。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -103591,6 +104171,11 @@
           "fr": "Il est fluet, frêle, menu.",
           "zh": "他身材纤细、瘦弱、单薄。",
           "origin": "book"
+        },
+        {
+          "fr": "Je prends le menu à quinze euros.",
+          "zh": "我要十五欧元的套餐。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -105496,6 +106081,11 @@
           "fr": "La matière principale de ce livre reste l'histoire romaine antique.",
           "zh": "这本书的主要主题是古罗马历史。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Les maths sont sa matière préférée à l'école.",
+          "zh": "数学是他在学校最喜欢的科目。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -105701,6 +106291,11 @@
         {
           "fr": "La sécurité reste un enjeu majeur pour nous.",
           "zh": "安全对我们来说仍然是一个重大问题。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "En France, on est majeur à dix-huit ans.",
+          "zh": "在法国，十八岁成年。",
           "origin": "supplement"
         }
       ],
@@ -106063,6 +106658,11 @@
         {
           "fr": "Elle se sent très mal depuis hier soir.",
           "zh": "她从昨晚起就感觉很不好。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "J'ai mal à la tête depuis ce matin.",
+          "zh": "我从早上起就头疼。",
           "origin": "supplement"
         }
       ],
@@ -107406,6 +108006,11 @@
           "fr": "Elle a la raie au milieu.",
           "zh": "她的头发中分。",
           "origin": "book"
+        },
+        {
+          "fr": "Il a grandi dans un milieu modeste.",
+          "zh": "他在普通的环境中长大。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -108206,6 +108811,11 @@
         {
           "fr": "Elle a retroussé les manches pour travailler.",
           "zh": "她挽起袖子开始工作。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le manche de la casserole est très chaud.",
+          "zh": "锅柄很烫。",
           "origin": "supplement"
         }
       ],
@@ -109271,6 +109881,11 @@
           "fr": "Cette étudiante a obtenu une note moyenne cette année.",
           "zh": "这名学生今年得了中等成绩。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le vélo est un bon moyen de se déplacer en ville.",
+          "zh": "自行车是城里出行的好方式。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -109481,6 +110096,11 @@
         {
           "fr": "Sa moyenne en maths dépasse quinze sur vingt.",
           "zh": "他的数学平均分超过十五分（满分二十）。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "En moyenne, je dors sept heures par nuit.",
+          "zh": "我平均每晚睡七个小时。",
           "origin": "supplement"
         }
       ],
@@ -110108,6 +110728,11 @@
           "fr": "Les Français emploient indifféremment les deux termes: le «mobile» ou le «portable».",
           "zh": "法国人不加区分地使用两个词：「mobile」或「portable」（手机）。",
           "origin": "book"
+        },
+        {
+          "fr": "Cette cloison est mobile : on peut la déplacer facilement.",
+          "zh": "这道隔板是活动的，可以轻松移动。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -110282,6 +110907,11 @@
         {
           "fr": "Les enfants ont construit un modèle réduit de cette cathédrale.",
           "zh": "孩子们建造了这座大教堂的缩小模型。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce modèle de téléphone est le moins cher.",
+          "zh": "这款手机是最便宜的。",
           "origin": "supplement"
         }
       ],
@@ -111002,6 +111632,11 @@
           "fr": "il a eu une mauvaise note en géographie",
           "zh": "他地理成绩不好。",
           "origin": "book"
+        },
+        {
+          "fr": "Les étudiants prennent des notes pendant le cours.",
+          "zh": "学生们在课上记笔记。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -112495,6 +113130,11 @@
           "fr": "Un moment, s'il vous plaît.",
           "zh": "请稍等一下。",
           "origin": "supplement"
+        },
+        {
+          "fr": "C'est le bon moment pour partir.",
+          "zh": "现在是出发的好时候。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -113936,6 +114576,11 @@
           "fr": "je visite la ville, les musées, les monuments historiques",
           "zh": "我参观城市、博物馆和历史古迹。",
           "origin": "book"
+        },
+        {
+          "fr": "Un monument aux morts se trouve sur la place du village.",
+          "zh": "村里的广场上有一座阵亡将士纪念碑。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -115160,6 +115805,16 @@
           "fr": "il y a un mort (i) et deux blessés.",
           "zh": "有一人死亡，两人受伤。",
           "origin": "book"
+        },
+        {
+          "fr": "Son grand-père est mort l'année dernière.",
+          "zh": "他祖父去年去世了。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il a peur de la mort.",
+          "zh": "他害怕死亡。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -115329,6 +115984,16 @@
           "fr": "Louis a perdu sa femme: elle est morte (= décédée) le 10 mai.",
           "zh": "路易失去了他的妻子：她于五月十日去世。",
           "origin": "book"
+        },
+        {
+          "fr": "L'accident a fait un mort.",
+          "zh": "事故造成一人死亡。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "La mort de son chien l'a rendue très triste.",
+          "zh": "她的狗死了，她很伤心。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -115581,6 +116246,11 @@
         {
           "fr": "Je mange un œuf au petit déjeuner.",
           "zh": "我早餐吃一个鸡蛋。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "La poule a pondu un œuf ce matin.",
+          "zh": "母鸡今天早上下了一个蛋。",
           "origin": "supplement"
         }
       ],
@@ -115937,6 +116607,11 @@
           "fr": "Finalement, il a répondu à une offre d'emploi et a posé sa candidature à un poste de responsable de la communication.",
           "zh": "最后，他回应了一份招聘启事，申请了传播主管的职位。",
           "origin": "book"
+        },
+        {
+          "fr": "Quand l'offre dépasse la demande, les prix baissent.",
+          "zh": "供大于求时，价格下降。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -119049,6 +119724,11 @@
           "fr": "Il paraît fatigué ce matin.",
           "zh": "他今天早上看起来很累。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Son nouveau roman paraîtra en septembre.",
+          "zh": "他的新小说将于九月出版。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -119103,6 +119783,11 @@
         {
           "fr": "Le week-end, elle aime dessiner et peindre (avec des pinceaux et de la peinture).",
           "zh": "周末她喜欢素描和绘画（用画笔和颜料）。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Nous allons peindre les murs de la cuisine en blanc.",
+          "zh": "我们要把厨房的墙刷成白色。",
           "origin": "supplement"
         }
       ],
@@ -122489,6 +123174,11 @@
           "fr": "Le partiel d'histoire commence à neuf heures précises.",
           "zh": "历史阶段考试九点整开始。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle travaille à temps partiel dans une librairie.",
+          "zh": "她在书店做兼职。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -124254,6 +124944,11 @@
           "fr": "Son attitude passive face aux injustices m'inquiète beaucoup.",
           "zh": "他面对不公时消极的态度让我很担心。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le passif de l'entreprise a augmenté cette année.",
+          "zh": "公司今年的负债增加了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -124430,6 +125125,11 @@
         {
           "fr": "L'audit a révélé un passif financier très lourd.",
           "zh": "审计揭示了非常沉重的财务负债。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il reste passif pendant les réunions et ne dit rien.",
+          "zh": "开会时他很被动，一言不发。",
           "origin": "supplement"
         }
       ],
@@ -125286,6 +125986,11 @@
           "fr": "Il est aussi patient.",
           "zh": "他也很耐心。",
           "origin": "book"
+        },
+        {
+          "fr": "Le médecin examine son patient.",
+          "zh": "医生给病人做检查。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -126051,6 +126756,11 @@
           "fr": "Le terrain de football est plat et bien entretenu par la mairie.",
           "zh": "足球场很平坦，由市政府维护得很好。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le plat du jour est un poulet rôti.",
+          "zh": "今日特色菜是烤鸡。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -126527,6 +127237,11 @@
           "fr": "Ceux qui ont une activité professionnelle régulière Un(e) employé(e) travaille dans un bureau, une banque, une poste.",
           "zh": "有固定职业的人 一名职员在办公室、银行、邮局工作。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle a trouvé un poste de secrétaire dans une banque.",
+          "zh": "她在银行找到了一个秘书职位。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -127097,6 +127812,11 @@
           "fr": "un pot de miel",
           "zh": "一罐蜂蜜。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle a mis la plante dans un grand pot.",
+          "zh": "她把植物种在一个大花盆里。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -127171,6 +127891,11 @@
         {
           "fr": "Il fait de la photographie depuis dix ans.",
           "zh": "他搞摄影已经十年了。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Cette photographie de ma grand-mère date de 1950.",
+          "zh": "这张我祖母的照片拍摄于1950年。",
           "origin": "supplement"
         }
       ],
@@ -127966,6 +128691,11 @@
         {
           "fr": "Je fais du sport pour garder une bonne forme physique.",
           "zh": "我锻炼身体以保持良好体形。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il étudie la physique et la chimie au lycée.",
+          "zh": "他在高中学物理和化学。",
           "origin": "supplement"
         }
       ],
@@ -128834,6 +129564,16 @@
           "fr": "Quelle pièce tu voudrais voir ?",
           "zh": "你想看哪部戏剧？",
           "origin": "book"
+        },
+        {
+          "fr": "Leur appartement a trois pièces.",
+          "zh": "他们的公寓有三个房间。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Tu as une pièce de deux euros pour le distributeur ?",
+          "zh": "你有两欧元的硬币用来投自动售货机吗？",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -129181,6 +129921,11 @@
           "fr": "Les tomates poussent bien dans ce sol fertile.",
           "zh": "西红柿在这片肥沃的土壤里长得很好。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il faut pousser la porte pour entrer.",
+          "zh": "进去要推门。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -129310,6 +130055,11 @@
         {
           "fr": "Le pouvoir judiciaire doit rester indépendant du politique.",
           "zh": "司法权力应保持独立于政治。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je ne peux pas venir ce soir.",
+          "zh": "我今晚不能来。",
           "origin": "supplement"
         }
       ],
@@ -129495,6 +130245,11 @@
           "fr": "Tu peux me prêter 1 €, s'il te plaît?",
           "zh": "你能借我 1 欧元吗？麻烦你了。",
           "origin": "book"
+        },
+        {
+          "fr": "Ce parti est au pouvoir depuis cinq ans.",
+          "zh": "这个政党已经执政五年了。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -129719,6 +130474,11 @@
         {
           "fr": "J'ai jeté une pièce : c'est tombé sur pile.",
           "zh": "我抛了一枚硬币：正面朝上。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il est arrivé pile à l'heure.",
+          "zh": "他准时到了。",
           "origin": "supplement"
         }
       ],
@@ -130970,6 +131730,11 @@
         {
           "fr": "Le climat politique reste tendu avant les élections.",
           "zh": "选举前的政治氛围仍然紧张。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je ne parle jamais de politique à table.",
+          "zh": "我在饭桌上从不谈政治。",
           "origin": "supplement"
         }
       ],
@@ -132364,6 +133129,11 @@
         {
           "fr": "Le médecin va lui prescrire des antibiotiques pour guérir.",
           "zh": "医生会给他开抗生素来治疗。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "La loi prescrit le port de la ceinture de sécurité.",
+          "zh": "法律规定必须系安全带。",
           "origin": "supplement"
         }
       ],
@@ -134110,6 +134880,11 @@
           "fr": "La presse écrite",
           "zh": "纸质报刊。",
           "origin": "book"
+        },
+        {
+          "fr": "Le président a répondu aux questions de la presse.",
+          "zh": "总统回答了新闻界的提问。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -134766,6 +135541,11 @@
         {
           "fr": "Un soda ne suffit pas à me rafraîchir.",
           "zh": "一杯苏打水不足以让我凉快下来。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Cette pluie a rafraîchi l'air.",
+          "zh": "这场雨让空气凉爽了。",
           "origin": "supplement"
         }
       ],
@@ -136663,6 +137443,11 @@
           "fr": "Mon grand-père est très râleur: il n'est jamais content.",
           "zh": "我爷爷很爱发牢骚：从来不满意。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Quel râleur ! Il se plaint de tout.",
+          "zh": "真是个爱发牢骚的人！他什么都抱怨。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -138343,6 +139128,11 @@
           "fr": "Cette ferme produit des fromages excellents depuis l'an 1920.",
           "zh": "这家农场自1920年起就生产优质奶酪。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Ce changement a produit de bons résultats.",
+          "zh": "这一改变产生了好的结果。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -138682,6 +139472,11 @@
           "fr": "La vie en ville est animée et rapide.",
           "zh": "城市生活热闹而快节奏。",
           "origin": "book"
+        },
+        {
+          "fr": "Ce train est très rapide.",
+          "zh": "这趟火车很快。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -139262,6 +140057,11 @@
           "fr": "Il rapporte plein de poissons !",
           "zh": "他带回了很多鱼！",
           "origin": "book"
+        },
+        {
+          "fr": "Les journaux rapportent que le ministre va démissionner.",
+          "zh": "各报报道说部长将辞职。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -139662,6 +140462,11 @@
           "fr": "Il a écrit un programme informatique pour gérer les stocks.",
           "zh": "他写了一个管理库存的计算机程序。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Quel est le programme de la télévision ce soir ?",
+          "zh": "今晚电视有什么节目？",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -139866,6 +140671,11 @@
         {
           "fr": "Les progrès de la médecine sauvent des millions de vies.",
           "zh": "医学的进步拯救了数百万人的生命。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Tu as fait beaucoup de progrès en français.",
+          "zh": "你的法语进步很大。",
           "origin": "supplement"
         }
       ],
@@ -140965,6 +141775,11 @@
           "fr": "Le stress quotidien fatigue beaucoup les travailleurs urbains.",
           "zh": "日常压力使城市劳动者疲惫不堪。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il achète un quotidien tous les matins.",
+          "zh": "他每天早上买一份日报。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -141515,6 +142330,11 @@
         {
           "fr": "Il a tenu sa promesse.",
           "zh": "他信守了承诺。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il m'a fait la promesse de revenir bientôt.",
+          "zh": "他向我许诺很快回来。",
           "origin": "supplement"
         }
       ],
@@ -146143,6 +146963,11 @@
           "fr": "un documentaire (= un reportage)",
           "zh": "一部纪录片（＝一部专题报道）。",
           "origin": "book"
+        },
+        {
+          "fr": "J'ai vu un reportage sur la vie des pêcheurs bretons.",
+          "zh": "我看了一个关于布列塔尼渔民生活的专题报道。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -146317,6 +147142,11 @@
         {
           "fr": "Le reporter a interviewé le maire ce matin.",
           "zh": "那位记者今早采访了市长。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Nous devons reporter la réunion à demain.",
+          "zh": "我们得把会议推迟到明天。",
           "origin": "supplement"
         }
       ],
@@ -147710,6 +148540,11 @@
           "fr": "on recycle le verre et le papier",
           "zh": "回收玻璃和纸张。",
           "origin": "book"
+        },
+        {
+          "fr": "Cette usine recycle les bouteilles en plastique.",
+          "zh": "这家工厂回收利用塑料瓶。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -147992,6 +148827,11 @@
           "fr": "La Sécurité sociale rembourse les médicaments",
           "zh": "社会保险报销药品。",
           "origin": "book"
+        },
+        {
+          "fr": "Le magasin m'a remboursé le pull trop petit.",
+          "zh": "那件太小的毛衣，商店给我退了款。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -149172,6 +150012,11 @@
           "fr": "Joseph émet des réserves sur ce projet.",
           "zh": "约瑟夫对这个项目持保留意见。",
           "origin": "book"
+        },
+        {
+          "fr": "Nous avons visité une réserve naturelle en Afrique.",
+          "zh": "我们参观了非洲的一个自然保护区。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -149447,6 +150292,11 @@
           "fr": "Doué(e) d'un réel sens commercial, vous saurez convaincre vos interlocuteurs.",
           "zh": "具备真正的商业头脑，您将能说服对话者。",
           "origin": "book"
+        },
+        {
+          "fr": "Dans ce film, on confond le réel et l'imaginaire.",
+          "zh": "这部电影里，现实和想象混在一起。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -150453,6 +151303,11 @@
           "fr": "Elle est responsable de la section internationale.",
           "zh": "她负责国际部。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Je voudrais parler au responsable du magasin.",
+          "zh": "我想和商店负责人谈谈。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -150960,12 +151815,6 @@
         },
         {
           "zh": "脏的",
-          "fr": "",
-          "origin": "supplement",
-          "status": "补充翻译·待核对"
-        },
-        {
-          "zh": "咸的",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对"
@@ -151564,6 +152413,11 @@
         {
           "fr": "On a beaucoup rigolé en regardant ce film idiot.",
           "zh": "看这部傻电影时我们笑得很开心。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Tu rigoles ? Ce n'est pas possible !",
+          "zh": "你在开玩笑吧？这不可能！",
           "origin": "supplement"
         }
       ],
@@ -154308,6 +155162,11 @@
           "fr": "Veuillez scanner ce document pour l'envoyer par mail.",
           "zh": "请扫描这份文件以便通过邮件发送。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le scanner est branché sur l'ordinateur.",
+          "zh": "扫描仪连在电脑上。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -154776,6 +155635,11 @@
           "fr": "Cette façade rose attire l'attention des passants curieux.",
           "zh": "这面粉红色的外墙引起了好奇路人的注意。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il lui a offert un bouquet de roses rouges.",
+          "zh": "他送了她一束红玫瑰。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -154840,6 +155704,11 @@
           "fr": "ELLE: Au contraire, je voulais te dire que, malgré tes scènes de ménage, malgré nos disputes, je voudrais qu'on essaie de se réconcilier.",
           "zh": "她：相反，我想告诉你，尽管你争吵，尽管我们有争执，我希望我们试着和好。",
           "origin": "book"
+        },
+        {
+          "fr": "Les acteurs entrent en scène.",
+          "zh": "演员们登上舞台。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -154985,6 +155854,11 @@
           "fr": "Expressions imagées Traditions et symboles «Être frais comme une rose»: avoir un joli teint, La rose: symbole de l'amour.",
           "zh": "形象表达 传统与象征 「Être frais comme une rose」（像玫瑰一样新鲜）：气色好；玫瑰：爱情的象征。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle porte une robe rose.",
+          "zh": "她穿着一条粉红色的裙子。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -158953,6 +159827,11 @@
           "fr": "En cas de mécontentement, les syndicats représentant les salariés peuvent déclencher «un mouvement social».",
           "zh": "如果不满，代表员工的工会可以发起「社会运动」。",
           "origin": "book"
+        },
+        {
+          "fr": "Les travailleurs salariés cotisent pour leur retraite.",
+          "zh": "领工资的劳动者为退休金缴费。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -160736,6 +161615,11 @@
         {
           "fr": "La gamme se termine par si, puis do.",
           "zh": "音阶以 si 结束，然后回到 do。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Si tu viens, je serai content.",
+          "zh": "如果你来，我会很高兴。",
           "origin": "supplement"
         }
       ],
@@ -162673,6 +163557,21 @@
           "fr": "prélève (= prend) une somme de mon compte tous les mois",
           "zh": "每月从我的账户划走（＝扣取）一笔钱。",
           "origin": "book"
+        },
+        {
+          "fr": "La somme de deux et trois est cinq.",
+          "zh": "二加三的和是五。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il a payé une grosse somme pour cette voiture.",
+          "zh": "他为这辆车付了一大笔钱。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le bébé fait un somme après le repas.",
+          "zh": "宝宝饭后小睡一会儿。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -162775,6 +163674,21 @@
         {
           "fr": "Après le déjeuner, il fait un petit somme.",
           "zh": "午饭后，他小睡一会儿。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Cette somme est trop élevée pour moi.",
+          "zh": "这笔钱对我来说太多了。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Faites la somme de tous ces chiffres.",
+          "zh": "把这些数字全部加起来求和。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il doit une somme importante à la banque.",
+          "zh": "他欠银行一大笔款。",
           "origin": "supplement"
         }
       ],
@@ -163249,6 +164163,16 @@
           "fr": "Il resta soufflé devant tant de générosité inattendue.",
           "zh": "面对这么多出乎意料的慷慨，他惊呆了。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle a préparé un soufflé au fromage.",
+          "zh": "她做了一份奶酪舒芙蕾。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Après la course, il est à bout de souffle.",
+          "zh": "跑完步，他上气不接下气。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -163442,6 +164366,11 @@
         {
           "fr": "Les bonnes nouvelles finissent par la soulager.",
           "zh": "好消息最终会让她感到宽慰。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce sirop soulage la toux.",
+          "zh": "这种糖浆能缓解咳嗽。",
           "origin": "supplement"
         }
       ],
@@ -165169,6 +166098,16 @@
           "fr": "Vous suivez le Rhône",
           "zh": "您沿着罗讷河走。",
           "origin": "book"
+        },
+        {
+          "fr": "Le patient doit suivre un traitement pendant six mois.",
+          "zh": "病人必须接受六个月的治疗。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je suis l'actualité tous les jours à la radio.",
+          "zh": "我每天通过广播关注时事。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -165378,6 +166317,16 @@
           "fr": "Il est sujet à des migraines lorsque le temps change.",
           "zh": "天气变化时他易患偏头痛。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Quel est le sujet de ce film ?",
+          "zh": "这部电影的主题是什么？",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le sujet de l'examen était difficile.",
+          "zh": "考试的题目很难。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -165440,6 +166389,16 @@
         {
           "fr": "Ce film était super intéressant et vraiment captivant.",
           "zh": "这部电影非常有趣，真的很吸引人。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il a fait le plein de super à la station-service.",
+          "zh": "他在加油站加满了超级汽油。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce restaurant est super !",
+          "zh": "这家餐厅棒极了！",
           "origin": "supplement"
         }
       ],
@@ -165604,6 +166563,11 @@
           "fr": "Il éprouve même de l'aversion envers cet homme, il ne peut pas le supporter.",
           "zh": "他甚至对这个人感到厌恶，无法忍受他。",
           "origin": "book"
+        },
+        {
+          "fr": "Les supporters ont applaudi leur équipe.",
+          "zh": "球迷们为自己的球队鼓掌。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -166221,6 +167185,11 @@
           "fr": "Je me souviens très bien de notre première rencontre.",
           "zh": "我清楚地记得我们的第一次相遇。",
           "origin": "supplement"
+        },
+        {
+          "fr": "J'ai acheté un souvenir pour ma mère.",
+          "zh": "我给妈妈买了一件纪念品。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -166757,6 +167726,11 @@
           "fr": "DANS UNE GRANDE SURFACE",
           "zh": "在一家大型超市里。",
           "origin": "book"
+        },
+        {
+          "fr": "La surface de la table est lisse.",
+          "zh": "桌子的表面很光滑。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -167889,6 +168863,11 @@
           "fr": "L'élève a effacé le tableau noir rapidement.",
           "zh": "学生迅速擦掉了黑板。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Ce tableau de Monet est exposé au musée d'Orsay.",
+          "zh": "莫奈的这幅画在奥赛博物馆展出。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -168326,6 +169305,11 @@
           "fr": "composez (= tapez) votre code secret",
           "zh": "输入（＝敲入）您的密码。",
           "origin": "book"
+        },
+        {
+          "fr": "Quelqu'un tape à la porte.",
+          "zh": "有人在敲门。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -168684,6 +169668,16 @@
           "fr": "il y a de la neige par terre",
           "zh": "地上有雪。",
           "origin": "book"
+        },
+        {
+          "fr": "La Terre tourne autour du Soleil.",
+          "zh": "地球绕着太阳转。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Après deux semaines en mer, les marins ont enfin vu la terre.",
+          "zh": "在海上两周后，水手们终于看到了陆地。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -169166,6 +170160,16 @@
           "fr": "C'est tout, merci!",
           "zh": "就这些，谢谢！",
           "origin": "book"
+        },
+        {
+          "fr": "Toute personne a droit au respect.",
+          "zh": "任何人都有权受到尊重。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle est toute contente de son cadeau.",
+          "zh": "她对礼物非常满意。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -170231,6 +171235,11 @@
           "fr": "Le médecin traite ce patient avec soin.",
           "zh": "医生精心治疗这位病人。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Cette usine traite les eaux usées de la ville.",
+          "zh": "这家工厂处理城市的污水。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -170711,6 +171720,11 @@
         {
           "fr": "Le tirage de ce journal dépasse les cent mille exemplaires.",
           "zh": "这份报纸的印数超过十万份。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce roman a eu un premier tirage de dix mille exemplaires.",
+          "zh": "这部小说首印一万册。",
           "origin": "supplement"
         }
       ],
@@ -171862,6 +172876,11 @@
           "fr": "Il faut tendre la corde avant de fixer la tente.",
           "zh": "在固定帐篷之前要把绳子绷紧。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle a un regard tendre pour ses enfants.",
+          "zh": "她看孩子们的目光很温柔。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -172941,6 +173960,11 @@
           "fr": "Il nous a fait un petit topo sur le projet.",
           "zh": "他给我们简单讲了一下这个项目。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Voici le topo de la randonnée avec le plan du sentier.",
+          "zh": "这是这次徒步的路线图，附有小路的平面图。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -173189,6 +174213,11 @@
           "fr": "Appuyez sur la touche «Entrée».",
           "zh": "请按「回车」键。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il manque une touche sur ce clavier.",
+          "zh": "这个键盘上少了一个键。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -173337,6 +174366,11 @@
           "fr": "Non, c'est mon tour !",
           "zh": "不，轮到我了！",
           "origin": "book"
+        },
+        {
+          "fr": "Nous avons fait le tour du lac à vélo.",
+          "zh": "我们骑车环湖一圈。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -174589,6 +175623,11 @@
           "fr": "L'eau du lac est devenue trouble après l'orage.",
           "zh": "暴雨过后湖水变得浑浊了。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il souffre de troubles de la mémoire.",
+          "zh": "他有记忆障碍。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -174642,6 +175681,11 @@
         {
           "fr": "Il souffre de troubles du sommeil.",
           "zh": "他有睡眠障碍。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Sans mes lunettes, ma vue est trouble.",
+          "zh": "不戴眼镜我看东西是模糊的。",
           "origin": "supplement"
         }
       ],
@@ -175388,6 +176432,11 @@
           "fr": "La grève fait la une de tous les journaux.",
           "zh": "罢工上了所有报纸的头版。",
           "origin": "supplement"
+        },
+        {
+          "fr": "J'ai une sœur et deux frères.",
+          "zh": "我有一个姐妹和两个兄弟。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -175838,6 +176887,11 @@
           "fr": "Sa réponse était vague et peu convaincante.",
           "zh": "他的回答模糊且缺乏说服力。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Une grosse vague a renversé le bateau.",
+          "zh": "一个大浪掀翻了船。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -176090,6 +177144,11 @@
         {
           "fr": "Tapez votre code, puis validez.",
           "zh": "输入您的密码，然后确认。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "N'oubliez pas de valider votre billet avant de monter dans le train.",
+          "zh": "上车前别忘了检票。",
           "origin": "supplement"
         }
       ],
@@ -178954,6 +180013,11 @@
           "fr": "Cette église présente une nef centrale voûtée d'ogives.",
           "zh": "这座教堂拥有一个肋状拱顶的中殿。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le vieil homme marche le dos voûté.",
+          "zh": "老人驼着背走路。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -179929,6 +180993,11 @@
         {
           "fr": "Son score est descendu à zéro après cette faute.",
           "zh": "这次失误后，他的分数降到了零。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il a eu zéro faute à la dictée.",
+          "zh": "他听写一个错都没有。",
           "origin": "supplement"
         }
       ],
@@ -183637,6 +184706,11 @@
           "fr": "en départements, plus petits (la Dordogne, le Finistère, le Vaucluse....)",
           "zh": "划分为较小的省（多尔多涅、菲尼斯泰尔、沃克吕兹……）。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle travaille au département des ressources humaines.",
+          "zh": "她在人力资源部工作。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -184005,6 +185079,11 @@
         {
           "fr": "Le comité directeur se réunit chaque lundi matin.",
           "zh": "领导委员会每周一上午开会。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le directeur de l'école a parlé aux parents.",
+          "zh": "校长和家长们谈了话。",
           "origin": "supplement"
         }
       ],
@@ -190013,6 +191092,11 @@
           "fr": "Les salariés reçoivent un salaire.",
           "zh": "雇员领取工资。",
           "origin": "book"
+        },
+        {
+          "fr": "Il a un emploi salarié dans une grande entreprise.",
+          "zh": "他在一家大公司有一份领薪的工作。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -191510,6 +192594,11 @@
           "fr": "Il a un patron tyrannique.",
           "zh": "他有个专横的老板。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Ce roi était un chef tyrannique et cruel.",
+          "zh": "这位国王是个专制而残暴的统治者。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -191592,6 +192681,11 @@
         {
           "fr": "C'est un usage très répandu en France.",
           "zh": "这在法国是非常普遍的习俗。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce médicament est réservé à l'usage externe.",
+          "zh": "这种药仅供外用。",
           "origin": "supplement"
         }
       ],
@@ -194541,6 +195635,11 @@
           "fr": "Il a frappé son crâne contre la poutre basse du grenier.",
           "zh": "他的头撞到了阁楼低矮的横梁上。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le médecin a examiné une radio de son crâne.",
+          "zh": "医生看了他头骨的X光片。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -194695,6 +195794,11 @@
         {
           "fr": "Il aime manger le haut de cuisse de poulet rôti.",
           "zh": "他喜欢吃烤鸡腿的上半截。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il s'est fait mal à la cuisse en jouant au football.",
+          "zh": "他踢足球时伤了大腿。",
           "origin": "supplement"
         }
       ],
@@ -196689,6 +197793,11 @@
           "fr": "Le généraliste reçoit ses patients tous les matins.",
           "zh": "全科医生每天早上接待病人。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle est médecin généraliste dans un petit village.",
+          "zh": "她是一个小村子里的全科医生。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -197808,6 +198917,11 @@
         {
           "fr": "Un majeur peut voter lors des élections.",
           "zh": "成年人可以在选举中投票。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "C'est un problème majeur pour notre ville.",
+          "zh": "这是我们城市的一个重大问题。",
           "origin": "supplement"
         }
       ],
@@ -199730,6 +200844,11 @@
           "fr": "Le rein gauche du patient présente une anomalie.",
           "zh": "病人的左肾有一处异常。",
           "origin": "supplement"
+        },
+        {
+          "fr": "J'ai mal aux reins après avoir porté ces cartons.",
+          "zh": "搬完这些纸箱我腰疼。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -201535,6 +202654,11 @@
           "fr": "Cet étudiant a un accès gratuit à la bibliothèque.",
           "zh": "这名学生可以免费进入图书馆。",
           "origin": "supplement"
+        },
+        {
+          "fr": "L'accès au parking se trouve derrière l'immeuble.",
+          "zh": "停车场的入口在大楼后面。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -203054,6 +204178,21 @@
           "fr": "Un spectacle est vu par des spectateurs (= le public)",
           "zh": "演出由观众（＝公众）观看。",
           "origin": "book"
+        },
+        {
+          "fr": "Ce débat intéresse le grand public.",
+          "zh": "这场辩论引起了大众的兴趣。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Les transports publics sont gratuits le dimanche.",
+          "zh": "公共交通周日免费。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ses enfants vont à l'école publique.",
+          "zh": "他的孩子上公立学校。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -205408,6 +206547,11 @@
           "fr": "On achète la viande chez le boucher",
           "zh": "肉在屠夫那里买。",
           "origin": "book"
+        },
+        {
+          "fr": "Mon oncle est boucher : il a une boucherie au centre-ville.",
+          "zh": "我叔叔是肉店老板，在市中心有一家肉铺。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -206441,6 +207585,16 @@
           "fr": "Demandez des explications au maître d'hôtel, qui prendra la commande.",
           "zh": "向餐厅领班询问，他会来点单。",
           "origin": "book"
+        },
+        {
+          "fr": "J'ai passé une commande sur internet hier.",
+          "zh": "我昨天在网上下了一个订单。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "L'ordinateur n'a pas compris la commande.",
+          "zh": "电脑没有识别这条命令。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -209165,6 +210319,11 @@
           "fr": "Nous estimons ce projet réalisable dans six mois.",
           "zh": "我们认为这个项目在六个月内可行。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Les experts estiment les dégâts à un million d'euros.",
+          "zh": "专家估计损失达一百万欧元。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -210493,6 +211652,11 @@
         {
           "fr": "Ce gaspilleur jette la moitié de ce qu'il achète.",
           "zh": "这个浪费的人买的东西有一半都扔了。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ne sois pas gaspilleur, éteins la lumière en sortant.",
+          "zh": "别浪费，出门时关灯。",
           "origin": "supplement"
         }
       ],
@@ -212913,6 +214077,11 @@
           "fr": "Le prix d'une nuitée dans cet hôtel est assez raisonnable.",
           "zh": "这家酒店一晚的住宿价格相当合理。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le prix comprend deux nuitées avec petit déjeuner.",
+          "zh": "价格包含两晚住宿和早餐。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -214652,6 +215821,11 @@
           "fr": "un crédit = un prêt à 3,9%",
           "zh": "一笔信贷＝年利率 3.9% 的贷款。",
           "origin": "book"
+        },
+        {
+          "fr": "Le dîner est prêt, venez à table !",
+          "zh": "晚饭好了，来吃饭吧！",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -215103,6 +216277,11 @@
           "fr": "Le propriétaire a décidé de rénover tout l'immeuble cet été.",
           "zh": "房东决定在今年夏天翻新整栋楼。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle est propriétaire de deux appartements à Paris.",
+          "zh": "她在巴黎拥有两套公寓。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -215354,6 +216533,11 @@
           "fr": "Il cherche une recette dans un livre de cuisine.",
           "zh": "他在烹饪书里找菜谱。",
           "origin": "book"
+        },
+        {
+          "fr": "Les recettes du magasin ont augmenté ce mois-ci.",
+          "zh": "商店这个月的收入增加了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -215530,6 +216714,11 @@
           "fr": "désirez-vous un ticket / un reçu ?",
           "zh": "您需要票据或收据吗？",
           "origin": "book"
+        },
+        {
+          "fr": "Il est reçu à l'examen d'entrée.",
+          "zh": "他通过了入学考试。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -215748,6 +216937,11 @@
           "fr": "On peut payer (= régler) les factures",
           "zh": "可以支付（＝结算）账单。",
           "origin": "book"
+        },
+        {
+          "fr": "Nous devons régler ce problème rapidement.",
+          "zh": "我们必须尽快解决这个问题。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -215929,6 +217123,11 @@
           "fr": "Le remboursement sera fini dans deux ans.",
           "zh": "还款两年后结束。",
           "origin": "book"
+        },
+        {
+          "fr": "J'ai demandé le remboursement de mon billet de train.",
+          "zh": "我申请了火车票退款。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -217289,6 +218488,11 @@
           "fr": "Toutes ces précautions me semblent parfaitement superflues aujourd'hui.",
           "zh": "在我看来，所有这些预防措施如今完全是多余的。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il garde l'essentiel et donne le superflu.",
+          "zh": "他留下必需的，把多余的东西送人。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -217342,6 +218546,11 @@
         {
           "fr": "Le luxe et le superflu ne l'intéressent guère.",
           "zh": "奢华和多余之物都引不起他的兴趣。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ces détails sont superflus dans votre rapport.",
+          "zh": "这些细节在您的报告里是多余的。",
           "origin": "supplement"
         }
       ],
@@ -217846,6 +219055,11 @@
           "fr": "Il mange une tranche de fromage frais.",
           "zh": "他吃一片新鲜奶酪。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Vous pouvez payer en trois tranches.",
+          "zh": "您可以分三期付款。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -218225,6 +219439,11 @@
           "fr": "Un versement de 300 €.",
           "zh": "一笔 300 欧的存款。",
           "origin": "book"
+        },
+        {
+          "fr": "Le premier versement doit être effectué avant le 5 du mois.",
+          "zh": "第一笔付款须在每月5日前完成。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -219370,6 +220589,11 @@
           "fr": "Ils y deviennent des collégiens.",
           "zh": "他们在那里成为初中生。",
           "origin": "book"
+        },
+        {
+          "fr": "Les collégiens ont entre onze et quinze ans.",
+          "zh": "初中生的年龄在十一到十五岁之间。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -219521,6 +220745,11 @@
         {
           "fr": "Son compagnon l'a accompagnée à l'hôpital hier soir très tard.",
           "zh": "她的伴侣昨晚很晚陪她去了医院。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le chien est un fidèle compagnon de l'homme.",
+          "zh": "狗是人类忠实的伙伴。",
           "origin": "supplement"
         }
       ],
@@ -219680,6 +220909,11 @@
           "fr": "Son conjoint l'a attendu devant la gare.",
           "zh": "她的配偶在车站前等她。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Ils ont un compte bancaire conjoint.",
+          "zh": "他们有一个联名银行账户。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -219736,6 +220970,11 @@
         {
           "fr": "J'apprécie la convivialité de cette petite équipe de travail.",
           "zh": "我很欣赏这个小工作团队的欢乐融洽。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce repas de quartier favorise la convivialité entre voisins.",
+          "zh": "这次街区聚餐增进了邻里之间的融洽。",
           "origin": "supplement"
         }
       ],
@@ -219815,6 +221054,11 @@
           "fr": "Ils vivent en couple depuis cinq ans.",
           "zh": "他们以伴侣关系共同生活了五年。",
           "origin": "book"
+        },
+        {
+          "fr": "Un jeune couple vient d'emménager à côté.",
+          "zh": "一对年轻情侣刚搬到隔壁。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -221762,6 +223006,11 @@
           "fr": "Ensuite, c'est le lycée: les lycéens y passent leurs années de seconde, première et terminale.",
           "zh": "然后是高中：高中生在那里度过高二、高三和毕业班。",
           "origin": "book"
+        },
+        {
+          "fr": "Mon frère est lycéen, il passe le bac cette année.",
+          "zh": "我弟弟是高中生，今年参加高中毕业会考。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -223574,6 +224823,11 @@
           "fr": "Un(e) artiste a du talent",
           "zh": "艺术家有天赋。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle a un vrai talent pour la musique.",
+          "zh": "她在音乐方面很有天赋。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -225517,6 +226771,16 @@
           "fr": "Cet écologiste protège les espèces en voie de disparition.",
           "zh": "这位生态学家保护濒临灭绝的物种。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Les écologistes demandent l'interdiction de ce pesticide.",
+          "zh": "环保主义者要求禁用这种农药。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle vote pour le parti écologiste.",
+          "zh": "她投票给环保党。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -225893,6 +227157,11 @@
         {
           "fr": "La famille a choisi d'enterrer le défunt au cimetière local.",
           "zh": "家属选择将逝者安葬在当地墓地。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le chien a enterré son os dans le jardin.",
+          "zh": "狗把骨头埋在了花园里。",
           "origin": "supplement"
         }
       ],
@@ -226999,6 +228268,11 @@
         {
           "fr": "L'incinérateur de déchets respecte les normes européennes strictes.",
           "zh": "这台焚烧炉严格遵守欧洲标准。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Les habitants refusent la construction d'un incinérateur près du village.",
+          "zh": "居民们反对在村子附近建焚化炉。",
           "origin": "supplement"
         }
       ],
@@ -229311,6 +230585,11 @@
           "fr": "N'oubliez pas de sauvegarder votre document important.",
           "zh": "别忘了保存您的重要文件。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il faut sauvegarder le patrimoine de notre région.",
+          "zh": "必须保护我们地区的文化遗产。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -229402,6 +230681,11 @@
         {
           "fr": "Le chien a réussi à sauver l'enfant de la rivière.",
           "zh": "狗成功地救了河里的孩子。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Les médecins ont sauvé la vie du blessé.",
+          "zh": "医生们挽救了伤者的生命。",
           "origin": "supplement"
         }
       ],
@@ -230116,6 +231400,11 @@
           "fr": "Les abonnés reçoivent le journal chaque matin.",
           "zh": "订户每天早上收到报纸。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Je suis abonné à ce magazine depuis deux ans.",
+          "zh": "我订阅这本杂志两年了。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -230770,6 +232059,11 @@
           "fr": "un appareil photo numérique",
           "zh": "一台数码相机。",
           "origin": "book"
+        },
+        {
+          "fr": "Cet appareil sert à mesurer la tension.",
+          "zh": "这个仪器用来量血压。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -232077,6 +233371,11 @@
           "fr": "Les enfants donnent du pain aux canards.",
           "zh": "孩子们给鸭子喂面包。",
           "origin": "supplement"
+        },
+        {
+          "fr": "J'ai lu cette information dans un canard local.",
+          "zh": "我在一份本地小报上看到了这条消息。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -232327,6 +233626,21 @@
           "fr": "deux grandes chaînes de montagnes",
           "zh": "两大山脉。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle porte une chaîne en or autour du cou.",
+          "zh": "她脖子上戴着一条金链子。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Sur quelle chaîne passe le match ce soir ?",
+          "zh": "今晚的比赛在哪个频道播？",
+          "origin": "supplement"
+        },
+        {
+          "fr": "La chaîne de mon vélo est cassée.",
+          "zh": "我自行车的链条断了。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -232572,6 +233886,11 @@
         {
           "fr": "Un chapeau de paille protège bien du soleil.",
           "zh": "一顶草帽很好地遮阳。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le chapeau de l'article résume l'essentiel en deux lignes.",
+          "zh": "文章的导语用两行概括了要点。",
           "origin": "supplement"
         }
       ],
@@ -233279,6 +234598,11 @@
           "fr": "Ce sport renforce les muscles autour de la colonne vertébrale.",
           "zh": "这项运动能强化脊柱周围的肌肉。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Son article occupe trois colonnes à la une du journal.",
+          "zh": "他的文章在报纸头版占了三栏。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -233497,6 +234821,11 @@
           "fr": "composez (= tapez) votre code secret",
           "zh": "输入（＝敲入）您的密码。",
           "origin": "book"
+        },
+        {
+          "fr": "L'équipe est composée de dix personnes.",
+          "zh": "这个团队由十个人组成。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -235182,6 +236511,11 @@
           "fr": "(avec un crayon et du papier à dessin)",
           "zh": "（用铅笔和素描纸）。",
           "origin": "book"
+        },
+        {
+          "fr": "Les enfants font des dessins pour la fête des mères.",
+          "zh": "孩子们为母亲节画画。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -235642,6 +236976,11 @@
           "fr": "Vous travaillez dans quel domaine ?",
           "zh": "您在哪个领域工作？",
           "origin": "book"
+        },
+        {
+          "fr": "Ce domaine produit un excellent vin rouge.",
+          "zh": "这座庄园出产上好的红葡萄酒。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -235996,6 +237335,11 @@
         {
           "fr": "L'éditorial du jour analyse la crise actuelle en profondeur.",
           "zh": "今天的社论深入分析了当前的危机。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le comité éditorial choisit les articles à publier.",
+          "zh": "编辑委员会挑选要发表的文章。",
           "origin": "supplement"
         }
       ],
@@ -236637,6 +237981,11 @@
         {
           "fr": "Les voyages peuvent enrichir notre vision du monde entier.",
           "zh": "旅行可以丰富我们对整个世界的看法。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le commerce a enrichi cette ville au Moyen Âge.",
+          "zh": "中世纪时，贸易让这座城市富了起来。",
           "origin": "supplement"
         }
       ],
@@ -240482,6 +241831,11 @@
           "fr": "Sa réflexion manque parfois de logique et de clarté.",
           "zh": "她的思考有时缺乏逻辑和清晰度。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Sa réponse est tout à fait logique.",
+          "zh": "他的回答完全合乎逻辑。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -241087,6 +242441,11 @@
           "fr": "Il lit ce mensuel consacré à l'architecture et au design moderne.",
           "zh": "他读这本关于建筑和现代设计的月刊。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il paie un abonnement mensuel pour la salle de sport.",
+          "zh": "他按月付健身房的会员费。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -241349,6 +242708,11 @@
         {
           "fr": "Le moniteur de ski apprend aux débutants à bien glisser.",
           "zh": "滑雪教练教初学者很好地滑行。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il a branché un deuxième moniteur sur son ordinateur.",
+          "zh": "他给电脑接了第二台显示器。",
           "origin": "supplement"
         }
       ],
@@ -241629,6 +242993,11 @@
           "fr": "Madeleine et Rémi, au contraire, n'ont pas les moyens de s'acheter une maison, car ils ont des revenus modestes, ils «ne roulent pas sur l'or».",
           "zh": "相反，玛德琳和雷米没钱买房，因为他们收入微薄，他们「并不富裕」。",
           "origin": "book"
+        },
+        {
+          "fr": "Il est de taille moyenne.",
+          "zh": "他中等身材。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -243484,6 +244853,11 @@
           "fr": "Ils possèdent parfois un terrain de sport et un gymnase pour les cours d'éducation physique.",
           "zh": "他们有时拥有运动场和体育馆，供体育课使用。",
           "origin": "book"
+        },
+        {
+          "fr": "Il a une très bonne condition physique.",
+          "zh": "他的身体状况非常好。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -243646,6 +245020,11 @@
           "fr": "Est-ce que tu as un [téléphone] mobile / un portable ?",
           "zh": "你有手机吗？",
           "origin": "book"
+        },
+        {
+          "fr": "Elle travaille dans le train avec son ordinateur portable.",
+          "zh": "她在火车上用笔记本电脑工作。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -245072,6 +246451,11 @@
           "fr": "Il lit son quotidien en prenant le café.",
           "zh": "他一边喝咖啡一边看日报。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le sport fait partie de sa vie quotidienne.",
+          "zh": "运动是他日常生活的一部分。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -245458,6 +246842,11 @@
           "fr": "La réception de cet hôtel est très accueillante.",
           "zh": "这家酒店的前台非常热情好客。",
           "origin": "supplement"
+        },
+        {
+          "fr": "J'ai signé à la réception du colis.",
+          "zh": "收到包裹时我签了字。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -245774,6 +247163,11 @@
         {
           "fr": "Le réel dépasse parfois l'imagination des romanciers.",
           "zh": "现实有时超乎小说家的想象。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce film raconte une histoire réelle.",
+          "zh": "这部电影讲的是一个真实的故事。",
           "origin": "supplement"
         }
       ],
@@ -247002,6 +248396,11 @@
           "fr": "Le scanner de la bibliothèque est en panne aujourd'hui.",
           "zh": "图书馆的扫描仪今天坏了。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Je dois scanner mon passeport pour le dossier.",
+          "zh": "我得扫描护照用于申请材料。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -247635,6 +249034,11 @@
           "fr": "Le gouvernement investit davantage dans le social.",
           "zh": "政府在社会领域投入更多。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Les inégalités sociales augmentent dans les grandes villes.",
+          "zh": "大城市里的社会不平等在加剧。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -248226,6 +249630,11 @@
         {
           "fr": "Il aime surfer sur internet pendant ses heures de pause.",
           "zh": "他喜欢在休息时间里上网浏览。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ils vont surfer sur les vagues de l'Atlantique cet été.",
+          "zh": "今年夏天他们要去大西洋冲浪。",
           "origin": "supplement"
         }
       ],
@@ -250373,6 +251782,11 @@
           "fr": "Si on arrive en avance, on peut s'asseoir dans la salle d'attente ou bien prendre un café au buffet de la gare.",
           "zh": "如果提前到，可以坐在候车室，或在车站小卖部喝杯咖啡。",
           "origin": "book"
+        },
+        {
+          "fr": "Ce film n'a pas répondu à mes attentes.",
+          "zh": "这部电影没有达到我的期望。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -253353,6 +254767,11 @@
           "fr": "L'horaire des trains a changé depuis ce mois.",
           "zh": "列车时刻表从这个月起变了。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il touche un salaire horaire de quinze euros.",
+          "zh": "他的时薪是十五欧元。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -253674,6 +255093,11 @@
           "fr": "elle monte dans le bus",
           "zh": "她上了公交车。",
           "origin": "book"
+        },
+        {
+          "fr": "Les prix montent chaque année.",
+          "zh": "物价年年上涨。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -254007,6 +255431,11 @@
           "fr": "La nuit, il faut allumer les phares.",
           "zh": "夜里要打开车灯。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Les phares de cette voiture éclairent bien la route.",
+          "zh": "这辆车的车头灯把路照得很亮。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -254089,6 +255518,11 @@
           "fr": "un passage piétons",
           "zh": "一条人行横道。",
           "origin": "book"
+        },
+        {
+          "fr": "Le centre-ville est une zone piétonne.",
+          "zh": "市中心是步行区。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -254897,6 +256331,11 @@
           "fr": "Ce voyage reste un très beau souvenir.",
           "zh": "那次旅行是一段很美好的回忆。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Je me souviens de mon premier jour d'école.",
+          "zh": "我记得我上学的第一天。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -255501,6 +256940,11 @@
           "fr": "Pierre s'est fait voler son portefeuille.",
           "zh": "Pierre 的钱包被偷了。",
           "origin": "book"
+        },
+        {
+          "fr": "Les oiseaux volent vers le sud en automne.",
+          "zh": "秋天鸟儿向南飞。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -255585,6 +257029,11 @@
           "fr": "Oui, je suis un grand voyageur.",
           "zh": "是的，我是一个爱旅行的人。",
           "origin": "book"
+        },
+        {
+          "fr": "Les voyageurs attendent le train sur le quai.",
+          "zh": "旅客们在站台上等火车。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -257834,6 +259283,11 @@
           "fr": "La course automobile a lieu sur un circuit (par exemple, les grands prix de Formule 1 ou les 24 Heures du Mans).",
           "zh": "汽车比赛在赛道上举行（例如一级方程式大奖赛或勒芒24小时耐力赛）。",
           "origin": "book"
+        },
+        {
+          "fr": "Nous avons fait un circuit de dix jours en Italie.",
+          "zh": "我们在意大利玩了十天的旅游线路。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -259526,6 +260980,16 @@
           "fr": "Où est-ce que vous allez ? En France ou à l'étranger ?",
           "zh": "您去哪里？法国还是国外？",
           "origin": "book"
+        },
+        {
+          "fr": "De nombreux étrangers visitent Paris chaque année.",
+          "zh": "每年有很多外国人游览巴黎。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle parle deux langues étrangères.",
+          "zh": "她会说两门外语。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -260634,6 +262098,11 @@
           "fr": "Ce centre emploie plusieurs handicapés dans des postes adaptés.",
           "zh": "该中心在适合岗位上雇佣了几位残疾人。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il est handicapé depuis son accident de voiture.",
+          "zh": "车祸之后他就残疾了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -260954,6 +262423,11 @@
           "fr": "il loue son appartement.",
           "zh": "他租住他的公寓。",
           "origin": "book"
+        },
+        {
+          "fr": "Nous avons loué une voiture pour les vacances.",
+          "zh": "我们租了一辆车去度假。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -265197,6 +266671,11 @@
           "fr": "Chaque bénévole a reçu un tee-shirt distinctif officiel.",
           "zh": "每位志愿者都收到了一件官方特色T恤。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle fait un travail bénévole à la Croix-Rouge.",
+          "zh": "她在红十字会做志愿工作。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -266839,6 +268318,11 @@
           "fr": "Prenez la première rue à droite, puis la deuxième à gauche.",
           "zh": "走右边第一条街，然后左边第二条。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il écrit de la main gauche.",
+          "zh": "他用左手写字。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -266963,6 +268447,11 @@
         {
           "fr": "Cet indépendant travaille dans son atelier depuis vingt ans.",
           "zh": "这位独立经营者已经在他的工坊工作了二十年。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle est très indépendante et vit seule depuis ses dix-huit ans.",
+          "zh": "她很独立，十八岁起就一个人生活。",
           "origin": "supplement"
         }
       ],
@@ -267862,6 +269351,11 @@
           "fr": "Elle a fait opposition à son chèque perdu.",
           "zh": "她挂失了自己丢失的支票。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le projet a rencontré une forte opposition des habitants.",
+          "zh": "这个项目遭到居民的强烈反对。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -268137,6 +269631,11 @@
         {
           "fr": "La politique extérieure du pays évolue lentement.",
           "zh": "该国的外交政策正在缓慢演变。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il a commencé sa carrière politique à trente ans.",
+          "zh": "他三十岁开始了政治生涯。",
           "origin": "supplement"
         }
       ],
@@ -269885,6 +271384,11 @@
         {
           "fr": "Mon frère est un amateur de photographie.",
           "zh": "我哥哥是个摄影爱好者。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle joue dans un orchestre amateur.",
+          "zh": "她在一个业余乐团演奏。",
           "origin": "supplement"
         }
       ],
@@ -276053,6 +277557,11 @@
           "fr": "Je vous dois combien?",
           "zh": "我欠您多少钱？",
           "origin": "book"
+        },
+        {
+          "fr": "Les élèves ont beaucoup de devoirs ce soir.",
+          "zh": "学生们今晚有很多作业。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -291095,6 +292604,11 @@
           "fr": "Ce jeune voyageur explore l'Asie depuis plusieurs mois.",
           "zh": "这位年轻旅客已经探索亚洲好几个月了。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle a l'esprit voyageur et rêve de pays lointains.",
+          "zh": "她天性爱旅行，向往远方的国度。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -292153,6 +293667,11 @@
           "fr": "Lucie est abonnée à une revue de géographie",
           "zh": "Lucie 订阅了一本地理期刊。",
           "origin": "book"
+        },
+        {
+          "fr": "Les abonnés paient moins cher que les autres clients.",
+          "zh": "订户比其他顾客付得少。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -292485,6 +294004,11 @@
           "fr": "défend un accusé au tribunal",
           "zh": "为被告在法庭上辩护。",
           "origin": "book"
+        },
+        {
+          "fr": "Il parle français avec un accent très accusé.",
+          "zh": "他说法语口音很明显。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -293397,6 +294921,11 @@
           "fr": "Hans est allemand",
           "zh": "Hans 是德国人。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle apprend l'allemand au lycée.",
+          "zh": "她在高中学德语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -293454,6 +294983,11 @@
           "fr": "Bonjour, Bénédicte, comment vas-tu?",
           "zh": "Bénédicte，你好，你最近怎么样？",
           "origin": "book"
+        },
+        {
+          "fr": "Je vais au cinéma ce soir.",
+          "zh": "我今晚去看电影。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -293978,6 +295512,11 @@
           "fr": "Les moments difficiles - En anglais, ce matin, j'ai été interrogé à l'oral.",
           "zh": "艰难时刻——今天早上英语课，我被口头提问了。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle a un ami anglais qui habite à Londres.",
+          "zh": "她有一个住在伦敦的英国朋友。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -296123,6 +297662,11 @@
           "fr": "Avant le concert, nous irons dîner dans un petit restaurant italien.",
           "zh": "音乐会之前，我们会去一家意大利小餐厅吃晚饭。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Les passagers s'installent à l'avant du bus.",
+          "zh": "乘客们坐在公交车的前部。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -298049,6 +299593,11 @@
           "fr": "Elles se font une bise pour se dire bonjour.",
           "zh": "她们互相贴面吻一下来打招呼。",
           "origin": "book"
+        },
+        {
+          "fr": "Je te fais une grosse bise et à bientôt !",
+          "zh": "亲你一下，回头见！",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -298810,6 +300359,11 @@
           "fr": "une botte de radis",
           "zh": "一把萝卜。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle met ses bottes quand il pleut.",
+          "zh": "下雨时她穿靴子。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -300092,6 +301646,11 @@
           "fr": "Tsvetan est bulgare",
           "zh": "Tsvetan 是保加利亚人。",
           "origin": "book"
+        },
+        {
+          "fr": "Le bulgare s'écrit avec l'alphabet cyrillique.",
+          "zh": "保加利亚语用西里尔字母书写。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -302720,6 +304279,11 @@
           "fr": "Elle porte des chaussures de marche",
           "zh": "她穿徒步鞋。",
           "origin": "book"
+        },
+        {
+          "fr": "J'ai acheté une nouvelle paire de chaussures.",
+          "zh": "我买了一双新鞋。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -303047,6 +304611,11 @@
         {
           "fr": "Il apprend le chinois depuis deux ans.",
           "zh": "他学中文两年了。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Nous avons dîné dans un restaurant chinois.",
+          "zh": "我们在一家中餐馆吃了晚饭。",
           "origin": "supplement"
         }
       ],
@@ -303947,6 +305516,11 @@
           "fr": "votre code secret",
           "zh": "您的密码。",
           "origin": "book"
+        },
+        {
+          "fr": "Les programmeurs écrivent du code toute la journée.",
+          "zh": "程序员整天写代码。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -304143,6 +305717,11 @@
           "fr": "vous allez voir une pharmacie juste au coin",
           "zh": "您会在拐角处看到一家药店。",
           "origin": "book"
+        },
+        {
+          "fr": "Le chat dort dans un coin de la chambre.",
+          "zh": "猫在卧室的角落里睡觉。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -304580,6 +306159,11 @@
           "fr": "Ça va, comme ça ?",
           "zh": "这样可以吗？",
           "origin": "book"
+        },
+        {
+          "fr": "Comme il pleut, nous restons à la maison.",
+          "zh": "因为下雨，我们待在家里。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -304748,6 +306332,11 @@
         {
           "fr": "Ma grand-mère range ses foulards dans une vieille commode en bois.",
           "zh": "我祖母把她的围巾放在一只旧木五斗柜里。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce sac est très commode pour voyager.",
+          "zh": "这个包旅行用很方便。",
           "origin": "supplement"
         }
       ],
@@ -306458,6 +308047,11 @@
           "fr": "Il y a un beau coucher de soleil, ce soir.",
           "zh": "今晚的日落很美。",
           "origin": "book"
+        },
+        {
+          "fr": "Je couche les enfants à huit heures.",
+          "zh": "我八点让孩子们上床睡觉。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -307146,6 +308740,11 @@
           "fr": "Je suis crevé: je dois me reposer.",
           "zh": "我累坏了：我得休息一下。",
           "origin": "book"
+        },
+        {
+          "fr": "Après cette longue randonnée, nous étions tous crevés.",
+          "zh": "这次长途徒步之后，我们都累坏了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -308200,6 +309799,11 @@
           "fr": "Léon a un cœur de pierre, rien ne l'attendrit.",
           "zh": "莱昂铁石心肠，什么都不能让他心软。",
           "origin": "book"
+        },
+        {
+          "fr": "Le cœur bat plus vite quand on court.",
+          "zh": "跑步时心脏跳得更快。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -308500,6 +310104,11 @@
           "fr": "Jens est danois",
           "zh": "Jens 是丹麦人。",
           "origin": "book"
+        },
+        {
+          "fr": "Il apprend le danois pour travailler à Copenhague.",
+          "zh": "他学丹麦语是为了去哥本哈根工作。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -309809,6 +311418,11 @@
           "fr": "Si le trajet de Lille à Dijon n'est pas direct, je dois prendre une correspondance à Paris, je dois changer de train à Paris.",
           "zh": "如果从里尔到第戎的行程不是直达，我就得在巴黎换乘，在巴黎换火车。",
           "origin": "book"
+        },
+        {
+          "fr": "Le match est retransmis en direct à la télévision.",
+          "zh": "比赛在电视上现场直播。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -310665,6 +312279,11 @@
         {
           "fr": "Allez tout droit jusqu'au feu.",
           "zh": "一直往前走到红绿灯。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il étudie le droit pour devenir avocat.",
+          "zh": "他学法律是为了当律师。",
           "origin": "supplement"
         }
       ],
@@ -312501,6 +314120,11 @@
           "fr": "Ils s'entendent bien, ils sont heureux ensemble.",
           "zh": "他们相处融洽，在一起很幸福。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle porte un ensemble bleu très élégant.",
+          "zh": "她穿着一套很优雅的蓝色套装。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -312570,6 +314194,16 @@
         {
           "fr": "En banlieue, il y a de grands ensembles de HLM.",
           "zh": "郊区有大型社会住房区。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle a acheté un ensemble veste et pantalon.",
+          "zh": "她买了一套上衣加裤子的套装。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Nous travaillons ensemble depuis dix ans.",
+          "zh": "我们一起工作十年了。",
           "origin": "supplement"
         }
       ],
@@ -313100,6 +314734,11 @@
           "fr": "Juan est espagnol",
           "zh": "Juan 是西班牙人。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle parle espagnol avec ses grands-parents.",
+          "zh": "她和祖父母说西班牙语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -313156,6 +314795,11 @@
           "fr": "Vous payez comment? Par chèque, par carte bancaire ou en espèces (= en liquide)?",
           "zh": "您怎么付款？支票、银行卡还是现金？",
           "origin": "book"
+        },
+        {
+          "fr": "Cette espèce d'oiseau est menacée de disparition.",
+          "zh": "这种鸟濒临灭绝。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -313377,6 +315021,11 @@
           "fr": "Kalju est estonien",
           "zh": "Kalju 是爱沙尼亚人。",
           "origin": "book"
+        },
+        {
+          "fr": "L'estonien ressemble un peu au finnois.",
+          "zh": "爱沙尼亚语有点像芬兰语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -314509,6 +316158,11 @@
           "fr": "Maxime habite à la campagne. Il a une ferme",
           "zh": "Maxime 住在乡下，他有一个农场。",
           "origin": "book"
+        },
+        {
+          "fr": "Il a parlé d'un ton ferme.",
+          "zh": "他语气坚定地说了话。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -315334,6 +316988,11 @@
           "fr": "La Suisse emploie le franc suisse.",
           "zh": "瑞士使用瑞士法郎。",
           "origin": "book"
+        },
+        {
+          "fr": "Pour être franc, je n'aime pas ce film.",
+          "zh": "坦率地说，我不喜欢这部电影。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -318251,6 +319910,11 @@
           "fr": "Cette étagère est trop haute pour qu'il l'atteigne.",
           "zh": "这个架子太高了，他够不着。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le chat est monté en haut de l'arbre.",
+          "zh": "猫爬到了树顶上。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -318520,6 +320184,11 @@
           "fr": "Sándor est hongrois",
           "zh": "Sándor 是匈牙利人。",
           "origin": "book"
+        },
+        {
+          "fr": "Le hongrois est une langue difficile à apprendre.",
+          "zh": "匈牙利语是一门难学的语言。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -320294,6 +321963,11 @@
           "fr": "À l'intérieur, s'il vous plaît.",
           "zh": "请在里面。",
           "origin": "book"
+        },
+        {
+          "fr": "Le commerce intérieur du pays se développe.",
+          "zh": "这个国家的国内贸易在发展。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -320703,6 +322377,11 @@
           "fr": "Giovanni est italien",
           "zh": "Giovanni 是意大利人。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle apprend l'italien pour ses vacances à Rome.",
+          "zh": "她为了去罗马度假在学意大利语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -321685,6 +323364,11 @@
           "fr": "Il a agi juste envers tous ses collègues sans aucun favoritisme.",
           "zh": "他对所有同事都公平行事，没有任何偏袒。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Votre réponse est juste.",
+          "zh": "您的回答是正确的。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -322643,6 +324327,11 @@
           "fr": "Janis est letton",
           "zh": "Janis 是拉脱维亚人。",
           "origin": "book"
+        },
+        {
+          "fr": "Le letton est la langue officielle de la Lettonie.",
+          "zh": "拉脱维亚语是拉脱维亚的官方语言。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -322747,6 +324436,11 @@
           "fr": "le lever de soleil",
           "zh": "日出。",
           "origin": "book"
+        },
+        {
+          "fr": "Je me lève à sept heures tous les matins.",
+          "zh": "我每天早上七点起床。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -322856,6 +324550,11 @@
           "fr": "Je paie en espèces (= en liquide).",
           "zh": "我付现金。",
           "origin": "book"
+        },
+        {
+          "fr": "L'eau est un liquide transparent.",
+          "zh": "水是一种透明的液体。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -323089,6 +324788,11 @@
           "fr": "Mykolas est lituanien",
           "zh": "Mykolas 是立陶宛人。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle comprend un peu le lituanien.",
+          "zh": "她懂一点立陶宛语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -324787,6 +326491,11 @@
           "fr": "Il chante mal mais avec beaucoup de passion.",
           "zh": "他唱得不好，但充满激情。",
           "origin": "supplement"
+        },
+        {
+          "fr": "J'ai mal aux dents.",
+          "zh": "我牙疼。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -324953,6 +326662,11 @@
           "fr": "Mario est maltais",
           "zh": "Mario 是马耳他人。",
           "origin": "book"
+        },
+        {
+          "fr": "Le maltais s'écrit avec l'alphabet latin.",
+          "zh": "马耳他语用拉丁字母书写。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -325343,6 +327057,11 @@
           "fr": "des chaussures de marche et un sac à dos",
           "zh": "徒步鞋和背包。",
           "origin": "book"
+        },
+        {
+          "fr": "Attention à la marche en descendant !",
+          "zh": "下来时小心台阶！",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -326259,6 +327978,11 @@
           "fr": "Cet homme menteur a raconté une histoire absolument invraisemblable.",
           "zh": "这个爱撒谎的男人讲了一个完全不可信的故事。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Tu es un menteur, je ne te crois plus.",
+          "zh": "你是个骗子，我不再相信你了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -326365,6 +328089,11 @@
           "fr": "un menu à 28 €",
           "zh": "28 欧元的套餐。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle coupe les légumes en menus morceaux.",
+          "zh": "她把蔬菜切成小块。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -327285,6 +329014,11 @@
           "fr": "La mode des années soixante séduit à nouveau les adolescents.",
           "zh": "60年代的时尚再次吸引青少年。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Quel mode de paiement préférez-vous ?",
+          "zh": "您喜欢哪种付款方式？",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -327950,6 +329684,11 @@
           "fr": "Les moules sont particulièrement bonnes en hiver ici.",
           "zh": "这里的贻贝冬天特别好吃。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Verse la pâte dans un moule à gâteau.",
+          "zh": "把面糊倒进蛋糕模具里。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -328006,6 +329745,11 @@
           "fr": "un moule à tarte",
           "zh": "馅饼模具。",
           "origin": "book"
+        },
+        {
+          "fr": "Nous avons mangé des moules avec des frites.",
+          "zh": "我们吃了贻贝配薯条。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -328495,6 +330239,11 @@
         {
           "fr": "Un geste mécanique répété peut causer des blessures.",
           "zh": "重复的机械动作可能导致受伤。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il s'intéresse à la mécanique des voitures anciennes.",
+          "zh": "他对老爷车的机械很感兴趣。",
           "origin": "supplement"
         }
       ],
@@ -328996,6 +330745,11 @@
           "fr": "Elle nettoie la salle de bains.",
           "zh": "她打扫浴室。",
           "origin": "book"
+        },
+        {
+          "fr": "Il faut nettoyer la plaie avant de mettre un pansement.",
+          "zh": "贴创可贴之前要把伤口清理干净。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -329795,6 +331549,11 @@
           "fr": "Jan est néerlandais",
           "zh": "Jan 是荷兰人。",
           "origin": "book"
+        },
+        {
+          "fr": "Le néerlandais est parlé aux Pays-Bas et en Belgique.",
+          "zh": "荷兰和比利时都说荷兰语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -332138,6 +333897,11 @@
           "fr": "Ah oui, c'est la passion!",
           "zh": "啊是的，这是热恋！",
           "origin": "book"
+        },
+        {
+          "fr": "Il a une passion pour la photographie.",
+          "zh": "他酷爱摄影。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -334450,6 +336214,11 @@
           "fr": "Chopin était un compositeur polonais.",
           "zh": "肖邦是波兰作曲家。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle apprend le polonais avec sa grand-mère.",
+          "zh": "她跟祖母学波兰语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -335083,6 +336852,11 @@
           "fr": "João est portugais",
           "zh": "João 是葡萄牙人。",
           "origin": "book"
+        },
+        {
+          "fr": "Au Brésil, on parle portugais.",
+          "zh": "在巴西人们说葡萄牙语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -335532,6 +337306,11 @@
         {
           "fr": "Le fermier élève des poulets.",
           "zh": "农夫养鸡。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce soir, nous mangeons du poulet rôti.",
+          "zh": "今晚我们吃烤鸡。",
           "origin": "supplement"
         }
       ],
@@ -336340,6 +338119,11 @@
           "fr": "il est locataire, il n'est pas propriétaire.",
           "zh": "他是租客，他不是业主。",
           "origin": "book"
+        },
+        {
+          "fr": "Le propriétaire du restaurant accueille lui-même les clients.",
+          "zh": "餐馆的老板亲自接待客人。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -336577,6 +338361,16 @@
           "fr": "c'est tout près !",
           "zh": "很近！",
           "origin": "book"
+        },
+        {
+          "fr": "J'habite près de la gare.",
+          "zh": "我住在火车站附近。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Regarde de près, tu verras les détails.",
+          "zh": "靠近看，你就能看清细节。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -336755,6 +338549,11 @@
           "fr": "Maintenant, elle est prête.",
           "zh": "她现在准备好了。",
           "origin": "book"
+        },
+        {
+          "fr": "La banque lui a accordé un prêt pour acheter sa maison.",
+          "zh": "银行给了他一笔贷款买房。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -337408,6 +339207,11 @@
           "fr": "mon père va à la pêche avec des amis",
           "zh": "我父亲和朋友去钓鱼。",
           "origin": "book"
+        },
+        {
+          "fr": "Cette pêche est très sucrée.",
+          "zh": "这个桃子很甜。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -339481,6 +341285,11 @@
           "fr": "Sergiu est roumain",
           "zh": "Sergiu 是罗马尼亚人。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle traduit des romans du roumain vers le français.",
+          "zh": "她把小说从罗马尼亚语译成法语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -342463,6 +344272,11 @@
           "fr": "Imrich est slovaque",
           "zh": "Imrich 是斯洛伐克人。",
           "origin": "book"
+        },
+        {
+          "fr": "Le slovaque est proche du tchèque.",
+          "zh": "斯洛伐克语和捷克语很接近。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -342567,6 +344381,11 @@
           "fr": "Damir est slovène",
           "zh": "Damir 是斯洛文尼亚人。",
           "origin": "book"
+        },
+        {
+          "fr": "Il a appris le slovène pendant son séjour à Ljubljana.",
+          "zh": "他在卢布尔雅那逗留期间学了斯洛文尼亚语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -343301,6 +345120,16 @@
           "fr": "soufflé au crabe",
           "zh": "蟹肉舒芙蕾。",
           "origin": "book"
+        },
+        {
+          "fr": "Il manque de souffle après deux minutes de course.",
+          "zh": "跑了两分钟他就气喘吁吁。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je suis soufflé par cette nouvelle !",
+          "zh": "这个消息让我惊呆了！",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -344308,6 +346137,16 @@
           "fr": "il prend du super sans plomb 95",
           "zh": "他加的是 95 号无铅汽油。",
           "origin": "book"
+        },
+        {
+          "fr": "Il est super content de son nouveau travail.",
+          "zh": "他对新工作超级满意。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "C'est une super idée !",
+          "zh": "这是个极好的主意！",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -344382,6 +346221,16 @@
         {
           "fr": "Nous avons passé une super soirée chez Marie.",
           "zh": "我们在玛丽家度过了一个极好的夜晚。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce gâteau est super bon.",
+          "zh": "这个蛋糕超级好吃。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Le super coûte plus cher que le diesel.",
+          "zh": "超级汽油比柴油贵。",
           "origin": "supplement"
         }
       ],
@@ -344526,6 +346375,11 @@
           "fr": "Bjorn est suédois",
           "zh": "Bjorn 是瑞典人。",
           "origin": "book"
+        },
+        {
+          "fr": "Le suédois est parlé en Suède et en Finlande.",
+          "zh": "瑞典和芬兰都说瑞典语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -344910,6 +346764,11 @@
           "fr": "Vous êtes sûr?",
           "zh": "您确定吗？",
           "origin": "book"
+        },
+        {
+          "fr": "Ce quartier est très sûr, même la nuit.",
+          "zh": "这个街区很安全，夜里也一样。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -345795,6 +347654,11 @@
           "fr": "Václav est tchèque",
           "zh": "Václav 是捷克人。",
           "origin": "book"
+        },
+        {
+          "fr": "Il étudie le tchèque à Prague.",
+          "zh": "他在布拉格学捷克语。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -346777,6 +348641,11 @@
           "fr": "une trousse de toilette",
           "zh": "一个洗漱包。",
           "origin": "book"
+        },
+        {
+          "fr": "Les toilettes sont au fond du couloir, à gauche.",
+          "zh": "洗手间在走廊尽头左边。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -349588,6 +351457,11 @@
           "fr": "La vidéo et la hi-fi",
           "zh": "视频和高保真音响。",
           "origin": "book"
+        },
+        {
+          "fr": "Il joue aux jeux vidéo après l'école.",
+          "zh": "他放学后玩电子游戏。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -350785,6 +352659,11 @@
           "fr": "Adèle a une mauvaise (= bonne) vue; elle porte des lunettes ou des lentilles de contact.",
           "zh": "阿黛尔视力不好（=好）；她戴眼镜或隐形眼镜。",
           "origin": "book"
+        },
+        {
+          "fr": "De ma fenêtre, j'ai une belle vue sur la mer.",
+          "zh": "从我的窗户可以看到美丽的海景。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -351666,6 +353545,11 @@
           "fr": "on voit un éclair dans le ciel",
           "zh": "在天上看到一道闪电。",
           "origin": "book"
+        },
+        {
+          "fr": "Je voudrais un éclair au chocolat, s'il vous plaît.",
+          "zh": "请给我一个巧克力闪电泡芙。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -351741,6 +353625,16 @@
           "fr": "les mouvements écologistes sont dans l'actualité",
           "zh": "环保运动成为热点。",
           "origin": "book"
+        },
+        {
+          "fr": "Cet écologiste étudie les forêts tropicales.",
+          "zh": "这位生态学家研究热带雨林。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Les écologistes ont manifesté devant l'usine.",
+          "zh": "环保主义者在工厂门前示威。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -357157,6 +359051,11 @@
           "fr": "Elle met ses baskets neuves pour aller courir ce matin.",
           "zh": "她穿上新运动鞋去晨跑。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il joue au basket deux fois par semaine.",
+          "zh": "他每周打两次篮球。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -357211,6 +359110,11 @@
           "fr": "Il « fait » du sport, du tennis, du basket",
           "zh": "人们“做”运动，如网球、篮球。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle porte des baskets blanches.",
+          "zh": "她穿着白色运动鞋。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -359299,6 +361203,11 @@
           "fr": "Elle fait un travail bénévole dans une association humanitaire.",
           "zh": "她在一家人道主义协会做志愿工作。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Les bénévoles distribuent des repas aux sans-abri.",
+          "zh": "志愿者们给无家可归者分发饭菜。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -359892,6 +361801,11 @@
         {
           "fr": "À la campagne, on prend un car pour aller en ville.",
           "zh": "在乡下，人们乘长途汽车进城。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Il est fatigué, car il a mal dormi.",
+          "zh": "他很累，因为没睡好。",
           "origin": "supplement"
         }
       ],
@@ -361592,6 +363506,11 @@
           "fr": "Le clignotant droit ne fonctionne plus sur ma voiture.",
           "zh": "我车上的右转向灯坏了。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Un feu clignotant signale le danger.",
+          "zh": "闪烁的信号灯提示危险。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -362753,6 +364672,11 @@
           "fr": "C'est quelqu'un de vraiment généreux et compétent.",
           "zh": "他是个真正慷慨又能干的人。",
           "origin": "book"
+        },
+        {
+          "fr": "Notre nouvelle directrice est très compétente.",
+          "zh": "我们的新主任非常能干。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -364344,6 +366268,11 @@
           "fr": "Ces magasins vendent des produits de consommation courante (alimentation, vêtements, produits pour le ménage, vaisselle, équipements de sport).",
           "zh": "这些商店出售日常消费品（食品、服装、清洁用品、餐具、运动器材）。",
           "origin": "book"
+        },
+        {
+          "fr": "Il y a une coupure de courant dans tout le quartier.",
+          "zh": "整个街区停电了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -364659,6 +366588,11 @@
           "fr": "Mon estomac est complètement creux car je n'ai pas déjeuné.",
           "zh": "我的胃完全是空的，因为我没吃午饭。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Les ventes connaissent un creux en été.",
+          "zh": "夏天销售进入低谷。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -364814,6 +366748,11 @@
           "fr": "Cependant, on peut être croyant(e) ou, au contraire, athée.",
           "zh": "不过，人可以有信仰，或者相反，成为无神论者。",
           "origin": "book"
+        },
+        {
+          "fr": "Les croyants se réunissent à la mosquée le vendredi.",
+          "zh": "信徒们周五在清真寺聚会。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -366353,6 +368292,11 @@
           "fr": "Vivre à deux Pierre vit seul.",
           "zh": "两人生活 皮埃尔独自生活。",
           "origin": "book"
+        },
+        {
+          "fr": "Le deux est mon chiffre préféré.",
+          "zh": "二是我最喜欢的数字。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -366778,6 +368722,11 @@
         {
           "fr": "Nous dînons à huit heures.",
           "zh": "我们八点吃晚饭。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Nous sommes invités à un dîner chez des amis.",
+          "zh": "我们受邀去朋友家吃晚饭。",
           "origin": "supplement"
         }
       ],
@@ -367336,6 +369285,11 @@
         {
           "fr": "Il a un comportement un peu dragueur envers les collègues.",
           "zh": "他对同事有点爱搭讪的行为。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "C'est un dragueur, il parle à toutes les filles.",
+          "zh": "他是个爱搭讪的人，跟所有女孩都搭话。",
           "origin": "supplement"
         }
       ],
@@ -375767,6 +377721,11 @@
           "fr": "Pour acheter des livres d'art ou de littérature, des livres scolaires, des dictionnaires, des guides touristiques, on va à la librairie.",
           "zh": "要买艺术或文学书籍、教科书、词典、旅游指南，人们去书店。",
           "origin": "book"
+        },
+        {
+          "fr": "Notre guide parle trois langues.",
+          "zh": "我们的导游会说三种语言。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -376682,6 +378641,11 @@
           "fr": "La différence horaire entre Paris et Tokyo est grande.",
           "zh": "巴黎和东京之间的时差很大。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Consultez les horaires des bus sur le site.",
+          "zh": "请在网站上查看公交时刻表。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -377295,6 +379259,11 @@
           "fr": "Elle porte une robe imprimée de motifs floraux.",
           "zh": "她穿了一条印有花卉图案的连衣裙。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Vous devez remplir cet imprimé à la mairie.",
+          "zh": "您需要在市政府填写这份表格。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -377706,6 +379675,11 @@
           "fr": "Heureusement, car il est très indépendant!",
           "zh": "幸好，因为他非常独立！",
           "origin": "book"
+        },
+        {
+          "fr": "Il travaille comme indépendant depuis deux ans.",
+          "zh": "他做自由职业者两年了。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -379292,6 +381266,11 @@
           "fr": "Heureusement, la deuxième paire lui convient: les chaussures sont assez larges et confortables.",
           "zh": "幸好第二双合脚：鞋子足够宽，也舒适。",
           "origin": "book"
+        },
+        {
+          "fr": "Le bateau s'éloigne vers le large.",
+          "zh": "船驶向外海。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -380105,6 +382084,11 @@
           "fr": "La louche sert à verser le potage dans les assiettes.",
           "zh": "汤勺用于把汤分到盘子里。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il y a quelque chose de louche dans cette histoire.",
+          "zh": "这件事有些可疑。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -380761,6 +382745,11 @@
           "fr": "Le manche de ce couteau est en bois.",
           "zh": "这把刀的把手是木头的。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Cette chemise a des manches courtes.",
+          "zh": "这件衬衫是短袖的。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -380911,6 +382900,11 @@
           "fr": "Un ouvrier est spécialisé dans un métier manuel (mécanique, électricité, couture).",
           "zh": "工人专精于一门手工职业（机械、电工、缝纫）。",
           "origin": "book"
+        },
+        {
+          "fr": "Ouvrez votre manuel à la page vingt.",
+          "zh": "请把课本翻到第二十页。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -381629,6 +383623,11 @@
           "fr": "Ils l'appellent le maître ou la maîtresse (souvent, aujourd'hui, ils l'appellent par son prénom).",
           "zh": "他们叫他 maître 或 maîtresse（如今他们常常直呼其名）。",
           "origin": "book"
+        },
+        {
+          "fr": "Dans ce roman, le roi a une maîtresse.",
+          "zh": "在这部小说里，国王有一个情妇。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -382244,6 +384243,11 @@
           "fr": "Le joueur a remporté un jackpot millionnaire à la loterie.",
           "zh": "这位玩家在彩票中赢得了百万大奖。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Ce millionnaire a donné sa fortune à des associations.",
+          "zh": "这位百万富翁把财产捐给了一些协会。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -382655,6 +384659,11 @@
           "fr": "Pour ne pas déranger, on le met en mode vibreur.",
           "zh": "为了不打扰别人，把它调到振动模式。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle s'intéresse beaucoup à la mode.",
+          "zh": "她对时尚很感兴趣。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -382887,6 +384896,11 @@
           "fr": "La mort Annette, la mère de Sylvie vient de mourir.",
           "zh": "死亡 安妮特，西尔维的母亲刚刚去世。",
           "origin": "book"
+        },
+        {
+          "fr": "L'accident a fait deux morts.",
+          "zh": "事故造成两人死亡。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -383498,6 +385512,11 @@
           "fr": "Un ouvrier est spécialisé dans un métier manuel (mécanique, électricité, couture).",
           "zh": "工人专精于一门手工职业（机械、电工、缝纫）。",
           "origin": "book"
+        },
+        {
+          "fr": "Il a un problème mécanique avec sa voiture.",
+          "zh": "他的车出了机械故障。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -386540,6 +388559,11 @@
           "fr": "Tu te sens prêt pour le partiel de traduction de demain?",
           "zh": "你准备好明天的翻译期中考试了吗？",
           "origin": "book"
+        },
+        {
+          "fr": "Ce n'est qu'une réponse partielle à ma question.",
+          "zh": "这只是对我问题的部分回答。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -388006,6 +390030,11 @@
           "fr": "Le train est arrivé à huit heures pile ce matin.",
           "zh": "火车今天早上八点整到达。",
           "origin": "supplement"
+        },
+        {
+          "fr": "La pile de ma montre est usée.",
+          "zh": "我手表的电池没电了。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -388382,6 +390411,11 @@
         {
           "fr": "Le passage piéton se trouve juste après le feu rouge.",
           "zh": "人行横道就在红绿灯后面。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Les piétons doivent traverser au feu vert.",
+          "zh": "行人必须在绿灯时过马路。",
           "origin": "supplement"
         }
       ],
@@ -390126,6 +392160,16 @@
           "fr": "Il s'est assis près du feu pour se réchauffer.",
           "zh": "他靠近炉火坐下取暖。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il habite tout près.",
+          "zh": "他住得很近。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle a suivi l'affaire de près.",
+          "zh": "她密切关注了这件事。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -391835,6 +393879,11 @@
           "fr": "Vous recevez régulièrement un relevé de compte qui indique toutes vos opérations bancaires.",
           "zh": "您会定期收到一份银行对账单，列出您所有的银行交易。",
           "origin": "book"
+        },
+        {
+          "fr": "Cette sauce est bien relevée.",
+          "zh": "这个酱汁味道很浓。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -391887,6 +393936,11 @@
         {
           "fr": "Ce plat est trop relevé pour mon palais délicat.",
           "zh": "这道菜对我敏感的味蕾来说太辛辣了。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "La banque m'envoie un relevé de compte chaque mois.",
+          "zh": "银行每月给我寄一份对账单。",
           "origin": "supplement"
         }
       ],
@@ -392168,6 +394222,11 @@
         {
           "fr": "Ils ont décidé de reporter le match à samedi.",
           "zh": "他们决定把比赛推迟到周六。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Ce reporter travaille pour la télévision.",
+          "zh": "这位记者为电视台工作。",
           "origin": "supplement"
         }
       ],
@@ -392528,6 +394587,11 @@
           "fr": "s'il est reçu à son bac",
           "zh": "如果他通过了 bac 考试。",
           "origin": "book"
+        },
+        {
+          "fr": "Gardez le reçu pour échanger l'article.",
+          "zh": "请保留收据以便换货。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -397331,6 +399395,11 @@
           "fr": "Les supporters viennent encourager leur équipe préférée.",
           "zh": "球迷们来为他们喜爱的球队加油。",
           "origin": "book"
+        },
+        {
+          "fr": "Je ne supporte pas le bruit.",
+          "zh": "我受不了噪音。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -398442,6 +400511,11 @@
           "fr": "Et sa fille le lui rend bien: elle est également très tendre et affectueuse avec lui.",
           "zh": "而他的女儿也对他很好：她对他同样温柔体贴。",
           "origin": "book"
+        },
+        {
+          "fr": "Il m'a tendu la main pour me saluer.",
+          "zh": "他向我伸出手打招呼。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -400983,6 +403057,11 @@
           "fr": "Attention, quand il y a de hautes vagues, on risque de se noyer.",
           "zh": "注意，当有大浪时，有溺水的危险。",
           "origin": "book"
+        },
+        {
+          "fr": "J'ai un vague souvenir de cette soirée.",
+          "zh": "我对那个晚上只有模糊的记忆。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -402725,6 +404804,11 @@
           "fr": "Mais toi et moi, ne pouvons-nous pas recommencer à zéro?",
           "zh": "但你和我，能不能从头再来？",
           "origin": "book"
+        },
+        {
+          "fr": "Il a eu un zéro en mathématiques.",
+          "zh": "他数学得了零分。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -407300,6 +409384,11 @@
           "fr": "Pouvez-vous me rappeler sur mon mobile, au 06 45 65 45 98 ?",
           "zh": "您能给我的手机回电话吗，号码是 06 45 65 45 98？",
           "origin": "book"
+        },
+        {
+          "fr": "Les travailleurs sont de plus en plus mobiles.",
+          "zh": "劳动者的流动性越来越强。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -409350,6 +411439,11 @@
           "fr": "un plat principal",
           "zh": "主菜。",
           "origin": "book"
+        },
+        {
+          "fr": "Le pays est plat, sans montagnes.",
+          "zh": "这个地区很平坦，没有山。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -410445,6 +412539,11 @@
           "fr": "J'aime bien le français, l'histoire et l'anglais.",
           "zh": "我很喜欢法语、历史和英语。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle aime la cuisine française.",
+          "zh": "她喜欢法国菜。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -410492,6 +412591,11 @@
           "fr": "J'aime bien le français, l'histoire et l'anglais.",
           "zh": "我很喜欢法语、历史和英语。",
           "origin": "book"
+        },
+        {
+          "fr": "Il lit un journal anglais.",
+          "zh": "他在看一份英国报纸。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -410539,6 +412643,11 @@
           "fr": "prend des cours (de) d'... allemand",
           "zh": "学德语课。",
           "origin": "book"
+        },
+        {
+          "fr": "Il conduit une voiture allemande.",
+          "zh": "他开一辆德国车。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -410585,6 +412694,11 @@
         {
           "fr": "Le soir, il fait ses devoirs.",
           "zh": "晚上他做作业。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je dois partir tôt demain.",
+          "zh": "我明天得早走。",
           "origin": "supplement"
         }
       ],
@@ -410633,6 +412747,11 @@
           "fr": "Notre commercial a signé trois nouveaux contrats cette semaine.",
           "zh": "我们的销售人员本周签了三份新合同。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Il travaille dans un centre commercial.",
+          "zh": "他在一个购物中心工作。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -410680,6 +412799,11 @@
           "fr": "travaillent pour leur chef / responsable",
           "zh": "为他们的领导／负责人工作。",
           "origin": "book"
+        },
+        {
+          "fr": "Chacun est responsable de ses actes.",
+          "zh": "每个人都要对自己的行为负责。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -410766,6 +412890,11 @@
           "fr": "travaillent avec les patients",
           "zh": "与病人一起工作。",
           "origin": "book"
+        },
+        {
+          "fr": "Sois patient, le train arrive dans cinq minutes.",
+          "zh": "耐心点，火车五分钟后就到。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -410905,6 +413034,11 @@
           "fr": "Il est millionnaire, il a beaucoup d'argent",
           "zh": "他是百万富翁，有很多钱。",
           "origin": "book"
+        },
+        {
+          "fr": "Ce millionnaire vit dans une grande villa.",
+          "zh": "这位百万富翁住在一栋大别墅里。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411290,6 +413424,11 @@
           "fr": "il parle néerlandais.",
           "zh": "他说荷兰语。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle a une amie néerlandaise.",
+          "zh": "她有一个荷兰朋友。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411337,6 +413476,11 @@
           "fr": "il parle bulgare.",
           "zh": "他说保加利亚语。",
           "origin": "book"
+        },
+        {
+          "fr": "J'aime beaucoup le yaourt bulgare.",
+          "zh": "我很喜欢保加利亚酸奶。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411384,6 +413528,11 @@
           "fr": "il parle grec.",
           "zh": "他说希腊语。",
           "origin": "book"
+        },
+        {
+          "fr": "Nous avons mangé une salade grecque.",
+          "zh": "我们吃了希腊沙拉。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411431,6 +413580,11 @@
           "fr": "il parle danois.",
           "zh": "他说丹麦语。",
           "origin": "book"
+        },
+        {
+          "fr": "C'est un écrivain danois très connu.",
+          "zh": "这是一位很有名的丹麦作家。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411478,6 +413632,11 @@
           "fr": "il parle espagnol.",
           "zh": "他说西班牙语。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle adore la cuisine espagnole.",
+          "zh": "她很喜欢西班牙菜。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411525,6 +413684,11 @@
           "fr": "il parle estonien.",
           "zh": "他说爱沙尼亚语。",
           "origin": "book"
+        },
+        {
+          "fr": "Tallinn est la capitale estonienne.",
+          "zh": "塔林是爱沙尼亚的首都。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411572,6 +413736,11 @@
           "fr": "il parle hongrois.",
           "zh": "他说匈牙利语。",
           "origin": "book"
+        },
+        {
+          "fr": "Budapest est la capitale hongroise.",
+          "zh": "布达佩斯是匈牙利的首都。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411619,6 +413788,11 @@
           "fr": "il parle italien.",
           "zh": "他说意大利语。",
           "origin": "book"
+        },
+        {
+          "fr": "Nous allons dans un restaurant italien.",
+          "zh": "我们去一家意大利餐厅。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411666,6 +413840,11 @@
           "fr": "il parle letton.",
           "zh": "他说拉脱维亚语。",
           "origin": "book"
+        },
+        {
+          "fr": "Riga est la capitale lettone.",
+          "zh": "里加是拉脱维亚的首都。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411713,6 +413892,11 @@
           "fr": "il parle lituanien.",
           "zh": "他说立陶宛语。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle a un collègue lituanien.",
+          "zh": "她有一位立陶宛同事。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411760,6 +413944,11 @@
           "fr": "il parle maltais et anglais.",
           "zh": "他说马耳他语和英语。",
           "origin": "book"
+        },
+        {
+          "fr": "Nous avons visité une église maltaise.",
+          "zh": "我们参观了一座马耳他教堂。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411807,6 +413996,11 @@
           "fr": "il parle polonais.",
           "zh": "他说波兰语。",
           "origin": "book"
+        },
+        {
+          "fr": "Il a une grand-mère polonaise.",
+          "zh": "他有一位波兰祖母。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411854,6 +414048,11 @@
           "fr": "il parle portugais.",
           "zh": "他说葡萄牙语。",
           "origin": "book"
+        },
+        {
+          "fr": "J'ai goûté un vin portugais.",
+          "zh": "我尝了一款葡萄牙葡萄酒。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411901,6 +414100,11 @@
           "fr": "il parle tchèque.",
           "zh": "他说捷克语。",
           "origin": "book"
+        },
+        {
+          "fr": "La bière tchèque est très connue.",
+          "zh": "捷克啤酒很有名。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411948,6 +414152,11 @@
           "fr": "il parle roumain.",
           "zh": "他说罗马尼亚语。",
           "origin": "book"
+        },
+        {
+          "fr": "C'est un film roumain.",
+          "zh": "这是一部罗马尼亚电影。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -411995,6 +414204,11 @@
           "fr": "il parle slovaque.",
           "zh": "他说斯洛伐克语。",
           "origin": "book"
+        },
+        {
+          "fr": "Bratislava est la capitale slovaque.",
+          "zh": "布拉迪斯拉发是斯洛伐克的首都。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -412042,6 +414256,11 @@
           "fr": "il parle slovène.",
           "zh": "他说斯洛文尼亚语。",
           "origin": "book"
+        },
+        {
+          "fr": "Les montagnes slovènes sont magnifiques.",
+          "zh": "斯洛文尼亚的山很壮丽。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -412089,6 +414308,11 @@
           "fr": "il parle suédois.",
           "zh": "他说瑞典语。",
           "origin": "book"
+        },
+        {
+          "fr": "Ils ont acheté des meubles suédois.",
+          "zh": "他们买了瑞典家具。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -412136,6 +414360,11 @@
           "fr": "le danois, le portugais, le chinois",
           "zh": "丹麦语、葡萄牙语、汉语。",
           "origin": "book"
+        },
+        {
+          "fr": "Elle aime la cuisine chinoise.",
+          "zh": "她喜欢中国菜。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -413439,6 +415668,11 @@
           "fr": "il joue à un jeu vidéo",
           "zh": "他玩一款电子游戏。",
           "origin": "book"
+        },
+        {
+          "fr": "J'ai regardé une vidéo sur internet.",
+          "zh": "我在网上看了一个视频。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -414037,6 +416271,11 @@
           "fr": "Mais l'adjectif est souvent négatif: «Paul est ambitieux» signifie «il est dur, prêt à tout pour sa carrière».",
           "zh": "但这个词常带贬义：「Paul est ambitieux」意思是「他很强硬，为事业不惜一切」。",
           "origin": "book"
+        },
+        {
+          "fr": "Il habite tout près d'ici.",
+          "zh": "他住得离这儿很近。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -416228,6 +418467,11 @@
           "fr": "Comme il est malade, il ne viendra pas travailler aujourd'hui.",
           "zh": "因为他病了，所以今天不会来上班。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Elle travaille comme infirmière.",
+          "zh": "她做护士工作。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -417455,6 +419699,11 @@
         {
           "fr": "Je suis resté chez moi, car il pleuvait dehors.",
           "zh": "我待在家里，因为外面在下雨。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Les élèves prennent le car pour aller à l'école.",
+          "zh": "学生们坐大巴去上学。",
           "origin": "supplement"
         }
       ],
@@ -420190,6 +422439,11 @@
           "fr": "Si tu veux, on sort ce soir.",
           "zh": "如果你愿意，我们今晚出去。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Le si est la septième note de la gamme.",
+          "zh": "si 是音阶的第七个音。",
+          "origin": "supplement"
         }
       ],
       "col": [
@@ -420674,6 +422928,11 @@
         {
           "fr": "Il devait venir; or, il n'est pas venu.",
           "zh": "他本该来的，可是他没来。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle porte une bague en or.",
+          "zh": "她戴着一枚金戒指。",
           "origin": "supplement"
         }
       ],
@@ -425002,6 +427261,11 @@
         {
           "fr": "Il faut donner le meilleur de soi-même à chaque entraînement.",
           "zh": "每次训练都必须尽力发挥自己。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Pour réussir ce concours, elle a donné le meilleur d'elle-même.",
+          "zh": "为了通过这次选拔考试，她竭尽了全力。",
           "origin": "supplement"
         }
       ],
@@ -432181,6 +434445,11 @@
           "fr": "Les ados sont souvent collés aux écrans le soir.",
           "zh": "青少年晚上经常黏在屏幕前。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Mon fils est collé aux écrans toute la journée.",
+          "zh": "我儿子整天黏在屏幕前。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -434543,6 +436812,11 @@
           "fr": "Il y a une abondance de fruits en été.",
           "zh": "夏天水果很丰富。",
           "origin": "supplement"
+        },
+        {
+          "fr": "Ce pays vit dans l'abondance.",
+          "zh": "这个国家生活富足。",
+          "origin": "supplement"
         }
       ],
       "col": [],
@@ -434626,6 +436900,11 @@
         {
           "fr": "Elle s'est vite aperçue de son erreur de calcul.",
           "zh": "她很快意识到了自己的计算错误。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je me suis aperçu de son absence seulement le soir.",
+          "zh": "我到晚上才发现他不在。",
           "origin": "supplement"
         }
       ],
@@ -437240,6 +439519,11 @@
         {
           "fr": "Il est maladroit de s'immiscer dans les disputes familiales.",
           "zh": "插手家庭纠纷是很不得体的。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Je ne veux pas m'immiscer dans votre vie privée.",
+          "zh": "我不想干涉您的私生活。",
           "origin": "supplement"
         }
       ],
@@ -440322,6 +442606,11 @@
         {
           "fr": "Il a décidé de se venger de son ennemi juré.",
           "zh": "他已经决定向宿敌报仇。",
+          "origin": "supplement"
+        },
+        {
+          "fr": "Elle veut se venger de cette humiliation.",
+          "zh": "她想为这次羞辱报仇。",
           "origin": "supplement"
         }
       ],

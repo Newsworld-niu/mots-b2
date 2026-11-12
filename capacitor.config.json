@@ -1,0 +1,8 @@
+{
+  "appId": "com.newsworld.motsb2",
+  "appName": "法语词光",
+  "webDir": "dist",
+  "android": {
+    "backgroundColor": "#F3ECDF"
+  }
+}

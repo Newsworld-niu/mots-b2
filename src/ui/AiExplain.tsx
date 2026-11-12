@@ -18,7 +18,7 @@ interface Saved {
   data: WordExplanation;
 }
 
-const PROVIDER: Record<string, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic" };
+const PROVIDER: Record<string, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic", openrouter: "OpenRouter" };
 const key = (e: Entry) => `explain:${e.id}:${e.w}`;
 
 /**

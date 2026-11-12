@@ -1,6 +1,7 @@
 import { duck } from "./sound";
 import { TARGET_LANG } from "../config";
 import { ttsOn, ttsUrl } from "../ai/tts";
+import { isNative, speakNative, stopSpeakingNative } from "./native";
 
 let current: HTMLAudioElement | null = null;
 let token = 0;
@@ -10,6 +11,7 @@ export function stopAudio() {
   current?.pause();
   current = null;
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  stopSpeakingNative();
 }
 
 /** Play a recording, falling back to the device voice. Resolves when playback ends. */
@@ -59,6 +61,12 @@ async function speak(url: string | null | undefined, text: string, _accent: "uk"
       if (mine !== token) return "stopped" as const;
       current = null;
     }
+  }
+  if (isNative()) {
+    if (!text.trim()) return "unsupported" as const;
+    const ok = await speakNative(text, TARGET_LANG, rate * 0.95);
+    if (mine !== token) return "stopped" as const;
+    return ok ? ("device" as const) : ("unsupported" as const);
   }
   if (!("speechSynthesis" in window)) return "unsupported" as const;
   const u = new SpeechSynthesisUtterance(text);
