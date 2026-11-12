@@ -1,7 +1,7 @@
 import { BookOpen, ImageOff, ImagePlus, Palette, Plus, Search, Sparkles, Trash2 } from "lucide-react";
 import { ready, useAiConfig } from "../ai/config";
-import { pictureFor, suggestExtras, type Extras } from "../ai/tasks";
-import { useEffect, useMemo, useState } from "react";
+import { fillWords, pictureFor, suggestExtras, type Extras } from "../ai/tasks";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import { openWord } from "../lib/router";
 import { addToDeck, cleanCollocations, createCustomWord, deleteCustomWord, findSame, setWordEdit, updateCustomWord } from "../store/decks";
@@ -93,6 +93,38 @@ export function WordForm(props: Props) {
     if (blank && h.ex?.length) setEx(h.ex.slice(0, 2).map(([fr, z, a, b]) => ({ fr, zh: z, src: "tatoeba", hl: [a, b] })));
     setAuto(true);
   };
+  // AI 填写: meaning, part of speech, pronunciation and one example for the typed word
+  const ai = useAiConfig();
+  const [filling, setFilling] = useState(false);
+  const fillJob = useRef<AbortController | null>(null);
+  useEffect(() => () => fillJob.current?.abort(), []);
+  const aiFill = async () => {
+    const word = w.trim();
+    if (!word) return toast("先填法语", "warn");
+    const job = new AbortController();
+    fillJob.current = job;
+    setFilling(true);
+    try {
+      const [f] = await fillWords([{ key: "w", word, ...(zh.trim() ? { given: zh.trim() } : {}) }], undefined, job.signal);
+      if (job.signal.aborted) return;
+      if (!f || !f.valid || !f.zh?.trim()) return toast(`AI 没有把「${word}」认作要学的法语词，请自己填写`, "warn");
+      setPos(POS_CHOICES.some(([k]) => k === f.pos) ? f.pos : "");
+      setZh(f.zh.trim());
+      if (f.ipa?.trim()) setIpa(f.ipa.trim());
+      const example = f.example?.trim();
+      if (example) {
+        const kept = ex.filter((x) => x.fr.trim());
+        if (!kept.some((x) => x.fr.trim() === example) && kept.length < 3) setEx([...kept, { fr: example, zh: f.exampleZh?.trim() ?? "" }]);
+      }
+      setAuto(true);
+      const fix = f.fix?.trim();
+      toast(fix && fix !== word ? `已填写；AI 认为拼写应为「${fix}」，请核对` : "已填写，AI 写的内容请核对", "ok");
+    } catch (e) {
+      if (!job.signal.aborted) toast((e as Error).message, "warn");
+    } finally {
+      if (fillJob.current === job) setFilling(false);
+    }
+  };
   const addGloss = (g: string) => setZh((z) => (z.split("；").includes(g) ? z : z.trim() ? `${z}；${g}` : g));
   // 不要图片 also drops a picture the word had, so a later change of mind starts clean
   const savePicture = (id: string) => (noImg ? stored && void setImage(id, null) : image !== undefined && void setImage(id, image));
@@ -165,6 +197,15 @@ export function WordForm(props: Props) {
             </div>
           )}
           {hits && <DictPanel hits={hits} word={w} onFill={fill} onGloss={addGloss} deckId={props.mode === "create" ? props.deckId : undefined} deckWords={deckWords} onLinked={props.onDone} />}
+          <div className="wf-ai">
+            {ready.text(ai) ? (
+              <button type="button" className="btn btn-ghost btn-sm" onClick={aiFill} disabled={filling || !w.trim()}>
+                <Sparkles size={15} /> {filling ? "AI 填写中…" : "AI 填写意思和例句"}
+              </button>
+            ) : (
+              <p className="wf-hint">在「我的 → AI 接口」设置好「生成卡片」的服务后，这里可以让 AI 填写意思和例句。</p>
+            )}
+          </div>
           <div className="wf-row">
             <label className="wf-field">
               <span>词性</span>
@@ -280,7 +321,7 @@ function DictPanel({
   if (!hits.length)
     return (
       <p className="wf-dict wf-dict-none">
-        <BookOpen size={15} /> 离线词典里没有「{word.trim()}」，请自己填写。
+        <BookOpen size={15} /> 离线词典里没有「{word.trim()}」，请自己填写或用 AI 填写。
       </p>
     );
   return (

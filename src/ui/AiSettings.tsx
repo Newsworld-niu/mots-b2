@@ -104,9 +104,13 @@ function ModelField({
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState(false);
   const [active, setActive] = useState(-1);
+  // What is being typed. The saved setting is never empty (an empty name falls back to the default), so an emptied
+  // field is kept here until something is typed, and only becomes the default again on leaving the field.
+  const [draft, setDraft] = useState<string | null>(null);
+  const text = draft ?? value;
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLUListElement>(null);
-  const q = typed ? value.trim().toLowerCase() : "";
+  const q = typed ? text.trim().toLowerCase() : "";
   const shown = (models ?? []).filter((m) => !q || m.toLowerCase().includes(q));
 
   const show = () => {
@@ -115,6 +119,7 @@ function ModelField({
     setOpen(true);
   };
   const pick = (m: string) => {
+    setDraft(null);
     onChange(m);
     setOpen(false);
   };
@@ -158,19 +163,24 @@ function ModelField({
         aria-controls={id}
         aria-autocomplete="list"
         aria-label="模型"
-        value={value}
+        value={text}
         placeholder={fallback}
         spellCheck={false}
         autoComplete="off"
         onChange={(e) => {
-          onChange(e.target.value);
+          setDraft(e.target.value);
+          if (e.target.value.trim()) onChange(e.target.value);
           setTyped(true);
           setActive(-1);
           setOpen(true);
         }}
         onFocus={show}
         onClick={() => !open && show()}
-        onBlur={() => setOpen(false)}
+        onBlur={() => {
+          if (draft !== null && !draft.trim()) onChange("");
+          setDraft(null);
+          setOpen(false);
+        }}
         onKeyDown={onKey}
       />
       <button
