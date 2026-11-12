@@ -335,6 +335,8 @@ export function setWordEdit(id: string, edit: WordEdit) {
     const tip = edit.tip?.trim().slice(0, MAX_TIP);
     if (tip) next.tip = tip;
     Object.assign(next, keepExtras(edit, p.edits?.[id]));
+    const hide = [...new Set((edit.hide ?? p.edits?.[id]?.hide ?? []).filter((n) => Number.isInteger(n) && n >= 0 && n < 40))].sort((a, b) => a - b);
+    if (hide.length) next.hide = hide;
     const edits = Object.keys(next).length ? { ...p.edits, [id]: next } : without(p.edits, id);
     return { ...p, edits };
   });
@@ -429,6 +431,23 @@ export function removeFromCard(id: string, rm: { col?: string; tip?: string; ex?
   if (rm.sense) next.senses = (o.senses ?? []).filter((x) => !same(x.zh, rm.sense!));
   for (const k of ["syn", "ant", "fam"] as const) if (rm[k]) next[k] = (o[k] ?? []).filter((x) => !same(headOf(x), headOf(rm[k]!)));
   saveOwn(id, next);
+}
+
+/** Take one of the atlas's own senses off a word's card (a better one was added); 恢复 brings them back. */
+export function hideSense(id: string, n: number) {
+  const e = store.get().progress.edits?.[id];
+  setWordEdit(id, { ...e, hide: [...(e?.hide ?? []), n] });
+}
+
+export function restoreSenses(id: string) {
+  setWordEdit(id, { ...store.get().progress.edits?.[id], hide: [] });
+}
+
+/** An own word's first meaning is dropped and the next one takes its place. */
+export function dropMainSense(id: string) {
+  const c = store.get().progress.custom?.[id];
+  const [next, ...rest] = c?.senses ?? [];
+  if (c && next) updateCustomWord(id, { ...c, pos: next.pos || c.pos, zh: next.zh, senses: rest });
 }
 
 /* ---------- 从文章取词 ---------- */

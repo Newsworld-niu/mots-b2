@@ -90,6 +90,8 @@ export interface WordEdit extends CardExtras {
   col?: string[];
   /** Own 注意点, shown before the atlas tip. */
   tip?: string;
+  /** The atlas's own senses the learner took off the card, by position (0 = the first). Never all of the card's senses. */
+  hide?: number[];
 }
 
 /** The built-in deck: every atlas word except those the learner hid. */
@@ -450,6 +452,10 @@ export function sanitizeUserData(v: Record<string, unknown>): Pick<Progress, "de
       const tip = str(e.tip, MAX_TIP);
       if (tip) edit.tip = tip;
       Object.assign(edit, sanitizeExtras(e));
+      if (Array.isArray(e.hide)) {
+        const hide = [...new Set(e.hide.filter((n): n is number => Number.isInteger(n) && (n as number) >= 0 && (n as number) < 40))].sort((a, b) => a - b);
+        if (hide.length) edit.hide = hide;
+      }
       if (Object.keys(edit).length) edits[id] = edit;
     }
     if (Object.keys(edits).length) out.edits = edits;

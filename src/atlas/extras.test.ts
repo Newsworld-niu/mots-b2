@@ -83,3 +83,37 @@ test("anything from AI 讲解 can be put on a card and taken off again; the edit
   removeFromCard("inferieur", { tip: "第二条" });
   assert.deepEqual(store.get().progress.edits?.inferieur, { zh: "低的" });
 });
+
+test("one of the atlas's own meanings can be taken off a card and brought back; the last meaning stays", async () => {
+  (globalThis as any).window ??= { setTimeout: () => 0, clearTimeout: () => undefined };
+  const { addToCard, hideSense, restoreSenses, dropMainSense, createCustomWord } = await import("../store/decks.ts");
+  const { store, sanitizeUserData } = await import("../store/store.ts");
+  const { editedRef } = await import("./merge.ts");
+  const base = { id: "aller", w: "aller", uk: "", us: "", senses: [{ pos: "v.", zh: "去", en: "" }, { pos: "v.", zh: "过得", en: "" }], ex: [], col: [], fam: [], syn: [], ant: [], tip: "", cefr: "A1", topic: "", m: 0 };
+  const ref = { id: "aller", word: "aller", zh: "去", ipa: "", cefr: 0, topic: 0, media: 0, order: 0, more: ["过得"] };
+  const edit = () => store.get().progress.edits!.aller;
+  const zh = () => editedEntry(base, edit()).senses.map((s) => s.zh);
+
+  addToCard("aller", { sense: { pos: "v.", zh: "前往" } });
+  hideSense("aller", 0);
+  assert.deepEqual(zh(), ["过得", "前往"]);
+  // the word list and the questions show the same first meaning as the card
+  assert.deepEqual([editedRef(ref, edit()).zh, editedRef(ref, edit()).more], ["过得", ["前往"]]);
+  // the atlas position stays known after the first one is gone
+  hideSense("aller", editedEntry(base, edit()).senses[0].n!);
+  assert.deepEqual(zh(), ["前往"]);
+  assert.deepEqual(sanitizeUserData(JSON.parse(JSON.stringify(store.get().progress))).edits!.aller.hide, [0, 1]);
+  restoreSenses("aller");
+  assert.deepEqual(zh(), ["去", "过得", "前往"]);
+  // everything taken off: the atlas's own meanings stay rather than an empty card
+  assert.deepEqual(editedEntry(base, { hide: [0, 1] }).senses.map((s) => s.zh), ["去", "过得"]);
+  assert.equal(editedRef(ref, { hide: [0, 1] }).zh, "去");
+
+  // an own word: the next meaning takes the place of the first
+  const id = createCustomWord({ w: "turbulence", pos: "n.f.", zh: "气流颠簸", senses: [{ pos: "n.f.", zh: "动荡" }] });
+  dropMainSense(id);
+  const c = store.get().progress.custom![id];
+  assert.deepEqual([c.zh, c.senses], ["动荡", undefined]);
+  dropMainSense(id);
+  assert.equal(store.get().progress.custom![id].zh, "动荡", "the only meaning is kept");
+});

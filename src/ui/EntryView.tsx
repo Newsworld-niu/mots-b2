@@ -10,7 +10,7 @@ import { Illustration } from "./Illustration";
 import { Speak, SpeakBoth } from "./Speak";
 import { shareWord } from "./share";
 import { closeWord, href, openWord } from "../lib/router";
-import { addToDeck, CORE_NAME, createDeck, isCustomId, ownParts, removeFromCard, removeFromDeck } from "../store/decks";
+import { addToDeck, CORE_NAME, createDeck, dropMainSense, hideSense, isCustomId, ownParts, removeFromCard, removeFromDeck, restoreSenses } from "../store/decks";
 import { CORE_DECK } from "../store/store";
 import { WordForm } from "./WordForm";
 import { AiExplain } from "./AiExplain";
@@ -173,6 +173,20 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
         <X size={13} />
       </button>
     );
+  const x = (onClick: () => void, title: string) => (
+    <button className="own-rm" onClick={onClick} aria-label="从卡片上去掉这个意思" title={title}>
+      <X size={13} />
+    </button>
+  );
+  const hiddenSenses = editsAll?.[entry.id]?.hide?.length ?? 0;
+  /** × on a meaning: one the learner added is deleted; one of the atlas's is taken off (恢复 brings it back). The last one stays. */
+  const senseRm = (s: Entry["senses"][number], i: number) => {
+    if (!canRemove || entry.senses.length < 2) return null;
+    const added = own.senses?.some((o) => o.zh === s.zh) && (isCustomId(entry.id) ? i > 0 : s.n === undefined);
+    if (added) return rm({ sense: s.zh });
+    if (isCustomId(entry.id)) return x(() => dropMainSense(entry.id), "去掉这个意思，下一个意思排到第一");
+    return x(() => hideSense(entry.id, s.n ?? i), "词库原有的意思：从卡片上去掉（可以恢复）");
+  };
   const linkList = (links: { label: string; id?: string }[], k: "fam" | "syn" | "ant") =>
     links.map((f) => (
       <span key={f.label} className="rel-item">
@@ -282,7 +296,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
               <span className="pos">{s.pos === "待核实" ? "" : s.pos}</span>
               <span className="zh">
                 {s.zh}
-                {i > 0 && own.senses?.some((x) => x.zh === s.zh) && rm({ sense: s.zh })}
+                {senseRm(s, i)}
               </span>
               {s.en && (
                 <span className="en" lang="fr">
@@ -292,6 +306,15 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
             </li>
           ))}
         </ol>
+
+        {canRemove && hiddenSenses > 0 && (
+          <p className="muted small senses-hidden">
+            已从卡片上去掉 {hiddenSenses} 个词库原有的意思
+            <button className="link" onClick={() => restoreSenses(entry.id)}>
+              恢复
+            </button>
+          </p>
+        )}
 
         {(mode === "detail" || mode === "intro") && <AiExplain key={entry.id} entry={entry} />}
 

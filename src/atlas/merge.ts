@@ -21,6 +21,20 @@ const mineExamples = (ex: UserExample[] | undefined, w: string): Example[] =>
 const ownSenses = (x: CardExtras) => (x.senses ?? []).map((s) => ({ pos: s.pos, zh: s.zh, en: "", status: "自己添加" }));
 const withOwn = (have: string[], own: string[] | undefined) => (own?.length ? [...have, ...own.filter((x) => !have.includes(x))] : have);
 
+/** The index row of an atlas word as changed by the learner: its first meaning and the other ones, as on the card. */
+export function editedRef(w: WordRef, edit: WordEdit): WordRef {
+  if (!edit.zh && !edit.hide?.length && !edit.senses?.length) return w;
+  const hidden = new Set(edit.hide ?? []);
+  const shown = [
+    ...[w.zh, ...(w.more ?? [])].map((zh, n) => ({ zh: n === 0 && edit.zh ? edit.zh : zh, n })).filter((x) => !hidden.has(x.n)).map((x) => x.zh),
+    ...(edit.senses ?? []).map((s) => s.zh),
+  ];
+  if (!shown.length) return w;
+  const { more: _, ...rest } = w;
+  void _;
+  return { ...rest, zh: shown[0], ...(shown.length > 1 ? { more: shown.slice(1) } : {}) };
+}
+
 export function customRef(id: string, c: CustomWord): WordRef {
   const g = genderOf(c.pos);
   return { id, word: c.w, zh: c.zh, ipa: slashIpa(c.ipa), cefr: -1, topic: -1, media: 0, order: -1, custom: true, ...(g ? { g } : {}) };
@@ -50,8 +64,13 @@ export function customEntry(id: string, c: CustomWord): Entry {
 }
 
 export function editedEntry(e: Entry, edit: WordEdit): Entry {
-  const first = edit.zh && e.senses.length ? [{ ...e.senses[0], zh: edit.zh, status: "自己改过" }, ...e.senses.slice(1)] : e.senses;
-  const senses = edit.senses?.length ? [...first, ...ownSenses(edit)] : first;
+  const hidden = new Set(edit.hide ?? []);
+  const kept = e.senses
+    .map((s, n) => (n === 0 && edit.zh ? { ...s, zh: edit.zh, status: "自己改过", n } : { ...s, n }))
+    .filter((s) => !hidden.has(s.n));
+  const shown = [...kept, ...ownSenses(edit)];
+  // a card always has a meaning: with every sense taken off, the atlas's own stay
+  const senses = shown.length ? shown : e.senses;
   // own examples go first: cloze and dictation use the first example
   const ex = edit.ex ? [...mineExamples(edit.ex, e.w), ...e.ex] : e.ex;
   const col = edit.col ? [...edit.col, ...e.col.filter((c) => !edit.col!.includes(c))] : e.col;
@@ -76,8 +95,8 @@ export function withUserData(base: Atlas, custom: Record<string, CustomWord> | u
   let words = base.words;
   if (hasEdits || hasImages) {
     words = base.words.map((w) => {
-      const z = edits?.[w.id]?.zh;
-      return pic(z ? { ...w, zh: z } : w);
+      const edit = edits?.[w.id];
+      return pic(edit ? editedRef(w, edit) : w);
     });
     for (const w of words) byId.set(w.id, w);
   }

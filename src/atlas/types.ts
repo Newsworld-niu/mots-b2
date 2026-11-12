@@ -12,6 +12,8 @@ export interface Sense {
   origin?: "book" | "supplement";
   /** e.g. "补充翻译·待对照": verification state of the gloss. */
   status?: string;
+  /** On a card the learner changed: which of the atlas's own senses this is (0 = the first). Absent on a sense they added. */
+  n?: number;
 }
 
 export interface Example {
