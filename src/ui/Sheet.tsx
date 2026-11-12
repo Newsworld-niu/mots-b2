@@ -19,13 +19,17 @@ export function Sheet({
   className?: string;
 }) {
   const panel = useRef<HTMLDivElement>(null);
+  // The latest onClose without re-running the effect below: callers pass a new function on every render, and
+  // re-running would move the focus back to the panel while someone is typing in a field.
+  const close = useRef(onClose);
+  close.current = onClose;
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.preventDefault();
-        onClose();
+        close.current();
       }
       if (e.key === "Tab" && panel.current) {
         const f = panel.current.querySelectorAll<HTMLElement>('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
@@ -49,7 +53,7 @@ export function Sheet({
       document.documentElement.classList.remove("is-locked");
       prev?.focus?.({ preventScroll: true });
     };
-  }, [open, onClose]);
+  }, [open]);
   if (!open) return null;
   // Rendered on <body>: a transformed or animated page ancestor would otherwise
   // become the containing block and the dialog would scroll with the page.

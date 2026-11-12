@@ -1,7 +1,7 @@
-import { Check, Eye, EyeOff, Volume2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Check, ChevronDown, Eye, EyeOff, Volume2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { azureSpeak, azureVoices, listImageModels, listModels, type AzureVoice } from "../ai/clients";
-import { DEFAULT_IMAGE_MODELS, DEFAULT_MODELS, IMAGE_PROVIDERS, TEXT_PROVIDERS, VISION_PROVIDERS, setAiConfig, useAiConfig, type AiConfig, type TextProvider } from "../ai/config";
+import { DEFAULT_IMAGE_MODELS, DEFAULT_MODELS, IMAGE_PROVIDERS, TEXT_PROVIDERS, VISION_PROVIDERS, getAiConfig, setAiConfig, useAiConfig, type AiConfig, type TextProvider } from "../ai/config";
 import { proxyAvailable } from "../ai/proxy";
 import { clearTtsCache, ttsCacheSize } from "../ai/tts";
 import { toast } from "./Toast";
@@ -23,18 +23,54 @@ function KeyField({ label, value, onChange, placeholder }: { label: string; valu
   );
 }
 
-/** Test a service by listing its models; the list also feeds the model fields. */
+type Lists = Partial<Record<TextProvider, string[]>>;
+/** Lists already read during this visit, so that reopening the settings shows them at once. */
+const known: { models: Lists; image?: string[] } = { models: {} };
+
+/** The models each service offers: read quietly for the services in use, and by 测试连接 (which also reports). */
 function useModels() {
-  const [models, setModels] = useState<Partial<Record<TextProvider, string[]>>>({});
+  const [models, setModels] = useState<Lists>(known.models);
   // OpenRouter keeps its image models in a list of their own
-  const [imageModels, setImageModels] = useState<string[] | undefined>();
+  const [imageModels, setImageModels] = useState<string[] | undefined>(known.image);
   const [testing, setTesting] = useState<TextProvider | null>(null);
+  const [loading, setLoading] = useState<TextProvider[]>([]);
+  const pending = useRef(new Set<TextProvider>());
+
+  const load = useCallback(async (p: TextProvider) => {
+    const list = await listModels(p);
+    known.models = { ...known.models, [p]: list };
+    setModels(known.models);
+    if (p === "openrouter")
+      void listImageModels().then(
+        (l) => {
+          known.image = l;
+          setImageModels(l);
+        },
+        () => undefined,
+      );
+    return list;
+  }, []);
+
+  /** Read a service's list if it has a key and the list is not here yet; failures stay silent (测试连接 explains them). */
+  const ensure = useCallback(
+    (p: TextProvider) => {
+      if (known.models[p] || pending.current.has(p) || !getAiConfig().keys[p]) return;
+      pending.current.add(p);
+      setLoading([...pending.current]);
+      void load(p)
+        .catch(() => undefined)
+        .finally(() => {
+          pending.current.delete(p);
+          setLoading([...pending.current]);
+        });
+    },
+    [load],
+  );
+
   const test = async (p: TextProvider) => {
     setTesting(p);
     try {
-      const list = await listModels(p);
-      setModels((m) => ({ ...m, [p]: list }));
-      if (p === "openrouter") void listImageModels().then(setImageModels, () => undefined);
+      const list = await load(p);
       toast(`${LABEL[p]} 连接成功，有 ${list.length} 个模型可选`, "ok");
     } catch (e) {
       toast((e as Error).message, "warn");
@@ -42,17 +78,131 @@ function useModels() {
       setTesting(null);
     }
   };
-  return { models, imageModels, testing, test };
+  return { models, imageModels, testing, loading, test, ensure };
 }
 
-function ModelField({ provider, value, onChange, models, image }: { provider: TextProvider; value: string; onChange: (v: string) => void; models?: string[]; image?: boolean }) {
+/** A model name: free text, with the service's own models to pick from (all of them on opening, narrowed while typing). */
+function ModelField({
+  provider,
+  value,
+  onChange,
+  models,
+  image,
+  busy,
+  hasKey,
+}: {
+  provider: TextProvider;
+  value: string;
+  onChange: (v: string) => void;
+  models?: string[];
+  image?: boolean;
+  busy: boolean;
+  hasKey: boolean;
+}) {
   const id = `ai-models-${provider}${image ? "-image" : ""}`;
   const fallback = image && (provider === "openai" || provider === "openrouter") ? DEFAULT_IMAGE_MODELS[provider] : DEFAULT_MODELS[provider];
+  const [open, setOpen] = useState(false);
+  const [typed, setTyped] = useState(false);
+  const [active, setActive] = useState(-1);
+  const input = useRef<HTMLInputElement>(null);
+  const list = useRef<HTMLUListElement>(null);
+  const q = typed ? value.trim().toLowerCase() : "";
+  const shown = (models ?? []).filter((m) => !q || m.toLowerCase().includes(q));
+
+  const show = () => {
+    setTyped(false);
+    setActive(-1);
+    setOpen(true);
+  };
+  const pick = (m: string) => {
+    onChange(m);
+    setOpen(false);
+  };
+  // keep the highlighted model (or, on opening, the chosen one) in view
+  useEffect(() => {
+    if (!open) return;
+    const at = active >= 0 ? active : shown.indexOf(value);
+    (list.current?.children[at] as HTMLElement | undefined)?.scrollIntoView({ block: "nearest" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, active, models]);
+
+  const onKey = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!open) return show();
+      if (shown.length) setActive((a) => (e.key === "ArrowDown" ? Math.min(a + 1, shown.length - 1) : Math.max(a - 1, 0)));
+    } else if (e.key === "Enter" && open && shown[active]) {
+      e.preventDefault();
+      pick(shown[active]);
+    } else if (e.key === "Escape" && open) {
+      // close the list only, not the whole dialog
+      e.stopPropagation();
+      setOpen(false);
+    }
+  };
+
+  const empty = busy
+    ? "正在读取模型列表…"
+    : !hasKey
+      ? `先在上面填 ${LABEL[provider]} 的 Key，这里就会列出可选的模型`
+      : !models
+        ? "没有读到模型列表，点上面的「测试连接」看原因"
+        : "没有匹配的模型，也可以直接填模型名";
+
   return (
-    <>
-      <input list={id} value={value} onChange={(e) => onChange(e.target.value)} placeholder={fallback} spellCheck={false} />
-      <datalist id={id}>{(models ?? []).map((m) => <option key={m} value={m} />)}</datalist>
-    </>
+    <div className={`ai-model ${open ? "is-open" : ""}`}>
+      <input
+        ref={input}
+        role="combobox"
+        aria-expanded={open}
+        aria-controls={id}
+        aria-autocomplete="list"
+        aria-label="模型"
+        value={value}
+        placeholder={fallback}
+        spellCheck={false}
+        autoComplete="off"
+        onChange={(e) => {
+          onChange(e.target.value);
+          setTyped(true);
+          setActive(-1);
+          setOpen(true);
+        }}
+        onFocus={show}
+        onClick={() => !open && show()}
+        onBlur={() => setOpen(false)}
+        onKeyDown={onKey}
+      />
+      <button
+        type="button"
+        className="ai-model-toggle"
+        tabIndex={-1}
+        aria-label={open ? "收起模型列表" : "展开模型列表"}
+        onMouseDown={(e) => {
+          // keep the focus in the field
+          e.preventDefault();
+          if (open) return setOpen(false);
+          input.current?.focus();
+          show();
+        }}
+      >
+        <ChevronDown size={16} />
+      </button>
+      {open && (
+        <ul ref={list} id={id} role="listbox" className="ai-model-list">
+          {shown.length ? (
+            shown.map((m, i) => (
+              <li key={m} role="option" aria-selected={m === value} className={`${i === active ? "is-active" : ""} ${m === value ? "is-on" : ""}`} onMouseDown={(e) => (e.preventDefault(), pick(m))}>
+                <span>{m}</span>
+                {m === value && <Check size={14} />}
+              </li>
+            ))
+          ) : (
+            <li className="ai-model-empty">{empty}</li>
+          )}
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -61,7 +211,7 @@ export function AiSettings() {
   const c = useAiConfig();
   const set = (patch: Partial<AiConfig>) => setAiConfig(patch);
   const setKey = (k: keyof AiConfig["keys"], v: string) => setAiConfig((x) => ({ ...x, keys: { ...x.keys, [k]: v } }));
-  const { models, imageModels, testing, test } = useModels();
+  const { models, imageModels, testing, loading, test, ensure } = useModels();
   const [proxy, setProxy] = useState<boolean | null>(null);
   const [voices, setVoices] = useState<AzureVoice[] | null>(null);
   const [azBusy, setAzBusy] = useState(false);
@@ -70,6 +220,15 @@ export function AiSettings() {
     void proxyAvailable().then(setProxy);
     void ttsCacheSize().then(setCached);
   }, []);
+  // The services in use get their model lists read on their own; after a key is typed, once the typing has paused.
+  const inUse = [...new Set<TextProvider>([c.vision.provider, c.text.provider, c.image.provider])];
+  const inUseKeys = inUse.map((p) => `${p}:${c.keys[p]}`).join("|");
+  useEffect(() => {
+    const t = setTimeout(() => inUse.forEach(ensure), 600);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inUseKeys, ensure]);
+  const field = (p: TextProvider) => ({ provider: p, busy: loading.includes(p), hasKey: !!c.keys[p] });
 
   const loadVoices = async () => {
     setAzBusy(true);
@@ -134,7 +293,7 @@ export function AiSettings() {
             </button>
           ))}
         </div>
-        <ModelField provider={c.vision.provider} value={c.vision.model} onChange={(m) => set({ vision: { ...c.vision, model: m } })} models={models[c.vision.provider]} />
+        <ModelField {...field(c.vision.provider)} value={c.vision.model} onChange={(m) => set({ vision: { ...c.vision, model: m } })} models={models[c.vision.provider]} />
       </div>
       <div className="ai-job">
         <b>生成卡片 · 文本</b>
@@ -146,7 +305,7 @@ export function AiSettings() {
             </button>
           ))}
         </div>
-        <ModelField provider={c.text.provider} value={c.text.model} onChange={(m) => set({ text: { ...c.text, model: m } })} models={models[c.text.provider]} />
+        <ModelField {...field(c.text.provider)} value={c.text.model} onChange={(m) => set({ text: { ...c.text, model: m } })} models={models[c.text.provider]} />
       </div>
       <div className="ai-job">
         <b>生成图片</b>
@@ -160,7 +319,7 @@ export function AiSettings() {
         </div>
         <ModelField
           image
-          provider={c.image.provider}
+          {...field(c.image.provider)}
           value={c.image.model}
           onChange={(m) => set({ image: { ...c.image, model: m } })}
           models={c.image.provider === "openrouter" ? imageModels : models.openai?.filter((m) => /image|dall/.test(m))}

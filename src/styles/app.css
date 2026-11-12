@@ -5800,6 +5800,73 @@ button.deck-card:hover {
 .ai-job .segmented {
   justify-self: start;
 }
+.ai-model {
+  position: relative;
+}
+.ai-model.is-open {
+  z-index: 5;
+}
+.ai-settings .ai-model input {
+  padding-right: 40px;
+  text-overflow: ellipsis;
+}
+.ai-model-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+  transition: transform 0.2s var(--ease);
+}
+.ai-model.is-open .ai-model-toggle {
+  transform: rotate(180deg);
+}
+.ai-model-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: min(280px, 45dvh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  box-shadow: var(--shadow-lg);
+}
+.ai-model-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.ai-model-list li:hover,
+.ai-model-list li.is-active {
+  background: var(--card-2);
+}
+.ai-model-list li.is-on {
+  color: var(--terra);
+}
+.ai-model-list li svg {
+  flex: none;
+}
+.ai-model-list li.ai-model-empty {
+  color: var(--ink-3);
+  font-size: 13px;
+  cursor: default;
+  background: none;
+}
 
 /* ---------- 导入词 ---------- */
 .extract-tabs {
