@@ -1,4 +1,4 @@
-import { Bookmark, BookmarkCheck, Check, Lightbulb, Pencil, Plus, Share2 } from "lucide-react";
+import { Bookmark, BookmarkCheck, Check, Lightbulb, Pencil, Plus, Share2, X } from "lucide-react";
 import { useState } from "react";
 import { MEDIA, type Accent, type Entry, type WordRef } from "../atlas/types";
 import { useAtlas } from "../atlas/context";
@@ -10,7 +10,7 @@ import { Illustration } from "./Illustration";
 import { Speak } from "./Speak";
 import { shareWord } from "./share";
 import { closeWord, href, openWord } from "../lib/router";
-import { addToDeck, CORE_NAME, createDeck, isCustomId, removeFromDeck } from "../store/decks";
+import { addToDeck, CORE_NAME, createDeck, isCustomId, ownParts, removeFromCard, removeFromDeck } from "../store/decks";
 import { CORE_DECK } from "../store/store";
 import { WordForm } from "./WordForm";
 import { AiExplain } from "./AiExplain";
@@ -154,16 +154,33 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
   const famLinks = toLinks(entry.fam);
   const synLinks = toLinks(entry.syn);
   const antLinks = toLinks(entry.ant);
-  const linkList = (links: { label: string; id?: string }[]) =>
-    links.map((f) =>
-      f.id && mode === "detail" ? (
-        <button key={f.label} className="link" onClick={() => openWord(f.id!)}>
-          {f.label}
-        </button>
-      ) : (
-        <span key={f.label}>{f.label}</span>
-      ),
+  // what the learner put on this card themselves: in the detail view each of these can be taken off again (×)
+  const customAll = useStore((s) => s.progress.custom);
+  const editsAll = useStore((s) => s.progress.edits);
+  const own = ownParts({ custom: customAll, edits: editsAll }, entry.id);
+  const canRemove = mode === "detail";
+  const rm = (what: Parameters<typeof removeFromCard>[1]) =>
+    canRemove && (
+      <button className="own-rm" onClick={() => removeFromCard(entry.id, what)} aria-label="从卡片上移除" title="这是我加的：从卡片上移除">
+        <X size={13} />
+      </button>
     );
+  const linkList = (links: { label: string; id?: string }[], k: "fam" | "syn" | "ant") =>
+    links.map((f) => (
+      <span key={f.label} className="rel-item">
+        {f.id && mode === "detail" ? (
+          <button className="link" onClick={() => openWord(f.id!)}>
+            {f.label}
+          </button>
+        ) : (
+          <span>{f.label}</span>
+        )}
+        {own[k]?.includes(f.label) && rm({ [k]: f.label })}
+      </span>
+    ));
+  const ownTips = (own.tip ?? "").split("\n").map((t) => t.trim()).filter(Boolean);
+  // the rest of the 注意点 is the atlas's own (an own word has none besides the learner's)
+  const atlasTip = own.tip && entry.tip.startsWith(own.tip) ? entry.tip.slice(own.tip.length).trim() : own.tip ? "" : entry.tip;
   const status = card ? (isMastered(card) ? "已掌握" : "学习中") : null;
   const mine = isCustomId(entry.id);
   const edited = useStore((s) => !!s.progress.edits?.[entry.id]);
@@ -256,6 +273,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
               <span className="pos">{s.pos === "待核实" ? "" : s.pos}</span>
               <span className="zh">
                 {s.zh}
+                {i > 0 && own.senses?.some((x) => x.zh === s.zh) && rm({ sense: s.zh })}
               </span>
               {s.en && (
                 <span className="en" lang="fr">
@@ -280,6 +298,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
                     <ExampleSpeak entry={entry} index={i} text={x.en} />
                   </p>
                   <p className="ex-zh">{x.zh}</p>
+                  {own.ex?.some((o) => o.fr === x.en) && rm({ ex: x.en })}
                 </li>
               ))}
             </ul>
@@ -298,6 +317,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
                   <li key={c}>
                     <span lang="fr">{en}</span>
                     {zh && <small>{zh}</small>}
+                    {own.col?.includes(c) && rm({ col: c })}
                   </li>
                 );
               })}
@@ -310,19 +330,19 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
             {famLinks.length > 0 && (
               <div>
                 <h3 className="eyebrow">词族</h3>
-                <p>{linkList(famLinks)}</p>
+                <p>{linkList(famLinks, "fam")}</p>
               </div>
             )}
             {entry.syn.length > 0 && (
               <div>
                 <h3 className="eyebrow">近义</h3>
-                <p>{linkList(synLinks)}</p>
+                <p>{linkList(synLinks, "syn")}</p>
               </div>
             )}
             {entry.ant.length > 0 && (
               <div>
                 <h3 className="eyebrow">反义</h3>
-                <p>{linkList(antLinks)}</p>
+                <p>{linkList(antLinks, "ant")}</p>
               </div>
             )}
           </section>
@@ -333,7 +353,15 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
         {entry.tip && (
           <aside className="tip">
             <Lightbulb size={17} strokeWidth={1.8} />
-            <p>{entry.tip}</p>
+            <div className="tip-body">
+              {ownTips.map((t) => (
+                <p key={t} className="tip-own">
+                  {t}
+                  {rm({ tip: t })}
+                </p>
+              ))}
+              {atlasTip && <p>{atlasTip}</p>}
+            </div>
           </aside>
         )}
 

@@ -6,7 +6,7 @@ import { explainWord, type WordExplanation } from "../ai/tasks";
 import { useAtlas } from "../atlas/context";
 import type { Entry } from "../atlas/types";
 import { href, openWord } from "../lib/router";
-import { addToCard, findSame, isCustomId, removeFromCard } from "../store/decks";
+import { addToCard, findSame, headOf, ownParts, removeFromCard, type CardItem } from "../store/decks";
 import { useStore } from "../store/store";
 import { Speak } from "./Speak";
 import { toast } from "./Toast";
@@ -21,10 +21,38 @@ interface Saved {
 const PROVIDER: Record<string, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic", openrouter: "OpenRouter" };
 const key = (e: Entry) => `explain:${e.id}:${e.w}`;
 
+/** 加到卡片 for one item of the explanation: add it, take it off again, or say the card already has it. */
+function Pick({ state, what = "加到卡片", onClick }: { state: "mine" | "card" | "none"; what?: string; onClick: () => void }) {
+  return (
+    <button
+      className={`chip-btn ai-add ${state === "none" ? "" : "is-on"}`}
+      onClick={onClick}
+      disabled={state === "card"}
+      aria-pressed={state === "mine"}
+      title={state === "mine" ? "已经加到卡片上；点一下移除" : state === "card" ? "卡片上本来就有" : "加到这个词的卡片上"}
+    >
+      {state === "mine" ? (
+        <>
+          <Check size={13} /> 已加 · 移除
+        </>
+      ) : state === "card" ? (
+        "卡片已有"
+      ) : (
+        <>
+          <Plus size={13} /> {what}
+        </>
+      )}
+    </button>
+  );
+}
+
+const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+
 /**
  * AI 讲解: the word's senses with how they are used, near-synonyms and how they differ, antonyms, collocations,
  * points to watch and its family, written by the 生成卡片 service. Kept on this device after the first time.
- * Collocations and points can be put on the card (加到卡片) and taken off again.
+ * Every item can be put on the card (加到卡片) and taken off again: meanings, examples, synonyms, antonyms,
+ * collocations, points and family words.
  */
 export function AiExplain({ entry }: { entry: Entry }) {
   const ai = useAiConfig();
@@ -34,10 +62,9 @@ export function AiExplain({ entry }: { entry: Entry }) {
   const ctrl = useRef<AbortController | null>(null);
   // what the learner added to this card themselves (removable), as opposed to the atlas's own text
   // (the selectors return stored values as they are: a new object here would re-render forever)
-  const own = isCustomId(entry.id);
-  const mineCols = useStore((s) => (own ? s.progress.custom?.[entry.id]?.col : s.progress.edits?.[entry.id]?.col));
-  const mineTip = useStore((s) => (own ? s.progress.custom?.[entry.id]?.note : s.progress.edits?.[entry.id]?.tip));
-  const mine = { col: mineCols ?? [], tip: mineTip ?? "" };
+  const custom = useStore((s) => s.progress.custom);
+  const edits = useStore((s) => s.progress.edits);
+  const mine = ownParts({ custom, edits }, entry.id);
 
   useEffect(() => {
     let live = true;
@@ -87,9 +114,6 @@ export function AiExplain({ entry }: { entry: Entry }) {
     );
 
   const d = saved.data;
-  const onCardCol = (fr: string) => entry.col.some((c) => c.split("｜")[0].trim().toLowerCase() === fr.trim().toLowerCase());
-  const mineCol = (fr: string) => mine.col.find((c) => c.split("｜")[0].trim().toLowerCase() === fr.trim().toLowerCase());
-  const onCardTip = (t: string) => entry.tip.includes(t);
   const link = (fr: string) => findSame(atlas, fr)[0]?.id;
   const word = (fr: string) => {
     const id = link(fr);
@@ -101,14 +125,19 @@ export function AiExplain({ entry }: { entry: Entry }) {
       <b lang="fr">{fr}</b>
     );
   };
-  const toggleCol = (fr: string, zh: string) => {
-    const have = mineCol(fr);
-    if (have) removeFromCard(entry.id, { col: have });
-    else if (!onCardCol(fr)) addToCard(entry.id, { col: [zh ? `${fr}｜${zh}` : fr] });
-  };
-  const toggleTip = (t: string) => {
-    if (mine.tip.split("\n").some((x) => x.trim() === t)) removeFromCard(entry.id, { tip: t });
-    else if (!onCardTip(t)) addToCard(entry.id, { tip: t });
+  /** Whether the learner added it (mine), the card has it anyway (card), or neither. */
+  const stateOf = (inMine: boolean, onCard: boolean): "mine" | "card" | "none" => (inMine ? "mine" : onCard ? "card" : "none");
+  const put = (item: CardItem) => addToCard(entry.id, item) || toast("卡片上这一栏已经满了，先移除几条再加", "warn");
+
+  const colState = (fr: string) => stateOf(!!mine.col?.some((c) => same(headOf(c), fr)), entry.col.some((c) => same(headOf(c), fr)));
+  const tipState = (t: string) => stateOf((mine.tip ?? "").split("\n").some((x) => x.trim() === t.trim()), entry.tip.includes(t));
+  const senseState = (zh: string) => stateOf(!!mine.senses?.some((x) => same(x.zh, zh)), entry.senses.some((x) => same(x.zh, zh)));
+  const exState = (fr: string) => stateOf(!!mine.ex?.some((x) => same(x.fr, fr)), entry.ex.some((x) => same(x.en, fr)));
+  const relState = (k: "syn" | "ant" | "fam", fr: string) => stateOf(!!mine[k]?.some((x) => same(headOf(x), fr)), entry[k].some((x) => same(headOf(x), fr)));
+  const related = (x: { fr: string; zh: string }) => (x.zh ? `${x.fr} (${x.zh})` : x.fr);
+  const relPick = (k: "syn" | "ant" | "fam", x: { fr: string; zh: string }) => {
+    const st = relState(k, x.fr);
+    return <Pick state={st} onClick={() => (st === "mine" ? removeFromCard(entry.id, { [k]: x.fr }) : put({ [k]: related(x) }))} />;
   };
 
   return (
@@ -120,24 +149,35 @@ export function AiExplain({ entry }: { entry: Entry }) {
         </button>
       </h3>
       {d.summary && <p className="ai-summary">{d.summary}</p>}
+      <p className="muted small ai-how">每一条都可以「加到卡片」；加过的再点一下就移除，也可以在卡片上点 × 移除。</p>
 
       {d.senses.length > 0 && (
         <ol className="ai-senses">
-          {d.senses.map((s, i) => (
-            <li key={i}>
-              <p>
-                {s.pos && <span className="pos">{s.pos}</span>} <b>{s.zh}</b>
-              </p>
-              {s.explain && <p className="ai-explain-text">{s.explain}</p>}
-              {s.example && (
-                <p className="ai-example">
-                  <span lang="fr">{s.example}</span>
-                  <Speak url={null} text={s.example} size="sm" />
-                  {s.exampleZh && <small>{s.exampleZh}</small>}
+          {d.senses.map((s, i) => {
+            const st = senseState(s.zh);
+            const xs = s.example ? exState(s.example) : "none";
+            return (
+              <li key={i}>
+                <p className="ai-sense-head">
+                  <span>
+                    {s.pos && <span className="pos">{s.pos}</span>} <b>{s.zh}</b>
+                  </span>
+                  <Pick state={st} what="加这个意思" onClick={() => (st === "mine" ? removeFromCard(entry.id, { sense: s.zh }) : put({ sense: { pos: s.pos, zh: s.zh } }))} />
                 </p>
-              )}
-            </li>
-          ))}
+                {s.explain && <p className="ai-explain-text">{s.explain}</p>}
+                {s.example && (
+                  <div className="ai-example">
+                    <p>
+                      <span lang="fr">{s.example}</span>
+                      <Speak url={null} text={s.example} size="sm" />
+                      {s.exampleZh && <small>{s.exampleZh}</small>}
+                    </p>
+                    <Pick state={xs} what="加这条例句" onClick={() => (xs === "mine" ? removeFromCard(entry.id, { ex: s.example }) : put({ ex: { fr: s.example, zh: s.exampleZh } }))} />
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ol>
       )}
 
@@ -146,11 +186,14 @@ export function AiExplain({ entry }: { entry: Entry }) {
           {d.synonyms.length > 0 && (
             <div>
               <h4>近义词</h4>
-              <ul className="ai-list">
+              <ul className="ai-list ai-picks">
                 {d.synonyms.map((x) => (
                   <li key={x.fr}>
-                    {word(x.fr)} <small>{x.zh}</small>
-                    {x.diff && <p className="ai-diff">{x.diff}</p>}
+                    <span>
+                      {word(x.fr)} <small>{x.zh}</small>
+                      {x.diff && <span className="ai-diff">{x.diff}</span>}
+                    </span>
+                    {relPick("syn", x)}
                   </li>
                 ))}
               </ul>
@@ -159,10 +202,13 @@ export function AiExplain({ entry }: { entry: Entry }) {
           {d.antonyms.length > 0 && (
             <div>
               <h4>反义词</h4>
-              <ul className="ai-list">
+              <ul className="ai-list ai-picks">
                 {d.antonyms.map((x) => (
                   <li key={x.fr}>
-                    {word(x.fr)} <small>{x.zh}</small>
+                    <span>
+                      {word(x.fr)} <small>{x.zh}</small>
+                    </span>
+                    {relPick("ant", x)}
                   </li>
                 ))}
               </ul>
@@ -173,17 +219,16 @@ export function AiExplain({ entry }: { entry: Entry }) {
 
       {d.collocations.length > 0 && (
         <>
-          <h4>常用搭配 <small>点「加到卡片」放进这个词的常用搭配</small></h4>
+          <h4>常用搭配</h4>
           <ul className="ai-list ai-picks">
             {d.collocations.map((c) => {
-              const added = !!mineCol(c.fr);
-              const atlasHas = onCardCol(c.fr) && !added;
+              const st = colState(c.fr);
               return (
                 <li key={c.fr}>
-                  <span lang="fr">{c.fr}</span> <small>{c.zh}</small>
-                  <button className={`chip-btn ai-add ${added || atlasHas ? "is-on" : ""}`} onClick={() => toggleCol(c.fr, c.zh)} disabled={atlasHas} aria-pressed={added}>
-                    {added ? <><Check size={13} /> 已加到卡片</> : atlasHas ? "词库已有" : <><Plus size={13} /> 加到卡片</>}
-                  </button>
+                  <span>
+                    <span lang="fr">{c.fr}</span> <small>{c.zh}</small>
+                  </span>
+                  <Pick state={st} onClick={() => (st === "mine" ? removeFromCard(entry.id, { col: c.fr }) : put({ col: c.zh ? `${c.fr}｜${c.zh}` : c.fr }))} />
                 </li>
               );
             })}
@@ -196,13 +241,11 @@ export function AiExplain({ entry }: { entry: Entry }) {
           <h4>注意点</h4>
           <ul className="ai-list ai-picks">
             {d.tips.map((t) => {
-              const added = mine.tip.split("\n").some((x) => x.trim() === t);
+              const st = tipState(t);
               return (
                 <li key={t}>
                   <span>{t}</span>
-                  <button className={`chip-btn ai-add ${added ? "is-on" : ""}`} onClick={() => toggleTip(t)} aria-pressed={added}>
-                    {added ? <><Check size={13} /> 已加到卡片</> : <><Plus size={13} /> 加到卡片</>}
-                  </button>
+                  <Pick state={st} onClick={() => (st === "mine" ? removeFromCard(entry.id, { tip: t }) : put({ tip: t }))} />
                 </li>
               );
             })}
@@ -213,14 +256,16 @@ export function AiExplain({ entry }: { entry: Entry }) {
       {d.family.length > 0 && (
         <>
           <h4>词族</h4>
-          <p className="ai-family">
-            {d.family.map((x, i) => (
-              <span key={x.fr}>
-                {i > 0 && " · "}
-                {word(x.fr)} <small>{x.zh}</small>
-              </span>
+          <ul className="ai-list ai-picks">
+            {d.family.map((x) => (
+              <li key={x.fr}>
+                <span>
+                  {word(x.fr)} <small>{x.zh}</small>
+                </span>
+                {relPick("fam", x)}
+              </li>
             ))}
-          </p>
+          </ul>
         </>
       )}
 

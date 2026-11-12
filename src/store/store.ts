@@ -42,8 +42,28 @@ export interface UserExample {
   hl?: [number, number];
 }
 
+/** A further meaning the learner put on a card (from AI 讲解), shown after the card's own senses. */
+export interface OwnSense {
+  pos: string;
+  zh: string;
+}
+
+/** What the learner can put on any card besides collocations and a 注意点: further meanings and related words. */
+export interface CardExtras {
+  senses?: OwnSense[];
+  /** Related words, each "mot (中文)". */
+  syn?: string[];
+  ant?: string[];
+  fam?: string[];
+}
+export const MAX_OWN_SENSES = 6;
+export const MAX_RELATED = 12;
+export const MAX_EXAMPLES = 5;
+/** Longest 注意点 (several lines, one point each). */
+export const MAX_TIP = 1000;
+
 /** A word the learner added that is not in the atlas. Stored under an id "u-…". */
-export interface CustomWord {
+export interface CustomWord extends CardExtras {
   w: string;
   /** Part of speech as the atlas writes it: "n.m.", "n.f.", "v.", "adj." … ; n.m. / n.f. give the un / une quiz. */
   pos: string;
@@ -61,7 +81,7 @@ export interface CustomWord {
 }
 
 /** The learner's changes to an atlas word, shown in every deck: a gloss for the first sense, own examples (first). */
-export interface WordEdit {
+export interface WordEdit extends CardExtras {
   zh?: string;
   ex?: UserExample[];
   /** 不要图片 for an atlas word (see CustomWord.noImg). */
@@ -322,7 +342,7 @@ function sanitizeExamples(v: unknown): UserExample[] | undefined {
       return ex;
     })
     .filter((x) => x.fr)
-    .slice(0, 5);
+    .slice(0, MAX_EXAMPLES);
   return out.length ? out : undefined;
 }
 
@@ -332,6 +352,29 @@ function sanitizeCollocations(v: unknown): string[] | undefined {
   if (!Array.isArray(v)) return undefined;
   const out = [...new Set(v.map((x) => str(x, 160)).filter((x) => x && !x.startsWith("｜")))].slice(0, MAX_COLLOCATIONS);
   return out.length ? out : undefined;
+}
+
+function sanitizeRelated(v: unknown): string[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out = [...new Set(v.map((x) => str(x, 120)).filter(Boolean))].slice(0, MAX_RELATED);
+  return out.length ? out : undefined;
+}
+/** Further meanings and related words on a card, from stored data (untrusted). */
+function sanitizeExtras(v: Record<string, unknown>): CardExtras {
+  const out: CardExtras = {};
+  if (Array.isArray(v.senses)) {
+    const senses = v.senses
+      .filter(isObj)
+      .map((x) => ({ pos: str(x.pos, 16), zh: str(x.zh, 300) }))
+      .filter((x) => x.zh)
+      .slice(0, MAX_OWN_SENSES);
+    if (senses.length) out.senses = senses;
+  }
+  for (const k of ["syn", "ant", "fam"] as const) {
+    const list = sanitizeRelated(v[k]);
+    if (list) out[k] = list;
+  }
+  return out;
 }
 
 /** Decks, hidden words, custom words and edits from stored data or a backup (untrusted). */
@@ -380,12 +423,13 @@ export function sanitizeUserData(v: Record<string, unknown>): Pick<Progress, "de
       if (ipa) word.ipa = ipa;
       const ex = sanitizeExamples(c.ex);
       if (ex) word.ex = ex;
-      const note = str(c.note, 300);
+      const note = str(c.note, MAX_TIP);
       if (note) word.note = note;
       if (c.auto === true) word.auto = true;
       if (c.noImg === true) word.noImg = true;
       const col = sanitizeCollocations(c.col);
       if (col) word.col = col;
+      Object.assign(word, sanitizeExtras(c));
       custom[id] = word;
       if (Object.keys(custom).length >= 20000) break;
     }
@@ -403,9 +447,10 @@ export function sanitizeUserData(v: Record<string, unknown>): Pick<Progress, "de
       if (e.noImg === true) edit.noImg = true;
       const col = sanitizeCollocations(e.col);
       if (col) edit.col = col;
-      const tip = str(e.tip, 300);
+      const tip = str(e.tip, MAX_TIP);
       if (tip) edit.tip = tip;
-      if (edit.zh || edit.ex || edit.noImg || edit.col || edit.tip) edits[id] = edit;
+      Object.assign(edit, sanitizeExtras(e));
+      if (Object.keys(edit).length) edits[id] = edit;
     }
     if (Object.keys(edits).length) out.edits = edits;
   }

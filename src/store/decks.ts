@@ -8,7 +8,7 @@
 import type { Atlas, WordRef } from "../atlas/types";
 import { foldAccents } from "../lib/accent";
 import { setImage } from "./images";
-import { CORE_DECK, MAX_COLLOCATIONS, store, type CustomWord, type Deck, type Progress, type Settings, type Step, type UserExample, type WordEdit } from "./store";
+import { CORE_DECK, MAX_COLLOCATIONS, MAX_EXAMPLES, MAX_OWN_SENSES, MAX_RELATED, MAX_TIP, store, type CardExtras, type CustomWord, type OwnSense, type Deck, type Progress, type Settings, type Step, type UserExample, type WordEdit } from "./store";
 
 export const CORE_NAME = "初始词本";
 
@@ -220,8 +220,26 @@ const cleanExamples = (ex: UserExample[] | undefined) => {
       return clean;
     })
     .filter((x) => x.fr);
-  return out.length ? out.slice(0, 5) : undefined;
+  return out.length ? out.slice(0, MAX_EXAMPLES) : undefined;
 };
+
+/** Further meanings and related words as stored: trimmed, repeats dropped, nothing kept when empty. */
+function cleanExtras(x: CardExtras): CardExtras {
+  const out: CardExtras = {};
+  const senses = (x.senses ?? [])
+    .map((s) => ({ pos: s.pos.trim().slice(0, 16), zh: s.zh.trim().slice(0, 300) }))
+    .filter((s) => s.zh)
+    .slice(0, MAX_OWN_SENSES);
+  if (senses.length) out.senses = senses;
+  for (const k of ["syn", "ant", "fam"] as const) {
+    const list = [...new Set((x[k] ?? []).map((v) => v.trim().slice(0, 120)).filter(Boolean))].slice(0, MAX_RELATED);
+    if (list.length) out[k] = list;
+  }
+  return out;
+}
+/** `input` where it says something about a part (even an empty list), otherwise what the word already had. */
+const keepExtras = (input: CardExtras, old: CardExtras | undefined): CardExtras =>
+  cleanExtras({ senses: input.senses ?? old?.senses, syn: input.syn ?? old?.syn, ant: input.ant ?? old?.ant, fam: input.fam ?? old?.fam });
 
 /** Collocations as stored: "French｜中文", blanks and repeats dropped. */
 export function cleanCollocations(col: string[] | undefined) {
@@ -247,11 +265,12 @@ export function createCustomWord(input: Omit<CustomWord, "created">, deckId?: st
   if (input.ipa?.trim()) word.ipa = input.ipa.trim().slice(0, 80);
   const ex = cleanExamples(input.ex);
   if (ex) word.ex = ex;
-  if (input.note?.trim()) word.note = input.note.trim().slice(0, 300);
+  if (input.note?.trim()) word.note = input.note.trim().slice(0, MAX_TIP);
   if (input.auto) word.auto = true;
   if (input.noImg) word.noImg = true;
   const col = cleanCollocations(input.col);
   if (col) word.col = col;
+  Object.assign(word, cleanExtras(input));
   store.progress((p) => ({ ...p, custom: { ...p.custom, [id]: word } }));
   if (deckId) addToDeck(deckId, id);
   return id;
@@ -265,11 +284,13 @@ export function updateCustomWord(id: string, input: Omit<CustomWord, "created">)
     if (input.ipa?.trim()) word.ipa = input.ipa.trim().slice(0, 80);
     const ex = cleanExamples(input.ex);
     if (ex) word.ex = ex;
-    if (input.note?.trim()) word.note = input.note.trim().slice(0, 300);
+    if (input.note?.trim()) word.note = input.note.trim().slice(0, MAX_TIP);
     if (input.auto) word.auto = true;
     if (input.noImg) word.noImg = true;
     const col = cleanCollocations(input.col);
     if (col) word.col = col;
+    // the edit form does not show these: they stay as they were
+    Object.assign(word, keepExtras(input, old));
     return { ...p, custom: { ...p.custom, [id]: word } };
   });
 }
@@ -311,42 +332,103 @@ export function setWordEdit(id: string, edit: WordEdit) {
     if (edit.noImg) next.noImg = true;
     const col = cleanCollocations(edit.col);
     if (col) next.col = col;
-    const tip = edit.tip?.trim().slice(0, 300);
+    const tip = edit.tip?.trim().slice(0, MAX_TIP);
     if (tip) next.tip = tip;
-    const edits = next.zh || next.ex || next.noImg || next.col || next.tip ? { ...p.edits, [id]: next } : without(p.edits, id);
+    Object.assign(next, keepExtras(edit, p.edits?.[id]));
+    const edits = Object.keys(next).length ? { ...p.edits, [id]: next } : without(p.edits, id);
     return { ...p, edits };
   });
 }
 
-/**
- * Add collocations ("French｜中文") and 注意点 to a word's card: an atlas word gets them in its edit (shown in every
- * deck), an own word in its collocations and note. Ones already there are not added twice.
- */
-export function addToCard(id: string, add: { col?: string[]; tip?: string }) {
-  const p = store.get().progress;
-  const merge = (have: string[] | undefined) => cleanCollocations([...(have ?? []), ...(add.col ?? []).filter((c) => !(have ?? []).some((h) => h.split("｜")[0].toLowerCase() === c.split("｜")[0].toLowerCase()))]);
-  const tipOf = (have: string | undefined) => (add.tip && !(have ?? "").includes(add.tip) ? [have, add.tip].filter(Boolean).join("\n") : have);
-  if (isCustomId(id)) {
-    const c = p.custom?.[id];
-    if (c) updateCustomWord(id, { ...c, col: merge(c.col), note: tipOf(c.note) });
-    return;
-  }
-  const e = p.edits?.[id];
-  setWordEdit(id, { ...e, col: merge(e?.col), tip: tipOf(e?.tip) });
+/** What the learner put on a card themselves, whichever kind of word it is (an own word keeps its 注意点 as `note`). */
+export interface OwnParts extends CardExtras {
+  col?: string[];
+  tip?: string;
+  ex?: UserExample[];
 }
 
-/** Take one collocation or 注意点 off a card again (only what the learner added). */
-export function removeFromCard(id: string, rm: { col?: string; tip?: string }) {
-  const p = store.get().progress;
-  const keepCol = (have: string[] | undefined) => cleanCollocations((have ?? []).filter((c) => c !== rm.col));
-  const keepTip = (have: string | undefined) => (rm.tip ? (have ?? "").split("\n").filter((t) => t.trim() !== rm.tip).join("\n") : have);
+export function ownParts(p: Pick<Progress, "custom" | "edits">, id: string): OwnParts {
   if (isCustomId(id)) {
     const c = p.custom?.[id];
-    if (c) updateCustomWord(id, { ...c, col: keepCol(c.col), note: keepTip(c.note) });
-    return;
+    return c ? { col: c.col, tip: c.note, ex: c.ex, senses: c.senses, syn: c.syn, ant: c.ant, fam: c.fam } : {};
   }
   const e = p.edits?.[id];
-  setWordEdit(id, { ...e, col: keepCol(e?.col), tip: keepTip(e?.tip) });
+  return e ? { col: e.col, tip: e.tip, ex: e.ex, senses: e.senses, syn: e.syn, ant: e.ant, fam: e.fam } : {};
+}
+
+function saveOwn(id: string, o: OwnParts) {
+  const p = store.get().progress;
+  if (isCustomId(id)) {
+    const c = p.custom?.[id];
+    // empty lists (not undefined) so that what was removed is not carried over from the stored word
+    if (c) updateCustomWord(id, { ...c, col: o.col ?? [], note: o.tip ?? "", ex: o.ex ?? [], senses: o.senses ?? [], syn: o.syn ?? [], ant: o.ant ?? [], fam: o.fam ?? [] });
+    return;
+  }
+  setWordEdit(id, { ...p.edits?.[id], ...o, col: o.col ?? [], tip: o.tip ?? "", ex: o.ex ?? [], senses: o.senses ?? [], syn: o.syn ?? [], ant: o.ant ?? [], fam: o.fam ?? [] });
+}
+
+const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+/** The French part of a collocation ("French｜中文") or of a related word ("mot (中文)"). */
+export const headOf = (x: string) => x.split("｜")[0].replace(/\s*[（(].*[)）]\s*$/, "").trim();
+const tipLines = (t: string | undefined) => (t ?? "").split("\n").map((x) => x.trim()).filter(Boolean);
+
+/** One thing to put on a card, or to take off again. Removal names the item by its French (meanings by the Chinese). */
+export interface CardItem {
+  col?: string;
+  tip?: string;
+  ex?: UserExample;
+  sense?: OwnSense;
+  syn?: string;
+  ant?: string;
+  fam?: string;
+}
+
+/**
+ * Put something on a word's card: an atlas word gets it in its edit (shown in every deck), an own word in itself.
+ * Returns false when it is already there or that part of the card is full.
+ */
+export function addToCard(id: string, add: CardItem): boolean {
+  const o = ownParts(store.get().progress, id);
+  const next: OwnParts = { ...o };
+  if (add.col) {
+    if ((o.col ?? []).some((c) => same(headOf(c), headOf(add.col!))) || (o.col?.length ?? 0) >= MAX_COLLOCATIONS) return false;
+    next.col = [...(o.col ?? []), add.col];
+  }
+  if (add.tip) {
+    const lines = tipLines(o.tip);
+    const tip = [...lines, add.tip.trim()].join("\n");
+    if (lines.includes(add.tip.trim()) || tip.length > MAX_TIP) return false;
+    next.tip = tip;
+  }
+  if (add.ex) {
+    if ((o.ex ?? []).some((x) => same(x.fr, add.ex!.fr)) || (o.ex?.length ?? 0) >= MAX_EXAMPLES) return false;
+    // after the learner's other examples: the first example is the one cloze and dictation use
+    next.ex = [...(o.ex ?? []), add.ex];
+  }
+  if (add.sense) {
+    if ((o.senses ?? []).some((x) => same(x.zh, add.sense!.zh)) || (o.senses?.length ?? 0) >= MAX_OWN_SENSES) return false;
+    next.senses = [...(o.senses ?? []), add.sense];
+  }
+  for (const k of ["syn", "ant", "fam"] as const) {
+    const v = add[k];
+    if (!v) continue;
+    if ((o[k] ?? []).some((x) => same(headOf(x), headOf(v))) || (o[k]?.length ?? 0) >= MAX_RELATED) return false;
+    next[k] = [...(o[k] ?? []), v];
+  }
+  saveOwn(id, next);
+  return true;
+}
+
+/** Take one thing off a card again (only what the learner put there). */
+export function removeFromCard(id: string, rm: { col?: string; tip?: string; ex?: string; sense?: string; syn?: string; ant?: string; fam?: string }) {
+  const o = ownParts(store.get().progress, id);
+  const next: OwnParts = { ...o };
+  if (rm.col) next.col = (o.col ?? []).filter((c) => !same(headOf(c), headOf(rm.col!)));
+  if (rm.tip) next.tip = tipLines(o.tip).filter((t) => t !== rm.tip!.trim()).join("\n");
+  if (rm.ex) next.ex = (o.ex ?? []).filter((x) => !same(x.fr, rm.ex!));
+  if (rm.sense) next.senses = (o.senses ?? []).filter((x) => !same(x.zh, rm.sense!));
+  for (const k of ["syn", "ant", "fam"] as const) if (rm[k]) next[k] = (o[k] ?? []).filter((x) => !same(headOf(x), headOf(rm[k]!)));
+  saveOwn(id, next);
 }
 
 /* ---------- 从文章取词 ---------- */

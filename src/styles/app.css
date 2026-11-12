@@ -1251,6 +1251,59 @@ code {
   font-size: 14.5px;
   line-height: 1.6;
 }
+.tip-body {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+/* × on what the learner put on the card themselves (detail view) */
+.own-rm {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 6px;
+  vertical-align: middle;
+  border-radius: 50%;
+  color: var(--ink-3);
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+  flex: none;
+}
+.own-rm:hover,
+.own-rm:focus-visible {
+  color: #fff;
+  background: var(--terra);
+}
+.tip .own-rm svg,
+.own-rm svg {
+  color: inherit;
+  margin: 0;
+}
+.collocations li {
+  position: relative;
+}
+.collocations .own-rm {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  margin: 0;
+}
+.collocations li:has(.own-rm) {
+  padding-right: 34px;
+}
+.examples li {
+  position: relative;
+}
+.examples li > .own-rm {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+}
+.rel-item {
+  display: inline-flex;
+  align-items: center;
+}
 .memory-note {
   margin-top: 18px;
   font-size: 12.5px;
@@ -6438,6 +6491,41 @@ button.deck-card:hover {
 }
 .ai-meta {
   margin-top: 14px;
+}
+.ai-how {
+  margin: 2px 0 10px;
+}
+.ai-sense-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.ai-example {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.ai-example > p {
+  flex: 1 1 260px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 8px;
+  margin: 0;
+}
+.ai-picks li > span .ai-diff {
+  display: block;
+}
+.ai-senses .chip-btn.ai-add {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  min-height: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
 }
 .ai-picks .chip-btn.ai-add {
   display: inline-flex;

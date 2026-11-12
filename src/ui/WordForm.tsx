@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import { openWord } from "../lib/router";
 import { addToDeck, cleanCollocations, createCustomWord, deleteCustomWord, findSame, setWordEdit, updateCustomWord } from "../store/decks";
-import { MAX_COLLOCATIONS, useStore, type UserExample } from "../store/store";
+import { MAX_COLLOCATIONS, MAX_TIP, useStore, type UserExample } from "../store/store";
 import { joinGlosses, lookupDict, type DictHit } from "../lib/dict";
 import { fileToImage, setImage, useImages } from "../store/images";
 import { pictureFromUrl, searchPictures, type PictureHit } from "../lib/picture";
@@ -458,7 +458,7 @@ function ExtrasField({
       </div>
       <label className="wf-field">
         <span>{atlasMode ? "我的注意点（排在词库提示前面）" : "注意点 / 备注（可不填）"}</span>
-        <textarea value={tip} onChange={(e) => onTip(e.target.value)} placeholder="容易错的地方：阴阳性、搭配的介词、易混词、在哪儿遇到的……" maxLength={300} rows={2} />
+        <textarea value={tip} onChange={(e) => onTip(e.target.value)} placeholder="容易错的地方：阴阳性、搭配的介词、易混词、在哪儿遇到的……" maxLength={MAX_TIP} rows={2} />
       </label>
       {ready.text(ai) ? (
         <div className="wf-ideas">

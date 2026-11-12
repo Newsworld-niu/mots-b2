@@ -4,7 +4,7 @@
  * Custom words are reachable by id and by search, but are not part of the learning path (atlas.words).
  */
 import { locateWord } from "../lib/text";
-import type { CustomWord, UserExample, WordEdit } from "../store/store";
+import type { CardExtras, CustomWord, UserExample, WordEdit } from "../store/store";
 import type { Atlas, Entry, Example, WordRef } from "./types";
 import { MEDIA } from "./types";
 
@@ -16,6 +16,10 @@ const mineExamples = (ex: UserExample[] | undefined, w: string): Example[] =>
     const hl = x.hl ?? locateWord(x.fr, w);
     return { en: x.fr, zh: x.zh, origin: x.src === "tatoeba" ? "tatoeba" : "mine", ...(hl ? { hl } : {}) };
   });
+
+/** The learner's further meanings and related words, after the card's own. */
+const ownSenses = (x: CardExtras) => (x.senses ?? []).map((s) => ({ pos: s.pos, zh: s.zh, en: "", status: "自己添加" }));
+const withOwn = (have: string[], own: string[] | undefined) => (own?.length ? [...have, ...own.filter((x) => !have.includes(x))] : have);
 
 export function customRef(id: string, c: CustomWord): WordRef {
   const g = genderOf(c.pos);
@@ -30,12 +34,12 @@ export function customEntry(id: string, c: CustomWord): Entry {
     w: c.w,
     uk: ipa,
     us: ipa,
-    senses: [{ pos: c.pos, zh: c.zh, en: "", status: c.auto ? "词典自动填写·待核对" : "自己添加" }],
+    senses: [{ pos: c.pos, zh: c.zh, en: "", status: c.auto ? "词典自动填写·待核对" : "自己添加" }, ...ownSenses(c)],
     ex: mineExamples(c.ex, c.w),
     col: c.col ?? [],
-    fam: [],
-    syn: [],
-    ant: [],
+    fam: c.fam ?? [],
+    syn: c.syn ?? [],
+    ant: c.ant ?? [],
     tip: c.note ?? "",
     cefr: "",
     topic: "",
@@ -46,12 +50,13 @@ export function customEntry(id: string, c: CustomWord): Entry {
 }
 
 export function editedEntry(e: Entry, edit: WordEdit): Entry {
-  const senses = edit.zh && e.senses.length ? [{ ...e.senses[0], zh: edit.zh, status: "自己改过" }, ...e.senses.slice(1)] : e.senses;
+  const first = edit.zh && e.senses.length ? [{ ...e.senses[0], zh: edit.zh, status: "自己改过" }, ...e.senses.slice(1)] : e.senses;
+  const senses = edit.senses?.length ? [...first, ...ownSenses(edit)] : first;
   // own examples go first: cloze and dictation use the first example
   const ex = edit.ex ? [...mineExamples(edit.ex, e.w), ...e.ex] : e.ex;
   const col = edit.col ? [...edit.col, ...e.col.filter((c) => !edit.col!.includes(c))] : e.col;
   const tip = edit.tip ? (e.tip ? `${edit.tip}\n\n${e.tip}` : edit.tip) : e.tip;
-  return { ...e, senses, ex, col, tip, ...(edit.noImg ? { noImg: true } : {}) };
+  return { ...e, senses, ex, col, tip, syn: withOwn(e.syn, edit.syn), ant: withOwn(e.ant, edit.ant), fam: withOwn(e.fam, edit.fam), ...(edit.noImg ? { noImg: true } : {}) };
 }
 
 /**
