@@ -4,7 +4,7 @@
 
 ## 网站
 
-推送到 `main` 后，`.github/workflows/pages.yml` 会自动构建并发布到 GitHub Pages：<https://newsworld-niu.github.io/mots-b2/>。网站是公开的（页面带 `noindex`，不让搜索引擎收录），学习进度存在各人自己的浏览器里；AI 功能和 Azure 朗读在网站上不可用，只在本地 `npm run dev` / `preview` 和安卓应用里可用。
+推送到 `main` 后，`.github/workflows/pages.yml` 会自动构建并发布到 GitHub Pages：<https://newsworld-niu.github.io/mots-b2/>。网站是公开的（页面带 `noindex`，不让搜索引擎收录），学习进度存在各人自己的浏览器里；AI 功能和 Azure 朗读在网站上也能用：填好 Key 后由浏览器直接请求各家接口。
 
 ## 来源与授权
 本项目由 [designfuchen/word-atlas](https://github.com/designfuchen/word-atlas)（英语词汇学习站点）修改而来：界面、交互、记忆算法的接法和构建脚本的框架出自原项目，法语词库、语法、阅读、成句练习、离线词典和 AI 接口是在它之上改写和新增的。
@@ -66,7 +66,7 @@ npm run e2e            # 浏览器端到端（需 dev 服务与本机 Chrome）
 - **AI 短文**（`writeText`，`src/ai/tasks.ts`）：取最近答错的、今天到期的词（不够时从学习路线补，功能词除外），按起始等级和这些词的等级定难度，附中文译文和 3 道中文理解题。生成后由代码核对（`src/lib/reader.ts`）：查不到的词超过 20% 不保存；用上的目标词不到六成会重试一次，仍不到四成不保存。AI 写的内容未经人工核对，界面标「AI 生成」。
 
 ## AI 接口（拍照识别、生成卡片、图片、语音）
-在「我的 → AI 接口」填自己的 Key，只存在本机浏览器里，不进备份。需要用 `npm run dev` 或 `npm run preview` 打开（本地服务里的 `ai-proxy.ts` 负责把请求转发到各家接口；静态部署没有这个转发）。
+在「我的 → AI 接口」填自己的 Key，只存在本机浏览器里，不进备份。用 `npm run dev` 或 `npm run preview` 打开时，本地服务里的 `ai-proxy.ts` 把请求转发到各家接口；静态部署（GitHub Pages）没有这个转发，浏览器直接请求各家接口。
 
 | 功能 | 可选服务 | 入口 |
 |---|---|---|

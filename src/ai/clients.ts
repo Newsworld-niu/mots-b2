@@ -1,6 +1,6 @@
 /**
- * Calls to the AI services: through the local forwarder (ai-proxy.ts) in a browser, directly in the Android app
- * (see proxy.ts):
+ * Calls to the AI services: through the local forwarder (ai-proxy.ts) under npm run dev / preview, directly on a
+ * static deployment and in the Android app (see proxy.ts):
  *  - OpenAI, DeepSeek and OpenRouter: chat completions (OpenAI-format JSON); OpenAI and OpenRouter also images
  *  - Anthropic: the official SDK, structured JSON output
  *  - Azure AI Speech: text to speech (SSML) and the voice list
@@ -34,8 +34,9 @@ type ChatProvider = "openai" | "deepseek" | "openrouter";
 /** Where each OpenAI-format service keeps its endpoints. */
 const CHAT_BASE: Record<ChatProvider, string> = { openai: "/v1", deepseek: "", openrouter: "/api/v1" };
 
+/** Settles where requests go (forwarder or direct) before the first one is built. */
 async function needProxy() {
-  if (!(await proxyAvailable())) throw new AiError("AI 功能需要用 npm run dev 或 npm run preview 打开本站，或者使用安卓应用（静态部署没有转发服务）");
+  await proxyAvailable();
 }
 
 function key(service: keyof ReturnType<typeof getAiConfig>["keys"]) {

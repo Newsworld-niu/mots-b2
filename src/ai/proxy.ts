@@ -1,7 +1,8 @@
 /**
  * How the AI services are reached.
- *  - In a browser: through the local forwarder (ai-proxy.ts), which exists only under npm run dev / preview,
- *    because browsers may not call most of these services directly (CORS).
+ *  - In a browser under npm run dev / preview: through the local forwarder (ai-proxy.ts).
+ *  - In a browser on a static deployment (GitHub Pages), where no forwarder exists: straight to the service.
+ *    All of them accept cross-origin requests from a browser.
  *  - In the Android app: straight to the service through the system's HTTP stack (CapacitorHttp), which has no
  *    such restriction. Keys still live on the device only and go out in the request headers.
  */
@@ -32,17 +33,33 @@ export function directUrl(service: string, path = "") {
   return `${host}${path}`;
 }
 
-/** Where a request for a service goes: the service itself in the app, the local forwarder in a browser. */
-export const proxyUrl = (service: string, path = "") =>
-  isNative() ? directUrl(service, path) : `${typeof location === "undefined" ? "" : location.origin}${BASE}/ai-proxy/${service}${path}`;
+const forwarderUrl = (service: string, path = "") => `${typeof location === "undefined" ? "" : location.origin}${BASE}/ai-proxy/${service}${path}`;
+
+/** Set once proxyAvailable() has found no forwarder: the browser then calls the services itself. */
+let direct = false;
+
+/**
+ * Where a request for a service goes: the local forwarder in a browser that has one, otherwise the service itself.
+ * Await proxyAvailable() first, so that the forwarder has been looked for.
+ */
+export const proxyUrl = (service: string, path = "") => (isNative() || direct ? directUrl(service, path) : forwarderUrl(service, path));
 
 let ping: Promise<boolean> | null = null;
-/** Whether the AI services can be reached at all: always in the app; in a browser only when the forwarder answers (checked once per visit). */
+/**
+ * Whether the local forwarder answers (checked once per visit; never asked in the app, which has none).
+ * Without it requests go straight to the services.
+ */
 export function proxyAvailable() {
-  if (isNative()) return Promise.resolve(true);
-  ping ??= fetch(proxyUrl("ping"))
-    .then((r) => r.ok)
-    .catch(() => false);
+  if (isNative()) return Promise.resolve(false);
+  ping ??= fetch(forwarderUrl("ping"))
+    // a static host may answer any path with a page: only the forwarder's own JSON counts
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => j?.ok === true)
+    .catch(() => false)
+    .then((ok) => {
+      direct = !ok;
+      return ok;
+    });
   return ping;
 }
 

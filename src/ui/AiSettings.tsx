@@ -103,8 +103,7 @@ export function AiSettings() {
 
   return (
     <div className="ai-settings">
-      {proxy === false && <p className="wf-hint wf-warn">现在打开的页面没有转发服务：AI 功能需要用 npm run dev 或 npm run preview 运行本站，或者使用安卓应用。</p>}
-      <p className="wf-hint">Key 只保存在这台设备的浏览器里，不会写进备份。请求经本机的开发服务转发到各家接口。</p>
+      <p className="wf-hint">Key 只保存在这台设备上，不会写进备份。{proxy ? "请求经本机的开发服务转发到各家接口。" : "请求由这台设备直接发给各家接口。"}</p>
 
       <h3 className="eyebrow">接口 Key</h3>
       <div className="ai-row">
