@@ -28,6 +28,7 @@ import { Palette } from "./ui/Palette";
 import { Sheet } from "./ui/Sheet";
 import { shouldShowSplash, Splash } from "./ui/Splash";
 import { Toasts } from "./ui/Toast";
+import { UpdateNote } from "./ui/UpdateNote";
 
 const NAV: { page: Route["page"]; label: string; icon: typeof Compass }[] = [
   { page: "today", label: "今日", icon: Compass },
@@ -226,6 +227,7 @@ function Shell() {
       {!onboarded && route.page !== "about" && !splash && <Onboarding />}
       {splash && <Splash onDone={() => setSplash(false)} />}
       <Toasts />
+      <UpdateNote />
       <AmbienceController />
     </div>
   );

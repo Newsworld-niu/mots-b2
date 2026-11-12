@@ -8,7 +8,7 @@ import type { Entry } from "../atlas/types";
 import { href, openWord } from "../lib/router";
 import { addToCard, findSame, headOf, ownParts, removeFromCard, type CardItem } from "../store/decks";
 import { useStore } from "../store/store";
-import { Speak } from "./Speak";
+import { SpeakBoth } from "./Speak";
 import { toast } from "./Toast";
 
 interface Saved {
@@ -169,7 +169,7 @@ export function AiExplain({ entry }: { entry: Entry }) {
                   <div className="ai-example">
                     <p>
                       <span lang="fr">{s.example}</span>
-                      <Speak url={null} text={s.example} size="sm" />
+                      <SpeakBoth text={s.example} />
                       {s.exampleZh && <small>{s.exampleZh}</small>}
                     </p>
                     <Pick state={xs} what="加这条例句" onClick={() => (xs === "mine" ? removeFromCard(entry.id, { ex: s.example }) : put({ ex: { fr: s.example, zh: s.exampleZh } }))} />

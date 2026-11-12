@@ -1,11 +1,11 @@
-import { BookOpen, ImageOff, ImagePlus, Palette, Plus, Search, Sparkles, Trash2 } from "lucide-react";
+import { BookOpen, ImageOff, ImagePlus, Palette, Plus, RefreshCw, Search, Sparkles, Trash2 } from "lucide-react";
 import { ready, useAiConfig } from "../ai/config";
-import { fillWords, pictureFor, suggestExtras, type Extras } from "../ai/tasks";
+import { anotherExample, fillCard, pictureFor, suggestExtras, type Extras } from "../ai/tasks";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import { openWord } from "../lib/router";
 import { addToDeck, cleanCollocations, createCustomWord, deleteCustomWord, findSame, setWordEdit, updateCustomWord } from "../store/decks";
-import { MAX_COLLOCATIONS, MAX_TIP, useStore, type UserExample } from "../store/store";
+import { MAX_COLLOCATIONS, MAX_EXAMPLES, MAX_OWN_SENSES, MAX_TIP, useStore, type OwnSense, type UserExample } from "../store/store";
 import { joinGlosses, lookupDict, type DictHit } from "../lib/dict";
 import { fileToImage, setImage, useImages } from "../store/images";
 import { pictureFromUrl, searchPictures, type PictureHit } from "../lib/picture";
@@ -31,26 +31,89 @@ type Props =
   | { mode: "custom"; id: string; onDone: (id: string | null) => void }
   | { mode: "atlas"; id: string; original: { zh: string }; onDone: (id: string | null) => void };
 
-function Examples({ list, onChange }: { list: UserExample[]; onChange: (l: UserExample[]) => void }) {
+/**
+ * The card's examples. With the 生成卡片 service set up, each row has an AI button: it writes a sentence into an empty
+ * row and replaces the sentence of a filled one with a different one.
+ */
+function Examples({ list, onChange, word, meaning }: { list: UserExample[]; onChange: (l: UserExample[]) => void; word: string; meaning: string }) {
+  const ai = useAiConfig();
+  const [busy, setBusy] = useState<number | null>(null);
+  const job = useRef<AbortController | null>(null);
+  useEffect(() => () => job.current?.abort(), []);
   const set = (i: number, patch: Partial<UserExample>) => onChange(list.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const renew = async (i: number) => {
+    if (!word.trim()) return toast("先填法语", "warn");
+    const c = new AbortController();
+    job.current = c;
+    setBusy(i);
+    try {
+      const x = await anotherExample({ word: word.trim(), meaning: meaning.trim(), replaces: list[i].fr.trim(), avoid: list.map((e) => e.fr.trim()) }, c.signal);
+      if (c.signal.aborted) return;
+      if (!x.fr) return toast("AI 没有写出例句，再试一次", "warn");
+      onChange(list.map((e, j) => (j === i ? { fr: x.fr, zh: x.zh } : e)));
+    } catch (e) {
+      if (!c.signal.aborted) toast((e as Error).message, "warn");
+    } finally {
+      if (job.current === c) setBusy(null);
+    }
+  };
   return (
     <div className="wf-examples">
       {list.map((x, i) => (
         <div key={i} className="wf-example">
-          <input lang="fr" value={x.fr} onChange={(e) => set(i, { fr: e.target.value })} placeholder="法语例句，例如 Je mange un avocat." maxLength={400} spellCheck={false} />
+          <input lang="fr" value={x.fr} onChange={(e) => set(i, { fr: e.target.value, src: undefined, hl: undefined })} placeholder="法语例句，例如 Je mange un avocat." maxLength={400} spellCheck={false} />
           <input value={x.zh} onChange={(e) => set(i, { zh: e.target.value })} placeholder="中文翻译（可不填）" maxLength={400} />
-          {list.length > 1 && (
-            <button type="button" className="icon-btn" onClick={() => onChange(list.filter((_, j) => j !== i))} aria-label="删除这条例句">
-              <Trash2 size={16} />
-            </button>
-          )}
+          <div className="wf-example-tools">
+            {ready.text(ai) && (
+              <button type="button" className="icon-btn" onClick={() => renew(i)} disabled={busy !== null} aria-label={x.fr.trim() ? "让 AI 换一句" : "让 AI 写一句"} title={x.fr.trim() ? "不满意？让 AI 换一句" : "让 AI 写一句"}>
+                {busy === i ? <RefreshCw size={16} className="spin" /> : x.fr.trim() ? <RefreshCw size={16} /> : <Sparkles size={16} />}
+              </button>
+            )}
+            {list.length > 1 && (
+              <button type="button" className="icon-btn" onClick={() => onChange(list.filter((_, j) => j !== i))} aria-label="删除这条例句" title="删除这条例句">
+                <Trash2 size={16} />
+              </button>
+            )}
+          </div>
         </div>
       ))}
-      {list.length < 3 && (
+      {list.length < MAX_EXAMPLES && (
         <button type="button" className="link" onClick={() => onChange([...list, { fr: "", zh: "" }])}>
           <Plus size={14} /> 再加一条例句
         </button>
       )}
+    </div>
+  );
+}
+
+/** Further meanings, each on its own line of the card (after the first one above). */
+function MoreSenses({ list, onChange, atlasMode }: { list: OwnSense[]; onChange: (l: OwnSense[]) => void; atlasMode: boolean }) {
+  const set = (i: number, patch: Partial<OwnSense>) => onChange(list.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  return (
+    <div className="wf-field">
+      <span>{atlasMode ? "我加的意思（排在词库义项后面）" : "其他意思（不同的意思分开写，卡片上各占一行）"}</span>
+      <div className="wf-senses">
+        {list.map((x, i) => (
+          <div key={i} className="wf-sense">
+            <select value={POS_CHOICES.some(([k]) => k === x.pos) ? x.pos : ""} onChange={(e) => set(i, { pos: e.target.value })} aria-label="词性">
+              {POS_CHOICES.map(([k, label]) => (
+                <option key={k} value={k}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <input value={x.zh} onChange={(e) => set(i, { zh: e.target.value })} placeholder="例如 牛油果" maxLength={300} aria-label="中文意思" />
+            <button type="button" className="icon-btn" onClick={() => onChange(list.filter((_, j) => j !== i))} aria-label="删除这个意思" title="删除这个意思">
+              <Trash2 size={16} />
+            </button>
+          </div>
+        ))}
+        {list.length < MAX_OWN_SENSES && (
+          <button type="button" className="link" onClick={() => onChange([...list, { pos: "", zh: "" }])}>
+            <Plus size={14} /> 再加一个意思
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -75,6 +138,8 @@ export function WordForm(props: Props) {
     const src = props.mode === "atlas" ? edit?.ex : custom?.ex;
     return src?.length ? src.map((x) => ({ ...x })) : [{ fr: "", zh: "" }];
   });
+  // further meanings, each shown on its own line of the card
+  const [more, setMore] = useState<OwnSense[]>(() => (props.mode === "atlas" ? edit?.senses : custom?.senses)?.map((x) => ({ ...x })) ?? []);
   // filled from the offline dictionary in this form: saved as 自动填写·待核对
   const [auto, setAuto] = useState(false);
   const stored = useImages()[props.mode === "create" ? "" : props.id];
@@ -93,10 +158,13 @@ export function WordForm(props: Props) {
     if (blank && h.ex?.length) setEx(h.ex.slice(0, 2).map(([fr, z, a, b]) => ({ fr, zh: z, src: "tatoeba", hl: [a, b] })));
     setAuto(true);
   };
-  // AI 填写: meaning, part of speech, pronunciation and one example for the typed word
+  // AI 填写: the word's meanings (listed separately), one example for each, and the pronunciation
   const ai = useAiConfig();
   const [filling, setFilling] = useState(false);
+  const [filled, setFilled] = useState(false);
   const fillJob = useRef<AbortController | null>(null);
+  // sentences the AI wrote in this form: filling again replaces them, and leaves the learner's own alone
+  const aiWrote = useRef(new Set<string>());
   useEffect(() => () => fillJob.current?.abort(), []);
   const aiFill = async () => {
     const word = w.trim();
@@ -105,20 +173,25 @@ export function WordForm(props: Props) {
     fillJob.current = job;
     setFilling(true);
     try {
-      const [f] = await fillWords([{ key: "w", word, ...(zh.trim() ? { given: zh.trim() } : {}) }], undefined, job.signal);
+      // the meaning typed by the learner is kept as the first one; one the AI wrote before is written anew
+      const given = filled ? "" : zh.trim();
+      const f = await fillCard({ word, ...(given ? { given } : {}) }, job.signal);
       if (job.signal.aborted) return;
-      if (!f || !f.valid || !f.zh?.trim()) return toast(`AI 没有把「${word}」认作要学的法语词，请自己填写`, "warn");
-      setPos(POS_CHOICES.some(([k]) => k === f.pos) ? f.pos : "");
-      setZh(f.zh.trim());
-      if (f.ipa?.trim()) setIpa(f.ipa.trim());
-      const example = f.example?.trim();
-      if (example) {
-        const kept = ex.filter((x) => x.fr.trim());
-        if (!kept.some((x) => x.fr.trim() === example) && kept.length < 3) setEx([...kept, { fr: example, zh: f.exampleZh?.trim() ?? "" }]);
-      }
+      if (!f.valid) return toast(`AI 没有把「${word}」认作要学的法语词，请自己填写`, "warn");
+      const [first, ...rest] = f.senses;
+      setPos(POS_CHOICES.some(([k]) => k === first.pos) ? first.pos : "");
+      setZh(first.zh);
+      setMore(rest.map((s) => ({ pos: POS_CHOICES.some(([k]) => k === s.pos) ? s.pos : "", zh: s.zh })));
+      if (f.ipa) setIpa(f.ipa);
+      const kept = ex.filter((x) => x.fr.trim() && !aiWrote.current.has(x.fr.trim()));
+      const fresh = f.senses.filter((s) => s.example && !kept.some((x) => x.fr.trim() === s.example)).map((s) => ({ fr: s.example, zh: s.exampleZh }));
+      aiWrote.current = new Set(fresh.map((x) => x.fr));
+      const next = [...kept, ...fresh].slice(0, MAX_EXAMPLES);
+      setEx(next.length ? next : [{ fr: "", zh: "" }]);
       setAuto(true);
-      const fix = f.fix?.trim();
-      toast(fix && fix !== word ? `已填写；AI 认为拼写应为「${fix}」，请核对` : "已填写，AI 写的内容请核对", "ok");
+      setFilled(true);
+      const n = f.senses.length;
+      toast(f.fix && f.fix !== word ? `已填写 ${n} 个意思；AI 认为拼写应为「${f.fix}」，请核对` : `已填写 ${n} 个意思，每个意思一条例句；请核对`, "ok");
     } catch (e) {
       if (!job.signal.aborted) toast((e as Error).message, "warn");
     } finally {
@@ -135,19 +208,19 @@ export function WordForm(props: Props) {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (props.mode === "atlas") {
-      setWordEdit(props.id, { zh, ex, noImg, col: fromPairs(col), tip: note });
+      setWordEdit(props.id, { zh, ex, noImg, col: fromPairs(col), tip: note, senses: more });
       savePicture(props.id);
       toast("已保存，所有卡组里都会这样显示", "ok");
       return props.onDone(props.id);
     }
     if (!w.trim() || !zh.trim()) return toast("法语和中文意思都要填", "warn");
     if (props.mode === "custom") {
-      updateCustomWord(props.id, { w, pos, zh, ipa, ex, note, auto, noImg, col: fromPairs(col) });
+      updateCustomWord(props.id, { w, pos, zh, ipa, ex, note, auto, noImg, col: fromPairs(col), senses: more });
       savePicture(props.id);
       toast("已保存", "ok");
       return props.onDone(props.id);
     }
-    const id = createCustomWord({ w, pos, zh, ipa, ex, note, auto, noImg, col: fromPairs(col) }, props.deckId);
+    const id = createCustomWord({ w, pos, zh, ipa, ex, note, auto, noImg, col: fromPairs(col), senses: more }, props.deckId);
     savePicture(id);
     toast(props.deckId ? "已加入卡组" : "已添加", "ok");
     props.onDone(id);
@@ -200,7 +273,7 @@ export function WordForm(props: Props) {
           <div className="wf-ai">
             {ready.text(ai) ? (
               <button type="button" className="btn btn-ghost btn-sm" onClick={aiFill} disabled={filling || !w.trim()}>
-                <Sparkles size={15} /> {filling ? "AI 填写中…" : "AI 填写意思和例句"}
+                <Sparkles size={15} /> {filling ? "AI 填写中…" : filled ? "不满意？让 AI 重新填写" : "AI 填写意思和例句"}
               </button>
             ) : (
               <p className="wf-hint">在「我的 → AI 接口」设置好「生成卡片」的服务后，这里可以让 AI 填写意思和例句。</p>
@@ -233,9 +306,10 @@ export function WordForm(props: Props) {
           <input value={zh} onChange={(e) => setZh(e.target.value)} placeholder={props.original.zh} maxLength={300} />
         </label>
       )}
+      <MoreSenses list={more} onChange={setMore} atlasMode={props.mode === "atlas"} />
       <div className="wf-field">
         <span>{props.mode === "atlas" ? "我的例句（排在词库例句前面，填空题会先用它）" : "例句（可不填；没有例句就不出例句填空和听写）"}</span>
-        <Examples list={ex} onChange={setEx} />
+        <Examples list={ex} onChange={setEx} word={props.mode === "atlas" ? atlas.byId.get(props.id)?.word ?? "" : w} meaning={[zh || (props.mode === "atlas" ? props.original.zh : ""), ...more.map((x) => x.zh)].filter(Boolean).join("；")} />
       </div>
       <PictureField mode={imgMode} onMode={setImgMode} value={picture} onChange={setImageState} word={props.mode === "atlas" ? atlas.byId.get(props.id)?.word ?? "" : w} meaning={zh || (props.mode === "atlas" ? props.original.zh : "")} />
       <ExtrasField

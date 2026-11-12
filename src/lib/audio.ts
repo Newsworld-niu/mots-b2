@@ -24,7 +24,7 @@ export async function play(url: string | null | undefined, text: string, accent:
   }
 }
 
-async function speak(url: string | null | undefined, text: string, _accent: "uk" | "us", rate: number) {
+async function speak(url: string | null | undefined, text: string, accent: "uk" | "us", rate: number) {
   stopAudio();
   const mine = ++token;
   if (url) {
@@ -46,7 +46,7 @@ async function speak(url: string | null | undefined, text: string, _accent: "uk"
   // no recording: the Azure voice when it is set up (cached per text), the device voice otherwise
   if (ttsOn() && text.trim()) {
     try {
-      const src = await ttsUrl(text);
+      const src = await ttsUrl(text, accent);
       if (mine !== token) return "stopped" as const;
       const a = new Audio(src);
       a.playbackRate = rate;

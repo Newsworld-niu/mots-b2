@@ -7,7 +7,7 @@ import { useConfusables } from "../atlas/confusables";
 import { isMastered } from "../store/srs";
 import { store, toggleBookmark, useStore } from "../store/store";
 import { Illustration } from "./Illustration";
-import { Speak } from "./Speak";
+import { Speak, SpeakBoth } from "./Speak";
 import { shareWord } from "./share";
 import { closeWord, href, openWord } from "../lib/router";
 import { addToDeck, CORE_NAME, createDeck, isCustomId, ownParts, removeFromCard, removeFromDeck } from "../store/decks";
@@ -62,6 +62,13 @@ export function Pronounce({ entry, refw }: { entry: Entry; refw: WordRef | Entry
   const ipa = entry.uk || entry.us;
   const m = "media" in refw && typeof refw.media === "number" ? refw.media : (refw as Entry).m;
   const voices = (["uk", "us"] as const).filter((v) => m & MEDIA[v]);
+  // no recording at all (an own word): both Azure voices when they are set up
+  if (!voices.length)
+    return (
+      <div className="pron">
+        <SpeakBoth text={entry.w} lead={ipa ? <span className="ipa">{ipa}</span> : undefined} />
+      </div>
+    );
   if (voices.length < 2)
     return (
       <div className="pron">
@@ -127,6 +134,7 @@ function ExampleSpeak({ entry, index, text }: { entry: Entry; index: number; tex
   const atlas = useAtlas();
   const kind = index === 0 ? "ex" : "ex2";
   const voices = exampleVoices(entry, index);
+  if (!voices.length) return <SpeakBoth text={text} className="ex-speak" />;
   if (voices.length < 2) return <Speak url={index < 2 ? atlas.audio(entry, kind) : null} text={text} size="sm" className="ex-speak" />;
   return (
     <span className="ex-voices">
@@ -178,9 +186,10 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
         {own[k]?.includes(f.label) && rm({ [k]: f.label })}
       </span>
     ));
-  const ownTips = (own.tip ?? "").split("\n").map((t) => t.trim()).filter(Boolean);
+  const lines = (t: string) => t.split("\n").map((x) => x.trim()).filter(Boolean);
   // the rest of the 注意点 is the atlas's own (an own word has none besides the learner's)
   const atlasTip = own.tip && entry.tip.startsWith(own.tip) ? entry.tip.slice(own.tip.length).trim() : own.tip ? "" : entry.tip;
+  const tipItems = [...lines(own.tip ?? "").map((text) => ({ text, own: true })), ...lines(atlasTip).map((text) => ({ text, own: false }))];
   const status = card ? (isMastered(card) ? "已掌握" : "学习中") : null;
   const mine = isCustomId(entry.id);
   const edited = useStore((s) => !!s.progress.edits?.[entry.id]);
@@ -353,15 +362,15 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
         {entry.tip && (
           <aside className="tip">
             <Lightbulb size={17} strokeWidth={1.8} />
-            <div className="tip-body">
-              {ownTips.map((t) => (
-                <p key={t} className="tip-own">
-                  {t}
-                  {rm({ tip: t })}
-                </p>
+            {/* one point per line, each its own numbered item */}
+            <ol className={`tip-list ${tipItems.length > 1 ? "is-multi" : ""}`}>
+              {tipItems.map((t, i) => (
+                <li key={`${i}-${t.text}`}>
+                  <span>{t.text}</span>
+                  {t.own && rm({ tip: t.text })}
+                </li>
               ))}
-              {atlasTip && <p>{atlasTip}</p>}
-            </div>
+            </ol>
           </aside>
         )}
 

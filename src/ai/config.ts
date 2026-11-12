@@ -16,6 +16,8 @@ export interface AiConfig {
   azureRegion: string;
   /** Azure neural voice name, e.g. fr-FR-DeniseNeural. */
   azureVoice: string;
+  /** The male voice, for the 男 button of words and sentences without a recording. */
+  azureVoiceMale: string;
   /** Read words and sentences with Azure when they have no recording (device voice otherwise). */
   tts: boolean;
   vision: { provider: VisionProvider; model: string };
@@ -37,6 +39,7 @@ export const defaultAiConfig = (): AiConfig => ({
   keys: { openai: "", deepseek: "", anthropic: "", openrouter: "", azure: "" },
   azureRegion: "",
   azureVoice: "fr-FR-DeniseNeural",
+  azureVoiceMale: "fr-FR-HenriNeural",
   tts: false,
   vision: { provider: "openai", model: DEFAULT_MODELS.openai },
   text: { provider: "deepseek", model: DEFAULT_MODELS.deepseek },
@@ -58,6 +61,7 @@ export function sanitizeAiConfig(v: unknown): AiConfig {
     keys: { openai: str(keys.openai), deepseek: str(keys.deepseek), anthropic: str(keys.anthropic), openrouter: str(keys.openrouter), azure: str(keys.azure) },
     azureRegion: str(o.azureRegion, 40).toLowerCase().replace(/[^a-z0-9]/g, ""),
     azureVoice: str(o.azureVoice, 80) || d.azureVoice,
+    azureVoiceMale: str(o.azureVoiceMale, 80) || d.azureVoiceMale,
     tts: o.tts === true,
     vision: { provider: vp, model: str(o.vision?.model, 80) || DEFAULT_MODELS[vp] },
     text: { provider: tp, model: str(o.text?.model, 80) || DEFAULT_MODELS[tp] },

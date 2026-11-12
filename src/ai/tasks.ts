@@ -201,6 +201,80 @@ export async function fillWords(words: FillInput[], onProgress?: (done: number) 
   return out;
 }
 
+/* ---------- 一个词的整张卡片：分开的义项，每个义项一条例句 ---------- */
+
+export interface CardSense {
+  pos: string;
+  zh: string;
+  example: string;
+  exampleZh: string;
+}
+
+export interface FilledCard {
+  /** false: not a French word or expression worth learning. */
+  valid: boolean;
+  /** The correct spelling when the word looks misspelled, else "". */
+  fix: string;
+  ipa: string;
+  /** The word's distinct meanings, the most common first. */
+  senses: CardSense[];
+}
+
+const CARD_SCHEMA = {
+  type: "object",
+  properties: {
+    valid: { type: "boolean" },
+    fix: str,
+    ipa: str,
+    senses: {
+      type: "array",
+      items: { type: "object", properties: { pos: str, zh: str, example: str, exampleZh: str }, required: ["pos", "zh", "example", "exampleZh"], additionalProperties: false },
+    },
+  },
+  required: ["valid", "fix", "ipa", "senses"],
+  additionalProperties: false,
+};
+
+const CARD_SYSTEM = `You write one flashcard for a Chinese learner of French (levels A1 to B2).
+- "valid": false when the input is not a French word or expression worth learning (a name, a fragment, a typo you cannot place); then leave the rest empty.
+- "fix": if it is a misspelling of a French word (a missing or wrong accent), the correct spelling; otherwise "".
+- "ipa": the pronunciation in IPA without slashes, or "" if unsure.
+- "senses": the word's clearly different meanings as separate entries, the most common first: 1 for a word with one meaning, at most 4. Do not split near-synonymous glosses into several senses, and do not merge different meanings (a literal and a figurative one, a concrete and a technical one) into one. Each entry:
+  - "pos": one of n.m., n.f., n., v., adj., adv., loc., prép., conj., pron., interj.
+  - "zh": a short Chinese gloss of that meaning only (one or two near-synonyms separated by "，").
+  - "example": one short, natural French sentence that uses the word in exactly that meaning, at the learner's level; "exampleZh": its Chinese translation.
+When a meaning is given by the learner, it comes first and is kept (translated into Chinese if it is in another language).`;
+
+/** Meanings (listed separately) with one example each, and the pronunciation, for one word. */
+export async function fillCard(input: { word: string; given?: string }, signal?: AbortSignal): Promise<FilledCard> {
+  const r = await aiJson<FilledCard>("text", { system: CARD_SYSTEM, text: JSON.stringify({ word: input.word, ...(input.given ? { given: input.given } : {}) }), schema: CARD_SCHEMA, schemaName: "card", signal });
+  const senses = (Array.isArray(r?.senses) ? r.senses : [])
+    .filter((s) => s && typeof s.zh === "string" && s.zh.trim())
+    .map((s) => ({ pos: String(s.pos ?? "").trim(), zh: s.zh.trim(), example: String(s.example ?? "").trim(), exampleZh: String(s.exampleZh ?? "").trim() }))
+    .slice(0, 4);
+  return { valid: r?.valid !== false && senses.length > 0, fix: typeof r?.fix === "string" ? r.fix.trim() : "", ipa: typeof r?.ipa === "string" ? r.ipa.trim() : "", senses };
+}
+
+const EXAMPLE_SCHEMA = { type: "object", properties: { fr: str, zh: str }, required: ["fr", "zh"], additionalProperties: false };
+const EXAMPLE_SYSTEM = `You write one example sentence for a flashcard of a Chinese learner of French (levels A1 to B2).
+Return "fr": one short, natural French sentence that uses the given word (an inflected form is fine), and "zh": its Chinese translation.
+- "meaning" lists the word's meanings on the card ("；" between different meanings): the word must have one of them in the sentence.
+- When "replaces" is given, the learner did not like that sentence: write another one in which the word has the same meaning as in it.
+- The sentence must be clearly different from every sentence in "avoid": another situation and other words around the headword, not a rewording.
+- Everyday vocabulary around the word, so that the sentence itself is easy to understand.`;
+
+/** One more example for a word, different from the ones it has. */
+export async function anotherExample(input: { word: string; meaning?: string; replaces?: string; avoid: string[] }, signal?: AbortSignal): Promise<{ fr: string; zh: string }> {
+  const r = await aiJson<{ fr: string; zh: string }>("text", {
+    system: EXAMPLE_SYSTEM,
+    text: JSON.stringify({ word: input.word, ...(input.meaning ? { meaning: input.meaning } : {}), ...(input.replaces ? { replaces: input.replaces } : {}), avoid: input.avoid.filter(Boolean).slice(0, 8) }),
+    schema: EXAMPLE_SCHEMA,
+    schemaName: "example",
+    signal,
+  });
+  return { fr: typeof r?.fr === "string" ? r.fr.trim() : "", zh: typeof r?.zh === "string" ? r.zh.trim() : "" };
+}
+
 /* ---------- 常用搭配和注意点 ---------- */
 
 export interface Extras {

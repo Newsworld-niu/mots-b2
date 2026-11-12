@@ -252,10 +252,10 @@ export function AiSettings() {
       setAzBusy(false);
     }
   };
-  const listen = async () => {
+  const listen = async (voice: string) => {
     setAzBusy(true);
     try {
-      const a = new Audio(URL.createObjectURL(await azureSpeak("Bonjour ! Je m'appelle Claire, et j'habite à Lyon.")));
+      const a = new Audio(URL.createObjectURL(await azureSpeak("Bonjour ! Je m'appelle Claire, et j'habite à Lyon.", voice)));
       await a.play();
     } catch (e) {
       toast((e as Error).message, "warn");
@@ -344,29 +344,40 @@ export function AiSettings() {
           <input value={c.azureRegion} onChange={(e) => set({ azureRegion: e.target.value })} placeholder="eastasia" spellCheck={false} />
         </label>
       </div>
-      <div className="ai-row">
-        <label className="wf-field">
-          <span>音色</span>
-          {voices?.length ? (
-            <select value={c.azureVoice} onChange={(e) => set({ azureVoice: e.target.value })}>
-              {!voices.some((v) => v.ShortName === c.azureVoice) && <option value={c.azureVoice}>{c.azureVoice}</option>}
-              {voices.map((v) => (
-                <option key={v.ShortName} value={v.ShortName}>
-                  {v.LocalName} · {v.Gender === "Female" ? "女声" : v.Gender === "Male" ? "男声" : v.Gender} · {v.ShortName}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input value={c.azureVoice} onChange={(e) => set({ azureVoice: e.target.value })} spellCheck={false} />
+      {(
+        [
+          ["azureVoice", "女声音色", "Female"],
+          ["azureVoiceMale", "男声音色", "Male"],
+        ] as const
+      ).map(([field, label, gender]) => (
+        <div className="ai-row" key={field}>
+          <label className="wf-field">
+            <span>{label}</span>
+            {voices?.length ? (
+              <select value={c[field]} onChange={(e) => set({ [field]: e.target.value })}>
+                {!voices.some((v) => v.ShortName === c[field]) && <option value={c[field]}>{c[field]}</option>}
+                {/* the matching gender first; the others stay available */}
+                {[...voices.filter((v) => v.Gender === gender), ...voices.filter((v) => v.Gender !== gender)].map((v) => (
+                  <option key={v.ShortName} value={v.ShortName}>
+                    {v.LocalName} · {v.Gender === "Female" ? "女声" : v.Gender === "Male" ? "男声" : v.Gender} · {v.ShortName}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input value={c[field]} onChange={(e) => set({ [field]: e.target.value })} spellCheck={false} />
+            )}
+          </label>
+          {field === "azureVoice" && (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={loadVoices} disabled={!c.keys.azure || !c.azureRegion || azBusy}>
+              获取音色
+            </button>
           )}
-        </label>
-        <button type="button" className="btn btn-ghost btn-sm" onClick={loadVoices} disabled={!c.keys.azure || !c.azureRegion || azBusy}>
-          获取音色
-        </button>
-        <button type="button" className="btn btn-ghost btn-sm" onClick={listen} disabled={!c.keys.azure || !c.azureRegion || azBusy}>
-          <Volume2 size={15} /> 试听
-        </button>
-      </div>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => listen(c[field])} disabled={!c.keys.azure || !c.azureRegion || azBusy}>
+            <Volume2 size={15} /> 试听
+          </button>
+        </div>
+      ))}
+      <p className="wf-hint">没有录音的词和例句会有「女」「男」两个朗读按钮，分别用上面两个音色。</p>
       <label className="field toggle">
         <b>没有录音的词和例句用 Azure 朗读</b>
         <input type="checkbox" role="switch" checked={c.tts} onChange={(e) => set({ tts: e.target.checked })} />

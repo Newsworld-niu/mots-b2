@@ -40,10 +40,11 @@ const pending = new Map<string, Promise<string>>();
 /** Whether Azure reads texts that have no recording. */
 export const ttsOn = () => ready.tts();
 
-/** An object URL of the text spoken by the chosen Azure voice (from the cache, or made now). */
-export function ttsUrl(text: string): Promise<string> {
+/** An object URL of the text spoken by the chosen Azure voice, female ("uk") or male ("us") (from the cache, or made now). */
+export function ttsUrl(text: string, accent: "uk" | "us" = "uk"): Promise<string> {
   const clean = text.trim().slice(0, MAX_TEXT);
-  const voice = getAiConfig().azureVoice;
+  const c = getAiConfig();
+  const voice = accent === "us" ? c.azureVoiceMale : c.azureVoice;
   const k = cacheKey(voice, clean);
   const have = urls.get(k);
   if (have) return Promise.resolve(have);

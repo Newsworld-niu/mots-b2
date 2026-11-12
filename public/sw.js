@@ -26,10 +26,14 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET" || req.headers.has("range")) return;
   const url = new URL(req.url);
   if (url.origin !== location.origin) return;
+  // a request that asks for the server's current copy (the new-version check) is not answered from a cache
+  if (req.cache === "no-store") return;
   const isShell = req.mode === "navigate" || url.pathname.endsWith("/index.json") || url.pathname.includes("/atlas/entries/") || url.pathname.endsWith("/atlas/conj.json") || url.pathname.endsWith("/atlas/confusables.json") || url.pathname.includes("/dict/");
   if (isShell) {
     event.respondWith(
-      fetch(req)
+      // the page itself always comes from the server (revalidated), so a new deployment shows on the next visit
+      // instead of after the browser's own cache of index.html runs out
+      (req.mode === "navigate" ? fetch(req.url, { cache: "no-cache" }) : fetch(req))
         .then((res) => {
           if (res.ok) caches.open(SHELL).then((c) => c.put(req, res.clone()));
           return res;

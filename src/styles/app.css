@@ -1251,10 +1251,55 @@ code {
   font-size: 14.5px;
   line-height: 1.6;
 }
-.tip-body {
-  display: grid;
-  gap: 6px;
+.tip-list {
+  flex: 1;
   min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: tip;
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+.tip-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.tip-list li > span {
+  flex: 1;
+  min-width: 0;
+}
+.tip-list.is-multi li {
+  counter-increment: tip;
+  padding: 10px 0;
+}
+.tip-list.is-multi li:first-child {
+  padding-top: 0;
+}
+.tip-list.is-multi li:last-child {
+  padding-bottom: 0;
+}
+.tip-list.is-multi li + li {
+  border-top: 1px solid color-mix(in oklab, var(--ochre) 28%, transparent);
+}
+.tip-list.is-multi li::before {
+  content: counter(tip);
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ochre);
+  background: color-mix(in oklab, var(--ochre) 18%, transparent);
+}
+.tip-list .own-rm {
+  margin: 1px 0 0;
 }
 /* × on what the learner put on the card themselves (detail view) */
 .own-rm {
@@ -5429,10 +5474,58 @@ button.deck-card:hover {
 .wf-example input:nth-child(2) {
   grid-column: 1;
 }
-.wf-example .icon-btn {
+.wf-example-tools {
   grid-column: 2;
   grid-row: 1 / span 2;
   align-self: center;
+  display: grid;
+  gap: 2px;
+}
+.wf-senses {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.wf-sense {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(110px, 0.6fr) 1.4fr auto;
+  gap: 6px;
+  align-items: center;
+}
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* a newer version of the site is online */
+.update-note {
+  position: fixed;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 13.5px;
+  box-shadow: var(--shadow-lg);
+  white-space: nowrap;
+}
+.update-note button {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--terra);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
 }
 .wf-same {
   padding: 12px 14px;
