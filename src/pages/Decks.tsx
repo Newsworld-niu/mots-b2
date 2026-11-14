@@ -20,6 +20,7 @@ import {
   setHidden,
   studyRange,
 } from "../store/decks";
+import { buildSession, isTaughtReady } from "../store/session";
 import { isMastered } from "../store/srs";
 import { CORE_DECK, store, useStore, type Progress } from "../store/store";
 import { Sheet } from "../ui/Sheet";
@@ -177,6 +178,25 @@ function studyOnly(id: string) {
   go({ page: "today" });
 }
 
+/**
+ * One session with every word of the deck that has not been learned yet (and the deck's words due today),
+ * whatever the daily number of new words. It replaces a journey in progress only after asking.
+ */
+function studyAll(atlas: Atlas, name: string, words: WordRef[]) {
+  const { progress, settings } = store.get();
+  const now = Date.now();
+  const fresh = words.filter((w) => !progress.cards[w.id] && isTaughtReady(w)).map((w) => w.id);
+  const due = words.filter((w) => progress.cards[w.id] && progress.cards[w.id].due <= now).map((w) => w.id);
+  if (!fresh.length) return toast("这个卡组里没有还没学的词了", "ok");
+  const active = progress.session && !progress.session.finished;
+  if (active && !confirm("有一段旅程还没走完。开始学这个卡组会放弃它（已经答过的题不受影响）。继续吗？")) return;
+  if (fresh.length >= 60 && !confirm(`「${name}」里还有 ${fresh.length} 个没学的词，一次学完大约要 ${Math.round(fresh.length * 0.9)} 分钟，接下来几天的复习也会多很多。\n可以中途停下，进度会保存。现在开始吗？`)) return;
+  const session = buildSession(atlas, progress, settings, { ids: [...due, ...fresh] });
+  if (!session.steps.length) return;
+  store.progress((p) => ({ ...p, session }));
+  go({ page: "learn" });
+}
+
 function DeckDetail({ id }: { id: string }) {
   const atlas = useAtlas();
   const progress = useStore((s) => s.progress);
@@ -235,8 +255,11 @@ function DeckDetail({ id }: { id: string }) {
           {stats.total} 个词 · 已掌握 {stats.mastered} · 学习中 {stats.learning} · 未学 {stats.fresh}
         </p>
         <div className="deck-actions">
-          <button className="btn btn-primary" onClick={() => studyOnly(id)} disabled={!words.length}>
-            <GraduationCap size={17} /> 只学这个卡组
+          <button className="btn btn-primary" onClick={() => studyAll(atlas, deck.name, words)} disabled={!stats.fresh}>
+            <GraduationCap size={17} /> {stats.fresh ? `现在学完未学的 ${stats.fresh} 个词` : "全部学过了"}
+          </button>
+          <button className="btn btn-ghost" onClick={() => studyOnly(id)} disabled={!words.length}>
+            只学这个卡组（每天按新词数）
           </button>
           <button className="btn btn-ghost btn-danger" onClick={remove}>
             <Trash2 size={16} /> 删除卡组

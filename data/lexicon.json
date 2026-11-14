@@ -13725,7 +13725,8 @@
           "zh": "后面的；后方",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -37041,7 +37042,7 @@
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
-          "pos": "loc."
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -37650,7 +37651,7 @@
       "topic": "education",
       "senses": [
         {
-          "zh": "第五(点)",
+          "zh": "第五",
           "fr": "",
           "origin": "supplement",
           "status": "据拉鲁斯/罗贝尔词典·待核对"
@@ -41205,10 +41206,11 @@
           "origin": "book"
         },
         {
-          "zh": "同谋的；帮凶",
+          "zh": "同谋者；帮凶",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "n.m./f."
         }
       ],
       "examples": [
@@ -47304,7 +47306,8 @@
           "zh": "消费的",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -86990,7 +86993,7 @@
           "origin": "book"
         },
         {
-          "zh": "神人",
+          "zh": "英雄；主人公",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对"
@@ -131007,7 +131010,7 @@
           "origin": "book"
         },
         {
-          "zh": "燕雀；",
+          "zh": "燕雀",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对"
@@ -131556,7 +131559,8 @@
           "zh": "侦探的；警察的",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -133792,7 +133796,7 @@
       "topic": "work",
       "senses": [
         {
-          "zh": "手机（口语）；便携的",
+          "zh": "便携的",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
@@ -170972,7 +170976,8 @@
           "zh": "第三的",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -171979,7 +171984,7 @@
     {
       "id": "tire",
       "lemma": "tiré",
-      "pos": "adj.",
+      "pos": "n.m.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2/C1 教材，封面等级不套用到逐词",
       "topic": "education",
@@ -173528,7 +173533,8 @@
           "zh": "正式的",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -173864,7 +173870,8 @@
           "zh": "你的",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -173998,7 +174005,8 @@
           "zh": "疯子;怪人",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "n.m./f."
         }
       ],
       "examples": [
@@ -174158,7 +174166,7 @@
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
-          "pos": "n.m."
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -174699,7 +174707,7 @@
     {
       "id": "tremblant",
       "lemma": "tremblant",
-      "pos": "v.",
+      "pos": "adj.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2/C1 教材，封面等级不套用到逐词",
       "topic": "education",
@@ -176932,7 +176940,8 @@
           "zh": "战败者;失败者",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "n.m."
         }
       ],
       "examples": [
@@ -181701,7 +181710,7 @@
     {
       "id": "aleatoire",
       "lemma": "aléatoire",
-      "pos": "v.",
+      "pos": "adj.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "work",
@@ -186640,7 +186649,7 @@
     {
       "id": "faille",
       "lemma": "faille",
-      "pos": "loc.",
+      "pos": "n.f.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "work",
@@ -190789,7 +190798,7 @@
     {
       "id": "retraite-",
       "lemma": "retraité",
-      "pos": "adj.",
+      "pos": "n.m.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "work",
@@ -190831,7 +190840,8 @@
         }
       ],
       "review": "unreviewed",
-      "note": "r31 释义来源：Larousse 中法词典。；r36-examples 例句为本站补充（教材无对应例句），译文同为补充。"
+      "note": "r31 释义来源：Larousse 中法词典。；r36-examples 例句为本站补充（教材无对应例句），译文同为补充。",
+      "aliasOf": "retraite-n"
     },
     {
       "id": "revendiquer",
@@ -193271,10 +193281,18 @@
           "origin": "book"
         },
         {
-          "zh": "防腐的；防腐剂",
+          "zh": "防腐的",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
+        },
+        {
+          "zh": "防腐剂",
+          "fr": "",
+          "origin": "supplement",
+          "status": "补充翻译·待核对",
+          "pos": "n.m."
         }
       ],
       "examples": [
@@ -205449,7 +205467,7 @@
     {
       "id": "antiquaire",
       "lemma": "antiquaire",
-      "pos": "v.",
+      "pos": "n.m./f.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "economy",
@@ -220738,7 +220756,7 @@
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
-          "pos": "loc."
+          "pos": "n.m."
         }
       ],
       "examples": [
@@ -226756,7 +226774,7 @@
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
-          "pos": "loc."
+          "pos": "n.m./f."
         },
         {
           "zh": "生态的；环保的",
@@ -235042,7 +235060,7 @@
     {
       "id": "connecter",
       "lemma": "connecter",
-      "pos": "loc.",
+      "pos": "v.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "environment",
@@ -235952,7 +235970,7 @@
     {
       "id": "deconnecter",
       "lemma": "déconnecter",
-      "pos": "loc.",
+      "pos": "v.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "environment",
@@ -236047,7 +236065,7 @@
     {
       "id": "defouler",
       "lemma": "défouler",
-      "pos": "loc.",
+      "pos": "v.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "environment",
@@ -237596,7 +237614,7 @@
     {
       "id": "empieter",
       "lemma": "empiéter",
-      "pos": "loc.",
+      "pos": "v.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "environment",
@@ -239800,7 +239818,14 @@
       "topic": "environment",
       "senses": [
         {
-          "zh": "每周的；周刊",
+          "zh": "每周的",
+          "fr": "",
+          "origin": "supplement",
+          "status": "补充翻译·待核对",
+          "pos": "adj."
+        },
+        {
+          "zh": "周刊",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
@@ -245008,7 +245033,7 @@
           "pos": "n.m."
         },
         {
-          "zh": "手机（口语）；便携的",
+          "zh": "便携的",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
@@ -248237,7 +248262,7 @@
     {
       "id": "sans-fil",
       "lemma": "sans fil",
-      "pos": "loc.",
+      "pos": "adj.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "environment",
@@ -251142,7 +251167,8 @@
           "zh": "虚拟的",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -264283,7 +264309,7 @@
     {
       "id": "relaxer",
       "lemma": "relaxer",
-      "pos": "loc.",
+      "pos": "v.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "travel",
@@ -269954,7 +269980,7 @@
     {
       "id": "prospere-v",
       "lemma": "prospère",
-      "pos": "v.",
+      "pos": "adj.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "travel",
@@ -269993,7 +270019,8 @@
         }
       ],
       "review": "unreviewed",
-      "note": "r31 释义来源：Larousse 中法词典。；r36-examples 例句为本站补充（教材无对应例句），译文同为补充。"
+      "note": "r31 释义来源：Larousse 中法词典。；r36-examples 例句为本站补充（教材无对应例句），译文同为补充。",
+      "aliasOf": "prospere"
     },
     {
       "id": "protectionnisme",
@@ -282376,7 +282403,14 @@
       "topic": "education",
       "senses": [
         {
-          "zh": "移民的；移民",
+          "zh": "移民的",
+          "fr": "",
+          "origin": "supplement",
+          "status": "补充翻译·待核对",
+          "pos": "adj."
+        },
+        {
+          "zh": "移民",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
@@ -283804,7 +283838,7 @@
     {
       "id": "maire-v",
       "lemma": "maire",
-      "pos": "v.",
+      "pos": "n.m./f.",
       "level": "unverified",
       "levelBasis": "未核实：书籍为 B2 教材，逐词等级未确认",
       "topic": "education",
@@ -283839,7 +283873,8 @@
           "pdfPage": 130
         }
       ],
-      "review": "unreviewed"
+      "review": "unreviewed",
+      "aliasOf": "maire"
     },
     {
       "id": "mairie",
@@ -330147,7 +330182,8 @@
           "zh": "懂音乐的",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -346075,7 +346111,7 @@
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
-          "pos": "n.f."
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -347701,7 +347737,8 @@
           "zh": "专门的",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -384070,7 +384107,7 @@
           "origin": "book"
         },
         {
-          "zh": "蜂蜜（已修正为 miel，别名到 miel-m）",
+          "zh": "蜂蜜",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对"
@@ -390404,7 +390441,7 @@
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
-          "pos": "adj."
+          "pos": "n.m."
         }
       ],
       "examples": [
@@ -404563,7 +404600,8 @@
           "zh": "你们的",
           "fr": "",
           "origin": "supplement",
-          "status": "补充翻译·待核对"
+          "status": "补充翻译·待核对",
+          "pos": "adj."
         }
       ],
       "examples": [
@@ -411144,7 +411182,7 @@
       "topic": "economy",
       "senses": [
         {
-          "zh": "牛肉（bœuf 的误拼，待与 bœuf 合并）",
+          "zh": "牛肉",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对"
@@ -411522,7 +411560,7 @@
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
-          "pos": "n.m."
+          "pos": "v."
         }
       ],
       "examples": [
@@ -414439,7 +414477,14 @@
       "topic": "history",
       "senses": [
         {
-          "zh": "巴黎的；巴黎人",
+          "zh": "巴黎的",
+          "fr": "",
+          "origin": "supplement",
+          "status": "补充翻译·待核对",
+          "pos": "adj."
+        },
+        {
+          "zh": "巴黎人",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对",
@@ -435555,7 +435600,7 @@
       "topic": "media",
       "senses": [
         {
-          "zh": "偏袒的；",
+          "zh": "偏袒的",
           "fr": "",
           "origin": "supplement",
           "status": "补充翻译·待核对"

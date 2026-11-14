@@ -131,3 +131,34 @@ test("pairing prefers words missed most and early in learning; no two share a me
   assert.ok(!(ids.includes("w0") && ids.includes("w1")), "two words with the same meaning are never paired together");
   assert.equal(pickPairing(atlas, p, ["w0", "w1", "w2"], 1), null, "fewer than five usable words: no round");
 });
+
+import { applyIntro } from "./session.ts";
+
+test("applyIntro: 认识 changes nothing, 不认识 is noted, 完全认识 grades Easy and drops the word's questions", () => {
+  const steps: Step[] = [
+    { id: "a", kind: "intro" },
+    { id: "b", kind: "intro" },
+    { id: "b", kind: "meaning", options: ["b", "x", "y", "z"] },
+    { id: "a", kind: "meaning", options: ["a", "x", "y", "z"] },
+    { id: "a", kind: "cloze", options: ["a", "x", "y", "z"] },
+  ];
+  const base: Progress = { ...emptyProgress("t"), session: { id: "s", started: 0, steps, index: 0, graded: {}, newIds: ["a", "b"], reviewIds: [] } };
+  assert.equal(applyIntro(base, "a", "known", 0.9), base);
+
+  const unknown = applyIntro(base, "a", "unknown", 0.9);
+  assert.deepEqual(unknown.session?.unknown, ["a"]);
+  assert.equal(unknown.cards.a, undefined);
+  assert.equal(unknown.session?.steps.length, 5);
+  assert.equal(applyIntro(unknown, "a", "unknown", 0.9), unknown);
+
+  const now = Date.UTC(2026, 0, 1);
+  const done = applyIntro(base, "a", "mastered", 0.9, now);
+  assert.equal(done.session?.graded.a, Rating.Easy);
+  assert.deepEqual(done.session?.steps.map((x) => `${x.kind}:${"id" in x ? x.id : ""}`), ["intro:a", "intro:b", "meaning:b"]);
+  // straight to long-term review, days away, where 认识 + a right answer would be minutes away
+  assert.equal(done.cards.a.st, 2);
+  assert.ok(done.cards.a.due - now > 3 * 86400000);
+  assert.ok(review(undefined, Rating.Good, now).due - now < 86400000);
+  // only once per word
+  assert.equal(applyIntro(done, "a", "mastered", 0.9, now), done);
+});

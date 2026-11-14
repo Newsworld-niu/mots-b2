@@ -268,7 +268,8 @@ export function answer(atlas: Atlas, step: Step & { kind: QuizKind }, correct: b
     if (first) {
       next = {
         ...next,
-        cards: { ...next.cards, [step.id]: review(p.cards[step.id], grade, Date.now(), settings.retention) },
+        // a word met as 不认识: whatever the answer, memory is left at the very start (it comes back soonest)
+        cards: { ...next.cards, [step.id]: review(p.cards[step.id], sess.unknown?.includes(step.id) ? Rating.Again : grade, Date.now(), settings.retention) },
         session: { ...next.session!, graded: { ...sess.graded, [step.id]: grade } },
         mistakes: correct ? next.mistakes : withMistake(next.mistakes, step.id),
       };
@@ -289,6 +290,36 @@ export function answer(atlas: Atlas, step: Step & { kind: QuizKind }, correct: b
     }
     return next;
   });
+}
+
+/** What the learner says on first meeting a word. */
+export type IntroVerdict = "unknown" | "known" | "mastered";
+
+/**
+ * The learner's verdict on a new word's card, applied to the progress (the caller then advances):
+ * - known (认识): nothing here; the question that follows grades it as usual.
+ * - unknown (不认识): the word is noted, so that its first answer in this session cannot raise familiarity.
+ * - mastered (完全认识): graded Easy at once, which starts it at a long interval, and its questions are dropped
+ *   from the rest of the session. Pairing rounds are left alone: they never change a schedule.
+ */
+export function applyIntro(p: Progress, id: string, verdict: IntroVerdict, retention: number, now = Date.now()): Progress {
+  const sess = p.session;
+  if (!sess || verdict === "known" || id in sess.graded) return p;
+  if (verdict === "unknown") return sess.unknown?.includes(id) ? p : { ...p, session: { ...sess, unknown: [...(sess.unknown ?? []), id] } };
+  const steps = sess.steps.filter((x, k) => k <= sess.index || x.kind === "pairing" || x.kind === "intro" || x.id !== id);
+  const next: Progress = {
+    ...p,
+    cards: { ...p.cards, [id]: review(p.cards[id], Rating.Easy, now, retention) },
+    session: { ...sess, steps, graded: { ...sess.graded, [id]: Rating.Easy } },
+  };
+  return bumpDay(next, { r: 1, c: 1, n: sess.newIds.includes(id) ? 1 : 0 });
+}
+
+/** Record the verdict on a new word's card and move on. */
+export function introduce(id: string, verdict: IntroVerdict, seconds: number) {
+  const { settings } = store.get();
+  store.progress((p) => applyIntro(p, id, verdict, settings.retention));
+  advance(seconds);
 }
 
 /** Move to the next step; `seconds` is time spent on this step, capped so idle tabs don't inflate stats. */

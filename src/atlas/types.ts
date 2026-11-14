@@ -52,6 +52,8 @@ export interface Entry {
   note?: string;
   /** Media bit flags, see MEDIA. */
   m: number;
+  /** On an entry the learner changed: the atlas's own glosses (by sense) and examples, to edit from or restore. */
+  orig?: { senses: string[]; ex: Example[] };
   /** Sources the entry was taken from. */
   sources?: SourceRef[];
   /** "estimated": band inferred from the source books' stated level (推定), not checked per word. */

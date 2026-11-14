@@ -19,6 +19,8 @@ interface Result {
   fb: Feedback;
   /** Judged by the learner against the reference (no AI), not by the AI. */
   self: boolean;
+  /** Chinese of the sentence shown as the answer, when it is a sentence from the card (造句 skipped). */
+  zh?: string;
 }
 
 type Phase = "write" | "grading" | "self" | "shown";
@@ -82,16 +84,16 @@ export function WritingRound({ mode, entries, onExit, onAgain }: { mode: Writing
     window.scrollTo({ top: 0 });
   }, []);
 
-  const show = (fb: Feedback, self = false) => {
+  const show = (fb: Feedback, self = false, zh?: string) => {
     if (settings.sfx) void cue(fb.verdict === "wrong" ? "wrong" : "correct");
-    setResults((xs) => [...xs, { entry: e, answer: value.trim(), fb, self }]);
+    setResults((xs) => [...xs, { entry: e, answer: value.trim(), fb, self, ...(zh ? { zh } : {}) }]);
     setPhase("shown");
   };
 
   const submit = async () => {
     const answer = value.trim();
     if (!answer || phase !== "write") return;
-    if (mode === "translate" && sameSentence(answer, reference)) return show(plain("correct", answer, "和书里的句子一样。"));
+    if (mode === "translate" && sameSentence(answer, reference)) return show(plain("correct", answer, "和参考句子一样。"));
     if (!ready.text(ai)) return setPhase("self");
     const c = new AbortController();
     ctrl.current = c;
@@ -110,7 +112,9 @@ export function WritingRound({ mode, entries, onExit, onAgain }: { mode: Writing
   /** Give up on this one: it counts as not written, with the book's sentence as the answer. */
   const skip = () => {
     ctrl.current?.abort();
-    show(plain("wrong", mode === "translate" ? reference : (e.ex[0]?.en ?? ""), value.trim() ? "" : "没有作答。"));
+    // 造句 shows a sentence from the card as an example, with its Chinese
+    const sample = mode === "compose" ? (translatable(e.ex) ?? e.ex[0]) : undefined;
+    show(plain("wrong", mode === "translate" ? reference : (sample?.en ?? ""), value.trim() ? "" : "没有作答。"), false, sample?.zh);
   };
 
   const next = () => {
@@ -153,6 +157,7 @@ export function WritingRound({ mode, entries, onExit, onAgain }: { mode: Writing
                       <Speak url={null} text={r.fb.corrected} size="sm" />
                     </p>
                   )}
+                  {r.zh && r.fb.corrected && <p className="writing-line-zh">{r.zh}</p>}
                 </li>
               ))}
             </ul>
@@ -271,13 +276,13 @@ export function WritingRound({ mode, entries, onExit, onAgain }: { mode: Writing
 
         {phase === "self" && selfDiff && (
           <div className="writing-feedback">
-            <p className="eyebrow">书里的句子</p>
+            <p className="eyebrow">参考句子</p>
             <p className="writing-line" lang="fr">
               <Diffed tokens={selfDiff.corrected} tone="add" />
               <Speak url={null} text={reference} size="sm" />
             </p>
             <p className="muted small">
-              {ready.text(ai) ? "这次没能连上 AI。" : "没有设置 AI 接口，"}对照书里的句子自己判断；写法不同不一定是错。
+              {ready.text(ai) ? "这次没能连上 AI。" : "没有设置 AI 接口，"}对照参考句子自己判断；写法不同不一定是错。
             </p>
             <div className="writing-actions">
               <button className="btn btn-ghost" onClick={() => show(plain("wrong", reference), true)}>
@@ -311,6 +316,7 @@ export function WritingRound({ mode, entries, onExit, onAgain }: { mode: Writing
                 <Speak url={null} text={fb.corrected} size="sm" />
               </p>
             )}
+            {last.zh && fb.corrected && <p className="writing-line-zh">{last.zh}</p>}
             {fb.errors.length > 0 && (
               <ul className="writing-errors">
                 {fb.errors.map((x, k) => (
@@ -333,7 +339,7 @@ export function WritingRound({ mode, entries, onExit, onAgain }: { mode: Writing
             )}
             {mode === "translate" && reference && !last.self && !sameSentence(reference, fb.corrected) && (
               <p className="writing-extra">
-                <small>书里的句子</small>
+                <small>参考句子</small>
                 <span lang="fr">{reference}</span>
                 <Speak url={null} text={reference} size="sm" />
               </p>

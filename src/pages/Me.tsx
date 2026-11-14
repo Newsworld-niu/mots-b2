@@ -6,7 +6,8 @@ import { Sheet } from "../ui/Sheet";
 import { useAtlas } from "../atlas/context";
 import { isNative, shareFileNative } from "../lib/native";
 import { isMastered } from "../store/srs";
-import { dayKey, exportBackup, importBackup, resetProgress, store, useStore, type Settings } from "../store/store";
+import { dayKey, exportBackup, importBackup, MAX_DAILY_NEW, resetProgress, store, useStore, type Settings } from "../store/store";
+import { CountPicker } from "../ui/CountPicker";
 import { toast } from "../ui/Toast";
 import { streakOf } from "./Today";
 
@@ -117,14 +118,8 @@ export function Me() {
 
         <section className="panel settings">
           <h3 className="eyebrow">学习设置</h3>
-          <Field label="每日新词" hint="复习不设上限，算法只安排快要遗忘的词。">
-            <div className="segmented">
-              {[5, 10, 15, 20, 30].map((n) => (
-                <button key={n} className={settings.dailyNew === n ? "is-on" : ""} onClick={() => set({ dailyNew: n })}>
-                  {n}
-                </button>
-              ))}
-            </div>
+          <Field label="每日新词" hint={`想学多少自己定，1–${MAX_DAILY_NEW} 都可以。复习不设上限，算法只安排快要遗忘的词；一天新学的越多，之后几天要复习的也越多（大约是新词数的 3–5 倍）。`}>
+            <CountPicker label="每日新词" value={settings.dailyNew} onChange={(n) => set({ dailyNew: n })} presets={[5, 10, 20, 30, 50, 100]} max={MAX_DAILY_NEW} />
           </Field>
           <Field label="从哪个难度开始" hint="跳过已经熟悉的低级别词。">
             <div className="segmented">

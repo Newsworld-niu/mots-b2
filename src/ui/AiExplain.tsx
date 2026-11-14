@@ -1,4 +1,4 @@
-import { Check, Plus, RefreshCw, Sparkles } from "lucide-react";
+import { Check, ChevronDown, Plus, RefreshCw, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cacheGet, cachePut } from "../ai/cache";
 import { getAiConfig, ready, useAiConfig } from "../ai/config";
@@ -10,6 +10,22 @@ import { addToCard, findSame, headOf, ownParts, removeFromCard, type CardItem } 
 import { useStore } from "../store/store";
 import { SpeakBoth } from "./Speak";
 import { toast } from "./Toast";
+
+const OPEN_KEY = "word-atlas:ai-explain-open";
+const readOpen = () => {
+  try {
+    return localStorage.getItem(OPEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+};
+const writeOpen = (v: boolean) => {
+  try {
+    localStorage.setItem(OPEN_KEY, v ? "1" : "0");
+  } catch {
+    /* private mode: just not remembered */
+  }
+};
 
 interface Saved {
   at: number;
@@ -59,6 +75,13 @@ export function AiExplain({ entry }: { entry: Entry }) {
   const atlas = useAtlas();
   const [saved, setSaved] = useState<Saved | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
+  // the full explanation is long: folded to its summary until the learner opens it (remembered on this device)
+  const [open, setOpen] = useState(() => readOpen());
+  const toggle = () =>
+    setOpen((o) => {
+      writeOpen(!o);
+      return !o;
+    });
   const ctrl = useRef<AbortController | null>(null);
   // what the learner added to this card themselves (removable), as opposed to the atlas's own text
   // (the selectors return stored values as they are: a new object here would re-render forever)
@@ -89,6 +112,7 @@ export function AiExplain({ entry }: { entry: Entry }) {
       const next: Saved = { at: Date.now(), provider: cfg.text.provider, model: cfg.text.model, data };
       await cachePut(key(entry), next);
       setSaved(next);
+      setOpen(true);
     } catch (e) {
       if (!c.signal.aborted) toast((e as Error).message || "生成失败", "warn");
     } finally {
@@ -149,129 +173,136 @@ export function AiExplain({ entry }: { entry: Entry }) {
         </button>
       </h3>
       {d.summary && <p className="ai-summary">{d.summary}</p>}
-      <p className="muted small ai-how">每一条都可以「加到卡片」；加过的再点一下就移除，也可以在卡片上点 × 移除。</p>
-
-      {d.senses.length > 0 && (
-        <ol className="ai-senses">
-          {d.senses.map((s, i) => {
-            const st = senseState(s.zh);
-            const xs = s.example ? exState(s.example) : "none";
-            return (
-              <li key={i}>
-                <p className="ai-sense-head">
-                  <span>
-                    {s.pos && <span className="pos">{s.pos}</span>} <b>{s.zh}</b>
-                  </span>
-                  <Pick state={st} what="加这个意思" onClick={() => (st === "mine" ? removeFromCard(entry.id, { sense: s.zh }) : put({ sense: { pos: s.pos, zh: s.zh } }))} />
-                </p>
-                {s.explain && <p className="ai-explain-text">{s.explain}</p>}
-                {s.example && (
-                  <div className="ai-example">
-                    <p>
-                      <span lang="fr">{s.example}</span>
-                      <SpeakBoth text={s.example} />
-                      {s.exampleZh && <small>{s.exampleZh}</small>}
-                    </p>
-                    <Pick state={xs} what="加这条例句" onClick={() => (xs === "mine" ? removeFromCard(entry.id, { ex: s.example }) : put({ ex: { fr: s.example, zh: s.exampleZh } }))} />
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ol>
-      )}
-
-      {(d.synonyms.length > 0 || d.antonyms.length > 0) && (
-        <div className="ai-grid">
-          {d.synonyms.length > 0 && (
-            <div>
-              <h4>近义词</h4>
-              <ul className="ai-list ai-picks">
-                {d.synonyms.map((x) => (
-                  <li key={x.fr}>
-                    <span>
-                      {word(x.fr)} <small>{x.zh}</small>
-                      {x.diff && <span className="ai-diff">{x.diff}</span>}
-                    </span>
-                    {relPick("syn", x)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {d.antonyms.length > 0 && (
-            <div>
-              <h4>反义词</h4>
-              <ul className="ai-list ai-picks">
-                {d.antonyms.map((x) => (
-                  <li key={x.fr}>
-                    <span>
-                      {word(x.fr)} <small>{x.zh}</small>
-                    </span>
-                    {relPick("ant", x)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
-
-      {d.collocations.length > 0 && (
+      {open && (
         <>
-          <h4>常用搭配</h4>
-          <ul className="ai-list ai-picks">
-            {d.collocations.map((c) => {
-              const st = colState(c.fr);
+        <p className="muted small ai-how">每一条都可以「加到卡片」；加过的再点一下就移除，也可以在卡片上点 × 移除。</p>
+
+        {d.senses.length > 0 && (
+          <ol className="ai-senses">
+            {d.senses.map((s, i) => {
+              const st = senseState(s.zh);
+              const xs = s.example ? exState(s.example) : "none";
               return (
-                <li key={c.fr}>
-                  <span>
-                    <span lang="fr">{c.fr}</span> <small>{c.zh}</small>
-                  </span>
-                  <Pick state={st} onClick={() => (st === "mine" ? removeFromCard(entry.id, { col: c.fr }) : put({ col: c.zh ? `${c.fr}｜${c.zh}` : c.fr }))} />
+                <li key={i}>
+                  <p className="ai-sense-head">
+                    <span>
+                      {s.pos && <span className="pos">{s.pos}</span>} <b>{s.zh}</b>
+                    </span>
+                    <Pick state={st} what="加这个意思" onClick={() => (st === "mine" ? removeFromCard(entry.id, { sense: s.zh }) : put({ sense: { pos: s.pos, zh: s.zh } }))} />
+                  </p>
+                  {s.explain && <p className="ai-explain-text">{s.explain}</p>}
+                  {s.example && (
+                    <div className="ai-example">
+                      <p>
+                        <span lang="fr">{s.example}</span>
+                        <SpeakBoth text={s.example} />
+                        {s.exampleZh && <small>{s.exampleZh}</small>}
+                      </p>
+                      <Pick state={xs} what="加这条例句" onClick={() => (xs === "mine" ? removeFromCard(entry.id, { ex: s.example }) : put({ ex: { fr: s.example, zh: s.exampleZh } }))} />
+                    </div>
+                  )}
                 </li>
               );
             })}
-          </ul>
-        </>
-      )}
+          </ol>
+        )}
 
-      {d.tips.length > 0 && (
-        <>
-          <h4>注意点</h4>
-          <ul className="ai-list ai-picks">
-            {d.tips.map((t) => {
-              const st = tipState(t);
-              return (
-                <li key={t}>
-                  <span>{t}</span>
-                  <Pick state={st} onClick={() => (st === "mine" ? removeFromCard(entry.id, { tip: t }) : put({ tip: t }))} />
+        {(d.synonyms.length > 0 || d.antonyms.length > 0) && (
+          <div className="ai-grid">
+            {d.synonyms.length > 0 && (
+              <div>
+                <h4>近义词</h4>
+                <ul className="ai-list ai-picks">
+                  {d.synonyms.map((x) => (
+                    <li key={x.fr}>
+                      <span>
+                        {word(x.fr)} <small>{x.zh}</small>
+                        {x.diff && <span className="ai-diff">{x.diff}</span>}
+                      </span>
+                      {relPick("syn", x)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {d.antonyms.length > 0 && (
+              <div>
+                <h4>反义词</h4>
+                <ul className="ai-list ai-picks">
+                  {d.antonyms.map((x) => (
+                    <li key={x.fr}>
+                      <span>
+                        {word(x.fr)} <small>{x.zh}</small>
+                      </span>
+                      {relPick("ant", x)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {d.collocations.length > 0 && (
+          <>
+            <h4>常用搭配</h4>
+            <ul className="ai-list ai-picks">
+              {d.collocations.map((c) => {
+                const st = colState(c.fr);
+                return (
+                  <li key={c.fr}>
+                    <span>
+                      <span lang="fr">{c.fr}</span> <small>{c.zh}</small>
+                    </span>
+                    <Pick state={st} onClick={() => (st === "mine" ? removeFromCard(entry.id, { col: c.fr }) : put({ col: c.zh ? `${c.fr}｜${c.zh}` : c.fr }))} />
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+
+        {d.tips.length > 0 && (
+          <>
+            <h4>注意点</h4>
+            <ul className="ai-list ai-picks">
+              {d.tips.map((t) => {
+                const st = tipState(t);
+                return (
+                  <li key={t}>
+                    <span>{t}</span>
+                    <Pick state={st} onClick={() => (st === "mine" ? removeFromCard(entry.id, { tip: t }) : put({ tip: t }))} />
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+
+        {d.family.length > 0 && (
+          <>
+            <h4>词族</h4>
+            <ul className="ai-list ai-picks">
+              {d.family.map((x) => (
+                <li key={x.fr}>
+                  <span>
+                    {word(x.fr)} <small>{x.zh}</small>
+                  </span>
+                  {relPick("fam", x)}
                 </li>
-              );
-            })}
-          </ul>
+              ))}
+            </ul>
+          </>
+        )}
+
+        <p className="muted small ai-meta">
+          由 {PROVIDER[saved.provider] ?? saved.provider} · {saved.model} 生成，{new Date(saved.at).toLocaleDateString("zh-CN")}；AI 写的内容可能有错，请对照词库核对。保存在这台设备上，再打开不重复收费。
+        </p>
         </>
       )}
-
-      {d.family.length > 0 && (
-        <>
-          <h4>词族</h4>
-          <ul className="ai-list ai-picks">
-            {d.family.map((x) => (
-              <li key={x.fr}>
-                <span>
-                  {word(x.fr)} <small>{x.zh}</small>
-                </span>
-                {relPick("fam", x)}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      <p className="muted small ai-meta">
-        由 {PROVIDER[saved.provider] ?? saved.provider} · {saved.model} 生成，{new Date(saved.at).toLocaleDateString("zh-CN")}；AI 写的内容可能有错，请对照词库核对。保存在这台设备上，再打开不重复收费。
-      </p>
+      <button className="link ai-toggle" onClick={toggle} aria-expanded={open}>
+        <ChevronDown size={15} className={open ? "is-flipped" : ""} /> {open ? "收起讲解" : "展开全部讲解"}
+      </button>
     </section>
   );
 }

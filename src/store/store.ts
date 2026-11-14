@@ -4,6 +4,8 @@ import type { Accent } from "../atlas/types";
 import type { CardState, Grade } from "./srs";
 import { getImages, isImageDataUrl, replaceImages } from "./images";
 import { sanitizeTexts, type SavedText } from "../lib/reader";
+import { sanitizeEssays, type SavedEssay } from "../lib/essay";
+import { sanitizeExamLog, type ExamResult } from "../lib/exam";
 
 /**
  * "gender": choose un / une for a noun (no options list; the two articles are fixed).
@@ -83,7 +85,11 @@ export interface CustomWord extends CardExtras {
 /** The learner's changes to an atlas word, shown in every deck: a gloss for the first sense, own examples (first). */
 export interface WordEdit extends CardExtras {
   zh?: string;
+  /** Glosses for the second sense onward ("" keeps the atlas's). */
+  zhMore?: string[];
   ex?: UserExample[];
+  /** Atlas examples the learner does not want, by their place in the atlas's list. */
+  hideEx?: number[];
   /** 不要图片 for an atlas word (see CustomWord.noImg). */
   noImg?: boolean;
   /** Own collocations ("French｜中文"), shown before the atlas ones. */
@@ -106,6 +112,8 @@ export interface ActiveSession {
   graded: Record<string, Grade>;
   newIds: string[];
   reviewIds: string[];
+  /** New words the learner said they do not know on first meeting: their first answer in this session cannot raise familiarity. */
+  unknown?: string[];
   /** Answer shown but not yet continued; survives reload without double counting. */
   pending?: { correct: boolean; value: string; /** right letters, wrong accent: counted correct but graded Hard */ accentOnly?: boolean; /** noun spelled right, article wrong or missing: counted wrong */ articleWrong?: boolean };
   finished?: number;
@@ -160,7 +168,14 @@ export interface Progress {
   edits?: Record<string, WordEdit>;
   /** Saved texts of 阅读 (pasted, imported or written by the AI), newest first. */
   texts?: SavedText[];
+  /** Texts written in 篇章写作, with their marking, newest first. */
+  essays?: SavedEssay[];
+  /** Results of 听力理解、应试阅读、口语, newest first. */
+  examLog?: ExamResult[];
 }
+
+/** The most new words a day can be set to: the learner decides, the app only keeps the number sane. */
+export const MAX_DAILY_NEW = 2000;
 
 export interface Settings {
   accent: Accent;
@@ -320,6 +335,10 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
   Object.assign(out, sanitizeUserData(v));
   const texts = sanitizeTexts(v.texts);
   if (texts) out.texts = texts;
+  const essays = sanitizeEssays(v.essays);
+  if (essays) out.essays = essays;
+  const examLog = sanitizeExamLog(v.examLog);
+  if (examLog) out.examLog = examLog;
   const s = v.session;
   if (isObj(s) && typeof s.id === "string" && Array.isArray(s.steps) && num(s.index, 0) && isObj(s.graded))
     out.session = s as unknown as ActiveSession;
@@ -446,16 +465,22 @@ export function sanitizeUserData(v: Record<string, unknown>): Pick<Progress, "de
       if (zh) edit.zh = zh;
       const ex = sanitizeExamples(e.ex);
       if (ex) edit.ex = ex;
+      if (Array.isArray(e.zhMore)) {
+        const more = e.zhMore.slice(0, 12).map((x) => str(x, 300) ?? "");
+        while (more.length && !more[more.length - 1]) more.pop();
+        if (more.length) edit.zhMore = more;
+      }
+      const nums = (v: unknown) => (Array.isArray(v) ? [...new Set(v.filter((n): n is number => Number.isInteger(n) && (n as number) >= 0 && (n as number) < 40))].sort((a, b) => a - b) : []);
+      const hideEx = nums(e.hideEx);
+      if (hideEx.length) edit.hideEx = hideEx;
+      const hide = nums(e.hide);
+      if (hide.length) edit.hide = hide;
       if (e.noImg === true) edit.noImg = true;
       const col = sanitizeCollocations(e.col);
       if (col) edit.col = col;
       const tip = str(e.tip, MAX_TIP);
       if (tip) edit.tip = tip;
       Object.assign(edit, sanitizeExtras(e));
-      if (Array.isArray(e.hide)) {
-        const hide = [...new Set(e.hide.filter((n): n is number => Number.isInteger(n) && (n as number) >= 0 && (n as number) < 40))].sort((a, b) => a - b);
-        if (hide.length) edit.hide = hide;
-      }
       if (Object.keys(edit).length) edits[id] = edit;
     }
     if (Object.keys(edits).length) out.edits = edits;
@@ -468,7 +493,7 @@ export function sanitizeSettings(v: unknown): Settings {
   if (!isObj(v)) return s;
   if (v.accent === "uk" || v.accent === "us") s.accent = v.accent;
   if (typeof v.autoplay === "boolean") s.autoplay = v.autoplay;
-  if (num(v.dailyNew, 0, 100)) s.dailyNew = Math.round(v.dailyNew as number);
+  if (num(v.dailyNew, 0, MAX_DAILY_NEW)) s.dailyNew = Math.round(v.dailyNew as number);
   if (num(v.retention, 0.7, 0.97)) s.retention = v.retention as number;
   if (v.theme === "system" || v.theme === "light" || v.theme === "dark") s.theme = v.theme;
   if (typeof v.sfx === "boolean") s.sfx = v.sfx;

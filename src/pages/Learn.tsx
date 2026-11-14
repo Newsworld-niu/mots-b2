@@ -11,8 +11,8 @@ import { gap, hashSeed, normalize, shuffle } from "../lib/text";
 import { articleVerdict } from "../lib/accent";
 import { AccentKeys } from "../ui/AccentKeys";
 import { ARTICLE_CHOICES, articleTone, isArticleCorrect, spellTarget } from "../lib/gender";
-import { answer, advance, buildSession, gradeFor, isTyped, recordMistake, sessionStats } from "../store/session";
-import { Rating } from "../store/srs";
+import { answer, advance, buildSession, gradeFor, introduce, isTyped, recordMistake, sessionStats, type IntroVerdict } from "../store/session";
+import { formatInterval, preview, Rating } from "../store/srs";
 import { store, useStore, type ActiveSession, type QuizKind, type Step } from "../store/store";
 import { EntryView, Highlight, VoicePick } from "../ui/EntryView";
 import { Illustration, plateArticle } from "../ui/Illustration";
@@ -102,12 +102,17 @@ function Intro({ step }: { step: Extract<Step, { kind: "intro" }> }) {
   useEffect(() => {
     if (entry && settings.autoplay) void play(atlas.audio(entry, settings.accent), entry.w, settings.accent);
   }, [entry, atlas, settings.autoplay, settings.accent]);
-  const next = useCallback(() => {
-    stopAudio();
-    if (store.get().settings.sfx) void cue("flip");
-    advance(elapsed());
-  }, [elapsed]);
-  useKeys({ Enter: next, " ": next });
+  const next = useCallback(
+    (verdict: IntroVerdict) => {
+      stopAudio();
+      if (store.get().settings.sfx) void cue("flip");
+      introduce(step.id, verdict, elapsed());
+    },
+    [elapsed, step.id],
+  );
+  // how far away 完全认识 puts the word
+  const easy = useMemo(() => formatInterval(preview(undefined, Date.now(), settings.retention)[Rating.Easy]), [settings.retention, step.id]);
+  useKeys({ Enter: () => next("known"), " ": () => next("known"), "1": () => next("unknown"), "2": () => next("known"), "3": () => next("mastered") });
   if (!entry) return <span className="spinner" />;
   return (
     <div className="intro">
@@ -115,12 +120,25 @@ function Intro({ step }: { step: Extract<Step, { kind: "intro" }> }) {
         <span className="dot dot-new" /> 初次见面
       </p>
       <EntryView entry={entry} mode="intro" />
-      <footer className="learn-actions">
-        <button className="btn btn-primary btn-xl" onClick={next} autoFocus>
-          认识了 <ArrowRight size={20} />
-        </button>
+      <footer className="learn-actions intro-verdicts">
+        <div className="intro-verdict-row" role="group" aria-label="你认识这个词吗">
+          <button className="btn btn-ghost btn-xl" onClick={() => next("unknown")}>
+            <span>不认识</span>
+            <small>熟悉度不增加，很快再见</small>
+          </button>
+          <button className="btn btn-primary btn-xl" onClick={() => next("known")} autoFocus>
+            <span>
+              认识 <ArrowRight size={18} />
+            </span>
+            <small>接着做题，按答题情况安排</small>
+          </button>
+          <button className="btn btn-ghost btn-xl" onClick={() => next("mastered")}>
+            <span>完全认识</span>
+            <small>不再出题，约 {easy}后复习</small>
+          </button>
+        </div>
         <span className="hint-keys">
-          <kbd>Enter</kbd> 继续
+          <kbd>1</kbd> 不认识 · <kbd>2</kbd> / <kbd>Enter</kbd> 认识 · <kbd>3</kbd> 完全认识
         </span>
       </footer>
     </div>
@@ -210,6 +228,7 @@ function Pairing({ step }: { step: PairingStep }) {
         >
           <kbd>{side === "l" ? i + 1 : RIGHT_KEYS[i].toUpperCase()}</kbd>
           <span lang={side === "l" ? "fr" : "zh"}>{side === "l" ? w.word : shortGloss(w.zh)}</span>
+          {isDone && <Check size={18} className="pair-check" aria-label="已配对" />}
         </button>
       </li>
     );
@@ -339,11 +358,14 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
           <div className="prompt-cloze">
             {sentence ? (
               <>
-                <p className="cloze" lang="fr">
-                  {sentence.before}
-                  <span className="blank">{pending ? sentence.hidden : "\u3000\u3000\u3000"}</span>
-                  {sentence.after}
-                </p>
+                {/* dictation: the sentence is shown below, with the blank itself as the place to type */}
+                {kind === "cloze" && (
+                  <p className="cloze" lang="fr">
+                    {sentence.before}
+                    <span className="blank">{pending ? sentence.hidden : "\u3000\u3000\u3000"}</span>
+                    {sentence.after}
+                  </p>
+                )}
                 {(kind === "cloze" || pending) && <p className="cloze-zh">{entry.ex[0].zh}</p>}
               </>
             ) : (
@@ -430,7 +452,7 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
           })}
         </ul>
       ) : isTyped(kind) ? (
-        <SpellInput target={target} pending={pending} hints={hints} onHint={() => setHints((h) => Math.min(target.length - 1, h + 1))} onSubmit={(v) => {
+        <SpellInput target={target} sentence={kind === "dictation" && sentence ? sentence : undefined} pending={pending} hints={hints} onHint={() => setHints((h) => Math.min(target.length - 1, h + 1))} onSubmit={(v) => {
           const verdict = articleVerdict(v, target);
           submit(v, verdict === "exact" || verdict === "accent", verdict === "accent", verdict === "article");
         }} />
@@ -485,7 +507,11 @@ function SpellPrompt({ entry, refw, hints }: { entry: Entry; refw: WordRef; hint
   );
 }
 
-function SpellInput({ target, pending, hints, onHint, onSubmit }: { target: string; pending?: { correct: boolean; value: string }; hints: number; onHint: () => void; onSubmit: (v: string) => void }) {
+/**
+ * The answer is typed in one visible field, and nothing else changes with the mouse or the focus. In a dictation
+ * the field sits in the sentence, in place of the missing word; for a spelling it stands alone.
+ */
+function SpellInput({ target, sentence, pending, hints, onHint, onSubmit }: { target: string; sentence?: { before: string; after: string }; pending?: { correct: boolean; value: string }; hints: number; onHint: () => void; onSubmit: (v: string) => void }) {
   const [value, setValue] = useState("");
   const input = useRef<HTMLInputElement>(null);
   const prefix = target.slice(0, hints);
@@ -494,28 +520,13 @@ function SpellInput({ target, pending, hints, onHint, onSubmit }: { target: stri
     input.current?.focus();
   }, [hints]); // eslint-disable-line react-hooks/exhaustive-deps
   const shown = pending ? pending.value : value;
-  return (
-    <form
-      className="spell"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!pending && value.trim()) onSubmit(value);
-      }}
-    >
-      <div className="slots" aria-hidden="true" onClick={() => input.current?.focus()}>
-        {Array.from(target).map((ch, i) => {
-          const typed = shown[i];
-          const ok = typed !== undefined && typed.toLowerCase() === ch.toLowerCase();
-          return (
-            <span key={i} className={`slot ${ch === " " ? "slot-space" : ""} ${typed !== undefined ? (pending ? (ok ? "is-ok" : "is-bad") : "is-filled") : ""} ${!pending && i === shown.length ? "is-caret" : ""}`}>
-              {pending && !pending.correct ? ch : typed ?? ""}
-            </span>
-          );
-        })}
-      </div>
+  const field = (
+    <>
       <input
         ref={input}
-        className="spell-input"
+        className={`spell-field ${pending ? (pending.correct ? "is-ok" : "is-bad") : ""}`}
+        style={{ width: `${Math.max(5, Math.max(target.length, shown.length) + 2)}ch` }}
+        lang="fr"
         value={shown}
         onChange={(e) => !pending && setValue(e.target.value.slice(0, target.length + 6))}
         autoFocus
@@ -524,9 +535,29 @@ function SpellInput({ target, pending, hints, onHint, onSubmit }: { target: stri
         autoComplete="off"
         spellCheck={false}
         enterKeyHint="done"
-        aria-label={`拼写，${target.length} 个字符`}
+        aria-label={sentence ? `填上听到的词，${target.length} 个字符` : `拼写，${target.length} 个字符`}
         readOnly={!!pending}
       />
+      {pending && !pending.correct && <ins className="spell-right">{target}</ins>}
+    </>
+  );
+  return (
+    <form
+      className="spell"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!pending && value.trim()) onSubmit(value);
+      }}
+    >
+      {sentence ? (
+        <p className="cloze spell-sentence" lang="fr">
+          {sentence.before}
+          {field}
+          {sentence.after}
+        </p>
+      ) : (
+        <p className="spell-alone">{field}</p>
+      )}
       {!pending && <AccentKeys input={input} value={value} onChange={(v) => setValue(v.slice(0, target.length + 6))} />}
       {!pending && (
         <div className="spell-actions">

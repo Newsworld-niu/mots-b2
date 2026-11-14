@@ -328,7 +328,12 @@ export function setWordEdit(id: string, edit: WordEdit) {
   store.progress((p) => {
     const next: WordEdit = {};
     if (zh) next.zh = zh;
+    const more = (edit.zhMore ?? []).slice(0, 12).map((x) => x.trim().slice(0, 300));
+    while (more.length && !more[more.length - 1]) more.pop();
+    if (more.length) next.zhMore = more;
     if (ex) next.ex = ex;
+    const hideEx = [...new Set((edit.hideEx ?? []).filter((n) => Number.isInteger(n) && n >= 0 && n < 40))].sort((a, b) => a - b);
+    if (hideEx.length) next.hideEx = hideEx;
     if (edit.noImg) next.noImg = true;
     const col = cleanCollocations(edit.col);
     if (col) next.col = col;
@@ -441,6 +446,16 @@ export function hideSense(id: string, n: number) {
 
 export function restoreSenses(id: string) {
   setWordEdit(id, { ...store.get().progress.edits?.[id], hide: [] });
+}
+
+/** Take one of the atlas's own examples off a word's card, by its place in the atlas's list; 恢复 brings them back. */
+export function hideExample(id: string, n: number) {
+  const e = store.get().progress.edits?.[id];
+  setWordEdit(id, { ...e, hideEx: [...(e?.hideEx ?? []), n] });
+}
+
+export function restoreExamples(id: string) {
+  setWordEdit(id, { ...store.get().progress.edits?.[id], hideEx: [] });
 }
 
 /** An own word's first meaning is dropped and the next one takes its place. */

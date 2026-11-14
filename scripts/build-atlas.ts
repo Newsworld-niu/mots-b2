@@ -110,9 +110,13 @@ const NOUN_FILE = resolve(ROOT, "data/nouns.json");
 const nouns: Record<string, NounInfo> = existsSync(NOUN_FILE) ? JSON.parse(readFileSync(NOUN_FILE, "utf8")).entries : {};
 if (!existsSync(NOUN_FILE)) console.warn("data/nouns.json not found: run `npm run lexicon:nouns`; no articles or gender quiz");
 /** Gender asked by the un/une quiz: single-gender nouns with a singular headword whose gender is not in dispute. */
+/** Senses shown on the card: book rows without a Chinese gloss are left out (ton: the n.m. 音调 row has none, 你的 is shown). */
+const shownSenses = (e: LexEntry) => (e.senses.some((s) => s.zh) ? e.senses.filter((s) => s.zh) : e.senses.slice(0, 1));
+/** The card reads as a noun: its first shown meaning is one (ton 你的 is a determiner, so no article and no un/une quiz). */
+const readsAsNoun = (e: LexEntry) => /^n\./.test(shownSenses(e)[0]?.pos ?? e.pos ?? "");
 const quizGender = (e: LexEntry): "m" | "f" | "" => {
   const n = nouns[e.id];
-  if (!n || e.forms || (n.g !== "m" && n.g !== "f")) return "";
+  if (!n || e.forms || (n.g !== "m" && n.g !== "f") || !readsAsNoun(e)) return "";
   if (n.art !== "un" && n.art !== "une") return "";
   return n.check === "lexique" || n.check === "unknown" ? n.g : "";
 };
@@ -158,7 +162,7 @@ const toEntry = (e: LexEntry) => ({
   uk: ipaOf(e.id),
   us: ipaOf(e.id),
   // Empty-gloss senses (book rows without a Chinese gloss) are not shown as extra meanings.
-  senses: (e.senses.some((s) => s.zh) ? e.senses.filter((s) => s.zh) : e.senses.slice(0, 1)).map((s) => ({ pos: s.pos ?? e.pos, zh: s.zh || "释义待补充", en: s.fr, origin: s.origin, ...(s.status ? { status: s.status } : {}) })),
+  senses: shownSenses(e).map((s) => ({ pos: s.pos ?? e.pos, zh: s.zh || "释义待补充", en: s.fr, origin: s.origin, ...(s.status ? { status: s.status } : {}) })),
   ex: e.examples.map((x, i) => ({ en: x.fr, zh: x.zh, origin: x.origin, ...(hlMap[e.id]?.[i] ? { hl: hlMap[e.id][i]! } : {}) })),
   col: e.col,
   fam: e.fam,
@@ -171,7 +175,7 @@ const toEntry = (e: LexEntry) => ({
   topic: e.topic,
   note: e.note,
   m: mediaOf(e.id),
-  ...(nouns[e.id]?.art ? { art: nouns[e.id].art } : {}),
+  ...(nouns[e.id]?.art && readsAsNoun(e) ? { art: nouns[e.id].art } : {}),
   ...(quizGender(e) ? { g: quizGender(e) } : {}),
   ...(formInfo[e.id] ? { infl: formInfo[e.id] } : {}),
   review: e.review,

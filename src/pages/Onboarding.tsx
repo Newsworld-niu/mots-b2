@@ -1,7 +1,8 @@
 import { ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { useAtlas } from "../atlas/context";
-import { store } from "../store/store";
+import { MAX_DAILY_NEW, store } from "../store/store";
+import { CountPicker } from "../ui/CountPicker";
 
 // Start bands match the source books (Débutant A1, A2–B1, B2/DELF). The path inside a band is by frequency.
 const LEVELS = [
@@ -41,13 +42,8 @@ export function Onboarding() {
           </fieldset>
           <fieldset>
             <legend>每天点亮几颗新星？</legend>
-            <div className="segmented segmented-wide">
-              {[5, 10, 15, 20].map((n) => (
-                <button key={n} className={goal === n ? "is-on" : ""} onClick={() => setGoal(n)} aria-pressed={goal === n}>
-                  {n} 颗{n === 10 ? " · 推荐" : ""}
-                </button>
-              ))}
-            </div>
+            <CountPicker label="每天的新词数" value={goal} onChange={setGoal} presets={[5, 10, 20, 50]} max={MAX_DAILY_NEW} unit=" 颗" />
+            <p className="muted small">推荐 10 颗；想学多少都可以，之后在「我的」里随时改。</p>
           </fieldset>
           <button className="btn btn-primary btn-xl" onClick={finish}>
             出发 <ArrowRight size={20} />

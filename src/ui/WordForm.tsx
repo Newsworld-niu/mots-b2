@@ -130,6 +130,12 @@ export function WordForm(props: Props) {
   const [w, setW] = useState(props.mode === "create" ? props.initial ?? "" : custom?.w ?? "");
   const [pos, setPos] = useState(custom?.pos ?? "n.m.");
   const [zh, setZh] = useState(props.mode === "atlas" ? edit?.zh ?? "" : custom?.zh ?? "");
+  // an atlas word: the atlas's own glosses and examples (kept in `orig` once the word has been changed)
+  const shown = props.mode === "atlas" ? atlas.peek(props.id) : undefined;
+  const origSenses = shown?.orig?.senses ?? shown?.senses.map((s) => s.zh) ?? [];
+  const origEx = shown?.orig?.ex ?? shown?.ex ?? [];
+  const [glosses, setGlosses] = useState<string[]>(() => (props.mode === "atlas" ? edit?.zhMore ?? [] : []));
+  const [hideEx, setHideEx] = useState<number[]>(() => (props.mode === "atlas" ? edit?.hideEx ?? [] : []));
   const [ipa, setIpa] = useState(custom?.ipa ?? "");
   // custom words: the note is the card's 注意点; atlas words: an own 注意点 shown before the atlas tip
   const [note, setNote] = useState(props.mode === "atlas" ? edit?.tip ?? "" : custom?.note ?? "");
@@ -208,7 +214,7 @@ export function WordForm(props: Props) {
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (props.mode === "atlas") {
-      setWordEdit(props.id, { zh, ex, noImg, col: fromPairs(col), tip: note, senses: more });
+      setWordEdit(props.id, { zh, zhMore: glosses, ex, hideEx, noImg, col: fromPairs(col), tip: note, senses: more });
       savePicture(props.id);
       toast("已保存，所有卡组里都会这样显示", "ok");
       return props.onDone(props.id);
@@ -301,14 +307,63 @@ export function WordForm(props: Props) {
           </label>
         </>
       ) : (
-        <label className="wf-field">
-          <span>第一个义项的中文（留空恢复词库原文）</span>
-          <input value={zh} onChange={(e) => setZh(e.target.value)} placeholder={props.original.zh} maxLength={300} />
-        </label>
+        <div className="wf-field">
+          <span>中文意思（改成你认为更准确的；留空用词库原文）</span>
+          {(origSenses.length ? origSenses : [props.original.zh]).map((o, i) => (
+            <label key={i} className="wf-sense">
+              {origSenses.length > 1 && <b>{i + 1}</b>}
+              <input
+                value={i === 0 ? zh : glosses[i - 1] ?? ""}
+                onChange={(e) => (i === 0 ? setZh(e.target.value) : setGlosses((m) => Array.from({ length: Math.max(m.length, i) }, (_, k) => (k === i - 1 ? e.target.value : m[k] ?? ""))))}
+                placeholder={o}
+                maxLength={300}
+                aria-label={`义项 ${i + 1} 的中文`}
+              />
+              {!(i === 0 ? zh : glosses[i - 1]) && (
+                <button type="button" className="link" onClick={() => (i === 0 ? setZh(o) : setGlosses((m) => Array.from({ length: Math.max(m.length, i) }, (_, k) => (k === i - 1 ? o : m[k] ?? ""))))}>
+                  从原文改
+                </button>
+              )}
+            </label>
+          ))}
+        </div>
+      )}
+      {props.mode === "atlas" && origEx.length > 0 && (
+        <div className="wf-field">
+          <span>词库例句（不合适的可以去掉，或改写成自己的）</span>
+          <ul className="wf-orig-ex">
+            {origEx.map((x, i) => {
+              const off = hideEx.includes(i);
+              return (
+                <li key={i} className={off ? "is-off" : ""}>
+                  <p lang="fr">{x.en}</p>
+                  {x.zh && <small>{x.zh}</small>}
+                  <div>
+                    <button type="button" className="link" onClick={() => setHideEx((h) => (off ? h.filter((n) => n !== i) : [...h, i]))}>
+                      {off ? "恢复这句" : "去掉这句"}
+                    </button>
+                    {!off && (
+                      <button
+                        type="button"
+                        className="link"
+                        onClick={() => {
+                          setHideEx((h) => [...h, i]);
+                          setEx((l) => [...l.filter((e) => e.fr.trim() || e.zh.trim()), { fr: x.en, zh: x.zh }]);
+                        }}
+                      >
+                        改写
+                      </button>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
       <MoreSenses list={more} onChange={setMore} atlasMode={props.mode === "atlas"} />
       <div className="wf-field">
-        <span>{props.mode === "atlas" ? "我的例句（排在词库例句前面，填空题会先用它）" : "例句（可不填；没有例句就不出例句填空和听写）"}</span>
+        <span>{props.mode === "atlas" ? "我的例句（排在词库例句前面，填空题会先用它；点上面的「改写」会把原句放到这里）" : "例句（可不填；没有例句就不出例句填空和听写）"}</span>
         <Examples list={ex} onChange={setEx} word={props.mode === "atlas" ? atlas.byId.get(props.id)?.word ?? "" : w} meaning={[zh || (props.mode === "atlas" ? props.original.zh : ""), ...more.map((x) => x.zh)].filter(Boolean).join("；")} />
       </div>
       <PictureField mode={imgMode} onMode={setImgMode} value={picture} onChange={setImageState} word={props.mode === "atlas" ? atlas.byId.get(props.id)?.word ?? "" : w} meaning={zh || (props.mode === "atlas" ? props.original.zh : "")} />

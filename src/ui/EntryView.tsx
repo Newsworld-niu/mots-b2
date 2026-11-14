@@ -10,7 +10,7 @@ import { Illustration } from "./Illustration";
 import { Speak, SpeakBoth } from "./Speak";
 import { shareWord } from "./share";
 import { closeWord, href, openWord } from "../lib/router";
-import { addToDeck, CORE_NAME, createDeck, dropMainSense, hideSense, isCustomId, ownParts, removeFromCard, removeFromDeck, restoreSenses } from "../store/decks";
+import { addToDeck, CORE_NAME, createDeck, dropMainSense, hideExample, hideSense, isCustomId, ownParts, removeFromCard, removeFromDeck, restoreExamples, restoreSenses } from "../store/decks";
 import { CORE_DECK } from "../store/store";
 import { WordForm } from "./WordForm";
 import { AiExplain } from "./AiExplain";
@@ -19,8 +19,8 @@ import { AUX_NOTE, VerbConjugation } from "./ConjTable";
 import { liaisonPoints } from "../lib/liaison";
 import { useConj } from "../atlas/conj";
 
-/** Where an example comes from; supplement examples carry no tag. */
-const EX_TAG: Record<string, string> = { book: "书中例句", mine: "我的例句", tatoeba: "Tatoeba 例句" };
+/** Examples are numbered, not tagged by source; Tatoeba sentences keep their attribution (CC BY 2.0 FR). */
+const TATOEBA = "Tatoeba";
 const ART_TITLE: Record<string, string> = { un: "阳性名词", une: "阴性名词", "un/une": "阴阳同形", des: "复数形式" };
 
 export function Highlight({ text, word, span }: { text: string; word: string; span?: Span | null }) {
@@ -179,6 +179,25 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
     </button>
   );
   const hiddenSenses = editsAll?.[entry.id]?.hide?.length ?? 0;
+  const hiddenExamples = editsAll?.[entry.id]?.hideEx?.length ?? 0;
+  /** × on an example: one the learner added is deleted; one of the atlas's is taken off the card (恢复 brings it back). */
+  const exampleRm = (ex: Entry["ex"][number], i: number) => {
+    if (!canRemove) return null;
+    if (ex.origin === "mine" || ex.origin === "tatoeba" || isCustomId(entry.id))
+      return (
+        <button className="own-rm" onClick={() => removeFromCard(entry.id, { ex: ex.en })} aria-label={`删除例句 ${i + 1}`} title="删除这个例句">
+          <X size={13} />
+        </button>
+      );
+    const atlasList = entry.orig?.ex ?? entry.ex;
+    const n = atlasList.findIndex((o) => o.en === ex.en);
+    if (n < 0) return null;
+    return (
+      <button className="own-rm" onClick={() => hideExample(entry.id, n)} aria-label={`删除例句 ${i + 1}`} title="词库原有的例句：从卡片上去掉（可以恢复）">
+        <X size={13} />
+      </button>
+    );
+  };
   /** × on a meaning: one the learner added is deleted; one of the atlas's is taken off (恢复 brings it back). The last one stays. */
   const senseRm = (s: Entry["senses"][number], i: number) => {
     if (!canRemove || entry.senses.length < 2) return null;
@@ -234,9 +253,16 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
             {topic && <span className="chip">{topic[1]}</span>}
             {status && <span className={`chip chip-status ${status === "已掌握" ? "is-done" : ""}`}>{status}</span>}
           </div>
+          {mode !== "detail" && (
+            <div className="entry-actions">
+              <button className={`icon-btn ${editing ? "is-on" : ""}`} onClick={() => setEditing((v) => !v)} aria-pressed={editing} aria-label="编辑这个词" title={mine ? "编辑" : "改释义和例句"}>
+                <Pencil size={18} />
+              </button>
+            </div>
+          )}
           {mode === "detail" && (
             <div className="entry-actions">
-              <button className={`icon-btn ${editing ? "is-on" : ""}`} onClick={() => setEditing((v) => !v)} aria-pressed={editing} aria-label="编辑这个词" title={mine ? "编辑" : "改释义、加自己的例句"}>
+              <button className={`icon-btn ${editing ? "is-on" : ""}`} onClick={() => setEditing((v) => !v)} aria-pressed={editing} aria-label="编辑这个词" title={mine ? "编辑" : "改释义和例句"}>
                 <Pencil size={18} />
               </button>
               <button className={`icon-btn ${saved ? "is-on" : ""}`} onClick={() => toggleBookmark(entry.id)} aria-pressed={saved} aria-label={saved ? "取消收藏" : "收藏"} title={saved ? "取消收藏" : "收藏"}>
@@ -271,7 +297,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
         <Inflections entry={entry} />
         <Pronounce entry={entry} refw={ref ?? entry} />
 
-        {editing && mode === "detail" && (
+        {editing && (
           <section className="block entry-edit">
             <h3 className="eyebrow">{mine ? "编辑自建词" : "我的修改 · 所有卡组都会这样显示"}</h3>
             {mine ? (
@@ -323,18 +349,33 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
             <h3 className="eyebrow">例句</h3>
             <ul className="examples">
               {entry.ex.map((x, i) => (
-                <li key={i}>
-                  {x.origin !== "supplement" && <span className={`ex-tag ${x.origin === "mine" || x.origin === "tatoeba" ? "is-mine" : ""}`}>{EX_TAG[x.origin ?? "book"]}</span>}
-                  <p className="ex-en" lang="fr">
-                    <Highlight text={x.en} word={entry.w} span={x.hl} />
-                    <ExampleSpeak entry={entry} index={i} text={x.en} />
-                  </p>
-                  <p className="ex-zh">{x.zh}</p>
-                  {own.ex?.some((o) => o.fr === x.en) && rm({ ex: x.en })}
+                <li key={`${i}-${x.en}`} className="ex-item">
+                  <span className="sense-no ex-no" aria-label={`例句 ${i + 1}`}>
+                    {i + 1}
+                  </span>
+                  <div className="ex-body">
+                    <p className="ex-en" lang="fr">
+                      <Highlight text={x.en} word={entry.w} span={x.hl} />
+                      <ExampleSpeak entry={entry} index={i} text={x.en} />
+                    </p>
+                    <p className="ex-zh">
+                      {x.zh}
+                      {x.origin === "tatoeba" && <small className="ex-src">{TATOEBA}</small>}
+                    </p>
+                  </div>
+                  {exampleRm(x, i)}
                 </li>
               ))}
             </ul>
           </section>
+        )}
+        {canRemove && hiddenExamples > 0 && (
+          <p className="muted small senses-hidden">
+            已从卡片上去掉 {hiddenExamples} 个词库例句
+            <button className="link" onClick={() => restoreExamples(entry.id)}>
+              恢复
+            </button>
+          </p>
         )}
 
         {mode === "detail" && entry.senses[0]?.pos === "v." && <VerbConjugation id={entry.id} />}

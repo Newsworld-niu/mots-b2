@@ -40,11 +40,14 @@ const pending = new Map<string, Promise<string>>();
 /** Whether Azure reads texts that have no recording. */
 export const ttsOn = () => ready.tts();
 
-/** An object URL of the text spoken by the chosen Azure voice, female ("uk") or male ("us") (from the cache, or made now). */
-export function ttsUrl(text: string, accent: "uk" | "us" = "uk"): Promise<string> {
+/**
+ * An object URL of the text spoken by Azure (from the cache, or made now): "uk" is the chosen female voice,
+ * "us" the chosen male voice; any other value is a voice name.
+ */
+export function ttsUrl(text: string, accentOrVoice: string = "uk"): Promise<string> {
   const clean = text.trim().slice(0, MAX_TEXT);
   const c = getAiConfig();
-  const voice = accent === "us" ? c.azureVoiceMale : c.azureVoice;
+  const voice = accentOrVoice === "us" ? c.azureVoiceMale : accentOrVoice === "uk" ? c.azureVoice : accentOrVoice;
   const k = cacheKey(voice, clean);
   const have = urls.get(k);
   if (have) return Promise.resolve(have);
@@ -73,4 +76,9 @@ export async function clearTtsCache() {
   await run("readwrite", (s) => s.clear());
   urls.forEach((u) => URL.revokeObjectURL(u));
   urls.clear();
+}
+
+/** A second French voice for the other speaker of a dialogue: of the other sex than the chosen one when that can be told. */
+export function otherVoice(voice = getAiConfig().azureVoice) {
+  return /Henri|Alain|Claude|Jerome|Maurice|Yves|Remy|Lucien|Fabrice|Gerard|Thierry|Sylvie.*Male/i.test(voice) ? "fr-FR-DeniseNeural" : "fr-FR-HenriNeural";
 }

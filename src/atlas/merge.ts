@@ -63,19 +63,43 @@ export function customEntry(id: string, c: CustomWord): Entry {
   };
 }
 
+/**
+ * An atlas entry with the learner's changes: any sense's gloss, own examples (first), atlas examples taken out,
+ * own collocations and note. The atlas's own text stays in `orig`, to edit from or restore.
+ */
 export function editedEntry(e: Entry, edit: WordEdit): Entry {
   const hidden = new Set(edit.hide ?? []);
   const kept = e.senses
-    .map((s, n) => (n === 0 && edit.zh ? { ...s, zh: edit.zh, status: "自己改过", n } : { ...s, n }))
+    .map((s, n) => {
+      const zh = n === 0 ? edit.zh : edit.zhMore?.[n - 1];
+      return zh ? { ...s, zh, status: "自己改过", n } : { ...s, n };
+    })
     .filter((s) => !hidden.has(s.n));
   const shown = [...kept, ...ownSenses(edit)];
   // a card always has a meaning: with every sense taken off, the atlas's own stay
   const senses = shown.length ? shown : e.senses;
   // own examples go first: cloze and dictation use the first example
-  const ex = edit.ex ? [...mineExamples(edit.ex, e.w), ...e.ex] : e.ex;
+  const keptEx = edit.hideEx?.length ? e.ex.filter((_, i) => !edit.hideEx!.includes(i)) : e.ex;
+  const ex = edit.ex ? [...mineExamples(edit.ex, e.w), ...keptEx] : keptEx;
+  // the recordings belong to the atlas's first and second example: no recording for a sentence that took their place
+  let m = e.m;
+  if (ex[0] !== e.ex[0]) m &= ~(MEDIA.ex | MEDIA.exM);
+  if (ex[1] !== e.ex[1]) m &= ~(MEDIA.ex2 | MEDIA.ex2M);
   const col = edit.col ? [...edit.col, ...e.col.filter((c) => !edit.col!.includes(c))] : e.col;
   const tip = edit.tip ? (e.tip ? `${edit.tip}\n\n${e.tip}` : edit.tip) : e.tip;
-  return { ...e, senses, ex, col, tip, syn: withOwn(e.syn, edit.syn), ant: withOwn(e.ant, edit.ant), fam: withOwn(e.fam, edit.fam), ...(edit.noImg ? { noImg: true } : {}) };
+  return {
+    ...e,
+    m,
+    senses,
+    ex,
+    col,
+    tip,
+    syn: withOwn(e.syn, edit.syn),
+    ant: withOwn(e.ant, edit.ant),
+    fam: withOwn(e.fam, edit.fam),
+    orig: { senses: e.senses.map((s) => s.zh), ex: e.ex },
+    ...(edit.noImg ? { noImg: true } : {}),
+  };
 }
 
 /**
@@ -101,7 +125,7 @@ export function withUserData(base: Atlas, custom: Record<string, CustomWord> | u
     for (const w of words) byId.set(w.id, w);
   }
   for (const r of customRefs) byId.set(r.id, r);
-  const cache = new Map<string, Entry>();
+  const cache = new Map<string, { src: Entry; out: Entry }>();
   const withPic = (e: Entry): Entry =>
     noImg.has(e.id) ? { ...e, m: e.m & ~MEDIA.img, noImg: true } : images[e.id] && !(e.m & MEDIA.img) ? { ...e, m: e.m | MEDIA.img } : e;
   const view = (e0: Entry) => {
@@ -109,11 +133,11 @@ export function withUserData(base: Atlas, custom: Record<string, CustomWord> | u
     const edit = edits?.[e.id];
     if (!edit) return e;
     let hit = cache.get(e.id);
-    if (!hit || hit.w !== e.w || hit.m !== e.m) {
-      hit = editedEntry(e, edit);
+    if (!hit || hit.src.w !== e.w || hit.src.m !== e.m) {
+      hit = { src: e, out: editedEntry(e, edit) };
       cache.set(e.id, hit);
     }
-    return hit;
+    return hit.out;
   };
   const customEntries = new Map(Object.entries(custom ?? {}).map(([id, c]) => [id, withPic(customEntry(id, c))]));
   return {

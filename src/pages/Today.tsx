@@ -1,5 +1,5 @@
 import { ArrowRight, Flame, Keyboard, Sparkles } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { prefetch, useAtlas, useEntry } from "../atlas/context";
 import { go, openWord } from "../lib/router";
 import { cue } from "../lib/sound";
@@ -7,7 +7,7 @@ import { hashSeed } from "../lib/text";
 import { buildSession, isTaughtReady, masteredCount, todayPlan } from "../store/session";
 import { isMastered } from "../store/srs";
 import { CORE_NAME, studyRange } from "../store/decks";
-import { dayKey, store, useStore } from "../store/store";
+import { dayKey, MAX_DAILY_NEW, store, useStore } from "../store/store";
 import { Galaxy } from "../galaxy/Galaxy";
 import { Highlight, Pronounce } from "../ui/EntryView";
 import { Illustration, plateArticle } from "../ui/Illustration";
@@ -59,6 +59,8 @@ export function Today() {
   const goal = settings.dailyNew + Math.min(plan.due.length, 60);
   const doneToday = today?.r ?? 0;
 
+  const [more, setMore] = useState("");
+  const moreN = Math.min(MAX_DAILY_NEW, Math.max(0, Math.round(Number(more) || 0)));
   const start = (opts?: { reviewOnly?: boolean; extra?: number }) => {
     if (!active) {
       const s = buildSession(atlas, progress, opts?.extra ? { ...settings, dailyNew: (today?.n ?? 0) + opts.extra } : settings, { reviewOnly: opts?.reviewOnly });
@@ -152,6 +154,25 @@ export function Today() {
               <button className="btn btn-glass" onClick={() => start({ reviewOnly: true })}>
                 只复习
               </button>
+            )}
+            {!active && (
+              <form
+                className="journey-more"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (moreN > 0) start({ extra: moreN });
+                }}
+              >
+                <label>
+                  今天{(today?.n ?? 0) > 0 ? "再" : ""}学
+                  <input type="text" inputMode="numeric" pattern="[0-9]*" value={more} placeholder={String(settings.dailyNew)} onChange={(e) => setMore(e.target.value.replace(/\D/g, "").slice(0, 4))} aria-label="今天要学的新词数" />
+                  个新词
+                </label>
+                <button className="btn btn-glass" disabled={moreN === 0}>
+                  就学这么多
+                </button>
+                {moreN >= 50 && <small>约 {Math.round(moreN * 0.9)} 分钟；可以中途停下，进度会保存。</small>}
+              </form>
             )}
             {!active && total === 0 && (
               <button className="btn btn-glass" onClick={() => go({ page: "practice" })}>

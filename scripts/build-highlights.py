@@ -37,7 +37,7 @@ POS_MAP = {
     "v.": ("VER", "AUX"), "adj.": ("ADJ",), "adv.": ("ADV",), "loc. adv.": ("ADV",),
     "prép.": ("PRE",), "conj.": ("CON",), "interj.": ("ONO",), "pron.": ("PRO",),
 }
-WILDCARD = {"qqn", "qqch", "qch", "etc"}
+WILDCARD = {"qqn", "qqch", "qch", "qc", "qn", "qe", "qq", "etc"}  # qn/qc/qe: "quelqu'un / quelque chose" slots in lexicon lemmas
 REFLEXIVE = {"me", "m", "te", "t", "se", "s", "nous", "vous"}
 WORD = re.compile(r"[^\W\d_]+", re.UNICODE)
 
@@ -82,8 +82,17 @@ def utf16(text, i):
     return i + sum(1 for ch in text[:i] if ord(ch) > 0xFFFF)
 
 
+CONTRACTED = {"à": {"au", "aux"}, "de": {"du", "des", "d"}}
+
+
 def tokens_match(lex, a, b):
-    return a == b or fold(a) == fold(b) or bool(lex.lemmas(a) & lex.lemmas(b))
+    """Same spelling, same spelling without accents, same lemma (accents ignored), or a contracted preposition
+    (à -> au / aux, de -> du / des / d') standing for the one in the expression."""
+    if a == b or fold(a) == fold(b):
+        return True
+    if a in CONTRACTED.get(b, ()) or b in CONTRACTED.get(a, ()):
+        return True
+    return bool({fold(x) for x in lex.lemmas(a)} & {fold(x) for x in lex.lemmas(b)})
 
 
 def stem_match(w, pos, sent):
@@ -101,18 +110,47 @@ def stem_match(w, pos, sent):
     return None
 
 
-def find(lex, lemma, pos, sentence):
-    sent = words(sentence)
-    if not sent:
-        return None
-    base = re.sub(r"\([^)]*\)", " ", norm(lemma))
-    pw = [w for w, _, _ in words(base) if w not in WILDCARD]
-    if not pw:
-        return None
-    tags = POS_MAP.get(pos, ())
+def gap_match(lex, toks, sent, max_gap=2):
+    """Expression whose words are not all adjacent (être... de profession, est architecte de profession,
+    ont ... accès à). Words are matched in order; at most max_gap sentence words may sit between two matches.
+    Returns (start, end, matched) for the best window, or None. Needs at least two matches, one of them a content word."""
+    best = None
+    n = len(sent)
+    for s in range(n):
+        if not tokens_match(lex, sent[s][0], toks[0]):
+            continue
+        k, last, gap, first_idx, hits = 1, s, 0, s, [s]
+        for j in range(s + 1, min(n, s + 4 * len(toks) + 4)):
+            if k >= len(toks):
+                break
+            if tokens_match(lex, sent[j][0], toks[k]):
+                hits.append(j); last = j; k += 1; gap = 0
+            else:
+                gap += 1
+                if gap > max_gap:
+                    break
+        matched = [toks[i] for i in range(len(hits))]
+        content = any(len(fold(sent[h][0])) >= 4 for h in hits) or any(len(t) >= 4 for t in toks[:len(hits)])
+        if len(hits) < 2 or not content:
+            continue
+        cand = (len(hits), -(sent[last][2] - sent[first_idx][1]))
+        if best is None or cand > best[0]:
+            best = (cand, sent[first_idx][1], sent[last][2], len(hits))
+    return None if best is None else (best[1], best[2], best[3])
 
-    if len(pw) == 1:
-        w = pw[0]
+
+def contiguous(lex, core, sent):
+    n = len(core)
+    for i in range(len(sent) - n + 1):
+        if all(tokens_match(lex, sent[i + k][0], core[k]) for k in range(n)):
+            return i, i + n - 1
+    return None
+
+
+def find_alt(lex, words_, tags, sent, pos):
+    """Locate one spelling of the headword in a sentence. Returns (start, end, score) or None."""
+    if len(words_) == 1:
+        w = words_[0]
         wl = lex.lemmas(w)
         exact = typed = loose = None
         for t, s, e in sent:
@@ -122,26 +160,47 @@ def find(lex, lemma, pos, sentence):
                 typed = typed or (s, e)
             elif wl & lex.lemmas(t) or fold(t) == fold(w):
                 loose = loose or (s, e)
-        # identical spelling first (mourir, not the participle mort), then the same part of speech, then any shared lemma
-        return exact or typed or loose or stem_match(w, pos, sent)
-
-    reflexive = pw[0] in ("se", "s")
-    core = pw[1:] if reflexive and len(pw) > 1 else pw
-    n = len(core)
-    for i in range(len(sent) - n + 1):
-        if all(tokens_match(lex, sent[i + k][0], core[k]) for k in range(n)):
-            start = sent[i][1]
-            if reflexive and i > 0 and sent[i - 1][0] in REFLEXIVE:
-                start = sent[i - 1][1]
-            return (start, sent[i + n - 1][2])
-    # Whole expression absent (word order, inserted words): mark its first content word only.
-    for w in core:
-        if len(w) < 4:
-            continue
-        for t, s, e in sent:
-            if tokens_match(lex, t, w):
-                return (s, e)
+        r = exact or typed or loose or stem_match(w, pos, sent)
+        return None if r is None else (r[0], r[1], 1)
+    reflexive = words_[0] in ("se", "s")
+    core = words_[1:] if reflexive and len(words_) > 1 else words_
+    hit = contiguous(lex, core, sent)
+    if hit:
+        i, j = hit
+        start = sent[i][1]
+        if reflexive and i > 0 and sent[i - 1][0] in REFLEXIVE:
+            start = sent[i - 1][1]
+        return (start, sent[j][2], len(core))
+    g = gap_match(lex, core, sent)
+    if g:
+        return (g[0], g[1], g[2])
     return None
+
+
+def find(lex, lemma, pos, sentence):
+    """Span of the headword in the sentence, or None. A multi-word headword is highlighted only when at least two of
+    its words are found; a single word is never returned for an expression of two or more words. Alternatives
+    separated by '/' (démissionner/donner sa démission) are tried one by one and the best one is used."""
+    sent = words(sentence)
+    if not sent:
+        return None
+    base = re.sub(r"\([^)]*\)", " ", norm(lemma))
+    tags = POS_MAP.get(pos, ())
+    best = None
+    parts = base.split("/")
+    alts = parts
+    first = words(parts[0])
+    if len(first) >= 2 and len(parts) > 1 and all(len(words(p)) == 1 for p in parts[1:]):
+        head = " ".join(w for w, _, _ in first[:-1])  # "temps plein/partiel" -> "temps plein", "temps partiel"
+        alts = [parts[0]] + [head + " " + p for p in parts[1:]]
+    for alt in alts:
+        toks = [w for w, _, _ in words(alt) if w not in WILDCARD]
+        if not toks:
+            continue
+        r = find_alt(lex, toks, tags, sent, pos)
+        if r and (best is None or r[2] > best[2]):
+            best = r
+    return None if best is None else (best[0], best[1])
 
 
 def main():
