@@ -99,7 +99,6 @@ function Overview({ data, onStart }: { data: GrammarData; onStart: (s: Step[]) =
           ) : (
             <p className="muted">所有语法点都在复习计划里了，今天没有到期的。</p>
           )}
-          <p className="muted small">讲解是本站自己写的，标「待核对」；题目来自词库例句（模板题会注明）。</p>
         </section>
         <section className="gram-levels">
           {LEVELS.map((lv) => {

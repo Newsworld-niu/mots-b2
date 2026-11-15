@@ -289,7 +289,7 @@ export function Practice() {
                   AI 现写新句子需要先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务。
                 </p>
               )}
-              {aiOn && <p className="muted small">每轮开始时 AI 用这些词各写一个新句子（一次请求，约 10–30 秒），句子没有录音，用朗读服务或设备的声音读。</p>}
+              {aiOn && <p className="muted small">每轮开始时 AI 用这些词各写一个新句子（一次请求，约 10–30 秒），句子没有录音，{ready.tts(ai) ? "由朗读服务读出，可以选女声或男声。" : "只能用设备自带的声音读，没有女/男声可选；到「我的 → AI 接口」开启朗读服务后才能选。"}</p>}
             </>
           )}
           <button className="btn btn-primary btn-xl" onClick={isStudio(mode) ? () => setStudio(mode) : start} disabled={busy || (!isStudio(mode) && (!pool.length || needsAi))}>

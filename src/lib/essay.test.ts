@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { CONNECTORS, countWords, CRITERIA, ESSAY_TASKS, maxScore, sanitizeEssayFeedback, sanitizeEssays, tooShort, toLevel, totalScore } from "./essay";
+import { buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_TASKS, maxScore, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, tooShort, toLevel, totalScore } from "./essay";
 
 test("countWords counts elided and hyphenated words once", () => {
   assert.equal(countWords("L'ami de Paul est arrivé."), 5);
@@ -68,4 +68,62 @@ test("grammar ids the marker may link exist in the built grammar data", () => {
   const g = JSON.parse(readFileSync(new URL("../../public/atlas/grammar.json", import.meta.url), "utf8")) as { points: { id: string }[] };
   assert.ok(g.points.length >= 60);
   assert.ok(g.points.every((p) => /^[a-z0-9-]{2,40}$/.test(p.id)));
+});
+
+test("an AI task is built only when it is complete, with the exam's word range for its level", () => {
+  const good = {
+    level: "B2",
+    genre: "courrier",
+    title: "自行车道要不要扩建",
+    situation: "本地报纸报道市政府想扩建自行车道。",
+    consigne: "Vous écrivez au journal pour donner votre opinion.",
+    points: ["表明立场", "两个论据"],
+    plan: [
+      { zh: "引出话题", fr: "J'ai lu votre article…" },
+      { zh: "论据", fr: "D'abord,…" },
+      { zh: "结论", fr: "C'est pourquoi…" },
+    ],
+    phrases: [{ fr: "Certes, mais…", zh: "固然……但是" }],
+    doc: "",
+    topic: "transports",
+  };
+  const t = buildTask(good, "ai-abc")!;
+  assert.ok(t);
+  assert.deepEqual(t.words, [250, 300]);
+  assert.equal(t.doc, undefined, "an empty document is dropped");
+  assert.deepEqual(buildTask({ ...good, level: "B1", genre: "mail" }, "ai-abd")!.words, [120, 160]);
+  assert.equal(buildTask({ ...good, plan: good.plan.slice(0, 2) }, "ai-x"), null, "a plan of two steps is not a plan");
+  assert.equal(buildTask({ ...good, points: ["一个"] }, "ai-x"), null);
+  assert.equal(buildTask({ ...good, genre: "poème" }, "ai-x"), null);
+  assert.equal(buildTask(good, ""), null);
+  // what is stored (phrases as [fr, zh]) reads back the same
+  const again = sanitizeAiTasks(JSON.parse(JSON.stringify([t])));
+  assert.deepEqual(again, [t]);
+  assert.deepEqual(t.phrases, [["Certes, mais…", "固然……但是"]]);
+  assert.deepEqual(sanitizeAiTasks([{ ...good, id: "ai-ok" }, { ...good, id: "mail-invitation" }])?.map((x) => x.id), ["ai-ok"], "only ids starting with ai- are accepted from storage");
+});
+
+test("saved essays keep AI tasks, a second draft and a model text; unknown tasks are dropped", () => {
+  const fb = { scores: { task: 3, coherence: 3, socio: 1, lexique: 3, morpho: 1 }, comment: "ok", strengths: [], todo: [], corrections: [], rewrite: "" };
+  const out = sanitizeEssays([
+    { id: "e1", task: "ai-zz1", text: "Bonjour", created: 5, fb, rev: { text: "Bonjour à tous", at: 9, fb }, model: { text: "Madame, Monsieur,", patterns: [{ fr: "Certes", zh: "让步" }, { fr: "", zh: "空" }] } },
+    { id: "e2", task: "inconnu", text: "x", created: 1 },
+    { id: "e3", task: "mail-invitation", text: "Salut", created: 2, rev: { text: "   ", at: 3 } },
+  ]);
+  assert.deepEqual(out?.map((e) => e.id), ["e1", "e3"]);
+  assert.equal(out![0].rev?.text, "Bonjour à tous");
+  assert.equal(out![0].rev?.fb?.scores.task, 3);
+  assert.deepEqual(out![0].model?.patterns, [{ fr: "Certes", zh: "让步" }]);
+  assert.equal(out![1].rev, undefined, "an empty second draft is dropped");
+});
+
+test("kept mistakes are cleaned and bounded", () => {
+  const out = sanitizeNotes([
+    { id: "n1", wrong: "je suis allé", right: "je suis allée", type: "agreement", why: "性数配合", point: "accord-pp", at: 1, from: "投诉信" },
+    { id: "n2", wrong: "pareil", right: "pareil", type: "spelling", why: "", point: "", at: 2, from: "" },
+    { id: "n3", wrong: "a", right: "b", type: "nonsense", point: "Bad Id!", at: 3, from: "x" },
+  ]);
+  assert.deepEqual(out?.map((n) => n.id), ["n1", "n3"], "a note whose wrong and right are the same is dropped");
+  assert.equal(out![1].type, "other");
+  assert.equal(out![1].point, "");
 });

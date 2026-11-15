@@ -14,6 +14,7 @@ import { addToDeck, CORE_NAME, createDeck, dropMainSense, hideExample, hideSense
 import { CORE_DECK } from "../store/store";
 import { WordForm } from "./WordForm";
 import { AiExplain } from "./AiExplain";
+import { ready, useAiConfig } from "../ai/config";
 import { articleTone } from "../lib/gender";
 import { AUX_NOTE, VerbConjugation } from "./ConjTable";
 import { liaisonPoints } from "../lib/liaison";
@@ -116,7 +117,10 @@ export function exampleVoices(entry: Entry, index = 0): Accent[] {
  * sentence in that voice and keeps it for the next sentences. Nothing is shown when only one voice is recorded.
  */
 export function VoicePick({ entry, index = 0, value, onPick }: { entry: Entry; index?: number; value: Accent; onPick: (v: Accent) => void }) {
-  const voices = exampleVoices(entry, index);
+  const ai = useAiConfig();
+  const recorded = exampleVoices(entry, index);
+  // a sentence with no recording (one the AI wrote) is read by the speech service, which has both a female and a male voice
+  const voices: Accent[] = recorded.length === 0 && ready.tts(ai) ? ["uk", "us"] : recorded;
   if (voices.length < 2) return null;
   return (
     <span className="voice-pick" role="group" aria-label="例句朗读声音">

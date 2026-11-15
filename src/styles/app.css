@@ -7987,3 +7987,157 @@ button.rw.is-picked {
   font-weight: 600;
   text-decoration: none;
 }
+
+/* ---- 篇章写作: new tasks, recommendation, filters, layered marking, second draft, model, trend ---- */
+.essay-cell {
+  position: relative;
+  display: grid;
+}
+.essay-cell > .essay-task {
+  height: 100%;
+}
+.essay-cell-rm {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  margin: 0;
+}
+.essay-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.essay-tasks-one {
+  grid-template-columns: minmax(0, 560px);
+}
+.essay-task.is-rec {
+  border-color: var(--terra);
+}
+.essay-task .essay-rec-why {
+  color: var(--terra-ink);
+  font-weight: 600;
+}
+.essay-ai {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+}
+.essay-ai-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+.essay-check-doc {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.essay-filters {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0 6px;
+}
+.essay-fold {
+  margin: 14px 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 4px 16px;
+  background: var(--card);
+}
+.essay-fold > summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0;
+  font-weight: 600;
+  font-size: 14.5px;
+}
+.essay-fold[open] > summary {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 8px;
+}
+.essay-fold ul {
+  margin-bottom: 8px;
+}
+.essay-keep {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+.essay-keep:disabled {
+  color: var(--ink-3);
+  cursor: default;
+}
+.essay-notes li {
+  position: relative;
+  padding-right: 34px;
+}
+.essay-note-rm {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  margin: 0;
+}
+.essay-gain {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  font: 600 32px / 1.2 var(--serif);
+}
+.essay-gain small {
+  font-size: 16px;
+  color: var(--ink-3);
+}
+.essay-gain span {
+  font: 600 15px var(--sans, system-ui);
+  color: var(--ink-3);
+}
+.essay-gain .is-up,
+.is-up {
+  color: var(--sage-ink);
+}
+.essay-gain .is-down,
+.is-down {
+  color: var(--terra-ink);
+}
+.essay-rev,
+.essay-model {
+  display: grid;
+  gap: 12px;
+}
+.me-wide {
+  grid-column: 1 / -1;
+}
+.trend {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+}
+.trend-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.trend-tick {
+  fill: var(--ink-3);
+  font-size: 11px;
+}
+.trend-line {
+  stroke: var(--terra);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.trend-dot {
+  fill: var(--terra);
+  stroke: var(--card);
+  stroke-width: 2;
+}
+.trend-crit {
+  margin-top: 14px;
+}

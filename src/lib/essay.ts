@@ -381,16 +381,57 @@ export interface EssayFeedback {
   rewrite: string;
 }
 
+/** The learner's second draft after reading the marking, and how it was marked. */
+export interface Revision {
+  text: string;
+  at: number;
+  fb?: EssayFeedback;
+}
+
+/** A model text for the task, written after the marking, with the patterns worth borrowing from it. */
+export interface ModelEssay {
+  text: string;
+  /** Phrases or constructions of the model text, with what they do (Chinese). */
+  patterns: { fr: string; zh: string }[];
+}
+
 export interface SavedEssay {
   id: string;
   task: string;
   text: string;
   created: number;
   fb?: EssayFeedback;
+  rev?: Revision;
+  model?: ModelEssay;
+}
+
+/** A mistake the learner kept from a marking, to look at again. */
+export interface SavedNote {
+  id: string;
+  wrong: string;
+  right: string;
+  type: ErrorType;
+  why: string;
+  /** Id of the grammar point to practise, or "". */
+  point: string;
+  at: number;
+  /** Title of the task it came from. */
+  from: string;
 }
 
 export const MAX_ESSAY_LENGTH = 4000;
-export const MAX_ESSAYS = 30;
+export const MAX_ESSAYS = 40;
+export const MAX_NOTES = 150;
+export const MAX_AI_TASKS = 24;
+
+/** A task the AI wrote has an id starting with this. */
+export const isAiTask = (id: string) => id.startsWith("ai-");
+
+/** How many words a task of this kind asks for, as on the exam. */
+export const wordsFor = (level: "B1" | "B2", genre: Genre): [number, number] => (level === "B2" ? [250, 300] : genre === "mail" ? [120, 160] : [160, 200]);
+
+/** Genres the AI can write a task for. */
+export const GENRES = Object.keys(GENRE_LABEL) as Genre[];
 
 export const totalScore = (fb: EssayFeedback) => Object.values(fb.scores).reduce((n, v) => n + v, 0);
 export const maxScore = (fb: EssayFeedback) => Object.keys(fb.scores).length * 5;
@@ -440,6 +481,8 @@ export function tooShort(text: string, minWords: number) {
 }
 
 /** Saved essays read back from storage or a backup. */
+const anyPoint = { has: (id: string) => /^[a-z0-9-]{2,40}$/.test(id) } as ReadonlySet<string>;
+
 export function sanitizeEssays(v: unknown): SavedEssay[] | undefined {
   if (!Array.isArray(v)) return undefined;
   const known = new Set(ESSAY_TASKS.map((t) => t.id));
@@ -447,11 +490,91 @@ export function sanitizeEssays(v: unknown): SavedEssay[] | undefined {
   for (const x of v) {
     if (!x || typeof x !== "object") continue;
     const e = x as Record<string, unknown>;
-    if (typeof e.id !== "string" || typeof e.task !== "string" || !known.has(e.task) || typeof e.text !== "string" || !e.text.trim() || typeof e.created !== "number") continue;
+    if (typeof e.id !== "string" || typeof e.task !== "string" || !(known.has(e.task) || (isAiTask(e.task) && e.task.length <= 40)) || typeof e.text !== "string" || !e.text.trim() || typeof e.created !== "number") continue;
     const essay: SavedEssay = { id: e.id.slice(0, 40), task: e.task, text: e.text.slice(0, MAX_ESSAY_LENGTH), created: e.created };
     // any grammar id is kept here: the page only links the ones that exist
-    if (e.fb && typeof e.fb === "object") essay.fb = sanitizeEssayFeedback(e.fb, { has: (id: string) => /^[a-z0-9-]{2,40}$/.test(id) } as ReadonlySet<string>);
+    if (e.fb && typeof e.fb === "object") essay.fb = sanitizeEssayFeedback(e.fb, anyPoint);
+    const r = e.rev as Record<string, unknown> | undefined;
+    if (r && typeof r === "object" && typeof r.text === "string" && r.text.trim() && typeof r.at === "number") {
+      essay.rev = { text: r.text.slice(0, MAX_ESSAY_LENGTH), at: r.at, ...(r.fb && typeof r.fb === "object" ? { fb: sanitizeEssayFeedback(r.fb, anyPoint) } : {}) };
+    }
+    const m = e.model as Record<string, unknown> | undefined;
+    if (m && typeof m === "object" && typeof m.text === "string" && m.text.trim()) essay.model = sanitizeModel(m);
     out.push(essay);
   }
   return out.length ? out.slice(0, MAX_ESSAYS) : undefined;
+}
+
+export function sanitizeModel(m: Record<string, unknown>): ModelEssay {
+  const patterns = (Array.isArray(m.patterns) ? m.patterns : [])
+    .filter((p): p is Record<string, unknown> => !!p && typeof p === "object")
+    .map((p) => ({ fr: str(p.fr, 200), zh: str(p.zh, 200) }))
+    .filter((p) => p.fr)
+    .slice(0, 10);
+  return { text: str(m.text, MAX_ESSAY_LENGTH + 1000), patterns };
+}
+
+/** Kept mistakes read back from storage or a backup. */
+export function sanitizeNotes(v: unknown): SavedNote[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out: SavedNote[] = [];
+  for (const x of v) {
+    if (!x || typeof x !== "object") continue;
+    const n = x as Record<string, unknown>;
+    if (typeof n.id !== "string" || typeof n.at !== "number") continue;
+    const wrong = str(n.wrong, 200);
+    const right = str(n.right, 200);
+    if (!(wrong || right) || wrong === right) continue;
+    out.push({
+      id: n.id.slice(0, 40),
+      wrong,
+      right,
+      type: (ERROR_TYPES as readonly string[]).includes(n.type as string) ? (n.type as ErrorType) : "other",
+      why: str(n.why, 300),
+      point: typeof n.point === "string" && /^[a-z0-9-]{2,40}$/.test(n.point) ? n.point : "",
+      at: n.at,
+      from: str(n.from, 80),
+    });
+  }
+  return out.length ? out.slice(0, MAX_NOTES) : undefined;
+}
+
+/** Tasks the AI wrote, read back from storage or a backup. */
+export function sanitizeAiTasks(v: unknown): EssayTask[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out: EssayTask[] = [];
+  for (const x of v) {
+    const t = buildTask(x, typeof (x as Record<string, unknown>)?.id === "string" ? ((x as Record<string, unknown>).id as string) : "");
+    if (t && isAiTask(t.id)) out.push(t);
+  }
+  return out.length ? out.slice(0, MAX_AI_TASKS) : undefined;
+}
+
+/**
+ * A task from what the AI wrote (or from storage): the text fields are trimmed and bounded; `level` and `genre`
+ * must be ones we know. Null when the task is unusable (no instruction, no points or no plan).
+ */
+export function buildTask(raw: unknown, id: string): EssayTask | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const level = r.level === "B1" || r.level === "B2" ? r.level : null;
+  const genre = (GENRES as readonly string[]).includes(r.genre as string) ? (r.genre as Genre) : null;
+  if (!level || !genre || !id) return null;
+  const pairs = (v: unknown, a: string, b: string, n: number) =>
+    (Array.isArray(v) ? v : [])
+      .filter((p): p is Record<string, unknown> => !!p && typeof p === "object")
+      .map((p) => [str(p[a], 300), str(p[b], 300)] as [string, string])
+      .filter(([x, y]) => x && y)
+      .slice(0, n);
+  const plan = pairs(r.plan, "zh", "fr", 6).map(([zh, fr]) => ({ zh, fr }));
+  // phrases arrive from the AI as {fr, zh} and from storage as [fr, zh]
+  const phrases = pairs((Array.isArray(r.phrases) ? r.phrases : []).map((p) => (Array.isArray(p) ? { fr: p[0], zh: p[1] } : p)), "fr", "zh", 10);
+  const points = list(r.points, 6);
+  const title = str(r.title, 60);
+  const situation = str(r.situation, 300);
+  const consigne = str(r.consigne, 500);
+  if (!title || !situation || !consigne || points.length < 2 || plan.length < 3) return null;
+  const doc = str(r.doc, 1200);
+  const topic = typeof r.topic === "string" && r.topic ? r.topic.slice(0, 30) : undefined;
+  return { id: id.slice(0, 40), level, genre, title, situation, consigne, words: wordsFor(level, genre), points, plan, phrases, ...(doc ? { doc } : {}), ...(topic ? { topic } : {}) };
 }

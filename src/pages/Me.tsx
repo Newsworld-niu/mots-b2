@@ -8,6 +8,7 @@ import { isNative, shareFileNative } from "../lib/native";
 import { isMastered } from "../store/srs";
 import { dayKey, exportBackup, importBackup, MAX_DAILY_NEW, resetProgress, store, useStore, type Settings } from "../store/store";
 import { CountPicker } from "../ui/CountPicker";
+import { EssayTrend } from "../ui/EssayTrend";
 import { toast } from "../ui/Toast";
 import { streakOf } from "./Today";
 
@@ -114,6 +115,11 @@ export function Me() {
               </li>
             ))}
           </ol>
+        </section>
+
+        <section className="panel me-wide">
+          <h3 className="eyebrow">写作进步</h3>
+          <EssayTrend essays={progress.essays ?? []} />
         </section>
 
         <section className="panel settings">

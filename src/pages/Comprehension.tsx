@@ -269,7 +269,6 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
                 </button>
               </div>
               <p className="muted small">
-                官方样题的录音实测约每分钟 {REAL_WPM} 词（含停顿）。
                 {wpm ? `这个声音实测约每分钟 ${wpm} 词，播放速度自动调成 ×${rateFor(wpm, slow).toFixed(2)}。` : "第一次朗读时会测出这个声音的语速，然后自动调到真题的速度。"}
               </p>
             </>
@@ -500,7 +499,6 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
             </button>
           </div>
         )}
-        <p className="muted typing-help">题目由 AI 按考试题型生成，偶尔会有答案不唯一的题；只是练习，不改动记忆进度</p>
       </section>
     </div>
   );

@@ -4,7 +4,7 @@ import type { Accent } from "../atlas/types";
 import type { CardState, Grade } from "./srs";
 import { getImages, isImageDataUrl, replaceImages } from "./images";
 import { sanitizeTexts, type SavedText } from "../lib/reader";
-import { sanitizeEssays, type SavedEssay } from "../lib/essay";
+import { sanitizeAiTasks, sanitizeEssays, sanitizeNotes, type EssayTask, type SavedEssay, type SavedNote } from "../lib/essay";
 import { sanitizeExamLog, type ExamResult } from "../lib/exam";
 
 /**
@@ -170,6 +170,10 @@ export interface Progress {
   texts?: SavedText[];
   /** Texts written in 篇章写作, with their marking, newest first. */
   essays?: SavedEssay[];
+  /** Essay tasks the AI wrote for 篇章写作, newest first. */
+  essayTasks?: EssayTask[];
+  /** Mistakes kept from markings (错句本), newest first. */
+  essayNotes?: SavedNote[];
   /** Results of 听力理解、应试阅读、口语, newest first. */
   examLog?: ExamResult[];
 }
@@ -337,6 +341,10 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
   if (texts) out.texts = texts;
   const essays = sanitizeEssays(v.essays);
   if (essays) out.essays = essays;
+  const essayTasks = sanitizeAiTasks(v.essayTasks);
+  if (essayTasks) out.essayTasks = essayTasks;
+  const essayNotes = sanitizeNotes(v.essayNotes);
+  if (essayNotes) out.essayNotes = essayNotes;
   const examLog = sanitizeExamLog(v.examLog);
   if (examLog) out.examLog = examLog;
   const s = v.session;
