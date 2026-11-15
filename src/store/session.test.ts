@@ -44,6 +44,23 @@ test("question types follow a fixed order by stage, both ways, with un/une for n
   assert.ok(!kindsNoSpell.some((k) => k === "spell" || k === "dictation"), "with spelling off nothing is typed");
 });
 
+test("after the first pass, question types are random: no repeats, recall at least once in three", () => {
+  const at = (r: WordRef, reps: number) => {
+    const p = emptyProgress("t");
+    p.cards[r.id] = { ...review(undefined, Rating.Good, Date.now()), reps, st: 2 };
+    return quizKind(r, p, settings);
+  };
+  const words = Array.from({ length: 12 }, (_, i) => ref(`w${i}`, `mot${i}`, i, i % 2 ? "m" : undefined));
+  const runs = words.map((w) => Array.from({ length: 30 }, (_, n) => at(w, (w.g ? 5 : 4) + n)));
+  for (const run of runs) {
+    run.forEach((k, n) => n > 0 && assert.notEqual(k, run[n - 1], "never the same type twice in a row"));
+    for (let n = 2; n < run.length; n++) assert.ok(run.slice(n - 2, n + 1).includes("spell"), "recall at least once in any three");
+  }
+  // not one fixed rotation: words of the same kind get different sequences
+  const nouns = runs.filter((_, i) => i % 2).map((r) => r.join());
+  assert.ok(new Set(nouns).size > 1);
+});
+
 test("gender steps carry no options list; the two articles are fixed", () => {
   const words = Array.from({ length: 40 }, (_, i) => ref(`n${i}`, `nom${i}`, i, i % 2 ? "m" : "f"));
   const atlas = { words, byId: new Map(words.map((w) => [w.id, w])), pairs: new Set<string>() } as unknown as Atlas;

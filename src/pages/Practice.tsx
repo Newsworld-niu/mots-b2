@@ -252,25 +252,6 @@ export function Practice() {
                   })}
                 </ul>
               )}
-              {usesSentences(mode) && (
-                <>
-                  <h3 className="eyebrow">句子来自</h3>
-                  <div className="segmented segmented-wide">
-                    <button className={!aiSentences ? "is-on" : ""} onClick={() => setAiSentences(false)} aria-pressed={!aiSentences}>
-                      卡片上的例句
-                    </button>
-                    <button className={aiSentences ? "is-on" : ""} onClick={() => setAiSentences(true)} aria-pressed={aiSentences} disabled={!ready.text(ai)}>
-                      <Sparkles size={14} /> AI 现写新句子
-                    </button>
-                  </div>
-                  {!ready.text(ai) && (
-                    <p className="muted small">
-                      AI 现写新句子需要先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务。
-                    </p>
-                  )}
-                  {aiOn && <p className="muted small">每轮开始时 AI 用这些词各写一个新句子（一次请求，约 10–30 秒），句子没有录音，用朗读服务或设备的声音读。</p>}
-                </>
-              )}
             </>
           )}
           <p className="muted">
@@ -292,6 +273,25 @@ export function Practice() {
                   : `可练 ${pool.length} 个词，每轮随机 10 个。`
               : "这里还没有词，先去学几个，或换个来源。"}
           </p>
+          {usesSentences(mode) && (
+            <>
+              <h3 className="eyebrow">句子来自</h3>
+              <div className="segmented segmented-wide">
+                <button className={!aiSentences ? "is-on" : ""} onClick={() => setAiSentences(false)} aria-pressed={!aiSentences}>
+                  卡片上的例句
+                </button>
+                <button className={aiSentences ? "is-on" : ""} onClick={() => setAiSentences(true)} aria-pressed={aiSentences} disabled={!ready.text(ai)}>
+                  <Sparkles size={14} /> AI 现写新句子
+                </button>
+              </div>
+              {!ready.text(ai) && (
+                <p className="muted small">
+                  AI 现写新句子需要先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务。
+                </p>
+              )}
+              {aiOn && <p className="muted small">每轮开始时 AI 用这些词各写一个新句子（一次请求，约 10–30 秒），句子没有录音，用朗读服务或设备的声音读。</p>}
+            </>
+          )}
           <button className="btn btn-primary btn-xl" onClick={isStudio(mode) ? () => setStudio(mode) : start} disabled={busy || (!isStudio(mode) && (!pool.length || needsAi))}>
             {busy ? "AI 出题中…" : mode === "essay" ? "选题目" : isStudio(mode) ? "进入" : "开始一轮"}
           </button>

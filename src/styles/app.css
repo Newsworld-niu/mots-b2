@@ -1341,8 +1341,9 @@ ul.chips {
 }
 /* examples: numbered 1, 2, 3 like the senses, × at the end of the row in the detail view */
 .ex-item {
+  position: relative;
   display: grid;
-  grid-template-columns: 20px minmax(0, 1fr) auto;
+  grid-template-columns: 20px minmax(0, 1fr);
   column-gap: 12px;
   align-items: start;
 }
@@ -1350,8 +1351,21 @@ ul.chips {
   align-self: start;
   margin-top: 5px;
 }
+/* the × sits out in the sheet's right margin, clear of the sentence */
 .ex-item > .own-rm {
-  margin: 4px 0 0;
+  position: absolute;
+  top: 4px;
+  right: -30px;
+  margin: 0;
+}
+@media (max-width: 720px) {
+  .ex-item {
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+  }
+  .ex-item > .own-rm {
+    position: static;
+    margin: 4px 0 0 4px;
+  }
 }
 .ex-src {
   margin-left: 8px;
@@ -1366,15 +1380,6 @@ ul.chips {
 }
 .collocations li:has(.own-rm) {
   padding-right: 34px;
-}
-.examples li {
-  position: relative;
-}
-.examples li > .own-rm {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
 }
 .rel-item {
   display: inline-flex;
@@ -3297,6 +3302,11 @@ ul.chips {
   opacity: 0;
   inset: 0;
   font-size: 16px;
+}
+.quiz-giveup {
+  display: flex;
+  margin: 14px auto 0;
+  gap: 8px;
 }
 .typing-help {
   font-size: 13px;

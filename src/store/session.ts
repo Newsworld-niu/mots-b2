@@ -92,9 +92,10 @@ export function todayPlan(atlas: Atlas, p: Progress, s: Settings) {
 }
 
 /**
- * Question type by stage, as DuoCards does with its fixed card directions (duocards-research/REPORT.md §4):
- * every word is met in a set order (recognise, place in context, recall and type, recognise by ear) so it is
- * practised both ways, instead of leaving it to chance. FSRS still decides when; this only decides how.
+ * Question type by stage. The first pass is fixed, as DuoCards does with its card directions
+ * (duocards-research/REPORT.md §4): every word is met in a set order (recognise, place in context, recall and
+ * type, recognise by ear) so it is practised both ways. After that the type is drawn at random from `cycle`
+ * (see laterKind), so reviews do not settle into a pattern. FSRS still decides when; this only decides how.
  * The stage is the card's FSRS review count. A card being relearned after a lapse goes back to recognition.
  */
 export function stagePlan(noun: boolean, spell: boolean, inContext: QuizKind): { first: QuizKind[]; cycle: QuizKind[] } {
@@ -111,7 +112,27 @@ export function quizKind(ref: WordRef, p: Progress, s: Settings): QuizKind {
   if (c && c.st === 3) return "meaning"; // relearning: back to recognition, like DuoCards after a miss
   const { first, cycle } = stagePlan(!!ref.g, s.spell, inContext);
   const r = c?.reps ?? 0;
-  return r < first.length ? first[r] : cycle[(r - first.length) % cycle.length];
+  return r < first.length ? first[r] : laterKind(ref.id, r, first, cycle);
+}
+
+/**
+ * After the fixed first pass: a random type for review `r` of word `id`, never the one asked the time before,
+ * and recall (typing the word, or picking it in context when spelling is off) at least once in any three, so the
+ * harder direction is not left out by chance. Random per word and review, the same on every device.
+ */
+export function laterKind(id: string, r: number, first: QuizKind[], cycle: QuizKind[]): QuizKind {
+  const kinds = [...new Set(cycle)];
+  const recall = cycle[0];
+  let prev2 = first[first.length - 2];
+  let prev = first[first.length - 1];
+  let k = prev;
+  for (let i = first.length; i <= r; i++) {
+    const open = kinds.filter((x) => x !== prev);
+    k = prev !== recall && prev2 !== recall ? recall : open[hashSeed(`${id}:${i}`) % open.length];
+    prev2 = prev;
+    prev = k;
+  }
+  return k;
 }
 
 /** Kinds answered by typing the word (graded on a slower clock). */

@@ -302,6 +302,13 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
     advance(elapsed());
   }, [elapsed]);
 
+  /** 不会: counted as a miss, the answer is shown and the whole card opens to study it; 继续 goes on once it is closed. */
+  const giveUp = useCallback(() => {
+    if (pending || !entry) return;
+    submit("", false);
+    openWord(entry.id);
+  }, [pending, entry, submit]);
+
   const sentence = entry?.ex[0] ? gap(entry.ex[0].en, entry.w, entry.ex[0].hl) : null;
   // Without an example sentence, dictation becomes spelling; cloze shows the Chinese gloss instead of the sentence.
   // A picture question for a word that has no picture (removed, or 不要图片 chosen after the session was built)
@@ -332,6 +339,7 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
   } else if (!isTyped(kind)) {
     options.forEach((o, i) => (keys[String(i + 1)] = () => submit(o.id, o.id === ref.id)));
   }
+  if (!pending && !isTyped(kind)) keys["0"] = giveUp;
   useKeys(keys);
 
   if (!entry) return <span className="spinner" />;
@@ -455,7 +463,7 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
         <SpellInput target={target} sentence={kind === "dictation" && sentence ? sentence : undefined} pending={pending} hints={hints} onHint={() => setHints((h) => Math.min(target.length - 1, h + 1))} onSubmit={(v) => {
           const verdict = articleVerdict(v, target);
           submit(v, verdict === "exact" || verdict === "accent", verdict === "accent", verdict === "article");
-        }} />
+        }} onGiveUp={giveUp} />
       ) : (
         <ul className={`options ${kind === "meaning" ? "options-zh" : "options-en"}`}>
           {options.map((o, i) => {
@@ -476,6 +484,11 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
         </ul>
       )}
 
+      {!pending && !isTyped(kind) && (
+        <button type="button" className="btn btn-ghost quiz-giveup" onClick={giveUp}>
+          不会，看卡片 <kbd>0</kbd>
+        </button>
+      )}
       {pending && <Feedback entry={entry} refw={ref} correct={pending.correct} accentOnly={pending.accentOnly} articleWrong={pending.articleWrong} onNext={next} />}
     </div>
   );
@@ -511,7 +524,7 @@ function SpellPrompt({ entry, refw, hints }: { entry: Entry; refw: WordRef; hint
  * The answer is typed in one visible field, and nothing else changes with the mouse or the focus. In a dictation
  * the field sits in the sentence, in place of the missing word; for a spelling it stands alone.
  */
-function SpellInput({ target, sentence, pending, hints, onHint, onSubmit }: { target: string; sentence?: { before: string; after: string }; pending?: { correct: boolean; value: string }; hints: number; onHint: () => void; onSubmit: (v: string) => void }) {
+function SpellInput({ target, sentence, pending, hints, onHint, onSubmit, onGiveUp }: { target: string; sentence?: { before: string; after: string }; pending?: { correct: boolean; value: string }; hints: number; onHint: () => void; onSubmit: (v: string) => void; onGiveUp: () => void }) {
   const [value, setValue] = useState("");
   const input = useRef<HTMLInputElement>(null);
   const prefix = target.slice(0, hints);
@@ -563,6 +576,9 @@ function SpellInput({ target, sentence, pending, hints, onHint, onSubmit }: { ta
         <div className="spell-actions">
           <button type="button" className="btn btn-ghost" onClick={onHint} disabled={hints >= target.length - 1}>
             <Lightbulb size={17} /> 提示字母
+          </button>
+          <button type="button" className="btn btn-ghost" onClick={onGiveUp}>
+            不会，看卡片
           </button>
           <button type="submit" className="btn btn-primary" disabled={!value.trim()}>
             确认 <kbd>Enter</kbd>
