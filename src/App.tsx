@@ -1,3 +1,4 @@
+import { migrateCoreDeck } from "./store/decks";
 import { BookOpen, BookOpenText, ChevronLeft, ChevronRight, Compass, Github, Keyboard, Layers, Moon, Search, Sun, User } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AtlasContext, useAtlas, useEntry } from "./atlas/context";
@@ -77,6 +78,7 @@ export default function App() {
       store.useDataset(next.id);
       // duplicate ids (aliases) move their records to the primary id; snapshot first, idempotent
       store.migrateAliases(next.aliases ?? {});
+      migrateCoreDeck(next);
       setAtlas(next);
     }
   }, [dataset, open, priv, atlas]);
@@ -103,6 +105,10 @@ export default function App() {
 
 /** The atlas plus the learner's own words and edits; rebuilt only when those change. */
 function WithUserData({ base }: { base: Atlas }) {
+  const coreMigrated = useStore((s) => s.progress.coreMigrated);
+  useEffect(() => {
+    if (!coreMigrated) migrateCoreDeck(base);
+  }, [base, coreMigrated]);
   const custom = useStore((s) => s.progress.custom);
   const edits = useStore((s) => s.progress.edits);
   const images = useImages();
@@ -110,6 +116,7 @@ function WithUserData({ base }: { base: Atlas }) {
     void loadImages(base.id);
   }, [base.id]);
   const atlas = useMemo(() => withUserData(base, custom, edits, images), [base, custom, edits, images]);
+  if (!coreMigrated) return <div className="loading"><span className="spinner" /></div>;
   return (
     <AtlasContext.Provider value={atlas}>
       <Shell />

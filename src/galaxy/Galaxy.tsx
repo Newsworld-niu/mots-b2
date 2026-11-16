@@ -12,16 +12,17 @@ import { layoutGalaxy, TOPIC_COLORS, type GalaxyLayout } from "./layout";
 import { shareGalaxy } from "./share";
 
 const layouts = new WeakMap<object, GalaxyLayout>();
-export function useGalaxyLayout() {
+export function useGalaxyLayout(words?: WordRef[]) {
   const atlas = useAtlas();
   return useMemo(() => {
-    let l = layouts.get(atlas);
+    const key = words ?? atlas;
+    let l = layouts.get(key);
     if (!l) {
-      l = layoutGalaxy(atlas);
-      layouts.set(atlas, l);
+      l = layoutGalaxy(atlas, words);
+      layouts.set(key, l);
     }
     return l;
-  }, [atlas]);
+  }, [atlas, words]);
 }
 
 const reduced = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -45,6 +46,7 @@ export function Galaxy({
   ignite,
   className = "",
   focus,
+  words,
 }: {
   mode?: "full" | "mini";
   /** Words to show as today's gold stars. */
@@ -54,9 +56,11 @@ export function Galaxy({
   className?: string;
   /** Fly to this word once ready. */
   focus?: string | null;
+  /** Limit this galaxy to a deck; omitted for the full learning overview. */
+  words?: WordRef[];
 }) {
   const atlas = useAtlas();
-  const layout = useGalaxyLayout();
+  const layout = useGalaxyLayout(words);
   const cards = useStore((s) => s.progress.cards);
   const canvas = useRef<HTMLCanvasElement>(null);
   const engine = useRef<GalaxyEngine | null>(null);
@@ -64,6 +68,7 @@ export function Galaxy({
   const [hover, setHover] = useState<{ ref: WordRef; x: number; y: number } | null>(null);
   const [fallback, setFallback] = useState(false);
   const highlightSet = useMemo(() => new Set(highlight ?? []), [highlight]);
+  useEffect(() => setHover(null), [layout]);
 
   useEffect(() => {
     const cv = canvas.current;
@@ -303,8 +308,8 @@ export function Galaxy({
         }}
       />
       <div className="galaxy-labels" ref={labels} aria-hidden="true">
-        {atlas.topics.map(([key, name], t) => (
-          <span key={key} style={{ "--c": TOPIC_COLORS[t % TOPIC_COLORS.length] } as React.CSSProperties}>
+        {layout.topics.map(([key, name], t) => (
+          <span key={key} hidden={!layout.topicCounts[t]} style={{ "--c": TOPIC_COLORS[t % TOPIC_COLORS.length] } as React.CSSProperties}>
             {name}
           </span>
         ))}
@@ -362,8 +367,8 @@ export function Galaxy({
         <button
           className="icon-btn"
           onClick={() => {
-            const ids = Object.keys(cards);
-            const pick = ids[Math.floor(Math.random() * ids.length)] ?? atlas.words[0].id;
+            const ids = layout.ids.filter((id) => cards[id]);
+            const pick = ids[Math.floor(Math.random() * ids.length)] ?? layout.ids[0];
             const i = layout.index.get(pick);
             if (i !== undefined) {
               engine.current?.flyTo(i);

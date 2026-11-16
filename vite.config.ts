@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { aiProxy } from "./ai-proxy";
+import { dictionaryProxy } from "./dictionary-proxy";
 // Local-only content is never copied into dist or the public archive.
 function localMedia(
   req: IncomingMessage,
@@ -95,10 +96,12 @@ export default defineConfig({
       configureServer(server) {
         server.middlewares.use(localMedia);
         server.middlewares.use(aiProxy);
+        server.middlewares.use(dictionaryProxy);
       },
       configurePreviewServer(server) {
         server.middlewares.use(localMedia);
         server.middlewares.use(aiProxy);
+        server.middlewares.use(dictionaryProxy);
       },
     },
   ],

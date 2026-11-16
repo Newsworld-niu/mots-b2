@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, GraduationCap, Pencil, Plus, ScanText, Search, Trash2, X } from "lucide-react";
+import { Bookmark, BookmarkCheck, ArrowLeft, Check, ChevronDown, GraduationCap, Pencil, Plus, ScanText, Search, Trash2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import type { Atlas, WordRef } from "../atlas/types";
@@ -6,7 +6,6 @@ import { go, openWord } from "../lib/router";
 import { searchAtlas } from "../lib/search";
 import {
   addToDeck,
-  CORE_NAME,
   createDeck,
   deckWords,
   deleteDeck,
@@ -17,12 +16,12 @@ import {
   senseGlosses,
   setDeckNote,
   setDeckSense,
-  setHidden,
   studyRange,
+  transferDeckWords,
 } from "../store/decks";
 import { buildSession, isTaughtReady } from "../store/session";
 import { isMastered } from "../store/srs";
-import { CORE_DECK, store, useStore, type Progress } from "../store/store";
+import { FAVORITES_DECK, toggleBookmark, store, useStore, type Progress } from "../store/store";
 import { Sheet } from "../ui/Sheet";
 import { toast } from "../ui/Toast";
 import { WordForm } from "../ui/WordForm";
@@ -59,9 +58,8 @@ export function Decks({ deckId }: { deckId?: string }) {
   const atlas = useAtlas();
   const progress = useStore((s) => s.progress);
   if (deckId === PAUSED) return <PausedWords />;
-  if (deckId === CORE_DECK) return <CoreDeck />;
   const deck = deckId ? progress.decks?.find((d) => d.id === deckId) : undefined;
-  if (deckId && deck) return <DeckDetail id={deck.id} />;
+  if (deckId && deck) return <DeckDetail key={deck.id} id={deck.id} />;
   return <DeckList atlas={atlas} progress={progress} />;
 }
 
@@ -69,12 +67,11 @@ function DeckList({ atlas, progress }: { atlas: Atlas; progress: Progress }) {
   const studyDecks = useStore((s) => s.settings.studyDecks);
   const [name, setName] = useState("");
   const decks = progress.decks ?? [];
-  const allIds = [CORE_DECK, ...decks.map((d) => d.id)];
+  const allIds = decks.map((d) => d.id);
   const range = studyRange(progress, { studyDecks });
   const paused = useMemo(() => pausedIds(atlas, progress), [atlas, progress]);
   const rows = useMemo(
     () => [
-      { id: CORE_DECK, name: CORE_NAME, stats: counts(progress, deckWords(atlas, progress, CORE_DECK)), note: `${(progress.hidden?.length ?? 0).toLocaleString()} 个已隐藏` },
       ...decks.map((d) => ({ id: d.id, name: d.name, stats: counts(progress, deckWords(atlas, progress, d.id)), note: "" })),
     ],
     [atlas, progress, decks],
@@ -86,7 +83,7 @@ function DeckList({ atlas, progress }: { atlas: Atlas; progress: Progress }) {
     setName("");
     go({ page: "decks", d: id });
   };
-  const inRangeDeck = (id: string) => range.all || (id === CORE_DECK ? range.core : range.decks.some((d) => d.id === id));
+  const inRangeDeck = (id: string) => range.all || range.decks.some((d) => d.id === id);
 
   return (
     <div className="page decks">
@@ -105,7 +102,7 @@ function DeckList({ atlas, progress }: { atlas: Atlas; progress: Progress }) {
             </button>
           )}
         </div>
-        <p className="study-range-note">新词和复习只从勾选的卡组里出。{range.all ? "现在是全部卡组；自建卡组里的新词排在初始词本前面。" : ""}</p>
+        <p className="study-range-note">新词和复习只从勾选的卡组里出。{range.all ? "现在是全部卡组。" : ""}</p>
         <ul className="chips" role="group" aria-label="学习范围">
           {rows.map((r) => {
             const on = inRangeDeck(r.id);
@@ -123,10 +120,10 @@ function DeckList({ atlas, progress }: { atlas: Atlas; progress: Progress }) {
       <ul className="deck-grid">
         {rows.map((r) => (
           <li key={r.id}>
-            <button className={`deck-card ${r.id === CORE_DECK ? "is-core" : ""}`} onClick={() => go({ page: "decks", d: r.id })}>
+            <button className="deck-card" onClick={() => go({ page: "decks", d: r.id })}>
               <span className="deck-name">{r.name}</span>
               <span className="deck-count">
-                <b>{r.stats.total.toLocaleString()}</b> 个词{r.id === CORE_DECK && r.note ? ` · ${r.note}` : ""}
+                <b>{r.stats.total.toLocaleString()}</b> 个词
               </span>
               <DeckBar stats={r.stats} />
               <span className="deck-legend">
@@ -207,10 +204,21 @@ function DeckDetail({ id }: { id: string }) {
   const [creating, setCreating] = useState<string | null>(null);
   const [limit, setLimit] = useState(300);
   const [extracting, setExtracting] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [target, setTarget] = useState("");
   const words = deck.words.map((w) => atlas.byId.get(w)).filter((w): w is WordRef => !!w);
   const stats = counts(progress, words.map((w) => w.id));
   const results = useMemo(() => (q.trim() ? searchAtlas(atlas, q, 8) : []), [atlas, q]);
   const inDeck = new Set(deck.words);
+  const chosen = words.filter(w => selected.has(w.id)).map(w => w.id);
+  const destinations = (progress.decks ?? []).filter(d => d.id !== id);
+  const validTarget = destinations.some(d => d.id === target);
+  const transfer = (move: boolean) => {
+    if (!chosen.length || !validTarget) return;
+    store.progress(p => transferDeckWords(p, id, target, chosen, move));
+    setSelected(new Set());
+    toast(`已${move ? "移动" : "复制"} ${chosen.length} 个词到「${destinations.find(d => d.id === target)!.name}」`, "ok");
+  };
 
   const remove = () => {
     const orphans = orphanCustomWords(progress, id);
@@ -246,9 +254,9 @@ function DeckDetail({ id }: { id: string }) {
         ) : (
           <h1 className="display">
             {deck.name}
-            <button className="icon-btn" onClick={() => { setName(deck.name); setRenaming(true); }} aria-label="重命名卡组" title="重命名">
+            {id !== FAVORITES_DECK && <button className="icon-btn" onClick={() => { setName(deck.name); setRenaming(true); }} aria-label="重命名卡组" title="重命名">
               <Pencil size={18} />
-            </button>
+            </button>}
           </h1>
         )}
         <p className="lede">
@@ -261,9 +269,12 @@ function DeckDetail({ id }: { id: string }) {
           <button className="btn btn-ghost" onClick={() => studyOnly(id)} disabled={!words.length}>
             只学这个卡组（每天按新词数）
           </button>
-          <button className="btn btn-ghost btn-danger" onClick={remove}>
-            <Trash2 size={16} /> 删除卡组
+          <button className="btn btn-ghost" onClick={() => go({ page: "atlas", d: id })}>
+            在图鉴里浏览
           </button>
+          {id !== FAVORITES_DECK && <button className="btn btn-ghost btn-danger" onClick={remove}>
+            <Trash2 size={16} /> 删除卡组
+          </button>}
         </div>
       </header>
 
@@ -313,12 +324,26 @@ function DeckDetail({ id }: { id: string }) {
         )}
       </section>
 
+      {!!words.length && <div className="deck-bulk" role="group" aria-label="批量管理单词">
+        <label><input type="checkbox" checked={chosen.length === words.length} ref={el => { if (el) el.indeterminate = chosen.length > 0 && chosen.length < words.length; }} onChange={e => setSelected(e.target.checked ? new Set(words.map(w => w.id)) : new Set())} /> 全选（{words.length}）</label>
+        <span className="muted">已选 {chosen.length} 个</span>
+        <div className="deck-target-select">
+        <select aria-label="目标卡组" value={validTarget ? target : ""} onChange={e => setTarget(e.target.value)}>
+          <option value="">选择目标卡组</option>
+          {destinations.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+        </select>
+        <ChevronDown size={16} strokeWidth={1.8} aria-hidden="true" />
+        </div>
+        <button className="btn btn-ghost btn-sm" disabled={!chosen.length || !validTarget} onClick={() => transfer(false)}>复制到卡组</button>
+        <button className="btn btn-primary btn-sm" disabled={!chosen.length || !validTarget} onClick={() => transfer(true)}>移动到卡组</button>
+        {!!chosen.length && <button className="link" onClick={() => setSelected(new Set())}>取消选择</button>}
+      </div>}
       {words.length === 0 ? (
         <p className="deck-empty">卡组还是空的。在上面搜索一个词加进来，或者在任何词条页面点「卡组」把它加进来。</p>
       ) : (
         <ul className="deck-words">
           {words.slice(0, limit).map((w) => (
-            <DeckWordRow key={w.id} deckId={id} w={w} sense={deck.sense?.[w.id] ?? 0} note={deck.note?.[w.id] ?? ""} progress={progress} />
+            <DeckWordRow key={w.id} deckId={id} w={w} sense={deck.sense?.[w.id] ?? 0} note={deck.note?.[w.id] ?? ""} progress={progress} selected={selected.has(w.id)} onSelect={() => setSelected(prev => { const next = new Set(prev); if (next.has(w.id)) next.delete(w.id); else next.add(w.id); return next; })} />
           ))}
           {words.length > limit && (
             <li className="deck-more">
@@ -358,17 +383,21 @@ function stateOf(p: Progress, id: string) {
   return c ? (isMastered(c) ? "is-mastered" : "is-learning") : "";
 }
 
-function DeckWordRow({ deckId, w, sense, note, progress }: { deckId: string; w: WordRef; sense: number; note: string; progress: Progress }) {
+function DeckWordRow({ deckId, w, sense, note, progress, selected, onSelect }: { deckId: string; w: WordRef; sense: number; note: string; progress: Progress; selected: boolean; onSelect: () => void }) {
   const glosses = senseGlosses(w);
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(note);
   return (
     <li className="deck-word">
+      <input className="deck-word-select" type="checkbox" checked={selected} onChange={onSelect} aria-label={`选择 ${w.word}`} />
       <span className={`row-dot ${stateOf(progress, w.id)}`} />
       <button className="deck-word-main" onClick={() => openWord(w.id)}>
         <b lang="fr">{w.word}</b>
         {w.custom && <i className="chip chip-mine">自建</i>}
         <span className="deck-word-zh">{glosses[sense] ?? w.zh}</span>
+      </button>
+      <button className={`icon-btn ${progress.bookmarks.includes(w.id) ? "is-on" : ""}`} onClick={() => toggleBookmark(w.id)} aria-pressed={progress.bookmarks.includes(w.id)} aria-label={`${progress.bookmarks.includes(w.id) ? "取消收藏" : "收藏"} ${w.word}`} title={progress.bookmarks.includes(w.id) ? "取消收藏" : "收藏"}>
+        {progress.bookmarks.includes(w.id) ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
       </button>
       {glosses.length > 1 && (
         <select className="deck-sense" value={sense} onChange={(e) => setDeckSense(deckId, w.id, Number(e.target.value))} aria-label={`${w.word} 在这个卡组里学哪个意思`} title="这个卡组学哪个意思">
@@ -388,7 +417,7 @@ function DeckWordRow({ deckId, w, sense, note, progress }: { deckId: string; w: 
             setEditing(false);
           }}
         >
-          <input value={text} onChange={(e) => setText(e.target.value)} placeholder="这个卡组里的备注" maxLength={200} autoFocus />
+          <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="这个卡组里的备注" aria-label="这个卡组里的备注" maxLength={200} rows={4} autoFocus />
           <button className="btn btn-ghost btn-sm">好</button>
         </form>
       ) : (
@@ -396,55 +425,10 @@ function DeckWordRow({ deckId, w, sense, note, progress }: { deckId: string; w: 
           {note || "备注"}
         </button>
       )}
-      <button className="icon-btn" onClick={() => removeFromDeck(deckId, w.id)} aria-label={`从卡组移除 ${w.word}`} title="移出卡组（学习记录保留）">
+      <button className="icon-btn" onClick={() => removeFromDeck(deckId, w.id)} aria-label={`${deckId === FAVORITES_DECK ? "取消收藏" : "从卡组移除"} ${w.word}`} title={deckId === FAVORITES_DECK ? "取消收藏（学习记录保留）" : "移出卡组（学习记录保留）"}>
         <X size={16} />
       </button>
     </li>
-  );
-}
-
-function CoreDeck() {
-  const atlas = useAtlas();
-  const progress = useStore((s) => s.progress);
-  const hidden = (progress.hidden ?? []).map((id) => atlas.byId.get(id)).filter((w): w is WordRef => !!w);
-  const total = atlas.words.length - hidden.length;
-  return (
-    <div className="page decks deck-detail">
-      <Back />
-      <header className="decks-head">
-        <h1 className="display">{CORE_NAME}</h1>
-        <p className="lede">
-          词库自带的 {total.toLocaleString()} 个词，按学习路线排序。在词条页面的「卡组」里取消勾选「{CORE_NAME}」就能把一个词隐藏起来；隐藏的词如果还在别的卡组里，照样会学。
-        </p>
-        <div className="deck-actions">
-          <button className="btn btn-primary" onClick={() => studyOnly(CORE_DECK)}>
-            <GraduationCap size={17} /> 只学初始词本
-          </button>
-          <button className="btn btn-ghost" onClick={() => go({ page: "atlas" })}>
-            在图鉴里浏览
-          </button>
-        </div>
-      </header>
-      <h3 className="eyebrow">已隐藏 · {hidden.length}</h3>
-      {hidden.length === 0 ? (
-        <p className="deck-empty">还没有隐藏任何词。</p>
-      ) : (
-        <ul className="deck-words">
-          {hidden.map((w) => (
-            <li key={w.id} className="deck-word">
-              <span className={`row-dot ${stateOf(progress, w.id)}`} />
-              <button className="deck-word-main" onClick={() => openWord(w.id)}>
-                <b lang="fr">{w.word}</b>
-                <span className="deck-word-zh">{w.zh}</span>
-              </button>
-              <button className="btn btn-ghost btn-sm" onClick={() => setHidden(w.id, false)}>
-                恢复
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
   );
 }
 
@@ -486,7 +470,6 @@ function PausedWords() {
                   aria-label={`把 ${w.word} 加入卡组`}
                 >
                   <option value="">加入卡组…</option>
-                  {!w.custom && <option value={CORE_DECK}>{CORE_NAME}</option>}
                   {decks.map((d) => (
                     <option key={d.id} value={d.id}>
                       {d.name}

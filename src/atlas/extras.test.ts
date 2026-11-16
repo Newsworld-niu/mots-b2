@@ -78,10 +78,10 @@ test("anything from AI 讲解 can be put on a card and taken off again; the edit
     removeFromCard(id, { col: "inférieur à" });
     removeFromCard(id, { tip: "比较用 à，不用 que" });
     const o = own(id);
-    assert.deepEqual([o.senses, o.ex, o.syn, o.ant, o.fam, o.col, o.tip], [undefined, undefined, undefined, undefined, undefined, undefined, "第二条"]);
+    assert.deepEqual([o.senses, o.ex, o.syn, o.ant, o.fam, o.col, o.tip], [undefined, undefined, undefined, undefined, [], undefined, "第二条"]);
   }
   removeFromCard("inferieur", { tip: "第二条" });
-  assert.deepEqual(store.get().progress.edits?.inferieur, { zh: "低的" });
+  assert.deepEqual(store.get().progress.edits?.inferieur, { zh: "低的", fam: [] });
 });
 
 test("one of the atlas's own meanings can be taken off a card and brought back; the last meaning stays", async () => {
@@ -116,4 +116,27 @@ test("one of the atlas's own meanings can be taken off a card and brought back; 
   assert.deepEqual([c.zh, c.senses], ["动荡", undefined]);
   dropMainSense(id);
   assert.equal(store.get().progress.custom![id].zh, "动荡", "the only meaning is kept");
+});
+
+test("bundled content can be deleted completely and stays deleted after saving and backup", async () => {
+  (globalThis as any).window ??= { setTimeout: () => 0, clearTimeout: () => undefined };
+  const { store, sanitizeUserData, emptyProgress } = await import("../store/store.ts");
+  const { removeFromCard, setWordEdit, addToCard } = await import("../store/decks.ts");
+  store.progress(()=>emptyProgress("t"));
+  const base = { id:"etre",w:"être",m:0,senses:[{pos:"v.",zh:"是",en:""}],ex:[],col:["être en retard｜迟到"],syn:["exister"],ant:["disparaître"],fam:["étant"],tip:"原有提示" } as unknown as Entry;
+  let shown=base;
+  for (const key of ["col","syn","ant","fam","tip"] as const) {
+    const value=key==="tip" ? shown.tip : shown[key][0];
+    removeFromCard("etre",{[key]:value},shown);
+    shown=editedEntry(base,store.get().progress.edits!.etre);
+  }
+  assert.deepEqual([shown.col,shown.syn,shown.ant,shown.fam,shown.tip],[[],[],[],[],""]);
+  const backup=sanitizeUserData(JSON.parse(JSON.stringify(store.get().progress)));
+  setWordEdit("etre",{...backup.edits!.etre,zh:"存在"});
+  shown=editedEntry(base,store.get().progress.edits!.etre);
+  assert.deepEqual([shown.col,shown.syn,shown.ant,shown.fam,shown.tip],[[],[],[],[],""]);
+  addToCard("etre",{col:"être prêt｜准备好了"});
+  shown=editedEntry(base,store.get().progress.edits!.etre);
+  assert.deepEqual(shown.col,["être prêt｜准备好了"]);
+  assert.equal(shown.senses[0].zh,"存在");
 });

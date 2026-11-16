@@ -3,6 +3,7 @@ import { useMemo, useRef, useState } from "react";
 import type { Attachment } from "../ai/clients";
 import { ready, useAiConfig } from "../ai/config";
 import { fillWords, recognize, type Filled } from "../ai/tasks";
+import { filterImport } from "../ai/filter-import";
 import { useAtlas } from "../atlas/context";
 import { foldAccents } from "../lib/accent";
 import { lookupDict } from "../lib/dict";
@@ -23,7 +24,7 @@ const MAX_PHOTOS = 8;
 const GROUPS: { kind: CandidateKind; title: string; note: string; open: boolean }[] = [
   { kind: "atlas", title: "词库里有、还没学", note: "加入后和词库里的词共用释义和学习进度", open: true },
   { kind: "new", title: "词库里没有的新词", note: "用词表上印的释义或 AI 写的释义，作为自建词加入", open: true },
-  { kind: "dict", title: "词库里没有，离线词典查到了", note: "会作为自建词加入，标「词典填写·待核对」", open: true },
+  { kind: "dict", title: "词库里没有，离线词典查到了", note: "会作为自建词加入，可以编辑释义和例句", open: true },
   { kind: "unknown", title: "哪里都没查到", note: "填了中文才会加入；可以用「AI 补全」", open: false },
   { kind: "learning", title: "已经在学的词", note: "默认不勾；勾上只是把它放进这个卡组", open: false },
 ];
@@ -65,6 +66,7 @@ function applyFill(list: Candidate[], filled: Filled[]): { list: Candidate[]; dr
       return { ...c, flag: "AI：可能不是要学的词（人名、地名或拼写错误）" };
     }
     const n: Candidate = { ...c, unverified: c.unverified && !(f.fix.trim() || f.lemma.trim().toLowerCase() !== c.word.toLowerCase()) ? false : c.unverified };
+    n.fam = f.fam;
     if (f.col?.length) n.col = f.col.filter((x) => x.fr?.trim()).map((x) => (x.zh?.trim() ? `${x.fr.trim()}｜${x.zh.trim()}` : x.fr.trim()));
     if (f.tip?.trim()) n.tip = f.tip.trim();
     const givenZh = c.given && /\p{Script=Han}/u.test(c.given);
@@ -95,6 +97,7 @@ export function ExtractWords({ deckId, deckName, onDone }: { deckId: string; dec
   const deckWords = useStore((s) => s.progress.decks?.find((d) => d.id === deckId)?.words);
   const [tab, setTab] = useState<Tab>("text");
   const [text, setText] = useState("");
+  const [requirements, setRequirements] = useState("");
   const [photos, setPhotos] = useState<{ name: string; url: string; att: Attachment }[]>([]);
   const [files, setFiles] = useState<ReadFile[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
@@ -112,10 +115,12 @@ export function ExtractWords({ deckId, deckName, onDone }: { deckId: string; dec
   const inDeck = useMemo(() => new Set(deckWords ?? []), [deckWords]);
   const hiddenSet = useMemo(() => new Set(hidden ?? []), [hidden]);
 
-  const needVision = photos.length > 0 || files.some((f) => f.attachment);
+  const needVision = (tab === "photo" && photos.length > 0) || (tab === "file" && files.some((f) => f.attachment));
   const hasInput = (tab === "text" && !!text.trim()) || (tab === "photo" && photos.length > 0) || (tab === "file" && files.length > 0);
   const visionReady = ready.vision(ai);
   const textReady = ready.text(ai);
+  const activeRequirements = tab === "file" ? "" : requirements.trim();
+  const filterUnavailable = !!activeRequirements && !(tab === "photo" ? visionReady : textReady);
 
   const addPhotos = async (fs: FileList | null) => {
     if (!fs?.length) return;
@@ -175,6 +180,7 @@ export function ExtractWords({ deckId, deckName, onDone }: { deckId: string; dec
     );
 
   const analyse = async (full: boolean) => {
+    if (filterUnavailable) return;
     const c = new AbortController();
     ctrl.current = c;
     try {
@@ -221,9 +227,17 @@ export function ExtractWords({ deckId, deckName, onDone }: { deckId: string; dec
       const fromList = rows.length ? await listCandidates(rows, atlas, cards, lookupDict) : [];
       const unsure = new Set(unsureWords.map((w) => foldAccents(w)));
       let out = mergeCandidates([fromList, fromText.map((x) => ({ ...x, src: "text" as const, ...(x.forms.some((f) => unsure.has(foldAccents(f))) ? { unsure: true } : {}) }))]);
+      if (activeRequirements) {
+        setBusy("按提取要求筛选…");
+        const before = out.length;
+        out = await filterImport(out, activeRequirements, joined, atts, c.signal);
+        notes.push(`已按要求筛选：保留 ${out.length} 个词，排除 ${before - out.length} 个`);
+      }
+      if (c.signal.aborted) return;
       out = await checkSpellings(out, [...atlas.words, ...(atlas.custom ?? [])]);
       let drop = new Set<string>();
       if (full && textReady) ({ list: out, drop } = await runFill(out, c.signal, {}));
+      if (c.signal.aborted) return;
       const picks = defaultPicks(out, full);
       drop.forEach((k) => picks.delete(k));
       setList(out);
@@ -335,6 +349,7 @@ export function ExtractWords({ deckId, deckName, onDone }: { deckId: string; dec
         sense: c.sense,
         deckNote: c.deckNote,
         col: c.col,
+        fam: c.fam,
         tip: c.tip,
         note: c.note,
         pos: c.pos ?? (c.hit && POS_CHOICES.some(([k]) => k === c.hit!.p) ? c.hit.p : ""),
@@ -428,6 +443,16 @@ export function ExtractWords({ deckId, deckName, onDone }: { deckId: string; dec
           </>
         )}
 
+        {tab !== "file" && (
+          <div className="extract-requirements">
+            <label htmlFor="extract-requirements">提取要求 <span className="wf-hint">（可选）</span></label>
+            <textarea id="extract-requirements" value={requirements} onChange={(e) => setRequirements(e.target.value)} rows={3} maxLength={2000}
+              placeholder={tab === "photo" ? "例如：只提取右侧生词框；只要划线的词；忽略例句和练习题里的词。" : "例如：只要动词和固定搭配；忽略人名、地名；只提取第二段的词。"}
+              aria-describedby="extract-requirements-hint" />
+            <p id="extract-requirements-hint" className="wf-hint">填写后，AI 会先按要求筛选，再列出生词或整套生成。留空则按默认规则提取。{skipFunction && "“跳过常见虚词”仍会生效。"}</p>
+            {filterUnavailable && <p className="wf-hint wf-warn">按要求筛选需要先在「我的 → AI 接口」设置{tab === "photo" ? "识图" : "生成卡片"}服务，或清空提取要求。</p>}
+          </div>
+        )}
         <label className="extract-opt">
           <input type="checkbox" checked={skipFunction} onChange={(e) => setSkipFunction(e.target.checked)} /> 跳过常见虚词（le、de、être、avoir…）
         </label>
@@ -442,10 +467,10 @@ export function ExtractWords({ deckId, deckName, onDone }: { deckId: string; dec
             </span>
           )}
           <span className="wf-spacer" />
-          <button className="btn btn-ghost" onClick={() => analyse(false)} disabled={!hasInput || noAi} title="列出生词，自己挑">
+          <button className="btn btn-ghost" onClick={() => analyse(false)} disabled={!hasInput || noAi || filterUnavailable} title="列出生词，自己挑">
             <ScanText size={17} /> 找出生词
           </button>
-          <button className="btn btn-primary" onClick={() => analyse(true)} disabled={!hasInput || noAi || !textReady} title={textReady ? "AI 补全所有新词的释义、词性和例句，并全部勾选" : "先在「我的 → AI 接口」设置生成卡片服务"}>
+          <button className="btn btn-primary" onClick={() => analyse(true)} disabled={!hasInput || noAi || !textReady || filterUnavailable} title={textReady ? "AI 补全所有新词的释义、词性和例句，并全部勾选" : "先在「我的 → AI 接口」设置生成卡片服务"}>
             <Sparkles size={17} /> 整套生成
           </button>
         </footer>

@@ -1,3 +1,5 @@
+import { isNative } from "../lib/native";
+import { DictionaryLinks } from "./DictionaryLinks";
 import { Bookmark, BookmarkCheck, Check, Lightbulb, Pencil, Plus, Share2, X } from "lucide-react";
 import { useState } from "react";
 import { MEDIA, type Accent, type Entry, type WordRef } from "../atlas/types";
@@ -10,8 +12,7 @@ import { Illustration } from "./Illustration";
 import { Speak, SpeakBoth } from "./Speak";
 import { shareWord } from "./share";
 import { closeWord, href, openWord } from "../lib/router";
-import { addToDeck, CORE_NAME, createDeck, dropMainSense, hideExample, hideSense, isCustomId, ownParts, removeFromCard, removeFromDeck, restoreExamples, restoreSenses } from "../store/decks";
-import { CORE_DECK } from "../store/store";
+import { addToDeck, createDeck, dropMainSense, hideExample, hideSense, isCustomId, ownParts, removeFromCard, removeFromDeck, restoreExamples, restoreSenses } from "../store/decks";
 import { WordForm } from "./WordForm";
 import { AiExplain } from "./AiExplain";
 import { ready, useAiConfig } from "../ai/config";
@@ -173,7 +174,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
   const canRemove = mode === "detail";
   const rm = (what: Parameters<typeof removeFromCard>[1]) =>
     canRemove && (
-      <button className="own-rm" onClick={() => removeFromCard(entry.id, what)} aria-label="从卡片上移除" title="这是我加的：从卡片上移除">
+      <button className="own-rm" onClick={() => removeFromCard(entry.id, what, entry)} aria-label="从卡片上移除" title="从卡片上移除">
         <X size={13} />
       </button>
     );
@@ -220,7 +221,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
         ) : (
           <span>{f.label}</span>
         )}
-        {own[k]?.includes(f.label) && rm({ [k]: f.label })}
+        {rm({ [k]: f.label })}
       </span>
     ));
   const lines = (t: string) => t.split("\n").map((x) => x.trim()).filter(Boolean);
@@ -229,8 +230,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
   const tipItems = [...lines(own.tip ?? "").map((text) => ({ text, own: true })), ...lines(atlasTip).map((text) => ({ text, own: false }))];
   const status = card ? (isMastered(card) ? "已掌握" : "学习中") : null;
   const mine = isCustomId(entry.id);
-  const edited = useStore((s) => !!s.progress.edits?.[entry.id]);
-  const autoFilled = useStore((s) => !!s.progress.custom?.[entry.id]?.auto);
+  const wikiSources = useStore(s => s.progress.custom?.[entry.id]?.wikiSources ?? s.progress.edits?.[entry.id]?.wikiSources);
   const [editing, setEditing] = useState(false);
 
   return (
@@ -247,12 +247,6 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
               <span className="chip chip-mine">自建词</span>
             ) : (
               <span className={`chip chip-level lv-${entry.cefr}`}>{entry.levelStatus === "estimated" ? `推定 ${entry.cefr}` : entry.cefr}</span>
-            )}
-            {edited && <span className="chip chip-mine">改过</span>}
-            {autoFilled && (
-              <span className="chip chip-status" title="由离线词典自动填写，还没有核对；编辑并保存一次即视为已核对">
-                词典填写·待核对
-              </span>
             )}
             {topic && <span className="chip">{topic[1]}</span>}
             {status && <span className={`chip chip-status ${status === "已掌握" ? "is-done" : ""}`}>{status}</span>}
@@ -300,6 +294,8 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
         )}
         <Inflections entry={entry} />
         <Pronounce entry={entry} refw={ref ?? entry} />
+        <DictionaryLinks word={entry.w} />
+        {wikiSources?.length ? <p className="wiki-attribution">导入自 Wiktionnaire（CC BY-SA）：{wikiSources.map((url,i)=><a key={url} href={url} target={isNative() ? "_self" : "_blank"} rel="noopener noreferrer">原文版本 {i+1} </a>)}</p> : null}
 
         {editing && (
           <section className="block entry-edit">
@@ -394,7 +390,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
                   <li key={c}>
                     <span lang="fr">{en}</span>
                     {zh && <small>{zh}</small>}
-                    {own.col?.includes(c) && rm({ col: c })}
+                    {rm({ col: c })}
                   </li>
                 );
               })}
@@ -435,7 +431,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
               {tipItems.map((t, i) => (
                 <li key={`${i}-${t.text}`}>
                   <span>{t.text}</span>
-                  {t.own && rm({ tip: t.text })}
+                  {rm({ tip: t.text })}
                 </li>
               ))}
             </ol>
@@ -460,11 +456,9 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
  */
 function DeckChips({ id }: { id: string }) {
   const decks = useStore((s) => s.progress.decks) ?? [];
-  const hidden = useStore((s) => s.progress.hidden?.includes(id) ?? false);
+
   const [name, setName] = useState<string | null>(null);
-  const mine = isCustomId(id);
   const rows: { id: string; name: string; on: boolean }[] = [
-    ...(mine ? [] : [{ id: CORE_DECK, name: CORE_NAME, on: !hidden }]),
     ...decks.map((d) => ({ id: d.id, name: d.name, on: d.words.includes(id) })),
   ];
   return (

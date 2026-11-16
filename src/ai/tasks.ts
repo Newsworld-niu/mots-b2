@@ -1,3 +1,4 @@
+import { cleanFamily } from "../lib/families";
 /**
  * The AI jobs, as prompts and JSON schemas:
  *  - recognize: a photo / scan / PDF of a French text or a word list → running text and word-list rows
@@ -118,6 +119,7 @@ export interface FillInput {
 }
 
 export interface Filled {
+  fam?: string[];
   key: string;
   /** false: not a French word to learn (a name, a typo, a fragment). */
   valid: boolean;
@@ -150,6 +152,7 @@ const fillSchema = (extras: boolean) => ({
       items: {
         type: "object",
         properties: {
+          fam: { type: "array", items: str },
           key: str,
           valid: { type: "boolean" },
           fix: str,
@@ -161,7 +164,7 @@ const fillSchema = (extras: boolean) => ({
           exampleZh: str,
           ...(extras ? { col: COL_SCHEMA, tip: str } : {}),
         },
-        required: ["key", "valid", "fix", "lemma", "pos", "zh", "ipa", "example", "exampleZh", ...(extras ? ["col", "tip"] : [])],
+        required: ["fam", "key", "valid", "fix", "lemma", "pos", "zh", "ipa", "example", "exampleZh", ...(extras ? ["col", "tip"] : [])],
         additionalProperties: false,
       },
     },
@@ -173,7 +176,9 @@ const fillSchema = (extras: boolean) => ({
 const EXTRAS_RULES = `- "col": 2–4 common collocations or set phrases with this word in this sense, each as {"fr": the French phrase, "zh": its short Chinese meaning}. Real, frequent usage only; [] for a word that has none worth learning.
 - "tip": one short 注意点 in Chinese for a learner: a trap (false friend, gender, irregular form, a construction such as + de / + infinitif, register, a confusable word) — or "" when there is nothing useful to say. No general definitions.`;
 
-const FILL_SYSTEM = `You write flashcard fields for a Chinese learner of French (levels A1 to B2). For every input word return one entry with the same "key":
+const FAMILY_RULES = `Return "fam": 0–8 strings formatted exactly "French lemma｜简短中文释义", each with a Chinese gloss. Use French dictionary-form words with a clear derivational/etymological relationship to the input. Include a common base word when certain. Never group mere synonyms, topical associations or spelling lookalikes. No inflections, no invented words, no explanations beyond the short Chinese gloss in this array. Return [] when uncertain or unrelated. These are suggestions and never create cards automatically.`;
+
+const FILL_SYSTEM = `${FAMILY_RULES}\nYou write flashcard fields for a Chinese learner of French (levels A1 to B2). For every input word return one entry with the same "key":
 - "valid": false when it is not a French word or expression worth learning (a person's or place's name, a typo you cannot place, a fragment, a number); then leave the other fields empty.
 - "fix": if the word is a misspelling of a French word (a missing or wrong accent, a scanning error), the correct spelling; otherwise "". Words marked "maybeMisread" were found in no dictionary and may come from a photo or scan: letters such as rn/m, cl/d, li/h, e/c, i/l are often confused; use the sentence and the given meaning to find the intended word. If you cannot tell what word was meant, set "valid" to false rather than guessing a meaning.
 - "lemma": the dictionary form (infinitive for a verb, masculine singular for an adjective, singular for a noun); the word itself when it already is one.
@@ -197,7 +202,7 @@ export async function fillWords(words: FillInput[], onProgress?: (done: number) 
       signal,
     });
     const keys = new Set(batch.map((w) => w.key));
-    for (const f of r?.words ?? []) if (f && keys.has(f.key)) out.push(f);
+    for (const f of r?.words ?? []) if (f && keys.has(f.key)) out.push({ ...f, fam: cleanFamily(f.fam) });
     onProgress?.(Math.min(words.length, i + BATCH));
   }
   return out;
@@ -251,6 +256,7 @@ export interface CardSense {
 }
 
 export interface FilledCard {
+  fam?: string[];
   /** false: not a French word or expression worth learning. */
   valid: boolean;
   /** The correct spelling when the word looks misspelled, else "". */
@@ -263,6 +269,7 @@ export interface FilledCard {
 const CARD_SCHEMA = {
   type: "object",
   properties: {
+    fam: { type: "array", items: str },
     valid: { type: "boolean" },
     fix: str,
     ipa: str,
@@ -271,11 +278,11 @@ const CARD_SCHEMA = {
       items: { type: "object", properties: { pos: str, zh: str, example: str, exampleZh: str }, required: ["pos", "zh", "example", "exampleZh"], additionalProperties: false },
     },
   },
-  required: ["valid", "fix", "ipa", "senses"],
+  required: ["fam", "valid", "fix", "ipa", "senses"],
   additionalProperties: false,
 };
 
-const CARD_SYSTEM = `You write one flashcard for a Chinese learner of French (levels A1 to B2).
+const CARD_SYSTEM = `${FAMILY_RULES}\nYou write one flashcard for a Chinese learner of French (levels A1 to B2).
 - "valid": false when the input is not a French word or expression worth learning (a name, a fragment, a typo you cannot place); then leave the rest empty.
 - "fix": if it is a misspelling of a French word (a missing or wrong accent), the correct spelling; otherwise "".
 - "ipa": the pronunciation in IPA without slashes, or "" if unsure.
@@ -292,7 +299,7 @@ export async function fillCard(input: { word: string; given?: string }, signal?:
     .filter((s) => s && typeof s.zh === "string" && s.zh.trim())
     .map((s) => ({ pos: String(s.pos ?? "").trim(), zh: s.zh.trim(), example: String(s.example ?? "").trim(), exampleZh: String(s.exampleZh ?? "").trim() }))
     .slice(0, 4);
-  return { valid: r?.valid !== false && senses.length > 0, fix: typeof r?.fix === "string" ? r.fix.trim() : "", ipa: typeof r?.ipa === "string" ? r.ipa.trim() : "", senses };
+  return { fam: cleanFamily(r?.fam), valid: r?.valid !== false && senses.length > 0, fix: typeof r?.fix === "string" ? r.fix.trim() : "", ipa: typeof r?.ipa === "string" ? r.ipa.trim() : "", senses };
 }
 
 const EXAMPLE_SCHEMA = { type: "object", properties: { fr: str, zh: str }, required: ["fr", "zh"], additionalProperties: false };
@@ -834,4 +841,9 @@ export async function writeText(input: { words: { word: string; zh: string }[]; 
   });
   const s = (v: unknown) => (typeof v === "string" ? v.trim() : "");
   return { title: s(r?.title).replace(/^["«\s]+|["»\s]+$/g, ""), text: s(r?.text), zh: s(r?.zh), quiz: sanitizeQuiz(r?.quiz) };
+}
+
+export async function suggestFamily(word: string, signal?: AbortSignal): Promise<string[]> {
+ const r = await aiJson<{fam: string[]}>("text", {system: FAMILY_RULES, text: JSON.stringify({word}), schema:{type:"object",properties:{fam:{type:"array",items:{type:"string"}}},required:["fam"],additionalProperties:false},schemaName:"word_family",signal});
+ return cleanFamily(r?.fam);
 }

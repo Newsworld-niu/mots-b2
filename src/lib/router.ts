@@ -3,7 +3,7 @@ import { transition } from "./motion";
 
 export type Route =
   | { page: "today" }
-  | { page: "atlas"; topic?: string; level?: string; q?: string; view?: string }
+  | { page: "atlas"; families?: string; pos?: string; d?: string; topic?: string; level?: string; q?: string; view?: string }
   | { page: "learn" }
   | { page: "practice" }
   | { page: "read"; t?: string }
@@ -27,7 +27,7 @@ function parse(hash: string): Location {
   const seg = path.split("/").filter(Boolean);
   let route: Route = { page: "today" };
   if (seg[0] === "atlas")
-    route = { page: "atlas", topic: params.get("topic") || undefined, level: params.get("level") || undefined, q: params.get("q") || undefined, view: params.get("view") || undefined };
+    route = { page: "atlas", families: params.get("families") || undefined, pos: params.get("pos") || undefined, d: params.get("d") || undefined, topic: params.get("topic") || undefined, level: params.get("level") || undefined, q: params.get("q") || undefined, view: params.get("view") || undefined };
   else if (seg[0] === "learn") route = { page: "learn" };
   else if (seg[0] === "practice") route = { page: "practice" };
   else if (seg[0] === "read") route = { page: "read", t: params.get("t") || undefined };
@@ -44,6 +44,9 @@ function parse(hash: string): Location {
 export function href(route: Route, word?: string | null) {
   const params = new URLSearchParams();
   if (route.page === "atlas") {
+    if (route.families) params.set("families", route.families);
+    if (route.pos) params.set("pos", route.pos);
+    if (route.d) params.set("d", route.d);
     if (route.topic) params.set("topic", route.topic);
     if (route.level) params.set("level", route.level);
     if (route.q) params.set("q", route.q);
@@ -60,13 +63,18 @@ export function href(route: Route, word?: string | null) {
 
 let loc = parse(location.hash);
 const subs = new Set<() => void>();
+/**
+ * Show what the address says when the update runs, not when it was asked for: a page change waits for its
+ * crossfade, and a navigation in the meantime (two taps, Back twice) must not be undone when it lands.
+ */
+const settleLocation = () => {
+  loc = parse(location.hash);
+  subs.forEach((f) => f());
+};
 window.addEventListener("hashchange", () => {
   const next = parse(location.hash);
   const pageChange = next.route.page !== loc.route.page;
-  const update = () => {
-    loc = next;
-    subs.forEach((f) => f());
-  };
+  const update = settleLocation;
   // Crossfade between pages; the word sheet animates on its own.
   if (pageChange && !next.word) transition(update);
   else update();
@@ -87,10 +95,7 @@ export function go(route: Route, word?: string | null, replace = false) {
   else history.pushState(null, "", h);
   const next = parse(h);
   const pageChange = next.route.page !== loc.route.page;
-  const update = () => {
-    loc = next;
-    subs.forEach((f) => f());
-  };
+  const update = settleLocation;
   if (pageChange && !replace) transition(update);
   else update();
 }

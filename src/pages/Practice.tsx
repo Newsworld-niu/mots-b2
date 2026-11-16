@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { prefetch, useAtlas } from "../atlas/context";
 import { MEDIA, type Accent, type Entry, type WordRef } from "../atlas/types";
 import { makeSentences } from "../ai/tasks";
-import { CORE_NAME, deckWords } from "../store/decks";
+import { deckWords } from "../store/decks";
 import { play, stopAudio } from "../lib/audio";
 import { cue } from "../lib/sound";
 import { hashSeed, shuffle } from "../lib/text";
@@ -14,7 +14,7 @@ import { clean, correctCharacterCount, same, typingDelta, typingMetrics } from "
 import { ARTICLE, ARTICLE_CHOICES, articleTone, isArticleCorrect } from "../lib/gender";
 import { isTaughtReady } from "../store/session";
 import { useKeys } from "./Learn";
-import { CORE_DECK, store, useStore } from "../store/store";
+import { store, useStore } from "../store/store";
 import { AmbiencePicker } from "../ui/Ambience";
 import { AccentKeys } from "../ui/AccentKeys";
 import { Illustration } from "../ui/Illustration";
@@ -26,6 +26,8 @@ import { SpeakingStudio } from "./Speaking";
 import { SPEAKING_SUBJECTS, TOPICS } from "../lib/exam";
 import { ESSAY_TASKS } from "../lib/essay";
 import { WritingRound, type WritingMode } from "./Writing";
+import { PRACTICE_SOURCES as SOURCES, type PracticeSource as Source } from "../lib/practice-source";
+import { PracticeSourcePicker } from "../ui/PracticeSource";
 
 /** Modes that open a page of their own instead of a round on the learner's words. */
 type Studio = "essay" | "listen" | "examread" | "speak";
@@ -33,7 +35,6 @@ type Mode = "word" | "sentence" | "dictation" | "gender" | Studio | WritingMode;
 type TypingMode = Exclude<Mode, "gender" | Studio | WritingMode>;
 const isStudio = (m: Mode): m is Studio => m === "essay" || m === "listen" || m === "examread" || m === "speak";
 const isWriting = (m: Mode): m is WritingMode => m === "translate" || m === "compose";
-type Source = "recent" | "mistakes" | "saved" | "path" | "decks";
 
 const MODES: [Mode, string, string, typeof Type][] = [
   ["word", "单词", "看图写出单词", Type],
@@ -46,13 +47,6 @@ const MODES: [Mode, string, string, typeof Type][] = [
   ["listen", "听力理解", "按真题题型：三个练习一套", Ear],
   ["examread", "应试阅读", "按真题题型：三篇一套，限时", BookOpenCheck],
   ["speak", "口语", "抽题、准备、独白、辩论", Mic],
-];
-const SOURCES: [Source, string][] = [
-  ["recent", "最近学过"],
-  ["mistakes", "错词本"],
-  ["saved", "收藏"],
-  ["path", "学习路线"],
-  ["decks", "选卡组"],
 ];
 
 /** Choices remembered on this device: the decks to practise from and whether 听写 / 中译法 use AI sentences. */
@@ -91,11 +85,11 @@ export function Practice() {
   };
   // 选卡组: which decks (the initial deck and the learner's own); nothing chosen = the learner's own decks, or the initial deck
   const [deckSel, setDeckSel] = useState<string[]>(() => (readPref("decks") ?? "").split(",").filter(Boolean));
-  const deckList = useMemo(() => [{ id: CORE_DECK, name: CORE_NAME }, ...(progress.decks ?? []).map((d) => ({ id: d.id, name: d.name }))], [progress.decks]);
+  const deckList = useMemo(() => (progress.decks ?? []).map((d) => ({ id: d.id, name: d.name })), [progress.decks]);
   const chosenDecks = useMemo(() => {
     const valid = deckSel.filter((id) => deckList.some((d) => d.id === id));
     if (valid.length) return valid;
-    return deckList.length > 1 ? deckList.slice(1).map((d) => d.id) : [CORE_DECK];
+    return deckList.map((d) => d.id);
   }, [deckSel, deckList]);
   const toggleDeck = (id: string) => {
     const next = chosenDecks.includes(id) ? chosenDecks.filter((x) => x !== id) : [...chosenDecks, id];
@@ -228,32 +222,7 @@ export function Practice() {
               </button>
             ))}
           </div>
-          {!isStudio(mode) && (
-            <>
-              <h3 className="eyebrow">词来自</h3>
-              <div className="segmented segmented-wide">
-                {SOURCES.map(([k, label]) => (
-                  <button key={k} className={source === k ? "is-on" : ""} onClick={() => setSource(k)} aria-pressed={source === k}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-              {source === "decks" && (
-                <ul className="chips practice-decks" role="group" aria-label="从哪些卡组出题">
-                  {deckList.map((d) => {
-                    const on = chosenDecks.includes(d.id);
-                    return (
-                      <li key={d.id}>
-                        <button className={`chip-btn ${on ? "is-on" : ""}`} aria-pressed={on} onClick={() => toggleDeck(d.id)}>
-                          {on && <Check size={14} />} {d.name}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </>
-          )}
+          {!isStudio(mode) && <PracticeSourcePicker source={source} onSource={setSource} decks={deckList} chosenDecks={chosenDecks} onDeck={toggleDeck} />}
           <p className="muted">
             {mode === "essay"
               ? `${ESSAY_TASKS.length} 个题目：邮件、叙事、论坛发帖、正式信件、求职信、读者来信、议论文，其中 3 个是先读材料再写。`

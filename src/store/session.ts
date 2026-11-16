@@ -1,3 +1,5 @@
+import { familyWords, familiesFor } from "../lib/families";
+import { matchesStudyPos } from "../lib/pos";
 import type { Atlas, WordRef } from "../atlas/types";
 import { MEDIA } from "../atlas/types";
 import { hashSeed, normalize, shuffle } from "../lib/text";
@@ -34,13 +36,14 @@ const NOUN_SLOTS = new Set([1, 3]);
 export function nextNew(atlas: Atlas, p: Progress, settings: Settings, count: number, ctx = rangeOf(atlas, p, settings)) {
   if (count <= 0) return [];
   const { idx, range } = ctx;
+  const family = familyWords(settings.studyFamilies, settings.studyFamilies?.length ? familiesFor(atlas,p) : []);
   const out: string[] = [];
   const taken = new Set<string>();
   for (const d of range.decks)
     for (const id of d.words) {
       if (out.length >= count) return out;
       const w = atlas.byId.get(id);
-      if (!w || taken.has(id) || p.cards[id] || !isTaughtReady(w)) continue;
+      if (!w || (family && !family.has(id)) || !matchesStudyPos(w.pos, settings.studyPos) || taken.has(id) || p.cards[id] || !isTaughtReady(w)) continue;
       taken.add(id);
       out.push(id);
     }
@@ -53,7 +56,7 @@ export function nextNew(atlas: Atlas, p: Progress, settings: Settings, count: nu
   const pass = (from: number) => {
     for (const w of atlas.words) {
       if (nouns.length >= want && rest.length >= want) return;
-      if (!isTaughtReady(w) || w.cefr < from || p.cards[w.id] || taken.has(w.id) || idx.hidden.has(w.id)) continue;
+      if ((family && !family.has(w.id)) || !matchesStudyPos(w.pos, settings.studyPos) || !isTaughtReady(w) || w.cefr < from || p.cards[w.id] || taken.has(w.id) || idx.hidden.has(w.id)) continue;
       if (topic >= 0 && w.topic !== topic) continue;
       const list = w.g ? nouns : rest;
       if (list.length >= want) continue;
@@ -80,10 +83,11 @@ export const rangeOf = (atlas: Atlas, p: Progress, s: Settings): { idx: DeckInde
 export function todayPlan(atlas: Atlas, p: Progress, s: Settings) {
   const ctx = rangeOf(atlas, p, s);
   const due: string[] = [];
+  const family = familyWords(s.studyFamilies, s.studyFamilies?.length ? familiesFor(atlas,p) : []);
   let otherDue = 0;
   for (const id of dueIds(p)) {
     if (!atlas.byId.has(id) || !ctx.idx.isActive(id)) continue;
-    if (inRange(ctx.idx, ctx.range, id)) due.push(id);
+    if ((!family || family.has(id)) && inRange(ctx.idx, ctx.range, id) && matchesStudyPos(atlas.byId.get(id)?.pos, s.studyPos)) due.push(id);
     else otherDue++;
   }
   const newLeft = Math.max(0, s.dailyNew - newToday(p));

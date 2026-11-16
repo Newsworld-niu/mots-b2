@@ -32,12 +32,12 @@ export function editedRef(w: WordRef, edit: WordEdit): WordRef {
   if (!shown.length) return w;
   const { more: _, ...rest } = w;
   void _;
-  return { ...rest, zh: shown[0], ...(shown.length > 1 ? { more: shown.slice(1) } : {}) };
+  return { ...rest, pos: [...new Set([...(w.pos ?? []), ...(edit.senses ?? []).map((s) => s.pos)])], zh: shown[0], ...(shown.length > 1 ? { more: shown.slice(1) } : {}) };
 }
 
 export function customRef(id: string, c: CustomWord): WordRef {
   const g = genderOf(c.pos);
-  return { id, word: c.w, zh: c.zh, ipa: slashIpa(c.ipa), cefr: -1, topic: -1, media: 0, order: -1, custom: true, ...(g ? { g } : {}) };
+  return { id, pos: [c.pos, ...(c.senses ?? []).map((s) => s.pos)], word: c.w, zh: c.zh, ipa: slashIpa(c.ipa), cefr: -1, topic: -1, media: 0, order: -1, custom: true, ...(g ? { g } : {}) };
 }
 
 export function customEntry(id: string, c: CustomWord): Entry {
@@ -85,8 +85,8 @@ export function editedEntry(e: Entry, edit: WordEdit): Entry {
   let m = e.m;
   if (ex[0] !== e.ex[0]) m &= ~(MEDIA.ex | MEDIA.exM);
   if (ex[1] !== e.ex[1]) m &= ~(MEDIA.ex2 | MEDIA.ex2M);
-  const col = edit.col ? [...edit.col, ...e.col.filter((c) => !edit.col!.includes(c))] : e.col;
-  const tip = edit.tip ? (e.tip ? `${edit.tip}\n\n${e.tip}` : edit.tip) : e.tip;
+  const col = edit.replaceContent ? edit.col ?? [] : edit.col ? [...edit.col, ...e.col.filter((c) => !edit.col!.includes(c))] : e.col;
+  const tip = edit.replaceContent ? edit.tip ?? "" : edit.tip ? (e.tip ? `${edit.tip}\n\n${e.tip}` : edit.tip) : e.tip;
   return {
     ...e,
     m,
@@ -94,9 +94,9 @@ export function editedEntry(e: Entry, edit: WordEdit): Entry {
     ex,
     col,
     tip,
-    syn: withOwn(e.syn, edit.syn),
-    ant: withOwn(e.ant, edit.ant),
-    fam: withOwn(e.fam, edit.fam),
+    syn: edit.replaceContent ? edit.syn ?? [] : withOwn(e.syn, edit.syn),
+    ant: edit.replaceContent ? edit.ant ?? [] : withOwn(e.ant, edit.ant),
+    fam: edit.fam !== undefined ? edit.fam : e.fam,
     orig: { senses: e.senses.map((s) => s.zh), ex: e.ex },
     ...(edit.noImg ? { noImg: true } : {}),
   };

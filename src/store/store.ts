@@ -1,3 +1,6 @@
+import { cleanWikiSources } from "../lib/wiktionary";
+import { familyIds } from "../lib/families";
+import { POS_OPTIONS } from "../lib/pos";
 import { useSyncExternalStore } from "react";
 import { migrateAliases as migrateAliasesPure, type AliasMap } from "./aliases";
 import type { Accent } from "../atlas/types";
@@ -52,6 +55,7 @@ export interface OwnSense {
 
 /** What the learner can put on any card besides collocations and a 注意点: further meanings and related words. */
 export interface CardExtras {
+  wikiSources?: string[];
   senses?: OwnSense[];
   /** Related words, each "mot (中文)". */
   syn?: string[];
@@ -84,6 +88,8 @@ export interface CustomWord extends CardExtras {
 
 /** The learner's changes to an atlas word, shown in every deck: a gloss for the first sense, own examples (first). */
 export interface WordEdit extends CardExtras {
+  /** Saved content replaces the bundled suggestions, including empty lists. */
+  replaceContent?: boolean;
   zh?: string;
   /** Glosses for the second sense onward ("" keeps the atlas's). */
   zhMore?: string[];
@@ -100,8 +106,20 @@ export interface WordEdit extends CardExtras {
   hide?: number[];
 }
 
-/** The built-in deck: every atlas word except those the learner hid. */
+/** Stable id of the initial deck; managed like other decks after migration. */
 export const CORE_DECK = "core";
+export const FAVORITES_DECK = "d-favorites";
+
+/** Bookmarks are the source of truth for the automatic collection. */
+export function syncFavorites(p: Progress): Progress {
+  if (!p.coreMigrated) return p;
+  const old = p.decks?.find(d => d.id === FAVORITES_DECK);
+  const words = [...new Set(p.bookmarks)];
+  const members = new Set(words);
+  const keep = <T,>(v?: Record<string, T>) => v ? Object.fromEntries(Object.entries(v).filter(([id]) => members.has(id))) : undefined;
+  const deck: Deck = { ...old, id: FAVORITES_DECK, name: "收藏", created: old?.created ?? 0, words, sense: keep(old?.sense), note: keep(old?.note) };
+  return { ...p, decks: [...(p.decks ?? []).filter(d => d.id !== FAVORITES_DECK), deck] };
+}
 
 export interface ActiveSession {
   id: string;
@@ -135,6 +153,7 @@ export interface TypingRound {
 }
 
 export interface Progress {
+  coreMigrated?: boolean;
   version: 2;
   datasetId: string;
   cards: Record<string, CardState>;
@@ -148,14 +167,14 @@ export interface Progress {
   aliasArchive?: Record<string, CardState>;
   /** When the alias migration last changed this progress (epoch ms). */
   aliasMigratedAt?: number;
-  /** Conjugation cards (变位), one per verb × tense, keyed "verbId|tense". Separate from word cards. */
+  /** Conjugation cards (变位), one per verb × tense × person, keyed "verbId|tense|person"; legacy two-part keys retained. Separate from word cards. */
   conj?: Record<string, CardState>;
   /** Conjugation stats per day: n = new cards started, r = graded answers, c = correct. */
-  conjDays?: Record<string, { n: number; r: number; c: number }>;
+  conjDays?: Record<string, { n: number; r: number; c: number; verbs?: string[] }>;
   /** Grammar point cards (语法), one per point id; graded once per practice round of the point. */
   gram?: Record<string, CardState>;
   /** Grammar drills per day: n = points started, r = drills answered, c = right. */
-  gramDays?: Record<string, { n: number; r: number; c: number }>;
+  gramDays?: Record<string, { n: number; r: number; c: number; verbs?: string[] }>;
   /** Grammar drills the learner reported as wrong or ambiguous (drillId), never asked again. */
   gramSkip?: string[];
   /** The learner's own decks, in the order made. */
@@ -203,6 +222,9 @@ export interface Settings {
   focusTopic: string | null;
   /** Decks studied in 今日 (new words and reviews); null = every deck. CORE_DECK is the initial deck. */
   studyDecks: string[] | null;
+  /** Part of speech for new words and reviews; null means all. */
+  studyPos?: string[] | null;
+  studyFamilies?: string[] | null;
   /** 阅读: colour the words by how well they are known (没学过 / 在学 / 已掌握). */
   readColors: boolean;
   /** 阅读: the deck new words go to; null = none chosen yet. */
@@ -224,9 +246,11 @@ export const defaultSettings: Settings = {
   ambienceVolume: 0.45,
   splash: true,
   conjTenses: null,
-  conjNew: 6,
+  conjNew: 10,
   focusTopic: null,
   studyDecks: null,
+  studyPos: null,
+  studyFamilies: null,
   readColors: true,
   readDeck: null,
 };
@@ -289,7 +313,7 @@ function validCard(v: unknown): v is CardState {
 
 export function sanitizeProgress(v: unknown, datasetId: string): Progress {
   const out = emptyProgress(datasetId);
-  if (!isObj(v) || v.version !== 2) return out;
+  if (!isObj(v) || v.version !== 2) return syncFavorites(out);
   if (isObj(v.cards)) for (const [k, c] of Object.entries(v.cards)) if (validCard(c)) out.cards[k] = c;
   if (Array.isArray(v.bookmarks)) out.bookmarks = v.bookmarks.filter((x): x is string => typeof x === "string").slice(0, 20000);
   if (Array.isArray(v.mistakes)) out.mistakes = v.mistakes.filter((x): x is string => typeof x === "string").slice(0, 300);
@@ -312,13 +336,13 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
       .slice(-500);
   if (isObj(v.conj)) {
     const conj: Record<string, CardState> = {};
-    for (const [k, c] of Object.entries(v.conj)) if (/^[^|]+\|(pres|pc|imp|fut|cond|subj)$/.test(k) && validCard(c)) conj[k] = c;
+    for (const [k, c] of Object.entries(v.conj)) if (/^[^|]+\|(pres|pc|imp|fut|cond|subj)(\|[0-5])?$/.test(k) && validCard(c)) conj[k] = c;
     if (Object.keys(conj).length) out.conj = conj;
   }
   if (isObj(v.conjDays)) {
-    const days: Record<string, { n: number; r: number; c: number }> = {};
+    const days: Record<string, { n: number; r: number; c: number; verbs?: string[] }> = {};
     for (const [k, d] of Object.entries(v.conjDays))
-      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isObj(d) && num(d.n, 0) && num(d.r, 0) && num(d.c, 0)) days[k] = { n: d.n as number, r: d.r as number, c: d.c as number };
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isObj(d) && num(d.n, 0) && num(d.r, 0) && num(d.c, 0)) days[k] = { n: d.n as number, r: d.r as number, c: d.c as number, ...(Array.isArray(d.verbs) ? { verbs: [...new Set(d.verbs.filter((id): id is string => typeof id === "string" && id.length > 0))] } : {}) };
     if (Object.keys(days).length) out.conjDays = days;
   }
   if (isObj(v.gram)) {
@@ -327,9 +351,9 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
     if (Object.keys(gram).length) out.gram = gram;
   }
   if (isObj(v.gramDays)) {
-    const days: Record<string, { n: number; r: number; c: number }> = {};
+    const days: Record<string, { n: number; r: number; c: number; verbs?: string[] }> = {};
     for (const [k, d] of Object.entries(v.gramDays))
-      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isObj(d) && num(d.n, 0) && num(d.r, 0) && num(d.c, 0)) days[k] = { n: d.n as number, r: d.r as number, c: d.c as number };
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isObj(d) && num(d.n, 0) && num(d.r, 0) && num(d.c, 0)) days[k] = { n: d.n as number, r: d.r as number, c: d.c as number, ...(Array.isArray(d.verbs) ? { verbs: [...new Set(d.verbs.filter((id): id is string => typeof id === "string" && id.length > 0))] } : {}) };
     if (Object.keys(days).length) out.gramDays = days;
   }
   if (Array.isArray(v.gramSkip)) {
@@ -350,7 +374,7 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
   const s = v.session;
   if (isObj(s) && typeof s.id === "string" && Array.isArray(s.steps) && num(s.index, 0) && isObj(s.graded))
     out.session = s as unknown as ActiveSession;
-  return out;
+  return syncFavorites(out);
 }
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -391,6 +415,8 @@ function sanitizeRelated(v: unknown): string[] | undefined {
 /** Further meanings and related words on a card, from stored data (untrusted). */
 function sanitizeExtras(v: Record<string, unknown>): CardExtras {
   const out: CardExtras = {};
+  const sources = cleanWikiSources(v.wikiSources);
+  if (sources.length) out.wikiSources = sources;
   if (Array.isArray(v.senses)) {
     const senses = v.senses
       .filter(isObj)
@@ -402,19 +428,21 @@ function sanitizeExtras(v: Record<string, unknown>): CardExtras {
   for (const k of ["syn", "ant", "fam"] as const) {
     const list = sanitizeRelated(v[k]);
     if (list) out[k] = list;
+    else if (k === "fam" && Array.isArray(v.fam)) out.fam = [];
   }
   return out;
 }
 
 /** Decks, hidden words, custom words and edits from stored data or a backup (untrusted). */
-export function sanitizeUserData(v: Record<string, unknown>): Pick<Progress, "decks" | "hidden" | "custom" | "edits"> {
-  const out: Pick<Progress, "decks" | "hidden" | "custom" | "edits"> = {};
+export function sanitizeUserData(v: Record<string, unknown>): Pick<Progress, "decks" | "hidden" | "custom" | "edits" | "coreMigrated"> {
+  const out: Pick<Progress, "decks" | "hidden" | "custom" | "edits" | "coreMigrated"> = {};
   const isWord = (x: unknown): x is string => typeof x === "string" && WORD_ID.test(x);
+  if (v.coreMigrated === true) out.coreMigrated = true;
   if (Array.isArray(v.decks)) {
     const seen = new Set<string>();
     const decks: Deck[] = [];
     for (const d of v.decks) {
-      if (!isObj(d) || typeof d.id !== "string" || !DECK_ID.test(d.id) || seen.has(d.id)) continue;
+      if (!isObj(d) || typeof d.id !== "string" || !(d.id === CORE_DECK || DECK_ID.test(d.id)) || seen.has(d.id)) continue;
       const name = str(d.name, 40);
       if (!name) continue;
       seen.add(d.id);
@@ -469,6 +497,7 @@ export function sanitizeUserData(v: Record<string, unknown>): Pick<Progress, "de
     for (const [id, e] of Object.entries(v.edits)) {
       if (!isWord(id) || !isObj(e)) continue;
       const edit: WordEdit = {};
+      if (e.replaceContent === true) edit.replaceContent = true;
       const zh = str(e.zh, 300);
       if (zh) edit.zh = zh;
       const ex = sanitizeExamples(e.ex);
@@ -516,14 +545,21 @@ export function sanitizeSettings(v: unknown): Settings {
     const t = v.conjTenses.filter((x): x is string => ["pres", "pc", "imp", "fut", "cond", "subj"].includes(x as string));
     s.conjTenses = t.length ? [...new Set(t)] : null;
   }
-  if (num(v.conjNew, 0, 50)) s.conjNew = Math.round(v.conjNew as number);
+  if (num(v.conjNew, 0, MAX_DAILY_NEW)) s.conjNew = Math.round(v.conjNew as number);
   if (typeof v.focusTopic === "string" && /^[a-z0-9-]{1,40}$/.test(v.focusTopic)) s.focusTopic = v.focusTopic;
+  if (Array.isArray(v.studyFamilies)) {
+    const ids = [...new Set(v.studyFamilies.filter((id): id is string => typeof id === "string" && (familyIds.has(id) || /^[a-z0-9][a-z0-9_-]{0,119}$/.test(id))))];
+    s.studyFamilies = ids.length ? ids : null;
+  }
+  const chosenPos = Array.isArray(v.studyPos) ? v.studyPos : [v.studyPos];
+  const validPos = POS_OPTIONS.filter(([key]) => chosenPos.includes(key)).map(([key]) => key);
+  s.studyPos = validPos.length && validPos.length < POS_OPTIONS.length ? validPos : null;
   if (Array.isArray(v.studyDecks)) {
     const d = v.studyDecks.filter((x): x is string => typeof x === "string" && (x === CORE_DECK || DECK_ID.test(x)));
     s.studyDecks = d.length ? [...new Set(d)].slice(0, 300) : null;
   }
   if (typeof v.readColors === "boolean") s.readColors = v.readColors;
-  if (typeof v.readDeck === "string" && DECK_ID.test(v.readDeck)) s.readDeck = v.readDeck;
+  if (typeof v.readDeck === "string" && (v.readDeck === CORE_DECK || DECK_ID.test(v.readDeck))) s.readDeck = v.readDeck;
   return s;
 }
 
@@ -610,7 +646,7 @@ export const store = {
     const { progress, report } = migrateAliasesPure(state.progress, aliases);
     if (!report.changed) return { ...report, snapshot: null as string | null };
     const snapshot = writeSnapshot(state.progress);
-    state = { ...state, progress };
+    state = { ...state, progress: syncFavorites(progress) };
     emit();
     scheduleSave();
     flush();
@@ -638,7 +674,7 @@ export const store = {
     emit();
   },
   progress(fn: (p: Progress) => Progress) {
-    state = { ...state, progress: fn(state.progress) };
+    state = { ...state, progress: syncFavorites(fn(state.progress)) };
     emit();
     scheduleSave();
   },

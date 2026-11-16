@@ -201,7 +201,7 @@ const index = {
   chunk: CHUNK,
   topics: TOPICS.map((t) => [t.key, t.zh]),
   cefr: LEVEL_NAMES,
-  words: ordered.map((e) => [e.id, e.lemma, e.senses.find((s) => s.zh)?.zh || "释义待补充", ipaOf(e.id), LEVEL_NAMES.indexOf(estimateOf(e)), TOPICS.findIndex((t) => t.key === e.topic), mediaOf(e.id), quizGender(e), ...moreGlosses(e)]),
+  words: ordered.map((e) => [e.id, e.lemma, e.senses.find((s) => s.zh)?.zh || "释义待补充", ipaOf(e.id), LEVEL_NAMES.indexOf(estimateOf(e)), TOPICS.findIndex((t) => t.key === e.topic), mediaOf(e.id), quizGender(e), moreGlosses(e)[0] ?? [], [...new Set(e.senses.map((s) => s.pos ?? e.pos))]]),
 };
 writeFileSync(resolve(out, "index.json"), JSON.stringify(index));
 for (let n = 0; n * CHUNK < ordered.length; n++) {

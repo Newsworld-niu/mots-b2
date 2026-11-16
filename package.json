@@ -23,7 +23,8 @@
     "e2e": "node scripts/e2e.mjs",
     "android:sync": "npm run build && cap sync android",
     "android:apk": "npm run android:sync && cd android && ./gradlew assembleRelease",
-    "lexicon:ids": "tsx scripts/check-id-stability.ts"
+    "lexicon:ids": "tsx scripts/check-id-stability.ts",
+    "lexicon:families": "python3 scripts/build-families.py"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

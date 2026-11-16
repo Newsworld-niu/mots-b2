@@ -179,3 +179,30 @@ test("applyIntro: 认识 changes nothing, 不认识 is noted, 完全认识 grade
   // only once per word
   assert.equal(applyIntro(done, "a", "mastered", 0.9, now), done);
 });
+
+test("part-of-speech study filters new words and reviews across selected decks", async () => {
+  const { todayPlan } = await import("./session.ts");
+  const { defaultSettings, sanitizeSettings } = await import("./store.ts");
+  const words = [
+    { ...ref("chat", "chat", 0), pos: ["n.m."] },
+    { ...ref("calme", "calme", 1), pos: ["n.m.", "adj."] },
+    { ...ref("parler", "parler", 2), pos: ["v."] },
+    { ...ref("u-custom1", "custom", 3), pos: ["adj."], custom: true as const },
+  ];
+  const atlas = { words: words.slice(0, 3), custom: words.slice(3), byId: new Map(words.map(w => [w.id, w])), topics: [["daily", "日常"]] } as unknown as Atlas;
+  const p = emptyProgress("t");
+  p.decks = [{ id: "d-test1", name: "test", created: 1, words: words.map(w => w.id) }];
+  const s = { ...defaultSettings, studyDecks: ["d-test1"], studyPos: ["adjective"] };
+  assert.deepEqual(todayPlan(atlas, p, s).fresh, ["calme", "u-custom1"]);
+  p.cards.calme = { ...review(undefined, Rating.Good, Date.now()), due: 0 };
+  p.cards.parler = { ...review(undefined, Rating.Good, Date.now()), due: 0 };
+  assert.deepEqual(todayPlan(atlas, p, s).due, ["calme"]);
+  assert.equal(todayPlan(atlas, p, s).otherDue, 1);
+  assert.deepEqual(todayPlan(atlas, p, { ...s, studyPos: ["noun"] }).due, ["calme"]);
+  assert.deepEqual(todayPlan(atlas, p, { ...s, studyPos: null }).due.sort(), ["calme", "parler"]);
+  assert.deepEqual(sanitizeSettings(s).studyPos, ["adjective"]);
+  assert.deepEqual(todayPlan(atlas, p, { ...s, studyPos: ["noun", "adjective"] }).due, ["calme"]);
+  assert.deepEqual(todayPlan(atlas, p, { ...s, studyPos: ["adjective", "verb"] }).due.sort(), ["calme", "parler"]);
+  assert.deepEqual(sanitizeSettings({ studyPos: "noun" }).studyPos, ["noun"]);
+  assert.equal(sanitizeSettings({ studyPos: "invalid" }).studyPos, null);
+});

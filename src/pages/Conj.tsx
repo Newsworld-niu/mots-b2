@@ -2,17 +2,26 @@ import { ArrowRight, Check, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import { useConj, type ConjData } from "../atlas/conj";
-import { checkAnswer, distractorsFor, promptFor, TENSE_FR, TENSE_ZH, TENSES, tensesForLevel, type ConjTense, type ConjVerb } from "../lib/conjugation";
+import { checkAnswer, distractorsFor, promptFor, PRONOUNS, TENSE_FR, TENSE_ZH, TENSES, tensesForLevel, type ConjTense, type ConjVerb } from "../lib/conjugation";
 import { cue } from "../lib/sound";
 import { hashSeed, shuffle } from "../lib/text";
-import { answerConj, buildConjSession, conjGrade, conjPlan, type ConjStep } from "../store/conj";
+import { answerConj, buildConjSession, conjGrade, conjPlan, repeatConj, startedConjVerbs, splitKey, type ConjStep } from "../store/conj";
 import { Rating } from "../store/srs";
-import { store, useStore } from "../store/store";
+import { MAX_DAILY_NEW, store, useStore } from "../store/store";
 import { useKeys } from "./Learn";
 import { ConjTable } from "../ui/ConjTable";
 import { GrammarTabs } from "./Grammar";
+import { PRACTICE_SOURCES, sourceWordIds, type PracticeSource } from "../lib/practice-source";
+import { PracticeSourcePicker } from "../ui/PracticeSource";
 
 const ACCENTS = ["é", "è", "ê", "à", "â", "ç", "î", "ï", "ô", "û", "ù", "ë", "œ"];
+const PREF = "word-atlas:conj:";
+function readPref(key: string): string | null {
+  try { return localStorage.getItem(PREF + key); } catch { return null; }
+}
+function writePref(key: string, value: string) {
+  try { localStorage.setItem(PREF + key, value); } catch { /* optional device preference */ }
+}
 
 export function Conj() {
   const { data, error } = useConj();
@@ -27,7 +36,34 @@ function Overview({ data, onStart }: { data: ConjData; onStart: (s: ConjStep[]) 
   const atlas = useAtlas();
   const progress = useStore((s) => s.progress);
   const settings = useStore((s) => s.settings);
-  const plan = useMemo(() => conjPlan(atlas, progress, settings, data), [atlas, progress, settings, data]);
+  const [newLimit, setNewLimit] = useState(String(settings.conjNew));
+  useEffect(() => setNewLimit(String(settings.conjNew)), [settings.conjNew]);
+  const saveNewLimit = () => {
+    const n = newLimit.trim() ? Number(newLimit) : NaN;
+    const value = Number.isFinite(n) ? Math.min(MAX_DAILY_NEW, Math.max(0, Math.round(n))) : settings.conjNew;
+    setNewLimit(String(value));
+    if (value !== settings.conjNew) store.settings({ conjNew: value });
+  };
+  const [source, setSourceState] = useState<PracticeSource>(() => {
+    const kept = readPref("source");
+    return PRACTICE_SOURCES.find(([key]) => key === kept)?.[0] ?? (Object.keys(progress.cards).length ? "recent" : "path");
+  });
+  const setSource = (next: PracticeSource) => { setSourceState(next); writePref("source", next); };
+  // null means all decks by default; an explicit empty selection means no decks.
+  const [deckSel, setDeckSel] = useState<string[] | null>(() => {
+    try {
+      const kept: unknown = JSON.parse(readPref("decks") ?? "null");
+      return Array.isArray(kept) && kept.every(id => typeof id === "string") ? kept : null;
+    } catch { return null; }
+  });
+  const deckList = useMemo(() => (progress.decks ?? []).map(d => ({ id: d.id, name: d.name })), [progress.decks]);
+  const chosenDecks = useMemo(() => deckSel === null ? deckList.map(d => d.id) : deckSel.filter(id => deckList.some(d => d.id === id)), [deckSel, deckList]);
+  const toggleDeck = (id: string) => {
+    const next = chosenDecks.includes(id) ? chosenDecks.filter(x => x !== id) : [...chosenDecks, id];
+    setDeckSel(next); writePref("decks", JSON.stringify(next));
+  };
+  const verbs = useMemo(() => sourceWordIds(atlas, progress, source, settings.startLevel, chosenDecks).filter(id => data.verbs[id]), [atlas, progress, source, settings.startLevel, chosenDecks, data]);
+  const plan = useMemo(() => conjPlan(atlas, progress, settings, data, verbs), [atlas, progress, settings, data, verbs]);
   const levelTenses = tensesForLevel(settings.startLevel);
   const toggle = (t: ConjTense) => {
     const cur = plan.tenses;
@@ -35,29 +71,31 @@ function Overview({ data, onStart }: { data: ConjData; onStart: (s: ConjStep[]) 
     if (next.length) store.settings({ conjTenses: next });
   };
   const total = plan.due.length + plan.fresh.length;
-  const started = Object.keys(progress.conj ?? {}).length;
+  const started = startedConjVerbs(progress).size;
   return (
     <div className="page conj">
       <header className="page-head">
         <GrammarTabs on="conj" />
         <p className="eyebrow">变位 · Conjugaison</p>
         <h1 className="display">动词，要变着用。</h1>
-        <p className="lede">每个“动词 × 时态”是一张单独的复习卡。只有在每日学习里学过的动词才会出现在这里，不占用背单词的时间。</p>
+        <p className="lede">选择想练的词源和时态，每张卡对应一个动词，按所选时态展开各人称的填空题，各形式独立记录进度。可以直接练收藏或卡组里的动词，不占用背单词的时间。</p>
       </header>
       <div className="practice-grid">
         <section className="panel">
+          <PracticeSourcePicker source={source} onSource={setSource} decks={deckList} chosenDecks={chosenDecks} onDeck={toggleDeck} />
+          <p className="muted">{source === "decks" ? "所选卡组" : source === "path" ? "起点等级起的前 400 个词" : "当前来源"}里有 {plan.verbs} 个带已核对变位表的动词。</p>
           <dl className="mini-stats conj-stats">
             <div>
               <dt>可练动词</dt>
               <dd>{plan.verbs}</dd>
             </div>
             <div>
-              <dt>待复习</dt>
-              <dd>{plan.due.length}</dd>
+              <dt>待复习动词</dt>
+              <dd>{plan.dueVerbs}</dd>
             </div>
             <div>
-              <dt>今日新卡</dt>
-              <dd>{plan.fresh.length}</dd>
+              <dt>今日新动词卡</dt>
+              <dd>{plan.newVerbs}</dd>
             </div>
           </dl>
           <h3 className="eyebrow">练哪些时态</h3>
@@ -81,28 +119,27 @@ function Overview({ data, onStart }: { data: ConjData; onStart: (s: ConjStep[]) 
               "按你的起点等级自动选择；点上面的时态可以自己调整。"
             )}
           </p>
-          <button className="btn btn-primary btn-xl" disabled={!total} onClick={() => onStart(buildConjSession(atlas, progress, settings, data))}>
-            {total ? `开始 · ${total} 张` : plan.verbs ? "今天的变位练完了" : "还没有可练的动词"}
+          <button className="btn btn-primary btn-xl" disabled={!total} onClick={() => onStart(buildConjSession(atlas, progress, settings, data, verbs))}>
+            {total ? `开始 · ${plan.sessionVerbs} 张动词卡 / ${total} 题` : plan.verbs ? "今天的变位练完了" : "还没有可练的动词"}
           </button>
-          {!plan.verbs && <p className="muted">先在「今日」学几个动词（être、avoir、faire 都在路线最前面），学过的动词会自动出现在这里。</p>}
+          {!plan.verbs && <p className="muted">{source === "decks" && !chosenDecks.length ? "请先选择至少一个卡组。" : "这个来源还没有带已核对变位表的动词，换个来源或卡组试试。"}</p>}
+          {!!plan.verbs && !total && <p className="muted">当前来源暂无待复习卡；每日新动词卡上限在所有来源间共用，可以调整右侧上限或稍后再练。</p>}
         </section>
         <section className="panel practice-side">
           <h3 className="eyebrow">怎么练</h3>
           <ul className="conj-how">
-            <li>新卡先四选一，熟了以后改成自己写。</li>
+            <li>按动词卡数量选词，每个新动词覆盖勾选的所有时态和人称；各形式独立记录进度。</li>
+            <li>可以先看表或用选择题辅助；之后仍需填空验证。错题隔几题再次填空，直到答对。</li>
             <li>只写错重音（如 leve / lève）算“困难”，不算答错，并会提示。</li>
             <li>复合过去时要写助动词：用 être 的动词可以写阴性或复数形式。</li>
           </ul>
           <p className="muted">
-            已开始 {started} 张卡 · 每天新卡上限{" "}
-            <select value={settings.conjNew} onChange={(e) => store.settings({ conjNew: Number(e.target.value) })} aria-label="每天新卡上限">
-              {[3, 6, 10, 15, 20].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
+            已开始 {started} 张动词卡 · 每日新动词卡上限{" "}
+            <input className="conj-new-limit" type="number" inputMode="numeric" min={0} max={MAX_DAILY_NEW} step={1} value={newLimit} onChange={e => setNewLimit(e.target.value)} onBlur={saveNewLimit} onKeyDown={e => { if (e.key === "Enter") e.currentTarget.blur(); }} aria-label="每日新动词卡上限" />
+            {" "}张
           </p>
+          {!!Object.keys(progress.conj ?? {}).some(k => splitKey(k).person === undefined) && <p className="muted small">旧版按时态保存的记录已保留。由于未记录具体人称，各人称将从首次填空开始独立安排复习。</p>}
+          <p className="muted small">例如 1 张动词卡 × 2 个时态 × 6 个人称 = 12 道题。未完成的人称和新勾选的时态可继续练，不重复占用新动词额度。</p>
           <p className="muted small">
             变位表由规则生成，并逐形对照 Lexique 3.83 的语料形式核对；有出入的动词暂不出题。
           </p>
@@ -136,18 +173,16 @@ function ConjSession({ data, initial, onExit }: { data: ConjData; initial: ConjS
       const ms = performance.now() - started.current;
       if (settings.sfx) void cue(result === "wrong" ? "wrong" : "correct");
       setPending({ result, value });
-      if (!step.retry) {
+      if (!step.retry && step.kind === "type") {
         const grade = conjGrade(result, ms, step.kind);
         answerConj(step, grade);
         setLog((l) => [...l, { step, ok: grade !== Rating.Again }]);
       }
-      if (result === "wrong" && !step.retry) {
-        // see it again a few cards later, as a choice, without grading
-        setSteps((s) => {
-          const n = [...s];
-          n.splice(Math.min(n.length, i + 4), 0, { ...step, kind: "choice", retry: true });
-          return n;
-        });
+      if (step.kind === "choice") {
+        // Assistance never advances memory; a typed answer is still required.
+        setSteps(s => repeatConj(s, i, step, !!step.retry));
+      } else if (result !== "right") {
+        setSteps(s => repeatConj(s, i, step));
       }
     },
     [pending, step, settings.sfx, i],
@@ -174,12 +209,12 @@ function ConjSession({ data, initial, onExit }: { data: ConjData; initial: ConjS
           <b>{i + 1}</b> / {steps.length}
         </span>
       </header>
-      <ConjQuestion key={`${i}-${step.key}`} step={step} verb={v} zh={ref?.zh ?? ""} pending={pending} onSubmit={submit} onNext={next} />
+      <ConjQuestion key={`${i}-${step.key}`} step={step} verb={v} zh={ref?.zh ?? ""} pending={pending} onAssist={() => setSteps(s => s.map((q, n) => n === i ? { ...q, kind: "choice" } : q))} onSubmit={submit} onNext={next} />
     </div>
   );
 }
 
-function ConjQuestion({ step, verb, zh, pending, onSubmit, onNext }: { step: ConjStep; verb: ConjVerb; zh: string; pending: Result | null; onSubmit: (v: string, accepted: string[]) => void; onNext: () => void }) {
+function ConjQuestion({ step, verb, zh, pending, onAssist, onSubmit, onNext }: { step: ConjStep; verb: ConjVerb; zh: string; pending: Result | null; onAssist: () => void; onSubmit: (v: string, accepted: string[]) => void; onNext: () => void }) {
   const prompt = useMemo(() => promptFor(verb, step.tense, step.person), [verb, step]);
   const options = useMemo(() => {
     if (step.kind !== "choice") return [];
@@ -187,6 +222,7 @@ function ConjQuestion({ step, verb, zh, pending, onSubmit, onNext }: { step: Con
     return shuffle([prompt.shown, ...distractorsFor(verb, step.tense, step.person, seed)], seed);
   }, [step, verb, prompt]);
   const [value, setValue] = useState("");
+  const [preview, setPreview] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   useEffect(() => {
     input.current?.focus({ preventScroll: true });
@@ -196,7 +232,7 @@ function ConjQuestion({ step, verb, zh, pending, onSubmit, onNext }: { step: Con
   if (pending) {
     keys.Enter = onNext;
     keys[" "] = onNext;
-  } else if (step.kind === "choice") options.forEach((o, k) => (keys[String(k + 1)] = () => onSubmit(o, prompt.accepted)));
+  } else if (step.kind === "choice") options.forEach((o, k) => (keys[String(k + 1)] = () => onSubmit(o === prompt.shown ? prompt.accepted[0] : o, prompt.accepted)));
   useKeys(keys);
 
   const insert = (ch: string) => {
@@ -232,6 +268,13 @@ function ConjQuestion({ step, verb, zh, pending, onSubmit, onNext }: { step: Con
         </p>
       </div>
 
+      {!pending && step.kind === "type" && !step.retry && (
+        <div className="conj-help">
+          {step.isNew && <button className="btn btn-ghost" onClick={() => setPreview(!preview)}>{preview ? "收起变位表，开始填空" : "先看变位表"}</button>}
+          <button className="btn btn-ghost" onClick={() => { setPreview(false); onAssist(); }}>选择题辅助（之后仍需填空）</button>
+          {preview && <ConjTable verb={verb} tense={step.tense} highlight={step.person} />}
+        </div>
+      )}
       {step.kind === "choice" ? (
         <ul className="options conj-options">
           {options.map((o, k) => {
@@ -240,7 +283,7 @@ function ConjQuestion({ step, verb, zh, pending, onSubmit, onNext }: { step: Con
             const cls = pending ? (isAnswer ? "is-answer" : chosen ? "is-chosen" : "is-dim") : "";
             return (
               <li key={o}>
-                <button className={`option ${cls}`} onClick={() => onSubmit(o, prompt.accepted)} disabled={!!pending}>
+                <button className={`option ${cls}`} onClick={() => onSubmit(o === prompt.shown ? prompt.accepted[0] : o, prompt.accepted)} disabled={!!pending}>
                   <kbd>{k + 1}</kbd>
                   <span lang="fr">{o}</span>
                   {pending && isAnswer && <Check size={20} className="option-mark" />}
@@ -250,7 +293,7 @@ function ConjQuestion({ step, verb, zh, pending, onSubmit, onNext }: { step: Con
             );
           })}
         </ul>
-      ) : (
+      ) : !preview ? (
         <form
           className="conj-type"
           onSubmit={(e) => {
@@ -287,7 +330,7 @@ function ConjQuestion({ step, verb, zh, pending, onSubmit, onNext }: { step: Con
             </>
           )}
         </form>
-      )}
+      ) : null}
 
       {pending && (
         <div className={`conj-feedback is-${pending.result}`} role="status">
@@ -325,12 +368,12 @@ function ConjSummary({ log, data, onExit }: { log: { step: ConjStep; ok: boolean
           <ul className="gender-wrong">
             {wrong.map(({ step }) => (
               <li key={step.key} lang="fr">
-                {data.verbs[step.verbId].i} <small lang="zh">{TENSE_ZH[step.tense]}</small>
+                {data.verbs[step.verbId].i} <small lang="zh">{TENSE_ZH[step.tense]} · {PRONOUNS[step.person]}</small>
               </li>
             ))}
           </ul>
         )}
-        <p className="muted">每张卡的下次复习时间已经排好。答错的会更早回来。</p>
+        <p className="muted">每个变位形式的下次复习时间已经独立排好。答错的会更早回来。</p>
         <div className="summary-actions">
           <button className="btn btn-primary btn-xl" onClick={onExit} autoFocus>
             <RotateCcw size={18} /> 返回变位

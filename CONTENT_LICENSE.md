@@ -48,3 +48,8 @@ The offline dictionary in `public/dict/` is built from Lexique 3.83, the French 
 - 补充内容由 AI 模型生成并经自动校验，未逐条人工审校，按现状提供，不作准确性担保。The added content was generated with AI models, checked automatically, not proofread entry by entry, and is provided as-is without warranty.
 - 录音不在仓库里。自行生成的录音使用 Azure 语音（fr-FR-DeniseNeural、fr-FR-HenriNeural），其使用受微软的服务条款约束。Recordings are not in the repository; those you generate use Azure neural voices and are subject to Microsoft's terms.
 - 不是官方 DELF/DALF 词表，与 France Éducation international 无关。Not an official DELF/DALF list and not affiliated with France Éducation international.
+
+### 词族关联
+`src/data/families.json` 的新增派生关系来自法语 Wiktionnaire，经本地 Wiktextract JSONL 的 `derived` 字段提取；源词条可在 https://fr.wiktionary.org/wiki/ 后接法语词头查阅。该部分按源内容的 CC BY-SA 条款使用，保留来源标记；数据仅匹配本项目已有单词，未逐项人工核验。生成脚本：`scripts/build-families.py`。
+
+用户主动从 Wiktionnaire 导入的内容会保留固定版本来源链接（`wikiSources`），可从原文查看贡献者历史；例句中的来源署名随原文保留。导入文本及其翻译、编辑遵循源站的 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 条款。卡片上的中文可能由用户或 AI 翻译、编辑，并非维基词典提供的中文原文。

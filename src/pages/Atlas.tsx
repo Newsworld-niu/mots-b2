@@ -1,4 +1,6 @@
-import { Check, Grid3x3, GraduationCap, Layers, List, Search, Sparkles, X } from "lucide-react";
+import { FamilyPicker } from "../ui/FamilyPicker";
+import { familyWords, familiesFor } from "../lib/families";
+import { ChevronDown, Check, Grid3x3, GraduationCap, Layers, List, Search, Sparkles, X } from "lucide-react";
 import { Galaxy } from "../galaxy/Galaxy";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
@@ -6,10 +8,12 @@ import type { WordRef } from "../atlas/types";
 import { morphFrom } from "../lib/motion";
 import { go, openWord, type Route } from "../lib/router";
 import { isMastered } from "../store/srs";
-import { store, useStore } from "../store/store";
+import { CORE_DECK, store, useStore } from "../store/store";
 import { Illustration, plateArticle } from "../ui/Illustration";
 import { searchAtlas } from "../lib/search";
+import { CORE_NAME, deckWords } from "../store/decks";
 import { Speak } from "../ui/Speak";
+import { matchesPos, POS_OPTIONS } from "../lib/pos";
 
 type Status = "all" | "new" | "learning" | "mastered" | "saved";
 const STATUS: [Status, string][] = [
@@ -36,11 +40,28 @@ export function AtlasPage({
   route: Extract<Route, { page: "atlas" }>;
 }) {
   const atlas = useAtlas();
-  const cards = useStore((s) => s.progress.cards);
-  const bookmarks = useStore((s) => s.progress.bookmarks);
-  const deckCount = useStore((s) => s.progress.decks?.length ?? 0);
+  const progress = useStore((s) => s.progress);
+  const { cards, bookmarks } = progress;
+  const decks = progress.decks;
+  const deckCount = decks?.length ?? 0;
+  const deck = decks?.find((d) => d.id === route.d);
+  const deckId = route.d === "all" ? "all" : deck?.id ?? (decks?.some(d=>d.id===CORE_DECK) ? CORE_DECK : "all");
+  const deckName = deckId === "all" ? "全部单词" : decks?.find(d=>d.id===deckId)?.name ?? CORE_NAME;
+  const hidden = progress.hidden;
+  const coreMigrated = progress.coreMigrated;
+  const words = useMemo(
+    () => deckId === "all"
+      ? [...atlas.words, ...(atlas.custom ?? [])]
+      : deckWords(atlas, { decks, hidden, coreMigrated }, deckId).map((id) => atlas.byId.get(id)!),
+    [atlas, decks, hidden, coreMigrated, deckId],
+  );
   const [q, setQ] = useState(route.q ?? "");
   const [status, setStatus] = useState<Status>("all");
+  const pos = POS_OPTIONS.some(([key]) => key === route.pos) ? route.pos! : "";
+  const groups = useMemo(()=>familiesFor(atlas,progress),[atlas,progress]);
+  const families = useMemo(() => route.families?.split(",") ?? [], [route.families]);
+  const scopedWords = useMemo(() => { const members = familyWords(families,groups); return words.filter((w) => matchesPos(w.pos, pos) && (!members || members.has(w.id))); }, [words, pos, families, groups]);
+  useEffect(() => setQ(route.q ?? ""), [route.q]);
   const [view, setViewState] = useState<View>(() =>
     route.view === "galaxy" || route.view === "list" || route.view === "grid"
       ? route.view
@@ -55,6 +76,10 @@ export function AtlasPage({
     go(
       {
         page: "atlas",
+        d: deckId,
+        families: route.families,
+        pos: pos || undefined,
+        q: q || undefined,
         topic: route.topic,
         level: route.level,
         view: v === "grid" ? undefined : v,
@@ -78,7 +103,7 @@ export function AtlasPage({
     const saved = new Set(bookmarks);
     const ti = topic ? atlas.topics.findIndex((t) => t[0] === topic) : -1;
     const li = level ? atlas.cefr.indexOf(level) : -1;
-    const base = q.trim() ? searchAtlas(atlas, q, 5000) : atlas.words;
+    const base = q.trim() ? searchAtlas({ words: scopedWords }, q, scopedWords.length) : scopedWords;
     return base.filter((w) => {
       if (ti >= 0 && w.topic !== ti) return false;
       if (li >= 0 && w.cefr !== li) return false;
@@ -89,16 +114,16 @@ export function AtlasPage({
       if (status === "saved") return saved.has(w.id);
       return true;
     });
-  }, [atlas, q, topic, level, status, cards, bookmarks]);
+  }, [atlas, scopedWords, q, topic, level, status, cards, bookmarks]);
 
   const setFilter = (patch: Partial<Extract<Route, { page: "atlas" }>>) =>
-    go({ page: "atlas", topic, level, view: route.view, ...patch }, null, true);
+    go({ page: "atlas", d: deckId, families: route.families, pos: pos || undefined, q: q || undefined, topic, level, view: route.view, ...patch }, null, true);
 
   return (
     <div className={`page atlas ${view === "galaxy" ? "is-galaxy" : ""}`}>
       <header className="atlas-head">
         <div>
-          <p className="eyebrow">图鉴 · {atlas.count.toLocaleString()} 词</p>
+          <p className="eyebrow">图鉴 · {deckName} · {words.length.toLocaleString()} 词</p>
           <h1 className="display">
             每个词，
             <br className="br-sm" />
@@ -133,6 +158,18 @@ export function AtlasPage({
       </header>
 
       <div className="filters">
+        <div className="chips chips-scroll atlas-decks" role="group" aria-label="图鉴卡组">
+          {[...(decks ?? []), { id: "all", name: "全部单词" }].map((d) => (
+            <button
+              key={d.id}
+              className={`chip-btn ${deckId === d.id ? "is-on" : ""}`}
+              aria-pressed={deckId === d.id}
+              onClick={() => setFilter({ d: d.id })}
+            >
+              <Layers size={14} /> {d.name}
+            </button>
+          ))}
+        </div>
         {view !== "galaxy" && (
           <>
             <div className="chips chips-scroll" role="group" aria-label="难度">
@@ -196,6 +233,14 @@ export function AtlasPage({
               ? "搜索一个词，星图会带你飞过去"
               : `${list.length.toLocaleString()} 个结果`}
           </span>
+          <FamilyPicker deckId={deckId} value={families} onChange={(ids, scope) => setFilter({ d: scope ?? deckId, families: ids.join(",") || undefined })} />
+          <div className="atlas-pos-wrap">
+          <select className={`atlas-pos${pos === "determiner" ? " is-wide" : ""}`} aria-label="词性筛选" value={pos} onChange={(e) => setFilter({ pos: e.target.value || undefined })}>
+            <option value="">全部词性</option>
+            {POS_OPTIONS.map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+          </select>
+          <ChevronDown className="atlas-pos-arrow" size={16} aria-hidden="true" />
+          </div>
           <div
             className="segmented segmented-icons"
             role="group"
@@ -229,13 +274,14 @@ export function AtlasPage({
         </div>
       </div>
 
-      {view === "galaxy" ? (
-        <Galaxy mode="full" focus={q.trim() ? list[0]?.id : null} />
-      ) : list.length === 0 ? (
+      {scopedWords.length === 0 || (view !== "galaxy" && list.length === 0) ? (
         <div className="empty">
           <img src={`${import.meta.env.BASE_URL}brand/empty.webp`} alt="" />
-          <p>这片星域还没有词。换个筛选条件试试。</p>
+          <p>{words.length === 0 ? "这个卡组还没有词，先去卡组里添加一些吧。" : "没有符合条件的词。换个筛选条件试试。"}</p>
+          {words.length === 0 && <button className="btn btn-ghost" onClick={() => go({ page: "decks", d: deckId === "all" ? undefined : deckId })}>管理卡组</button>}
         </div>
+      ) : view === "galaxy" ? (
+        <Galaxy mode="full" words={scopedWords} focus={q.trim() ? list[0]?.id : null} />
       ) : view === "grid" ? (
         <VirtualGrid items={list} cards={cards} />
       ) : (
@@ -343,7 +389,7 @@ function VirtualGrid({
               art={plateArticle(w)}
             />
             <span className="tile-no">
-              № {String(w.order + 1).padStart(4, "0")}
+              {w.custom ? "自建词" : `№ ${String(w.order + 1).padStart(4, "0")}`}
             </span>
             <span className="tile-text">
               <span className="tile-word" lang="fr">

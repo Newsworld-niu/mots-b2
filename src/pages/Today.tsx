@@ -1,3 +1,6 @@
+import { HomeDictionary } from "../ui/HomeDictionary";
+import { FamilyPicker } from "../ui/FamilyPicker";
+import { POS_OPTIONS } from "../lib/pos";
 import { ArrowRight, Flame, Keyboard, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { prefetch, useAtlas, useEntry } from "../atlas/context";
@@ -93,6 +96,8 @@ export function Today() {
         </h1>
       </header>
 
+      <HomeDictionary />
+
       <section className={`journey ${total === 0 && !active ? "is-clear" : ""}`}>
         <img className="journey-art" src={`${BRAND}/hero.webp`} alt="" fetchPriority="high" />
         <div className="journey-body">
@@ -132,6 +137,21 @@ export function Today() {
               <RangeNote otherDue={plan.otherDue} />
             </>
           )}
+          <div className="study-pos-row">
+            <span id="study-pos-label">按词性学习：</span>
+            <div className="study-pos-options" role="group" aria-labelledby="study-pos-label">
+              <button className={!settings.studyPos?.length ? "is-on" : ""} aria-pressed={!settings.studyPos?.length} onClick={() => store.settings({ studyPos: null })}>全部</button>
+              {POS_OPTIONS.map(([key, label]) => {
+                const selected = settings.studyPos?.includes(key) ?? false;
+                return <button key={key} className={selected ? "is-on" : ""} aria-pressed={selected} onClick={() => {
+                  const next = selected ? settings.studyPos!.filter((p) => p !== key) : [...(settings.studyPos ?? []), key];
+                  store.settings({ studyPos: next.length && next.length < POS_OPTIONS.length ? next : null });
+                }}>{label}</button>;
+              })}
+            </div>
+            <small>{active ? "下次旅程生效，当前旅程继续原来的词" : "可多选 · 新词和复习包含任一所选词性"}</small>
+          </div>
+          <div className="study-family-row"><span>按词族学习：</span><FamilyPicker study value={settings.studyFamilies} onChange={(ids, scope) => store.settings({ studyFamilies: ids.length ? ids : null, ...(scope && scope !== "study" ? { studyDecks: scope === "all" ? null : [scope] } : {}) })} /></div>
           {teaser.length > 0 && (
             <div className="teaser" aria-label="今天将遇见的新词">
               {teaser.map((w, i) => (
@@ -403,11 +423,11 @@ function RangeNote({ otherDue }: { otherDue: number }) {
   const studyDecks = useStore((s) => s.settings.studyDecks);
   const range = studyRange(progress, { studyDecks });
   const names = [...(range.core ? [CORE_NAME] : []), ...range.decks.map((d) => d.name)];
-  if (range.all && !progress.decks?.length) return null;
+
   return (
     <p className="focus-note range-note">
       学习范围：<b>{range.all ? "全部卡组" : names.slice(0, 3).join("、") + (names.length > 3 ? ` 等 ${names.length} 个` : "")}</b>
-      {otherDue > 0 && <span className="range-other">其他卡组还有 {otherDue} 个到期</span>}
+      {otherDue > 0 && <span className="range-other">当前范围外还有 {otherDue} 个到期</span>}
       <button className="link" onClick={() => go({ page: "decks" })}>
         {range.all ? "管理卡组" : "修改"}
       </button>

@@ -41,6 +41,7 @@ export async function loadOpenAtlas(): Promise<Atlas> {
     topic: r[5],
     media: r[6],
     order,
+    pos: r[9] ?? [],
     ...(r[7] ? { g: r[7] } : {}),
     ...(r[8]?.length ? { more: r[8] } : {}),
   }));
@@ -157,6 +158,7 @@ export async function loadPrivateAtlas(open: Atlas | null): Promise<Atlas | null
     return {
       id: w.id,
       word: w.word,
+      pos: [pos],
       zh: `${pos} ${zh}`.trim(),
       ipa: w.phonetic,
       cefr: twin?.cefr ?? 2,

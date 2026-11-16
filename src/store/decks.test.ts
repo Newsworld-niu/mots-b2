@@ -5,10 +5,38 @@ import { MEDIA, type Atlas, type Entry, type WordRef } from "../atlas/types.ts";
 import { customRef, focusRef, focusSense, withUserData } from "../atlas/merge.ts";
 import { locateWord } from "../lib/text.ts";
 import { migrateAliases } from "./aliases.ts";
-import { deckIndex, inRange, pausedIds, senseFor, studyRange } from "./decks.ts";
+import { deckIndex, inRange, pausedIds, senseFor, studyRange, transferDeckWords } from "./decks.ts";
 import { buildSession, nextNew, quizKind, todayPlan } from "./session.ts";
 import { review, Rating } from "./srs.ts";
-import { CORE_DECK, emptyProgress, sanitizeProgress, sanitizeSettings, type Deck, type Progress, type Settings } from "./store.ts";
+import { FAVORITES_DECK, CORE_DECK, emptyProgress, sanitizeProgress, sanitizeSettings, type Deck, type Progress, type Settings } from "./store.ts";
+
+test("bulk copy and move preserve progress, metadata and unique membership", () => {
+  const p = emptyProgress("t");
+  p.decks = [
+    { id: "a", name: "A", created: 1, words: ["chat", "chien"], note: { chat: "source", chien: "keep" }, sense: { chat: 1 } },
+    { id: "b", name: "B", created: 1, words: ["chien"], note: { chien: "destination" } },
+    { id: FAVORITES_DECK, name: "收藏", created: 1, words: [] },
+  ];
+  p.cards.chat = review(undefined, Rating.Good, Date.now());
+  const copy = transferDeckWords(p, "a", "b", ["chat", "chien", "chat", "missing"], false);
+  assert.deepEqual(copy.decks![0].words, ["chat", "chien"]);
+  assert.deepEqual(copy.decks![1].words, ["chien", "chat"]);
+  assert.deepEqual(copy.decks![1].note, { chien: "destination", chat: "source" });
+  assert.equal(copy.decks![1].sense?.chat, 1);
+  const moved = transferDeckWords(p, "a", "b", ["chat", "chien"], true);
+  assert.deepEqual(moved.decks![0].words, []);
+  assert.deepEqual(moved.decks![0].note, {});
+  assert.equal(moved.cards, p.cards);
+  assert.deepEqual(p.decks![0].words, ["chat", "chien"]);
+  assert.equal(transferDeckWords(p, "a", "a", ["chat"], true), p);
+  assert.equal(transferDeckWords(p, "a", "deleted", ["chat"], true), p);
+  const saved = transferDeckWords(p, "a", FAVORITES_DECK, ["chat"], false);
+  assert.deepEqual(saved.bookmarks, ["chat"]);
+  const unsaved = transferDeckWords(saved, FAVORITES_DECK, "b", ["chat"], true);
+  assert.deepEqual(unsaved.bookmarks, []);
+  assert.deepEqual(unsaved.decks![2].words, []);
+  assert.equal(unsaved.cards, p.cards);
+});
 
 const ref = (id: string, word: string, order: number, more?: string[]): WordRef => ({ id, word, zh: `释义${order}`, ipa: "", cefr: 0, topic: 0, media: 0, order, ...(more ? { more } : {}) });
 const words = [ref("chat", "chat", 0), ref("chien", "chien", 1), ref("avocat", "avocat", 2, ["牛油果"]), ref("pain", "pain", 3), ref("lait", "lait", 4)];
@@ -145,4 +173,69 @@ test("alias migration moves deck words, senses, notes, hidden words and edits to
   assert.deepEqual(progress.hidden, ["chat"]);
   assert.deepEqual(progress.edits, { chat: { zh: "x" } });
   assert.equal(migrateAliases(progress, { old: "chat" }).report.changed, false, "idempotent");
+});
+
+test("initial deck migrates once and behaves like any deck, including after backup", async () => {
+  (globalThis as any).window ??= { setTimeout: () => 0, clearTimeout: () => undefined };
+  const { store, sanitizeUserData } = await import("./store.ts");
+  const { migrateCoreDeck, renameDeck, createCustomWord, removeFromDeck, addToDeck, deleteDeck, deckWords, setDeckNote, setDeckSense } = await import("./decks.ts");
+  const old = { ...emptyProgress("t"), hidden: ["chat"] };
+  store.progress(() => old);
+  migrateCoreDeck(atlas);
+  assert.deepEqual(deckWords(atlas,store.get().progress,CORE_DECK),["chien","avocat","pain","lait"]);
+  assert.deepEqual(store.get().progress.bookmarks,old.bookmarks);
+  assert.deepEqual(store.get().progress.cards,old.cards);
+  renameDeck(CORE_DECK,"我的法语");
+  setDeckNote(CORE_DECK,"chien","常用");
+  setDeckSense(CORE_DECK,"avocat",1);
+  const id=createCustomWord({w:"bonjour",zh:"你好",pos:"interj."},CORE_DECK);
+  assert.ok(store.get().progress.decks![0].words.includes(id));
+  removeFromDeck(CORE_DECK,"chien");
+  assert.equal(deckIndex(atlas,store.get().progress).isActive("chien"),false);
+  addToDeck(CORE_DECK,"chat");
+  assert.ok(deckWords(atlas,store.get().progress,CORE_DECK).includes("chat"));
+  const restored=sanitizeUserData(JSON.parse(JSON.stringify(store.get().progress)));
+  store.progress(p=>({...p,...restored}));
+  migrateCoreDeck(atlas);
+  assert.equal(store.get().progress.decks![0].name,"我的法语");
+  assert.equal(store.get().progress.decks![0].sense?.avocat,1);
+  assert.equal(store.get().progress.decks![0].words.includes("chien"),false);
+  deleteDeck(CORE_DECK);
+  store.progress(p=>({...p,...sanitizeUserData(JSON.parse(JSON.stringify(p)))}));
+  migrateCoreDeck(atlas);
+  assert.deepEqual(store.get().progress.decks?.map(d=>d.id),["d-favorites"]);
+  assert.equal(deckIndex(atlas,store.get().progress).isActive("chat"),false);
+  assert.deepEqual(nextNew(atlas,store.get().progress,settings,10),[]);
+});
+
+test("favorites deck follows existing and new bookmarks across all entry points and backups", async () => {
+  (globalThis as any).window ??= { setTimeout: () => 0, clearTimeout: () => undefined };
+  const { store, FAVORITES_DECK, toggleBookmark, sanitizeProgress } = await import("./store.ts");
+  const { migrateCoreDeck, addToDeck, removeFromDeck, deleteDeck, renameDeck, createCustomWord, deleteCustomWord, setDeckNote } = await import("./decks.ts");
+  store.progress(()=>({...emptyProgress("t"),bookmarks:["chat"]}));
+  migrateCoreDeck(atlas);
+  const favorite=()=>store.get().progress.decks!.find(d=>d.id===FAVORITES_DECK)!;
+  assert.deepEqual(favorite().words,["chat"]);
+  toggleBookmark("chien");
+  assert.deepEqual(favorite().words,["chien","chat"]);
+  setDeckNote(FAVORITES_DECK,"chien","收藏备注");
+  addToDeck(FAVORITES_DECK,"chien");
+  assert.deepEqual(favorite().words,["chien","chat"]);
+  const restored=sanitizeProgress(JSON.parse(JSON.stringify(store.get().progress)),"t");
+  assert.deepEqual(restored.decks!.find(d=>d.id===FAVORITES_DECK)?.words,["chien","chat"]);
+  assert.equal(favorite().note?.chien,"收藏备注");
+  assert.deepEqual(nextNew(atlas,restored,{...settings,studyDecks:[FAVORITES_DECK]},10),["chien","chat"]);
+  removeFromDeck(FAVORITES_DECK,"chien");
+  assert.deepEqual(store.get().progress.bookmarks,["chat"]);
+  assert.equal(favorite().note?.chien,undefined);
+  assert.ok(store.get().progress.decks!.find(d=>d.id===CORE_DECK)!.words.includes("chien"));
+  toggleBookmark("chat");
+  assert.deepEqual(favorite().words,[]);
+  const id=createCustomWord({w:"bonjour",zh:"你好",pos:"interj."},FAVORITES_DECK);
+  assert.deepEqual(favorite().words,[id]);
+  deleteCustomWord(id);
+  assert.deepEqual(favorite().words,[]);
+  deleteDeck(FAVORITES_DECK);
+  renameDeck(FAVORITES_DECK,"改名");
+  assert.equal(favorite().name,"收藏");
 });

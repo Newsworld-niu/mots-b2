@@ -2,7 +2,7 @@
 export type Accent = "uk" | "us";
 
 /** Compact row from atlas/index.json: [id, word, zh, ipa, cefr, topic, media, gender, other-sense glosses]. gender: "m" | "f" | "" (un/une quiz). */
-export type IndexRow = [string, string, string, string, number, number, number, ("m" | "f" | "")?, string[]?];
+export type IndexRow = [string, string, string, string, number, number, number, ("m" | "f" | "")?, string[]?, string[]?];
 
 export interface Sense {
   pos: string;
@@ -99,6 +99,8 @@ export interface WordRef {
   more?: string[];
   /** A word the learner created (not in the atlas word list; order is -1, cefr and topic are -1). */
   custom?: true;
+  /** Part-of-speech labels across all senses. */
+  pos?: string[];
 }
 
 export interface Atlas {

@@ -1,4 +1,4 @@
-import type { Atlas } from "../atlas/types";
+import type { Atlas, WordRef } from "../atlas/types";
 import { hashSeed } from "../lib/text";
 
 /** Star colours, one per topic (up to nineteen), tuned to glow on deep navy. */
@@ -30,35 +30,41 @@ export interface GalaxyLayout {
   index: Map<string, number>;
   /** Centre of each topic cluster, for floating labels. */
   topicCenters: [number, number, number][];
+  topics: Atlas["topics"];
+  topicCounts: number[];
 }
 
 /**
  * A spiral galaxy: each topic owns an arm, easy words sit near the core and
  * the hardest at the rim, so learning visibly travels outward.
  */
-export function layoutGalaxy(atlas: Atlas): GalaxyLayout {
-  const words = atlas.words;
+export function layoutGalaxy(atlas: Atlas, words: WordRef[] = atlas.words): GalaxyLayout {
+  const topics: Atlas["topics"] = words.some((w) => w.topic < 0)
+    ? [...atlas.topics, ["custom", "自建词"]]
+    : atlas.topics;
+  const topicOf = (w: WordRef) => w.topic < 0 ? topics.length - 1 : w.topic;
   const n = words.length;
   const positions = new Float32Array(n * 3);
   const colors = new Float32Array(n * 3);
   const seeds = new Float32Array(n);
-  const arms = atlas.topics.length;
+  const arms = topics.length;
   // Big topics get a wider arm so every arm has a similar star density.
   const counts = new Array(arms).fill(0);
-  words.forEach((w) => counts[w.topic]++);
+  words.forEach((w) => counts[topicOf(w)]++);
   const avg = n / arms;
   words.forEach((w, i) => {
     const r = rand(hashSeed(w.id));
     const gauss = () => (r() + r() + r() - 1.5) / 1.5;
-    const radius = 0.1 + (Math.min(w.cefr, 5) / 5) * 0.72 + r() * 0.16;
-    const arm = (w.topic / arms) * Math.PI * 2;
-    const spread = Math.sqrt(Math.max(0.6, counts[w.topic] / avg));
+    const topic = topicOf(w);
+    const radius = 0.1 + (Math.max(0, Math.min(w.cefr, 5)) / 5) * 0.72 + r() * 0.16;
+    const arm = (topic / arms) * Math.PI * 2;
+    const spread = Math.sqrt(Math.max(0.6, counts[topic] / avg));
     const angle = arm + radius * 3.4 + gauss() * (0.05 + 0.03 / radius) * spread;
     const thick = 0.05 * (1 - radius * 0.6) * spread;
     positions[i * 3] = Math.cos(angle) * radius;
     positions[i * 3 + 1] = gauss() * thick;
     positions[i * 3 + 2] = Math.sin(angle) * radius;
-    const [cr, cg, cb] = rgb(TOPIC_COLORS[w.topic % TOPIC_COLORS.length]);
+    const [cr, cg, cb] = rgb(TOPIC_COLORS[topic % TOPIC_COLORS.length]);
     colors.set([cr, cg, cb], i * 3);
     seeds[i] = r();
   });
@@ -71,7 +77,9 @@ export function layoutGalaxy(atlas: Atlas): GalaxyLayout {
     seeds,
     ids: words.map((w) => w.id),
     index: new Map(words.map((w, i) => [w.id, i])),
-    topicCenters: atlas.topics.map((_, t) => {
+    topics,
+    topicCounts: counts,
+    topicCenters: topics.map((_, t) => {
       const a = (t / arms) * Math.PI * 2 + mid * 3.4;
       return [Math.cos(a) * mid, 0, Math.sin(a) * mid] as [number, number, number];
     }),

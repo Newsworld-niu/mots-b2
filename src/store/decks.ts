@@ -1,14 +1,15 @@
+import { cleanWikiSources } from "../lib/wiktionary";
 /**
- * Decks (卡组). The initial deck (初始词本) is every atlas word the learner has not hidden; the learner's own
- * decks are lists of word ids (atlas words and words they created). Progress belongs to the word, so:
+ * Decks are lists of word ids, including the initial deck after its one-time migration.
+ * Legacy backups retain the implicit initial deck until migration. Progress belongs to the word, so:
  *  - a word in several decks has one memory record and is learned once;
  *  - a word in no deck at all is paused: its record is kept but it is not scheduled until it is added again;
  *  - studying some decks only draws new words and reviews from those decks.
  */
-import type { Atlas, WordRef } from "../atlas/types";
+import type { Atlas, Entry, WordRef } from "../atlas/types";
 import { foldAccents } from "../lib/accent";
 import { setImage } from "./images";
-import { CORE_DECK, MAX_COLLOCATIONS, MAX_EXAMPLES, MAX_OWN_SENSES, MAX_RELATED, MAX_TIP, store, type CardExtras, type CustomWord, type OwnSense, type Deck, type Progress, type Settings, type Step, type UserExample, type WordEdit } from "./store";
+import { FAVORITES_DECK, CORE_DECK, MAX_COLLOCATIONS, MAX_EXAMPLES, MAX_OWN_SENSES, MAX_RELATED, MAX_TIP, store, type CardExtras, type CustomWord, type OwnSense, type Deck, type Progress, type Settings, type Step, type UserExample, type WordEdit } from "./store";
 
 export const CORE_NAME = "初始词本";
 
@@ -29,11 +30,11 @@ export interface DeckIndex {
   isActive: (id: string) => boolean;
 }
 
-export function deckIndex(atlas: Pick<Atlas, "byId">, p: Pick<Progress, "decks" | "hidden">): DeckIndex {
+export function deckIndex(atlas: Pick<Atlas, "byId">, p: Pick<Progress, "decks" | "hidden" | "coreMigrated">): DeckIndex {
   const hidden = new Set(p.hidden ?? []);
   const byWord = new Map<string, Deck[]>();
   for (const d of p.decks ?? []) for (const id of d.words) byWord.set(id, [...(byWord.get(id) ?? []), d]);
-  const inCore = (id: string) => !isCustomId(id) && atlas.byId.has(id) && !hidden.has(id);
+  const inCore = (id: string) => !p.coreMigrated && !isCustomId(id) && atlas.byId.has(id) && !hidden.has(id);
   return { hidden, byWord, inCore, isActive: (id) => inCore(id) || (byWord.has(id) && atlas.byId.has(id)) };
 }
 
@@ -45,11 +46,11 @@ export interface StudyRange {
   all: boolean;
 }
 
-export function studyRange(p: Pick<Progress, "decks">, s: Pick<Settings, "studyDecks">): StudyRange {
+export function studyRange(p: Pick<Progress, "decks" | "coreMigrated">, s: Pick<Settings, "studyDecks">): StudyRange {
   const decks = p.decks ?? [];
-  const chosen = s.studyDecks?.filter((id) => id === CORE_DECK || decks.some((d) => d.id === id));
-  if (!chosen?.length) return { core: true, decks, all: true };
-  return { core: chosen.includes(CORE_DECK), decks: decks.filter((d) => chosen.includes(d.id)), all: false };
+  const chosen = s.studyDecks?.filter((id) => (!p.coreMigrated && id === CORE_DECK) || decks.some((d) => d.id === id));
+  if (!chosen?.length) return { core: !p.coreMigrated, decks, all: true };
+  return { core: !p.coreMigrated && chosen.includes(CORE_DECK), decks: decks.filter((d) => chosen.includes(d.id)), all: false };
 }
 
 export function inRange(idx: DeckIndex, range: StudyRange, id: string) {
@@ -70,8 +71,8 @@ export function senseFor(range: StudyRange, id: string): number | undefined {
 }
 
 /** Word ids of a deck; the initial deck is the atlas word list minus hidden words. */
-export function deckWords(atlas: Atlas, p: Progress, deckId: string): string[] {
-  if (deckId === CORE_DECK) {
+export function deckWords(atlas: Atlas, p: Pick<Progress, "decks" | "hidden" | "coreMigrated">, deckId: string): string[] {
+  if (deckId === CORE_DECK && !p.coreMigrated) {
     const hidden = new Set(p.hidden ?? []);
     return atlas.words.filter((w) => !hidden.has(w.id)).map((w) => w.id);
   }
@@ -115,6 +116,7 @@ export function createDeck(name: string): string {
 }
 
 export function renameDeck(id: string, name: string) {
+  if (id === FAVORITES_DECK) return;
   const clean = name.trim().slice(0, 40);
   if (clean) store.progress((p) => mapDeck(p, id, (d) => ({ ...d, name: clean })));
 }
@@ -124,6 +126,7 @@ export function renameDeck(id: string, name: string) {
  * With `dropOrphans`, words the learner created that were only in this deck are deleted too.
  */
 export function deleteDeck(id: string, dropOrphans = false) {
+  if (id === FAVORITES_DECK) return;
   const p0 = store.get().progress;
   const deck = decksOf(p0).find((d) => d.id === id);
   if (!deck) return;
@@ -148,7 +151,12 @@ export function orphanCustomWords(p: Progress, deckId: string) {
 }
 
 export function addToDeck(deckId: string, wordId: string, sense?: number) {
-  if (deckId === CORE_DECK) return setHidden(wordId, false);
+  if (deckId === FAVORITES_DECK) {
+    store.progress(p => ({...p, bookmarks: p.bookmarks.includes(wordId) ? p.bookmarks : [wordId,...p.bookmarks]}));
+    if (sense !== undefined) setDeckSense(deckId, wordId, sense);
+    return;
+  }
+  if (deckId === CORE_DECK && !store.get().progress.coreMigrated) return setHidden(wordId, false);
   store.progress((p) =>
     mapDeck(p, deckId, (d) => ({
       ...d,
@@ -165,9 +173,37 @@ const without = <T,>(rec: Record<string, T> | undefined, key: string) => {
   return Object.keys(rest).length ? rest : undefined;
 };
 
+/** One atomic membership update; existing destination notes/senses take precedence. */
+export function transferDeckWords(p: Progress, sourceId: string, targetId: string, ids: readonly string[], move: boolean): Progress {
+  const source = p.decks?.find(d => d.id === sourceId);
+  const target = p.decks?.find(d => d.id === targetId);
+  if (!source || !target || sourceId === targetId) return p;
+  const membership = new Set(source.words);
+  const selected = new Set(ids.filter(id => membership.has(id)));
+  if (!selected.size) return p;
+  const existing = new Set(target.words);
+  const sense = { ...target.sense }, note = { ...target.note };
+  for (const id of selected) {
+    if (existing.has(id)) continue;
+    if (source.sense?.[id] !== undefined) sense[id] = source.sense[id];
+    if (source.note?.[id] !== undefined) note[id] = source.note[id];
+  }
+  const keep = <T,>(values: Record<string, T> | undefined) => values ? Object.fromEntries(Object.entries(values).filter(([id]) => !selected.has(id))) : undefined;
+  let bookmarks = p.bookmarks;
+  if (targetId === FAVORITES_DECK) bookmarks = [...new Set([...bookmarks, ...selected])];
+  if (move && sourceId === FAVORITES_DECK) bookmarks = bookmarks.filter(id => !selected.has(id));
+  return { ...p, bookmarks, decks: p.decks!.map(d => d.id === targetId
+    ? { ...d, words: [...new Set([...d.words, ...selected])], sense, note }
+    : move && d.id === sourceId ? { ...d, words: d.words.filter(id => !selected.has(id)), sense: keep(d.sense), note: keep(d.note) } : d) };
+}
+
 /** Take a word out of a deck. Its record is kept; if it is in no deck now, it is paused. */
 export function removeFromDeck(deckId: string, wordId: string) {
-  if (deckId === CORE_DECK) return setHidden(wordId, true);
+  if (deckId === FAVORITES_DECK) {
+    store.progress(p => ({...p, bookmarks: p.bookmarks.filter(id => id !== wordId)}));
+    return;
+  }
+  if (deckId === CORE_DECK && !store.get().progress.coreMigrated) return setHidden(wordId, true);
   store.progress((p) =>
     mapDeck(p, deckId, (d) => {
       const next: Deck = { ...d, words: d.words.filter((x) => x !== wordId), sense: without(d.sense, wordId), note: without(d.note, wordId) };
@@ -226,6 +262,8 @@ const cleanExamples = (ex: UserExample[] | undefined) => {
 /** Further meanings and related words as stored: trimmed, repeats dropped, nothing kept when empty. */
 function cleanExtras(x: CardExtras): CardExtras {
   const out: CardExtras = {};
+  const sources = cleanWikiSources(x.wikiSources);
+  if (sources.length) out.wikiSources = sources;
   const senses = (x.senses ?? [])
     .map((s) => ({ pos: s.pos.trim().slice(0, 16), zh: s.zh.trim().slice(0, 300) }))
     .filter((s) => s.zh)
@@ -234,12 +272,13 @@ function cleanExtras(x: CardExtras): CardExtras {
   for (const k of ["syn", "ant", "fam"] as const) {
     const list = [...new Set((x[k] ?? []).map((v) => v.trim().slice(0, 120)).filter(Boolean))].slice(0, MAX_RELATED);
     if (list.length) out[k] = list;
+    else if (k === "fam" && x.fam !== undefined) out.fam = [];
   }
   return out;
 }
 /** `input` where it says something about a part (even an empty list), otherwise what the word already had. */
 const keepExtras = (input: CardExtras, old: CardExtras | undefined): CardExtras =>
-  cleanExtras({ senses: input.senses ?? old?.senses, syn: input.syn ?? old?.syn, ant: input.ant ?? old?.ant, fam: input.fam ?? old?.fam });
+  cleanExtras({ wikiSources: input.wikiSources ?? old?.wikiSources, senses: input.senses ?? old?.senses, syn: input.syn ?? old?.syn, ant: input.ant ?? old?.ant, fam: input.fam ?? old?.fam });
 
 /** Collocations as stored: "French｜中文", blanks and repeats dropped. */
 export function cleanCollocations(col: string[] | undefined) {
@@ -327,6 +366,7 @@ export function setWordEdit(id: string, edit: WordEdit) {
   const ex = cleanExamples(edit.ex);
   store.progress((p) => {
     const next: WordEdit = {};
+    if (edit.replaceContent ?? p.edits?.[id]?.replaceContent) next.replaceContent = true;
     if (zh) next.zh = zh;
     const more = (edit.zhMore ?? []).slice(0, 12).map((x) => x.trim().slice(0, 300));
     while (more.length && !more[more.length - 1]) more.pop();
@@ -350,6 +390,7 @@ export function setWordEdit(id: string, edit: WordEdit) {
 /** What the learner put on a card themselves, whichever kind of word it is (an own word keeps its 注意点 as `note`). */
 export interface OwnParts extends CardExtras {
   col?: string[];
+  fam?: string[];
   tip?: string;
   ex?: UserExample[];
 }
@@ -426,8 +467,16 @@ export function addToCard(id: string, add: CardItem): boolean {
   return true;
 }
 
-/** Take one thing off a card again (only what the learner put there). */
-export function removeFromCard(id: string, rm: { col?: string; tip?: string; ex?: string; sense?: string; syn?: string; ant?: string; fam?: string }) {
+/** Remove content from any card; bundled suggestions use a persisted replacement. */
+export function removeFromCard(id: string, rm: { col?: string; tip?: string; ex?: string; sense?: string; syn?: string; ant?: string; fam?: string }, shown?: Entry) {
+  if (shown && !isCustomId(id) && (rm.col || rm.tip || rm.syn || rm.ant || rm.fam)) {
+    const old = store.get().progress.edits?.[id];
+    const next = { ...old, replaceContent: true, col: shown.col, tip: shown.tip, syn: shown.syn, ant: shown.ant, fam: shown.fam };
+    for (const k of ["col", "syn", "ant", "fam"] as const) if (rm[k]) next[k] = shown[k].filter(x => x !== rm[k]);
+    if (rm.tip) next.tip = tipLines(shown.tip).filter(x => x !== rm.tip).join("\n");
+    setWordEdit(id, next);
+    return;
+  }
   const o = ownParts(store.get().progress, id);
   const next: OwnParts = { ...o };
   if (rm.col) next.col = (o.col ?? []).filter((c) => !same(headOf(c), headOf(rm.col!)));
@@ -487,6 +536,7 @@ export interface PickedWord {
   deckNote?: string;
   /** Collocations ("French｜中文") and 注意点 for a new word (from the AI). */
   col?: string[];
+  fam?: string[];
   tip?: string;
 }
 
@@ -545,7 +595,7 @@ export function addPicked(deckId: string, picked: PickedWord[], withSentence: bo
         zh: p.zh,
         ipa: p.ipa,
         note: [p.tip, p.note].filter(Boolean).join("；") || undefined,
-        col: p.col,
+        col: p.col, fam: p.fam,
         ex: [...sourceEx(p), ...(p.dictEx ?? [])].slice(0, 3),
         auto: p.kind === "dict" ? true : undefined,
       },
@@ -554,4 +604,14 @@ export function addPicked(deckId: string, picked: PickedWord[], withSentence: bo
     added++;
   }
   return { added, skipped };
+}
+
+/** One-time conversion: keep ids and memory records; deleted initial decks never reappear. */
+export function migrateCoreDeck(atlas: Pick<Atlas, "words">) {
+  store.progress(p => {
+    if (p.coreMigrated) return p;
+    const hidden = new Set(p.hidden ?? []);
+    return { ...p, coreMigrated: true, decks: [...(p.decks ?? []).filter(d => d.id !== CORE_DECK),
+      { id: CORE_DECK, name: CORE_NAME, created: 0, words: atlas.words.filter(w => !hidden.has(w.id)).map(w => w.id) }] };
+  });
 }

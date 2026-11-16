@@ -56,6 +56,7 @@ export interface Candidate {
   unsure?: boolean;
   /** From the AI (when asked): collocations ("French｜中文") and a 注意点 for a new word. */
   col?: string[];
+  fam?: string[];
   tip?: string;
   /** Where it came from. */
   src?: "text" | "list";
