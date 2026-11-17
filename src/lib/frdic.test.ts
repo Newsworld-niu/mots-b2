@@ -76,3 +76,25 @@ test("dictionary presentation roles stay namespaced and related words keep separ
   assert.equal(serialized.split('frdic-related-word').length - 1, 2);
   for (const unsafe of ['unknown', 'btn', 'color:red']) assert.ok(!serialized.includes(unsafe));
 });
+
+test("picking: meanings, examples, phrases and relatives are told apart; picture characters become gaps", () => {
+  const img = (n: string) => `<img class="dictimgtoword" src="https://www.frdic.com/tmp/wordimg/${n}.png"/>`;
+  const data = parseFrdic(`<html><div id="ExpFCchild"><a href="/dicts/cg/x">提示</a><br/><span class="cara">n. m.   </span><br/><span class="exp">1. ${img("a")}${img("b")}，辩护人<br/><span class="eg">avocat conseil ${img("c")}顾问<br/>Cet avocat agit dans l'intérêt de son client. 这位${img("d")}为客户行事<br/></span><br/>2.〈转〉说情人</span><br/><span class="exp">3. avocat du diable</span><br/><span class="exp">（1）诡辩者</span><br/><span class="cara">v. i. </span><br/><span class="eg">Je pense donc je suis. [哲]我思故我在。<br/>Le temps n'est plus où le peuple chinois était humilié.<br/>中国人民的时代已经过去了。</span></div><div id="ExpSYNchild"><div><div><h5>助记：</h5>a在旁边+voc声音</div><p></p><div><h5>派生：</h5><ul><li><a href="/dicts/fr/peut-%c3%aatre">peut-être</a>  ad. 或许</li></ul></div><div><h5>用法：</h5><ul><li>être + adj. 是……的</li></ul></div></div><div class="derivation"><h5>名词变化：</h5><a href="/dicts/fr/avocate">avocate</a><br/></div><h5>近义词：</h5><a href="/dicts/fr/champion">champion</a>, <a href="/dicts/fr/avocat">avocat</a><h5>反义词：</h5><a href="/dicts/fr/juge">juge</a></div><div id="ExpLJchild"><div class="lj_item"><div class="content"><p class="line">Mon oncle est <span class="key">avocat</span>.</p><p class="exp">我${img("e")}是${img("f")}。</p></div></div></div></html>`, "avocat", parse);
+  const by = (k: string) => data.items.filter((x) => x.kind === k);
+  assert.deepEqual(by("sense").map((x) => [x.pos, x.zh]), [["n.m.", "□□，辩护人"], ["n.m.", "〈转〉说情人"]]);
+  assert.deepEqual(by("phrase").map((x) => [x.fr, x.zh]), [["avocat conseil", "□顾问"], ["avocat du diable", "诡辩者"], ["être + adj.", "是……的"]]);
+  assert.deepEqual(by("example").map((x) => [x.fr, x.zh]), [
+    ["Cet avocat agit dans l'intérêt de son client.", "这位□为客户行事"],
+    ["Je pense donc je suis.", "[哲]我思故我在。"],
+    ["Le temps n'est plus où le peuple chinois était humilié.", "中国人民的时代已经过去了。"],
+    ["Mon oncle est avocat.", "我□是□。"],
+  ]);
+  assert.deepEqual(by("family").map((x) => [x.fr, x.zh]), [["peut-être", "ad. 或许"], ["avocate", ""]]);
+  assert.deepEqual(by("syn").map((x) => x.fr), ["champion"]);
+  assert.deepEqual(by("ant").map((x) => x.fr), ["juge"]);
+  assert.deepEqual(by("note").map((x) => x.zh), ["助记：a在旁边+voc声音"]);
+});
+
+test("the login page is recognised, not reported as a missing word", () => {
+  assert.throws(() => parseFrdic("<html><head><title>登录_法语助手在线词典</title></head><body/></html>", "test", parse), /登录页/);
+});

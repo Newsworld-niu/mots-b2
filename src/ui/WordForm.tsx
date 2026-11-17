@@ -11,6 +11,7 @@ import { openWord } from "../lib/router";
 import { addToDeck, cleanCollocations, createCustomWord, deleteCustomWord, findSame, setWordEdit, updateCustomWord } from "../store/decks";
 import { MAX_COLLOCATIONS, MAX_EXAMPLES, MAX_OWN_SENSES, MAX_TIP, useStore, type OwnSense, type UserExample } from "../store/store";
 import { joinGlosses, lookupDict, type DictHit } from "../lib/dict";
+import type { Seed } from "../lib/lookup";
 import { fileToImage, setImage, useImages } from "../store/images";
 import { pictureFromUrl, searchPictures, type PictureHit } from "../lib/picture";
 import { toast } from "./Toast";
@@ -31,7 +32,7 @@ export const POS_CHOICES: [string, string][] = [
 ];
 
 type Props =
-  | { mode: "create"; deckId?: string; initial?: string; onDone: (id: string | null) => void }
+  | { mode: "create"; deckId?: string; initial?: string; /** Content picked from a lookup: the form starts with it (自动填写·待核对). */ seed?: Seed; onDone: (id: string | null) => void }
   | { mode: "custom"; id: string; onDone: (id: string | null) => void }
   | { mode: "atlas"; id: string; original: { zh: string }; onDone: (id: string | null) => void };
 
@@ -131,26 +132,27 @@ export function WordForm(props: Props) {
   const custom = useStore((s) => (props.mode === "custom" ? s.progress.custom?.[props.id] : undefined));
   const edit = useStore((s) => (props.mode === "atlas" ? s.progress.edits?.[props.id] : undefined));
   const deckWords = useStore((s) => (props.mode === "create" && props.deckId ? s.progress.decks?.find((d) => d.id === props.deckId)?.words : undefined));
-  const [w, setW] = useState(props.mode === "create" ? props.initial ?? "" : custom?.w ?? "");
-  const [pos, setPos] = useState(custom?.pos ?? "n.m.");
-  const [zh, setZh] = useState(props.mode === "atlas" ? edit?.zh ?? "" : custom?.zh ?? "");
+  const seed = props.mode === "create" ? props.seed : undefined;
+  const [w, setW] = useState(props.mode === "create" ? props.initial ?? seed?.w ?? "" : custom?.w ?? "");
+  const [pos, setPos] = useState(custom?.pos ?? (seed ? (POS_CHOICES.some(([k]) => k === seed.pos) ? seed.pos : "") : "n.m."));
+  const [zh, setZh] = useState(props.mode === "atlas" ? edit?.zh ?? "" : custom?.zh ?? seed?.zh ?? "");
   // an atlas word: the atlas's own glosses and examples (kept in `orig` once the word has been changed)
   const shown = props.mode === "atlas" ? atlas.peek(props.id) : undefined;
   const origSenses = shown?.orig?.senses ?? shown?.senses.map((s) => s.zh) ?? [];
   const origEx = shown?.orig?.ex ?? shown?.ex ?? [];
   const [glosses, setGlosses] = useState<string[]>(() => (props.mode === "atlas" ? edit?.zhMore ?? [] : []));
   const [hideEx, setHideEx] = useState<number[]>(() => (props.mode === "atlas" ? edit?.hideEx ?? [] : []));
-  const [ipa, setIpa] = useState(custom?.ipa ?? "");
+  const [ipa, setIpa] = useState(custom?.ipa ?? seed?.ipa ?? "");
   // custom words: the note is the card's 注意点; atlas words: an own 注意点 shown before the atlas tip
-  const [note, setNote] = useState(props.mode === "atlas" ? shown?.tip ?? "" : custom?.note ?? "");
-  const [col, setCol] = useState<Pair[]>(() => toPairs(props.mode === "atlas" ? shown?.col : custom?.col));
+  const [note, setNote] = useState(props.mode === "atlas" ? shown?.tip ?? "" : custom?.note ?? seed?.note ?? "");
+  const [col, setCol] = useState<Pair[]>(() => toPairs(props.mode === "atlas" ? shown?.col : custom?.col ?? seed?.col));
   const [ex, setEx] = useState<UserExample[]>(() => {
-    const src = props.mode === "atlas" ? edit?.ex : custom?.ex;
+    const src = props.mode === "atlas" ? edit?.ex : custom?.ex ?? seed?.ex;
     return src?.length ? src.map((x) => ({ ...x })) : [{ fr: "", zh: "" }];
   });
   // further meanings, each shown on its own line of the card
   const progress = useStore(s=>s.progress);
-  const [fam, setFam] = useState<string[]>(() => (props.mode === "atlas" ? edit?.fam ?? familiesFor(atlas,progress).find(f=>f.id===props.id)?.examples : custom?.fam) ?? []);
+  const [fam, setFam] = useState<string[]>(() => (props.mode === "atlas" ? edit?.fam ?? familiesFor(atlas,progress).find(f=>f.id===props.id)?.examples : custom?.fam ?? seed?.fam) ?? []);
   const familyRows = fam.map((value) => {
     const pair = familyPair(value);
     const match = [...atlas.byId.values()].find((r) => familyHead(r.word) === familyHead(pair.fr));
@@ -163,9 +165,12 @@ export function WordForm(props: Props) {
   const savedFamily = cleanFamily(familyRows.map(r=>`${r.fr}｜${r.zh}`));
   const [familyBusy, setFamilyBusy] = useState(false);
   const [wikiSources,setWikiSources] = useState<string[]>((props.mode === "atlas" ? edit?.wikiSources : custom?.wikiSources) ?? []);
-  const [more, setMore] = useState<OwnSense[]>(() => (props.mode === "atlas" ? edit?.senses : custom?.senses)?.map((x) => ({ ...x })) ?? []);
+  const [more, setMore] = useState<OwnSense[]>(() => (props.mode === "atlas" ? edit?.senses : custom?.senses ?? seed?.senses)?.map((x) => ({ ...x, pos: POS_CHOICES.some(([k]) => k === x.pos) ? x.pos : "" })) ?? []);
+  // near and opposite words: kept on the card (picked from a lookup), taken off here
+  const [syn, setSyn] = useState<string[]>(() => custom?.syn ?? seed?.syn ?? []);
+  const [ant, setAnt] = useState<string[]>(() => custom?.ant ?? seed?.ant ?? []);
   // filled from the offline dictionary in this form: saved as 自动填写·待核对
-  const [auto, setAuto] = useState(false);
+  const [auto, setAuto] = useState(!!seed);
   const stored = useImages()[props.mode === "create" ? "" : props.id];
   const [image, setImageState] = useState<string | null | undefined>(undefined); // undefined = unchanged
   const picture = image === undefined ? stored ?? null : image;
@@ -198,13 +203,14 @@ export function WordForm(props: Props) {
     setFilling(true);
     try {
       // the meaning typed by the learner is kept as the first one; one the AI wrote before is written anew
-      const given = filled ? "" : zh.trim();
+      const given = filled || zh.includes("□") ? "" : zh.trim();
       const f = await fillCard({ word, ...(given ? { given } : {}) }, job.signal);
       if (job.signal.aborted) return;
       if (!f.valid) return toast(`AI 没有把「${word}」认作要学的法语词，请自己填写`, "warn");
       const [first, ...rest] = f.senses;
-      if (!all || !zh.trim()) setZh(first.zh);
-      if (!all || !zh.trim()) setPos(POS_CHOICES.some(([k]) => k === first.pos) ? first.pos : "");
+      const blankZh = !zh.trim() || zh.includes("□");
+      if (!all || blankZh) setZh(first.zh);
+      if (!all || blankZh) setPos(POS_CHOICES.some(([k]) => k === first.pos) ? first.pos : "");
       if (!all || !more.length) setMore(rest.map((s) => ({ pos: POS_CHOICES.some(([k]) => k === s.pos) ? s.pos : "", zh: s.zh })));
       if (f.ipa && (!all || !ipa.trim())) setIpa(f.ipa);
       const kept = ex.filter((x) => x.fr.trim() && (all || !aiWrote.current.has(x.fr.trim())));
@@ -260,12 +266,12 @@ export function WordForm(props: Props) {
     }
     if (!w.trim() || !zh.trim()) return toast("法语和中文意思都要填", "warn");
     if (props.mode === "custom") {
-      updateCustomWord(props.id, { w, pos, zh, ipa, ex, note, auto, noImg, col: fromPairs(col), senses: more, fam: savedFamily, wikiSources });
+      updateCustomWord(props.id, { w, pos, zh, ipa, ex, note, auto, noImg, col: fromPairs(col), senses: more, fam: savedFamily, syn, ant, wikiSources });
       savePicture(props.id);
       toast("已保存", "ok");
       return props.onDone(props.id);
     }
-    const id = createCustomWord({ w, pos, zh, ipa, ex, note, auto, noImg, col: fromPairs(col), senses: more, fam: savedFamily, wikiSources }, props.deckId);
+    const id = createCustomWord({ w, pos, zh, ipa, ex, note, auto, noImg, col: fromPairs(col), senses: more, fam: savedFamily, syn, ant, wikiSources }, props.deckId);
     savePicture(id);
     toast(props.deckId ? "已加入卡组" : "已添加", "ok");
     props.onDone(id);
@@ -456,6 +462,15 @@ export function WordForm(props: Props) {
           try { const added = await suggestFamily(word); setFam(current => mergeFamily(current, added)); } catch(e) { toast((e as Error).message,"warn"); } finally {setFamilyBusy(false);}
         }}>{familyBusy ? "正在整理词族…" : "AI 补充词族"}</button>}
       </div>
+      {(syn.length > 0 || ant.length > 0) && (
+        <div className="wf-field">
+          <span>近义词 / 反义词（点一下取下）</span>
+          <div className="wf-chips">
+            {syn.map((x) => <button type="button" key={`s${x}`} className="chip-btn is-on" onClick={() => setSyn(syn.filter((y) => y !== x))} title="取下这个近义词"><b lang="fr">{x}</b> <small>近</small></button>)}
+            {ant.map((x) => <button type="button" key={`a${x}`} className="chip-btn is-on" onClick={() => setAnt(ant.filter((y) => y !== x))} title="取下这个反义词"><b lang="fr">{x}</b> <small>反</small></button>)}
+          </div>
+        </div>
+      )}
       <PictureField mode={imgMode} onMode={setImgMode} value={picture} onChange={setImageState} word={props.mode === "atlas" ? atlas.byId.get(props.id)?.word ?? "" : w} meaning={zh || (props.mode === "atlas" ? props.original.zh : "")} />
       <ExtrasField
         word={props.mode === "atlas" ? atlas.byId.get(props.id)?.word ?? "" : w}

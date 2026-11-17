@@ -8373,3 +8373,55 @@ button.rw.is-picked {
   }
 }
 @media(max-width:600px) { .home-dictionary-search { padding-left:12px; gap:9px; } .home-dictionary-result { padding:16px; } .frdic-content { font-size:15px; } }
+
+/* ---------- 首页查词：三个来源、勾选、托盘 ---------- */
+.lookup-section { border-top: 1px solid var(--line); padding: 14px 0; }
+.lookup-section:first-of-type { border-top: 0; padding-top: 0; }
+.lookup-section > summary { cursor: pointer; font-size: 15px; font-weight: 600; color: var(--ink); padding: 4px 0; }
+.lookup-section > summary small { font-weight: 400; color: var(--ink-2); margin-inline-start: 8px; }
+.lookup-empty { color: var(--ink-2); font-size: 14px; margin: 8px 0 2px; }
+.lookup-error { display: grid; gap: 8px; justify-items: start; margin: 8px 0; color: var(--ink); font-size: 14px; line-height: 1.6; }
+.lookup-error p { margin: 0; }
+.lookup-mine { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.lookup-mine li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.lookup-mine li > span:not(.reader-in-deck) { color: var(--ink-2); flex: 1 1 160px; min-width: 0; }
+.pick-group { margin: 12px 0 4px; }
+.pick-group > summary { margin: 0 0 4px; padding: 3px 0; font-size: 13px; color: var(--ink-2); font-weight: 600; cursor: pointer; user-select: none; }
+.pick-group > summary:hover { color: var(--ink); }
+.pick-group > summary small { font-weight: 400; margin-inline-start: 6px; }
+.pick-group ul { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow: auto; overscroll-behavior: contain; }
+.pick-row label { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; padding: 7px 8px; border-radius: 10px; cursor: pointer; }
+.pick-row label:hover { background: color-mix(in srgb, var(--terra) 6%, transparent); }
+.pick-row.is-on label { background: color-mix(in srgb, var(--terra) 12%, transparent); }
+.pick-row.is-blocked label { cursor: not-allowed; opacity: .55; }
+.pick-row input { margin-top: 5px; }
+.pick-text { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; line-height: 1.6; overflow-wrap: anywhere; min-width: 0; }
+.pick-text .pos { color: var(--ink-2); font-style: italic; }
+.pick-text b { font-weight: 600; }
+.pick-zh { color: var(--ink); }
+.pick-example .pick-zh, .pick-sense .pick-zh { flex-basis: 100%; }
+.pick-sense .pick-zh { flex-basis: auto; }
+.pick-gap { font-style: normal; color: var(--terra); background: color-mix(in srgb, var(--terra) 14%, transparent); border-radius: 3px; padding: 0 1px; }
+.pick-note { font-style: normal; font-size: 12px; color: var(--ink-2); border: 1px solid var(--line); border-radius: 999px; padding: 0 7px; }
+.lookup-original { margin-top: 14px; }
+.lookup-original > summary { cursor: pointer; font-size: 13px; color: var(--ink-2); }
+.lookup-tray { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin: 16px -24px -24px; padding: 14px 24px; border-top: 1px solid var(--line-strong, var(--line)); background: var(--card); border-radius: 0 0 20px 20px; }
+.lookup-tray p { margin: 0; font-size: 13px; color: var(--ink-2); flex: 1 1 220px; }
+.lookup-tray-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+/* 托盘里的卡组选择、清空、放进卡片：同一高度、同一圆角 */
+.lookup-tray-actions > .btn,
+.lookup-tray-actions > .reader-deck { height: 38px; border-radius: 999px; font-size: 13.5px; line-height: 1; box-sizing: border-box; }
+.lookup-tray-actions > .btn { padding: 0 16px; gap: 6px; }
+.lookup-tray-actions > .reader-deck { margin-left: 0; padding: 0 32px 0 14px; appearance: none; -webkit-appearance: none; cursor: pointer; font-weight: 500; color: var(--ink); border-color: var(--line-strong);
+  background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7d8a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center; }
+.lookup-tray-actions > .reader-deck:hover { background-color: var(--card-2); border-color: var(--ink-4); }
+/* 释义、例句列表和词典原文：一直显示滚动条，方便用鼠标拖 */
+.pick-group ul, .frdic-sections { padding-right: 6px; scrollbar-gutter: stable; }
+.pick-group ul::-webkit-scrollbar, .frdic-sections::-webkit-scrollbar { width: 10px; }
+.pick-group ul::-webkit-scrollbar-track, .frdic-sections::-webkit-scrollbar-track { background: color-mix(in srgb, var(--ink) 5%, transparent); border-radius: 999px; }
+.pick-group ul::-webkit-scrollbar-thumb, .frdic-sections::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--ink) 28%, transparent); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; min-height: 40px; }
+.pick-group ul::-webkit-scrollbar-thumb:hover, .frdic-sections::-webkit-scrollbar-thumb:hover { background-color: color-mix(in srgb, var(--ink) 45%, transparent); }
+@supports not selector(::-webkit-scrollbar) {
+  .pick-group ul, .frdic-sections { scrollbar-width: auto; scrollbar-color: color-mix(in srgb, var(--ink) 30%, transparent) color-mix(in srgb, var(--ink) 5%, transparent); }
+}
+.pick-sense b { font-weight: 400; color: var(--ink-2); font-size: 13px; }

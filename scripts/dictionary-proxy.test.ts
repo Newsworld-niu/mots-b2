@@ -36,7 +36,7 @@ test("dictionary HTML is JSON data; only the fixed upstream receives the encoded
       assert.equal(url, "https://www.frdic.com/dicts/fr/%C3%AAtre%20%23%3F%26");
       const headers = new Headers(options?.headers);
       for (const key of ["cookie", "origin", "referer"]) assert.equal(headers.get(key), null);
-      assert.equal(options?.redirect, "error");
+      assert.equal(options?.redirect, "manual");
       return new Response('<div id="ExpFCchild">释义</div>');
     };
     const { res } = await request(`/dictionary-proxy?q=${encodeURIComponent("être #?&")}`, {
@@ -62,5 +62,15 @@ test("upstream failures and oversized pages produce clear bounded errors", async
     assert.match(JSON.parse(oversized.body).error, /过大/);
     globalThis.fetch = async () => { throw new TypeError("fetch failed"); };
     assert.match(JSON.parse((await request("/dictionary-proxy?q=bonjour")).res.body).error, /无法连接/);
+  } finally { globalThis.fetch = original; }
+});
+
+test("a redirect to the login page is explained as the anonymous quota", async () => {
+  const original = globalThis.fetch;
+  try {
+    globalThis.fetch = async () => new Response(null, { status: 302, headers: { location: "/Account/Login" } });
+    const r = (await request("/dictionary-proxy?q=avocat")).res;
+    assert.equal(r.statusCode, 429);
+    assert.match(JSON.parse(r.body).error, /登录页.*次数/);
   } finally { globalThis.fetch = original; }
 });

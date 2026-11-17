@@ -46,8 +46,16 @@ export async function dictionaryProxy(req: IncomingMessage, res: ServerResponse,
     const upstream = await fetch(`https://www.frdic.com/dicts/fr/${encodeURIComponent(word)}`, {
       headers: { Accept: "text/html", ...(req.headers["user-agent"] ? { "User-Agent": req.headers["user-agent"] } : {}) },
       signal: controller.signal,
-      redirect: "error",
+      redirect: "manual",
     });
+    // 法语助手 sends a lookup to its login page once the anonymous quota is used up, and for words it does not hold
+    if (upstream.status >= 300 && upstream.status < 400) {
+      await upstream.body?.cancel();
+      const to = upstream.headers.get("location") ?? "";
+      return fail(/login/i.test(to) ? 429 : 502, /login/i.test(to)
+        ? "法语助手把这次查询转到了登录页：匿名查询有次数限制（短时间查得太多，或词条没有收录时都会这样）。稍等一会儿再试；查过的词会存在本机，不会再占次数。也可以打开原文登录后查看。"
+        : "法语助手返回了跳转地址，本地查询服务未跟随跳转，请打开原文查看。");
+    }
     if (!upstream.ok) {
       await upstream.body?.cancel();
       return fail(502, `法语助手返回错误（${upstream.status}），可打开原文查看或稍后重试。`);
