@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { conjugate, splitReflexive } from "./engine.ts";
+import { trapsFor } from "./traps.ts";
 
 const c = (v: string) => {
   const r = conjugate(v);
@@ -79,4 +80,18 @@ test("headwords that are not conjugable verbs are refused", () => {
   assert.equal(conjugate("travai Iler"), null);
   assert.equal(conjugate("diminuer/baisser"), null);
   assert.equal(conjugate("maire"), null);
+});
+
+test("analogical traps catch classic errors and never emit a real form", () => {
+  const empty = new Set<string>();
+  assert.ok(trapsFor(c("envoyer"), empty)["fut:0"]?.includes("envoierai"));
+  assert.ok(trapsFor(c("appeler"), empty)["pres:3"]?.includes("appellons"));
+  assert.ok(trapsFor(c("courir"), empty)["fut:2"]?.includes("courira"));
+  assert.ok(trapsFor(c("recevoir"), empty).pp?.includes("recevu"));
+  assert.ok(trapsFor(c("pleuvoir"), empty).pp?.includes("pleuvu"));
+  // accepted variants (alt) are never emitted as traps
+  assert.ok(!trapsFor(c("payer"), empty)["pres:0"]?.includes("paye"));
+  assert.ok(!trapsFor(c("préférer"), empty)["fut:0"]?.includes("préfèrerai"));
+  // a form attested in Lexique is never emitted as a trap
+  assert.ok(!trapsFor(c("envoyer"), new Set(["envoierai"]))["fut:0"]?.includes("envoierai"));
 });

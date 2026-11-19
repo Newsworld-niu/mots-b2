@@ -45,6 +45,64 @@
     "词尾规律有常见例外：la plage、l'image (f.)、le musée、le lycée。",
     "有些词阴阳不同意思也不同：le livre 书 / la livre 磅、le tour 一圈 / la tour 塔。",
     "以 l' 开头的名词，记的时候一定要用 un / une 记。"
+   ],
+   "decide": [
+    "名词是复数吗？ → 是：des / les，不用分阴阳；单数 → 下一步",
+    "这个名词你是和 un / une 一起记的吗？ → 记得就定下阴阳；l' 开头的词尤其要靠 un / une 记",
+    "是一词两性的词吗（livre、tour、poste、mode、mémoire）？ → 先看句子里是哪个意思，再定阴阳",
+    "还不确定 → 看词尾：-tion、-sion、-té、-ure、-ette、-ence 多阴；-ment、-age、-eau、-isme、-oir 多阳；再核对例外 la plage、l'image、le musée、le lycée",
+    "选定冠词：元音或哑音 h 开头 → l'；嘘音 h（héros、haine、hasard）和辅音 → le / la"
+   ],
+   "motto": "名词连 un/une 一起记；l' 藏阴阳，词尾帮着猜，例外和两性词死记",
+   "pairs": [
+    {
+     "a": "J'ai lu le message.",
+     "b": "J'ai lu la page.",
+     "d": "都以 -age 结尾：message 按规律是阳性，page 是例外，阴性"
+    },
+    {
+     "a": "Je cherche un poste.",
+     "b": "Je cherche la poste.",
+     "d": "只差冠词，意思就变了：un poste（阳）是职位，la poste（阴）是邮局"
+    },
+    {
+     "a": "J'adore l'humour de ce film.",
+     "b": "J'adore le héros de ce film.",
+     "d": "humour 的 h 是哑音 h → 缩成 l'；héros 的 h 是嘘音 h → 不缩写，用 le"
+    },
+    {
+     "a": "J'ai passé un été en Bretagne.",
+     "b": "J'ai passé une année en Bretagne.",
+     "d": "l'été、l'année 看不出阴阳：été 是阳性（-té 的例外），année 是阴性"
+    }
+   ],
+   "walk": {
+    "s": "On a fait un tour sur la plage, près de l'hôtel.",
+    "z": "我们在海滩上转了一圈，就在酒店旁边。",
+    "steps": [
+     [
+      "tour 在这里是什么意思？",
+      "「转一圈」→ le tour，阳性 → un tour（la tour 是塔）"
+     ],
+     [
+      "plage 以 -age 结尾，是阳性吗？",
+      "不是，plage 是例外，阴性 → la plage"
+     ],
+     [
+      "hôtel 开头是什么？",
+      "哑音 h → 定冠词缩成 l'，看不出阴阳"
+     ],
+     [
+      "那 hôtel 是阴性还是阳性？",
+      "要记 un hôtel → 阳性（只是这里写 l' 看不出来）"
+     ]
+    ]
+   },
+   "related": [
+    "adj-agree",
+    "contraction",
+    "pluriel",
+    "poss-dem"
    ]
   },
   {
@@ -109,6 +167,72 @@
     "à le、de le、à les、de les 都是错的。",
     "le 和 les 是人称代词时不缩合：Je commence à le comprendre.",
     "否定句里部分冠词和不定冠词变成 de：Je ne bois pas de café."
+   ],
+   "decide": [
+    "le / les 是动词原形前的宾语代词（如 à le voir、de les écouter）吗？ → 是：人称代词绝对不缩合，直接写 à le / à les / de le / de les；不是 → 下一步",
+    "这是不是否定句里的部分冠词或不定冠词（如 ne … pas / plus / jamais 后，且动词不是 être）？ → 是：变成 de（元音或哑音 h 前写 d'）；不是 → 下一步",
+    "看结构是 à + 定冠词，还是 de + 定冠词 / 部分冠词，以及后面名词是复数还是单数？ → 复数一律缩合：à + les → aux，de + les → des（即使名词以元音开头也缩合，如 aux enfants、des arbres）；单数 → 下一步",
+    "单数名词（或它前面的形容词）以元音或哑音 h 开头吗？ → 是：定冠词先省音成 l'，介词不缩合 → à l' / de l'（部分冠词也是 de l'），不分阴阳；嘘音 h（hasard、héros）和辅音 → 下一步",
+    "最后看单数名词的阴阳性：阴性不缩合 → à la / de la；阳性必须缩合 → à + le = au，de + le = du（不能写 à le / de le）"
+   ],
+   "motto": "le/les 作冠词必缩 au/aux/du/des；la、l' 和代词不缩；否定部分/不定冠词变 de",
+   "pairs": [
+    {
+     "a": "Je parle à l'étudiant.",
+     "b": "Je parle aux étudiants.",
+     "d": "单数元音前用 à l' 不缩合；变复数后是 à + les，即使后面以元音开头也必须缩成 aux"
+    },
+    {
+     "a": "Elle sort de l'hôtel.",
+     "b": "Elle sort du grand hôtel.",
+     "d": "hôtel 以哑音 h 开头用 de l'；中间加上辅音开头的形容词 grand 后，de + le 就要缩成 du"
+    },
+    {
+     "a": "Il arrive au bureau.",
+     "b": "Il arrive à le lire.",
+     "d": "bureau 是名词，à + 定冠词 le 缩成 au；lire 是动词原形，le 是人称代词，不能缩合"
+    },
+    {
+     "a": "Je bois du café le matin.",
+     "b": "Je ne bois pas de café le matin.",
+     "d": "肯定句用部分冠词 du；变成否定句（ne … pas）后，部分冠词要改成 de"
+    }
+   ],
+   "walk": {
+    "s": "Avant de les retrouver à l'hôtel, je passe au supermarché : j'achète de l'eau, mais je ne prends pas de vin.",
+    "z": "在去酒店和他们汇合之前，我先去趟超市：我买点水，但不买酒。",
+    "steps": [
+     [
+      "Avant de les retrouver 里，de les 为什么不缩成 des？",
+      "les 后面紧跟动词原形 retrouver，这里是人称代词「他们」，不是定冠词 → 绝对不缩合"
+     ],
+     [
+      "hôtel 是阳性名词，à l'hôtel 为什么不用 au？",
+      "hôtel 以哑音 h 开头，单数定冠词先省音成 l'；à 遇 l' 不缩合 → à l'hôtel"
+     ],
+     [
+      "au supermarché 怎么来的？",
+      "supermarché 是辅音开头的阳性单数名词，à + le 必须缩合 → au supermarché"
+     ],
+     [
+      "de l'eau 用了什么冠词？",
+      "水是不可数名词，肯定句里表示「一些」用部分冠词；eau 以元音开头 → de l'eau"
+     ],
+     [
+      "最后为什么写 pas de vin，而不是 pas du vin？",
+      "否定句（ne … pas，且动词不是 être）里部分冠词变成 de → pas de vin"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender"
+   ],
+   "related": [
+    "partitif",
+    "negation",
+    "place-prep",
+    "pronoms-objet",
+    "articles-nuances"
    ]
   },
   {
@@ -172,6 +296,67 @@
    "traps": [
     "修饰阴阳两种名词时用阳性复数：un garçon et une fille très gentils。",
     "颜色词如果原本是名词（marron、orange）通常不变。"
+   ],
+   "decide": [
+    "先找形容词修饰的名词（或主语），定出性数：一阳一阴并列 → 算阳性复数；只有全是阴性才用阴性复数",
+    "是名词变来的颜色词吗（如 marron、orange、noisette、chocolat）？→ 是：通常性数都不变，直接保留原形（rose 等少数除外）",
+    "是 beau、nouveau、vieux 且紧贴元音或哑音 h 开头的阳性单数名词前吗？→ 是：改写 bel、nouvel、vieil（复数、阴性或放在名词后都不用）",
+    "要变阴性吗？→ 以不带重音的 -e 结尾不变；规则加 -e（-é 也要加 -e 变 -ée）；常见词尾：-eux → -euse，-if → -ive，-er → -ère，-en → -enne；beau / nouveau / vieux → belle / nouvelle / vieille",
+    "要变复数吗？→ 阴性复数一律直接加 -s；阳性复数看词尾：-s、-x 结尾不变，多数 -al → -aux，-eau → -eaux，其余加 -s"
+   ],
+   "motto": "先找名词定性数：阴阳并列算阳复，marron/orange 不变，元音阳单前用 bel/nouvel/vieil",
+   "pairs": [
+    {
+     "a": "Ils habitent dans un nouvel appartement.",
+     "b": "Ils habitent dans un nouveau quartier.",
+     "d": "appartement 和 quartier 都是阳性单数，但前者以元音开头 → nouvel，后者以辅音开头 → nouveau"
+    },
+    {
+     "a": "Ce sont des parcs nationaux.",
+     "b": "Ce sont des fêtes nationales.",
+     "d": "像 national 这类 -al 结尾的形容词，只有阳性复数变 -aux（parcs）；阴性复数直接由阴性单数加 -s → nationales"
+    },
+    {
+     "a": "Sa mère et sa sœur sont très patientes.",
+     "b": "Son père et sa sœur sont très patients.",
+     "d": "全是阴性用阴性复数 patientes；只要有一个阳性（son père），阴阳并列就用阳性复数 patients"
+    },
+    {
+     "a": "Elle porte des chaussures noires.",
+     "b": "Elle porte des chaussures marron.",
+     "d": "noir 是普通颜色形容词，要随阴性复数变 noires；marron 来自名词（栗子），性数都不变"
+    }
+   ],
+   "walk": {
+    "s": "Dans ce nouvel appartement, le tapis et la table sont gris, et les rideaux sont orange.",
+    "z": "在这套新公寓里，地毯和桌子是灰色的，窗帘是橙色的。",
+    "steps": [
+     [
+      "nouveau 修饰谁？紧贴在什么开头之前？",
+      "修饰阳性单数 appartement，紧贴在元音 a 前 → 改写 nouvel"
+     ],
+     [
+      "gris 修饰的主语是什么性数？",
+      "le tapis（阳）和 la table（阴）并列 → 阴阳混合算阳性复数"
+     ],
+     [
+      "gris 变阳性复数要加 -s 吗？",
+      "原形 gris 已经以 -s 结尾，阳性复数不变 → gris（不是 grises，也不写 griss）"
+     ],
+     [
+      "les rideaux 是复数，orange 要加 -s 吗？",
+      "不加：orange 来自名词（橙子），作颜色词时性数都不变 → orange"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender"
+   ],
+   "related": [
+    "pluriel",
+    "adj-place",
+    "cest-ilest",
+    "accord-pp"
    ]
   },
   {
@@ -239,6 +424,64 @@
     "vous faites、vous dites、vous êtes 不是 -ez 结尾。",
     "依赖主语：il / elle / on 用第三人称单数。",
     "不写 je part、je sort、ils voyent：要写 je pars、je sors、ils voient。"
+   ],
+   "decide": [
+    "先找主语定人称：je / tu / nous / vous；il、elle、on、单数名词（ma famille、tout le monde）→ 第三人称单数；复数名词 → 第三人称复数（ils / elles）",
+    "是 être、avoir、aller、faire 吗？→ 用背好的形式（ils vont、ils font、ils ont、ils sont）；vous 形式注意 faites、dites、êtes",
+    "-er 动词（ouvrir、offrir、cueillir、souffrir 也照这样变）→ -e、-es、-e、-ons、-ez、-ent；nous 形式 -cer 写 -çons，-ger 写 -geons",
+    "-ir 动词：是 finir 类（finir、choisir、réussir、grandir）→ -is、-is、-it、-issons、-issez、-issent；是 partir 类（partir、sortir、dormir）→ 单数去掉词干辅音（je pars），复数恢复（ils partent）",
+    "其他第三组：vivre 单数去掉词干辅音 v（je vis、ils vivent）；mettre、entendre、répondre 单数写 -s、-s，第三人称不加 -t（il met、il entend）；voir、croire 的 ils 形式是 voient、croient"
+   ],
+   "motto": "定人称：-er 加 e/es/e，finir 复数 -iss-，vous 非 -ez：faites/dites/êtes",
+   "pairs": [
+    {
+     "a": "Nous finissons à six heures.",
+     "b": "Nous partons à six heures.",
+     "d": "finir 是第二组，复数加 -iss-；partir 是第三组，复数只是恢复词干 part-"
+    },
+    {
+     "a": "Nous mangeons à midi.",
+     "b": "Ils mangent à midi.",
+     "d": "现在时里只有 nous 形式要在 g 后多加 e 保持 /ʒ/ 音；ils mangent 本身以 -ent 开头，不再多加 e"
+    },
+    {
+     "a": "On est en retard.",
+     "b": "Nous sommes en retard.",
+     "d": "意思都是「我们迟到了」，但 on 后面用第三人称单数 est，nous 后面用 sommes"
+    },
+    {
+     "a": "Je sors ce soir.",
+     "b": "Il sort ce soir.",
+     "d": "sortir 单数去掉词干辅音 t 再加词尾：je 加 -s，il 加 -t"
+    }
+   ],
+   "walk": {
+    "s": "Le soir, nous mangeons tôt et les enfants finissent leurs devoirs.",
+    "z": "晚上我们很早吃饭，孩子们把作业做完。",
+    "steps": [
+     [
+      "第一个动词 manger 的主语是谁？",
+      "nous → 词尾 -ons"
+     ],
+     [
+      "manger 有什么要注意的？",
+      "-ger 动词，nous 形式要在 g 后加 e → mangeons"
+     ],
+     [
+      "第二个动词 finir 的主语是谁？",
+      "les enfants，复数名词 = ils → 第三人称复数"
+     ],
+     [
+      "finir 属于哪一类？",
+      "第二组 finir 类，复数加 -iss- → ils finissent（不是 finent）"
+     ]
+    ]
+   },
+   "related": [
+    "negation",
+    "pronominaux",
+    "imperatif",
+    "imparfait"
    ]
   },
   {
@@ -315,6 +558,68 @@
     "口语常省略 ne，但书面一定要写。",
     "「只」ne … que 和「既不……也不」ni … ni 见 B1 的专门一条。",
     "pas encore / jamais、否定词连用、没有否定意义的 ne 等细节见 B2 的「否定的细节」。"
+   ],
+   "decide": [
+    "要否定的是不定式还是变位动词？ → 不定式：把 ne pas（或 ne plus / ne jamais / ne rien）连在一起放不定式前；变位动词 → 下一步",
+    "否定词（personne、rien、aucun、ni … ni）是不是作主语？ → 是：放主语位置，变位动词前仍写 ne（n'），不再加 pas；不是 → 下一步",
+    "找出变位动词（复合时态只看助动词）和它前面的宾语或自反代词 → ne（元音或哑音 h 前缩成 n'）放在它们前面，书面绝不能省略",
+    "第二个否定词放哪儿？ → pas、jamais、plus 及作直接宾语的 rien 紧跟变位动词或助动词；复合时态里 personne、aucun 放过去分词后；已用其他否定词或 ni … ni 就不再加 pas",
+    "否定动词的直接宾语（或 il y a 后）带 un / une / des / du / de la / de l' 吗？ → 变成 de（d'）；但 être 后面、定冠词 le / la / les 和 ne … que 后面都不变"
+   ],
+   "motto": "ne … pas 夹变位或助动，代词一起夹；personne 在分词后；不定式连写 ne pas；非 être 变 de",
+   "pairs": [
+    {
+     "a": "Je n'ai rien entendu.",
+     "b": "Je n'ai entendu personne.",
+     "d": "复合时态里 rien 放在助动词后、过去分词前；personne 则放在过去分词后"
+    },
+    {
+     "a": "Je n'ai pas de problème.",
+     "b": "Ce n'est pas un problème.",
+     "d": "一般动词否定后 un 变成 de；动词是 être 时冠词不变，仍用 un"
+    },
+    {
+     "a": "Tu ne peux pas venir.",
+     "b": "Tu peux ne pas venir.",
+     "d": "夹住变位动词 peux 是「你不能来」；ne pas 连写放不定式 venir 前是「你可以不来」"
+    },
+    {
+     "a": "Il ne boit pas de café.",
+     "b": "Il ne boit que du café.",
+     "d": "ne … pas 是否定，部分冠词 du 变成 de；ne … que 意思是「只」，不是否定，du 不变"
+    }
+   ],
+   "walk": {
+    "s": "Je ne lui ai pas donné de réponse.",
+    "z": "我没有给他回复。",
+    "steps": [
+     [
+      "动词是什么时态？",
+      "复合过去时 ai donné → 否定夹住助动词 ai，过去分词 donné 放在 pas 后面"
+     ],
+     [
+      "有宾语代词吗？",
+      "有间接宾语代词 lui，它紧贴助动词 ai → ne 放在 lui 前面：ne lui ai pas"
+     ],
+     [
+      "为什么写 ne 而不是 n'？",
+      "ne 后面紧跟的是辅音开头的 lui（不是 ai），所以不省音"
+     ],
+     [
+      "为什么是 de réponse 而不是 une réponse？",
+      "动词 donner 处于否定句中（不是 être），直接宾语的不定冠词 une 变成 de"
+     ]
+    ]
+   },
+   "prereq": [
+    "present"
+   ],
+   "related": [
+    "partitif",
+    "passe-compose",
+    "pronoms-objet",
+    "restriction",
+    "negation-nuances"
    ]
   },
   {
@@ -391,6 +696,68 @@
     "以 -e 结尾的阳性国家：le Mexique、le Cambodge、le Mozambique → au Mexique。",
     "元音开头的阳性国家用 en：en Iran、en Irak。",
     "说产地：阴性国家和地区不加冠词（les vins de France、le fromage de Normandie），阳性要加（le café du Brésil）。"
+   ],
+   "decide": [
+    "先看表达「在 / 去」还是「从……来 / 产地」？→ 两组介词不同：在 / 去用 à / en / au / aux / dans le(s)，来 / 产地用 de / d' / du / des",
+    "是城市，还是不带冠词的岛国或小国（Cuba、Chypre、Madagascar、Singapour）？→ 普通城市和这类地名用 à / de（元音前 d'）；带冠词的城市保留冠词，遇到 Le / Les 要缩合（Le Havre → au / du Havre，La Rochelle → à / de La Rochelle）",
+    "是法国大区或山脉吗？→ 阴性大区用 en / de（元音前 d'：en Bretagne、de Provence、d'Alsace）；阳性地区多用 dans le / du（dans le Jura、du Périgord）；复数山脉或地区用 dans les / des（dans les Alpes、des Pyrénées）",
+    "是国家或大洲：先看复数，再看是否元音开头 → 复数一律 aux / des（aux États-Unis、des Pays-Bas）；元音开头的单数国家和大洲无论阴阳，在 / 去都用 en，从……来用 d'（en Italie、en Iran、d'Iran）",
+    "辅音开头的单数国家，判断阴阳性 → 以 -e 结尾多为阴性，用 en / de（产地不加冠词：de France）；其余及 -e 结尾阳性例外（Mexique、Cambodge、Mozambique 等）是阳性，用 au / du（产地要加冠词：du Brésil）"
+   ],
+   "motto": "城市、无冠词岛 à/de，复数 aux/des；元音国 en/d'；阴 en/de 阳 au/du，产地阴省阳留",
+   "pairs": [
+    {
+     "a": "Elle travaille en Belgique.",
+     "b": "Elle travaille au Mexique.",
+     "d": "都以 -e 结尾，但 la Belgique 是阴性用 en，le Mexique 是阳性例外用 au"
+    },
+    {
+     "a": "Il habite au Japon.",
+     "b": "Il habite en Iran.",
+     "d": "都是阳性国家，但 l'Iran 以元音开头，不能用 au，要改用 en"
+    },
+    {
+     "a": "J'adore le café de Colombie.",
+     "b": "J'adore le café du Brésil.",
+     "d": "说产地时，阴性国家 la Colombie 不加冠词用 de，阳性国家 le Brésil 要加冠词用 du"
+    },
+    {
+     "a": "Nous allons à Lyon.",
+     "b": "Nous allons au Havre.",
+     "d": "普通城市直接用 à；城市名自带阳性冠词 Le（Le Havre），à + Le 要缩合成 au"
+    }
+   ],
+   "walk": {
+    "s": "Ce chef travaille au Havre ; il vient du Mexique et prépare ses plats avec du beurre de Normandie.",
+    "z": "这位厨师在勒阿弗尔工作；他来自墨西哥，并且用诺曼底黄油做菜。",
+    "steps": [
+     [
+      "城市 Le Havre 前为什么用 au，不用 à？",
+      "Le Havre 自带阳性冠词 Le，à + Le 必须缩合成 au Havre"
+     ],
+     [
+      "Mexique 以 -e 结尾，为什么用 du，不用 de？",
+      "le Mexique 是以 -e 结尾的阳性例外国家，「从……来」阳性国家用 du Mexique"
+     ],
+     [
+      "Normandie 是阴性还是阳性地区？",
+      "la Normandie 是法国阴性大区"
+     ],
+     [
+      "说产地时，为什么是 de Normandie，不是 de la Normandie？",
+      "说产地时，阴性国家和地区不加冠词 → du beurre de Normandie"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender",
+    "contraction"
+   ],
+   "related": [
+    "lieu",
+    "prepositions",
+    "y-en",
+    "articles-nuances"
    ]
   },
   {
@@ -462,6 +829,69 @@
     "faire du sport、faire de la natation、jouer du piano 里的 du / de la 也是部分冠词，否定时变 de：Je ne fais pas de sport。",
     "书面语里，复数形容词放在名词前时 des 变 de：de beaux jardins。",
     "avoir besoin de、avoir envie de 后面不再加部分冠词：J'ai envie de chocolat。更多细节见 B2 的「冠词的细节」。"
+   ],
+   "decide": [
+    "是不用冠词的固定结构吗？（être + 无修饰的职业/身份、avoir faim / soif / peur / sommeil、sans + 名词、en + 交通工具）→ 不加冠词",
+    "前面是喜好动词（aimer、adorer、préférer、détester）说整个类别吗？→ 用定冠词 le / la / l' / les（否定也不变 de）",
+    "前面有数量词（beaucoup、un peu、trop、assez、un kilo、une bouteille…）或 avoir besoin de / avoir envie de 吗？→ 直接用 de / d'，不再加部分冠词",
+    "句子是否定句（ne … pas / plus / jamais，含 faire / jouer + 活动/乐器）吗？→ 先看动词：是 être（ce n'est pas…）保留原冠词；其他动词把部分/不定冠词改用 de / d'",
+    "都不是，表不可数的「一些」→ 按名词阴阳性与开头选 du（阳）、de la（阴）、de l'（元音或哑音 h）；复数用 des（书面语形容词前置时变 de）"
+   ],
+   "motto": "肯定 du / de la / de l'，否定和数量变 de；喜好用定冠，être 否定不变",
+   "pairs": [
+    {
+     "a": "Il fait du sport le samedi.",
+     "b": "Il ne fait pas de sport le samedi.",
+     "d": "faire du sport 里的 du 也是部分冠词，变成否定句后改用 de"
+    },
+    {
+     "a": "Je mange du chocolat.",
+     "b": "J'aime le chocolat.",
+     "d": "manger 表示吃「一些」→ 部分冠词 du；aimer 谈整个类别 → 定冠词 le"
+    },
+    {
+     "a": "Il y a de l'eau dans la carafe.",
+     "b": "Il y a un peu d'eau dans la carafe.",
+     "d": "单说「有水」用部分冠词 de l'；加了数量词 un peu 后只用 d'，不再加冠词"
+    },
+    {
+     "a": "Elle n'a pas de beurre.",
+     "b": "Ce n'est pas du beurre.",
+     "d": "一般动词否定后部分冠词变 de；être 的否定句里冠词不变，仍用 du"
+    }
+   ],
+   "walk": {
+    "s": "J'adore le café, mais le soir je bois du thé sans sucre et je ne mange pas de chocolat.",
+    "z": "我特别喜欢咖啡，不过晚上我喝不加糖的茶，也不吃巧克力。",
+    "steps": [
+     [
+      "adorer 后面怎么选冠词？",
+      "adorer 是喜好动词，谈咖啡这个整体 → 定冠词 le café"
+     ],
+     [
+      "boire 后面「喝些茶」用什么？",
+      "肯定句、不可数，thé 是阳性辅音开头 → 部分冠词 du thé"
+     ],
+     [
+      "sans 后面加不加冠词？",
+      "sans + 名词属于不用冠词的固定结构 → sans sucre"
+     ],
+     [
+      "ne … pas 后面「巧克力」用什么？",
+      "否定句且动词不是 être，部分冠词改用 de → pas de chocolat"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender",
+    "negation"
+   ],
+   "related": [
+    "contraction",
+    "cest-ilest",
+    "y-en",
+    "articles-nuances",
+    "proportion"
    ]
   },
   {
@@ -532,6 +962,69 @@
     "身体部位通常用定冠词，不用主有形容词：J'ai mal à la tête；Elle s'est lavé les mains。",
     "ce matin、cette semaine、ce mois-ci 指现在这一段；讲过去或将来的那一段加 -là：ce jour-là、cette année-là。",
     "on 对应的主有形容词：指「我们」时用 notre（On a pris notre voiture），泛指时用 son（On doit respecter ses voisins）。"
+   ],
+   "decide": [
+    "修饰后面的名词，还是代替整个名词短语？ → 修饰名词用形容词（mon / ce）；代替名词用代词（le mien / celui）",
+    "是身体部位且归属已经清楚（avoir mal à、se laver…）？ → 一般直接用定冠词（à la tête、les mains），不用主有形容词",
+    "用主有形容词：先定拥有者的人称和单复数（on 指「我们」用 notre / nos，泛指用 son / sa / ses），再看后面名词的性数 → 阴性单数前若紧接元音或哑音 h 开头的词，改用 mon / ton / son；leur 接单数不加 s",
+    "用主有代词：按被代替名词的性数选定冠词 + 代词（le mien、la nôtre 等），notre / votre 变代词要加长音符（ô），前面有 à / de 时和 le / les 缩合（au mien、du sien）",
+    "用指示形容词：复数一律 ces；阴性单数 cette；阳性单数在元音或哑音 h 前用 cet，其余用 ce；讲过去或将来的那段时间加 -là（ce jour-là、cette année-là）",
+    "用指示代词（celui / celle / ceux / celles）：按被代替名词的性数选形，后面不能单独出现，必须接 de + 名词、关系从句（qui / que 等）或 -ci / -là"
+   ],
+   "motto": "主有性数跟物不跟人，元音前阴单 mon、阳单 cet；主有代词带冠词，celui 不单用",
+   "pairs": [
+    {
+     "a": "Élodie a oublié sa veste.",
+     "b": "Élodie a oublié son écharpe.",
+     "d": "veste 和 écharpe 都是阴性单数，但 écharpe 以元音开头，sa 必须改用 son"
+    },
+    {
+     "a": "Ils aiment beaucoup leur voisin.",
+     "b": "Ils aiment beaucoup leurs voisins.",
+     "d": "拥有者都是复数 ils，但 voisin 是单数用 leur，voisins 是复数才加 s 用 leurs"
+    },
+    {
+     "a": "Je connais bien cet hôtel.",
+     "b": "Je connais bien cette histoire.",
+     "d": "两个词都以哑音 h 开头：hôtel 是阳性单数用 cet，histoire 是阴性单数仍用 cette"
+    },
+    {
+     "a": "En général, on range ses affaires avant de sortir.",
+     "b": "Ce matin, on a rangé nos affaires avant de sortir.",
+     "d": "第一句的 on 是泛指（一般人），主有形容词用 ses；第二句说具体发生的事，on 指「我们」，用 nos"
+    }
+   ],
+   "walk": {
+    "s": "Cet été-là, mon amie a prêté sa voiture à son frère, alors nous avons pris la nôtre.",
+    "z": "那个夏天，我的朋友把她的车借给了她哥哥，于是我们开了我们的车。",
+    "steps": [
+     [
+      "Cet été-là 为什么用 cet，后面又加了 -là？",
+      "été 是以元音开头的阳性单数名词（un été）→ 用 cet；讲的是过去的那个夏天，要加 -là"
+     ],
+     [
+      "mon amie 的 amie 是阴性，为什么用 mon？",
+      "amie 以元音开头，阴性单数前为了避免元音相撞，改用 mon"
+     ],
+     [
+      "同一个拥有者，为什么是 sa voiture 却是 son frère？",
+      "主有形容词的阴阳性跟着后面的名词走：voiture 是阴性 → sa，frère 是阳性 → son"
+     ],
+     [
+      "la nôtre 为什么带 la，而且 o 上有长音符？",
+      "代替 notre voiture（阴性单数）作主有代词：必须带定冠词 la，且主有代词 nôtre 要加长音符 ô"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender",
+    "contraction"
+   ],
+   "related": [
+    "toniques",
+    "relatifs",
+    "pronominaux",
+    "indefinis"
    ]
   },
   {
@@ -602,6 +1095,63 @@
     "介词后面不能用主语代词：不说 avec je、pour il，要说 avec moi、pour lui。",
     "eux 指阳性复数或男女混合，elles 指全是阴性。",
     "和 on、chacun、personne 搭配的重读代词是 soi：Chacun rentre chez soi。"
+   ],
+   "decide": [
+    "先看位置：代词在介词（avec、chez、pour、sans、à côté de…）后面、c'est / ce sont 后面、比较词 que 后面、句首逗号前强调，还是单独回答？ → 这些离开动词的位置都要用重读人称代词（moi、toi、lui、elle、nous、vous、eux、elles），不能用 je、tu、il、ils",
+    "动词是 être à（归属），或是 penser à / tenir à / s'intéresser à + 人吗？ → 是：用 à + 重读代词（à lui、à eux）；penser à 这类动词不要把 lui / leur 提到动词前",
+    "指代的是泛指主语 on、chacun、personne 吗？ → 是：对应的重读代词用 soi（chez soi、pour soi）",
+    "指代第三人称复数吗？ → 全是阴性用 elles；全是阳性或男女混合一律用 eux",
+    "在附和前一句吗？ → 前句肯定用 « 重读代词 + aussi »；前句否定用 « 重读代词 + non plus »"
+   ],
+   "motto": "离开动词用重读，男女混合选 eux，泛指配 soi，肯定 aussi 否定 non plus",
+   "pairs": [
+    {
+     "a": "Claire et Julie arrivent : je vais dîner avec elles.",
+     "b": "Claire et Paul arrivent : je vais dîner avec eux.",
+     "d": "全是阴性用 elles；只要出现男性（男女混合）就必须用 eux"
+    },
+    {
+     "a": "— J'aime le café. — Moi aussi.",
+     "b": "— Je n'aime pas le café. — Moi non plus.",
+     "d": "附和肯定句用 moi aussi，附和否定句必须换成 moi non plus"
+    },
+    {
+     "a": "Il est bien chez lui.",
+     "b": "On est bien chez soi.",
+     "d": "主语是具体的 il 时用 chez lui；主语是泛指的 on 时，重读代词换成 soi"
+    },
+    {
+     "a": "Je lui écris chaque semaine.",
+     "b": "Je pense à lui chaque semaine.",
+     "d": "écrire à + 人用前置间接宾语代词 lui；penser à + 人不能前置，须留在动词后用 à + 重读代词"
+    }
+   ],
+   "walk": {
+    "s": "Paul et Léa habitent loin, mais moi, je pense souvent à eux.",
+    "z": "保罗和莱娅住得很远，但我嘛，我常常想起他们。",
+    "steps": [
+     [
+      "逗号前强调主语「我」，为什么用 moi 而不是 je？",
+      "放在逗号前强调时离开了动词，必须用重读代词 moi，后面仍保留主语代词 je（moi, je…）"
+     ],
+     [
+      "penser à 的对象是人，能把代词提到动词前写成 je leur pense 吗？",
+      "不能；penser à + 人必须保留介词 à，后面接重读代词"
+     ],
+     [
+      "à 后面指代 Paul et Léa，用 eux 还是 elles？",
+      "Paul（男）和 Léa（女）是男女混合复数 → 用 eux（只有全是阴性时才用 elles）"
+     ]
+    ]
+   },
+   "prereq": [
+    "present"
+   ],
+   "related": [
+    "pronoms-objet",
+    "cest-ilest",
+    "comparatif",
+    "mise-en-relief"
    ]
   },
   {
@@ -688,6 +1238,70 @@
     "c'est 后面的形容词不随所指的东西变化：Cette ville, c'est beau；但 Elle est belle, cette ville。",
     "职业后面的补充只是说明类别时仍不加冠词：Il est médecin généraliste；Elle est professeur de maths。",
     "说天气用 il fait：Il fait froid，不说 C'est froid。"
+   ],
+   "decide": [
+    "说天气或某处「有」什么吗？ → 天气（froid、chaud、beau）用 il fait；某处「有」什么用 il y a（永远单数）；都不是 → 下一步",
+    "说钟点、星期还是日期？ → 钟点用 il est（Il est huit heures）；星期和日期用 c'est 或 on est（C'est lundi / le 14 juillet）；都不是 → 下一步",
+    "动词后面是带限定词的名词（un / le / mon…）、人名或重读代词吗？ → 是：用 c'est，复数名词和 eux / elles 用 ce sont（职业带了评价形容词也必须加冠词，所以用 c'est）",
+    "动词后面直接是不带冠词的职业、国籍或身份（含「professeur de maths」这类类别补充）吗？ → 是：按人称用 il est / elle est / ils sont / elles sont",
+    "动词后面直接是形容词吗？ → 评论一件事或泛指概念用 c'est + 阳性单数形容词；描述具体的人或物用 il / elle est + 随名词配合的形容词"
+   ],
+   "motto": "冠词人名 c'est，无冠职业形容词 il est；评事 c'est 阳单，钟点 il est，天气 il fait",
+   "pairs": [
+    {
+     "a": "Il est médecin.",
+     "b": "C'est un médecin.",
+     "d": "不带冠词的职业用 il est；前面一旦加上冠词 un，就必须改用 c'est（不说 Il est un médecin）"
+    },
+    {
+     "a": "Elle est belle, cette ville.",
+     "b": "Cette ville, c'est beau.",
+     "d": "用 elle est 描述具体的 ville 时，形容词变阴性 belle；用 c'est 泛评时，形容词永远用阳性单数 beau"
+    },
+    {
+     "a": "Il y a un problème.",
+     "b": "C'est un problème.",
+     "d": "il y a 表示存在（「有一个问题」）；c'est 用来指认或评价前面提到的事（「这是一个问题」）"
+    },
+    {
+     "a": "Il fait froid.",
+     "b": "Il est froid.",
+     "d": "说天气冷用 il fait froid；il est froid 指某人冷淡或某件阳性东西（如咖啡）凉了"
+    }
+   ],
+   "walk": {
+    "s": "Il est neuf heures et il fait beau : voici Claire, elle est professeur de maths et c'est une amie formidable.",
+    "z": "现在九点了，天气晴朗：这是克莱尔，她是数学老师，也是一位了不起的朋友。",
+    "steps": [
+     [
+      "为什么用 Il est neuf heures？",
+      "说钟点固定用 il est（不用 c'est）"
+     ],
+     [
+      "为什么说 il fait beau，不说 c'est beau？",
+      "说天气固定用 il fait（il fait beau / froid / chaud）"
+     ],
+     [
+      "professeur 后面有 de maths，为什么还用 elle est 而不加冠词？",
+      "de maths 只是说明教学科目类别，不是评价形容词，仍按不带冠词的职业用 elle est"
+     ],
+     [
+      "最后为什么改用 c'est une amie formidable？",
+      "后面带了冠词 une（以及评价形容词 formidable），带限定词的名词短语必须用 c'est"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender",
+    "present"
+   ],
+   "related": [
+    "adj-agree",
+    "toniques",
+    "nombres-temps",
+    "mise-en-relief",
+    "impersonnel",
+    "articles-nuances"
    ]
   },
   {
@@ -758,6 +1372,72 @@
     "阴性形容词的复数总是规则的：nationale → nationales，belle → belles。",
     "姓氏不加 s：les Martin。",
     "复数的 -s、-x 不发音，听起来靠冠词区分：le livre [lə] / les livres [le]。"
+   ],
+   "decide": [
+    "先看是不是姓氏或阴性形容词？ → 姓氏表示一家人时复数不变（不加 -s 或 -x，如 les Martin、les Moreau）；阴性形容词复数总是规则加 -s（nationales、belles），不受 -al / -eau 变化影响",
+    "再看是不是常见不规则词或原词已以 -s / -x / -z 结尾？ → œil → yeux，monsieur / madame / mademoiselle → messieurs / mesdames / mesdemoiselles；以 -s、-x、-z 结尾的词复数不变（des pays、des prix、des nez）",
+    "词尾是 -eau、-au、-eu 吗？ → 一般加 -x（bateaux、tuyaux、jeux、beaux、nouveaux），先排掉常见例外 pneus、bleus",
+    "词尾是 -al 或 -ail 吗？ → -al 一般变 -aux（journaux、animaux、nationaux），先排掉常见例外 bals、carnavals、festivals 和 banals、fatals、finals、navals；-ail 一般加 -s（détails），但 travail → travaux、vitrail → vitraux 等少数词变 -aux",
+    "词尾是 -ou 吗？ → 一般加 -s（trous），只有七个词加 -x（bijoux、cailloux、choux、genoux、hiboux、joujoux、poux）；其余常见名词和形容词一般直接加 -s",
+    "最后检查前面的冠词与限定词：复数词尾 -s / -x 通常不发音（联诵时除外），口语靠 les / des / ces / mes 区分单复数，书写时冠词和词尾必须一致"
+   ],
+   "motto": "一般加 s，s/x/z 不变；eau/au/eu 加 x，al 变 aux，ou 七词加 x；阴形加 s，姓氏不变",
+   "pairs": [
+    {
+     "a": "Nous avons acheté des jeux.",
+     "b": "Nous avons acheté des pneus.",
+     "d": "都以 -eu 结尾：jeu 按规则加 -x（jeux），pneu 是少数例外，复数加 -s（pneus）"
+    },
+    {
+     "a": "Il y a des trous dans le jardin.",
+     "b": "Il y a des cailloux dans le jardin.",
+     "d": "都以 -ou 结尾：trou 按一般规则加 -s（trous），caillou 属于七个加 -x 的例外词之一（cailloux）"
+    },
+    {
+     "a": "Ce sont des plats régionaux.",
+     "b": "Ce sont des spécialités régionales.",
+     "d": "plat 是阳性，-al 形容词阳性复数变 -aux（régionaux）；spécialité 是阴性，阴性形容词复数一律规则加 -s（régionales）"
+    },
+    {
+     "a": "Les voisins arrivent à vingt heures.",
+     "b": "Les Martin arrivent à vingt heures.",
+     "d": "普通名词复数加 -s（les voisins），但法语姓氏表示一家人时不加 -s，只靠冠词 les 表示复数（les Martin）"
+    }
+   ],
+   "walk": {
+    "s": "Les Moreau ont acheté des chapeaux bleus, de beaux bijoux et des spécialités locales.",
+    "z": "莫罗一家买了蓝色的帽子、漂亮的首饰和当地特产。",
+    "steps": [
+     [
+      "姓氏 Moreau 前面有 les，词尾要加 -x 或 -s 吗？",
+      "不加：法语姓氏表示一家人时不变形，即使以 -eau 结尾也不加 -x → Les Moreau"
+     ],
+     [
+      "chapeau 和 bleu 变复数怎么拼？",
+      "chapeau 以 -eau 结尾，加 -x → chapeaux；bleu 是 -eu 结尾的例外，加 -s → bleus"
+     ],
+     [
+      "beau 和 bijou 变复数分别加什么？",
+      "beau 修饰阳性复数 bijoux，以 -eau 结尾加 -x → beaux；bijou 是七个 -ou 加 -x 的词之一 → bijoux"
+     ],
+     [
+      "spécialités 是阴性复数，形容词 local 要变 -aux 吗？",
+      "不变 -aux：阴性形容词复数总是规则加 -s → locale → locales"
+     ],
+     [
+      "读出 des chapeaux bleus 时，词尾的 -x 和 -s 发音吗？",
+      "这里都不发音：复数词尾 -x 和 -s 在辅音前和词末不读，口语靠前面的复数冠词 des [de] 区分单复数"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender"
+   ],
+   "related": [
+    "adj-agree",
+    "contraction",
+    "poss-dem",
+    "articles-nuances"
    ]
   },
   {
@@ -810,6 +1490,73 @@
     "monter、descendre、sortir、passer、rentrer 带直接宾语时用 avoir：J'ai sorti la poubelle。",
     "avoir 作助动词时，直接宾语放在前面要配合：les fleurs que j'ai achetées。（B1）",
     "表示移动方式的动词用 avoir：J'ai marché、j'ai couru、j'ai sauté、j'ai voyagé。"
+   ],
+   "decide": [
+    "是代词式动词（se lever、s'arrêter、se souvenir…）吗？ → 一律用 être 作助动词，代词放在助动词前（elle s'est levée）",
+    "在表位置或状态变化的那组动词里吗（aller、venir、arriver、partir、entrer、sortir、monter、descendre、naître、mourir、rester、tomber、retourner、devenir、revenir、rentrer、passer）？ → 不在（含 marcher、courir、sauter、voyager、nager 等移动方式动词）直接用 avoir；在 → 下一步",
+    "如果是 monter、descendre、sortir、passer、rentrer（或 retourner），句子里带直接宾语（不经介词直接接的名词或代词）吗？ → 带了就改用 avoir（j'ai sorti le chien）；没带就用 être（je suis sorti）",
+    "选定了 être → 过去分词与主语的阴阳性、单复数配合：阴性加 -e，复数加 -s（男女混合用阳性复数；尊称 vous 看实际所指的人；代动词在 se 为间接宾语或动词后另有直接宾语时不配合，详见「过去分词的配合」）",
+    "选定了 avoir → 不与主语配合；检查直接宾语有没有放在动词前面（que、le / la / l' / les、quel(le)(s) + 名词等）→ 在前面才和该直接宾语配合，在动词后面就不配合"
+   ],
+   "motto": "位置变化与代动词用 être 配主语；带直宾转 avoir，直宾前置才配合；走跑跳用 avoir",
+   "pairs": [
+    {
+     "a": "Elle est descendue à la cave.",
+     "b": "Elle a descendu les valises à la cave.",
+     "d": "不带直接宾语（下去）用 être 并与主语配合；加上直接宾语 les valises（搬下去）就改用 avoir 且不与主语配合"
+    },
+    {
+     "a": "Elle a écrit ces lettres hier.",
+     "b": "Ces lettres, elle les a écrites hier.",
+     "d": "助动词是 avoir：直接宾语 ces lettres 在动词后不配合；换成代词 les 放到前面后，过去分词要配合写成 écrites"
+    },
+    {
+     "a": "Elle est allée jusqu'au parc.",
+     "b": "Elle a couru jusqu'au parc.",
+     "d": "aller 表位置移动，用 être 且与主语配合；courir 表移动方式，一律用 avoir 且不与主语配合"
+    },
+    {
+     "a": "Paul et Marie sont arrivés en retard.",
+     "b": "Claire et Marie sont arrivées en retard.",
+     "d": "用 être 时分词与主语配合：男女混合主语用阳性复数 -s，全是阴性才用阴性复数 -es"
+    }
+   ],
+   "walk": {
+    "s": "Ce matin, Claire s'est levée tôt ; elle a sorti le chien, a marché jusqu'à la boulangerie, puis elle est rentrée : les brioches qu'elle a achetées sont encore chaudes !",
+    "z": "今天早上克莱尔起得很早；她遛了狗，走路去了面包店，然后回了家：她买的布里欧修面包还是热的！",
+    "steps": [
+     [
+      "se lever 用什么助动词，要不要配合？",
+      "代词式动词一律用 être；这里 se 为直接宾语，过去分词与 Claire（阴性单数）配合 → s'est levée"
+     ],
+     [
+      "sortir 平时用 être，这里为什么写 a sorti？",
+      "后面带了直接宾语 le chien（遛狗），所以改用 avoir，且不与主语配合 → a sorti"
+     ],
+     [
+      "marcher 表示移动，为什么用 avoir？",
+      "marcher 表示移动方式（走路），用 avoir，不与主语配合 → a marché"
+     ],
+     [
+      "rentrer 这里用什么助动词？",
+      "后面没有直接宾语（回家），仍用 être 并与 Claire 配合 → est rentrée"
+     ],
+     [
+      "a achetées 用的是 avoir，为什么末尾加了 -es？",
+      "关系代词 que 指代前面的阴性复数 les brioches（une brioche），是前置直接宾语 → 配合写成 achetées"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "adj-agree"
+   ],
+   "related": [
+    "imparfait",
+    "pc-imparfait",
+    "pronominaux",
+    "accord-pp",
+    "plus-que-parfait"
    ]
   },
   {
@@ -855,6 +1602,68 @@
    "traps": [
     "-ions、-iez 结尾时注意 -ier 动词：nous étudiions、vous étudiiez（两个 i）。",
     "-cer、-ger 动词：je commençais、il mangeait。"
+   ],
+   "decide": [
+    "先看动作在过去扮演什么角色：背景、状态、天气、年龄、习惯，或正在进行时被打断的动作 → 用未完成过去时；突然发生、打断背景的单次具体事件 → 改用复合过去时",
+    "是 être 吗？être 是唯一词干不规则的动词 → 直接用 ét-（j'étais、nous étions、ils étaient）；其他所有动词都往下找词干",
+    "取现在时 nous 形式，去掉 -ons 得词干：nous finissons → finiss-，nous faisons → fais-，nous prenons → pren-，nous buvons → buv-，nous voyons → voy-",
+    "按主语配词尾：je / tu 加 -ais，il / elle / on / 单数名词加 -ait，nous 加 -ions，vous 加 -iez，ils / elles / 复数名词加 -aient（-ais / -ait / -aient 读音相同，注意拼写）",
+    "最后核对拼写陷阱：① -ier 动词遇 -ions / -iez 保留两个 i（nous étudiions、vous oubliiez），其余人称只有一个 i；② -cer / -ger 动词在 -ais / -ait / -aient 前写 ç / ge（je commençais、il mangeait），在 -ions / -iez 前不加（nous commencions、vous mangiez）"
+   ],
+   "motto": "背景习惯用未完成；nous 去 ons，être 用 ét-；-ier 双 i，-cer/-ger 遇 a 才改",
+   "pairs": [
+    {
+     "a": "Tous les samedis, il prenait le train pour Lyon.",
+     "b": "Samedi dernier, il a pris le train pour Lyon.",
+     "d": "tous les samedis 表示过去反复的习惯 → 未完成过去时 prenait；samedi dernier 是某一次完成的事件 → 复合过去时 a pris"
+    },
+    {
+     "a": "Avant, il finissait toujours à six heures.",
+     "b": "Avant, il partait toujours à six heures.",
+     "d": "词干来自现在时 nous：nous finissons 带 -iss- → finissait；nous partons 不带 -iss- → partait"
+    },
+    {
+     "a": "En ce moment, nous étudions l'histoire de France.",
+     "b": "À l'époque, nous étudiions l'histoire de France.",
+     "d": "现在时是 nous étudions（一个 i）；未完成过去时词干 étudi- 加 -ions → nous étudiions（两个 i）"
+    },
+    {
+     "a": "En été, il nageait dans la rivière.",
+     "b": "En été, nous nagions dans la rivière.",
+     "d": "-ger 动词在 -ait（a 开头）前保留 e（nageait），在 -ions（i 开头）前不加 e（nagions）；-cer 动词同理（commençait / commencions）"
+    }
+   ],
+   "walk": {
+    "s": "Il neigeait dehors et nous étudiions tranquillement quand Paul est arrivé.",
+    "z": "外面正在下雪，我们正安安静静地学习，这时保罗到了。",
+    "steps": [
+     [
+      "三个动作分别扮演什么角色？",
+      "「下雪」是天气背景，「学习」是正在进行的动作 → 都用未完成过去时；「保罗到达」是打断背景的单次事件 → 用复合过去时（est arrivé）"
+     ],
+     [
+      "neiger 怎么变成 il 的未完成过去时？",
+      "词干 neig- 加 -ait；因为是 -ger 动词，在 a 前要保留 e 保持 /ʒ/ 音 → il neigeait"
+     ],
+     [
+      "étudier 怎么变成 nous 的未完成过去时？",
+      "现在时 nous étudions 去 -ons 得词干 étudi-，再加 -ions → nous étudiions（两个 i）"
+     ],
+     [
+      "为什么最后不用 Paul arrivait？",
+      "到达是一瞬间完成的事件，打断了前面的持续状态，所以用复合过去时 est arrivé"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "passe-compose"
+   ],
+   "related": [
+    "pc-imparfait",
+    "plus-que-parfait",
+    "conditionnel",
+    "discours-indirect"
    ]
   },
   {
@@ -894,6 +1703,68 @@
     "不要和条件式混淆：je parlerai（将来）/ je parlerais（条件）。",
     "si（如果）后面不用将来时：S'il fait beau, nous sortirons。间接问句的 si 可以：Je ne sais pas s'il viendra。",
     "口语多用近将来时；书面语和一连串的句子多用简单将来时。带时间词的现在时也可以表示将来：Je pars demain。"
+   ],
+   "decide": [
+    "句中有条件从句的 si（如果）吗？ → 有：表示将来的条件时，si 后面不用将来时，改用现在时（假设句则用未完成过去时）；但间接问句的 si（是否）后面可以用将来时",
+    "句中有 quand、lorsque、dès que 引导将来的事吗？ → 主句表将来或为命令式时，从句也要用将来时，不用现在时",
+    "说的是确定或预计会发生的将来，还是礼貌请求、愿望、假设？ → 礼貌、愿望、假设（含 si + 未完成过去时的主句）用条件式（-ais / -ait 等）；将来事实或计划用简单将来时（-ai / -a 等）",
+    "选哪种将来表达？ → 口语里眼前的安排或马上要发生的事多用近将来时（aller + 不定式），带明确时间词的现在时也可表将来；预测、承诺、书面语和一连串将来动作多用简单将来时",
+    "确定用简单将来时后，先定词干：属于不规则词干（ser- / aur- / ir- / fer- / viendr- / verr- / pourr- / voudr- / devr- / saur- 等）吗？ → 是就用不规则词干；否则用不定式（-re 动词先去掉词尾 -e；-oyer、acheter、appeler 等按现在时单数变拼写）",
+    "最后按主语加统一词尾：je -ai、tu -as、il / elle / on -a、nous -ons、vous -ez、ils / elles -ont"
+   ],
+   "motto": "词尾统一，-re 去 e，不规则记词干；quand 跟将来，条件 si 不用；-ai 将来，-ais 条件",
+   "pairs": [
+    {
+     "a": "Si tu rentres ce soir, appelle-moi.",
+     "b": "Quand tu rentreras ce soir, appelle-moi.",
+     "d": "条件从句 si 后面不用将来时，改用现在时；时间从句 quand 引导将来的事，要用将来时"
+    },
+    {
+     "a": "Je serai ravi s'il vient samedi.",
+     "b": "Je me demande s'il viendra samedi.",
+     "d": "前句的 si 是「如果」（条件），后面不用将来时；后句的 si 是「是否」（间接问句），后面可以用将来时"
+    },
+    {
+     "a": "Je serai ravi de vous revoir.",
+     "b": "Je serais ravi de vous revoir.",
+     "d": "只差一个 s：serai 是简单将来时，表示确定会再见；serais 是条件式，表示委婉的愿望"
+    },
+    {
+     "a": "Ce soir, nous allons dîner chez mes parents.",
+     "b": "Ce soir, nous dînerons chez mes parents.",
+     "d": "allons dîner（近将来时）偏口语，常用于眼前的安排；dînerons（简单将来时）偏书面，也适合接一连串将来动作"
+    }
+   ],
+   "walk": {
+    "s": "S'il fait beau demain, nous irons au parc, et quand nous rentrerons, je préparerai un gâteau.",
+    "z": "如果明天天气好，我们就去公园，等我们回来，我来做个蛋糕。",
+    "steps": [
+     [
+      "第一个从句说的是明天的天气，为什么 s'il 后面用 fait 而不是 fera？",
+      "这里的 si 表示条件（如果），条件从句里不用将来时，改用现在时 → fait"
+     ],
+     [
+      "主句动词是 aller，主语是 nous，简单将来时怎么变？",
+      "aller 是不规则词干 ir-，加上 nous 的词尾 -ons → nous irons"
+     ],
+     [
+      "quand 引导「等我们回来」，动词 rentrer 为什么也用将来时？",
+      "quand 引导将来的时间从句，主句表将来时，从句也要用将来时（不用现在时）→ nous rentrerons"
+     ],
+     [
+      "最后 préparer 的主语是 je，词尾是 -ai 还是 -ais？",
+      "这里说的是确定打算做的事，用简单将来时（不是条件式），不定式 préparer + -ai → je préparerai"
+     ]
+    ]
+   },
+   "prereq": [
+    "present"
+   ],
+   "related": [
+    "conditionnel",
+    "futur-anterieur",
+    "discours-indirect",
+    "temps-expr"
    ]
   },
   {
@@ -960,6 +1831,72 @@
     "penser à + 人不用 lui，要说 Je pense à lui / à elle。",
     "泛指一类东西时不用 le / la / les，说 ça：— Tu aimes le fromage ? — Oui, j'aime ça。",
     "ressembler à、plaire à、aller à（合适）、sourire à、manquer à 也用 lui / leur：Cette couleur lui va bien。"
+   ],
+   "decide": [
+    "先看动词本身怎么接宾语 → 不带介词直接接宾语（voir、connaître、appeler、aider、écouter、regarder、attendre 等）选直接宾语代词（COD）；通过 à 接人（parler à、téléphoner à、écrire à、répondre à、donner qqch à、plaire à、aller à「合适」、ressembler à、sourire à、manquer à 等）选间接宾语代词（COI）",
+    "再排除两个高频例外 → 泛指一类事物（如 aimer / adorer / détester + 泛指名词）不用 le / la / les，放在动词后用 ça；penser à + 人不能前置 lui / leur，留在动词后用 à + 重读代词（如 à lui / à elle / à eux / à elles）",
+    "需要直接宾语代词（COD）→ 阳性单数 le、阴性单数 la（元音或哑音 h 前省音成 l'）、复数 les；第一、二人称 me / te / nous / vous 直接、间接同形",
+    "需要间接宾语代词（COI，指人）→ 单数一律用 lui（不分男女），复数一律用 leur（作代词永远不加 s，带 s 的 leurs 是主有形容词）",
+    "最后确定代词位置 → 简单时态放变位动词前；复合时态放助动词前；有不定式放不定式前；否定时 ne … pas 把「代词 + 变位动词 / 助动词」夹在中间；肯定命令式放动词后并用连字符连接"
+   ],
+   "motto": "直宾 le/la/les，à+人 lui/leur 永不加 s；penser à 留后，泛指用 ça",
+   "pairs": [
+    {
+     "a": "Je l'appelle ce soir.",
+     "b": "Je lui téléphone ce soir.",
+     "d": "appeler qqn 直接接宾语 → l'（COD）；téléphoner à qqn 通过 à 接人 → lui（COI）"
+    },
+    {
+     "a": "Je lui parle tous les jours.",
+     "b": "Je pense à lui tous les jours.",
+     "d": "parler à + 人把间接宾语代词 lui 放在动词前；penser à + 人不能前置，必须保留介词写 à lui / à elle"
+    },
+    {
+     "a": "— Tu aimes cette chanson ? — Oui, je l'adore.",
+     "b": "— Tu aimes le jazz ? — Oui, j'adore ça.",
+     "d": "指代具体一首歌（cette chanson）用直接宾语代词 l'；泛指爵士乐这一类事物用放在动词后的 ça"
+    },
+    {
+     "a": "Écris-leur demain !",
+     "b": "Ne leur écris pas demain !",
+     "d": "肯定命令式里代词放动词后并加连字符；否定命令式里代词回到动词前，由 ne … pas 夹住"
+    }
+   ],
+   "walk": {
+    "s": "Sophie m'a écrit hier : je ne lui ai pas encore répondu, mais je vais l'appeler ce soir.",
+    "z": "索菲昨天给我写了信：我还没有回复她，不过我今晚会给她打电话。",
+    "steps": [
+     [
+      "前半句 répondre 怎么接人？Sophie 是女性，为什么用 lui 不用 la？",
+      "répondre à qqn 通过 à 接人，要用间接宾语代词（COI）；COI 单数不分阴阳，一律用 lui"
+     ],
+     [
+      "否定复合过去时里，lui、ne 和 pas 分别放哪儿？",
+      "复合时态里代词放助动词 ai 前，否定词 ne … pas 把「代词 + 助动词」一起夹住 → ne lui ai pas encore répondu"
+     ],
+     [
+      "后半句 appeler 怎么接人？为什么用 l' 不用 lui？",
+      "appeler qqn 直接接宾语（没有介词 à），用直接宾语代词 la；在元音开头的 appeler 前省音写成 l'"
+     ],
+     [
+      "有 vais + 不定式 appeler 时，代词 l' 放哪儿？",
+      "「变位动词 + 不定式」结构里，宾语代词放在不定式前，不放在变位动词 vais 前 → je vais l'appeler"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "negation",
+    "toniques",
+    "passe-compose"
+   ],
+   "related": [
+    "y-en",
+    "imperatif",
+    "double-pronoms",
+    "accord-pp",
+    "verbes-prep",
+    "poss-dem"
    ]
   },
   {
@@ -1027,6 +1964,71 @@
     "肯定命令式：Vas-y !（va 后面加 s）、Prends-en !",
     "y 和 en 一般不连用，只有 il y en a 例外。",
     "有 un / une 时也要用 en，并保留 un / une：— Tu as une voiture ? — Oui, j'en ai une；否定时不留：Je n'en ai pas。"
+   ],
+   "decide": [
+    "先看是不是代替整句话/形容词，或固定惯用语？ → 代替直接宾语从句或表语形容词用不变的中性 le（je le sais、je le suis）；s'en aller、en avoir assez、ne plus en pouvoir、en vouloir à qqn、ne pas s'en faire、s'y connaître、ça y est、n'y être pour rien 等惯用语直接按搭配用 en 或 y；否则往下判断",
+    "被替换的是「à / de + 具体的人」吗？ → 是：à + 人不用 y（parler à、téléphoner à → lui / leur；penser à → à lui / à elle），de + 人一般不用 en（parler de Marie → parler d'elle）；注意带数量词或不定冠词指人（trois frères、des enfants）仍用 en",
+    "是地点（不含 de + 地点）或「à + 事物 / 不定式 / 从句」吗？ → 是：用 y（代替 à、dans、sur、chez、en 引导的地点，以及 penser à、s'intéresser à、répondre à、participer à 等）",
+    "是「de + 事物 / 地点 / 不定式 / 从句」，或部分冠词、不定冠词、数量词引出的名词吗？ → 是：用 en；肯定句里数量词和 un / une 必须留在动词后（j'en ai trois / une），否定句里不保留 un / une（je n'en ai pas）",
+    "最后看句式定位置和词形：是一般句、否定句还是肯定命令式？ → 一般放在变位动词或不定式前；否定句把 ne … pas / plus / jamais 包在「代词 + 变位动词」外（je n'en veux pas）；肯定命令式放到动词后加连字符（Prends-en !），va 和 -er 动词的 tu 形式紧接 y / en 时加 -s（Vas-y !、Penses-y !）；y 和 en 除 il y en a 外一般不连用"
+   ],
+   "motto": "地点与 à + 事物用 y，de + 事物与数量用 en；指人另换，肯定留数量，命令 Vas-y",
+   "pairs": [
+    {
+     "a": "Elle revient à Lyon demain → Elle y revient demain.",
+     "b": "Elle revient de Lyon demain → Elle en revient demain.",
+     "d": "同样接地点 Lyon，revenir à（回到某地）用 y，revenir de（从某地回来）用 en"
+    },
+    {
+     "a": "Je pense à mon examen → J'y pense.",
+     "b": "Je pense à ma sœur → Je pense à elle.",
+     "d": "penser à 接事物（mon examen）用 y；接具体的人（ma sœur）不用 y，改用 à + 重读代词"
+    },
+    {
+     "a": "— Tu as une voiture ? — Oui, j'en ai une.",
+     "b": "— Tu as une voiture ? — Non, je n'en ai pas.",
+     "d": "代替 une voiture 都用 en，但肯定句要把 une 留在动词后，否定句不保留 une"
+    },
+    {
+     "a": "Vas-y tout de suite !",
+     "b": "N'y va pas tout de suite !",
+     "d": "肯定命令式把 y 放动词后加连字符并给 va 加 -s（Vas-y）；否定命令式把 y 放回动词前，va 不加 -s（N'y va pas）"
+    }
+   ],
+   "walk": {
+    "s": "— Tu vas au marché acheter des tomates ? — Non, je n'y vais pas : il y en a encore trois dans le frigo. Vas-y sans moi !",
+    "z": "——你去市场买西红柿吗？——不，我不去了：冰箱里还有三个。你自己去吧！",
+    "steps": [
+     [
+      "回答「去不去市场（au marché）」，用哪个代词，否定句怎么排？",
+      "au marché 是「à + 地点」→ 用 y；否定句把 n' … pas 包在「y + 动词」外面 → je n'y vais pas"
+     ],
+     [
+      "「冰箱里还有三个（西红柿）」里，为什么既有 en 又留着 trois？",
+      "des tomates 是不定冠词引出的名词且带数量 → 用 en 代替名词，数量词 trois 必须留在动词后面"
+     ],
+     [
+      "y 和 en 不是一般不连用吗，为什么这里可以写 il y en a？",
+      "il y a 加上 en 构成的 il y en a 是固定例外，且顺序永远是 y 在 en 前面"
+     ],
+     [
+      "最后一句肯定命令式为什么写成 Vas-y 而不是 Va-y？",
+      "肯定命令式把 y 放在动词后并加连字符，va 遇到 y 要加上 -s 构成连诵 → Vas-y"
+     ]
+    ]
+   },
+   "prereq": [
+    "partitif",
+    "place-prep",
+    "pronoms-objet",
+    "toniques"
+   ],
+   "related": [
+    "imperatif",
+    "double-pronoms",
+    "verbes-prep",
+    "lieu",
+    "negation"
    ]
   },
   {
@@ -1102,6 +2104,73 @@
     "「最好……」是 il vaut mieux + 不定式，不说 il faut mieux。",
     "bien、mal 的最高级：le mieux、le plus mal；mauvais 的最高级：le plus mauvais 或 le pire。",
     "plus 的发音：辅音前 [ply]，元音前 [plyz]；句末以及 plus de、plus que 表示「更多」时常读 [plys]。"
+   ],
+   "decide": [
+    "是两者相比（比较级），还是在范围里「最……」（最高级）？ → 比较级用 plus / moins / aussi / autant … que（不用 comme）；最高级加定冠词，范围用 de（du / des），不用 dans",
+    "涉及 bon / bien / mauvais / mal 或「最好做某事」吗？ → bon → meilleur(e)(s)（修饰名词），bien → mieux（修饰动词），不说 plus bon / plus bien；mauvais 比较级/最高级用 (le) pire 或 (le) plus mauvais，mal 最高级用 le plus mal；「最好……」用 il vaut mieux + 不定式",
+    "比较的是形容词/副词、名词还是动词？ → 形/副用 plus / moins / aussi + 词 + que；名词用 plus de / moins de / autant de + 名词 + que；动词用 动词 + plus / moins / autant + que（记住：aussi 配形/副，autant 配名/动）",
+    "最高级修饰名词还是动词？形容词在名词前还是后？ → 副词最高级永远用 le（le mieux、le plus vite）；形容词最高级冠词随名词变 le / la / les，放在名词后面时定冠词要重复（le restaurant le plus cher）",
+    "读到 plus 时怎么发音？ → 辅音开头的形/副前读 [ply]；元音或哑音 h 前联诵读 [plyz]；句末以及 plus de、plus que 表示「更多」时常读 [plys]"
+   ],
+   "motto": "形副 aussi，名动 autant，名词加 de；名用 meilleur 动用 mieux；最高级范围用 de",
+   "pairs": [
+    {
+     "a": "Elle est plus patiente que lui.",
+     "b": "Elle a plus de patience que lui.",
+     "d": "patiente 是形容词，直接用 plus；patience 是名词，必须加 de（plus de）"
+    },
+    {
+     "a": "Marc lit autant que Julie.",
+     "b": "Marc lit aussi vite que Julie.",
+     "d": "直接比较动词 lit 用 autant；加上副词 vite 后变成比较副词，改用 aussi"
+    },
+    {
+     "a": "Cette chanteuse est meilleure que l'autre.",
+     "b": "Cette chanteuse chante mieux que l'autre.",
+     "d": "修饰名词（作表语形容词）用 meilleur 且随阴性变 meilleure；修饰动词 chante 用副词 mieux，不变形"
+    },
+    {
+     "a": "C'est le plus beau quartier de la ville.",
+     "b": "C'est le quartier le plus calme de la ville.",
+     "d": "形容词 beau 放在名词前，定冠词只用一次；形容词 calme 放在名词后，定冠词 le 必须重复"
+    }
+   ],
+   "walk": {
+    "s": "C'est la boulangerie la plus connue du quartier : ses croissants sont meilleurs qu'ailleurs, et elle a autant de clients que le supermarché.",
+    "z": "这是街区里最有名的面包店：它的牛角面包比别处好吃，客人也跟超市一样多。",
+    "steps": [
+     [
+      "为什么 la boulangerie 后面还要再写一个 la（la plus connue）？",
+      "形容词 connue 放在阴性单数名词 boulangerie 后面，最高级的定冠词必须重复，且 connue 随阴性配合 → la boulangerie la plus connue"
+     ],
+     [
+      "范围「街区里」为什么用 du quartier，不用 dans le quartier？",
+      "最高级的范围用介词 de，不用 dans；de + le 缩合为 du → du quartier"
+     ],
+     [
+      "「更好吃」为什么写 meilleurs，不用 plus bons 或 mieux？",
+      "bon 的比较级是不规则的 meilleur（绝不说 plus bon）；这里是形容词修饰阳性复数 ses croissants，配合为 meilleurs，不用副词 mieux"
+     ],
+     [
+      "比较对象「别处」前面为什么用 qu'，不用 comme？",
+      "比较级引出比较对象永远用 que（元音前省音为 qu'），不用 comme"
+     ],
+     [
+      "「客人一样多」为什么用 autant de clients，不用 aussi clients？",
+      "比较的是名词 clients 的数量，同级比较用 autant de + 名词 + que（aussi 只配形容词或副词）"
+     ]
+    ]
+   },
+   "prereq": [
+    "adj-agree",
+    "contraction",
+    "toniques"
+   ],
+   "related": [
+    "mots-confondus",
+    "adj-place",
+    "adverbes",
+    "comparaison-nuances"
    ]
   },
   {
@@ -1159,6 +2228,74 @@
     "过去分词一般和主语配合，但 se 是间接宾语时不配合：Elles se sont téléphoné（téléphoner à qqn）。",
     "后面另有直接宾语时也不配合：Elle s'est lavé les mains。",
     "身体部位用定冠词：Je me lave les mains，不说 mes mains。"
+   ],
+   "decide": [
+    "先看主语是谁（哪怕动词是不定式） → 把词典里的 se 换成和主语同人称的代词：je → me、tu → te、il / elle / on → se、nous → nous、vous → vous、ils / elles → se；元音或哑音 h 前 me / te / se 省音成 m' / t' / s'",
+    "再看句型定代词和否定位置 → 简单时态放变位动词前；复合时态助动词一律用 être，代词放助动词前；接在变位动词或介词后的不定式，代词放不定式前；否定句里 ne … pas 夹住「自反代词 + 变位动词 / 助动词」",
+    "是命令式吗？ → 肯定命令式把代词放到动词后面并用连字符连接，te 变 toi（Lève-toi !、Asseyez-vous !）；否定命令式代词放回动词前面，仍用 te（Ne te lève pas !）",
+    "复合时态里，过去分词配不配合？ → 动词后面另有直接宾语（如 les mains、une robe），或者原动词靠 à 接人（parler à、téléphoner à、écrire à、répondre à、sourire à、plaire à、mentir à）时，都不配合；其余常见情况（含 se souvenir、s'occuper 等固定搭配）与主语性数配合（前置直宾见过去分词配合）",
+    "后面接身体部位（mains、dents、visage、yeux 等）？ → 自反代词已经说明是谁的，身体部位前用定冠词 le / la / les，不用主有形容词 mon / ma / mes"
+   ],
+   "motto": "代词跟主语变，复合全用 être；后有直宾或 à+人不配合；肯定命令放后 te→toi；身体用定冠词",
+   "pairs": [
+    {
+     "a": "Elle s'est lavée avant le dîner.",
+     "b": "Elle s'est lavé les mains avant le dîner.",
+     "d": "a 句没有别的直接宾语，s' 本身就是直接宾语，过去分词与主语 elle 配合（lavée）；b 句后面另有直接宾语 les mains，s' 变成间接宾语，过去分词不配合（lavé）"
+    },
+    {
+     "a": "Elles se sont vues à la gare.",
+     "b": "Elles se sont parlé à la gare.",
+     "d": "voir qqn 直接接人，se 是直接宾语 → 配合（vues）；parler à qqn 通过 à 接人，se 是间接宾语 → 不配合（parlé）"
+    },
+    {
+     "a": "Lève-toi tout de suite !",
+     "b": "Ne te lève pas tout de suite !",
+     "d": "肯定命令式把代词放在动词后、加连字符且 te 变 toi；否定命令式把代词放回动词前，仍用 te"
+    },
+    {
+     "a": "Il veut se reposer un peu.",
+     "b": "Je veux me reposer un peu.",
+     "d": "不定式前的代词不是固定的 se，必须随主语变化：主语是 il 用 se，主语换成 je 就要改成 me"
+    }
+   ],
+   "walk": {
+    "s": "Claire ne s'est pas encore brossé les dents, alors je vais d'abord me doucher.",
+    "z": "克莱尔还没刷牙，所以我先去洗个澡。",
+    "steps": [
+     [
+      "为什么用 s'est 而不是 s'a？",
+      "se brosser 是代动词，所有代动词的复合时态一律用助动词 être；主语 Claire 是第三人称单数，se 在元音前省音 → s'est"
+     ],
+     [
+      "否定句里 ne、s'、est、pas 怎么排顺序？",
+      "ne … pas 把「自反代词 + 助动词」一起夹在中间，encore 紧跟 pas 后，过去分词放最后 → ne s'est pas encore brossé"
+     ],
+     [
+      "主语是阴性 Claire，为什么过去分词写 brossé 而不写 brossée？",
+      "动词后面另有直接宾语 les dents，s' 相当于「给自己」（间接宾语），因此过去分词不与主语配合"
+     ],
+     [
+      "为什么写 les dents，不用 ses dents？",
+      "自反代词 s' 已经指明是谁的牙齿，身体部位前用定冠词 les，不用主有形容词 ses"
+     ],
+     [
+      "后半句 je vais d'abord me doucher 里，为什么用 me 而不是 se？",
+      "不定式前的自反代词不能照搬词典里的 se，必须跟着主语 je 变成 me"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "negation",
+    "passe-compose"
+   ],
+   "related": [
+    "pronoms-objet",
+    "imperatif",
+    "accord-pp",
+    "poss-dem",
+    "passif-autres"
    ]
   },
   {
@@ -1234,6 +2371,74 @@
     "后面接 y 或 en 时，为了连读要把 s 加回来：Vas-y !、Parles-en !",
     "肯定式的顺序是「动词-直接宾语-间接宾语」：Donne-le-moi，不说 Donne-moi-le。",
     "代动词：Assieds-toi ! / Ne t'assieds pas !"
+   ],
+   "decide": [
+    "先定对象（tu / nous / vous）并去掉主语 → 命令式只有这三个人称，一律不带主语代词；再看是不是四个不规则动词：être（sois / soyons / soyez）、avoir（aie / ayons / ayez）、savoir（sache / sachons / sachez）、vouloir（礼貌请求多用 veuillez）",
+    "是规则变化时，取直陈式现在时的 tu / nous / vous 形式 → 再检查 tu 形式去不去 -s：-er 动词、aller（va），以及 ouvrir / offrir / couvrir / découvrir 等现在时像 -er 的动词要去掉 -s（Parle !、Va !、Ouvre !）；其他 -ir（finir 类、partir 类）、-re 和 -oir 动词保留 -s（Finis !、Prends !、Assieds-toi !）",
+    "带宾语代词或自反代词时，先看肯定还是否定 → 肯定命令式把代词放到动词后面并加连字符，me / te 变成 moi / toi（Appelle-moi !、Lève-toi !；但紧跟 y / en 时省音为 m' / t'，如 Donne-m'en !）；否定命令式把代词放回动词前面、不加连字符，形式和语序同陈述句（Ne m'appelle pas !、Ne te lève pas !）",
+    "是肯定命令式，且动词刚去掉了 -s、后面紧跟 y 或 en 吗？ → 为了连读必须把 -s 补回来并加连字符（Vas-y !、Parles-en !、Penses-y !）；改成否定式后 y / en 移到动词前，-s 不再补回（N'y va pas !、N'en parle pas !）",
+    "有两个宾语代词连用吗？ → 肯定命令式顺序固定为「动词-直接宾语-间接宾语」（Donne-le-moi !、Montre-la-nous !、Envoyez-les-leur !）；否定命令式恢复陈述句语序：me / te / nous / vous 在 le / la / les 前（Ne me le dis pas !），le / la / les 在 lui / leur 前（Ne le lui répète pas !）"
+   ],
+   "motto": "-er/va/ouvre 去 s，接 y/en 补回；肯定代词放后（直先间、moi/toi），否定放回前",
+   "pairs": [
+    {
+     "a": "Parle de ce projet à ta collègue.",
+     "b": "Parles-en à ta collègue.",
+     "d": "-er 动词的 tu 命令式单用时去掉词尾 -s（Parle）；后面紧跟 en 时为了连读必须补回 -s 并加连字符（Parles-en）"
+    },
+    {
+     "a": "Vas-y avant midi.",
+     "b": "N'y va pas avant midi.",
+     "d": "肯定式里 va 后紧跟 y，必须补回 -s 写作 Vas-y；否定式里 y 移到动词前，va 后不再接 y，因此不加 -s（N'y va pas）"
+    },
+    {
+     "a": "Donne-le-moi demain.",
+     "b": "Ne me le donne pas demain.",
+     "d": "肯定命令式把双代词放动词后、直接宾语在前且 me 变 moi（-le-moi）；否定命令式把代词移回动词前并恢复陈述句语序（me 在 le 前）"
+    },
+    {
+     "a": "Assieds-toi près de la fenêtre.",
+     "b": "Ne t'assieds pas près de la fenêtre.",
+     "d": "代动词肯定命令式把自反代词放动词后、加连字符且 te 变 toi；否定命令式放回动词前，用 te（元音前省音为 t'）"
+    }
+   ],
+   "walk": {
+    "s": "Sois calme, ne t'inquiète pas : ouvre ce dossier et parles-en au directeur.",
+    "z": "冷静点，别担心：打开这份文件，然后跟主任谈谈这件事。",
+    "steps": [
+     [
+      "这四个命令式都没有主语，怎么判断是对谁说的？",
+      "从自反代词 t'（te）以及 sois、ouvre、parles 可以看出人称都是 tu；命令式只有 tu、nous、vous 三个人称，一律不写主语"
+     ],
+     [
+      "为什么写 Sois calme 而不是 Es calme？",
+      "être 的命令式是不规则形式（sois、soyons、soyez），不取直陈式现在时 tu es，所以 tu 形式用 Sois"
+     ],
+     [
+      "代动词 s'inquiéter 在否定命令式里怎么排顺序？",
+      "否定命令式里自反代词留在动词前面、不加连字符，也不变 toi；te 在元音前省音 → ne t'inquiète pas"
+     ],
+     [
+      "ouvrir 以 -ir 结尾，为什么 ouvre 后面没有 -s？",
+      "ouvrir、offrir 这类动词的现在时像 -er 动词一样变化（tu ouvres），因此命令式 tu 形式也要去掉词尾 -s → ouvre"
+     ],
+     [
+      "parler 是 -er 动词，为什么 parles-en 这里又带上了 -s？",
+      "肯定命令式里代词 en 放在动词后并加连字符；-er 动词的 tu 形式后面紧跟 y 或 en 时，为了连读必须把去掉的 -s 补回来 → parles-en"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "negation",
+    "pronoms-objet",
+    "y-en"
+   ],
+   "related": [
+    "pronominaux",
+    "double-pronoms",
+    "toniques",
+    "subjonctif"
    ]
   },
   {
@@ -1339,6 +2544,76 @@
     "C'est bon 说味道和身体的感觉，C'est bien 说其他的评价：Le chocolat, c'est bon；Le sport, c'est bien。",
     "avoir faim / froid / peur / mal 用 très，不用 beaucoup：J'ai très faim。",
     "喜欢人的程度：aimer bien（有好感）< aimer beaucoup（很喜欢）< aimer（爱）。"
+   ],
+   "decide": [
+    "说年龄、饿/渴/冷/热/怕/困/对错，还是说天气或某处「有」什么？ → 人的年龄、感觉和对错一律用 avoir（avoir vingt ans、avoir faim / froid / peur / raison），加强感觉程度用 très（avoir très faim / froid / peur / mal，不用 beaucoup）；说天气冷暖晴阴用 il fait（如 il fait froid / chaud / beau），说某处存在某物用 il y a",
+    "分不清 savoir、connaître 还是 pouvoir？ → 接不定式或 que / où / si 等从句，表示学会的本领或知道的事 → savoir；直接接人、地方或作品名词表示认识或熟悉 → connaître；表示当下客观上做得到或被允许 → pouvoir",
+    "选 aller、venir、retourner、revenir 还是 rentrer？ → 先看说话人的位置：去别处用 aller，来说话人或听话人所在处、或跟说话人同去用 venir；再去别处用 retourner，回到此处用 revenir，回家或回国用 rentrer",
+    "「参观 / 看望」后面接地方还是人？ → 接城市、博物馆、公寓等地方 → visiter；接人 → aller voir 或 rendre visite à",
+    "修饰名词还是修饰动词？ → 修饰名词用形容词（bon / mauvais / rapide），修饰动词用副词（bien / mal / vite）；加强形容词或副词用 très，加强动词用 beaucoup；用 C'est 评价时，说味道和身体感觉用 C'est bon，其他评价用 C'est bien；对人说喜欢，程度由浅到深是 aimer bien < aimer beaucoup < aimer",
+    "分不清 neuf / nouveau 或 an / année（jour / journée、soir / soirée）？ → 全新未用过（作定语放名词后）用 neuf，新换的、和以前不同的（作定语放名词前）用 nouveau；年龄和单纯计数用 an，强调整段过程或接 tout、chaque、序数词、形容词时用 année（journée / soirée 同样用于强调整段持续过程，如 toute la journée、une bonne soirée）"
+   ],
+   "motto": "年龄冷饿用 avoir，感觉加强用 très；savoir 接动从，connaître 接名；味 bon 评 bien",
+   "pairs": [
+    {
+     "a": "Il fait froid ici.",
+     "b": "J'ai froid ici.",
+     "d": "说环境或天气冷用无人称 il fait froid；说人自己觉得冷固定用 avoir froid"
+    },
+    {
+     "a": "Je sais jouer du piano.",
+     "b": "Je peux jouer du piano.",
+     "d": "savoir 表示学会了弹钢琴这项本领；pouvoir 表示此刻客观条件允许或被准许弹钢琴"
+    },
+    {
+     "a": "Elle a acheté une nouvelle voiture.",
+     "b": "Elle a acheté une voiture neuve.",
+     "d": "nouvelle 放名词前，指新换的、和以前不同的车（可能是二手）；neuve 放名词后，指全新、没用过的车"
+    },
+    {
+     "a": "J'aime bien Paul.",
+     "b": "J'aime Paul.",
+     "d": "对人用 aimer bien 只是「有好感」；直接用 aimer 不加副词反而程度最强，表示「爱」"
+    }
+   ],
+   "walk": {
+    "s": "Samedi, je vais voir mon nouveau voisin : il a vingt ans, il sait bien cuisiner et on va passer une bonne soirée.",
+    "z": "星期六我去看我的新邻居：他二十岁，很会做饭，我们会度过一个愉快的夜晚。",
+    "steps": [
+     [
+      "看望邻居为什么用 aller voir，不用 visiter？",
+      "邻居是人，看望人必须用 aller voir（或 rendre visite à）；visiter 只用于参观地方"
+     ],
+     [
+      "为什么说 mon nouveau voisin，不用 neuf？",
+      "nouveau 放在名词前，表示新来的、和以前不同的；neuf 指全新未用过的物品，放名词后，不能形容人"
+     ],
+     [
+      "为什么是 il a vingt ans，不用 est 或 années？",
+      "表达年龄固定用 avoir；接在数词 vingt 后单纯计数用 ans，不用 années"
+     ],
+     [
+      "为什么用 il sait bien cuisiner，不用 connaît 或 bon？",
+      "接动词不定式表示学会的本领用 savoir；修饰动词 cuisiner 要用副词 bien，不用形容词 bon"
+     ],
+     [
+      "最后为什么是 une bonne soirée，不用 un bon soir？",
+      "带形容词 bonne、强调整段夜晚的时光时用 soirée，不用 soir"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "adj-agree",
+    "cest-ilest"
+   ],
+   "related": [
+    "adverbes",
+    "adj-place",
+    "modaux",
+    "comparatif",
+    "temps-expr",
+    "verbes-prep"
    ]
   },
   {
@@ -1424,6 +2699,74 @@
     "demi 在名词前不变，用连字符：une demi-heure；在名词后配合：une heure et demie。",
     "「每两天」说 tous les deux jours，不说 chaque deux jours。",
     "le matin、le soir 不加介词就表示「在上午、在晚上」：Je travaille le matin。"
+   ],
+   "decide": [
+    "是在拼写数字吗？ → 先看 vingt / cent 是否被乘且位于数字末尾（是才加 s：quatre-vingts、deux cents；后面还有数字不加）；mille 永不变；million / milliard 是名词，复数加 s 且直接接名词时加 de",
+    "数字以 un 或 onze 结尾吗（21–91）？ → 21、31、41、51、61、71 用 et（vingt et un、soixante et onze）；81、91 不用 et（quatre-vingt-un、quatre-vingt-onze）",
+    "是在说日期、星期、时段，还是月份、年份、季节、世纪？ → 具体日期用 le（1 号用 le 1er）；星期单次不加冠词、每周重复加 le；le matin / le soir 不加介词；月份和年份用 en（或 au mois de / début / fin + 月份），世纪用 au，季节用 au printemps，其余三个季节常用 en（en été、en automne、en hiver）",
+    "是在报钟点或说准点与否吗？ → 报钟点一律用 il est（不用 c'est）；整点以外记 et quart、et demie、moins le quart，正午午夜直接说 midi / minuit（不加 heures）；准时 à l'heure，早到 en avance，迟到 en retard",
+    "用到 demi（半）了吗？ → 放在名词前不变且加连字符（une demi-heure）；放在名词后随前面名词配合阴阳性、永不加复数 s（une heure et demie；midi / minuit 为阳性，用 et demi）",
+    "是在表达频率吗？ → 「每 N 个……」（如每两天 tous les deux jours）用 tous les / toutes les + 数字 + 复数（不用 chaque）；「每……几次」用次数 + par + 不带冠词的单数时间名词（deux fois par semaine）"
+   ],
+   "motto": "尾乘 vingt/cent 加 s，mille 不变；日 le 月年 en 春世纪 au；前 demi- 后配合",
+   "pairs": [
+    {
+     "a": "Le musée expose deux cents tableaux.",
+     "b": "Le musée expose deux cent vingt tableaux.",
+     "d": "cent 被乘且后面没有别的数字时加 s（deux cents）；后面还有数字就不加 s（deux cent vingt）"
+    },
+    {
+     "a": "Lundi, je travaille à la maison.",
+     "b": "Le lundi, je travaille à la maison.",
+     "d": "不加冠词的 lundi 指「这个星期一」（单次）；加定冠词 le lundi 指「每个星期一」（习惯）"
+    },
+    {
+     "a": "La réunion dure une demi-heure.",
+     "b": "La réunion dure une heure et demie.",
+     "d": "demi 在名词前不变且加连字符（une demi-heure）；在阴性名词 heure 后要配合（une heure et demie）"
+    },
+    {
+     "a": "Elle arrose les plantes chaque jour.",
+     "b": "Elle arrose les plantes tous les deux jours.",
+     "d": "chaque 只能接单数名词（chaque jour）；表示「每两天 / 每隔一天」必须用 tous les deux jours，不能说 chaque deux jours"
+    }
+   ],
+   "walk": {
+    "s": "Le club ouvre le 1er avril : au printemps, les cours ont lieu le matin, deux fois par semaine, et durent une heure et demie.",
+    "z": "俱乐部四月一日开放：春天课程在上午进行，每周两次，每次一个半小时。",
+    "steps": [
+     [
+      "四月一日为什么写 le 1er avril，不写 le un avril？",
+      "具体日期用 le + 数字 + 月份，只有每月 1 号要用序数词 premier（缩写 1er）"
+     ],
+     [
+      "「在春天」为什么用 au printemps，不用 en printemps？",
+      "été、automne、hiver 用 en，唯独辅音开头的 printemps 用 au printemps"
+     ],
+     [
+      "「在上午」为什么直接写 le matin，前面不加介词？",
+      "le matin、le soir 前面不加介词就直接表示「在上午、在晚上」"
+     ],
+     [
+      "「每周两次」为什么是 deux fois par semaine，不加 la？",
+      "「每……几次」固定用 次数 + par + 不带冠词的单数时间名词"
+     ],
+     [
+      "「一个半小时」里的 demie 为什么加 -e，又不加 -s？",
+      "demi 放在阴性名词 heure 后面要配合阴性写成 demie，且在名词后永远不加复数 s"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender",
+    "contraction",
+    "cest-ilest"
+   ],
+   "related": [
+    "temps-expr",
+    "indefinis",
+    "prepositions",
+    "proportion"
    ]
   },
   {
@@ -1480,6 +2823,68 @@
     "si 后面不能用条件式：Si j'aurais ✗ → Si j'avais ✓。",
     "je voudrais（条件）和 je voudrai（将来）只差一个 s，发音也不同。",
     "提建议也可以用 si + 未完成过去时的问句：Si on allait au cinéma ?"
+   ],
+   "decide": [
+    "句中是条件连词 si（如果）引导从句吗？ → 条件 si 后面绝不用条件式：与现在不符或不太可能的假设用「si + 未完成过去时」，主句才用条件式；很有可能实现的将来条件用「si + 现在时」，主句用简单将来时",
+    "是用「Si on / Si tu … ?」提建议的问句吗？ → 同样遵守 si 的规则，动词用未完成过去时（Si on allait… ?），不用条件式",
+    "说的是确定的事实和计划，还是礼貌请求、愿望、建议、预计，或由 sans / avec / à ta place 引出的假设？ → 确定的将来计划用简单将来时（je 词尾 -ai）；礼貌、愿望、建议、预计和假设结果用条件式现在时（je 词尾 -ais）",
+    "要用到提建议、表愿望或表预计的常用句型吗？ → 建议用 tu devrais / pourrais + 不定式、tu ferais mieux de + 不定式、il vaudrait mieux + 不定式（指明由谁来做时接 que + 虚拟式）；很想做某事用「条件式 + bien」；预计用 devoir 的条件式",
+    "确定要用条件式现在时后，怎么变位？ → 取该动词简单将来时的词干（-re 去 e；不规则词干如 ser- / aur- / ir- / fer- / pourr- / voudr- / devr- / saur- / verr- / viendr- / vaudr- / enverr- / courr-），再加未完成过去时的统一词尾（-ais、-ais、-ait、-ions、-iez、-aient）"
+   ],
+   "motto": "将来词干接未完词尾；条件 si 后不用条件式，Si on 提议用未完；-ai 将来，-ais 条件",
+   "pairs": [
+    {
+     "a": "Je pourrai passer au bureau vers 18 heures.",
+     "b": "Je pourrais passer au bureau vers 18 heures.",
+     "d": "只差一个 s：pourrai 是简单将来时，表示确定的安排（我 18 点能过去）；pourrais 是条件式，语气更委婉，带提议或商量的意味"
+    },
+    {
+     "a": "Si le loyer baisse, nous resterons dans ce quartier.",
+     "b": "Si le loyer baissait, nous resterions dans ce quartier.",
+     "d": "si + 现在时配简单将来时，表示可能实现的条件；si + 未完成过去时配条件式，表示眼下不太可能或与现实相反的假设"
+    },
+    {
+     "a": "Tu dois parler au responsable avant vendredi.",
+     "b": "Tu devrais parler au responsable avant vendredi.",
+     "d": "直陈式 dois 表示必须履行的义务；条件式 devrais 把语气放缓为建议（你应该、最好）"
+    },
+    {
+     "a": "Il vaudrait mieux prendre les billets dès aujourd'hui.",
+     "b": "Il vaudrait mieux que tu prennes les billets dès aujourd'hui.",
+     "d": "不指明主语时，il vaudrait mieux 直接接不定式（不加 de）；指明由谁来做时，接 que + 虚拟式"
+    }
+   ],
+   "walk": {
+    "s": "Si tu pouvais te libérer vendredi, nous irions voir cette exposition ; sinon, il vaudrait mieux réserver pour dimanche.",
+    "z": "如果你周五能抽得出空，我们就去看那个展览；不然的话，最好还是订周日的票。",
+    "steps": [
+     [
+      "句首的 si 引出假设，动词 pouvoir 为什么用 pouvais 而不是 pourrais？",
+      "条件连词 si 后面不能用条件式；对现在或将来不太确定的假设，si 从句用未完成过去时 → tu pouvais"
+     ],
+     [
+      "主句动词 aller 在假设结果里用什么形式？",
+      "si + 未完成过去时，主句用条件式现在时：aller 的将来时词干是不规则的 ir-，加上 nous 的未完成词尾 -ions → nous irions"
+     ],
+     [
+      "后半句用 sinon 引出另一种假设情况，il vaudrait mieux 是怎么构成的？",
+      "valoir 的将来时词干不规则（vaudr-），加第三人称单数词尾 -ait → il vaudrait mieux（最好……）"
+     ],
+     [
+      "il vaudrait mieux 后面为什么直接接 réserver，没有加 de？",
+      "il vaudrait mieux 后直接接不定式，不加 de（需要加 de 的是 tu ferais mieux de + 不定式）"
+     ]
+    ]
+   },
+   "prereq": [
+    "futur",
+    "imparfait"
+   ],
+   "related": [
+    "cond-passe",
+    "cond-incertain",
+    "discours-indirect",
+    "modaux"
    ]
   },
   {
@@ -1536,6 +2941,71 @@
     "espérer que、penser que（肯定）后面用直陈式：J'espère qu'il viendra。",
     "主句和从句主语相同时用不定式：Je veux partir（不说 Je veux que je parte）。",
     "après que 后面用直陈式。"
+   ],
+   "decide": [
+    "先判断要不要用虚拟式：主句表示意愿、必要、情感、怀疑（il faut que、vouloir que、souhaiter que、être content que、avoir peur que、douter que），或连词 bien que、pour que、avant que、à condition que → 进入下一步；肯定的 espérer que、penser que，以及 après que → 直接用直陈式",
+    "再看主句和从句的主语是否相同？→ 相同就不用 que 从句，改用不定式（Je veux partir、content d'être là、avant de partir、pour réussir）；但 bien que 没有不定式说法，主语相同也保留从句。主语不同 → 下一步",
+    "从句动词是七大常用不规则动词吗？→ 是：直接记词干——être (soi-/soy-)、avoir (ai-/ay-)、faire (fass-)、pouvoir (puiss-)、savoir (sach-)；aller 和 vouloir 在单数和 ils 用 aill- / veuill-，在 nous / vous 退回 all- / voul-（allions、vouliez）",
+    "不是上述不规则动词 → 取现在时 ils 去掉 -ent 作词干（ils finissent → finiss-，ils partent → part-，ils prennent → prenn-）；主语是 nous / vous 且该动词现在时 nous 与 ils 词干不同（venir、prendre、boire、devoir、voir 等），改用现在时 nous 去 -ons 的词干（venions、prenions、buvions）",
+    "最后加统一词尾：-e、-es、-e、-ions、-iez、-ent（être 除外：sois / sois / soit / soyons / soyez / soient；avoir 除外：aie / aies / ait / ayons / ayez / aient）；-ier 动词在 nous / vous 保留两个 i（étudiions、oubliiez）"
+   ],
+   "motto": "同主多改不定，异主用虚拟；ils 去 ent 接词尾，七大不规则记牢；espérer、après 用直陈",
+   "pairs": [
+    {
+     "a": "Je souhaite partir plus tôt aujourd'hui.",
+     "b": "Je souhaite que tu partes plus tôt aujourd'hui.",
+     "d": "主语都是 je 时改用不定式 partir；从句换了主语 tu，才用 que + 虚拟式 partes"
+    },
+    {
+     "a": "J'espère qu'elle aura sa réponse vendredi.",
+     "b": "Je souhaite qu'elle ait sa réponse vendredi.",
+     "d": "espérer que 后面用直陈式（这里用将来时 aura）；souhaiter que 表示意愿 → 虚拟式 ait"
+    },
+    {
+     "a": "Elle me prévient toujours avant qu'il prenne une décision.",
+     "b": "Elle me prévient toujours après qu'il a pris une décision.",
+     "d": "avant que 后面用虚拟式（prenne）；après que 后面用直陈式（这里用复合过去时 a pris）"
+    },
+    {
+     "a": "Il faut qu'ils aillent à la préfecture demain.",
+     "b": "Il faut que nous allions à la préfecture demain.",
+     "d": "aller 的虚拟式在单数和 ils 用不规则词干 aill-（aillent），但 nous / vous 退回 all-（allions），不写 aillions"
+    }
+   ],
+   "walk": {
+    "s": "Je veux terminer ce rapport avant de rentrer, pour que vous puissiez le relire demain ; j'espère que nous pourrons l'envoyer dès lundi.",
+    "z": "我想在回家前把这份报告写完，好让您明天能审阅一下；希望我们周一就能发出去。",
+    "steps": [
+     [
+      "为什么说 Je veux terminer 和 avant de rentrer，而不用 que 从句？",
+      "「想写完」「回家」的主语都是 je，主句和从句主语相同时不用 que + 虚拟式，改用不定式 terminer 和 avant de rentrer"
+     ],
+     [
+      "pour que 后面的主语换成了 vous，动词 pouvoir 怎么变？",
+      "主语不同，pour que 触发虚拟式；pouvoir 是不规则动词，全人称用词干 puiss-，vous 加 -iez → vous puissiez"
+     ],
+     [
+      "后半句同样用 pouvoir，为什么 j'espère que 后面用 pourrons 而不是 puissions？",
+      "espérer que 后面用直陈式，不用虚拟式；说下周一将来的事 → 简单将来时 nous pourrons"
+     ],
+     [
+      "从句动词如果有两个词干，什么时候要特别留心？",
+      "当主语是 nous / vous 时（如 aller → allions、prendre → prenions、venir → venions），要看是不是退回现在时 nous 的词干；而 pouvoir、faire、savoir 全人称词干不变（puiss-、fass-、sach-）"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "passe-compose",
+    "futur"
+   ],
+   "related": [
+    "subj-indicatif",
+    "subj-passe",
+    "but",
+    "opposition-concession",
+    "anteriorite",
+    "infinitif"
    ]
   },
   {
@@ -1609,6 +3079,70 @@
     "「……的方式」说 la façon dont、la manière dont，不说 la façon que。",
     "dont 还可以表示「其中」：J'ai trois frères, dont deux vivent à Lyon。",
     "que、dont、où 后面的名词主语可以放到动词后：la maison où habitent mes parents。"
+   ],
+   "decide": [
+    "先把先行词放回从句，还原成完整小句（注意看动词后面有没有倒装的名词主语，如 la maison … habitent mes parents → mes parents habitent dans la maison）→ 不看先行词是人还是物，只看它在从句里的成分",
+    "先行词在从句里作主语吗？ → 是：用 qui，永远不省音（即使后面是元音或哑音 h，也写 qui arrive、qui habite）",
+    "还原后先行词前需要介词 de 吗（parler de、avoir besoin de、être fier de 等搭配，或表示所属「……的」、整体中的「其中」，以及表示「……的方式」的 la façon / la manière 后）？ → 是：用 dont",
+    "还原后在从句里作地点状语，或紧接时间名词（le jour、le moment、l'année、l'époque 等）作时间状语吗？ → 是：用 où（不说 le jour quand 或 le jour que）",
+    "还原后在从句里作直接宾语（直接接在及物动词后、不带介词）吗？ → 是：用 que（元音或哑音 h 前省音为 qu'）；从句用 avoir 构成复合时态时，过去分词须与先行词性数配合"
+   ],
+   "motto": "主语 qui 不省音，直宾 que 省音并配合，带 de / 方式 / 其中用 dont，地点时间用 où",
+   "pairs": [
+    {
+     "a": "C'est une ville que j'adore.",
+     "b": "C'est une ville où je travaille.",
+     "d": "同一个先行词 une ville，adorer 直接接宾语用 que；travailler 在城里工作作地点状语用 où"
+    },
+    {
+     "a": "C'est un projet que nous préparons.",
+     "b": "C'est un projet dont nous parlons.",
+     "d": "préparer qqch 直接接宾语用 que；parler de qqch 带介词 de，要用 dont"
+    },
+    {
+     "a": "Je n'oublierai jamais le jour que nous avons choisi.",
+     "b": "Je n'oublierai jamais le jour où nous sommes partis.",
+     "d": "le jour 作 choisir 的直接宾语（选的那一天）用 que；作时间状语（在那一天出发）用 où"
+    },
+    {
+     "a": "Voici la journaliste qui interroge le ministre.",
+     "b": "Voici la journaliste qu'interroge le ministre.",
+     "d": "只换关系代词就互换主宾：qui 表示记者采访部长（主语）；qu' 表示部长采访记者（直宾，名词主语 le ministre 倒装在动词后）"
+    }
+   ],
+   "walk": {
+    "s": "Le jour où j'ai relu les lettres que m'a écrites ma grand-mère, j'ai compris la façon dont elle voyait la vie.",
+    "z": "重读祖母写给我的那些信的那一天，我理解了她看待生活的方式。",
+    "steps": [
+     [
+      "Le jour 后面为什么用 où，而不用 quand 或 que？",
+      "还原从句是 j'ai relu les lettres ce jour-là：时间名词作时间状语 → 用 où（le jour où）"
+     ],
+     [
+      "les lettres 后面没有直接出现主语，而是紧跟 m'a écrites，为什么不用 qui 而用 que？",
+      "后面的名词 ma grand-mère 是倒装主语（ma grand-mère m'a écrit ces lettres），les lettres 是直接宾语 → 用 que"
+     ],
+     [
+      "为什么过去分词写成 écrites 而不是 écrit？",
+      "que 指代前置直接宾语 les lettres（阴性复数），复合时态里过去分词要与之性数配合 → écrites"
+     ],
+     [
+      "la façon 后面为什么用 dont？",
+      "「……的方式」固定用 la façon dont（原结构 voir la vie de cette façon 带介词 de），不能说 la façon que"
+     ]
+    ]
+   },
+   "prereq": [
+    "pronoms-objet",
+    "y-en",
+    "passe-compose"
+   ],
+   "related": [
+    "relatifs-composes",
+    "accord-pp",
+    "mise-en-relief",
+    "verbes-prep",
+    "interrogation"
    ]
   },
   {
@@ -1665,6 +3199,69 @@
     "两个过去的动作有先后时，先发生的用愈过去时，不要两个都用复合过去时。",
     "助动词用未完成过去时（avais、était），不是现在时：j'avais vu，不是 j'ai vu。",
     "si 后面不能用条件式：Si j'avais su…，不说 Si j'aurais su…"
+   ],
+   "decide": [
+    "先找句子的时间基准：上下文已经处在过去（复合过去时、未完成过去时等），而这个动作发生得更早吗？ → 是：用愈过去时，不要两个动作都用复合过去时；不是更早 → 改用复合过去时或未完成过去时",
+    "是 si 引导的条件句，且主句用条件式过去时（或表示与过去事实相反的假设）吗？ → si 后面必须用愈过去时，绝不能用条件式（Si j'avais su，不说 Si j'aurais su）",
+    "是过去时主句引出的间接引语（il a dit que…、elle m'a demandé si…），原话是复合过去时吗？ → 转述时退成愈过去时",
+    "选助动词并变位：用 avoir 还是 être 与复合过去时完全相同（代词式动词和表位置/状态变化的那组不及物动词如 aller、venir、partir、arriver、tomber 等用 être，其余用 avoir），但助动词必须用未完成过去时（avais / avait / avions… 或 étais / était / étions…），不是现在时",
+    "核对过去分词配合与副词位置：用 être 时一般与主语配合，用 avoir 时只有直接宾语前置（如 que、le / la / les 等）才配合；déjà、jamais、mal、trop 等短副词放在助动词和过去分词之间"
+   ],
+   "motto": "过去的过去用愈过去；助动词变未完成，avoir/être 与配合同复合过去；si 后不用条件式",
+   "pairs": [
+    {
+     "a": "Quand je suis arrivé, le train est parti.",
+     "b": "Quand je suis arrivé, le train était parti.",
+     "d": "两句都用复合过去时（a）表示「我一到，火车就开了」（先后紧接）；改用愈过去时（b）表示「我到之前，火车已经开走了」"
+    },
+    {
+     "a": "Quand nous sommes entrés dans la salle, le concert commençait déjà.",
+     "b": "Quand nous sommes entrés dans la salle, le concert avait déjà commencé.",
+     "d": "未完成过去时（a）表示进去时音乐会「正在开始」；愈过去时（b）表示进去之前音乐会「已经开始了」"
+    },
+    {
+     "a": "Il me dit qu'il a déjà fini son rapport.",
+     "b": "Il m'a dit qu'il avait déjà fini son rapport.",
+     "d": "引述动词是现在时（a），从句保留复合过去时；引述动词变成过去时（b），从句里更早完成的动作要退成愈过去时"
+    },
+    {
+     "a": "Si j'avais le temps, je viendrais avec toi.",
+     "b": "Si j'avais eu le temps, je serais venu avec toi.",
+     "d": "si + 未完成过去时配条件式现在时（a）假设现在或将来；si + 愈过去时配条件式过去时（b）假设与过去事实相反的情况"
+    }
+   ],
+   "walk": {
+    "s": "Quand Julie est arrivée au théâtre, ses amis étaient déjà entrés ; si elle avait vérifié l'heure qu'ils lui avaient indiquée, elle n'aurait pas raté le début du spectacle.",
+    "z": "朱莉到剧院的时候，她的朋友们已经进去了；她要是核对过他们告诉她的时间，就不会错过演出开场了。",
+    "steps": [
+     [
+      "为什么用 étaient déjà entrés，而不是 sont déjà entrés？",
+      "朋友们「进去」发生在朱莉「到达」（est arrivée）之前，属于过去的过去 → 用愈过去时，不能两个都用复合过去时；entrer 用 être 的未完成过去时 étaient，与 ses amis（阳性复数）配合写 entrés，déjà 放中间"
+     ],
+     [
+      "si 后面为什么用 avait vérifié，而不用 aurait vérifié？",
+      "主句 elle n'aurait pas raté 是条件式过去时，表示与过去事实相反的假设 → si 后面必须用愈过去时（avait vérifié），绝不能用条件式"
+     ],
+     [
+      "qu'ils lui avaient indiquée 为什么用愈过去时，而且末尾加了 -e？",
+      "「告知时间」在「核对时间」之前完成 → 用愈过去时；indiquer 用 avoir 的未完成过去时 avaient，关系代词 que 指代前置直接宾语 l'heure（une heure，阴性单数），过去分词配合写成 indiquée"
+     ],
+     [
+      "整句愈过去时里的助动词 étaient、avait 和 avaient 有什么共同点？",
+      "都是未完成过去时（avoir / être 的 imparfait），不是现在时（sont / a / ont），这是愈过去时的固定构成"
+     ]
+    ]
+   },
+   "prereq": [
+    "passe-compose",
+    "imparfait"
+   ],
+   "related": [
+    "pc-imparfait",
+    "cond-passe",
+    "discours-indirect",
+    "accord-pp",
+    "futur-anterieur"
    ]
   },
   {
@@ -1717,6 +3314,74 @@
     "-ger、-cer 动词按 nous 的词干：en mangeant、en commençant。",
     "代词放在 en 和分词之间：en se levant、en le voyant。",
     "现在分词前面没有 en 时，可以修饰句中别的名词：J'ai vu Paul sortant du cinéma 是保罗从电影院出来。"
+   ],
+   "decide": [
+    "两个动作是同一个主语做的吗？不是 → 不能用副动词，改用相应从句（如 pendant que、quand、si）；如果只是修饰句中另一个名词（相当于 qui 从句），用不带 en 的现在分词（J'ai vu Paul sortant du cinéma）",
+    "主语相同，且表达同时、方式、条件或原因吗？是 → 用副动词（en + 现在分词）；想强调同时兼顾或让步（「一边……却……」「明明……还……」），在前面加不变的 tout → tout en + 现在分词",
+    "查动词是不是三个不规则？être → en étant，avoir → en ayant，savoir → en sachant；其余全部取直陈式现在时 nous 的词干，去掉 -ons 加 -ant（nous finissons → en finissant，nous prenons → en prenant）",
+    "动词以 -ger 或 -cer 结尾吗？按 nous 的拼写保持软音：-ger 保留字母 e（en mangeant、en voyageant），-cer 把 c 改成 ç（en commençant、en avançant）",
+    "有自反代词或宾语代词吗？有 → 放在 en 和现在分词之间，自反代词随主句主语变化（Je … en me levant、Nous … en nous dépêchant、en le voyant）；副动词和 tout en 中的 tout 永不随性数配合"
+   ],
+   "motto": "同主语用 en + nous词干-ant；étant/ayant/sachant 三特例，代词夹中间，永不配合",
+   "pairs": [
+    {
+     "a": "J'ai vu Paul en sortant du cinéma.",
+     "b": "J'ai vu Paul sortant du cinéma.",
+     "d": "带 en 是副动词，主语固定为主句主语 je（我出来时看见保罗）；去掉 en 是现在分词，修饰宾语 Paul（看见正走出电影院的保罗）"
+    },
+    {
+     "a": "En arrivant à la gare, j'ai vu le train partir.",
+     "b": "Quand je suis arrivé à la gare, le train partait déjà.",
+     "d": "两句主语相同（都是 je）时可用副动词 En arrivant；主句主语换成 le train 后主语不同，必须改用 quand 从句"
+    },
+    {
+     "a": "Il est parti en disant au revoir.",
+     "b": "Il est parti sans dire au revoir.",
+     "d": "构成副动词的 en 后面必须接现在分词（en disant），不能接不定式；sans 后面则接不定式（sans dire）"
+    },
+    {
+     "a": "Je me détends en me promenant dans le parc.",
+     "b": "Il se détend en se promenant dans le parc.",
+     "d": "自反代词放在 en 和现在分词之间，且必须与主句主语保持一致：主语 je 配 en me promenant，主语 il 配 en se promenant"
+    }
+   ],
+   "walk": {
+    "s": "Tout en sachant la vérité, Claire a préféré éviter la dispute en lui souriant et en changeant de sujet.",
+    "z": "尽管知道真相，克莱尔还是选择向他微笑并转移话题来避免争吵。",
+    "steps": [
+     [
+      "句中几个动作的主语一致吗，能用副动词吗？",
+      "「知道真相」「向他微笑」「转移话题」和「避免争吵」全都是 Claire 做的，主语一致 → 可以用副动词"
+     ],
+     [
+      "为什么用 Tout en，且 tout 不随阴性主语 Claire 改成 toute？",
+      "tout en 用来强调让步（「尽管知道真相，却还是……」）；副词 tout 在 tout en 中永远不变"
+     ],
+     [
+      "savoir 的现在分词怎么变？",
+      "savoir 是三个不规则动词之一，不按 nous savons 推成 savant，而是 sachant → Tout en sachant"
+     ],
+     [
+      "间接宾语代词 lui（向他）放在什么位置？",
+      "代词夹在 en 和现在分词之间；nous sourions → souriant → en lui souriant（不能写成 lui en souriant 或 en souriant lui）"
+     ],
+     [
+      "changer 的现在分词为什么要保留字母 e？",
+      "changer 是 -ger 动词，按 nous changeons 的词干保留 e 以保持软音 → en changeant（不写 en changant）"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "pronoms-objet",
+    "pronominaux"
+   ],
+   "related": [
+    "participe-present",
+    "anteriorite",
+    "opposition-concession",
+    "cause-consequence",
+    "conditionnel"
    ]
   },
   {
@@ -1785,6 +3450,70 @@
     "第三人称的两个代词连用时，直接宾语在前：le lui、la leur（不说 lui le）。",
     "y 和 en 一起出现时 y 在前：Il y en a（有一些）。",
     "me / te / nous / vous 不能和 lui / leur 连用，要说 Il me présente à lui。"
+   ],
+   "decide": [
+    "先看是不是不能连用的组合 → 如果已有 me / te / se / nous / vous 作直接宾语或自反代词，不能再和间接宾语代词 lui / leur 连用，必须按句式把前一个代词放好（肯定命令式放动词后变 moi / toi，其余放动词前），把人留在动词后写成 à + 重读代词（Il me présente à lui、Présente-moi à lui !、Elle nous a confiés à elles）；否则继续判断",
+    "再看句式是不是肯定命令式 → 是：两个代词放到动词后面并用连字符连接，顺序为「动词 – 直接宾语（le / la / les）– 间接宾语（moi / toi / lui / nous / vous / leur）– y / en」（Donne-le-moi !、Dis-le-lui !、Parle-lui-en !）；me / te 变成 moi / toi，但在 en 前面时省音为 m' / t'（Donne-m'en !、Sers-t'en !）",
+    "不是肯定命令式（包括陈述句、疑问句、否定句和否定命令式）→ 两个代词全部放在动词前，按固定顺序排列：me / te / se / nous / vous → le / la / les → lui / leur → y → en（两个都是第三人称时直接宾语在前：le lui、la leur；y 和 en 同现时 y 在前：il y en a）",
+    "确认放哪个动词前并处理否定与省音 → 简单时态放变位动词前，复合时态两个代词一起放助动词前（Je le lui ai donné），一般「变位动词 + 不定式」（如 pouvoir / vouloir / aller 等）一起放不定式前（Tu peux me la redonner ?）；否定时 ne … pas 把「两个代词 + 变位动词 / 助动词」一起夹住，me / te / se / le / la 遇元音、哑音 h 或 y / en 省音（m'y、t'en、Ne me l'envoie pas）"
+   ],
+   "motto": "动词前 me-le-lui-y-en，肯定命令放后直先间；me/te 等不配 lui/leur",
+   "pairs": [
+    {
+     "a": "Il me le prête jusqu'à lundi.",
+     "b": "Il le lui prête jusqu'à lundi.",
+     "d": "第一、二人称代词（me）排在直接宾语（le）前面；两个都是第三人称时，直接宾语（le）排在间接宾语（lui）前面"
+    },
+    {
+     "a": "Donne-le-moi avant midi !",
+     "b": "Ne me le donne pas avant midi !",
+     "d": "肯定命令式把双代词放动词后、直接宾语在前且 me 变 moi；否定命令式回到动词前的普通顺序（me 在 le 前，不加连字符）"
+    },
+    {
+     "a": "Donne-le-moi, s'il te plaît.",
+     "b": "Donne-m'en un peu, s'il te plaît.",
+     "d": "肯定命令式里 me 一般放最后变成 moi（-le-moi），但排在 en 前面时要省音写成 m'（-m'en）"
+    },
+    {
+     "a": "Je le lui présente demain.",
+     "b": "Je te présente à lui demain.",
+     "d": "第三人称直接宾语（le）可以和 lui 连用（le lui）；直接宾语是 me / te / nous / vous 时不能和 lui / leur 连用，间接宾语要留在动词后用 à + 重读代词"
+    }
+   ],
+   "walk": {
+    "s": "Le rapport est imprimé : je ne le lui ai pas encore remis, alors donne-m'en un exemplaire ; ensuite, tu me présenteras à lui.",
+    "z": "报告印好了：我还没有交给他，你先给我一份；然后你把我介绍给他。",
+    "steps": [
+     [
+      "第一处「我还没有把它交给他」里，le 和 lui 谁在前，放在哪儿？",
+      "le（le rapport）和 lui 都是第三人称，直接宾语 le 必须排在间接宾语 lui 前面；复合过去时里两个代词都放助动词 ai 前，由 ne … pas 夹住 → je ne le lui ai pas encore remis"
+     ],
+     [
+      "第二处「给我一份」是肯定命令式，为什么写成 donne-m'en 而不是 donne-moi-en？",
+      "肯定命令式把代词放动词后并加连字符；en 永远排在最后，moi 在 en 前面时必须省音变成 m'（中间隔了 m'，所以 donne 不加 -s）→ donne-m'en"
+     ],
+     [
+      "第三处「你把我介绍给他」为什么不能写成 tu me lui présenteras？",
+      "me / te / nous / vous 不能和 lui / leur 连用；必须把直接宾语 me 放动词前，把人留在动词后写成 à + 重读代词 → tu me présenteras à lui"
+     ],
+     [
+      "如果把 donne-m'en 改成否定命令式「别给我」，语序怎么变？",
+      "否定命令式回到动词前的普通顺序，不加连字符，用 ne … pas 夹住 → ne m'en donne pas"
+     ]
+    ]
+   },
+   "prereq": [
+    "pronoms-objet",
+    "y-en",
+    "imperatif",
+    "toniques",
+    "passe-compose"
+   ],
+   "related": [
+    "pronominaux",
+    "accord-pp",
+    "negation",
+    "verbes-prep"
    ]
   },
   {
@@ -1847,6 +3576,71 @@
     "不要和用 être 作助动词的复合过去时混淆：Elle est arrivée 是主动，Elle est invitée 是被动。",
     "施动者是人称代词时不用被动：不说 Ce dessin a été fait par moi，要说 C'est moi qui ai fait ce dessin。",
     "和 devoir、pouvoir 连用时，把不定式变成被动：Le dossier doit être rendu demain。"
+   ],
+   "decide": [
+    "动词能变被动吗？ → 只有带直接宾语的及物动词才能变被动；用 à 接人的动词（dire à、donner à、offrir à、demander à、téléphoner à、répondre à 等）不能拿「人」作被动主语，改用 on + 主动式（On m'a dit…），有直接宾语时也可把直接宾语作主语",
+    "该不该用被动语态？ → 施动者是人称代词（moi、toi、lui、nous…）时不用 par + 代词，改用主动句或强调句（C'est moi qui…）；不知道或不必说施动者时，也常用 on + 主动式或代词式动词（Ce mot s'écrit…）",
+    "être 怎么变位？ → 把主动句的时态原样搬到 être 上：现在时 est / sont、未完成过去时 était、将来时 sera、复合过去时 a été / ont été（été 永远不变）、愈过去时 avait été；接在 devoir、pouvoir、venir de 后用被动不定式 être + 过去分词",
+    "过去分词要不要配合？ → 被动语态的过去分词一律与主语的阴阳性、单复数配合（la loi a été votée、les résultats seront publiés）；同时注意分清「être + arriver、partir 等不及物动词过去分词」是主动复合过去时（Elle est arrivée），不是被动现在时",
+    "施动者前用哪个介词？ → 具体动作的施动者用 par 引出；表示情感、认知或静态环绕/覆盖状态的动词（aimer、respecter、connaître、entourer、couvrir 等）常用 de"
+   ],
+   "motto": "直宾才变被动，时态归 être，分词配主语，été 不变；动作 par 情感 de，间宾和代词施动改主动",
+   "pairs": [
+    {
+     "a": "La route est fermée pour travaux.",
+     "b": "La route a été fermée pour travaux.",
+     "d": "被动语态的时态由 être 体现：est fermée 是现在时（此刻关闭着），a été fermée 是复合过去时（当时被关闭了）；复合时态里 été 不变，只有 fermée 与阴性主语 la route 配合"
+    },
+    {
+     "a": "Ce professeur est félicité par ses élèves.",
+     "b": "Ce professeur est aimé de ses élèves.",
+     "d": "féliciter 是具体动作，施动者用 par 引出；aimer 表示情感，常用 de 引出施动者"
+    },
+    {
+     "a": "Elle est arrivée au bureau.",
+     "b": "Elle est attendue au bureau.",
+     "d": "表面都是「est + 过去分词」：arriver 是用 être 的不及物动词，est arrivée 是主动复合过去时（她到了）；attendre qqn 是及物动词，est attendue 是被动现在时（有人在等她）"
+    },
+    {
+     "a": "Marie a été informée du changement.",
+     "b": "On a annoncé le changement à Marie.",
+     "d": "informer qqn 直接接人，人可以作被动主语；annoncer qqch à qqn 中人是间接宾语，不能以人作被动主语，要改用 on + 主动式"
+    }
+   ],
+   "walk": {
+    "s": "Cette ancienne gare a été transformée en musée par la ville, et ses collections peuvent être visitées gratuitement.",
+    "z": "这座老火车站由市政府改造成了博物馆，馆内藏品可以免费参观。",
+    "steps": [
+     [
+      "前半句为什么能用被动语态？",
+      "transformer qqch 带直接宾语，主语 cette ancienne gare 是动作承受者，施动者 la ville 是具体名词，符合被动语态的条件"
+     ],
+     [
+      "为什么写 a été transformée，而不写 a étée transformée 或 est transformée？",
+      "改造发生在过去，être 用复合过去时 a été；été 永远不变，只有后面的过去分词与阴性单数主语 cette ancienne gare 配合，加 -e → transformée"
+     ],
+     [
+      "施动者前为什么用 par la ville，不用 de la ville？",
+      "transformer 是具体动作，施动者用 par 引出（只有表示情感、认知或状态的动词才常用 de）"
+     ],
+     [
+      "后半句带情态动词 peuvent，被动怎么构成？",
+      "pouvoir 后面把不定式改成被动「être + 过去分词」，同时过去分词与阴性复数主语 ses collections（une collection）配合，加 -es → peuvent être visitées"
+     ]
+    ]
+   },
+   "prereq": [
+    "passe-compose",
+    "imparfait",
+    "futur",
+    "pronoms-objet"
+   ],
+   "related": [
+    "passif-autres",
+    "accord-pp",
+    "pronominaux",
+    "mise-en-relief",
+    "modaux"
    ]
   },
   {
@@ -1932,6 +3726,73 @@
     "两个复合过去时是先后发生，两个未完成过去时是同时进行。",
     "être、avoir、savoir、vouloir 说状态时多用未完成过去时；用复合过去时则表示变化：J'ai eu peur（吓了一跳）、J'ai su（得知了）。",
     "讲故事时，pendant que 后面用未完成过去时，soudain、tout à coup 后面用复合过去时。"
+   ],
+   "decide": [
+    "先看是不是特殊句型：Et si + 主语 + 动词… ?（提建议）或「差一点就…（Une seconde de plus et…）」→ 用未完成过去时；动作已结束但结果影响到现在，或 si + 已完成的条件 → 用复合过去时；都不是 → 下一步",
+    "看时间范围、次数或提示词：单次事件有明确时长（pendant / durant + 时长）、单日明确起止（de… à…）或明确次数（deux fois）→ 即使持续很久也用复合过去时；讲故事遇 soudain、tout à coup、un jour、ce jour-là、à ce moment-là 多用复合过去时；遇 d'habitude、tous les jours、souvent、autrefois、à cette époque 及叙事中的 pendant que 多用未完成过去时；都不明显 → 下一步",
+    "看两个过去动作的关系：正在进行时被另一件事打断 → 进行中的用未完成过去时，打断事件用复合过去时；两个动作先后发生 → 都用复合过去时；两个动作同时持续进行 → 都用未完成过去时",
+    "描写天气、环境、外貌、心情或过去反复的习惯 → 未完成过去时；把故事往前推进的单次完成事件 → 复合过去时",
+    "最后核对状态动词（être、avoir、savoir、vouloir）：说当时持续的状态 → 未完成过去时（j'avais peur、je savais）；说那一刻发生的变化或举动 → 复合过去时（j'ai eu peur 吓了一跳、j'ai su 得知了、j'ai voulu 试图）"
+   ],
+   "motto": "未完成铺背景、表习惯和进行；复合过去推事件、限时与突发；状态动词用复合表变化",
+   "pairs": [
+    {
+     "a": "Le dimanche, elle allait au marché.",
+     "b": "Dimanche dernier, elle est allée au marché.",
+     "d": "le dimanche 表示过去每周日的习惯 → 未完成过去时 allait；dimanche dernier 指某一次完成的事件 → 复合过去时 est allée"
+    },
+    {
+     "a": "Quand il m'a vu, il a traversé la rue.",
+     "b": "Quand il m'a vu, il traversait la rue.",
+     "d": "两个复合过去时表示先后发生（他看见我后过了马路）；复合过去时配未完成过去时表示当时正在进行（他看见我时，他正在过马路）"
+    },
+    {
+     "a": "Je savais la vérité.",
+     "b": "J'ai su la vérité.",
+     "d": "状态动词 savoir 用未完成过去时表示「当时就知道」的状态；用复合过去时表示「得知了」的变化"
+    },
+    {
+     "a": "Il habitait à Marseille quand il était étudiant.",
+     "b": "Il a habité à Marseille pendant cinq ans.",
+     "d": "描写过去某段时期的背景状态用未完成过去时；一旦给出明确时长 pendant cinq ans，即使持续很久也用复合过去时"
+    }
+   ],
+   "walk": {
+    "s": "Il faisait très froid et j'attendais le bus depuis vingt minutes quand, tout à coup, une amie s'est arrêtée devant moi : j'ai eu une belle surprise et je suis monté dans sa voiture.",
+    "z": "当时天气很冷，我已经等了二十分钟公交车，突然一位朋友在我面前停下车：我惊喜了一下，便上了她的车。",
+    "steps": [
+     [
+      "天气 il faisait très froid 为什么用未完成过去时？",
+      "描写当时的天气与环境背景，不推动剧情 → 未完成过去时 faisait"
+     ],
+     [
+      "j'attendais le bus depuis vingt minutes 为什么也用未完成过去时？",
+      "「等车」在朋友到来之前一直正在进行，是即将被打断的背景动作 → 未完成过去时 attendais（若改为总结明确时长 pendant vingt minutes，才用复合过去时）"
+     ],
+     [
+      "tout à coup 后面的 s'est arrêtée 为什么换成复合过去时？",
+      "tout à coup 提示突发事件，打断了前面的等待并推动故事前进 → 复合过去时 s'est arrêtée"
+     ],
+     [
+      "avoir 是状态动词，这里为什么写 j'ai eu une belle surprise？",
+      "表示那一刻突然产生的情绪变化（「惊喜了一下」），而不是一直持续的状态 → 复合过去时 ai eu"
+     ],
+     [
+      "最后的 je suis monté 为什么也用复合过去时？",
+      "紧接在停下车、感到惊喜之后发生的下一个动作，事件先后推进 → 复合过去时 suis monté"
+     ]
+    ]
+   },
+   "prereq": [
+    "passe-compose",
+    "imparfait"
+   ],
+   "related": [
+    "plus-que-parfait",
+    "temps-expr",
+    "anteriorite",
+    "passe-simple",
+    "discours-indirect"
    ]
   },
   {
@@ -2002,6 +3863,74 @@
     "从现在算起用 dans，从过去或将来的另一个时间算起用 après / plus tard：Je reviens dans une heure；Il est arrivé à midi et reparti une heure plus tard。",
     "depuis 后面接句子时说 depuis que：Depuis que je fais du sport, je dors mieux。",
     "désormais、dorénavant 是「从今以后」。"
+   ],
+   "decide": [
+    "先看是不是「从过去某时开始、持续到现在」？→ 是：持续至今的肯定句主句用 depuis（或句首 Ça fait / Il y a … que）+ 现在时，不用复合过去时；否定句表「多久没做」可配复合过去时；depuis 后接从句用 depuis que",
+    "说的是「从今以后」吗？→ 是：用副词 désormais 或 dorénavant，单独修饰动词或放在句首，不接时长",
+    "说的是一个时间点（「多久前」或「多久后」）吗？→ 从现在往前推用 il y a + 时长（配过去时）；从现在往后推用 dans + 时长；从过去或将来的另一个参照时间往后推，不用 dans，改用 时长 + plus tard 或 après",
+    "说的是「完成一件事总共花了多久」吗？→ 是（动作有明确终点或结果）：用 en + 时长，不要与 pendant 或 dans 混淆",
+    "其余表示「持续多久」→ 实际持续的时段用 pendant + 时长（放在动词短语后常可省略）；预计要停留、借用或花费的时长用 pour + 时长（常配 partir、venir、être là、en avoir pour）"
+   ],
+   "motto": "延续 depuis+现在；前 il y a 后 dans；持续 pendant，预计 pour，做完 en",
+   "pairs": [
+    {
+     "a": "J'habite à Bordeaux depuis cinq ans.",
+     "b": "J'ai habité à Bordeaux pendant cinq ans.",
+     "d": "动作从过去延续到现在用 depuis + 现在时（现在还住在波尔多）；已经结束的过去经历用 pendant + 复合过去时（现在不住那儿了）"
+    },
+    {
+     "a": "J'ai lu ce roman en deux jours.",
+     "b": "J'ai lu ce roman pendant deux jours.",
+     "d": "en 强调完成整件事所花的时间（两天就读完了）；pendant 只说明动作持续了多久（读了两天，不一定读完）"
+    },
+    {
+     "a": "Nous finirons ce projet dans deux semaines.",
+     "b": "Nous finirons ce projet en deux semaines.",
+     "d": "dans 指从现在起两周后的时间点（两周后完成）；en 指完成这个项目总共需要两周时间"
+    },
+    {
+     "a": "Le train arrive dans une heure.",
+     "b": "Le train est arrivé une heure plus tard.",
+     "d": "从「现在」往后算用 dans + 时长；从过去或将来的另一个参照时间往后算，不用 dans，改用 时长 + plus tard"
+    }
+   ],
+   "walk": {
+    "s": "Depuis qu'il a déménagé il y a six mois, Marc va au bureau en vingt minutes ; il n'a pas pris sa voiture depuis l'automne et, dans trois jours, il partira en vacances pour deux semaines.",
+    "z": "自从六个月前搬家以来，马克二十分钟就能到办公室；他从秋天起就没开过车，再过三天，他就要出去度两周假了。",
+    "steps": [
+     [
+      "开头为什么写 Depuis qu'il a déménagé，而不是 Depuis il a déménagé？",
+      "后面接的是带主语和动词的完整句子（il a déménagé），不能单用介词 depuis，必须用连词 depuis que（元音前省音为 depuis qu'）"
+     ],
+     [
+      "为什么用 il y a six mois？",
+      "a déménagé 是复合过去时，表示从现在往前推「六个月前」这个过去时间点 → 用 il y a + 时长"
+     ],
+     [
+      "va au bureau en vingt minutes 为什么用 en，不用 pendant 或 dans？",
+      "这里强调完成这段通勤路程所需的时间（「二十分钟就能到」）→ 完成一件事耗时用 en"
+     ],
+     [
+      "il n'a pas pris sa voiture depuis l'automne 为什么能用复合过去时配 depuis？",
+      "这是否定句（ne … pas），表达「从秋天起一直没开车」→ 否定句里 depuis 可以和复合过去时连用"
+     ],
+     [
+      "结尾为什么先用 dans trois jours，再用 pour deux semaines？",
+      "dans trois jours 指从现在算起三天后的出发时间点；pour deux semaines 与 partir 连用，表示预计休假的时长"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "passe-compose",
+    "futur"
+   ],
+   "related": [
+    "anteriorite",
+    "pc-imparfait",
+    "nombres-temps",
+    "prepositions",
+    "discours-indirect"
    ]
   },
   {
@@ -2103,6 +4032,74 @@
     "avant que 后面可以加一个没有否定意义的 ne：avant qu'il ne parte。",
     "说将来的事，quand、dès que、une fois que 后面用将来时或先将来时。",
     "代动词的不定式过去时，代词放在 être 前并随主语变：Après m'être levé；Après s'être douchée, elle est sortie。"
+   ],
+   "decide": [
+    "先看后面接的是名词还是动作？接名词直接用介词：avant + 名词、après + 名词、jusqu'à + 名词；接动作 → 进入下一步",
+    "两个动作的主语相同吗？表达「之前 / 之后」且主语相同 → 优先用不定式：avant de + 不定式现在时；après + 不定式过去时（avoir / être + 过去分词，不能照 après manger 类推成 après finir）；主语不同，或连词没有不定式形式（pendant que、dès que、depuis que、tant que 等）→ 用从句",
+    "写 après + 不定式过去时时，先查助动词和代词：用 être 的动词要随主句主语配合（Après être rentrée, elle…）；代动词一律用 être，自反代词放在 être 前并随主句主语变化（Après m'être levé, j'… / Après s'être douchée, elle…）",
+    "要用从句时，按连词定语式：avant que、jusqu'à ce que、en attendant que、d'ici (à ce) que → 虚拟式（avant que 后可加没有否定意义的 ne）；après que、une fois que、dès que、aussitôt que、pendant que、tandis que、au moment où、lorsque、depuis que、tant que、chaque fois que、maintenant que、à mesure que → 直陈式",
+    "直陈式从句怎么选时态？同时动作与主句处于同一时间层面（说将来的事从句也要用将来时）；先完成的动作（quand、dès que、une fois que、après que）按主句配对应复合时态：主句现在时 → 复合过去时；主句未完成过去时（过去习惯）→ 愈过去时；主句将来时或面向将来的祈使句 → 先将来时（不强调先完成时可用简单将来时）；主句简单过去时 → 先过去时（书面）",
+    "书面语想写得更紧凑？可以用「une fois + 名词 + 过去分词」，过去分词随该名词配合（Une fois la lettre envoyée…）"
+   ],
+   "motto": "同主语用 avant de、après + 不定式过去时；avant que 虚拟，après que 直陈",
+   "pairs": [
+    {
+     "a": "Je vérifie les billets avant de partir.",
+     "b": "Je vérifie les billets avant que tu partes.",
+     "d": "两个动作主语相同（都是 je）用 avant de + 不定式；主语不同（je 和 tu）必须改用 avant que + 虚拟式"
+    },
+    {
+     "a": "Je suis arrivé avant qu'il parte.",
+     "b": "Je suis arrivé après qu'il est parti.",
+     "d": "avant que 表示当时尚未发生，用虚拟式（parte）；après que 表示既成事实，规范用法接直陈式（est parti）"
+    },
+    {
+     "a": "Dès qu'il avait fini de dîner, il sortait se promener.",
+     "b": "Dès qu'il aura fini de dîner, il sortira se promener.",
+     "d": "主句是未完成过去时（过去习惯），先完成的动作配愈过去时（avait fini）；主句是将来的事，先完成的动作配先将来时（aura fini）"
+    },
+    {
+     "a": "Après m'être réveillé, j'ai préparé du café.",
+     "b": "Après s'être réveillée, elle a préparé du café.",
+     "d": "代动词的不定式过去时用 être，自反代词放 être 前并随主句主语变化；此处自反代词作直接宾语，过去分词随之配合（je 为阳性 → m'être réveillé；elle → s'être réveillée）"
+    }
+   ],
+   "walk": {
+    "s": "Après s'être installée dans la salle, Nadia vérifie ses notes avant que le directeur ne prenne la parole ; elle publiera le compte rendu dès qu'il aura validé la version finale.",
+    "z": "在会议室安顿好后，纳迪亚趁主任还没发言先核对一下笔记；等他一批准定稿，她就会发布会议纪要。",
+    "steps": [
+     [
+      "为什么写 Après s'être installée，而不是 Après s'installer 或 Après s'être installé？",
+      "两个动作主语都是 Nadia，après 后必须用不定式过去时；代动词 s'installer 用 être，自反代词放 être 前（s'être），此处 s' 作直接宾语指代阴性单数 Nadia，过去分词配合写 installée"
+     ],
+     [
+      "为什么这里用 avant que，不用 avant de？",
+      "前一个动作主语是 Nadia，后一个动作主语换成 le directeur，主语不同 → 改用 avant que + 虚拟式（prenne）"
+     ],
+     [
+      "avant que le directeur ne prenne la parole 里的 ne 表示否定吗？",
+      "不表示否定。avant que 后面可以加一个没有否定意义的 ne，去掉直接说 avant que le directeur prenne la parole 也完全正确"
+     ],
+     [
+      "为什么 dès que 后面用先将来时 aura validé，而不用现在时或虚拟式？",
+      "dès que 后面用直陈式；主句 publiera 是将来时，且「批准定稿」先于「发布纪要」完成 → 配先将来时 aura validé"
+     ]
+    ]
+   },
+   "prereq": [
+    "passe-compose",
+    "futur",
+    "pronominaux",
+    "subjonctif",
+    "plus-que-parfait"
+   ],
+   "related": [
+    "futur-anterieur",
+    "subj-indicatif",
+    "infinitif",
+    "temps-expr",
+    "gerondif",
+    "negation-nuances"
    ]
   },
   {
@@ -2189,6 +4186,71 @@
     "que 不能放在句末或介词后，要变成 quoi：Tu fais quoi ?",
     "lequel 和 à、de 缩合：auquel、duquel、auxquels、desquels。",
     "间接问句里不说 qu'est-ce que：Je ne sais pas ce qu'il veut。"
+   ],
+   "decide": [
+    "先看是不是间接问句或感叹句 → 间接问句（Je ne sais pas… / Dis-moi… 后）绝不用 est-ce que，也不用主语代词倒装，问「什么」作主语 / 直宾改用 ce qui / ce que，一般疑问用 si；常见感叹句也不用倒装；直接问句 → 下一步",
+    "选语体定语序 → 口语用陈述语序（疑问词常放句末，但 que 要变 quoi）；标准用 (疑问词 +) est-ce que + 陈述语序（不再倒装）；正式用主谓倒装（加连字符，复合时态只倒装助动词）",
+    "正式倒装时看主语和动词尾字母 → 名词主语一般留在动词前、再用代词倒装（疑问词 que 后则直接倒装：Que fait Paul ?）；动词以元音结尾且后接 il / elle / on 时，中间加 -t-（如 parle-t-il、a-t-elle）；已以辅音 -t / -d 结尾不加",
+    "问人还是问物？在句中作什么成分？ → 介词后固定：问人 qui、问物 quoi；作主语：问人 qui / qui est-ce qui，问物只能用 qu'est-ce qui；作直宾：问人 qui / qui est-ce que，问物 que（句首倒装）/ qu'est-ce que / quoi（动词后）",
+    "修饰名词还是代替名词选「哪一个」？ → 接名词或 être + 名词用 quel(le)(s)；代替「quel + 名词」在已知范围里选，用 lequel(le)(s)，遇 à / de 缩合为 auquel、duquel、auxquels、desquels 等（阴性单数 à laquelle / de laquelle 不缩合）"
+   ],
+   "motto": "est-ce que 不倒装，元音加 -t-；问物作主只用 qu'est-ce qui，介后句末变 quoi",
+   "pairs": [
+    {
+     "a": "Où est-ce que tu travailles ?",
+     "b": "Où travailles-tu ?",
+     "d": "用了 est-ce que 后必须保持陈述语序 tu travailles；去掉 est-ce que 才在正式语体里倒装成 travailles-tu"
+    },
+    {
+     "a": "Qu'est-ce qui a changé ?",
+     "b": "Qu'est-ce qu'il a changé ?",
+     "d": "句中没有其他主语、问物本身作主语时只能用 qu'est-ce qui；已有主语 il、问物作直接宾语时用 qu'est-ce que"
+    },
+    {
+     "a": "À qui penses-tu ?",
+     "b": "À quoi penses-tu ?",
+     "d": "介词后面问人用 qui，问事物用 quoi（绝不能用 que）"
+    },
+    {
+     "a": "Qu'est-ce qu'elle propose ?",
+     "b": "Je me demande ce qu'elle propose.",
+     "d": "直接问句问「什么」作宾语用 qu'est-ce que；放进间接问句后必须换成 ce que，不能保留 qu'est-ce que"
+    }
+   ],
+   "walk": {
+    "s": "Auquel de ces candidats votre directrice a-t-elle confié le dossier ?",
+    "z": "你们的女主管把这份材料交给了这些候选人中的哪一位？",
+    "steps": [
+     [
+      "为什么句首用 Auquel，而不用 Lequel 或 À quel？",
+      "动词 confier qqch à qqn 带介词 à；要在已知的 ces candidats 里指代单数阳性的一位，用 lequel，与 à 缩合为 auquel"
+     ],
+     [
+      "主语是名词 votre directrice，正式倒装时怎么放？",
+      "名词主语留在动词前，再用对应的人称代词 elle 与动词倒装，不能直接把名词挪到动词后"
+     ],
+     [
+      "复合过去时 a confié 倒装时，代词 elle 放哪儿？",
+      "只和助动词 a 倒装，过去分词 confié 留在后面：a-t-elle confié"
+     ],
+     [
+      "为什么 a 和 elle 之间要加 -t-？",
+      "助动词 a 以元音结尾且后接 elle，须用两个连字符加上 -t-（写作 a-t-elle，不用省文撇）"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "art-gender",
+    "contraction",
+    "passe-compose"
+   ],
+   "related": [
+    "relatifs",
+    "relatifs-composes",
+    "discours-indirect",
+    "verbes-prep",
+    "negation"
    ]
   },
   {
@@ -2246,6 +4308,73 @@
     "ni … ni 的句子里不再加 pas。",
     "ni 后面省去不定冠词和部分冠词：Il ne boit ni vin ni bière；定冠词保留。",
     "ne … que 不能限定主语，限定主语用 seul 或 il n'y a que … qui：Seul Paul est venu；Il n'y a que Paul qui est venu。"
+   ],
+   "decide": [
+    "先分清句意是「只……」（限定）还是「既不……也不……」（双重否定）？ → 「只」进入第 2 步；「既不……也不」进入第 4 步",
+    "表示「只」时，被限定的是主语，还是宾语、状语或动作？ → 限定主语不能用 ne … que，改用 seul(e)(s) + 名词（如 Seule Julie le sait）或 il n'y a que … qui（如 Il n'y a que Marc qui travaille ici）；表示「只是不停地做某事」用 ne faire que + 不定式；限定其他成分 → 下一步",
+    "用 ne … que 限定非主语成分：ne（元音或哑音 h 前写 n'）放变位动词前（有宾语/自反代词或助动词时放在它们前面），que（元音或哑音 h 前写 qu'）紧贴在被限定的成分前面（复合时态放在过去分词后，如 Il n'a lu qu'un chapitre）；ne … que 不是否定，后面的 un / une / des / du / de la / de l' 都不变 de",
+    "表示「既不……也不」用 ni … ni：否定两个主语时写「Ni … ni … ne + 动词」，否定其他成分时写「ne + 动词 + ni … ni …」；句中绝不再加 pas（sans 后引出第二项也用 ni，如 sans bruit ni lumière）",
+    "检查 ni 后面的冠词：不定冠词（un / une / des）和部分冠词（du / de la / de l'）全部省去，也不改 de（ni vin ni bière）；定冠词（le / la / l' / les）以及主有、指示形容词照常保留（ni le thé ni le café）"
+   ],
+   "motto": "ne … que 表「只」，不限主语、冠词不变；ni … ni 不加 pas，省不定和部分冠词，留定冠词",
+   "pairs": [
+    {
+     "a": "Ce boulanger ne vend pas de pain complet.",
+     "b": "Ce boulanger ne vend que du pain complet.",
+     "d": "ne … pas 是否定，部分冠词变成 de；ne … que 表示「只」，不是否定，部分冠词 du 保持不变"
+    },
+    {
+     "a": "Je n'aime ni le poisson ni la viande.",
+     "b": "Je ne mange ni poisson ni viande.",
+     "d": "aimer 后本来用定冠词（le / la），在 ni 后必须保留；manger 后本来用部分冠词（du / de la），在 ni 后必须省去"
+    },
+    {
+     "a": "Il ne lit que ce journal le dimanche.",
+     "b": "Il ne lit ce journal que le dimanche.",
+     "d": "que 紧放在被限定的成分前：前句限定 ce journal（星期天只看这份报），后句限定 le dimanche（这份报只在星期天看）"
+    },
+    {
+     "a": "Claire n'a invité que Thomas.",
+     "b": "Seule Claire a invité Thomas.",
+     "d": "ne … que 只能限定宾语等非主语成分（只邀请了托马斯）；要限定主语（只有克莱尔邀请了），不能用 ne … que，改用随主语配合的 Seule"
+    }
+   ],
+   "walk": {
+    "s": "Seule Léa a refusé le menu complet : elle n'a pris ni entrée ni dessert, elle n'a commandé que du poisson.",
+    "z": "只有莱娅拒绝了全套套餐：她既没点前菜也没点甜点，只点了鱼。",
+    "steps": [
+     [
+      "为什么用 Seule Léa，而不用 ne … que？",
+      "限定主语不能用 ne … que，要改用 seul(e)(s) 放名词前；Léa 是阴性单数，配合为 Seule"
+     ],
+     [
+      "elle n'a pris ni entrée ni dessert 里为什么没有 pas？",
+      "ni … ni 本身已表示否定，句中不能再加 pas（只留助动词前的 n'）"
+     ],
+     [
+      "ni entrée ni dessert 前面为什么都没有冠词？",
+      "原本是不定冠词 une entrée、un dessert；ni 后面要省去不定冠词和部分冠词（如果是定冠词才保留）"
+     ],
+     [
+      "复合过去时 elle n'a commandé que du poisson 里，que 为什么放在 commandé 后面？",
+      "que 必须紧贴在被限定的成分（du poisson）前面，所以放在过去分词 commandé 之后，不插在助动词和分词之间"
+     ],
+     [
+      "最后为什么是 du poisson，而不是 de poisson？",
+      "ne … que 意思是「只」，不是否定，部分冠词不变 de，保留 du"
+     ]
+    ]
+   },
+   "prereq": [
+    "negation",
+    "partitif"
+   ],
+   "related": [
+    "negation-nuances",
+    "articles-nuances",
+    "indefinis",
+    "mise-en-relief",
+    "relatifs"
    ]
   },
   {
@@ -2351,6 +4480,74 @@
     "plusieurs 后面不加 de：plusieurs amis。",
     "un autre 的复数是 d'autres，不说 des autres（des autres 是 de + les autres）。",
     "tout 指「一切」，tous 指「所有人」：Merci pour tout / Merci à tous。"
+   ],
+   "decide": [
+    "先看后面有没有接名词（形容词 vs 代词）？ → 接名词用不定形容词（chaque、quelques、tout + 限定词、n'importe quel 等）；不接名词单独用选不定代词（chacun(e)、quelques-un(e)s、tout / tous、personne、rien 等；plusieurs、certain(e)s、aucun(e) 既可接名词也可单用）",
+    "句意是「没有 / 一个也不」吗？ → 动词前必须有 ne（n'），绝不再加 pas；接名词用 aucun(e) + 单数名词；单独指人用 personne，指物用 rien，表地点用 nulle part",
+    "quelqu'un、quelque chose、personne、rien 后面接形容词吗？ → 必须加介词 de（元音前 d'），且形容词一律用阳性单数（如 quelqu'un d'intéressant、quelque chose de sérieux）",
+    "核对单复数与固定搭配：chaque 永远接单数名词，aucun(e) 接单数名词，chacun(e) 作主语时动词与主有形容词用单数；plusieurs 直接接复数名词，不加 de 也不变阴性；「别的」泛指复数用 d'autres（des autres = de + les autres）；「这样的」复数用 de tel(le)s",
+    "最后核对 tout 的用法与读音：修饰名词时按性数配合并带限定词（如 tout le / toute la / tous les / toutes les、tous mes …，此时 tous 作形容词，s 不发音）；单独作代词时，tout 指「一切」（单数），tous / toutes 指「所有人 / 全都」（复数，tous 的 s 发音 [tus]）"
+   ],
+   "motto": "chaque/aucun 单数，plusieurs 无 de，d'autres 复数，tout 一切 tous 全都",
+   "pairs": [
+    {
+     "a": "On a pensé à tout.",
+     "b": "On a pensé à tous.",
+     "d": "代词 tout 指「一切事物」（想到了所有事）；tous 指「所有人」（想到了每一个人，作代词时 s 发音 [tus]）"
+    },
+    {
+     "a": "Chaque élève a reçu un livret.",
+     "b": "Tous les élèves ont reçu un livret.",
+     "d": "chaque 后面永远接单数名词配单数动词（a reçu）；tous les 接复数名词配复数动词（ont reçu，此处 tous 作形容词，s 不发音）"
+    },
+    {
+     "a": "J'ai plusieurs amis à Nantes.",
+     "b": "J'ai beaucoup d'amis à Nantes.",
+     "d": "数量副词 beaucoup 后面必须加 de（d'）；plusieurs 是不定形容词，直接接复数名词，绝不加 de"
+    },
+    {
+     "a": "Nous avons parlé d'autres projets.",
+     "b": "Nous avons parlé des autres projets.",
+     "d": "parler de 后接泛指复数用 d'autres（「别的项目」，介词 de 与冠词 d' 合并）；接特指复数 les autres 时 de + les 缩合成 des autres（「其余的那些项目」）"
+    }
+   ],
+   "walk": {
+    "s": "Plusieurs collègues ont proposé quelque chose de concret, mais aucune idée n'a convaincu toute l'équipe ; chacun cherche donc d'autres solutions.",
+    "z": "好几位同事都提出了切实的想法，但没有一个主意说服了整个团队；于是每个人都在寻找别的办法。",
+    "steps": [
+     [
+      "Plusieurs 和 collègues 之间为什么不加 de？",
+      "plusieurs 是不定形容词，直接接复数名词，绝不加 de，也不分阴阳 → Plusieurs collègues"
+     ],
+     [
+      "chose 是阴性名词，为什么写 quelque chose de concret，而不是 concrète？",
+      "quelque chose 后接形容词必须加 de，且形容词一律用阳性单数 → de concret"
+     ],
+     [
+      "aucune idée n'a convaincu 为什么没有 pas，而且用单数？",
+      "aucun(e) 本身表否定，与 ne（n'）连用且不再加 pas；配单数名词和单数动词，idée 是阴性 → aucune idée n'a convaincu"
+     ],
+     [
+      "l'équipe 看不出阴阳性，为什么前面用 toute？",
+      "équipe 是阴性单数名词（une équipe），tout 按名词性数配合 → toute l'équipe"
+     ],
+     [
+      "最后为什么用 chacun cherche 和 d'autres solutions？",
+      "chacun 是代词单独作主语，动词用单数 cherche；「别的办法」是泛指复数，用 d'autres（不用 des autres）"
+     ]
+    ]
+   },
+   "prereq": [
+    "adj-agree",
+    "negation",
+    "pluriel"
+   ],
+   "related": [
+    "proportion",
+    "negation-nuances",
+    "articles-nuances",
+    "restriction",
+    "poss-dem"
    ]
   },
   {
@@ -2433,6 +4630,75 @@
     "有些形容词直接当副词用，不变形：parler fort、coûter cher、travailler dur、sentir bon。",
     "地点和时间副词放在过去分词后：Je l'ai cherché partout；Il est arrivé tard。",
     "以 -é 结尾的形容词直接加 -ment：aisé → aisément，modéré → modérément。"
+   ],
+   "decide": [
+    "先看修饰对象和特例：修饰名词用形容词；修饰动词、形容词或副词用副词 → parler fort、coûter cher、travailler dur、sentir bon 等直接用不变形的形容词；bon → bien，mauvais → mal，rapide → vite（或 rapidement）；加强形容词或副词用 très，加强动词用 beaucoup",
+    "要把形容词变成 -ment 副词？先查特殊形式和 -ant / -ent → 特殊形式：gentil → gentiment、bref → brièvement、précis → précisément、énorme → énormément、profond → profondément；-ant → -amment，-ent → -emment（但 lent 等少数词是例外：lentement）",
+    "普通形容词变 -ment：看阳性词尾是不是元音（包括 -é） → 元音结尾直接加 -ment（poli → poliment、vrai → vraiment、aisé → aisément；少数例外如 gai → gaiement）；辅音结尾先变阴性再加 -ment（heureux → heureuse → heureusement）",
+    "用副词 tout 表示「非常、完全」时要配合吗？ → 修饰阳性形容词（无论单复数）或元音、哑音 h 开头的阴性形容词时不变（tout seuls、tout émue）；修饰辅音（或嘘音 h）开头的阴性形容词时随性数配合（toute contente、toutes seules）",
+    "确定副词位置：不夹在主语和变位动词之间（不说 Il souvent vient） → 修饰形容词或副词放它前面；简单时态放动词后；复合时态里 bien、mal、déjà、beaucoup、trop、souvent、toujours 等短副词夹在助动词和过去分词之间，较长的 -ment 方式副词多放过去分词后，partout、ici、tard、tôt、hier 等地点和时间副词放过去分词后",
+    "句首出现 peut-être、sans doute、ainsi、aussi（因此）吗？ → 书面语里放在句首时后面主谓倒装（Peut-être viendra-t-il，元音结尾动词配 il / elle / on 加 -t-）；口语可在 peut-être 后加 que 接直陈式正常语序"
+   ],
+   "motto": "元音和 -é 直加 -ment，辅音先变阴；-ant/-ent 双 m 除 lent；短副夹助分，地时放后",
+   "pairs": [
+    {
+     "a": "Il conduit prudemment sous la pluie.",
+     "b": "Il conduit lentement sous la pluie.",
+     "d": "prudent 和 lent 都以 -ent 结尾，但 prudent 按规律变 -emment（prudemment），lent 是例外，由阴性 lente 加 -ment 构成 lentement"
+    },
+    {
+     "a": "Il est bien arrivé à l'aéroport.",
+     "b": "Il est arrivé tard à l'aéroport.",
+     "d": "复合时态里，短副词 bien 放在助动词和过去分词之间；时间副词 tard 放在过去分词之后"
+    },
+    {
+     "a": "Ces chaussures sont chères.",
+     "b": "Ces chaussures coûtent cher.",
+     "d": "être 后 chères 是修饰主语的形容词，随阴性复数配合；coûter 后 cher 当副词用，永不变形"
+    },
+    {
+     "a": "Peut-être viendra-t-il ce soir.",
+     "b": "Peut-être qu'il viendra ce soir.",
+     "d": "句首直接用 peut-être 在书面语中要求主谓倒装（viendra-t-il）；加上 que 后恢复正常语序，仍用直陈式"
+    }
+   ],
+   "walk": {
+    "s": "Peut-être est-il arrivé tard, mais il a bien préparé son exposé : il s'exprime aisément et sa directrice est toute contente.",
+    "z": "他也许到得晚，但报告准备得很好：他表达得很自如，女主任高兴极了。",
+    "steps": [
+     [
+      "句首的 Peut-être 后面为什么写成 est-il，而不是 il est？",
+      "书面语中，peut-être 放在句首时后面主谓倒装 → est-il（口语才用 Peut-être qu'il est）"
+     ],
+     [
+      "复合过去时 est-il arrivé tard 里，tard 为什么放在 arrivé 后面？",
+      "tard 是时间副词，在复合时态里放在过去分词之后，不插在助动词和分词之间"
+     ],
+     [
+      "后面的 il a bien préparé 里，bien 为什么反而插在助动词和分词之间？",
+      "bien 是常见短副词（不是地点或时间副词），在复合时态中夹在助动词 a 和过去分词 préparé 之间"
+     ],
+     [
+      "aisément 为什么不写成 aiséement，又为什么放在 s'exprime 后面？",
+      "aisé 以 -é 结尾，直接加 -ment（不先变阴性 aisée）→ aisément；简单时态中副词放在变位动词之后"
+     ],
+     [
+      "sa directrice est toute contente 里，副词 tout 为什么要变成 toute？",
+      "tout 作副词表「非常、完全」时，在以辅音开头的阴性形容词（contente）前必须随性数配合 → toute"
+     ]
+    ]
+   },
+   "prereq": [
+    "adj-agree",
+    "present",
+    "passe-compose"
+   ],
+   "related": [
+    "mots-confondus",
+    "comparatif",
+    "indefinis",
+    "lieu",
+    "interrogation"
    ]
   },
   {
@@ -2525,6 +4791,71 @@
     "语体：du coup、alors、c'est pour ça que 是口语；donc 通用；par conséquent、c'est pourquoi、c'est la raison pour laquelle 用于书面。",
     "两个并列的原因从句，第二个用 que 代替连词：Comme il pleuvait et que j'étais fatigué, je suis resté chez moi。",
     "si、tellement 也用在 avoir faim / peur / envie 这类短语里：J'avais si peur que je n'ai pas pu bouger。"
+   ],
+   "decide": [
+    "先分清要引出的是原因还是结果？ → 引出原因看第 2–3 步；引出结果看第 4–5 步；若是在解释、证实前一句话（「确实、因为」），用 en effet（不要和纠正误解、说出实情的 en fait 混淆）",
+    "引出原因时，后面接的是完整句子，还是名词 / 不定式？ → 接名词：好结果用 grâce à，坏结果用 à cause de，正式中性用 en raison de / du fait de / 不变形的 étant donné；接不定式或名词：靠反复做用 à force de，因为缺少用 faute de；接完整句子 → 下一步",
+    "原因 + 完整句子（直陈式），看位置与语境 → 句首常用 comme（不能放后半句）；只放后半句用 car（不能放句首）；回答 pourquoi 用 parce que；对方已知用 puisque；较正式用 étant donné que / vu que / du fait que；借口用 sous prétexte que；递进追加用 d'autant plus que；两个原因从句并列时，第二个用 et que 代替连词",
+    "引出结果时，是一般结果还是程度引出的结果（「如此……以致」）？ → 一般结果：只接名词用 d'où；接句子按语体选（口语 du coup / alors / c'est pour ça que，通用 donc / si bien que / de sorte que + 直陈式，书面 par conséquent / c'est pourquoi / c'est la raison pour laquelle；句首 aussi 表「因此」要主谓倒装）；程度结果 → 下一步",
+    "程度引出的结果（……得……），看被修饰的词性 → 形容词、副词前，或 avoir faim / peur / envie 等无冠词短语中间用 si / tellement … que；动词用 tellement / tant … que；名词前用 tellement de / tant de + 无冠词名词 + que（或 un(e) tel(le) + 名词 + que）"
+   ],
+   "motto": "原因分句名与好坏，comme 在首 car 在后；结果分语体，si 配形副、tant de 配名",
+   "pairs": [
+    {
+     "a": "Le vol a été retardé parce qu'il y avait du brouillard.",
+     "b": "Le vol a été retardé à cause du brouillard.",
+     "d": "原因后面接完整句子用 parce que，换成一个名词短语（坏结果）就要改用 à cause de"
+    },
+    {
+     "a": "Comme il pleuvait, nous sommes restés chez nous.",
+     "b": "Nous sommes restés chez nous, car il pleuvait.",
+     "d": "同样接完整句子表原因：comme 表原因只能放句首，car 只能放后半句"
+    },
+    {
+     "a": "Il travaille tellement qu'il n'a plus le temps de lire.",
+     "b": "Il a tellement de travail qu'il n'a plus le temps de lire.",
+     "d": "修饰动词（travaille）直接用 tellement，修饰名词（travail）必须加 de，写成 tellement de"
+    },
+    {
+     "a": "Le train a du retard : en effet, un incident bloque la ligne.",
+     "b": "On croyait le train en retard : en fait, il est déjà arrivé.",
+     "d": "en effet 用来解释、证实前一句话（确实、因为），en fait 用来纠正误解、说出实际情况（其实）"
+    }
+   ],
+   "walk": {
+    "s": "Comme il pleuvait fort et que la route était bloquée à cause d'un accident, nous avons dû faire un long détour, d'où notre retard.",
+    "z": "因为雨下得很大，而且道路因事故受阻，我们不得不绕了一大圈，所以才迟到了。",
+    "steps": [
+     [
+      "句首的原因从句为什么用 Comme，不用 Car？",
+      "原因从句放在句首用 comme（后接直陈式 pleuvait）；car 只能放后半句，不能放句首"
+     ],
+     [
+      "第二个并列的原因从句为什么写 et que，不重复 comme？",
+      "两个原因从句并列时，第二个用 que 代替前面的连词（Comme … et que …），仍用直陈式"
+     ],
+     [
+      "un accident 前面为什么用 à cause d'，不用 parce que 或 grâce à？",
+      "后面是名词短语（不是完整句子），不用 parce que；路被堵是不好的结果，不用 grâce à → à cause d'"
+     ],
+     [
+      "句尾的 notre retard 前面为什么用 d'où，不用 donc 或 si bien que？",
+      "这里引出结果，但后面只有名词短语 notre retard、没有动词 → 用 d'où + 名词"
+     ]
+    ]
+   },
+   "prereq": [
+    "contraction",
+    "partitif",
+    "comparatif"
+   ],
+   "related": [
+    "connecteurs",
+    "opposition-concession",
+    "but",
+    "subj-indicatif",
+    "nominalisation",
+    "gerondif"
    ]
   },
   {
@@ -2617,6 +4948,74 @@
     "en revanche 较正式，par contre 是口语；书面里 tout de même 比 quand même 正式。",
     "quand même 还可以表示责备：Tu aurais pu quand même me prévenir !",
     "sans que 相当于 bien que … ne … pas；主语相同时用 sans + 不定式。"
+   ],
+   "decide": [
+    "先分清语义是对立还是让步？ → 并列对比两件不同的事（对立）：用 mais、alors que / tandis que + 直陈式、contrairement à + 名词、au lieu de + 不定式，或句间副词 en revanche / au contraire（口语 par contre）；「虽然有 A，却没出现预料结果」（让步）→ 进入下一步",
+    "让步结构后面接什么成分？ → 接名词或代词：用 malgré 或 en dépit de（不写 *malgré que + 句子）；用不定式：同主语的「没做某事却……」用 sans + 不定式，「怎么……也没用」用 avoir beau + 不定式（后面不再加 mais）；连接两个独立句子：用 pourtant、cependant、néanmoins、toutefois、or，或搭配 malgré tout / quand même / tout de même（常放动词后）；接从句 → 进入下一步",
+    "是非现实的假设让步，还是事实 / 一般让步？ → 非现实或反事实假设（「就算……也绝不会……」）：用 même si + 未完成过去时 / 愈过去时，主句配条件式（现实假设用 même si + 现在时；même si 后绝不接虚拟式或条件式）；事实或一般让步 → 进入下一步",
+    "从句连词后面该用直陈式还是虚拟式？ → même si、alors que、tandis que、il n'empêche que 接直陈式；bien que、quoique、sans que、encore que、aussi / si + 形容词 + que、que … ou que … 一律接虚拟式",
+    "要表达「无论……」吗？ → 后接名词用分开写的 quel(le)(s) que soi(en)t + 名词（quel 和 être 随后面的名词变性数）；表示「无论什么」（在从句中作宾语、主语等成分）用分开写的 quoi que + 虚拟式（注意与连写的 quoique「尽管」区分）",
+    "最后核对语体和语气 → 正式书面优先用 en revanche、tout de même、cependant、néanmoins、toutefois、en dépit de、encore que；口语常用 par contre、quand même；quand même 搭配条件式过去时等还可表达责备（Tu aurais pu quand même…）"
+   ],
+   "motto": "对立直陈；bien que 虚拟，même si 直陈；malgré 接名词，avoir beau 不加 mais",
+   "pairs": [
+    {
+     "a": "Bien qu'il soit fatigué, il continue de travailler.",
+     "b": "Même s'il est fatigué, il continue de travailler.",
+     "d": "意思相近，但 bien que 后面必须接虚拟式（soit），même si 后面必须接直陈式（est）"
+    },
+    {
+     "a": "Malgré le froid, ils sortent courir.",
+     "b": "Bien qu'il fasse froid, ils sortent courir.",
+     "d": "malgré 是介词，后面接名词或代词（如 le froid），不能接句子；要接带动词的从句时，改用 bien que + 虚拟式（fasse）"
+    },
+    {
+     "a": "Il est sorti sans faire de bruit.",
+     "b": "Il est sorti sans que sa sœur l'entende.",
+     "d": "前后动作主语相同（都是 il）用 sans + 不定式；主语不同（il 和 sa sœur）必须改用 sans que + 虚拟式（entende）"
+    },
+    {
+     "a": "Quoiqu'il dise la vérité, personne ne le croit.",
+     "b": "Quoi qu'il dise, personne ne le croit.",
+     "d": "连写的 quoique 意为「尽管」（从句本身带有宾语 la vérité）；分开写的 quoi que 意为「无论什么」（本身作 dise 的直接宾语）"
+    }
+   ],
+   "walk": {
+    "s": "Malgré son emploi du temps chargé, Claire a accepté le projet, alors que ses collègues ont hésité ; bien que la tâche soit complexe, elle avance sans que son chef intervienne.",
+    "z": "尽管日程排得很满，克莱尔还是接下了这个项目，而她的同事们都犹豫了；虽然任务很复杂，但她在主管没有介入的情况下依然稳步推进。",
+    "steps": [
+     [
+      "为什么用 Malgré son emploi du temps chargé，而不用 Bien que？",
+      "后面接的是名词短语（son emploi du temps chargé），不是带动词的从句 → 用介词 malgré"
+     ],
+     [
+      "alors que ses collègues ont hésité 是对立还是让步？后面用什么语式？",
+      "把克莱尔和同事们的不同反应并列对比，属于对立 → alors que 后接直陈式（ont hésité）"
+     ],
+     [
+      "为什么写 bien que la tâche soit complexe，而不是 est？",
+      "bien que 引导让步从句，后面必须接虚拟式 → être 的虚拟式第三人称单数 soit"
+     ],
+     [
+      "为什么用 sans que son chef intervienne，而不用 sans + 不定式？",
+      "前后主语不同（elle 和 son chef），不能用 sans + 不定式，必须用 sans que + 虚拟式（intervienne）；且 sans que 本身已含否定意义，不再加 ne … pas"
+     ]
+    ]
+   },
+   "prereq": [
+    "subjonctif",
+    "conditionnel",
+    "imparfait",
+    "plus-que-parfait"
+   ],
+   "related": [
+    "connecteurs",
+    "cause-consequence",
+    "but",
+    "subj-indicatif",
+    "infinitif",
+    "cond-passe",
+    "gerondif"
    ]
   },
   {
@@ -2694,6 +5093,71 @@
     "de sorte que + 直陈式是结果，+ 虚拟式是目的。",
     "pour + 名词也表示目的：pour le plaisir。",
     "pour que（目的，+ 虚拟式）和 parce que（原因，+ 直陈式）不要混：Je parle lentement pour que tu comprennes / parce que tu ne comprends pas。"
+   ],
+   "decide": [
+    "先看目的后面接名词还是动作？接名词 → 用 pour + 名词（如 pour le plaisir、pour son travail，不要用 afin de）；接动作 → 进入下一步",
+    "分清是要表达「目的」还是「原因 / 结果」？交代原因 → parce que + 直陈式；陈述客观结果 → de sorte que + 直陈式；表达主观意图或想要避免的事 → 用目的结构，进入下一步",
+    "比较主句主语和目的动作的主语是否相同？相同 → 必须用介词 + 不定式（不用 que 从句）：正面目的用 pour、afin de、dans le but de、en vue de、de manière à、de façon à、口语 histoire de；要避免的事用 pour ne pas、de peur de、de crainte de",
+    "前后主语不同 → 用连词 + 虚拟式：正面目的用 pour que、afin que、de manière que、de façon que、de sorte que；要避免的事用 de peur que、de crainte que 或 pour que … ne … pas",
+    "写了 de peur que / de crainte que 时检查 ne：怕某事「发生」时，动词前可加无否定意义的 ne（去掉也对），此时不要多加 pas；只有怕某事「不发生」时才用完整的 ne … pas",
+    "遇到固定动词结构或并列目的从句：viser à、chercher à 后接不定式；faire en sorte que 后接虚拟式；两个并列的目的从句，第二个只需写 et que + 虚拟式，不再重复前面的目的连词"
+   ],
+   "motto": "同主语介词配不定式，异主语连词配虚拟式；de sorte que 虚拟表目的，直陈表结果",
+   "pairs": [
+    {
+     "a": "Je travaille dur pour réussir.",
+     "b": "Je travaille dur pour que mes enfants réussissent.",
+     "d": "前后主语相同（都是 je）必须用 pour + 不定式；主语换成 mes enfants 后，改用 pour que + 虚拟式"
+    },
+    {
+     "a": "Il a laissé la porte ouverte de sorte que le chat puisse sortir.",
+     "b": "Il a laissé la porte ouverte de sorte que le chat a pu sortir.",
+     "d": "de sorte que 接虚拟式（puisse）表示有意促成的目的，接直陈式（a pu）表示客观造成的结果"
+    },
+    {
+     "a": "Je ferme la porte pour que tu dormes.",
+     "b": "Je ferme la porte parce que tu dors.",
+     "d": "pour que 表示目的且接虚拟式（dormes）；parce que 表示原因且接直陈式（dors）"
+    },
+    {
+     "a": "Il baisse la voix de peur de réveiller le bébé.",
+     "b": "Il baisse la voix de peur que le bébé ne se réveille.",
+     "d": "主语相同用 de peur de + 不定式；主语不同改用 de peur que + 虚拟式（这里的 ne 没有否定意义）"
+    }
+   ],
+   "walk": {
+    "s": "J'ai imprimé le dossier à l'avance pour ne pas perdre de temps ; j'ai aussi vérifié le micro afin que toute la salle m'entende et que la présentation soit fluide.",
+    "z": "我提前把文件打印出来，免得浪费时间；我也检查了麦克风，好让全场都听见我说话，并且让汇报进行得顺畅。",
+    "steps": [
+     [
+      "为什么前半句用 pour ne pas perdre，而不用 pour que je ne perde pas？",
+      "两个动作的主语都是 je，主语相同时必须用介词 + 不定式；不定式的否定把 ne pas 放在动词原形前面 → pour ne pas perdre"
+     ],
+     [
+      "为什么后半句改用 afin que，不用 afin de？",
+      "主句主语是 je，目的动作的主语变成了 toute la salle，主语不同 → 改用连词 afin que 引导从句"
+     ],
+     [
+      "为什么 afin que 后面写 entende，而不是 entend 或 entendra？",
+      "afin que 表示目的，后面必须接虚拟式现在时（即使主句是复合过去时也不变）→ entende"
+     ],
+     [
+      "为什么最后一个分句只写 et que，且动词用 soit？",
+      "两个并列的目的从句中，第二个只需用 et que 承接（不必重复 afin），但后面同样必须用虚拟式 → soit"
+     ]
+    ]
+   },
+   "prereq": [
+    "subjonctif",
+    "negation"
+   ],
+   "related": [
+    "cause-consequence",
+    "opposition-concession",
+    "subj-indicatif",
+    "infinitif",
+    "connecteurs",
+    "negation-nuances"
    ]
   },
   {
@@ -2746,6 +5210,67 @@
     "il paraît que、on dit que 本身已经表示「听说」，后面一般用直陈式：Il paraît qu'il est malade。",
     "不要和假设（si + 未完成过去时）或礼貌用法的条件式混淆，要看上下文。",
     "用 être 的条件式过去时要配合：Deux personnes seraient entrées。"
+   ],
+   "decide": [
+    "先看句中有没有已确认事实的线索，或带「听说」含义的主句结构？ → 已官方公布、本人证实等确凿事实用直陈式；il paraît que、on dit que 本身已表示「听说」，从句通常直接用直陈式，无需再叠加条件式；若说话人对消息真实性有所保留（常与 selon、d'après 搭配）→ 进入下一步",
+    "再结合上下文确认这个条件式是不是「未证实消息」？ → 有 si + 未完成过去时 / 愈过去时等条件，是假设；用于请求、询问（如 pourriez-vous、je voudrais），是礼貌用法；出现在新闻报道、传闻或未经证实的转述中 → 才是未证实消息，进入下一步",
+    "这条未证实的消息涉及什么时间？ → 现在的状况或将来的事用条件式现在时（serait、donnerait）；已经发生或完成的事用条件式过去时（avoir / être 的条件式 + 过去分词）",
+    "用条件式过去时时，核对助动词与过去分词配合 → 一般动词及被动语态（aurait été + 过去分词）用 avoir；entrer、arriver、partir、tomber 等不及物动词和代词式动词用 être；用 être 的不及物动词与被动语态，过去分词须与主语性数配合（如 Deux personnes seraient entrées.）；本质代词式动词及自反代词作直宾的代词式动词也需配合"
+   ],
+   "motto": "未证实消息用条件：现在或将来用现在时，过去用过去时；il paraît que 用直陈，être 须配合",
+   "pairs": [
+    {
+     "a": "Le directeur a annoncé son départ ce matin.",
+     "b": "Le directeur aurait annoncé son départ ce matin.",
+     "d": "直陈式 a annoncé 陈述已确认的事实；条件式过去时 aurait annoncé 表示「据称」，说话人对消息真实性有所保留"
+    },
+    {
+     "a": "Selon le journal, le maire préparerait sa démission.",
+     "b": "Selon le journal, le maire aurait préparé sa démission.",
+     "d": "条件式现在时 préparerait 指未证实的当前或将来动作（据说正在筹备）；条件式过去时 aurait préparé 指未证实的过去动作（据说已经准备好了）"
+    },
+    {
+     "a": "Selon certaines sources, le concert serait annulé.",
+     "b": "Il paraît que le concert est annulé.",
+     "d": "selon certaines sources 报道未证实消息时可用条件式（serait）表保留；il paraît que 本身已表示「听说」，后面一般用直陈式（est）"
+    },
+    {
+     "a": "Selon les médias, le président quitterait ses fonctions demain.",
+     "b": "Si la réforme échouait, le président quitterait ses fonctions demain.",
+     "d": "同样用 quitterait，前句配 selon les médias 是未证实消息；后句配 si + 未完成过去时则是假设条件下的结果"
+    }
+   ],
+   "walk": {
+    "s": "Il paraît que le musée reste fermé aujourd'hui : selon la presse locale, deux personnes seraient entrées par une porte arrière cette nuit et auraient emporté une sculpture ; le gardien, quant à lui, serait toujours à l'hôpital.",
+    "z": "听说博物馆今天继续闭馆：据当地媒体报道，昨夜可能有两个人从一扇后门进入并带走了一件雕塑；至于保安，据说目前仍在医院。",
+    "steps": [
+     [
+      "第一句用 Il paraît que 开头，为什么 reste 用直陈式而不用条件式？",
+      "il paraît que 本身已经表示「听说」，从句通常直接用直陈式（reste），无需再叠加条件式"
+     ],
+     [
+      "selon la presse locale 后面为什么用 seraient entrées，而且词尾加了 -es？",
+      "事件发生在昨夜（cette nuit）且尚未证实，用条件式过去时；entrer 用 être 作助动词，过去分词须与阴性复数主语 deux personnes 配合 → seraient entrées"
+     ],
+     [
+      "紧接着的 auraient emporté 为什么换成了 avoir，且不加 -es？",
+      "同样是昨夜未证实的过去事件，用条件式过去时；但 emporter 带直接宾语 une sculpture，助动词用 avoir，直接宾语在动词后面，过去分词不配合 → auraient emporté"
+     ],
+     [
+      "最后一句 le gardien ... serait toujours à l'hôpital 为什么改用条件式现在时？",
+      "toujours à l'hôpital 指的是现在的未证实状况，而非已经结束的过去动作，因此用条件式现在时 serait"
+     ]
+    ]
+   },
+   "prereq": [
+    "conditionnel",
+    "passe-compose"
+   ],
+   "related": [
+    "cond-passe",
+    "discours-indirect",
+    "subj-indicatif",
+    "accord-pp"
    ]
   },
   {
@@ -2830,6 +5355,74 @@
     "两个形容词可以一前一后：une jolie robe rouge。",
     "表示主观评价的形容词可以提到名词前加强语气：une excellente idée、un magnifique paysage。",
     "différents、divers 放在名词前、不带冠词时表示「若干、各种」：différentes personnes me l'ont dit。"
+   ],
+   "decide": [
+    "先看是不是「位置不同、意思不同」的词？→ grand（如 un grand homme 伟大 / un homme grand 高大；修饰一般事物仍放前表「大」）、ancien（前以前 / 后古老）、propre（前自己 / 后干净）、pauvre（前可怜 / 后贫穷）、seul（前唯一 / 后独自）、cher（前亲爱 / 后昂贵）、curieux（前奇怪 / 后好奇）；différents / divers 放名词前且不带冠词表「若干、各种」，放名词后带冠词表「彼此不同的、各种各样的」",
+    "是 dernier 或 prochain 吗？→ 指相对现在而言的日历日期（星期、周、月、季、年，如 la semaine dernière、l'année prochaine、le mois dernier）放名词后；指某个序列里的最后一个 / 下一个（le dernier métro、la prochaine station、la dernière semaine du séjour）放名词前",
+    "属于放名词后的客观属性吗？→ 颜色、形状、国籍、类别（学科、宗教、用途等）、较长的形容词，以及作形容词用的分词（ouvert、fermé、abandonné 等），放在名词后",
+    "属于常放名词前的词吗？→ 常用短形容词（beau、joli、bon、mauvais、petit、grand、gros、jeune、vieux、nouveau、autre、même）以及数词、序数词放名词前（基数词在序数词前）；两个形容词可按各自位置一前一后（une jolie robe rouge）；表示主观评价的词（excellent、magnifique 等）也可提到名词前加强语气",
+    "确定放在名词前后，再检查形式变化：→ beau、nouveau、vieux 紧贴元音或哑音 h 开头的阳性单数名词前改写为 bel、nouvel、vieil；复数形容词放在名词前时，规范书面语里不定冠词 des 变成 de（元音前 d'），如 de beaux jardins、d'autres idées"
+   ],
+   "motto": "多数放后短词前，双义前引申后本义；日期 dernier/prochain 放后，前置复数 des 变 de",
+   "pairs": [
+    {
+     "a": "C'est un grand homme.",
+     "b": "C'est un homme grand.",
+     "d": "grand 放在名词前多表引申义「伟人」，放在名词后表本义「身材高大的男人」"
+    },
+    {
+     "a": "Il a beaucoup plu le mois dernier.",
+     "b": "Il a beaucoup plu le dernier mois.",
+     "d": "dernier 放在名词后指日期「上个月」，放在名词前指某个时间序列里的「最后一个月」"
+    },
+    {
+     "a": "On y trouve des jardins magnifiques.",
+     "b": "On y trouve de magnifiques jardins.",
+     "d": "复数形容词放在名词后保留 des；提到名词前加强语气时，规范书面语里 des 变成 de"
+    },
+    {
+     "a": "J'ai consulté des spécialistes différents.",
+     "b": "J'ai consulté différents spécialistes.",
+     "d": "différents 放在名词后需带冠词，意为「彼此不同的」；放在名词前不带冠词，意为「若干、各种」"
+    }
+   ],
+   "walk": {
+    "s": "La semaine dernière, mon ancien collègue nous a fait visiter un bel appartement lumineux où il expose de petites sculptures japonaises.",
+    "z": "上星期，我以前的同事带我们参观了一套漂亮又明亮的公寓，他在里面陈列着一些小巧的日本雕塑。",
+    "steps": [
+     [
+      "La semaine dernière 中，dernière 为什么放在名词后面？",
+      "这里指日期「上星期」，dernier 表日期时放在名词后（只有表序列里的「最后一个」才放前面）"
+     ],
+     [
+      "mon ancien collègue 中，ancien 为什么放在名词前面？",
+      "ancien 放名词前是引申义「以前的」，放名词后才是本义「古老的」；这里指「以前的同事」，所以放前面"
+     ],
+     [
+      "un bel appartement lumineux 里，两个形容词怎么排，为什么用 bel？",
+      "常用短形容词 beau 放前面，较长的客观形容词 lumineux 放后面，一前一后；beau 紧贴元音开头的阳性单数 appartement 前改写为 bel"
+     ],
+     [
+      "de petites sculptures japonaises 里，petites 和 japonaises 各放哪边？",
+      "常用短形容词 petit 放在名词前，表示国籍的 japonais 放在名词后，一前一后修饰 sculptures"
+     ],
+     [
+      "前面的冠词为什么是 de，而不是 des？",
+      "复数形容词 petites 放在名词前时，规范书面语里不定冠词 des 变成 de → de petites sculptures japonaises"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender",
+    "adj-agree",
+    "pluriel"
+   ],
+   "related": [
+    "mots-confondus",
+    "comparatif",
+    "indefinis",
+    "articles-nuances",
+    "participe-present"
    ]
   },
   {
@@ -2911,6 +5504,75 @@
     "en + 不带冠词的名词是泛指，dans + 带限定词的名词是具体的那一个：en voiture / dans ma voiture；en ville / dans une petite ville。",
     "走路、骑车用 à（à pied、à vélo、à cheval），坐在里面的交通工具用 en（en bus、en métro、en avion）。",
     "并列的几个补语前要重复 à 和 de：Il a écrit à Paul et à Marie。"
+   ],
+   "decide": [
+    "先看是不是「名词 + 介词 + 名词 / 不定式」结构？→ 容器或机器的用途用 à（une tasse à café、une machine à laver），糕点菜肴的特色配料或外貌特征用 à + 定冠词（une tarte aux pommes、aux yeux bleus）；容器内容、数量或类别用 de（une tasse de café、un kilo de pommes、un billet de train）；制作材料用 en（une table en bois）；目的地或对象用 pour（le train pour Nice、un cadeau pour toi）",
+    "说的是交通方式或所在位置吗？→ 走路、骑车、骑马用 à（à pied、à vélo、à cheval）；坐在里面的交通工具用 en（en bus、en métro、en avion）；名词前一旦加上冠词、主有或指示词变成具体某一个，泛指的 en 就换成 dans（en voiture → dans ma voiture，en ville → dans une petite ville）",
+    "表示状态、穿着、变化、方式或原因动机吗？→ 状态、穿着、分割变化用 en（en panne、en noir、couper en deux、traduire en français）；动作方式用 à（à la main、à voix basse），伴随神态语气用 d'un(e)（d'un ton sec）；生理或情绪原因用 de（mourir de faim、trembler de peur），主观动机或偶然情况用 par + 零冠词（par curiosité、par amour、par hasard），停业、获罪或闻名的缘由用 pour（fermé pour travaux、connu pour）",
+    "表示经过、寄送手段、分配频率、差额或预计时长吗？→ 经过、寄送渠道、单位分配及「先 / 最终做某事」用 par（passer par Lyon、par courriel、deux fois par semaine、commencer / finir par + 不定式）；增减快慢的差额用 de（avancer de cinq minutes、augmenter de 3 %）；预计外出停留的时长用 pour（partir pour trois jours）",
+    "是固定搭配的动词或形容词吗？→ 「从某人那里借、买、拿、偷」一律用 à（emprunter / acheter / prendre / voler qqch à qqn）；信赖用 en（croire en、avoir confiance en）；形容词记搭配：prêt / favorable / opposé / supérieur + à，content / fier / sûr / responsable + de",
+    "遇到 et / ou 连接的并列补语时，检查是否漏了介词 → à 和 de 在每个并列补语前都要重复（Il a écrit à Paul et à Marie；il parle de son travail et de sa famille）"
+   ],
+   "motto": "用途 à 内容 de，材料状态 en，途经分配 par，对象预计 pour；en 泛 dans 实，à/de 要重复",
+   "pairs": [
+    {
+     "a": "Elle a posé une tasse à café sur la table.",
+     "b": "Elle a posé une tasse de café sur la table.",
+     "d": "à 表用途：une tasse à café 是「咖啡杯」；de 表内容：une tasse de café 是「一杯咖啡」"
+    },
+    {
+     "a": "Elle habite en ville.",
+     "b": "Elle habite dans une petite ville.",
+     "d": "en + 不带冠词的名词泛指「在城里」；加上限定词 une petite 指具体某座城时，要改用 dans"
+    },
+    {
+     "a": "Il va au travail à pied.",
+     "b": "Il va au travail en métro.",
+     "d": "走路、骑车或骑马用 à（à pied、à vélo、à cheval）；坐在里面的交通工具用 en（en métro、en bus）"
+    },
+    {
+     "a": "Il a emprunté ce dossier à sa collègue.",
+     "b": "Il a emprunté ce dossier pour sa collègue.",
+     "d": "emprunter qqch à qqn 表示「向某人借」；换成 pour 则表示「替某人借」"
+    }
+   ],
+   "walk": {
+    "s": "Avant de partir pour trois jours, elle a envoyé les horaires par courriel à Luc et à Nadia, puis elle est rentrée à pied avec une tasse à café en porcelaine et un kilo de pommes.",
+    "z": "出发去待三天之前，她通过电子邮件把时刻表发给了吕克和娜迪娅，然后带着一只瓷咖啡杯和一公斤苹果走回了家。",
+    "steps": [
+     [
+      "partir pour trois jours 为什么用 pour？",
+      "与 partir 连用，表示预计外出停留的时长 → 用 pour + 时长"
+     ],
+     [
+      "envoyé … par courriel 为什么用 par？",
+      "表示传递、寄送的手段或渠道 → 用 par + 不带冠词的名词"
+     ],
+     [
+      "à Luc et à Nadia 里，为什么第二个人名前还要写 à？",
+      "et 连接并列补语时，介词 à 和 de 在每一项前都必须重复，不能省掉第二个 à"
+     ],
+     [
+      "rentrée à pied 为什么用 à，不用 en？",
+      "走路和骑行用 à（à pied、à vélo、à cheval）；坐在里面的交通工具才用 en（en bus、en train）"
+     ],
+     [
+      "句尾 une tasse à café en porcelaine 和 un kilo de pommes 分别用了什么介词？",
+      "tasse à café 用 à 表用途（咖啡杯，区别于「一杯咖啡」tasse de café）；en porcelaine 用 en 表制作材料；un kilo de pommes 用 de 表数量"
+     ]
+    ]
+   },
+   "prereq": [
+    "contraction",
+    "place-prep"
+   ],
+   "related": [
+    "lieu",
+    "temps-expr",
+    "verbes-prep",
+    "articles-nuances",
+    "but",
+    "y-en"
    ]
   },
   {
@@ -2982,6 +5644,74 @@
     "sur 是贴着表面，au-dessus de 是在上方不接触：La lampe est au-dessus de la table。",
     "dessus、dessous、dedans 是副词，不接名词：— Le chat est sur le lit ? — Oui, il est dessus。",
     "nulle part 和 ne 连用，复合时态里放在过去分词后：Je ne l'ai trouvé nulle part。"
+   ],
+   "decide": [
+    "先看后面有没有接名词？→ 没有名词时，不能用 dans、sur、sous 等纯介词或带 de 的介词短语，改用地点副词（dedans、dehors、dessus、dessous、en haut、en bas、loin、près、ailleurs 等）；后面有名词时，不能单用 dessus、dessous、dedans、dehors，要改用对应介词或介词短语",
+    "后面有名词，先分清空间关系是「在里面」「贴着表面」「在上方不接触」还是固定用 à？→ 在围合或封闭空间里（含交通工具 dans le train / le bus，以及 dans la rue、dans un fauteuil、dans le journal）用 dans；贴着平面或表面（sur la table、sur la place、sur une chaise、sur Internet）用 sur；在上方或下方不接触用 au-dessus de / au-dessous de；传统媒介与常见搭配用 à（à la télévision、à la radio、à la campagne、à la montagne）",
+    "要表达相对位置、范围或方向吗？→ 两者之间用 entre，多个或集合名词之中用 parmi；穿过用 à travers；朝向用 vers，起点用 à partir de，终点用 jusqu'à；在……之外用 hors de / en dehors de，越过用 au-delà de，附近用 aux alentours de / dans les environs de",
+    "使用复合介词短语时，检查 de / à 与冠词的缩合及是否多加了 de → 带 de 的短语（au-dessus de、en face de、à côté de、au coin de、au bout de、le long de、autour de、en dehors de 等）接 le / les（不含 l'）须缩合为 du / des；jusqu'à 接 le / les（不含 l'）缩合为 jusqu'au / jusqu'aux；devant、derrière、entre、parmi、à travers、vers 后不加 de",
+    "遇到不定地点副词 partout / quelque part / ailleurs / nulle part 时，看肯否定与时态 → 否定「哪儿都不」用 ne … nulle part（不加 pas）；在复合时态里，nulle part 放在过去分词之后（Je ne l'ai trouvé nulle part）"
+   ],
+   "motto": "里 dans 表 sur，上方 au-dessus de；副词不接名词；ne … nulle part 放分词后",
+   "pairs": [
+    {
+     "a": "Le marché a lieu dans la rue.",
+     "b": "Le marché a lieu sur la place.",
+     "d": "街道两侧有建筑围合，视为空间内部用 dans la rue；广场是开阔平面，用 sur la place"
+    },
+    {
+     "a": "Le numéro est sur la porte.",
+     "b": "Le numéro est au-dessus de la porte.",
+     "d": "sur 表示紧贴表面接触（贴在门面上）；au-dessus de 表示在上方不接触（挂在门框上方）"
+    },
+    {
+     "a": "Le dossier est sur le bureau.",
+     "b": "Le dossier est dessus.",
+     "d": "后面接名词 le bureau 时用介词 sur；省略名词单独收尾时改用副词 dessus，绝不能说 *dessus le bureau"
+    },
+    {
+     "a": "Je l'ai vu quelque part.",
+     "b": "Je ne l'ai vu nulle part.",
+     "d": "肯定句表「在某处」用 quelque part；否定句表「哪儿都没」用 ne … nulle part（不加 pas），且在复合时态中 nulle part 放在过去分词 vu 之后"
+    }
+   ],
+   "walk": {
+    "s": "Dans le train, j'ai rangé ma valise au-dessus de mon siège ; en arrivant au bout du quai, je n'ai vu mon ami nulle part, car il m'attendait dehors.",
+    "z": "在火车上，我把行李箱放到了座位上方；走到站台尽头时，我哪儿都没看见我朋友，因为他正在外面等我。",
+    "steps": [
+     [
+      "为什么说 Dans le train，不说 Sur le train？",
+      "人在火车、公共汽车等封闭交通工具内部，法语视为在空间里，用 dans le train（不说 sur）"
+     ],
+     [
+      "行李放在座位上方，为什么用 au-dessus de，不用 sur 或 dessus？",
+      "行李架在座位上方且不接触座位表面，用 au-dessus de（sur 表示贴着表面）；后面接了名词 mon siège，不能单用副词 dessus"
+     ],
+     [
+      "au bout du quai 里为什么是 du，不是 de le？",
+      "介词短语 au bout de 后接阳性单数名词 le quai，de + le 必须缩合为 du → au bout du quai"
+     ],
+     [
+      "je n'ai vu mon ami nulle part 为什么没有 pas，而且 nulle part 放在最后？",
+      "nulle part 与 ne 连用构成否定，不再加 pas；在复合时态里，nulle part 放在过去分词 vu 之后"
+     ],
+     [
+      "句尾为什么用 dehors，不用 en dehors de？",
+      "句尾后面没有接名词，只能单独用地点副词 dehors；带 de 的介词短语 en dehors de 后面必须接名词"
+     ]
+    ]
+   },
+   "prereq": [
+    "contraction",
+    "place-prep",
+    "negation"
+   ],
+   "related": [
+    "prepositions",
+    "y-en",
+    "relatifs",
+    "adverbes",
+    "negation-nuances"
    ]
   },
   {
@@ -3057,6 +5787,77 @@
     "être en train de 不用于表示状态和感情的动词（être、aimer、savoir）。",
     "devoir 的复合过去时有两个意思，看上下文：J'ai dû partir tôt（我不得不早走）/ Il a dû partir（他想必是走了）。",
     "il ne faut pas 是「不许、不要」，不是「不必」；「不必」说 ce n'est pas la peine de、tu n'es pas obligé de。"
+   ],
+   "decide": [
+    "先分清这句话要表达「动作的阶段」还是「义务、推测、能力或许可」？ → 动作阶段看时间点：刚刚用 venir de（绝不与 il y a + 具体时间连用）、正在用 être en train de（不用于 être、aimer、savoir 等状态或感情动词）、马上要用 être sur le point de、将要用 aller + 不定式、差一点用 avoir failli + 不定式（助动词用 avoir），时态全靠第一个动词体现；情态含义 → 下一步",
+    "表达「必须 / 禁止 / 不必」吗？ → 肯定「必须」用 devoir、il faut 或 être obligé de；否定时必须区分「不许」和「不必」：「不许、禁止」用 il ne faut pas、il est interdit de 或 ne pas avoir le droit de；「不必、没必要」绝不用 il ne faut pas，要改用 ce n'est pas la peine de 或 ne pas être obligé de",
+    "表达「推测、建议、预计」还是「后悔本该」？ → 靠 devoir 的时态和语式区分：对现在的推测用 doit；对过去的推测用 a dû（注意：a dû 在上下文里也可能是过去被迫「不得不」，需结合语境判断）；提建议或表预计用条件式现在时（devrais / devrait）；后悔或责备过去「本该做却没做」用条件式过去时（aurais dû）",
+    "分不清 savoir、pouvoir 还是 il se peut que？ → 学会的本领（游泳、开车、弹琴等）接不定式用 savoir；当下的客观条件、得到许可或有可能用 pouvoir；用无人称结构 il se peut que 表示「有可能」时，从句必须接虚拟式",
+    "用短语表达许可、禁止或能力强弱时，核对主语和固定介词 → il est permis de / il est interdit de 是无人称结构，不能用人作主语，以人作主语改用 avoir le droit de；être obligé de、être capable de 固定接 de，arriver à（做得到）和 avoir du mal à（很难做到）固定接 à"
+   ],
+   "motto": "devoir 兼义务推测，savoir 靠学；il ne faut pas 是不许；刚正将差用短语，时态看首动",
+   "pairs": [
+    {
+     "a": "Je sais conduire.",
+     "b": "Je peux conduire.",
+     "d": "savoir 表示学会了开车这项本领；pouvoir 表示此刻客观条件允许或被准许开车"
+    },
+    {
+     "a": "Tu devrais l'appeler.",
+     "b": "Tu aurais dû l'appeler.",
+     "d": "条件式现在时 devrais 是对现在的建议「你应该打电话给他」；条件式过去时 aurais dû 是对过去的责备或后悔「你本该打给他的」"
+    },
+    {
+     "a": "Il ne faut pas venir demain.",
+     "b": "Ce n'est pas la peine de venir demain.",
+     "d": "il ne faut pas 表示禁止或告诫「明天不要来、不许来」；表示「明天不必来、没必要来」要用 ce n'est pas la peine de（或 tu n'es pas obligé de）"
+    },
+    {
+     "a": "Il vient de sortir.",
+     "b": "Il est sorti il y a cinq minutes.",
+     "d": "venir de 本身就表示「刚刚」，不能再加 il y a cinq minutes；一旦给出具体时间，必须改用复合过去时"
+    }
+   ],
+   "walk": {
+    "s": "J'étais en train de préparer le dîner quand Lucas est rentré sans ses clés : il a dû les oublier au bureau, mais ce n'est pas la peine d'y retourner ce soir, il vient d'appeler un collègue et il devrait les récupérer demain matin.",
+    "z": "我正在做晚饭时，吕卡没带钥匙就回来了：他准是忘在办公室了，不过今晚不必回办公室去拿，他刚给一位同事打了电话，明天早上应该就能拿回来。",
+    "steps": [
+     [
+      "为什么是 j'étais en train de préparer，用未完成过去时？",
+      "动作阶段短语的时态由第一个动词体现；这里表示过去正在做晚饭时被另一个动作打断，être 用未完成过去时 étais（préparer 是动作动词，可以用于 être en train de）"
+     ],
+     [
+      "il a dû les oublier 在这里表示「不得不」还是「推测」？",
+      "根据前文「没带钥匙回来」的线索，这里是对过去原因的推测「准是忘了」，而不是客观被迫的「不得不」"
+     ],
+     [
+      "表达「今晚不必回去」，为什么用 ce n'est pas la peine d'y retourner ce soir，而不用 il ne faut pas？",
+      "il ne faut pas 表示「不许、不要」的禁止或告诫；表达「不必、没必要」要用 ce n'est pas la peine de（或 ne pas être obligé de）"
+     ],
+     [
+      "il vient d'appeler 后面可以加上 il y a deux minutes 吗？",
+      "不可以：venir de 本身就表示「刚刚」，不能再和具体时间段连用；如果说 il y a deux minutes，前面必须改用复合过去时 il a appelé"
+     ],
+     [
+      "最后为什么用条件式 il devrait les récupérer，而不是直陈式 il doit？",
+      "devoir 的条件式现在时除了提建议，也用来表示合理的预计「应该能、按理会」→ il devrait les récupérer"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "passe-compose",
+    "imparfait",
+    "conditionnel",
+    "subjonctif"
+   ],
+   "related": [
+    "mots-confondus",
+    "cond-passe",
+    "temps-expr",
+    "verbes-prep",
+    "impersonnel",
+    "cond-incertain"
    ]
   },
   {
@@ -3121,6 +5922,77 @@
     "近将来时 → allait + 不定式；venir de → venait de + 不定式：Il a dit qu'il allait partir。",
     "几个并列的从句要重复 que 或 si：Il dit qu'il part et qu'il reviendra lundi。",
     "所说的时间从现在看仍然成立时，时间词不变：Il m'a dit ce matin qu'il viendrait demain。"
+   ],
+   "decide": [
+    "先看原话是什么句型，定引导词和语序 → 陈述句用 que；是非问句用 si（只在 il / ils 前省音：s'il、s'ils，但在 elle、on 等前绝不省音）；qu'est-ce qui / que 或 que 问「什么」改 ce qui / ce que；où、quand、pourquoi、comment 等保留，改用陈述语序（尤其代词主语绝不倒装）、去 est-ce que 和问号；命令式改 de (+ ne pas) + 不定式；并列从句重复 que 或 si",
+    "再看引述动词的时态 → 引述动词是现在时或将来时（il dit / dira que…），从句时态不变（现在引述时时间词也原样保留）；引述动词是过去时（il a dit / disait / avait dit…）→ 下一步",
+    "按书面规则调整从句时态 → 现在时 → 未完成过去时（即使现在仍成立，按书面时态配合规则也改）；复合过去时 → 愈过去时；简单将来时 → 条件式现在时；近将来时 aller + 不定式 → allait + 不定式；近过去时 venir de + 不定式 → venait de + 不定式；原本就是未完成过去时、愈过去时或条件式则保持不变",
+    "调整人称代词和主有词 → 从转述者的视角重新对应主语、宾语代词、自反代词和主有形容词（如 « Je t'attends devant mon bureau. » → Il m'a dit qu'il m'attendait devant son bureau）",
+    "最后看时间词对「此刻」是否仍成立 → 若过去话语所指的时间相对现在参照点已变（不再是现在的「今天 / 明天 / 昨天」等），必须转换（aujourd'hui → ce jour-là、hier → la veille、demain → le lendemain、ce soir → ce soir-là、la semaine prochaine → la semaine suivante、il y a X → X avant）；若话是今早或刚才说的、所指时间从现在看仍成立，时间词保持不变"
+   ],
+   "motto": "引述过去才变时：现→未、复→愈、将→条；是非 si，问物 ce qui/que，命令 de + 不定式",
+   "pairs": [
+    {
+     "a": "Elle dit qu'elle viendra avec nous.",
+     "b": "Elle a dit qu'elle viendrait avec nous.",
+     "d": "引述动词 dit 是现在时，从句将来时 viendra 不变；换成过去时 a dit 后，简单将来时须按时态配合改为条件式现在时 viendrait"
+    },
+    {
+     "a": "Elle a demandé ce qui avait changé.",
+     "b": "Elle a demandé ce qu'il avait changé.",
+     "d": "间接问句问「什么」：在从句中作主语用 ce qui（avait changé 缺主语），作直接宾语用 ce que（已有主语 il，avait changé 缺直宾）"
+    },
+    {
+     "a": "Je lui ai demandé s'il avait reçu le dossier.",
+     "b": "Je lui ai demandé si elle avait reçu le dossier.",
+     "d": "连词 si 只在代词 il / ils 前省音写作 s'il / s'ils；遇到 elle、on 等其他元音开头的词绝不省音，必须写 si elle"
+    },
+    {
+     "a": "Il m'a dit la semaine dernière qu'il rentrerait le lendemain.",
+     "b": "Il m'a dit ce matin qu'il rentrerait demain.",
+     "d": "上周说的「明天」相对现在已经过去，须改成 le lendemain；今天早上说的「明天」从现在看仍是明天，时间词保留 demain 不变"
+    }
+   ],
+   "walk": {
+    "s": "Lors de l'entretien, la journaliste a demandé au ministre si elle pouvait le citer et s'il présenterait la réforme le lendemain.",
+    "z": "采访中，女记者问部长她是否可以引用他的话，以及他第二天是否会公布这项改革方案。",
+    "steps": [
+     [
+      "为什么第一个从句写 si elle，而第二个从句写 s'il？",
+      "转述是非问句用 si 引导；si 只在 il / ils 前省音写作 s'il / s'ils，在 elle、on 等元音开头词前绝不省音，因此必须写 si elle"
+     ],
+     [
+      "为什么 et 后面要重复引导词 si，不能写成 et il présenterait？",
+      "法语中几个并列的宾语从句必须重复引导词 que 或 si，所以第二个问句前要补上 s'il"
+     ],
+     [
+      "原话 « Puis-je vous citer ? » 和 « Présenterez-vous la réforme ? » 的语序和标点怎么变？",
+      "进入间接问句后改回陈述语序（主语 + 动词），去掉主谓倒装和句末问号，并按转述视角把人称和宾语代词调整为 elle、le 和 il"
+     ],
+     [
+      "为什么动词用 pouvait 和 présenterait，而不用 peut 和 présentera？",
+      "引述动词 a demandé 是过去时，按书面时态配合规则：现在时 puis（pouvoir）→ 未完成过去时 pouvait，简单将来时 présenterez → 条件式现在时 présenterait"
+     ],
+     [
+      "原话里的 demain 为什么改成了 le lendemain？",
+      "句子交代的是过去那次采访（Lors de l'entretien），原话中的「明天」相对现在参照点已变，因此 demain 须转换为 le lendemain"
+     ]
+    ]
+   },
+   "prereq": [
+    "imparfait",
+    "plus-que-parfait",
+    "conditionnel",
+    "interrogation",
+    "imperatif"
+   ],
+   "related": [
+    "relatifs-composes",
+    "cond-passe",
+    "cond-incertain",
+    "infinitif",
+    "subj-indicatif",
+    "temps-expr"
    ]
   },
   {
@@ -3223,6 +6095,72 @@
     "j'aurais dû（本该做而没做）和 j'ai dû（不得不做了 / 想必做了）意思不同。",
     "au cas où 后面用条件式，不用虚拟式，也不用现在时。",
     "两个 si 从句并列时，书面语里第二个常用 que 代替 si，后面多接虚拟式：Si tu viens et qu'il fasse beau, on ira à la plage。"
+   ],
+   "decide": [
+    "先看是不是 si 引导的条件从句（含两个 si 并列）？ → 单个 si 从句绝不用条件式：可能实现的将来用现在时，眼下不太可能或与现在相反用未完成过去时，与过去事实相反用愈过去时；若两个 si 从句并列、第二个书面改用 que 代替 si，第二个从句通常用虚拟式",
+    "用的是 si 以外的条件结构吗？ → 按搭配选语式或词类：au cas où、dans l'hypothèse où + 条件式；à condition que、pourvu que、à moins que（可加无否定意义的 ne）、en admettant que、à supposer que + 虚拟式（主语相同时 à condition de、à moins de + 不定式）；en cas de、sans、avec + 名词（sans / avec 后主句用条件式）",
+    "看条件与结果的时间关系，判断要不要混合假设？ → 条件和结果都在过去（si + 愈过去时）→ 主句用条件式过去时；过去条件带来现在结果（常有 aujourd'hui 等）→ 条件式现在时；一贯特质导致过去某次后果（si + 未完成过去时）→ 条件式过去时；也可用副动词或两个并列的条件式代替 si",
+    "没有条件从句时，句子表达的是遗憾、责备、未证实的过去消息，还是既成事实？ → 本想却未成（aurais aimé / voulu）、本该或本可以却没做（aurais dû / pu）、新闻中尚未证实的过去事件 → 条件式过去时；过去确实不得不做或推测想必做了（ai dû）→ 复合过去时",
+    "确定用条件式过去时后，助动词和过去分词怎么写？ → 一般动词（含 être 本身：aurait été）用 avoir 的条件式 + 过去分词；特定位移或状态变化不及物动词和全部代动词用 être 的条件式，过去分词依规则配合"
+   ],
+   "motto": "si 后不用条件式；愈过去配条件过去，au cas où 接条件，et que 接虚拟，aurais dû 表本该",
+   "pairs": [
+    {
+     "a": "Il a dû annuler son voyage.",
+     "b": "Il aurait dû annuler son voyage.",
+     "d": "复合过去时 a dû 表示过去确实不得不取消了（或推测想必取消了）；条件式过去时 aurait dû 表示「本该取消却没取消」，表达遗憾或责备"
+    },
+    {
+     "a": "Si elle avait suivi cette formation, elle aurait travaillé à Bruxelles.",
+     "b": "Si elle avait suivi cette formation, elle travaillerait à Bruxelles.",
+     "d": "条件都在过去（si + 愈过去时）：主句用条件式过去时 aurait travaillé 表示结果在过去；用条件式现在时 travaillerait 表示结果落在现在"
+    },
+    {
+     "a": "Si le train avait du retard, nous prendrions un taxi.",
+     "b": "Au cas où le train aurait du retard, nous prendrions un taxi.",
+     "d": "条件连词 si 后面绝不用条件式，须用未完成过去时 avait；换成 au cas où（万一）则必须接条件式 aurait"
+    },
+    {
+     "a": "Si tu rentres tôt et si tu as le temps, appelle-moi.",
+     "b": "Si tu rentres tôt et que tu aies le temps, appelle-moi.",
+     "d": "两个条件从句并列时，重复 si 后继续用直陈式（as）；书面语用 que 代替第二个 si 时，从句改用虚拟式（aies）"
+    }
+   ],
+   "walk": {
+    "s": "Si Camille avait lu le règlement, elle se serait inscrite à temps et ne chercherait pas une solution de secours aujourd'hui ; elle aurait vraiment dû vérifier la date limite.",
+    "z": "如果卡米耶当初读了章程，她就会按时报名，今天也不用四处寻找备选方案了；她当时真该核对一下截止日期。",
+    "steps": [
+     [
+      "句首 Si Camille avait lu le règlement 为什么用愈过去时 avait lu，而不用条件式过去时 aurait lu？",
+      "条件连词 si 引导的从句里绝不能用条件式；表示与过去事实相反的条件，必须用 si + 愈过去时 → avait lu"
+     ],
+     [
+      "elle se serait inscrite 为什么用 être 的条件式，且过去分词词尾加了 -e？",
+      "这是过去条件在过去产生的假设结果，用条件式过去时；代动词 s'inscrire 一律以 être 作助动词，自反代词 se 作直接宾语指代阴性单数主语 Camille，过去分词须配合 → se serait inscrite"
+     ],
+     [
+      "后面的 et ne chercherait pas ... aujourd'hui 为什么改用条件式现在时？",
+      "aujourd'hui 说明这一结果落在现在，属于「过去条件 + 现在结果」的混合假设 → 主句动词用条件式现在时 chercherait"
+     ],
+     [
+      "分号后的 elle aurait vraiment dû vérifier 表达什么含义，为什么不用 a dû？",
+      "aurait dû + 不定式表示「过去本该做却没做」（遗憾或责备）；如果用复合过去时 a dû，意思会变成「当时不得不核对了」或「想必已经核对过了」"
+     ]
+    ]
+   },
+   "prereq": [
+    "conditionnel",
+    "plus-que-parfait",
+    "passe-compose",
+    "subjonctif"
+   ],
+   "related": [
+    "cond-incertain",
+    "subj-indicatif",
+    "accord-pp",
+    "gerondif",
+    "negation-nuances",
+    "discours-indirect"
    ]
   },
   {
@@ -3283,6 +6221,69 @@
     "中文说「等你做完」，法语在 quand 后面要用将来的时态（quand tu auras fini），不用现在时或复合过去时。",
     "不要和条件式过去时混淆：j'aurai fini（先将来时）/ j'aurais fini（条件式过去时），读音几乎一样，写法不同。",
     "si 表示条件时后面不用将来时：Si tu as fini, nous sortirons。"
+   ],
+   "decide": [
+    "句中有表示条件的 si（如果）吗？ → 有：条件从句里绝不用将来时，先完成的将来条件改用复合过去时（Si tu as fini, nous sortirons）；表示「是否」的间接问句 si 则可用先将来时（Je me demande s'il aura fini）",
+    "句中有 quand、lorsque、dès que、aussitôt que、une fois que、après que、tant que 引导时间从句，且主句是将来时或面向将来的命令式吗？ → 是：先完成的动作必须用先将来时，不能用现在时或复合过去时（主句为现在时表习惯则配复合过去时，为过去时则配愈过去时等过去时态）",
+    "句中有 dans + 时长、d'ici / avant + 将来时间点，或是在对已经发生的事作推测（想必是……）吗？ → 是：用先将来时；若表尚未开始的将来动作本身（而非「届时已完成」），用简单将来时",
+    "需要区分先将来时与条件式过去时吗？ → 将来计划、将来时间从句（主句配简单将来时或命令式）或对过去的推测用先将来时（aurai / serai）；与过去事实相反的假设、后悔或未证实消息用条件式过去时（aurais / serais，je 时多一个 -s）",
+    "确定用先将来时后怎么构成？ → 助动词 avoir 或 être（选法与复合过去时相同：代词式动词及 aller、venir、arriver、partir 等不及物动词用 être，其余用 avoir）变简单将来时 + 过去分词；按复合过去时规则核对配合，否定 ne … pas 夹住助动词，短副词（déjà、beaucoup）放在助动词与过去分词之间"
+   ],
+   "motto": "将来的完成与推测：助动词将来 + 分词；将来时间从句必用，条件 si 改复过；aurai 别写 aurais",
+   "pairs": [
+    {
+     "a": "Quand tu auras terminé le bilan, nous pourrons partir.",
+     "b": "Si tu as terminé le bilan, nous pourrons partir.",
+     "d": "quand 引导将来的时间从句，先完成的动作用先将来时；si 引导条件从句时绝不用将来时，改用复合过去时"
+    },
+    {
+     "a": "Si tout se passe bien, j'aurai terminé avant midi.",
+     "b": "Si tout s'était bien passé, j'aurais terminé avant midi.",
+     "d": "si + 现在时配先将来时（aurai，无 -s），表示对将来的把握；si + 愈过去时配条件式过去时（aurais，带 -s），表示与过去相反的假设"
+    },
+    {
+     "a": "Demain à midi, ils partiront pour Lyon.",
+     "b": "Demain à midi, ils seront déjà partis pour Lyon.",
+     "d": "简单将来时（partiront）表示明天中午才动身；先将来时（seront déjà partis）表示到明天中午时就已经离开了"
+    },
+    {
+     "a": "Nadia ne répond pas : elle a laissé son téléphone au bureau.",
+     "b": "Nadia ne répond pas : elle aura laissé son téléphone au bureau.",
+     "d": "复合过去时（a laissé）直接陈述已知事实；先将来时（aura laissé）表示根据眼前线索对已发生情况的推测（「想必是落在了办公室」）"
+    }
+   ],
+   "walk": {
+    "s": "Dès que les deux directrices seront rentrées de Bruxelles, nous signerons l'accord ; si le service juridique a déjà vérifié les clauses, j'aurai envoyé la version finale d'ici vendredi.",
+    "z": "两位女主任一从布鲁塞尔回来，我们就签署协议；如果法务部已经核对完条款，我周五之前就会把定稿发出去。",
+    "steps": [
+     [
+      "dès que 后面为什么用先将来时，而不用现在时或复合过去时？",
+      "主句 nous signerons 是简单将来时，「回来」先于「签协议」完成 → 时间从句里必须用先将来时"
+     ],
+     [
+      "rentrer 的先将来时怎么构成和配合？",
+      "rentrer 不带直接宾语时用 être 的简单将来时（seront），过去分词随阴性复数主语 les deux directrices 配合 → seront rentrées"
+     ],
+     [
+      "si 后面为什么用复合过去时 a déjà vérifié，而不用先将来时？",
+      "这里的 si 表示条件（「如果」），条件从句后绝不用将来时，先完成的将来条件改用复合过去时（déjà 放在助动词和过去分词之间）"
+     ],
+     [
+      "最后为什么写 j'aurai envoyé，而不写 j'aurais envoyé？",
+      "d'ici vendredi 表示到周五前完成的既定安排，且前面是真实条件（si + 复合过去时），要用先将来时 j'aurai envoyé（无 -s），不是条件式过去时"
+     ]
+    ]
+   },
+   "prereq": [
+    "passe-compose",
+    "futur"
+   ],
+   "related": [
+    "cond-passe",
+    "plus-que-parfait",
+    "anteriorite",
+    "accord-pp",
+    "temps-expr"
    ]
   },
   {
@@ -3368,6 +6369,69 @@
     "主句和从句主语相同时不用 que 从句，改用不定式：avant de partir、pour comprendre、Je suis content d'être là。",
     "表示评价的形容词 + que 用虚拟式：Je trouve normal qu'il soit fatigué；但 Je trouve qu'il est fatigué 是看法，用直陈式。",
     "主句是过去时，从句照样用虚拟式现在时或过去时：Je voulais qu'il vienne。"
+   ],
+   "decide": [
+    "从句主语和主句主语一样吗？一样 → 不用 que 从句，改用不定式（avant de partir、content d'être là）",
+    "que 前面是连词吗？après que、pendant que、dès que、parce que、puisque、alors que → 直陈式；avant que、bien que、pour que、afin que、à condition que、jusqu'à ce que、sans que → 虚拟式",
+    "是动词或形容词 + que？确定、看法、陈述、期待（savoir、penser、dire、espérer、il est probable）→ 直陈式；意愿、必要、情感、怀疑、可能、评价（vouloir、il faut、content、douter、il est possible、normal）→ 虚拟式",
+    "penser、croire、être sûr 被否定或用倒装疑问吗？是 → 一般改用虚拟式",
+    "dire、comprendre、admettre、supposer 或关系从句：看意思——陈述事实、明白、承认、确实存在 → 直陈式；命令、觉得可以理解、假设、不确定存在 → 虚拟式",
+    "主句是过去时？不做时态配合：同时或之后 → 虚拟式现在时，之前 → 虚拟式过去时"
+   ],
+   "motto": "事实看法用直陈，意愿情感怀疑用虚拟；penser 一否定一倒装，就转虚拟",
+   "pairs": [
+    {
+     "a": "Je pense qu'il a raison.",
+     "b": "Je ne pense pas qu'il ait raison.",
+     "d": "主句一否定，事情不再确定 → 虚拟式"
+    },
+    {
+     "a": "J'espère qu'il viendra.",
+     "b": "Je souhaite qu'il vienne.",
+     "d": "espérer 用直陈式（多用将来时），souhaiter 表示意愿 → 虚拟式"
+    },
+    {
+     "a": "Il est probable qu'il pleuvra.",
+     "b": "Il est possible qu'il pleuve.",
+     "d": "probable 接近确定 → 直陈式；possible 只是可能 → 虚拟式"
+    },
+    {
+     "a": "Dis-lui qu'il vient demain.",
+     "b": "Dis-lui qu'il vienne demain.",
+     "d": "直陈式是转告一个事实（告诉他：他明天来）；虚拟式是命令（叫他明天来）"
+    }
+   ],
+   "walk": {
+    "s": "Bien que je ne sois pas sûr qu'il ait raison, j'espère qu'il réussira.",
+    "z": "虽然我不确定他是对的，但我希望他能成功。",
+    "steps": [
+     [
+      "bien que 是什么？",
+      "让步连词 → 后面要用虚拟式：je ne sois pas sûr"
+     ],
+     [
+      "être sûr que 是肯定还是否定？",
+      "否定（ne … pas sûr）→ 事情不再确定，qu'il ait raison 用虚拟式"
+     ],
+     [
+      "espérer que 用哪种语式？",
+      "espérer 用直陈式，说将来的事 → 将来时 réussira"
+     ],
+     [
+      "要不要改成不定式？",
+      "qu'il ait raison、qu'il réussira 的主语 il 和 je 不同 → 保留 que 从句；bien que 没有不定式说法，主语相同也照样用从句"
+     ]
+    ]
+   },
+   "prereq": [
+    "subjonctif"
+   ],
+   "related": [
+    "subj-passe",
+    "but",
+    "opposition-concession",
+    "infinitif",
+    "anteriorite"
    ]
   },
   {
@@ -3418,6 +6482,71 @@
     "选现在时还是过去时，看的是两个动作的先后，不是主句的时态：Je suis content que tu viennes（你要来）/ que tu sois venu（你已经来了）。",
     "过去分词的配合规则和复合过去时相同：qu'elle soit partie、qu'elles se soient levées。",
     "aie、aies、ait、aient 读音相同，注意拼写。"
+   ],
+   "decide": [
+    "先确认从句要不要用虚拟式？ → 主句表示情感、怀疑、可能、评价（être content que、regretter que、douter que、il est possible que、ne pas croire que）或连词 bien que、quoique、jusqu'à ce que、avant que、sans que（情感动词及 avant que / sans que 须主从句主语不同，否则改用不定式）→ 用虚拟式，进入下一步；espérer que、肯定的 penser que、après que 等 → 用直陈式",
+    "判断从句动作相对主句的先后（不看主句时态）→ 从句动作已经完成，或发生在主句动作之前（即使主句是现在时或将来时）→ 虚拟式过去时；与主句同时或在其之后发生（即使主句是过去时）→ 虚拟式现在时",
+    "选助动词（规则同复合过去时）→ 一般动词（含 être、avoir 自身，以及带直接宾语的 sortir、descendre、monter、passer 等）用 avoir；表示位移或状态变化的不及物动词（aller、venir、partir、arriver、rester、tomber、naître、mourir 等）及所有代词式动词用 être",
+    "核对助动词的虚拟式现在时拼写 → avoir：que j'aie、tu aies、il/elle ait、nous ayons、vous ayez、ils/elles aient（aie / aies / ait / aient 同音不同形，nous / vous 不加额外的 i）；être：que je sois、tu sois、il/elle soit、nous soyons、vous soyez、ils/elles soient",
+    "核对过去分词与配合（规则同复合过去时）→ 用 être 的非代词式动词与主语性数配合；用 avoir 时仅当直接宾语前置才与直宾配合；代词式动词在自反代词作直接宾语（以及 s'enfuir 等固有代词式动词）时配合（se lever、s'inscrire），自反代词作间接宾语时不配合（se téléphoner、se parler、se fouler la cheville）"
+   ],
+   "motto": "从句先完成用虚拟过去，不看主句时态；虚拟助动词 + 分词，配合同复合过去，分清 aie/aies/ait/aient",
+   "pairs": [
+    {
+     "a": "Je suis content que tu viennes à la conférence.",
+     "b": "Je suis content que tu sois venu à la conférence.",
+     "d": "主句都是现在时，区别在于动作先后：viennes 表示将要来或正在来（之后/同时）；sois venu 表示已经来了（已完成）"
+    },
+    {
+     "a": "J'étais surpris qu'elle parte sans prévenir.",
+     "b": "J'étais surpris qu'elle soit partie sans prévenir.",
+     "d": "主句都是过去时：parte 表示她当时正要离开（同时）；soit partie 表示她早已离开（发生在「惊讶」之前）"
+    },
+    {
+     "a": "Je pense qu'ils ont déjà signé le contrat.",
+     "b": "Je ne pense pas qu'ils aient déjà signé le contrat.",
+     "d": "penser que 肯定句用直陈式复合过去时 ont signé；否定后表怀疑，须改用虚拟式过去时 aient signé"
+    },
+    {
+     "a": "Je regrette qu'elle se soit coupée en cuisinant.",
+     "b": "Je regrette qu'elle se soit coupé le doigt en cuisinant.",
+     "d": "前句 se 作直接宾语，过去分词与主语配合写 coupée；后句直接宾语 le doigt 在动词后，se 作间接宾语，不配合写 coupé"
+    }
+   ],
+   "walk": {
+    "s": "Bien qu'elles se soient levées à l'aube, je doute qu'elles aient déjà atteint le refuge et je souhaite qu'elles puissent se reposer bientôt.",
+    "z": "尽管她们天一亮就起床了，但我怀疑她们还没到达山间木屋，真希望她们很快能休息一下。",
+    "steps": [
+     [
+      "Bien que 后面为什么用 se soient levées？",
+      "bien que 引导让步从句须用虚拟式；「天亮起床」已经完成 → 虚拟式过去时；代词式动词 se lever 用 être（soient），自反代词 se 作直接宾语，与阴性复数主语 elles 配合 → se soient levées"
+     ],
+     [
+      "je doute que 后面为什么用 aient atteint，而且拼作 aient 而不是 ait？",
+      "douter que 触发虚拟式，动作是否「已经到达」针对已完成的结果 → 虚拟式过去时；atteindre 用 avoir，主语是第三人称复数 elles，须拼作 aient（与 ait 读音相同但人称不同）；直接宾语 le refuge 在动词后，atteint 不配合"
+     ],
+     [
+      "最后 je souhaite que 后面为什么换回虚拟式现在时 puissent？",
+      "souhaiter que 同样触发虚拟式，但「很快能休息」（bientôt）发生在说话之后而非之前，因此用虚拟式现在时 puissent"
+     ],
+     [
+      "这几个从句的时态选择和主句是现在时有关吗？",
+      "无关。主句都是现在时，但前两个从句动作已完成用虚拟式过去时，最后一个尚未发生用虚拟式现在时——决定时态的是两个动作的先后关系"
+     ]
+    ]
+   },
+   "prereq": [
+    "subjonctif",
+    "passe-compose",
+    "pronominaux"
+   ],
+   "related": [
+    "subj-indicatif",
+    "accord-pp",
+    "anteriorite",
+    "infinitif",
+    "plus-que-parfait",
+    "opposition-concession"
    ]
   },
   {
@@ -3498,6 +6627,70 @@
     "介词后面不能用 que 或 dont：la chaise sur laquelle…，不说 la chaise que… sur。",
     "先行词是物时，介词后面不能用 qui。",
     "「其中」说 parmi lesquels，不说 parmi qui。"
+   ],
+   "decide": [
+    "先看前面有没有具体名词作先行词：没有具体先行词，或逗号后复指前面整句话 → 用中性结构（作主语 ce qui，作直宾 ce que，带简单 de 用 ce dont，带 à 或其他介词用 ce + 介词 + quoi，间接疑问如 Je ne sais pas à quoi… 不加 ce；表无先行词地点用 là où / partout où）；先行词是不定代词 quelque chose / rien 时，介词后直接用 quoi；有具体名词先行词 → 下一步",
+    "把先行词放回从句，看它前面带不带介词、带什么介词：不带介词 → 回用简单关系代词 qui / que；只带简单介词 de（如 parler de、avoir besoin de）→ 用 dont；表示「从某地出发 / 经过某地」→ 用 d'où / par où；带其他介词或含 de 的介词短语 → 下一步",
+    "判断先行词是人还是物，以及介词是不是 parmi：先行词是物，或介词是 parmi → 只能用「介词 + lequel」系列，绝不能用 qui、que 或 dont；先行词是人（且介词不是 parmi）→「介词 + qui」和「介词 + lequel」都可以",
+    "使用 lequel 系列时，看前面是不是 à 或含 de 的介词短语（près de、en face de、à côté de、au cours de、autour de 等）：含 de 的介词短语不能用 dont；遇 à / de 时阳性单数和复数必须缩合，不能分开写 à lequel / de lequel（auquel / auxquels / auxquelles；duquel / desquels / desquelles），只有阴性单数 à laquelle / de laquelle 不缩合",
+    "最后核对先行词的阴阳性与单复数（留意 l' 开头名词的性别）→ 阳单 lequel / auquel / duquel，阴单 laquelle / à laquelle / de laquelle，阳复 lesquels / auxquels / desquels，阴复 lesquelles / auxquelles / desquelles"
+   ],
+   "motto": "介词后 lequel，à/de 除阴单皆缩；de 短语用 duquel；物与 parmi 不用 qui；无先行词用 ce",
+   "pairs": [
+    {
+     "a": "C'est le lac dont il parle.",
+     "b": "C'est le lac près duquel il habite.",
+     "d": "parler de 只带简单介词 de → dont；près de 是带 de 的介词短语，不能用 dont，必须缩合成 duquel"
+    },
+    {
+     "a": "C'est le collègue avec qui je travaille.",
+     "b": "C'est le logiciel avec lequel je travaille.",
+     "d": "先行词是人（le collègue）可用 avec qui（也可用 avec lequel）；先行词是物（le logiciel）只能用 avec lequel，不能用 qui"
+    },
+    {
+     "a": "Voici le projet auquel je m'intéresse.",
+     "b": "Voici ce à quoi je m'intéresse.",
+     "d": "有具体先行词 le projet（阳单）时用缩合形式 auquel；没有具体先行词时改用中性结构 ce à quoi"
+    },
+    {
+     "a": "Elle a refusé l'offre, ce qui m'étonne.",
+     "b": "Elle a refusé l'offre, ce que je regrette.",
+     "d": "两句都在逗号后复指前面整句话：ce qui 作 étonner 的主语，ce que 作 regretter 的直接宾语"
+    }
+   ],
+   "walk": {
+    "s": "Les candidats parmi lesquels le jury a choisi ont proposé des idées auxquelles la mairie s'intéresse, ce qui a ouvert un débat au cours duquel chacun s'est exprimé.",
+    "z": "评审团从中挑选的候选人们提出了市政府颇感兴趣的想法，这开启了一场人人都发表了意见的讨论。",
+    "steps": [
+     [
+      "Les candidats 是人，为什么 parmi 后面写 lesquels，而不写 qui？",
+      "「其中」固定用 parmi + lequel 的复数形式，即使先行词是人也不能说 parmi qui；les candidats 是阳性复数 → parmi lesquels"
+     ],
+     [
+      "des idées 后面为什么用 auxquelles？",
+      "s'intéresser 搭配介词 à，des idées 是阴性复数事物（不用 à qui），à + lesquelles 必须缩合成 auxquelles"
+     ],
+     [
+      "逗号后面为什么用 ce qui，不用 ce que？",
+      "复指前面整句话，且在从句中直接作动词 a ouvert 的主语 → ce qui"
+     ],
+     [
+      "un débat 后面为什么是 au cours duquel，不能用 dont？",
+      "au cours de 是带 de 的介词短语，后面不能用 dont；un débat 是阳性单数，de + lequel 缩合成 duquel → au cours duquel"
+     ]
+    ]
+   },
+   "prereq": [
+    "relatifs",
+    "contraction",
+    "prepositions"
+   ],
+   "related": [
+    "verbes-prep",
+    "mise-en-relief",
+    "interrogation",
+    "y-en",
+    "lieu"
    ]
   },
   {
@@ -3564,6 +6757,76 @@
     "间接宾语在前面不引起配合：Je leur ai parlé（不加 s）。",
     "配合常常听不出来，但有时能听出来：la lettre que j'ai écrite、la porte qu'il a ouverte。",
     "se demander、se dire、se rendre compte 不配合：Elle s'est demandé pourquoi；只有代动形式的动词（s'enfuir、se méfier、s'évanouir、se souvenir）和主语配合：Elles se sont enfuies。"
+   ],
+   "decide": [
+    "先看助动词：是普通 être 动词或被动语态吗？ → 直接与主语的阴阳性、单复数配合（Elles sont parties；Ces lois ont été votées；注意被动复合时态里的 été 永远不变）",
+    "是代词式动词吗？ → 先看是不是只有代动形式的动词（s'enfuir、se souvenir、se méfier、s'évanouir 等）：是 → 直接与主语配合；否则按 avoir 的思路问「动词 + qui / quoi ?」找直接宾语",
+    "用 avoir（或一般代词式动词）：直接宾语在哪？ → 没有直宾、直宾在动词后（J'ai écrit des lettres；Elle s'est lavé les mains），或前置的是间接宾语（lui、leur、auxquelles、se parler 的 se），都不配合",
+    "确认有前置直接宾语（le / la / l' / les、que、quel(le)(s) + 名词、combien de + 名词、代动词里作直宾的 se）→ 先排除两个永远不变的特例：宾语是 en，或结构是 fait + 不定式",
+    "确定要配合 → 找准配合对象的阴阳性与单复数，补写 -e / -s / -es；特别留意 écrit / écrite、ouvert / ouverte、pris / prise、mis / mise 等以辅音结尾的分词，加 -e 后词尾辅音会读出来"
+   ],
+   "motto": "être 配主语，avoir 配前置直宾；间宾、en 和 fait+不定式不变；代动词找直宾，纯代动配主语",
+   "pairs": [
+    {
+     "a": "Nous avons ouvert cette enquête en mars.",
+     "b": "Cette enquête, nous l'avons ouverte en mars.",
+     "d": "助动词是 avoir：直接宾语 cette enquête 在动词后时不配合（ouvert）；换成前置直接宾语 l' 后与阴性单数配合（ouverte），且末尾 t 读出音来"
+    },
+    {
+     "a": "Ces revues, je les ai lues pendant les vacances.",
+     "b": "Des revues, j'en ai lu pendant les vacances.",
+     "d": "前置代词 les 指代阴性复数 ces revues，过去分词配合写 lues；换成代词 en 后，过去分词一律不配合，写 lu"
+    },
+    {
+     "a": "La robe qu'elle a faite lui va très bien.",
+     "b": "La robe qu'elle a fait retoucher lui va très bien.",
+     "d": "单独用 faire 时，que（= la robe）是前置直接宾语，配合写 faite；后面一旦接不定式（fait retoucher），fait 永远不变"
+    },
+    {
+     "a": "Elle s'est coupée en préparant le repas.",
+     "b": "Elle s'est coupé le doigt en préparant le repas.",
+     "d": "a 句没有别的直接宾语，s' 本身就是前置直接宾语，配合主语写 coupée；b 句动词后另有直接宾语 le doigt，s' 变成间接宾语，不配合写 coupé"
+    }
+   ],
+   "walk": {
+    "s": "Les propositions qu'elle a soumises ont été adoptées, mais elle s'est rendu compte qu'elle n'avait pas relu l'étude qu'elle avait fait traduire.",
+    "z": "她提交的提案获得了通过，但她意识到自己还没重读让人翻译的那份研究报告。",
+    "steps": [
+     [
+      "a soumises 用的是 avoir，为什么写成 soumises？",
+      "关系代词 que 指代阴性复数 les propositions（une proposition），是前置直接宾语，过去分词与它配合写 soumises（且 soumis 加 -e 后 s 读 /z/，词尾复数 -s 不发音）"
+     ],
+     [
+      "ont été adoptées 里，为什么 été 不变，而 adoptées 要加 -es？",
+      "被动语态的过去分词与主语 les propositions（阴性复数）配合 → adoptées；复合过去时被动里的 été 本身永远不变"
+     ],
+     [
+      "主语是阴性 elle，为什么 s'est rendu compte 里的 rendu 不加 -e？",
+      "se rendre compte 中 compte 是动词后的直接宾语，s' 是间接宾语（rendre compte à soi），所以 rendu 永远不配合"
+     ],
+     [
+      "n'avait pas relu l'étude 为什么不配合？",
+      "助动词是 avoir，直接宾语 l'étude（阴性）位于动词后面，不配合 → relu"
+     ],
+     [
+      "最后 qu'elle avait fait traduire 前面有指代阴性名词 l'étude 的关系代词 que，为什么 fait 还是不变？",
+      "fait + 不定式（fait traduire）是固定特例，不论前面有没有宾语，fait 永远不变"
+     ]
+    ]
+   },
+   "prereq": [
+    "passe-compose",
+    "pronoms-objet",
+    "pronominaux",
+    "relatifs",
+    "passif"
+   ],
+   "related": [
+    "y-en",
+    "plus-que-parfait",
+    "cond-passe",
+    "subj-passe",
+    "participe-present"
    ]
   },
   {
@@ -3635,6 +6898,73 @@
     "car 不能放在句首；comme 表示原因时必须放在句首。",
     "grâce à 用于好的结果，à cause de 用于不好的结果。",
     "主语相同时用 pour / afin de + 不定式，不用 pour que。"
+   ],
+   "decide": [
+    "先判逻辑关系：前后两段是什么关系？ → 交代原因（为什么）看原因组；推导出结果（所以 / ……得……）看结果组；与预期相反（尽管 / 然而）或两者并列对比（而）看让步对比组；表达意图（为了）看目的组",
+    "再看连接词后面接什么成分：名词、不定式，还是完整句子？ → 接名词：原因用 grâce à（好）/ à cause de（坏）/ en raison de（中性），让步用 malgré（绝不接句子）；接不定式：同主语的目的用 pour / afin de；接完整句子 → 下一步",
+    "检查连接词的句中位置 → 放句首表原因常用 comme 或 puisque（也可用 parce que，但 car 不能放句首）；放后半句表原因用 parce que、car 或 puisque（comme 表原因不放后半句）；连接独立分句或句子用结果或转折连接词（donc、alors、c'est pourquoi、par conséquent；pourtant、cependant、néanmoins）",
+    "核对主语是否相同以及从句动词的语式 → 目的且前后主语相同：必须用 pour / afin de + 不定式（不用 pour que / afin que）；主语不同：用 pour que / afin que + 虚拟式；让步连词 bien que / quoique 后必须用虚拟式；原因（parce que / car / puisque / comme）与对比（alors que / tandis que）后用直陈式",
+    "最后查语义色彩与固定搭配 → 原因接名词时，好结果用 grâce à，坏结果用 à cause de，正式中性用 en raison de；程度引出结果用 si / tellement + 形容词 + que（不用 très / trop … que）"
+   ],
+   "motto": "先辨逻辑再看接法：comme 首 car 后，malgré 接名，bien que 虚拟，同主语用不定式",
+   "pairs": [
+    {
+     "a": "Comme le budget a été réduit, le projet est reporté.",
+     "b": "Le projet est reporté, car le budget a été réduit.",
+     "d": "都接直陈式表原因：comme 表示原因时必须放在句首，car 只能放在后半句、不能放句首"
+    },
+    {
+     "a": "Grâce à la pluie, les récoltes ont été sauvées.",
+     "b": "À cause de la pluie, la cérémonie a été annulée.",
+     "d": "同样接名词 la pluie 表示原因：带来好结果（保住收成）用 grâce à，带来坏结果（取消仪式）用 à cause de"
+    },
+    {
+     "a": "Malgré le coût élevé des travaux, la mairie maintient le chantier.",
+     "b": "Bien que les travaux soient coûteux, la mairie maintient le chantier.",
+     "d": "同样表达让步：后接名词短语（le coût élevé des travaux）用 malgré，后接完整从句改用 bien que + 虚拟式（soient）"
+    },
+    {
+     "a": "Nous publions ce rapport afin d'informer les citoyens.",
+     "b": "Nous publions ce rapport afin que les citoyens soient informés.",
+     "d": "表达目的时，前后主语相同（都是 nous）用 afin de + 不定式；主语不同（nous 和 les citoyens）改用 afin que + 虚拟式（soient）"
+    }
+   ],
+   "walk": {
+    "s": "Comme la sécheresse s'est prolongée, les récoltes sont si faibles que les prix montent ; la région verse donc une aide d'urgence afin que les agriculteurs puissent tenir, malgré un budget déjà serré.",
+    "z": "由于干旱持续不断，收成差到物价上涨；因此大区发放了一笔紧急补助，好让农民们撑下去，尽管预算本就紧张。",
+    "steps": [
+     [
+      "句首为什么用 Comme，不能换成 Car？",
+      "这里交代原因且放在句首 → 用 comme + 直陈式（s'est prolongée）；car 只能放在后半句，不能放在句首"
+     ],
+     [
+      "si faibles que 和 donc 各自引出什么关系？",
+      "两者都引出结果：si + 形容词 + que 表示「如此……以至于」，donc 在分号后引出由此采取的结果性措施"
+     ],
+     [
+      "为什么用 afin que，而不用 afin de？",
+      "主句主语是 la région，目的动作的主语变成 les agriculteurs，主语不同 → 用 afin que 引导从句（不用 afin de + 不定式）"
+     ],
+     [
+      "afin que 后面为什么写 puissent，而不是 peuvent？",
+      "afin que（与 pour que 一样）引导目的从句，后面必须用虚拟式 → pouvoir 的第三人称复数虚拟式 puissent"
+     ],
+     [
+      "句尾为什么用 malgré，而不用 bien que？",
+      "后面接的是名词短语 un budget déjà serré，没有变位动词 → 用介词 malgré（bien que 必须接虚拟式从句）"
+     ]
+    ]
+   },
+   "prereq": [
+    "subjonctif"
+   ],
+   "related": [
+    "cause-consequence",
+    "opposition-concession",
+    "but",
+    "subj-indicatif",
+    "infinitif",
+    "nominalisation"
    ]
   },
   {
@@ -3707,6 +7037,76 @@
     "副动词前面有 en，而且主语必须和主句相同；现在分词可以修饰句中任何一个名词。",
     "口语里很少用现在分词，一般说 qui + 动词或 comme / parce que。",
     "现在分词常见于招聘广告和公文：Entreprise cherche vendeur parlant anglais；N'ayant pas reçu de réponse, je me permets de vous relancer。"
+   ],
+   "decide": [
+    "前面有没有 en，且动作由主句主语发出？有 → 副动词（en + 现在分词，主语必须同主句）；修饰句中别的名词、表单纯原因（如 Étant…、N'ayant pas…）或带独立主语时，不要加 en",
+    "动作是否在主句之前已经完成？是 → 复合分词（ayant / étant + 过去分词；过去分词配合规则同复合过去时，如 étant arrivées、s'étant trompée）",
+    "分词前面有没有自己独立的主语（与主句主语不同）？有 → 书面语分词从句（自带主语 + 现在分词 / 复合分词 / 过去分词；独立过去分词与自带主语配合，如 La réunion terminée）",
+    "判断它是动词（现在分词）还是形容词（形容词性分词）：带动词宾语、修饰动作的后置状语、否定（ne … pas）或宾语/自反代词 → 现在分词，永不变形；单表性质、前可加 très 或作表语 → 形容词性分词，随名词性数配合",
+    "核对词形与特殊拼写：现在分词取 nous 词干 + -ant（三特例 étant、ayant、sachant；留意 -geant / -çant）；形容词性分词留意拼写变化（-quant → -cant，-guant → -gant，-geant / -ant → -ent，如 convaincant、fatigant、négligent、précédent）",
+    "看语体场合：招聘广告、公文和正式信函常用现在分词或复合分词压缩句子；日常口语一般改用 qui + 变位动词或 comme / parce que + 完整从句，切勿把连词、关系代词和现在分词混用"
+   ],
+   "motto": "带宾语状语永不变，单表性质要配合；-cant/-gant/-ent要分清，先完成用ayant/étant",
+   "pairs": [
+    {
+     "a": "La semaine précédant le concours a été très stressante.",
+     "b": "La semaine précédente a été très stressante.",
+     "d": "带直接宾语 le concours 时是现在分词 précédant（拼作 -ant，不变形）；不带宾语表「上一周」时是形容词性分词 précédente（拼作 -ent，随阴性名词 semaine 加 -e）"
+    },
+    {
+     "a": "J'ai croisé mon collègue sortant du ministère.",
+     "b": "J'ai croisé mon collègue en sortant du ministère.",
+     "d": "不带 en 的现在分词 sortant 修饰宾语 mon collègue（同事正走出来）；加 en 成副动词后，主语固定为主句主语 je（我走出来时遇见同事）"
+    },
+    {
+     "a": "Travaillant dans cette banque, il connaît bien le marché.",
+     "b": "Ayant travaillé dans cette banque, il connaît bien le marché.",
+     "d": "现在分词 Travaillant 表示与主句同时（目前正在这家银行工作）；复合分词 Ayant travaillé 表示先于主句完成（以前曾在这家银行工作过）"
+    },
+    {
+     "a": "Étant absent ce matin, le directeur a annulé son rendez-vous.",
+     "b": "Le directeur étant absent ce matin, la réunion est reportée.",
+     "d": "两处动作主语相同（都是 le directeur）时直接以现在分词 Étant 开头；主语不同时，分词前必须保留独立主语 Le directeur，构成分词从句"
+    }
+   ],
+   "walk": {
+    "s": "N'ayant pas obtenu de réponse satisfaisante, les riverains résidant près de la gare ont envoyé une lettre très convaincante à la mairie.",
+    "z": "由于没有得到令人满意的答复，住在车站附近的居民给市政厅寄了一封非常有说服力的信。",
+    "steps": [
+     [
+      "为什么开头用 N'ayant pas obtenu，而不用现在分词？",
+      "「没得到答复」发生在「寄信」之前，要用复合分词（avoir 的现在分词 ayant + 过去分词 obtenu）；否定词 ne … pas 夹在助动词 ayant 两侧 → N'ayant pas obtenu"
+     ],
+     [
+      "satisfaisante 为什么要加阴性词尾 -e？",
+      "修饰阴性单数名词 réponse，后面不带宾语或状语，单表性质「令人满意的」，是形容词性分词 → 配合为 satisfaisante"
+     ],
+     [
+      "résidant 修饰复数名词 les riverains，为什么不加 -s？",
+      "后面带有地点状语 près de la gare，相当于定语从句 qui résident près de la gare，属于现在分词 → 保留动词词形且永不变形"
+     ],
+     [
+      "convaincante 为什么拼作 -cant 而不是 -quant，还要加 -e？",
+      "前面有程度副词 très，用来说明 une lettre 的性质，是形容词性分词；convaincre 的形容词性分词拼作 convaincant，并与阴性单数 lettre 配合 → convaincante"
+     ],
+     [
+      "如果换成日常口语，这句话一般怎么说？",
+      "口语里很少连用分词，通常会改回从句：Comme ils n'ont pas obtenu de réponse satisfaisante, les riverains qui résident（口语常说 habitent）près de la gare ont envoyé…"
+     ]
+    ]
+   },
+   "prereq": [
+    "present",
+    "adj-agree",
+    "passe-compose",
+    "gerondif"
+   ],
+   "related": [
+    "relatifs",
+    "accord-pp",
+    "cause-consequence",
+    "anteriorite",
+    "infinitif"
    ]
   },
   {
@@ -3796,6 +7196,73 @@
     "强调地点和时间也用 que，不用 où：C'est à Lyon que nous nous sommes rencontrés。",
     "介词已经放在前面，后面就只用 que，不用 dont：C'est de lui que je parle。",
     "ce dont …, c'est de … 里的 de 一般保留：Ce dont j'ai besoin, c'est de repos。"
+   ],
+   "decide": [
+    "先定句型框架：想把句中某个具体成分单拎出来，用 « c'est … qui / que »；想先抛悬念再揭晓答案，用 « ce qui / ce que / ce dont / ce à quoi …, c'est … »；口语里先报话题再说内容，用「提前 / 后置 + 代词复指」或 « 话题, c'est ce qui / ce que … »；强调动作已持续多久，用 « voilà / ça fait / il y a + 时长 + que »",
+    "用 « c'est … qui / que » 时，先看被强调的成分是不是从句主语 → 是主语：用 qui（元音前永不省音），人称代词换重读形式（moi、toi、lui、elle、nous、vous、eux、elles），且 qui 后面的动词必须和它配合（C'est moi qui ai…；C'est nous qui avons…；注意 nous / vous 前仍用单数 C'est，第三人称复数书面常用 Ce sont）",
+    "强调非主语（直接宾语、间接宾语、时间、地点、原因、目的、方式等）→ 一律用 que（元音或哑音 h 前省音作 qu'），即使强调地点或时间也不用 où 或 quand；若被强调的成分带介词（如动词搭配的 à、de、sur 或状语介词 dans、pour、avec、à cause de 等），介词必须跟着被强调的成分留在 c'est 后面，后半句只用 que，绝不再用 dont 或 lequel 系列",
+    "用 « ce qui / ce que / ce dont / ce à quoi …, c'est … » 引出话题再揭晓时，把被强调的内容放回前半句动词后看它的语法功能 → 作主语用 ce qui；作直接宾语用 ce que；动词带介词 de（avoir besoin de、manquer de、se souvenir de 等）用 ce dont，且 c'est 后一般保留 de（接光杆名词时必须保留：c'est de repos）；动词带介词 à（tenir à、s'attendre à、réfléchir à 等）用 ce à quoi",
+    "用「提前 / 后置 + 代词复指」时，按名词在原句中的成分配准复指代词 → 主语用 il / elle / ils / elles；特指直接宾语用 le / la / l' / les（复合时态记得与过去分词配合）；间接宾语（à + 人）用 lui / leur；地点或 à + 事物用 y；不定 / 部分冠词、数量或 de + 事物用 en；泛指概念或不定式短语常用 ça"
+   ],
+   "motto": "主语 qui 配人称，其余皆 que 不换 où/dont；介词前置，ce dont 配 c'est de",
+   "pairs": [
+    {
+     "a": "C'est moi qui ai signé ce contrat.",
+     "b": "C'est lui qui a signé ce contrat.",
+     "d": "qui 后面的动词必须和被强调的重读代词配合：moi 是第一人称单数配 ai，换成第三人称单数 lui 才用 a"
+    },
+    {
+     "a": "C'est dans ce théâtre que la pièce a été créée.",
+     "b": "C'est le théâtre où la pièce a été créée.",
+     "d": "a 句用介词 dans 把地点状语拎出来强调（c'est … que），必须用 que；b 句没有介词，le théâtre 是具体名词先行词，后面是普通关系从句，才用 où"
+    },
+    {
+     "a": "C'est de ce rapport que la commission a débattu.",
+     "b": "C'est le rapport dont la commission a débattu.",
+     "d": "débattre de 带介词 de：a 句把 de 提前放在 c'est 后，后面只能用 que（不能再用 dont）；b 句没有前置 de，用关系代词 dont 代替 de ce rapport"
+    },
+    {
+     "a": "Ce qui a changé dans ce quartier, c'est l'ambiance.",
+     "b": "Ce qu'ils ont changé dans ce quartier, c'est l'ambiance.",
+     "d": "a 句从句缺主语（l'ambiance a changé）→ 用 ce qui；b 句已有主语 ils，缺直接宾语 → 用 ce que（元音前省音作 ce qu'）"
+    }
+   ],
+   "walk": {
+    "s": "Ce dont notre équipe a le plus besoin aujourd'hui, c'est de recul : c'est à Strasbourg que nous avons lancé ce programme, et c'est nous qui avons assumé tous les risques.",
+    "z": "我们团队如今最需要的是冷静审视的空间：我们正是在斯特拉斯堡启动了这个项目，而且承担全部风险的也正是我们。",
+    "steps": [
+     [
+      "前半句为什么用 Ce dont，而不用 Ce que？",
+      "动词短语 avoir besoin 搭配介词 de（avoir besoin de），强调带 de 的补语须用 ce dont，不能用直接宾语 ce que"
+     ],
+     [
+      "c'est de recul 里为什么不能把 de 省掉？",
+      "ce dont …, c'est de … 结构中介词 de 一般保留，尤其是接光杆抽象名词 recul 时，省略 de 不合语法"
+     ],
+     [
+      "c'est à Strasbourg 后面是地点，为什么用 que 而不用 où？",
+      "用 c'est … que 强调带介词的地点状语（à Strasbourg）时一律用 que，不能换成关系代词 où"
+     ],
+     [
+      "最后为什么写 c'est nous qui avons assumé，而不是 c'est nous qui a assumé？",
+      "强调主语用 c'est … qui，且 qui 后面的动词必须和被强调的重读代词 nous（第一人称复数）配合 → avons assumé（同时 nous 前仍用单数 c'est）"
+     ]
+    ]
+   },
+   "prereq": [
+    "toniques",
+    "relatifs",
+    "pronoms-objet",
+    "y-en",
+    "cest-ilest"
+   ],
+   "related": [
+    "relatifs-composes",
+    "verbes-prep",
+    "accord-pp",
+    "temps-expr",
+    "passif",
+    "cause-consequence"
    ]
   },
   {
@@ -3851,6 +7318,75 @@
     "同一个动词可能有几个意思不同的名词：changer → le changement（变化）/ le change（兑换）。",
     "后缀不能随便套，要逐个记：partir 的名词是 le départ，不是 partement。",
     "同一个动词的两个名词意思不同：blanchir → le blanchiment（洗钱）/ le blanchissage（洗衣）；essayer → l'essai（尝试）/ l'essayage（试穿）。"
+   ],
+   "decide": [
+    "先找核心词（动词还是形容词），再查对应的准确名词 → 动词常见后缀为 -tion / -sion、-ment、-age、-ure、-ade，也有无后缀、阴性过去分词或变词干的固定形式（baisser → la baisse、partir → le départ、entrer → l'entrée、naître → la naissance）；形容词多用 -té / -ité、-esse、-ance / -ence、-eur、-itude、-ie；后缀绝不能硬套",
+    "这个动词是否对应多个意思不同的名词？ → 先看句意再选词，不凭词根瞎猜：changer → le changement（变化）/ le change（兑换）；blanchir → le blanchiment（洗钱）/ le blanchissage（洗衣）；essayer → l'essai（尝试、试验）/ l'essayage（试穿）；arrêter → l'arrêt（停止）/ l'arrestation（逮捕）",
+    "定新名词的阴阳性，配好冠词、主有词和形容词 → -tion / -sion、-ure、-ade 以及形容词变来的 -té、-esse、-ance / -ence、-eur、-itude、-ie 为阴性；-ment、-age、-isme 为阳性；元音或哑音 h 开头的阴性单数前，定冠词缩成 l'，主有词改用 mon / ton / son，但形容词和过去分词仍按阴性配合（如 son arrivée tardive）",
+    "重组原句的主语和宾语 → 只保留原主语或原宾语其中之一时，用 de 引出并注意缩合（du / des / de la / de l'）；原主语和宾语同时出现时，宾语用 de 引出，施动者改用 par 引出（如 l'adoption de la loi par le Sénat）",
+    "把修饰动词的副词改成形容词 → 副词不能直接修饰名词，须换成对应形容词并随中心名词的性数配合、摆对位置（augmenter rapidement → une augmentation rapide；ralentir nettement → un net ralentissement）"
+   ],
+   "motto": "先查词义别硬套，-tion/-té阴-ment/-age阳；主宾用de，施动用par，副词改形容词",
+   "pairs": [
+    {
+     "a": "Elle a pris rendez-vous pour un essai.",
+     "b": "Elle a pris rendez-vous pour un essayage.",
+     "d": "都由 essayer 变来，但 un essai 指「尝试、试用/试驾」，un essayage 专指服装的「试穿」"
+    },
+    {
+     "a": "La mairie prévoit une fermeture progressive du centre-ville.",
+     "b": "La mairie prévoit un aménagement progressif du centre-ville.",
+     "d": "-ure 结尾的 fermeture 是阴性（une … progressive），-ment 结尾的 aménagement 是阳性（un … progressif），冠词和形容词都要跟着变"
+    },
+    {
+     "a": "Son départ imprévu a inquiété ses collègues.",
+     "b": "Son arrivée imprévue a inquiété ses collègues.",
+     "d": "前面都用 son，但 départ 是阳性（imprévu）；arrivée 是阴性，只是因元音开头才用 son，形容词仍按阴性配合写作 imprévue"
+    },
+    {
+     "a": "La publication du rapport a déclenché un débat.",
+     "b": "La publication du rapport par le ministère a déclenché un débat.",
+     "d": "名词化后宾语用 de 引出（du rapport）；若还要标明施动者，不再重复用 de，而是用 par 引出（par le ministère）"
+    }
+   ],
+   "walk": {
+    "s": "La suspension brutale du chantier par la mairie et la lenteur des démarches expliquent l'impatience des riverains.",
+    "z": "市政府突然暂停施工以及行政手续缓慢，解释了周边居民的焦急。",
+    "steps": [
+     [
+      "« La mairie a suspendu brutalement le chantier » 的核心动词 suspendre 怎么名词化？",
+      "suspendre 加后缀 -sion 变成阴性名词 la suspension"
+     ],
+     [
+      "副词 brutalement 在名词短语里为什么改成了 brutale？",
+      "动词变名词后，副词不能再修饰名词，须改为对应形容词，并与阴性单数 suspension 配合 → brutale"
+     ],
+     [
+      "原句的宾语 le chantier 和主语 la mairie 分别用什么介词引出？",
+      "宾语用 de 引出（de + le 缩合成 du chantier）；主语和宾语同时出现时，施动者改用 par 引出 → par la mairie"
+     ],
+     [
+      "« Les démarches sont lentes » 怎么变成名词短语？",
+      "形容词 lent 加后缀 -eur 变成阴性名词 la lenteur，原主语 les démarches 用 de 引出并缩合 → la lenteur des démarches"
+     ],
+     [
+      "句末的 l'impatience 是由什么词变来的，阴阳性怎么判断？",
+      "由形容词 impatient（-ent → -ence）变成名词；-ance / -ence 结尾的派生名词为阴性，元音前定冠词缩成 l'"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender",
+    "contraction",
+    "adj-agree",
+    "adverbes"
+   ],
+   "related": [
+    "adj-place",
+    "passif",
+    "prepositions",
+    "connecteurs",
+    "articles-nuances"
    ]
   },
   {
@@ -3940,6 +7476,74 @@
     "espérer、penser、croire 主语相同时两种都可以：J'espère réussir / J'espère que je réussirai。",
     "il faut + 不定式是泛指，il faut que + 虚拟式指明是谁：Il faut partir / Il faut que nous partions。",
     "形容词后面的不定式前要加 de：content de、ravi de、désolé de。"
+   ],
+   "decide": [
+    "先看是不是直接用不定式的固定结构 → 感知动词（voir、entendre、regarder 等）、运动动词表目的（aller、sortir、passer 等）、faire / laisser、作主语或告示说明 → 直接用不定式；若是 il faut，泛指用 il faut + 不定式，指明执行人用 il faut que + 虚拟式",
+    "若是意愿、情感动词/形容词或连词结构，再看前后两个动作的主语是否不同 → 主语不同用 que 从句（或 avant que、pour que、sans que、à condition que、de peur que 等连词从句），再按主句动词或连词选直陈式还是虚拟式",
+    "主语相同时，先排除两类特殊情况 → bien que、quoique、jusqu'à ce que 没有不定式结构，主语相同仍须用虚拟式从句；espérer、penser、croire、estimer 主语相同时既可直接接不定式（不加 de），也可接 que 从句（肯定句用直陈式）",
+    "其余主语相同的情况改用不定式，并核对介词 → vouloir、souhaiter、préférer、aimer 等直接接不定式；regretter、craindre、avoir peur、exiger 及情感形容词（content、ravi、désolé、surpris、fier 等）加 de；成对连词换成介词（avant de、pour、afin de、sans、à condition de、de peur de）",
+    "判断不定式动作是否先于主句完成 → 同时或在后用不定式现在时；先已完成（尤其是 après 后一律用过去时，以及 merci de、regretter de 等回顾已完成动作时）用不定式过去时（avoir / être + 过去分词），注意过去分词的性数配合（用 être 时及 avoir 有前置直宾时）",
+    "最后定否定词和宾语代词的位置 → 否定词 ne pas / ne plus / ne jamais 合并放在不定式（或助动词）前；宾语代词或自反代词紧贴不定式（或助动词）前，二者同现时按「介词 + ne pas + 代词 + 不定式」排列"
+   ],
+   "motto": "同主语换不定式，异主语用从句；bien que 必从句，先完成用 avoir/être+分词，ne pas 放前面",
+   "pairs": [
+    {
+     "a": "Je suis désolé d'être en retard à la réunion.",
+     "b": "Je suis désolé que tu sois en retard à la réunion.",
+     "d": "主从句主语相同（都是 je）时，形容词 désolé 后用 de + 不定式；主语不同（je / tu）时须改用 que + 虚拟式"
+    },
+    {
+     "a": "Nous avons réservé tôt pour avoir de bonnes places.",
+     "b": "Nous avons réservé tôt pour que nos parents aient de bonnes places.",
+     "d": "目的动作的主语与主句相同（nous）时用 pour + 不定式；主语不同（nous / nos parents）时须用 pour que + 虚拟式"
+    },
+    {
+     "a": "Elle regrette de quitter cette équipe.",
+     "b": "Elle regrette d'avoir quitté cette équipe.",
+     "d": "不定式现在时 quitter 表示正在或即将离开；不定式过去时 avoir quitté 表示已经离开，动作先于「后悔」完成"
+    },
+    {
+     "a": "Il faut déposer le dossier avant vendredi.",
+     "b": "Il faut que vous déposiez le dossier avant vendredi.",
+     "d": "il faut + 不定式表示泛指的一般要求；需要指明具体执行人（vous）时，须用 il faut que + 虚拟式"
+    }
+   ],
+   "walk": {
+    "s": "Bien qu'elle soit ravie d'avoir décroché ce contrat, Claire préfère ne pas le signer tout de suite pour que son avocat puisse le relire.",
+    "z": "尽管克莱尔很高兴拿下了这份合同，但她宁愿先不立刻签字，好让她的律师能再审读一遍。",
+    "steps": [
+     [
+      "Bien qu'elle soit ravie 与主句主语都是 Claire，为什么这里不用不定式？",
+      "bien que 没有对应的不定式结构，即使前后主语相同也必须接虚拟式从句 → Bien qu'elle soit ravie"
+     ],
+     [
+      "形容词 ravie 后面为什么用 d'avoir décroché？",
+      "主语仍为 Claire，情感形容词后接不定式须加介词 de；「拿下合同」发生在「高兴」之前，须用不定式过去时（décrocher 用 avoir，直接宾语在后不配合）→ d'avoir décroché"
+     ],
+     [
+      "为什么是 préfère ne pas le signer，而不是 préfère de ne pas signer le？",
+      "préférer 主语相同时直接接不定式（不加 de）；否定不定式时 ne pas 合并放在最前面，直接宾语代词 le 紧贴不定式之前 → ne pas le signer"
+     ],
+     [
+      "最后表目的为什么用 pour que son avocat puisse，而不用 pour + 不定式？",
+      "「再审读一遍」的主语变成了 son avocat，与主句主语 Claire 不同，须用成对连词 pour que + 虚拟式 → pour que son avocat puisse"
+     ]
+    ]
+   },
+   "prereq": [
+    "subjonctif",
+    "passe-compose",
+    "pronoms-objet",
+    "negation"
+   ],
+   "related": [
+    "subj-indicatif",
+    "subj-passe",
+    "verbes-prep",
+    "anteriorite",
+    "but",
+    "impersonnel",
+    "accord-pp"
    ]
   },
   {
@@ -4019,6 +7623,76 @@
     "manquer 的主语和宾语跟中文相反：Tu me manques = 我想你。",
     "形容词和名词后面多用 de（content de、avoir envie de），但 prêt à、habitué à、avoir du mal à、avoir tendance à 用 à。",
     "espérer、penser、compter 后面直接接不定式，不加 de：J'espère te revoir bientôt。"
+   ],
+   "decide": [
+    "先看前面是形容词/名词短语，还是动词；若是动词，再看后面接不定式还是名词/代词 → 动词接不定式看第 2 步；动词接名词或代词看第 3 步；形容词或名词短语（content、prêt、avoir envie / du mal 等）直接看第 5 步",
+    "接不定式时，先排除「直接接不定式、不加介词」的动词（vouloir、pouvoir、devoir、savoir、aimer、préférer、espérer、penser、compter、sembler、oser、faillir）→ 不是这类动词，再按搭配选 à 或 de：开始、尝试攻克、习惯、促使他人做某事多用 à（commencer à、réussir à、arriver à、hésiter à、chercher à、s'habituer à、se décider à、aider / inviter / encourager qqn à）；决定、结束、避免、要求或建议他人做某事多用 de（décider de、finir de、arrêter de、oublier de、refuser de、éviter de、demander / conseiller / permettre / interdire à qqn de）",
+    "接名词或代词时，先排除直接及物动词（不加介词）→ écouter、regarder、attendre、chercher（接名词）、payer 直接接宾语，不加 à / de / pour；其余按搭配用 à（penser à、s'intéresser à、participer à、renoncer à、téléphoner / répondre / ressembler / obéir / plaire à）或 de（parler de、se souvenir de、s'occuper de、dépendre de、profiter de、se servir de、se méfier de、douter de、manquer de），遇定冠词 le / les 缩合为 au / aux、du / des",
+    "遇到随介词换意思的动词或换宾语代词时，核对句意和结构 → penser à（想到）/ de（看法），jouer à（运动游戏）/ de（乐器），tenir à（珍视）/ de（像某人），manquer à（被某人想念：被想念者作主语，想念者用 à / me / lui）/ de（缺少）；接 à + 人的动词（téléphoner、répondre、ressembler、plaire）换代词用 lui / leur，接 à / de + 事物分别对应 y / en 与 auquel / dont",
+    "最后看形容词和名词短语后的介词 → 多数用 de（content / fier / sûr de，avoir envie / peur / besoin de），但 prêt à（接不定式）、habitué à、avoir du mal à、avoir tendance à 固定用 à"
+   ],
+   "motto": "espérer 直连不定式，attendre 无介词；commencer à，finir de；prêt/mal 用 à",
+   "pairs": [
+    {
+     "a": "Claire tient beaucoup à sa grand-mère.",
+     "b": "Claire tient beaucoup de sa grand-mère.",
+     "d": "tenir à qqn 表示「很珍视、在意某人」；换成 tenir de qqn 则表示「相貌或性格随某人」"
+    },
+    {
+     "a": "Julien manque à ses collègues.",
+     "b": "Ses collègues manquent à Julien.",
+     "d": "manquer à qqn 的主语是「被想念的人」，à 后面才是「想念别人的人」：前句是同事想念朱利安，后句是朱利安想念同事"
+    },
+    {
+     "a": "Ils ont commencé à rédiger le rapport.",
+     "b": "Ils ont fini de rédiger le rapport.",
+     "d": "同样接不定式 rédiger，commencer 搭配介词 à，而 finir 必须搭配介词 de"
+    },
+    {
+     "a": "Elle est contente de partir en mission.",
+     "b": "Elle est prête à partir en mission.",
+     "d": "形容词后接不定式多数用 de（content de），但 prêt（以及 habitué）固定搭配 à"
+    }
+   ],
+   "walk": {
+    "s": "Nadia a longtemps hésité à accepter ce poste, mais elle s'est enfin décidée à partir : elle espère progresser vite, même si ses collègues lui manquent déjà ; par ailleurs, elle a du mal à s'habituer au bruit.",
+    "z": "娜迪娅犹豫了很久要不要接受这个职位，但她终于下定决心离开了：她希望能快速进步，尽管她已经很想念同事们；此外，她还很难习惯这里的喧闹。",
+    "steps": [
+     [
+      "hésité à accepter 和 s'est décidée à partir 为什么都用 à？",
+      "hésiter 固定接 à + 不定式；代动词 se décider 也固定接 à + 不定式（注意非代动词 décider 则接 de）"
+     ],
+     [
+      "elle espère progresser 中间为什么不加 de 或 à？",
+      "espérer 属于直接接不定式的动词（与 penser、compter、oser 等同类），后面不加任何介词"
+     ],
+     [
+      "「她已经很想念同事们」为什么写成 ses collègues lui manquent？",
+      "manquer à qqn 的主语是被想念的人（ses collègues），想念别人的人作间接宾语（à Nadia → lui），因此用 ses collègues lui manquent"
+     ],
+     [
+      "a du mal à s'habituer 为什么用 à，不用 de？",
+      "名词短语后多用 de（如 avoir envie / besoin de），但 avoir du mal à 与 avoir tendance à 是固定用 à 的例外"
+     ],
+     [
+      "句尾 s'habituer au bruit 的 au 是怎么来的？",
+      "s'habituer 接名词同样搭配介词 à，遇到阳性单数定冠词 le 缩合成 au（à + le = au）"
+     ]
+    ]
+   },
+   "prereq": [
+    "contraction",
+    "pronoms-objet",
+    "y-en",
+    "prepositions"
+   ],
+   "related": [
+    "infinitif",
+    "relatifs",
+    "relatifs-composes",
+    "pronominaux",
+    "modaux",
+    "impersonnel"
    ]
   },
   {
@@ -4096,6 +7770,73 @@
     "il vit 可以是 voir 的简单过去时，也可以是 vivre 的现在时；il dit、il finit 的现在时和简单过去时同形，要看上下文。",
     "和未完成过去时的分工同复合过去时一样：Il pleuvait quand il arriva。",
     "il eut 读 [y]。"
+   ],
+   "decide": [
+    "先看语体和动作角色：小说、历史、童话、传记等书面叙事里，推动情节或界限明确的过去完成事件 → 用简单过去时；同一语境里的天气、环境、心理或正在进行的背景 → 仍用未完成过去时（Il pleuvait quand il arriva）；紧跟 dès que / aussitôt que / quand 等且先于简单过去时主句完成的动作 → 用先过去时（avoir / être 的简单过去时 + 过去分词）",
+    "确定要用简单过去时后，先分大类：-er 动词一律走 -a 型（il parla、ils parlèrent，注意 -cer / -ger 在 a / â 前写 ç / ge，在 è 前不加）；多数 -ir 和 -re 动词走 -i 型（il sortit、ils répondirent）；vouloir、pouvoir、savoir、croire、vivre、lire、devoir、recevoir 等走 -u 型（词干多与过去分词相近）",
+    "遇到高频不规则或和过去分词不同的词干，直接对应识别：être → fut / furent，avoir → eut / eurent（读 [y] / [yʁ]），faire → fit / firent，venir / tenir 系 → vint / vinrent、tint / tinrent，voir → vit，prendre → prit，mettre → mit，naître → naquit，mourir → mourut，-indre → -ignit，-uire → -uisit，ouvrir / offrir → ouvrit / offrit，écrire → écrivit",
+    "核对人称和单复数词尾：第三人称单数（il / elle / on）以 -a / -it / -ut / -int 结尾，第三人称复数（ils / elles）以 -èrent / -irent / -urent / -inrent 结尾；单数第三人称不写 -s（-is / -us / -ins 是 je / tu）",
+    "遇到形似词或同形词，结合上下文和句法结构分辨：il fut（être，接表语、被动或作先过去时助动词）≠ il fit（faire，接宾语或不定式）；il vit 结合时态语境和词义判断：过去叙事中表「看见」是 voir 的简单过去时，现在语境中表「生活、居住、经历」是 vivre 的现在时；il dit、il finit 的现在时与简单过去时同形，靠句中时间词和其他动词时态判断"
+   ],
+   "motto": "书面叙事主线用它，背景仍配未完成；-a / -i / -u 三型加不规则；fut ≠ fit，eut 读 [y]",
+   "pairs": [
+    {
+     "a": "Le ministre fut nommé en 1848.",
+     "b": "Le ministre fit adopter la loi en 1848.",
+     "d": "动词 fut 与 fit 只差一个字母：fut 是 être 的简单过去时（构成被动「被任命」），fit 是 faire 的简单过去时（接不定式「促使通过」）"
+    },
+    {
+     "a": "Ce matin-là, il vit la mer pour la première fois.",
+     "b": "Depuis vingt ans, il vit près de la mer.",
+     "d": "拼写完全相同的 il vit：前句有过去时间词 ce matin-là 且带直接宾语 la mer，是 voir 的简单过去时；后句有 depuis vingt ans 且表居住，是 vivre 的现在时"
+    },
+    {
+     "a": "Chaque matin, il ouvre la fenêtre et dit bonjour aux voisins.",
+     "b": "Ce matin-là, il ouvrit la fenêtre et dit bonjour aux voisins.",
+     "d": "dire 的现在时与简单过去时第三人称单数同形（都是 dit）：前句配 chaque matin 和 ouvre，是现在时；后句配 ce matin-là 和简单过去时 ouvrit，是简单过去时"
+    },
+    {
+     "a": "Quand elle entra dans le salon, son frère lisait la lettre.",
+     "b": "Quand elle entra dans le salon, son frère lut la lettre.",
+     "d": "未完成过去时（lisait）表示她进来时哥哥「正在读信」（背景）；简单过去时（lut）表示她进来后哥哥「接着读了信」（先后事件）"
+    }
+   ],
+   "walk": {
+    "s": "La neige tombait en silence quand l'envoyé arriva au château ; dès qu'il eut remis le pli scellé, le roi le lut et fit appeler ses conseillers.",
+    "z": "雪正静静地下着，这时使者到达了城堡；他一递上封好的密信，国王便读了一遍，并召见了他的大臣们。",
+    "steps": [
+     [
+      "为什么开头用未完成过去时 tombait，后面却换成简单过去时 arriva？",
+      "「下雪」是当时持续的天气背景 → 未完成过去时 tombait；「使者到达」是打断背景、推动情节的单次完成事件 → 简单过去时 arriva（-er 动词第三人称单数词尾 -a）"
+     ],
+     [
+      "dès qu'il eut remis 是什么时态，为什么不用简单过去时？",
+      "先过去时（avoir 的简单过去时 eut + remettre 的过去分词 remis）。在书面叙事中，dès que 引导先于简单过去时主句（lut）完成的动作，用先过去时"
+     ],
+     [
+      "这里的 eut 应该怎么读？",
+      "avoir 的简单过去时 il eut 读作 [y]（与 tu 中的 u 相同），不按常规拼读读作 [ø]，末尾的 t 也不发音"
+     ],
+     [
+      "le roi le lut 中的 lut 是哪个动词？怎么认出来？",
+      "是 lire 的简单过去时第三人称单数（-u 型）。词干随过去分词 lu 为 l-，加上第三人称单数词尾 -ut → il lut"
+     ],
+     [
+      "最后的 fit appeler 里的 fit 是 être 还是 faire？",
+      "是 faire 的简单过去时（il fit；être 是 il fut）。faire + 不定式表示「派人去做 / 召见」，此处指「派人叫来大臣」"
+     ]
+    ]
+   },
+   "prereq": [
+    "passe-compose",
+    "imparfait",
+    "pc-imparfait"
+   ],
+   "related": [
+    "plus-que-parfait",
+    "anteriorite",
+    "present",
+    "accord-pp"
    ]
   },
   {
@@ -4164,6 +7905,70 @@
     "il reste、il manque 后面是复数名词，动词也用单数。",
     "il est probable que + 直陈式，il est possible que + 虚拟式。",
     "il s'agit de + 不定式 = 要做的是、关键是：Il s'agit d'être patient。"
+   ],
+   "decide": [
+    "先看主语是不是无人称的 il → s'agir de 和 falloir 只能用无人称 il（绝不能用具体名词或 ça/cela 作主语，不说 Ce film s'agit de…）；把真正主语后置的无人称结构（il reste、il manque、il existe、il arrive、il se passe）以及无人称被动（il a été décidé）里，动词和过去分词永远保持第三人称阳性单数，哪怕后面接复数名词也不配合",
+    "遇到「difficile / facile / impossible 等形容词 + 不定式」，看主语是虚主语 il 还是具体对象 → 无人称 il est + 形容词后用 de（Il est difficile de résoudre ce problème）；主语是具体的人或事物（作不定式的逻辑宾语）时用 à（Ce problème est difficile à résoudre）",
+    "核对不定式或名词前要不要加 de → il faut、il vaut mieux 直接接不定式（不加 de）；il suffit de、il s'agit de、il est + 形容词 + de、无人称被动（il est interdit / conseillé de）必须带 de；接名词时 il faut 直接接名词短语（不另加介词 de，如 il faut trois semaines），il suffit de 和 il s'agit de 必须带介词 de",
+    "后面接 que 从句时，按语义确定语式 → 确定/事实/传闻/个人感受（il est certain / évident / clair / probable que、il paraît que、il me semble que）用直陈式；必要/评价/可能/笼统印象（il est nécessaire / important / possible / dommage que、il faut que、il vaut mieux que、il suffit que、il semble que）用虚拟式",
+    "最后检查有没有否定或反义词 → 原来接直陈式的判断句一旦否定或表低概率（il n'est pas certain / évident que、il est improbable que、il ne me semble pas que），确定性消失 → 改用虚拟式"
+   ],
+   "motto": "无人称永单数，虚主 de 实主 à；probable/me semble 直陈，possible/semble 虚拟",
+   "pairs": [
+    {
+     "a": "Il est difficile de résoudre ce problème.",
+     "b": "Ce problème est difficile à résoudre.",
+     "d": "主语是无人称 il 时，形容词后用 de 引出不定式；主语换成具体事物 ce problème 后，介词必须改为 à"
+    },
+    {
+     "a": "Il est probable que le vol aura du retard.",
+     "b": "Il est possible que le vol ait du retard.",
+     "d": "probable 表示可能性很高（接近确定），规范用法接直陈式；possible 只表可能，必须接虚拟式"
+    },
+    {
+     "a": "Il me semble que cette analyse est juste.",
+     "b": "Il semble que cette analyse soit juste.",
+     "d": "带间接宾语的 il me semble que 表示个人感觉（「我觉得」），肯定句接直陈式；不带间接宾语的 il semble que 表示笼统印象（「似乎」），接虚拟式"
+    },
+    {
+     "a": "Deux chapitres manquent encore à ce manuscrit.",
+     "b": "Il manque encore deux chapitres à ce manuscrit.",
+     "d": "复数主语 deux chapitres 在前时，动词随复数配合用 manquent；改用无人称 il 把名词后置后，动词永远保持第三人称单数 manque"
+    }
+   ],
+   "walk": {
+    "s": "Dans ce projet, il s'agit de réformer le réseau ferroviaire : il reste encore plusieurs lignes à moderniser, il est probable que les travaux dureront trois ans, mais il semble que le financement soit déjà assuré.",
+    "z": "在这个项目里，核心任务是改革铁路网：目前还有多条线路有待现代化改造，工程很可能会持续三年，但资金似乎已经落实。",
+    "steps": [
+     [
+      "为什么开头写 Dans ce projet, il s'agit de réformer…，而不说 Ce projet s'agit de…？",
+      "s'agir de 只能以无人称 il 作主语，不能用具体名词 ce projet 作主语；话题须放入状语 Dans ce projet，后接 de + 不定式表示「核心在于、要做的是」"
+     ],
+     [
+      "后面是复数 plusieurs lignes，为什么动词仍用单数 il reste？",
+      "il reste 是把真正主语后置的无人称结构，形式主语永远是单数 il，动词绝不随后面的复数名词变化"
+     ],
+     [
+      "il est probable que 后面为什么用直陈式将来时 dureront？",
+      "il est probable que（很可能）接近确定，规范用法接直陈式；若是 il est possible que 才改用虚拟式"
+     ],
+     [
+      "最后一句 il semble que 后面为什么用虚拟式 soit assuré？",
+      "不带间接宾语的 il semble que 表示笼统印象（「似乎」），须接虚拟式；只有加上间接宾语构成肯定句 il me semble que 时才接直陈式"
+     ]
+    ]
+   },
+   "prereq": [
+    "cest-ilest",
+    "subjonctif",
+    "passif"
+   ],
+   "related": [
+    "subj-indicatif",
+    "subj-passe",
+    "infinitif",
+    "passif-autres",
+    "verbes-prep"
    ]
   },
   {
@@ -4223,6 +8028,74 @@
     "million、milliard 是名词，后面加 de：deux millions d'habitants；mille 不加：deux mille habitants。",
     "augmenter de 10 % 是增加了 10%，augmenter à 10 % 是增加到 10%。",
     "法语小数点写作逗号：1,5 %。"
+   ],
+   "decide": [
+    "要表达精确比例还是约数？ → 精确比例用分数（la moitié、un tiers、un quart、les trois quarts、un cinquième…）、百分比（10 %，写作 dix pour cent）或「un … sur …」；约数分两类：直接放数字前的副词或短语（environ、à peu près、presque 后不加 de；près de、plus de、moins de 自带 de），以及集合约数名词（une dizaine / vingtaine / centaine / un millier + de + 光杆复数名词）",
+    "数量词后面要不要加 de、要不要带限定词？ → mille 是不变数词，不加 s 也不加 de（deux mille habitants）；million / milliard 和 une dizaine / vingtaine / centaine / un millier 是名词，直接接名词时加光杆介词 de（deux millions d'habitants、une vingtaine de personnes）；la plupart 后接名词时必须用「de + 限定词」（la plupart des gens、la plupart de mes amis、la plupart du temps），不能直接接光杆名词",
+    "比例短语作主语时，动词用单数还是复数？ → 先看强制规则：la plupart（单用或 + des + 复数名词）、复数分数（les trois quarts…）和「deux / trois … sur …」后面动词必用复数；「un … sur …」以及 la plupart / la moitié / un quart + 单数补语（如 du budget、du public）后面动词必用单数；la moitié / la majorité / une minorité / un tiers / 10 % + des + 复数名词，单复数都见得到，强调具体个体时用复数",
+    "描述数字变化时用哪个介词？ → 表示增减幅度用 de（augmenter / baisser / monter de 10 %）；表示变化后的终点用 à（passer de 1 € à 1,20 €、monter / descendre à 10 %、porter à 80 %；规范法语表「升至某值」一般用 passer à / monter à / être porté à 而非 *augmenter à）；表示升降趋势状态用 en（être en hausse / en baisse）；atteindre、représenter 直接接宾语不加介词，doubler、tripler 可直接作不及物动词",
+    "涉及小数和百分比时格式对吗？ → 法语小数点一律写作逗号（1,5 %、1,20 euro、2,4 millions），不用圆点；数字与 % 之间留空格，拼写时写分开的两个词 pour cent 且永不加 s；数量小于 2 时后面的单位名词仍用单数（1,5 million、1,20 euro）"
+   ],
+   "motto": "la plupart des 复，un sur 单；million+de，mille 不加；幅 de 终 à，小数用逗号",
+   "pairs": [
+    {
+     "a": "Un salarié sur trois travaille le samedi.",
+     "b": "Deux salariés sur trois travaillent le samedi.",
+     "d": "主语是 un … sur …（单数）时动词必须用单数 travaille；换成 deux … sur …（复数）后动词须用复数 travaillent"
+    },
+    {
+     "a": "La plupart des spectateurs ont applaudi.",
+     "b": "La plupart du public a applaudi.",
+     "d": "la plupart 后必须接 de + 限定词，且动词随后面的名词配合：复数 des spectateurs 配 ont applaudi，单数集合名词 du public 配 a applaudi"
+    },
+    {
+     "a": "Ce site accueille deux mille visiteurs par mois.",
+     "b": "Ce site accueille deux millions de visiteurs par mois.",
+     "d": "mille 是不变数词，不加 s 也不加 de；million 是名词，大于等于 2 时加 s，直接接名词时必须加 de"
+    },
+    {
+     "a": "La température descend de 5 degrés.",
+     "b": "La température descend à 5 degrés.",
+     "d": "descendre de 5 degrés 表示「下降了 5 度」（变化幅度，同 augmenter / baisser de）；descendre à 5 degrés 表示「下降到了 5 度」（最终数值，表升至某终点常用 passer à / monter à / être porté à）"
+    }
+   ],
+   "walk": {
+    "s": "Dans cette région qui compte deux millions d'habitants, la plupart des salariés prennent les transports en commun : la fréquentation a augmenté de 4,5 % en un an, tandis qu'un usager sur quatre privilégie désormais le vélo.",
+    "z": "在这个拥有两百万居民的地区，大多数上班族乘坐公共交通：客流量一年内增长了 4.5%，而每四名乘客中就有一名如今优先选择自行车。",
+    "steps": [
+     [
+      "为什么写 deux millions d'habitants，既加了 s 又加了 d'？",
+      "million 是名词（不同于不变且不加 de 的 mille）：数量大于等于 2 时加复数 s，直接接名词时必须加介词 de，在哑音 h 前省音为 d' → deux millions d'habitants"
+     ],
+     [
+      "为什么是 la plupart des salariés，不能写 la plupart de salariés？",
+      "la plupart 后接名词必须用「de + 限定词」，不能直接接光杆名词；这里 de + les 缩合为 des → la plupart des salariés"
+     ],
+     [
+      "la plupart des salariés 后面的动词为什么用复数 prennent？",
+      "la plupart des + 复数名词作主语时，动词强制用第三人称复数 → prennent"
+     ],
+     [
+      "「增长了 4.5%」为什么用介词 de，小数点为什么写成逗号？",
+      "augmenter de 引出增长幅度（表变化后的终点数值用 passer à / monter à 等）；法语小数点一律写作逗号，数字与 % 之间留空格 → de 4,5 %"
+     ],
+     [
+      "un usager sur quatre 后面的动词为什么用单数 privilégie？",
+      "un + 单数名词 + sur + 数字作主语时，动词必须用第三人称单数 → privilégie"
+     ]
+    ]
+   },
+   "prereq": [
+    "nombres-temps",
+    "contraction",
+    "pluriel"
+   ],
+   "related": [
+    "comparatif",
+    "comparaison-nuances",
+    "indefinis",
+    "partitif",
+    "prepositions"
    ]
   },
   {
@@ -4319,6 +8192,72 @@
     "comme si 后面不用现在时，也不用条件式。",
     "le même … que，不说 le même … comme。",
     "法语里有很多固定的比喻，要整个记：rouge comme une tomate、têtu comme une mule、une faim de loup。"
+   ],
+   "decide": [
+    "表示「越来越」还是「越……越……」？ → 逐渐变化用 de plus en plus / de moins en moins（后接名词须加 de）和 de mieux en mieux；两件事成比例变化用 plus … plus …、moins … moins …、plus … moins …（绝不加 le），「因为……而更加……」用 d'autant plus / moins … que",
+    "要说明差距大小，还是说超过某个数字？ → 修饰 plus / moins 用 bien、beaucoup、nettement、un peu、légèrement（绝不用 très），meilleur / mieux 前多用 bien；倍数用 deux / trois fois plus (de) … que；后接数字表「超过 / 不足」用 plus de / moins de + 数字，接比较对象才用 plus / moins que",
+    "表达「相同、相似、不同」时后面接什么词？ → le même / la même / les mêmes … que（不用 comme）；pareil à、semblable à、identique à、comparable à、ressembler à、par rapport à 都用 à；différent de、en comparaison de 用 de；n'avoir rien à voir avec 用 avec；tel que 须随所指名词性数配合",
+    "表示「好像」时，用 comme si 还是 on dirait que / avoir l'air？ → comme si 后只能接未完成过去时（同时）或愈过去时（先前），绝不用现在时或条件式；on dirait que 后接直陈式；avoir l'air 后直接接形容词",
+    "书面语的 plus / moins … que 后面接了完整从句吗？ → 肯定主句后的不等比较从句常加无否定意义的赘词 ne（不要再加 pas），并可用不变的中性代词 le 代替前文内容（如 plus long que je ne le pensais）",
+    "遇到描写程度或特征的固定比喻？ → 整体记忆法语惯用搭配（如 rouge comme une tomate、têtu comme une mule、une faim de loup、muet comme une carpe），不要随意替换其中的名词"
+   ],
+   "motto": "越…越不加le，超过数字用plus de；comme si配未完/愈过；même配que，différent配de",
+   "pairs": [
+    {
+     "a": "Cette commune investit plus de deux millions d'euros par an.",
+     "b": "Cette commune investit plus que sa voisine.",
+     "d": "后接具体数字表示「超过」用 plus de；后接比较对象（sa voisine）用 plus que"
+    },
+    {
+     "a": "Son point de vue est semblable au mien.",
+     "b": "Son point de vue est différent du mien.",
+     "d": "semblable（以及 pareil、identique、comparable）后固定接介词 à（缩合为 au）；différent 后固定接介词 de（缩合为 du），两者都不接 que"
+    },
+    {
+     "a": "Il évoque ce pays comme s'il y habitait.",
+     "b": "Il évoque ce pays comme s'il y avait habité.",
+     "d": "comme si 后不接现在时或条件式：用未完成过去时（habitait）表示仿佛正住在那里，用愈过去时（avait habité）表示仿佛曾经住过"
+    },
+    {
+     "a": "Ce trimestre a été plus calme que je ne le pensais.",
+     "b": "Ce trimestre a été aussi calme que je le pensais.",
+     "d": "不等比较（plus / moins … que）后的从句在书面语里常带无否定意义的赘词 ne；同级比较（aussi … que）后不加赘词 ne"
+    }
+   ],
+   "walk": {
+    "s": "Plus les loyers augmentent, plus les jeunes ménages quittent le centre-ville, d'autant plus que les logements abordables sont bien moins nombreux qu'on ne le pensait.",
+    "z": "房租涨得越多，年轻家庭就越往市中心外搬，更何况平价房源比人们以为的要少得多。",
+    "steps": [
+     [
+      "为什么句首写 Plus les loyers augmentent, plus…，而不在 plus 前加 le？",
+      "表示「越……越……」用 plus … plus … 各带一个完整分句，前面绝不加定冠词 le（不说 Le plus…）"
+     ],
+     [
+      "d'autant plus que 在这里起什么作用，为什么不用 parce que？",
+      "d'autant plus que 表示「尤其因为、更何况」，固定用 que 引出原因从句，不换成 parce que"
+     ],
+     [
+      "表示「少得多」为什么用 bien moins nombreux，而不用 très moins nombreux？",
+      "说明比较级的差距大小须用 bien / beaucoup / nettement 等修饰，绝不能用 très 修饰 plus 或 moins"
+     ],
+     [
+      "从句 qu'on ne le pensait 里的 ne 和 le 分别是什么意思？",
+      "书面语里不等比较（plus / moins … que）后的从句常带无否定意义的赘词 ne（不可加 pas）；le 是不变的中性代词，指代前文「房源有那么多」这一内容，不随复数 logements 变成 les"
+     ]
+    ]
+   },
+   "prereq": [
+    "comparatif",
+    "imparfait",
+    "plus-que-parfait",
+    "adj-agree"
+   ],
+   "related": [
+    "negation-nuances",
+    "proportion",
+    "cause-consequence",
+    "conditionnel",
+    "prepositions"
    ]
   },
   {
@@ -4396,6 +8335,75 @@
     "代动式被动不能带 par + 施动者。",
     "on 作主语时动词是第三人称单数。",
     "代动式被动常和 devoir、pouvoir 连用：Ce vin doit se boire frais。"
+   ],
+   "decide": [
+    "主语能当被动主语吗？ → 先看动词结构：donner / offrir / dire / demander / proposer à qqn 中「人」是间接宾语，绝不能拿人作 être 被动的主语，改用 on + 主动式（On m'a offert…），书面语也可用 se voir + 不定式（Elle s'est vu proposer…）",
+    "要说某人「让人给自己做」或「遭遇 / 听任」某事吗？ → 主语是人时，用 se faire + 不定式（让人做或遭遇）、se laisser + 不定式（听任），书面语用 se voir + 不定式；复合时态里 fait + 不定式永远不变（Elle s'est fait opérer）",
+    "主语是事物，说的是一般习惯、规矩或可能性，且不提施动者吗？ → 用代动式被动（Ce plat se mange froid），常与 devoir / pouvoir 连用（Ce vin doit se boire frais）；一旦需要用 par 引出施动者，就不能用代动式，改回普通被动或主动句",
+    "施动者不明或不重要，只是陈述发生了什么事？ → 用 on + 主动式（On a volé ma voiture），注意 on 作主语时动词一律用第三人称单数",
+    "保留了 être + 过去分词且要引出施动者或来源 → 具体动作的施动者用 par；表示情感、认知、伴随或静态覆盖/环绕状态（aimé、respecté、connu、entouré、couvert、accompagné 等）时改用 de"
+   ],
+   "motto": "泛指 on 配三单，间宾改主动；事物代动不用 par；se faire 里 fait 不变；情感状态用 de",
+   "pairs": [
+    {
+     "a": "Ce miel se récolte à la fin de l'été.",
+     "b": "Ce miel est récolté à la fin de l'été par les apiculteurs locaux.",
+     "d": "不提施动者、说明一般采收规律时用代动式被动（se récolte）；一旦加上 par 引出施动者，就不能保留代动式，必须改用 être + 过去分词"
+    },
+    {
+     "a": "L'écrivain s'est fait photographier devant sa bibliothèque.",
+     "b": "L'écrivain s'est laissé photographier devant sa bibliothèque.",
+     "d": "se faire + 不定式偏主动安排「让人给自己拍照」，se laisser + 不定式表示「听任、不加阻拦地让人拍」"
+    },
+    {
+     "a": "Elle a été prévenue de cette décision.",
+     "b": "On lui a communiqué cette décision.",
+     "d": "prévenir qqn 中「人」是直接宾语，可以直接作被动主语；communiquer qqch à qqn 中「人」是间接宾语，不能以人作被动主语，要改用 on + 主动式（或书面语 Elle s'est vu communiquer…）"
+    },
+    {
+     "a": "La conférence a été suivie par deux cents étudiants.",
+     "b": "La conférence a été suivie d'un long débat.",
+     "d": "同样是 suivie：a 句指「被两百名学生听课」的具体行为，用 par；b 句指「紧接着一场辩论」的先后伴随状态，用 de"
+    }
+   ],
+   "walk": {
+    "s": "À son arrivée, on lui a annoncé que la route était couverte de verglas ; elle s'est donc fait déposer à la gare, où les billets doivent se réserver à l'avance.",
+    "z": "她到达时，有人通知她路面覆盖着一层薄冰；于是她让人送自己去火车站，那里的车票必须提前预订。",
+    "steps": [
+     [
+      "为什么用 on lui a annoncé，而不说 elle a été annoncée？",
+      "annoncer qqch à qqn 中「人」是间接宾语，不能拿人作被动句主语；施动者不必说出，改用 on + 主动式，且 on 后动词用第三人称单数 a annoncé"
+     ],
+     [
+      "couverte 后面为什么用 de verglas，不用 par verglas？",
+      "être couvert de 表示表面覆盖的静态状态（且后接无冠词名词 verglas），要用介词 de 而不用 par"
+     ],
+     [
+      "elle s'est fait déposer 表达什么意思？",
+      "主语是人，用 se faire + 不定式表示「让人给自己做某事」（请人送她到车站）"
+     ],
+     [
+      "主语是阴性 elle，为什么 fait 没有写成 faite？",
+      "se faire + 不定式结构中，过去分词 fait 永远不与主语配合，一律写 fait"
+     ],
+     [
+      "最后为什么用 doivent se réserver，而不是 doivent réserver？",
+      "主语 les billets 是事物，说明一般购票规矩且不提施动者，用代动式被动与 devoir 连用，不定式保留反身代词 se → doivent se réserver"
+     ]
+    ]
+   },
+   "prereq": [
+    "passif",
+    "pronominaux",
+    "pronoms-objet",
+    "modaux"
+   ],
+   "related": [
+    "accord-pp",
+    "verbes-prep",
+    "impersonnel",
+    "infinitif",
+    "indefinis"
    ]
   },
   {
@@ -4481,6 +8489,77 @@
     "avoir envie de、avoir besoin de 后面不出现部分冠词：J'ai envie de chocolat；特指时才有冠词：J'ai envie du gâteau que tu as fait。",
     "复数形容词在名词前，规范的书面语里 des 变成 de：de bonnes idées；已经成为一个词的不变：des jeunes gens、des petits pois。",
     "des 有两个来源：不定冠词的复数（Je connais des Français）和 de + les（Je parle des Français）。"
+   ],
+   "decide": [
+    "先看是不是「零冠词」结构（sans + 泛指名词、ni … ni … 取代不定/部分冠词、avec + 无修饰抽象名词、en + 名词、avoir faim / faire attention / prendre rendez-vous 等固定动词短语，或标题、招牌、列举）→ 直接不加冠词；但 avec 后的抽象名词一旦加上修饰语，冠词回来（avec une grande patience）",
+    "再看名词前是不是介词 de（数量词后；avoir besoin / envie de、manquer de、se passer de；couvert / plein / rempli / entouré de；原因 mourir de faim / pleurer de joie；「名词 + de + 名词」表类别如 un billet de train）→ 泛指不可数或复数名词、以及表类别时只用裸 de / d'（注意 avoir besoin / envie de 等接单数可数名词时仍用 d'un / d'une）；名词带限定修饰、成了具体的某一个时，冠词回来（d'un / d'une / du / de la / de l' / des）",
+    "遇到否定句时先排除三类不变 de 的情形 → 动词是 être（ce n'est pas / ce ne sont pas）保留原冠词；语义重在更正或数量对比（Je n'ai pas une moto, j'ai un scooter / pas un frère, trois）保留原冠词；动词自带介词 de + 定冠词（parler des、se souvenir des）时 des（= de + les）同样不变 de；其余否定句中直接宾语的不定/部分冠词改用裸 de / d'",
+    "遇到复数名词且前面紧跟形容词（书面语不定复数）→ 先确认不是固定合成词（des jeunes gens、des petits pois、des petits fours 等保留 des）且不是 de + les（如 être fier des bons résultats 保留 des），再把 des 改用 de / d'（de bonnes idées、d'autres solutions）",
+    "需要泛指整个类别或抽象概念吗？→ 用定冠词（Les chats…、L'argent…）或单数不定冠词（Un enfant…），绝不用复数 des 泛指；la plupart、la moitié、la majorité 后须接 de + 定冠词（des / du / de la / de l'）",
+    "最后检查几类固定用法 → 所有者由主语或代词明确、且无描绘性修饰时，身体部位用定冠词（avoir mal à la tête、se cogner le front）；单价用定冠词（quatre euros le kilo）；天气无形容词用部分冠词（il y a du vent），带形容词换不定冠词（il y a un vent terrible）；作曲家或作家的作品用部分冠词（jouer du Mozart）"
+   ],
+   "motto": "泛类裸 de 特指冠词回；sans/en 零冠；être、更正与 de+les 否定不变；泛指不用 des",
+   "pairs": [
+    {
+     "a": "Elle a besoin de conseils pour lancer son projet.",
+     "b": "Elle a besoin des conseils de son avocate pour lancer son projet.",
+     "d": "avoir besoin de 后泛指复数名词时不加冠词（de conseils）；加上限定补语 de son avocate 变成特指后，定冠词回来（de + les → des）"
+    },
+    {
+     "a": "Le médiateur a écouté chaque camp avec calme.",
+     "b": "Le médiateur a écouté chaque camp avec un calme olympien.",
+     "d": "avec + 无修饰抽象名词不用冠词（avec calme）；一旦加上形容词修饰，必须补回不定冠词（avec un calme olympien）"
+    },
+    {
+     "a": "Elle a proposé de nouvelles mesures.",
+     "b": "Elle a parlé des nouvelles mesures.",
+     "d": "proposer 后接不定复数，形容词前置时书面语中 des 变 de；parler 自带介词 de，这里的 des 来自 de + les（特指这些新措施），不改成 de"
+    },
+    {
+     "a": "Il y a du vent sur toute la côte atlantique.",
+     "b": "Il y a un vent violent sur toute la côte atlantique.",
+     "d": "天气名词无修饰语时用部分冠词 du vent；加上形容词 violent 修饰后须改用不定冠词 un vent violent"
+    }
+   ],
+   "walk": {
+    "s": "La plupart des riverains réclament de nouvelles lignes de bus : ce ne sont pas des caprices, car la commune manque de transports et beaucoup doivent encore aller au travail en voiture.",
+    "z": "大多数附近居民要求增设新的公交线路：这些并不是任性的要求，因为该市镇缺乏公共交通，许多人仍然不得不开车去上班。",
+    "steps": [
+     [
+      "La plupart des riverains 中，为什么用 des 而不用裸 de？",
+      "la plupart（以及 la moitié、la majorité）后须接 de + 定冠词，de + les 缩合为 des"
+     ],
+     [
+      "de nouvelles lignes de bus 里，为什么前面是 de、中间 bus 前也不加冠词？",
+      "复数名词 lignes 前紧跟形容词 nouvelles，规范书面语里不定复数 des 改用 de；lignes de bus 中 bus 说明类别（「公交线路」），用裸 de 不加冠词"
+     ],
+     [
+      "ce ne sont pas des caprices 是否定句，为什么 des 没有变成 de？",
+      "动词是 être（ce ne sont pas），否定句中不定冠词和部分冠词不变 de，仍保留 des"
+     ],
+     [
+      "manque de transports 为什么用裸 de，不加冠词？",
+      "manquer de 后接泛指复数名词时不加冠词，只用裸 de"
+     ],
+     [
+      "en voiture 为什么完全没有冠词？",
+      "en + 名词（此处表交通方式）属于零冠词结构，直接写作 en voiture"
+     ]
+    ]
+   },
+   "prereq": [
+    "art-gender",
+    "contraction",
+    "partitif",
+    "negation"
+   ],
+   "related": [
+    "proportion",
+    "restriction",
+    "adj-place",
+    "verbes-prep",
+    "prepositions",
+    "negation-nuances"
    ]
   },
   {
@@ -4570,6 +8649,72 @@
     "口语里常省略 ne（Je sais pas），书写时不能省。",
     "plus 表示否定时不发 s：Je n'en veux plus [ply]。",
     "pas de X ni de Y 和 ni X ni Y 意思相同：Je ne prends pas de fromage ni de dessert。"
+   ],
+   "decide": [
+    "先看句意和对应词：否定 déjà 用 pas encore（还没，打算做）或 jamais（从未），否定 encore / toujours（仍然）用 ne … plus；quelqu'un → personne，quelque chose → rien，quelque part → nulle part；加强、减弱或表不耐烦时选用 pas du tout / plus du tout / absolument pas / pas un seul / aucun / presque pas / presque jamais / pas grand-chose / ne … guère（书面）或 toujours pas（还是没有）",
+    "检查多个否定词连用与位置：plus、jamais、rien、personne、aucun 可以连用（如 plus jamais、plus personne、jamais rien、plus aucun），绝不再加 pas；否定不定式时，ne pas / ne plus / ne jamais / ne rien（作直宾）连在一起放不定式前，personne / aucun / nulle part 则放不定式或过去分词后；sans 后可直接接 rien / jamais / personne / aucun，不加 ne 也不加 pas",
+    "并列否定两项时核对结构与冠词：用 ni … ni … 时不加 pas，且省去不定冠词和部分冠词（不改成 de）；若前面已用 pas de，第二项对称接 ni de（pas de X ni de Y），两者句意相同但不要混用",
+    "遇到肯定主句后的 craindre que / avoir peur que 或 plus / moins … que 比较从句，以及 avant que / à moins que / de peur que 从句里的单个 ne → 这是书面语的无否定意义赘词（ne explétif），去掉句意不变；从句若要真正表达否定，必须加上 pas（如 Je crains qu'il ne vienne pas）",
+    "书面语里看到 pouvoir、savoir、oser、cesser 只带 ne、不加 pas → 这是省略 pas 的正式否定，句意仍为否定；一般动词书面不能省 pas，带动词的否定句在书写时绝不能像口语那样省略 ne",
+    "读出或听辨 plus 时看句意和位置：表示否定（ne … plus、non plus）在句末或辅音前末尾 s 不发音，读 [ply]（后接元音联诵时可读 [plyz]）；表示「更多、此外」（如 J'en veux plus、en plus、de plus）时发清音 [plys]"
+   ],
+   "motto": "déjà→pas encore，encore→plus；连用无pas；赘词ne非否定；四动词省pas；书面必留ne",
+   "pairs": [
+    {
+     "a": "Je crains qu'il ne vienne.",
+     "b": "Je crains qu'il ne vienne pas.",
+     "d": "craindre que 后单用 ne 是没有否定意义的赘词（我怕他来）；要真正否定从句（我怕他不来）必须加上 pas"
+    },
+    {
+     "a": "Elle ne travaille pas encore ici.",
+     "b": "Elle ne travaille plus ici.",
+     "d": "pas encore 否定 déjà，表示「还没开始在这里工作」；ne … plus 否定 encore / toujours，表示「已经不再在这里工作」"
+    },
+    {
+     "a": "Je préfère ne rien croire.",
+     "b": "Je préfère ne croire personne.",
+     "d": "否定不定式时，ne rien 连在一起放在不定式前；personne 则必须放在不定式后面"
+    },
+    {
+     "a": "J'en veux plus.",
+     "b": "Je n'en veux plus.",
+     "d": "只差一个 n'，意思完全相反且读音不同：前句是肯定「我还要更多」，plus 读 [plys]；后句是否定「我不要了」，plus 读 [ply]"
+    }
+   ],
+   "walk": {
+    "s": "Bien que le directeur n'ait toujours pas répondu, je crains qu'il ne prenne cette décision sans consulter personne, et je n'ose le déranger.",
+    "z": "尽管主任还是没有回复，我怕他会不征求任何人的意见就作出这个决定，可我又不敢去打扰他。",
+    "steps": [
+     [
+      "为什么是 n'ait toujours pas répondu，而不是 n'ait pas toujours répondu？",
+      "toujours pas（夹在助动词 ait 与过去分词 répondu 之间）表示「还是没有」，带焦急或不耐烦的语气；pas toujours 意思是「并不总是」，句意完全不同"
+     ],
+     [
+      "je crains qu'il ne prenne cette décision 里的 ne 表示否定吗？",
+      "不表示否定：craindre que 后面的 ne 是书面语的无否定意义赘词（ne explétif），句意是「我怕他作出这个决定」；若要表达「怕他不作决定」，必须加 pas（qu'il ne prenne pas）"
+     ],
+     [
+      "为什么写成 sans consulter personne，而不是 sans ne personne consulter？",
+      "sans 本身已带否定意义，后面既不加 ne 也不加 pas；而且 personne 必须放在不定式 consulter 后面（不像 rien / jamais 放在不定式前面）"
+     ],
+     [
+      "句尾 je n'ose le déranger 没有 pas，为什么仍是否定句？",
+      "oser 属于书面语中可单用 ne 表示否定的四个动词（pouvoir、savoir、oser、cesser）之一，因此 je n'ose le déranger 意思就是「我不敢打扰他」"
+     ]
+    ]
+   },
+   "prereq": [
+    "negation",
+    "restriction",
+    "subjonctif",
+    "indefinis"
+   ],
+   "related": [
+    "subj-indicatif",
+    "comparaison-nuances",
+    "anteriorite",
+    "but",
+    "partitif"
    ]
   }
  ]

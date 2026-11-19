@@ -17,6 +17,8 @@ export interface ConjVerb {
   imp?: 1;
   f: Record<SimpleTense, string[]>;
   alt?: Record<string, string[]>;
+  /** Analogical non-existent forms keyed "tense:person" or "pp", checked against Lexique. */
+  tr?: Record<string, string[]>;
 }
 
 export const TENSES: ConjTense[] = ["pres", "pc", "imp", "fut", "cond", "subj"];
@@ -126,27 +128,33 @@ export function checkAnswer(input: string, accepted: string[]): "right" | "accen
   return "wrong";
 }
 
-/** Plausible wrong answers for a multiple-choice question: the same person in other tenses, other persons in this tense. */
+/** Plausible wrong answers for a multiple-choice question: analogical traps first, then other tenses and persons. */
 export function distractorsFor(v: ConjVerb, tense: ConjTense, person: number, seed: number) {
   const right = new Set(promptFor(v, tense, person).accepted);
+  const traps: string[] = [];
+  if (tense === "pc") {
+    const withEtre = v.p || v.a === "e" || v.a === "ae";
+    // the classic mistake: the wrong auxiliary
+    traps.push(`${(withEtre ? AVOIR : ETRE)[person]} ${v.pp}`);
+    // then analogical fake past participles (ai recevu, a pleuvu, est mouri)
+    const aux = withEtre ? ETRE[person] : AVOIR[person];
+    const mark = withEtre ? AGREE_LABEL[person] : "";
+    for (const pp of v.tr?.pp ?? []) traps.push(`${aux} ${pp}${mark}`);
+  } else {
+    for (const f of v.tr?.[`${tense}:${person}`] ?? []) traps.push(f);
+  }
   const pool: string[] = [];
   const others = TENSES.filter((t) => t !== tense);
   for (const t of others) pool.push(promptFor(v, t, person).shown);
   for (const p of persons(v)) if (p !== person) pool.push(promptFor(v, tense, p).shown);
-  if (tense === "pc") {
-    // the classic mistake: the wrong auxiliary
-    const withEtre = v.p || v.a !== "a";
-    pool.unshift(`${(withEtre ? AVOIR : ETRE)[person]} ${v.pp}`);
-  }
-  const wrongAux = tense === "pc" ? pool[0] : null;
   // seeded shuffle so the options do not move when the component re-renders
   let x = seed % 233280;
   const rnd = () => (x = (x * 9301 + 49297) % 233280) / 233280;
   const shuffled = pool.map((s) => ({ s, k: rnd() })).sort((a, b) => a.k - b.k).map((o) => o.s);
-  if (wrongAux) shuffled.unshift(wrongAux);
+  const ordered = [...traps, ...shuffled];
   const seen = new Set<string>();
   const out: string[] = [];
-  for (const s of shuffled) {
+  for (const s of ordered) {
     const n = norm(s);
     if (!s || right.has(n) || seen.has(n)) continue;
     seen.add(n);

@@ -15,6 +15,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { Drill, GrammarData, GrammarPoint, OrderDrill } from "../src/lib/grammar.ts";
+import { parseWritten, type Problem } from "./grammar/written.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const read = (p: string) => JSON.parse(readFileSync(resolve(ROOT, p), "utf8"));
@@ -31,6 +32,7 @@ interface Verb {
   a: "a" | "e" | "ae";
   pp: string;
   f: Record<string, string[]>;
+  tr?: Record<string, string[]>;
 }
 
 const points: Omit<GrammarPoint, "drills">[] = read("data/grammar/points.json").points;
@@ -40,7 +42,9 @@ const verbs: Record<string, Verb> = read("public/atlas/conj.json").verbs;
 const nouns: Record<string, { g: string }> = read("data/nouns.json").entries;
 const forms: Record<string, { fem?: string; pl?: string }> = read("data/forms.json").entries;
 
-const MAX_DRILLS = 300;
+/** Automatic drills kept per point (capped lower once a point has its own comprehensive written drills). */
+const MAX_AUTO = 120;
+const MAX_AUTO_WITH_OWN = 30;
 const MAX_SENTENCE = 130;
 /** At most this many drills per source word (and per verb or noun asked), so a point is not all one word. */
 const PER_WORD = 3;
@@ -60,8 +64,9 @@ const sentences: Sentence[] = [];
 for (const e of lexicon)
   (e.examples ?? []).forEach((x, i) => {
     if (!x.fr || x.fr.length > MAX_SENTENCE || !x.zh) return;
-    // headings scanned with the example (DANS UN GRAND SUPERMARCHÉ, LA CONTINUITÉ Le village …)
-    if (/\p{Lu}{2,}\s+\p{Lu}{2,}|^\p{Lu}{3,}/u.test(x.fr)) return;
+    // keep complete sentences only: drop OCR headings, lowercase fragments, dictionary glosses (=, /)
+    if (/\p{Lu}{2,}\s+\p{Lu}{2,}|^\p{Lu}{3,}|[=/]/u.test(x.fr)) return;
+    if (!/^[«—–"\s]*\p{Lu}/u.test(x.fr) || !/[.!?»…]$/.test(x.fr.trim())) return;
     sentences.push({ fr: x.fr, zh: x.zh, w: e.id, hl: highlights[e.id]?.[i], pos: e.pos, lemma: e.lemma });
   });
 
@@ -133,6 +138,22 @@ const TENSE_ZH: Record<string, string> = { pres: "现在时", imp: "未完成过
 const DISTRACT: Record<string, string[]> = { pres: [], imp: ["cond", "fut"], fut: ["cond", "imp"], cond: ["fut", "imp"], subj: ["fut", "imp"] };
 const PERSON_ZH = ["je", "tu", "il / elle", "nous", "vous", "ils / elles"];
 
+/** Which rule of the tense's point a verb drill trains (r0 = the regular pattern, r1… = the irregular ones). */
+const FOUR = new Set(["etre", "avoir", "aller", "faire"]);
+const stemOf = (f: string | undefined, cut: RegExp) => (f ?? "").replace(cut, "");
+function verbTag(t: string, v: string): string {
+  const verb = verbs[v];
+  if (t === "pres") {
+    if (FOUR.has(v)) return "r2";
+    if (verb.i.endsWith("er")) return "r0";
+    if (verb.f.pres?.[3]?.endsWith("issons")) return "r1";
+    return "r3";
+  }
+  if (t === "fut") return stemOf(verb.f.fut?.[0], /ai$/) === verb.i.replace(/e$/, "") ? "r0" : "r1";
+  if (t === "subj") return stemOf(verb.f.subj?.[5], /ent$/) === stemOf(verb.f.pres?.[5], /ent$/) ? "r0" : "r1";
+  return "r0";
+}
+
 /** form → every (verb, tense, person) it can be. */
 const analyses = new Map<string, { v: string; t: string; p: number }[]>();
 for (const [v, verb] of Object.entries(verbs))
@@ -194,18 +215,35 @@ for (const sen of sentences) {
     const { v, t, p } = fit[0];
     const verb = verbs[v];
     const inf = (verb.p ? (/^[aeiouéèêh]/.test(verb.i) ? "s'" : "se ") : "") + verb.i;
-    const others = [p ^ 1, (p + 3) % 6, (p + 2) % 6, (p + 4) % 6].map((q) => verb.f[t]?.[q]);
-    const forms4 = uniq([tok.low, ...DISTRACT[t].map((x) => verb.f[x]?.[p]), ...others].filter((x): x is string => !!x)).slice(0, 4);
+    // each wrong form with what it is: analogical traps and other tenses of the same person first
+    const why = new Map<string, string>();
+    for (const f of verb.tr?.[`${t}:${p}`] ?? []) {
+      if (f && f !== tok.low && !why.has(f)) why.set(f, `法语里没有这个词形，${inf} 的${TENSE_ZH[t]}（${PERSON_ZH[p]}）是 ${tok.low}`);
+    }
+    for (const x of DISTRACT[t]) {
+      const f = verb.f[x]?.[p];
+      if (f && f !== tok.low && !why.has(f)) why.set(f, `这是${TENSE_ZH[x]}，这里要${TENSE_ZH[t]}`);
+    }
+    // only ask other persons on tenses where person endings are the point itself
+    if (t === "pres" || t === "imp" || t === "fut") {
+      for (const q of [p ^ 1, (p + 3) % 6, (p + 2) % 6, (p + 4) % 6]) {
+        const f = verb.f[t]?.[q];
+        if (f && f !== tok.low && !why.has(f)) why.set(f, `这是 ${PERSON_ZH[q]} 的形式，主语是 ${PERSON_ZH[p]}`);
+      }
+    }
+    const forms4 = uniq([tok.low, ...why.keys()]).slice(0, 4);
     if (forms4.length < 3) return;
     // the présent keeps the subject outside the blank: its options are other persons (je … vais / allons / vont)
     const je = t === "pres" ? null : blankWithSubject(toks, i, sen.fr);
     if (!je && toks[i - 1]?.low.endsWith("'") && toks[i - 1].e === tok.s && !["s'", "m'", "t'", "n'", "l'", "c'"].includes(toks[i - 1].low)) return;
     // after an elided pronoun (s', m', n', l') every option must start with a vowel too
     if (!je && toks[i - 1]?.e === tok.s && forms4.some((f) => !/^[aeiouyéèêâîôûh]/.test(f))) return;
-    const options = je ? forms4.map((f) => withJe(f, je.t)) : forms4.map((o) => capital(o, tok.t));
+    const shown = (f: string) => (je ? withJe(f, je.t) : capital(f, tok.t));
+    const options = forms4.map(shown);
+    const e = Object.fromEntries(forms4.slice(1).map((f) => [shown(f), why.get(f)!]));
     add(
       TENSE_POINT[t],
-      { k: "c", s: sen.fr, z: sen.zh, b: [je ? je.s : tok.s, tok.e], o: options, h: `${inf} · ${TENSE_ZH[t]}`, y: `主语是 ${PERSON_ZH[p]}，${inf} 的${TENSE_ZH[t]}：${tok.low}`, w: sen.w },
+      { k: "c", s: sen.fr, z: sen.zh, b: [je ? je.s : tok.s, tok.e], o: options, e, h: `${inf} · ${TENSE_ZH[t]}`, y: `主语是 ${PERSON_ZH[p]}，${inf} 的${TENSE_ZH[t]}：${tok.low}`, w: sen.w, g: verbTag(t, v) },
       sen.w,
       v,
     );
@@ -236,20 +274,32 @@ for (const sen of sentences) {
     const answer = `${tok.low} ${next.low}`;
     const other = aux.aux === "a" ? verbs.etre.f.pres[p] : verbs.avoir.f.pres[p];
     const agree = aux.aux === "e" ? uniq([verb.pp, verb.pp + "e", verb.pp.endsWith("s") ? verb.pp : verb.pp + "s", verb.pp + "es"]).filter((f) => f !== next.low) : [];
-    const plain = uniq([answer, `${other} ${verb.pp}`, ...agree.slice(0, 2).map((f) => `${tok.low} ${f}`), verb.f.imp?.[p] ?? ""])
+    const otherAux = `${other} ${verb.pp}`;
+    const imp = verb.f.imp?.[p] ?? "";
+    const plain = uniq([answer, otherAux, ...agree.slice(0, 2).map((f) => `${tok.low} ${f}`), imp])
       .filter(Boolean)
       .slice(0, 4);
     if (plain.length < 3) return;
     const je = blankWithSubject(toks, i, sen.fr);
     // after s', m', t', n' the options would not fit the elision: skip
     if (!je && toks[i - 1]?.e === tok.s) return;
-    const options = je ? plain.map((o) => withJe(o, je.t)) : plain.map((o) => capital(o, tok.t));
+    const shown = (o: string) => (je ? withJe(o, je.t) : capital(o, tok.t));
+    const options = plain.map(shown);
     const start = je ? je.s : tok.s;
     const why =
       aux.aux === "e"
         ? `${inf} 用 être 作助动词，过去分词和主语配合：${next.low}`
         : `${inf} 用 avoir 作助动词，过去分词不和主语配合：${next.low}`;
-    add("passe-compose", { k: "c", s: sen.fr, z: sen.zh, b: [start, next.e], o: options, h: `${inf} · 复合过去时`, y: why, w: sen.w }, sen.w, v);
+    const e: Record<string, string> = {};
+    for (const o of plain.slice(1))
+      e[shown(o)] =
+        o === otherAux
+          ? `助动词错了：${inf} 用 ${aux.aux === "e" ? "être" : "avoir"}`
+          : o === imp
+            ? "这是未完成过去时，这里要复合过去时"
+            : `配合不对：用 être 时分词和主语的性数一致，这里是 ${next.low}`;
+    const g = aux.aux === "a" ? "r0" : next.low !== verb.pp ? "r2" : "r1";
+    add("passe-compose", { k: "c", s: sen.fr, z: sen.zh, b: [start, next.e], o: options, e, h: `${inf} · 复合过去时`, y: why, w: sen.w, g }, sen.w, v);
   });
 }
 
@@ -277,7 +327,9 @@ for (const sen of sentences) {
     const want = def ? (g === "m" ? "le" : "la") : g === "m" ? "un" : "une";
     if (want !== tok.low) return; // the sentence disagrees with the noun list: skip it
     const options = (def ? ["le", "la"] : ["un", "une"]).map((o) => capital(o, tok.t));
-    add("art-gender", { k: "c", s: sen.fr, z: sen.zh, b: [tok.s, tok.e], o: options, h: `${next.low} 的冠词`, y: `${next.low} 是${g === "m" ? "阳" : "阴"}性名词 → ${want}`, w: sen.w }, sen.w, next.low);
+    const wrong = options.find((o) => o.toLowerCase() !== want)!;
+    const e = { [wrong]: `${next.low} 是${g === "m" ? "阳" : "阴"}性名词，不用 ${wrong.toLowerCase()}` };
+    add("art-gender", { k: "c", s: sen.fr, z: sen.zh, b: [tok.s, tok.e], o: options, e, h: `${next.low} 的冠词`, y: `${next.low} 是${g === "m" ? "阳" : "阴"}性名词 → ${want}`, w: sen.w, g: "r0" }, sen.w, next.low);
   });
 }
 
@@ -289,6 +341,17 @@ const CONTRACT: Record<string, { set: string[]; why: string }> = {
   "à la": { set: ["au", "à la", "à l'", "aux"], why: "à + la 不缩合（后面是阴性单数名词）" },
   du: { set: ["du", "de la", "de l'", "des"], why: "de + le → du（后面是阳性单数名词）" },
   "de la": { set: ["du", "de la", "de l'", "des"], why: "de + la 不缩合（后面是阴性单数名词）" },
+};
+/** What a wrong contraction would need after it. */
+const CONTRACT_WHY: Record<string, string> = {
+  au: "au 只用在阳性单数名词前",
+  "à la": "à la 用在辅音开头的阴性单数名词前",
+  "à l'": "à l' 只用在元音或哑音 h 开头的单数名词前",
+  aux: "aux 用在复数名词前",
+  du: "du 只用在阳性单数名词前",
+  "de la": "de la 用在辅音开头的阴性单数名词前",
+  "de l'": "de l' 只用在元音或哑音 h 开头的单数名词前",
+  des: "des 用在复数名词前",
 };
 for (const sen of sentences) {
   const toks = tokens(sen.fr);
@@ -309,7 +372,9 @@ for (const sen of sentences) {
     if (key.endsWith("la") && g === "m") return;
     // "de la" after a verb of saying etc. is still de + la: fine; skip "la" as a pronoun (de la voir)
     if (key.endsWith("la") && analyses.has(after.low)) return;
-    add("contraction", { k: "c", s: sen.fr, z: sen.zh, b: [tok.s, end], o: c.set.map((o) => capital(o, tok.t)), h: key.startsWith("à") || key.startsWith("au") ? "à + 定冠词" : "de + 定冠词", y: c.why, w: sen.w }, sen.w, `${key}:${after.low}`);
+    const toA = key.startsWith("à") || key.startsWith("au");
+    const e = Object.fromEntries(c.set.filter((o) => o !== key).map((o) => [capital(o, tok.t), CONTRACT_WHY[o]]));
+    add("contraction", { k: "c", s: sen.fr, z: sen.zh, b: [tok.s, end], o: c.set.map((o) => capital(o, tok.t)), e, h: toA ? "à + 定冠词" : "de + 定冠词", y: c.why, w: sen.w, g: toA ? "r0" : "r1" }, sen.w, `${key}:${after.low}`);
   });
 }
 
@@ -336,9 +401,12 @@ for (const sen of sentences) {
   // the sentence's form must be one of the forms the rules give (else the adjective is irregular in a way we do not know)
   if (!options.includes(form.toLowerCase()) || options.length < 2) continue;
   const slot = named.map((x, j) => (x === form.toLowerCase() ? SLOT[j] : "")).filter(Boolean);
+  const e = Object.fromEntries(
+    options.filter((o) => o !== form.toLowerCase()).map((o) => [capital(o, form), `这是${named.map((x, j) => (x === o ? SLOT[j] : "")).filter(Boolean).join("或")}形式，这里要${slot.join("或")}`]),
+  );
   add(
     "adj-agree",
-    { k: "c", s: sen.fr, z: sen.zh, b: [sen.hl[0], sen.hl[1]], o: options.map((o) => capital(o, form)), h: `（${sen.lemma}）`, y: `这里要用${slot.join("或")}：${form.toLowerCase()}`, w: sen.w },
+    { k: "c", s: sen.fr, z: sen.zh, b: [sen.hl[0], sen.hl[1]], o: options.map((o) => capital(o, form)), e, h: `（${sen.lemma}）`, y: `这里要用${slot.join("或")}：${form.toLowerCase()}`, w: sen.w, g: forms[fold(sen.lemma.toLowerCase())] ? "r1" : "r0" },
     sen.w,
   );
 }
@@ -359,7 +427,11 @@ for (const sen of sentences) {
   const tail = sen.fr.slice(toks[toks.length - 1].e);
   if (rebuilt !== sen.fr.slice(0, toks[toks.length - 1].e) || !/^\s?[.!?]?$/.test(tail)) continue;
   const words = toks.map((t, i) => (i === 0 && LOWER_FIRST.has(t.low) ? t.low : t.t));
-  const d: OrderDrill = { k: "o", s: sen.fr, z: sen.zh, t: words, p: tail, h: "排出正确的语序", y: "ne（n'）在变位动词前，pas / jamais / plus / rien 在变位动词后；复合时态夹住助动词。", w: sen.w };
+  // compound tense (n'ai pas vu), object pronoun before the verb (ne le vois pas), rien / jamais / plus …, or simple
+  const compound = lows.some((w, i) => AUX[w] && ppIndex.has(lows[i + 1] ?? "") || (AUX[w] && NEG.has(lows[i + 1] ?? "") && ppIndex.has(lows[i + 2] ?? "")));
+  const pronoun = lows.some((w, i) => (w === "ne" || w === "n'") && CLITICS.has(lows[i + 1] ?? "") && lows[i + 1] !== "ne");
+  const g = compound ? "r1" : pronoun ? "r2" : lows.some((w) => w !== "pas" && NEG.has(w)) ? "r3" : "r0";
+  const d: OrderDrill = { k: "o", s: sen.fr, z: sen.zh, t: words, p: tail, h: "排出正确的语序", y: "ne（n'）在变位动词前，pas / jamais / plus / rien 在变位动词后；复合时态夹住助动词。", w: sen.w, g };
   add("negation", d, sen.w);
 }
 
@@ -373,6 +445,16 @@ const PLACES: [string, string, "city" | "f" | "m" | "mv" | "pl"][] = [
   ["États-Unis", "美国", "pl"], ["Pays-Bas", "荷兰", "pl"], ["Philippines", "菲律宾", "pl"],
 ];
 const vowel = (s: string) => /^[AEIOUÉÈÊ]/.test(s);
+const PLACE_WHY: Record<string, string> = {
+  à: "à 用在城市前",
+  en: "en 用在阴性国家、元音开头的阳性国家前",
+  au: "au 用在辅音开头的阳性国家前",
+  aux: "aux 用在复数国名前",
+  de: "de 用在城市、辅音开头的阴性国家前",
+  "d'": "d' 用在元音开头的城市或国家前",
+  du: "du 用在辅音开头的阳性国家前",
+  des: "des 用在复数国名前",
+};
 const IN: [string, string][] = [
   ["J'habite ___ {X}.", "我住在{Z}。"],
   ["Elle part ___ {X} demain.", "她明天去{Z}。"],
@@ -389,14 +471,15 @@ PLACES.forEach(([x, z, kind], n) => {
   const fromAns = kind === "pl" ? "des" : kind === "m" ? "du" : vowel(x) ? "d'" : "de";
   const inWhy = { city: "城市前用 à", f: `${x} 是阴性国家 → en`, mv: `${x} 是元音开头的阳性国家 → en`, m: `${x} 是阳性国家 → au`, pl: `${x} 是复数 → aux` }[kind];
   const fromWhy = { city: "城市前用 de（元音前 d'）", f: `${x} 是阴性国家 → de（元音前 d'）`, mv: `${x} 是元音开头的阳性国家 → d'`, m: `${x} 是阳性国家 → du`, pl: `${x} 是复数 → des` }[kind];
-  for (const [tpl, ztpl, ans, opts, why] of [
-    [...IN[n % IN.length], inAns, ["à", "en", "au", "aux"], inWhy],
-    [...FROM[n % FROM.length], fromAns, ["de", "d'", "du", "des"], fromWhy],
-  ] as [string, string, string, string[], string][]) {
+  for (const [tpl, ztpl, ans, opts, why, g] of [
+    [...IN[n % IN.length], inAns, ["à", "en", "au", "aux"], inWhy, "r0"],
+    [...FROM[n % FROM.length], fromAns, ["de", "d'", "du", "des"], fromWhy, "r1"],
+  ] as [string, string, string, string[], string, string][]) {
     const at = tpl.indexOf("___");
     const glue = ans.endsWith("'") ? "" : " ";
     const s = tpl.slice(0, at) + ans + glue + tpl.slice(at + 4).replace("{X}", x);
-    add("place-prep", { k: "c", s, z: ztpl.replace("{Z}", z), b: [at, at + ans.length], o: opts, h: `${x}`, y: why });
+    const e = Object.fromEntries(opts.filter((o) => o !== ans).map((o) => [o, PLACE_WHY[o]]));
+    add("place-prep", { k: "c", s, z: ztpl.replace("{Z}", z), b: [at, at + ans.length], o: opts, e, h: `${x}`, y: why, g });
   }
 });
 
@@ -432,7 +515,9 @@ ACTIONS.forEach(([v, rest, vz], n) => {
     const s = `${head}${ans} ${rest}.`;
     const options = uniq([ans, verb.f.pres[p], verb.f.fut[p], verb.f.imp[p]]).slice(0, 4);
     if (options.length < 3) continue;
-    add("subjonctif", { k: "c", s, z: zh(sz, vz), b: [head.length, head.length + ans.length], o: options, h: `${verb.i} · 虚拟式现在时`, y: `${trig.trim()} que 后面用虚拟式：${ans}` }, `t:${v}`);
+    const label = new Map([[verb.f.pres[p], "直陈式现在时"], [verb.f.fut[p], "简单将来时"], [verb.f.imp[p], "未完成过去时"]]);
+    const e = Object.fromEntries(options.slice(1).map((o) => [o, `这是${label.get(o)}；${trig.trim()} que 后面要用虚拟式`]));
+    add("subjonctif", { k: "c", s, z: zh(sz, vz), b: [head.length, head.length + ans.length], o: options, e, h: verb.i, y: `${trig.trim()} que 后面用虚拟式：${ans}`, g: "r2" }, `t:${v}`);
   }
 });
 
@@ -458,7 +543,9 @@ WISHES.forEach(([v, rest, vz], n) => {
     const s = `${head}${ans} ${rest}.`;
     const options = uniq([ans, verb.f.fut[p], verb.f.imp[p], verb.f.pres[p]]).slice(0, 4);
     if (options.length < 3) continue;
-    add("conditionnel", { k: "c", s, z: `如果${sz}有更多时间，${sz}会${vz}。`, b: [head.length, head.length + ans.length], o: options, h: `${verb.i} · 条件式现在时`, y: `si + 未完成过去时（${had}），主句用条件式：${ans}` }, `t:${v}`);
+    const label = new Map([[verb.f.pres[p], "直陈式现在时"], [verb.f.fut[p], "简单将来时"], [verb.f.imp[p], "未完成过去时"]]);
+    const e = Object.fromEntries(options.slice(1).map((o) => [o, `这是${label.get(o)}；si + 未完成过去时，主句要用条件式`]));
+    add("conditionnel", { k: "c", s, z: `如果${sz}有更多时间，${sz}会${vz}。`, b: [head.length, head.length + ans.length], o: options, e, h: verb.i, y: `si + 未完成过去时（${had}），主句用条件式：${ans}`, g: "r1" }, `t:${v}`);
   }
 });
 
@@ -466,25 +553,22 @@ WISHES.forEach(([v, rest, vz], n) => {
 
 /**
  * Points whose answer cannot be told from a sentence by rule (relative pronouns, reported speech, connectors …)
- * have drills written for this site: "s" marks the answer with [ ], "x" lists the distractors.
+ * have drills written for this site, in the formats of scripts/grammar/written.ts. Written drills come before the
+ * automatic ones, and the automatic ones of a point are capped so that they do not crowd them out.
  */
-interface Written {
-  s: string;
-  z: string;
-  x: string[];
-  y: string;
-  h?: string;
-}
-const written: Record<string, Written[]> = read("data/grammar/drills.json").drills;
+const written: Record<string, unknown[]> = read("data/grammar/drills.json").drills;
+const problems: Problem[] = [];
+const writtenBy = new Map<string, Drill[]>();
 for (const [point, list] of Object.entries(written)) {
-  if (!collected.has(point)) throw new Error(`drills.json: no grammar point "${point}"`);
-  for (const w of list) {
-    const m = /^([^[\]]*)\[([^[\]]+)\]([^[\]]*)$/.exec(w.s);
-    if (!m || !w.z?.trim() || !w.y?.trim() || !Array.isArray(w.x) || !w.x.length) throw new Error(`drills.json: bad drill in ${point}: ${w.s}`);
-    const [, before, answer, after] = m;
-    add(point, { k: "c", s: before + answer + after, z: w.z, b: [before.length, before.length + answer.length], o: [answer, ...w.x], h: w.h ?? "", y: w.y });
-  }
+  const p = points.find((x) => x.id === point);
+  if (!p) throw new Error(`drills.json: no grammar point "${point}"`);
+  writtenBy.set(point, parseWritten(point, list, { rules: p.rules.length, traps: p.traps.length }, problems));
 }
+// a distractor that only differs in person is a weakness, not a broken drill: warn
+const leaks = problems.filter((x) => x.msg.includes("another person"));
+const broken = problems.filter((x) => !leaks.includes(x));
+if (broken.length) throw new Error(`drills.json:\n${broken.map((x) => `  ${x.point} ${x.at}: ${x.msg}`).join("\n")}`);
+if (leaks.length) console.warn(`${leaks.length} distractor(s) differ from the answer only in person (see scripts/grammar/check-gen.ts)`);
 
 /* ---------- output ---------- */
 
@@ -493,11 +577,17 @@ const hash = (s: string) => [...s].reduce((h, c) => (Math.imul(h, 31) + c.charCo
 const out: GrammarData = {
   v: 1,
   points: points.map((p) => {
-    const drills = collected.get(p.id)!.drills;
-    const picked = [...drills].sort((a, b) => (a.s.length > 90 ? 1 : 0) - (b.s.length > 90 ? 1 : 0) || hash(a.s) - hash(b.s)).slice(0, MAX_DRILLS);
-    return { ...p, drills: picked };
+    const auto = collected.get(p.id)!.drills;
+    const own = writtenBy.get(p.id) ?? [];
+    const seen = new Set(own.map((d) => d.s));
+    const cap = own.length >= 25 ? MAX_AUTO_WITH_OWN : MAX_AUTO;
+    const picked = [...auto]
+      .filter((d) => !seen.has(d.s))
+      .sort((a, b) => (a.s.length > 90 ? 1 : 0) - (b.s.length > 90 ? 1 : 0) || hash(a.s) - hash(b.s))
+      .slice(0, cap);
+    return { ...p, drills: [...own, ...picked] };
   }),
 };
 mkdirSync(resolve(ROOT, "public/atlas"), { recursive: true });
 writeFileSync(resolve(ROOT, "public/atlas/grammar.json"), JSON.stringify(out));
-for (const p of out.points) console.log(`${p.id.padEnd(14)} ${String(collected.get(p.id)!.drills.length).padStart(5)} found, ${p.drills.length} kept`);
+for (const p of out.points) console.log(`${p.id.padEnd(22)} ${String(writtenBy.get(p.id)?.length ?? 0).padStart(4)} written, ${String(collected.get(p.id)!.drills.length).padStart(5)} found, ${p.drills.length} kept`);

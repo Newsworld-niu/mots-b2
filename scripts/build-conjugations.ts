@@ -15,6 +15,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
 import { resolve } from "node:path";
 import { conjugate, SIMPLE_TENSES, type Conjugation, type Tense } from "./conjugation/engine.ts";
+import { trapsFor } from "./conjugation/traps.ts";
 import type { Lexicon } from "./lexicon/types.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -101,7 +102,10 @@ for (const e of lex.entries) {
   for (const m of mismatches) rows.push([e.id, e.lemma, c.model, m.tense, m.person, m.ours.join("|"), m.lexique.join("|")]);
   // unattested headwords are mostly OCR damage (entrarner, eviter): not taught until spelled right
   const teach = status === "verified" || status === "partial";
-  if (teach)
+  if (teach) {
+    const allForms = new Set<string>();
+    for (const set of attested.get(lx(c.inf))?.values() ?? []) for (const f of set) allForms.add(f);
+    const tr = trapsFor(c, allForms);
     taught[e.id] = {
       i: c.inf,
       ...(c.pron ? { p: 1 } : {}),
@@ -111,8 +115,10 @@ for (const e of lex.entries) {
       ...(c.impersonal ? { imp: 1 } : {}),
       f: c.forms,
       ...(c.alt ? { alt: c.alt } : {}),
+      ...(Object.keys(tr).length ? { tr } : {}),
       s: status,
     };
+  }
 }
 
 const meta = {

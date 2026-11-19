@@ -8,7 +8,7 @@ export type Route =
   | { page: "practice" }
   | { page: "read"; t?: string }
   | { page: "conj" }
-  | { page: "grammar"; p?: string }
+  | { page: "grammar"; p?: string; sheet?: string }
   | { page: "compare"; g?: string }
   | { page: "me" }
   | { page: "about" }
@@ -32,7 +32,7 @@ function parse(hash: string): Location {
   else if (seg[0] === "practice") route = { page: "practice" };
   else if (seg[0] === "read") route = { page: "read", t: params.get("t") || undefined };
   else if (seg[0] === "conj") route = { page: "conj" };
-  else if (seg[0] === "grammar") route = { page: "grammar", p: params.get("p") || undefined };
+  else if (seg[0] === "grammar") route = { page: "grammar", p: params.get("p") || undefined, sheet: params.get("sheet") || undefined };
   else if (seg[0] === "compare") route = { page: "compare", g: params.get("g") || undefined };
   else if (seg[0] === "me") route = { page: "me" };
   else if (seg[0] === "about") route = { page: "about" };
@@ -55,6 +55,7 @@ export function href(route: Route, word?: string | null) {
   if (route.page === "compare" && route.g) params.set("g", route.g);
   if (route.page === "decks" && route.d) params.set("d", route.d);
   if (route.page === "grammar" && route.p) params.set("p", route.p);
+  if (route.page === "grammar" && route.sheet) params.set("sheet", route.sheet);
   if (route.page === "read" && route.t) params.set("t", route.t);
   if (word) params.set("w", word);
   const q = params.toString();

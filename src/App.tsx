@@ -198,7 +198,7 @@ function Shell() {
         {route.page === "practice" && <Practice />}
         {route.page === "read" && <Read textId={route.t} />}
         {route.page === "conj" && <Conj />}
-        {route.page === "grammar" && <Grammar pointId={route.p} />}
+        {route.page === "grammar" && <Grammar pointId={route.p} sheet={!!route.sheet} />}
         {route.page === "compare" && <Compare focusId={route.g} />}
         {route.page === "me" && <Me />}
         {route.page === "about" && <About />}

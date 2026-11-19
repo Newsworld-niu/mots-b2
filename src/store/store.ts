@@ -177,6 +177,8 @@ export interface Progress {
   gramDays?: Record<string, { n: number; r: number; c: number; verbs?: string[] }>;
   /** Grammar drills the learner reported as wrong or ambiguous (drillId), never asked again. */
   gramSkip?: string[];
+  /** How the learner does on each part of a grammar point ("point|r2", "point|t0"): answered n, wrong w (rolling). */
+  gramTags?: Record<string, { n: number; w: number }>;
   /** The learner's own decks, in the order made. */
   decks?: Deck[];
   /** Atlas words taken out of the initial deck (初始词本); still learned when in another deck. */
@@ -359,6 +361,12 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
   if (Array.isArray(v.gramSkip)) {
     const skip = [...new Set(v.gramSkip.filter((x): x is string => typeof x === "string" && /^[a-z0-9-]{2,40}:[a-z0-9]{1,12}$/.test(x)))].slice(0, 5000);
     if (skip.length) out.gramSkip = skip;
+  }
+  if (isObj(v.gramTags)) {
+    const tags: Record<string, { n: number; w: number }> = {};
+    for (const [k, t] of Object.entries(v.gramTags))
+      if (/^[a-z0-9-]{2,40}\|[rt]\d{1,2}$/.test(k) && isObj(t) && num(t.n, 0) && num(t.w, 0) && (t.w as number) <= (t.n as number)) tags[k] = { n: t.n as number, w: t.w as number };
+    if (Object.keys(tags).length) out.gramTags = tags;
   }
   Object.assign(out, sanitizeUserData(v));
   const texts = sanitizeTexts(v.texts);

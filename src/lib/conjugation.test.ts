@@ -40,12 +40,17 @@ test("answers: exact, accent-only mistakes, wrong", () => {
   assert.equal(checkAnswer("", acc), "wrong");
 });
 
-test("multiple choice offers three distinct wrong forms; the wrong auxiliary comes first for passé composé", () => {
+test("multiple choice offers three distinct wrong forms; the wrong auxiliary and analogical traps come first", () => {
   const d = distractorsFor(parler, "pres", 3, 42);
   assert.equal(d.length, 3);
   assert.ok(!d.includes("parlons"));
   assert.equal(new Set(d).size, 3);
   assert.equal(distractorsFor(aller, "pc", 0, 7)[0], "ai allé");
+  const envoyer: ConjVerb = { ...parler, i: "envoyer", pp: "envoyé", m: "envoyer", f: { ...parler.f, fut: ["enverrai", "enverras", "enverra", "enverrons", "enverrez", "enverront"] }, tr: { "fut:0": ["envoierai", "envoyerai"], pp: ["envoyu"] } };
+  assert.deepEqual(distractorsFor(envoyer, "fut", 0, 1).slice(0, 2), ["envoierai", "envoyerai"]);
+  const pc = distractorsFor(envoyer, "pc", 0, 1);
+  assert.equal(pc[0], "suis envoyé");
+  assert.equal(pc[1], "ai envoyu");
 });
 
 test("tables and level unlocking", () => {
