@@ -585,6 +585,21 @@ describe("sync handlers", () => {
     );
     assert.equal(disallowedPreflight.status, 204);
     assert.equal(disallowedPreflight.headers["Access-Control-Allow-Origin"], undefined);
+
+    const defaultFallback = await handleRequest(
+      {
+        method: "OPTIONS",
+        path: `/api/sync/${DATASET_ID}`,
+        headers: { Origin: "http://127.0.0.1:5190" },
+      },
+      store,
+      { ADMIN_KEY: ENV.ADMIN_KEY },
+    );
+    assert.equal(defaultFallback.status, 204);
+    assert.equal(
+      defaultFallback.headers["Access-Control-Allow-Origin"],
+      "http://127.0.0.1:5190",
+    );
   });
 
   it("cleans up orphan history entry if conditional latest PUT races with 412", async () => {

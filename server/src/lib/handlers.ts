@@ -24,6 +24,8 @@ const MAX_HISTORY_ITEMS = 20;
 const SYNC_CODE_RE = /^mb2_[A-Za-z0-9_-]{43}$/;
 const DATASET_ID_RE = /^[a-z0-9-]{1,64}$/;
 const HISTORY_ID_RE = /^[A-Za-z0-9TZ._-]+$/;
+export const DEFAULT_ALLOWED_ORIGINS =
+  "https://newsworld-niu.github.io,http://127.0.0.1:5190,http://localhost:5190,http://127.0.0.1:5188,https://localhost,capacitor://localhost";
 
 let lastHistoryMs = 0;
 
@@ -84,8 +86,11 @@ export function buildBaseHeaders(
   req: Pick<HttpRequestInput, "headers">,
   env: HandlerEnv,
 ): Record<string, string> {
+  const rawOrigins = env.ALLOWED_ORIGINS?.trim()
+    ? env.ALLOWED_ORIGINS
+    : DEFAULT_ALLOWED_ORIGINS;
   const allowed = new Set(
-    (env.ALLOWED_ORIGINS ?? "")
+    rawOrigins
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean),
