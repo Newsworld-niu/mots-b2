@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_TASKS, maxScore, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, tooShort, toLevel, totalScore } from "./essay";
+import { applyEssayLengthCaps, buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_TASKS, maxScore, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, tooShort, toLevel, totalScore, wordsFor } from "./essay";
 
 test("countWords counts elided and hyphenated words once", () => {
   assert.equal(countWords("L'ami de Paul est arrivé."), 5);
@@ -89,7 +89,8 @@ test("an AI task is built only when it is complete, with the exam's word range f
   };
   const t = buildTask(good, "ai-abc")!;
   assert.ok(t);
-  assert.deepEqual(t.words, [250, 300]);
+  assert.deepEqual(t.words, [250, 350]);
+  assert.deepEqual(wordsFor("B2", "essai"), [250, 350]);
   assert.equal(t.doc, undefined, "an empty document is dropped");
   assert.deepEqual(buildTask({ ...good, level: "B1", genre: "mail" }, "ai-abd")!.words, [120, 160]);
   assert.equal(buildTask({ ...good, plan: good.plan.slice(0, 2) }, "ai-x"), null, "a plan of two steps is not a plan");
@@ -126,4 +127,23 @@ test("kept mistakes are cleaned and bounded", () => {
   assert.deepEqual(out?.map((n) => n.id), ["n1", "n3"], "a note whose wrong and right are the same is dropped");
   assert.equal(out![1].type, "other");
   assert.equal(out![1].point, "");
+});
+
+test("applyEssayLengthCaps enforces DELF tolerance thresholds (<125 zero, <175 task/coh<=1 & max<=3, <225 task<=1)", () => {
+  const full = sanitizeEssayFeedback({ scores: { task: 5, coherence: 5, socio: 5, lexique: 5, morpho: 5 }, comment: "好。" }, new Set());
+  const words = (n: number) => new Array(n).fill("mot").join(" ");
+  const s124 = applyEssayLengthCaps(full, words(124), 250);
+  assert.equal(totalScore(s124), 0);
+  const s145 = applyEssayLengthCaps(full, words(145), 250);
+  assert.equal(s145.scores.task, 1);
+  assert.equal(s145.scores.coherence, 1);
+  assert.ok(totalScore(s145) <= 11);
+  const s180 = applyEssayLengthCaps(full, words(180), 250);
+  assert.equal(s180.scores.task, 1);
+  assert.equal(s180.scores.coherence, 5);
+  assert.equal(totalScore(s180), 21);
+  const s225 = applyEssayLengthCaps(full, words(225), 250);
+  assert.equal(totalScore(s225), 25);
+  const s360 = applyEssayLengthCaps(full, words(360), 250);
+  assert.equal(totalScore(s360), 25);
 });

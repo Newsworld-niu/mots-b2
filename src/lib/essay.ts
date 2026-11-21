@@ -113,7 +113,7 @@ export const ESSAY_TASKS: EssayTask[] = [
     title: "投诉信",
     situation: "你在网上订了一台洗衣机，送来晚了两个星期，而且门上有划痕。客服电话一直打不通。",
     consigne: "Vous écrivez au service clientèle du magasin pour exposer le problème, exprimer votre mécontentement et demander une solution précise.",
-    words: [250, 300],
+    words: [250, 350],
     points: ["说明订单和发生的问题（时间、事实）", "表达不满，但保持礼貌", "提出明确的要求（换货、退款或补偿）和期限"],
     plan: [
       { zh: "事由", fr: "Objet : réclamation concernant la commande n°…" },
@@ -136,7 +136,7 @@ export const ESSAY_TASKS: EssayTask[] = [
     title: "求职信",
     situation: "里昂的一家旅行社招一名会中文的接待和咨询人员，合同六个月。",
     consigne: "Vous posez votre candidature : présentez-vous, montrez que votre profil correspond au poste et demandez un entretien.",
-    words: [250, 300],
+    words: [250, 350],
     points: ["说明应聘的职位和信息来源", "介绍和职位相关的学历、经历、能力", "说明自己能给公司带来什么，并请求面试"],
     plan: [
       { zh: "事由", fr: "Objet : candidature au poste de conseiller(ère) voyages" },
@@ -160,7 +160,7 @@ export const ESSAY_TASKS: EssayTask[] = [
     title: "市中心禁止汽车通行",
     situation: "本地报纸报道，市政府打算禁止私家车进入市中心。报纸请读者来信发表意见。",
     consigne: "Vous écrivez au courrier des lecteurs du journal pour donner votre opinion sur ce projet, en l'appuyant sur des arguments et des exemples.",
-    words: [250, 300],
+    words: [250, 350],
     points: ["提到那篇报道，表明立场", "两到三个论据，各带例子", "承认对方的一个理由再反驳", "提出建议或呼吁"],
     plan: [
       { zh: "引出话题和立场", fr: "J'ai lu avec intérêt votre article sur… et je souhaite réagir." },
@@ -184,7 +184,7 @@ export const ESSAY_TASKS: EssayTask[] = [
     title: "该不该限制孩子用屏幕",
     situation: "学校的家长通讯征稿：是否应该限制孩子使用手机和平板的时间？",
     consigne: "« Faut-il limiter le temps que les enfants passent devant les écrans ? » Vous exposez votre point de vue dans un texte argumenté.",
-    words: [250, 300],
+    words: [250, 350],
     points: ["开头点出问题", "两到三个有例子的论据", "考虑相反的观点", "明确的结论"],
     plan: [
       { zh: "引入和问题", fr: "De nos jours, les écrans font partie du quotidien des enfants. Faut-il pour autant… ?" },
@@ -208,7 +208,7 @@ export const ESSAY_TASKS: EssayTask[] = [
     title: "年轻人该不该出国待一年",
     situation: "一份学生杂志的专题：每个年轻人都应该在国外生活一年吗？",
     consigne: "« Tous les jeunes devraient passer une année à l'étranger. » Qu'en pensez-vous ? Vous développez votre opinion dans un texte argumenté.",
-    words: [250, 300],
+    words: [250, 350],
     points: ["对这句话表态（同意、不同意或部分同意）", "论据和例子", "一个让步", "结论"],
     plan: [
       { zh: "引入和立场", fr: "On entend souvent dire que… Je partage en partie cet avis." },
@@ -233,7 +233,7 @@ export const ESSAY_TASKS: EssayTask[] = [
     situation: "你在一个消费者论坛上读到下面这段话，决定回帖表达自己的看法。",
     doc: "« Se faire livrer ses courses en moins d'une heure, c'est pratique. Mais derrière chaque commande, il y a un livreur mal payé qui roule sous la pluie et des camionnettes de plus dans nos rues. Sommes-nous vraiment si pressés ? »",
     consigne: "Vous réagissez à ce message sur le forum : vous donnez votre opinion sur la livraison ultra-rapide, en vous appuyant sur des arguments et des exemples précis.",
-    words: [250, 300],
+    words: [250, 350],
     points: ["先简要回应材料里的观点（不要照抄）", "表明自己的立场", "两到三个有例子的论据", "一个让步或折中的建议"],
     plan: [
       { zh: "回应材料", fr: "Je viens de lire votre message et il soulève une vraie question :…" },
@@ -258,7 +258,7 @@ export const ESSAY_TASKS: EssayTask[] = [
     situation: "本地报纸刊登了下面这条消息，并请读者来信发表意见。",
     doc: "La mairie envisage de rendre l'entrée des musées municipaux gratuite toute l'année. Coût estimé : deux millions d'euros par an. Selon l'adjointe à la culture, « la culture doit être accessible à tous » ; l'opposition parle d'« un cadeau fait aux touristes avec l'argent des habitants ».",
     consigne: "Vous écrivez au journal pour dire si vous êtes favorable ou non à ce projet et pourquoi.",
-    words: [250, 300],
+    words: [250, 350],
     points: ["提到这条消息，表明赞成或反对", "论据：谁受益、钱从哪儿来", "回应材料里另一方的说法", "提出自己的建议"],
     plan: [
       { zh: "引出消息和立场", fr: "Votre article du… sur la gratuité des musées m'a fait réagir." },
@@ -283,7 +283,7 @@ export const ESSAY_TASKS: EssayTask[] = [
     situation: "学生报的编辑部请你就下面这项研究写一篇评论文章。",
     doc: "D'après une étude récente, les lycéens dorment en moyenne moins de sept heures par nuit en semaine. Des chercheurs proposent de faire commencer les cours à 9 heures au lieu de 8 heures : selon eux, les élèves seraient plus attentifs et moins souvent absents.",
     consigne: "Vous rédigez un article pour le journal du lycée : vous présentez brièvement cette proposition et vous donnez votre avis de façon argumentée.",
-    words: [250, 300],
+    words: [250, 350],
     points: ["用自己的话概括研究和建议", "分析好处", "指出实行起来的困难", "明确的结论"],
     plan: [
       { zh: "概括材料", fr: "Selon une étude récente,… Des chercheurs suggèrent donc de…" },
@@ -427,8 +427,8 @@ export const MAX_AI_TASKS = 24;
 /** A task the AI wrote has an id starting with this. */
 export const isAiTask = (id: string) => id.startsWith("ai-");
 
-/** How many words a task of this kind asks for, as on the exam. */
-export const wordsFor = (level: "B1" | "B2", genre: Genre): [number, number] => (level === "B2" ? [250, 300] : genre === "mail" ? [120, 160] : [160, 200]);
+/** How many words a task of this kind asks for, as on the exam. B2 has no upper penalty (250–350 recommended). */
+export const wordsFor = (level: "B1" | "B2", genre: Genre): [number, number] => (level === "B2" ? [250, 350] : genre === "mail" ? [120, 160] : [160, 200]);
 
 /** Genres the AI can write a task for. */
 export const GENRES = Object.keys(GENRE_LABEL) as Genre[];
@@ -478,6 +478,32 @@ export function sanitizeEssayFeedback(raw: unknown, points: ReadonlySet<string>,
  */
 export function tooShort(text: string, minWords: number) {
   return countWords(text) < minWords / 2;
+}
+
+/**
+ * Deterministic length caps matching DELF tolerance (-10% floor, i.e. 225 for B2 250w,
+ * severe under-length <70% i.e. <175w, and half-length <50% i.e. <125w -> 0).
+ */
+export function applyEssayLengthCaps(fb: EssayFeedback, text: string, minWords: number): EssayFeedback {
+  const wc = countWords(text);
+  const scores = { ...fb.scores };
+  let note = "";
+  if (wc < minWords / 2) {
+    for (const c of CRITERIA) scores[c] = 0;
+    note = `不到要求字数的一半（实测 ${wc} 词，要求至少 ${minWords} 词），按官方评分表各项记 0 分。`;
+  } else if (wc < Math.round(minWords * 0.7)) {
+    scores.task = Math.min(scores.task ?? 0, 1);
+    scores.coherence = Math.min(scores.coherence ?? 0, 1);
+    // Severely under-length text cannot demonstrate B2+ breadth across language or register either.
+    scores.socio = Math.min(scores.socio ?? 0, 3);
+    scores.lexique = Math.min(scores.lexique ?? 0, 3);
+    scores.morpho = Math.min(scores.morpho ?? 0, 3);
+    note = `字数严重不足（实测 ${wc} 词，要求至少 ${minWords} 词，低于 ${Math.round(minWords * 0.7)} 词），完成任务与连贯衔接封顶 1 分，其余项最高 3 分。`;
+  } else if (wc < Math.round(minWords * 0.9)) {
+    scores.task = Math.min(scores.task ?? 0, 1);
+    note = `字数低于容忍下限（实测 ${wc} 词，低于 ${Math.round(minWords * 0.9)} 词），完成任务封顶 1 分。`;
+  }
+  return note ? { ...fb, scores, comment: `${note}${fb.comment}` } : fb;
 }
 
 /** Saved essays read back from storage or a backup. */

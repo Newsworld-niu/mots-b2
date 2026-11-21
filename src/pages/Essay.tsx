@@ -90,6 +90,9 @@ function byNeed(a: [EssayTask, TaskStat], b: [EssayTask, TaskStat]) {
 const reasonOf = (s: TaskStat) =>
   s.draft ? "有一份没写完的草稿，接着写" : s.done === 0 ? "还没写过" : s.best < 0 ? "写过但还没批改过" : s.best < LOW ? `上次最高只有 ${s.best}/25，再写一次` : `最高 ${s.best}/25，隔了一阵，再练一次`;
 
+const countClass = (n: number, min: number) => (n < Math.round(min * 0.9) ? "is-short warn-text" : n < min ? "is-short" : "is-ok");
+const countLabel = (n: number, min: number, max: number) => `${n} 词 · 至少 ${min} 词（推荐 ${min}–${max}，${Math.round(min * 0.9)} 警戒 / ${Math.floor(min / 2)} 零分）`;
+
 /**
  * 篇章写作: pick a task, write the whole text with a plan and linking words at hand, and have it marked on a fixed
  * four-part grid. Without an AI service the text is saved and checked against the grid by the learner.
@@ -117,6 +120,8 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
   const [genreFilter, setGenreFilter] = useState<Genre | "all">("all");
   // 范文
   const [modeling, setModeling] = useState(false);
+  // 模考模式（开启后自动 60 分钟倒计时，到时自动锁卷）
+  const [examMode, setExamMode] = useState(false);
   const input = useRef<HTMLTextAreaElement>(null);
   const ctrl = useRef<AbortController | null>(null);
   const timer = useTimer();
@@ -130,7 +135,8 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
 
   const open = (task: EssayTask, initial = readDraft(task.id)) => {
     setText(initial);
-    timer.stop();
+    if (examMode) timer.start(60 * 60);
+    else timer.stop();
     setView({ at: "write", task });
   };
 
@@ -241,7 +247,8 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
           <b>{t.title}</b>
           <small>{t.situation}</small>
           <small className="essay-task-meta">
-            {t.level} · {t.words[0]}–{t.words[1]} 词{st.draft ? " · 有草稿" : ""}
+            {t.level} · {t.level === "B2" ? `至少 ${t.words[0]} 词（推荐 ${t.words[0]}–${t.words[1]}）` : `${t.words[0]}–${t.words[1]} 词`}
+            {st.draft ? " · 有草稿" : ""}
             {st.done > 0 ? ` · 写过 ${st.done} 次${st.best >= 0 ? `，最高 ${st.best}/25` : ""}，上次 ${day(st.last)}` : ""}
           </small>
           {extra && <small className="essay-rec-why">{extra}</small>}
@@ -336,6 +343,9 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
               </li>
             ))}
           </ul>
+          <label className="essay-check-doc">
+            <input type="checkbox" checked={examMode} onChange={(ev) => setExamMode(ev.target.checked)} /> 模考模式（进入写作自动 60 分钟倒计时，到时锁卷）
+          </label>
         </div>
         {(["B1", "B2"] as const).map((lv) => {
           const list = shown.filter(([t]) => t.level === lv);
@@ -492,9 +502,7 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
               />
             )}
             <div className="writing-actions">
-              <span className={`essay-count ${rw < rmin ? "is-short" : rw > rmax ? "is-long" : "is-ok"}`}>
-                {rw} 词 · 要求 {rmin}–{rmax}
-              </span>
+              <span className={`essay-count ${countClass(rw, rmin)}`}>{countLabel(rw, rmin, rmax)}</span>
               {grading ? (
                 <>
                   <p className="muted">AI 批改中（整篇约 20–60 秒）…</p>
@@ -669,6 +677,15 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
 
   const words = countWords(text);
   const [min, max] = task.words;
+  const locked = examMode && timer.down && timer.sec === 0;
+  const toggleExamMode = (on: boolean) => {
+    setExamMode(on);
+    if (on) {
+      if (!timer.running) timer.start(60 * 60);
+    } else {
+      timer.stop();
+    }
+  };
   return (
     <div className="page practice">
       <section className="essay-stage">
@@ -676,7 +693,7 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
           <ArrowLeft size={16} /> 返回题目（草稿会保留）
         </button>
         <p className="eyebrow">
-          {GENRE_LABEL[task.genre]} · {task.level} · {min}–{max} 词
+          {GENRE_LABEL[task.genre]} · {task.level} · 至少 {min} 词（推荐 {min}–{max}）
         </p>
         <h2 className="essay-title">{task.title}</h2>
         <p className="essay-situation">{task.situation}</p>
@@ -756,13 +773,18 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
           )}
         </div>
 
+        <div className="writing-actions">
+          <label className="essay-check-doc">
+            <input type="checkbox" checked={examMode} disabled={grading || locked} onChange={(ev) => toggleExamMode(ev.target.checked)} /> 模考模式（60 分钟自动锁卷）
+          </label>
+        </div>
         <textarea
           ref={input}
           className="writing-input essay-input"
           lang="fr"
           rows={14}
           value={text}
-          readOnly={grading}
+          readOnly={grading || locked}
           onChange={(ev) => change(task, ev.target.value)}
           placeholder="在这里写。分段写，每段一个意思。"
           autoCapitalize="sentences"
@@ -771,13 +793,16 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
           spellCheck={false}
           aria-label="在这里写法语作文"
         />
-        {!grading && <AccentKeys input={input} value={text} onChange={(v) => change(task, v)} />}
+        {!grading && !locked && <AccentKeys input={input} value={text} onChange={(v) => change(task, v)} />}
+        {locked && <p className="warn-text">模考 60 分钟时间到，已自动锁卷（不可继续修改），请直接提交。</p>}
         <div className="writing-actions">
-          <span className={`essay-count ${words < min ? "is-short" : words > max ? "is-long" : "is-ok"}`}>
-            {words} 词 · 要求 {min}–{max}
-          </span>
+          <span className={`essay-count ${countClass(words, min)}`}>{countLabel(words, min, max)}</span>
           {!grading &&
-            (timer.running || (timer.down && timer.sec === 0) ? (
+            (examMode ? (
+              <span className={`exam-clock ${timer.sec === 0 ? "is-over" : ""}`} title="模考自动倒计时，时间到自动锁卷">
+                {timer.sec === 0 ? "时间到 · 已锁卷" : `模考 ${clock(timer.sec)}`}
+              </span>
+            ) : timer.running || (timer.down && timer.sec === 0) ? (
               <button className={`exam-clock ${timer.sec === 0 ? "is-over" : ""}`} onClick={timer.stop} title="点一下停止计时">
                 {timer.sec === 0 ? "时间到" : clock(timer.sec)}
               </button>
