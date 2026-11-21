@@ -386,6 +386,7 @@ export function Dict({ word, query }: { word?: string; query?: string }) {
           ? fixtureZhLookup(trimmed, 8).map((h) => ({ key: h.id, w: h.w ?? h.id, zh: h.shortZh ?? h.term, isCjk: true }))
           : fixtureSuggest(trimmed, 10).map((r) => ({ key: r[0], w: r[1], zh: r[3] }));
         if (acReq.current === id) {
+          setAcSel(-1);
           setAcItems(list);
           setAcOpen(list.length > 0);
         }
@@ -396,12 +397,14 @@ export function Dict({ word, query }: { word?: string; query?: string }) {
         const hits = await zhLookup(trimmed, 8);
         if (acReq.current !== id) return;
         const list = hits.map((h) => ({ key: h.id, w: h.w ?? h.id, zh: h.shortZh ?? h.term, isCjk: true }));
+        setAcSel(-1);
         setAcItems(list);
         setAcOpen(list.length > 0);
       } else {
         const rows = await suggest(trimmed, 10);
         if (acReq.current !== id) return;
         const list = rows.map((r) => ({ key: `${r[0]}|${r[1]}`, w: r[1], zh: r[3] }));
+        setAcSel(-1);
         setAcItems(list);
         setAcOpen(list.length > 0);
       }
@@ -441,11 +444,6 @@ export function Dict({ word, query }: { word?: string; query?: string }) {
           className="dict-search-bar"
           onSubmit={(e) => {
             e.preventDefault();
-            if (acOpen && acSel >= 0 && acItems[acSel]) {
-              setAcOpen(false);
-              go({ page: "dict", w: acItems[acSel].w });
-              return;
-            }
             submitQuery(input);
           }}
         >
@@ -457,7 +455,12 @@ export function Dict({ word, query }: { word?: string; query?: string }) {
             ref={inputRef}
             value={input}
             onChange={(e) => handleInputChange(e.target.value)}
-            onFocus={() => acItems.length > 0 && setAcOpen(true)}
+            onFocus={() => {
+              if (acItems.length > 0) {
+                setAcSel(-1);
+                setAcOpen(true);
+              }
+            }}
             onKeyDown={(e) => {
               if (!acOpen || !acItems.length) return;
               if (e.key === "ArrowDown") {
@@ -466,7 +469,14 @@ export function Dict({ word, query }: { word?: string; query?: string }) {
               } else if (e.key === "ArrowUp") {
                 e.preventDefault();
                 setAcSel((s) => Math.max(-1, s - 1));
+              } else if (e.key === "Enter" && acSel >= 0 && acItems[acSel]) {
+                e.preventDefault();
+                const picked = acItems[acSel];
+                setAcSel(-1);
+                setAcOpen(false);
+                go({ page: "dict", w: picked.w });
               } else if (e.key === "Escape") {
+                setAcSel(-1);
                 setAcOpen(false);
               }
             }}
@@ -505,8 +515,8 @@ export function Dict({ word, query }: { word?: string; query?: string }) {
                 <button
                   type="button"
                   className={idx === acSel ? "is-sel" : ""}
-                  onMouseEnter={() => setAcSel(idx)}
                   onClick={() => {
+                    setAcSel(-1);
                     setAcOpen(false);
                     go({ page: "dict", w: item.w });
                   }}
