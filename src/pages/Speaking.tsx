@@ -7,7 +7,8 @@ import { useGrammar } from "../atlas/grammar";
 import { TARGET_LANG } from "../config";
 import { play, stopAudio } from "../lib/audio";
 import { CONNECTORS, countWords, CRITERION_CHECK, CRITERION_LABEL, LEVEL_LABEL, LEVELS, totalScore } from "../lib/essay";
-import { assessDebateEscalation, clock, isSpeakingTyped, MAX_EXAM_LOG, PO_STANDARD_CONSIGNE, realScore25, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
+import { assessDebateEscalation, checkProblematiqueDraft, clock, isSpeakingTyped, MAX_EXAM_LOG, PO_STANDARD_CONSIGNE, PROBLEMATIQUE_TIPS, realScore25, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
+import { debatePhrases } from "../lib/expressions";
 import { isNative } from "../lib/native";
 import { href } from "../lib/router";
 import { duck } from "../lib/sound";
@@ -105,14 +106,18 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [debateVoice, setDebateVoice] = useState(false);
   const [loggedAt, setLoggedAt] = useState<number | null>(null);
   const [gradedTyped, setGradedTyped] = useState(false);
+  const [probDraft, setProbDraft] = useState("");
+  const [probChecked, setProbChecked] = useState<{ ok: boolean; notes: string[] } | null>(null);
   const voiceWordsRef = useRef(0);
   const recorder = useRecorder();
   const pron = useAssess();
   const stopRec = useRef<(() => void) | null>(null);
   const ctrl = useRef<AbortController | null>(null);
   const prep = useTimer();
+  const micro = useTimer();
   const talk = useTimer();
   const debate = useTimer();
+  const debatePhraseGroups = useMemo(() => debatePhrases(), []);
   const MAX_TURNS = 20;
   const dictation = canDictate();
   const hasAi = ready.text(ai);
@@ -203,6 +208,9 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setDebateVoice(false);
     setLoggedAt(null);
     setGradedTyped(false);
+    setProbDraft("");
+    setProbChecked(null);
+    micro.stop();
     voiceWordsRef.current = 0;
     pron.reset();
     setSpoke(0);
@@ -212,6 +220,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
 
   const startTalk = async () => {
     prep.stop();
+    micro.stop();
     setPhase("talk");
     // the recording first (it asks for the microphone), then start the stopwatch unconditionally and the recogniser alongside it
     if (recorder.supported) await recorder.start();
@@ -338,6 +347,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     pron.reset();
     ctrl.current?.abort();
     prep.stop();
+    micro.stop();
     talk.stop();
     debate.stop();
     setAsking(false);
@@ -511,6 +521,52 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
 
         {phase === "prep" && (
           <>
+            {!strictMode && (
+              <div className="essay-box">
+                <p className="eyebrow">1 分钟审题微训 · 提炼 problématique（核心矛盾）</p>
+                <ol className="essay-check">
+                  {PROBLEMATIQUE_TIPS.map((tip, k) => (
+                    <li key={k}>{tip}</li>
+                  ))}
+                </ol>
+                <div className="writing-actions">
+                  <button className="btn btn-ghost" type="button" onClick={() => micro.start(60)}>
+                    {micro.running ? `微训倒计时 ${clock(micro.sec)}` : micro.sec === 0 && probDraft ? "重新计时 1:00" : "开始 1 分钟提炼计时"}
+                  </button>
+                  {micro.running && <span className={`exam-clock ${micro.sec <= 10 ? "is-over" : ""}`}>{clock(micro.sec)}</span>}
+                </div>
+                <input
+                  className="writing-input"
+                  lang="fr"
+                  value={probDraft}
+                  onChange={(e) => {
+                    setProbDraft(e.target.value);
+                    setProbChecked(null);
+                  }}
+                  placeholder="试着不用原句，写出一句法语 problématique（例如：Comment concilier… ?）"
+                  spellCheck={false}
+                  aria-label="problématique 提炼"
+                />
+                <div className="writing-actions">
+                  <button className="btn btn-ghost" type="button" disabled={!probDraft.trim()} onClick={() => setProbChecked(checkProblematiqueDraft(probDraft, subject.doc))}>
+                    检查提炼是否合格
+                  </button>
+                  <button
+                    className="link"
+                    type="button"
+                    disabled={!probDraft.trim()}
+                    onClick={() => setNotes((n) => (n.trim() ? `${probDraft.trim()}\n\n${n}` : probDraft.trim()))}
+                  >
+                    填入准备笔记
+                  </button>
+                </div>
+                {probChecked && (
+                  <p className="muted small">
+                    {probChecked.ok ? "提炼清晰：包含了开放性问题且避免直接照抄原文。" : probChecked.notes.join(" ")}
+                  </p>
+                )}
+              </div>
+            )}
             <div className="essay-help">
               <details open>
                 <summary>怎么组织这段话</summary>
@@ -712,6 +768,26 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                   结束辩论，批改
                 </button>
               </div>
+            )}
+            {!strictMode ? (
+              <details className="essay-fold">
+                <summary>辩论话术速查（反驳 / 让步 / 澄清 / 填充语，{debatePhraseGroups.reduce((n, [, xs]) => n + xs.length, 0)} 句）</summary>
+                {debatePhraseGroups.map(([fn, xs]) => (
+                  <div key={fn} className="essay-box">
+                    <p className="eyebrow">{fn}</p>
+                    <ul className="essay-phrases">
+                      {xs.map((e) => (
+                        <li key={e.id}>
+                          <span lang="fr">{e.fr}</span>
+                          <small>{e.zh}</small>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </details>
+            ) : (
+              <p className="muted small">严格模考中已隐藏辩论话术速查。</p>
             )}
           </>
         )}

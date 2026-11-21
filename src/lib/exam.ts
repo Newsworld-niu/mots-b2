@@ -454,13 +454,48 @@ export const SPEAKING_SUBJECTS: SpeakingSubject[] = [
 
 /** How a talk on a subject is built (monologue suivi). */
 export const TALK_PLAN: { zh: string; fr: string }[] = [
-  { zh: "引入：复述材料的主题，提出问题", fr: "Ce document traite de… On peut se demander si…" },
-  { zh: "宣布提纲和立场", fr: "Je vais d'abord…, puis… À mon avis,…" },
-  { zh: "论点一 + 例子", fr: "Tout d'abord,… Prenons l'exemple de…" },
-  { zh: "论点二 + 例子", fr: "Ensuite,… C'est le cas, par exemple, de…" },
-  { zh: "考虑相反的观点", fr: "Certains diront que… Cependant,…" },
-  { zh: "结论", fr: "Pour conclure, je dirais que…" },
+  { zh: "1. 引入背景：点明主题与来源，不照抄原文", fr: "Ce document, tiré de…, aborde la question de…" },
+  { zh: "2. 提炼矛盾，提出中立开放的 problématique", fr: "Il met en lumière une tension entre… Dès lors, dans quelle mesure… ?" },
+  { zh: "3. 表明立场并宣布提纲（annonce du plan）", fr: "Pour ma part, j'estime que… Je présenterai d'abord…, puis j'aborderai…" },
+  { zh: "4. 论点一 + 事实例证", fr: "Tout d'abord,… Prenons l'exemple concret de…" },
+  { zh: "5. 论点二 + 深化分析", fr: "Par ailleurs,… Cela s'explique notamment par le fait que…" },
+  { zh: "6. 主动让步并反驳异议（nuance）", fr: "Certes, on pourrait objecter que… Toutefois, il convient de souligner que…" },
+  { zh: "7. 总结收束（留出辩论空间）", fr: "En définitive, si…, il me semble essentiel de…" },
 ];
+
+/** Four-step method to extract a DELF B2 problématique in 1 minute before drafting the outline. */
+export const PROBLEMATIQUE_TIPS: string[] = [
+  "先圈出材料里的两股对立力量（例如：效率 vs 心理健康、环保约束 vs 地区公平）。",
+  "把冲突抽象成一句中立的开放式问题（不要用 oui/non 的站队口吻，也不要复述新闻细节）。",
+  "常用句型：Dans quelle mesure peut-on… ? / Comment concilier… et… ? / Jusqu'à quel point… ?",
+  "用自己的同义词改写关键词，避免整段照抄材料原句。",
+];
+
+/** Quick structural check of a learner's 1-minute problématique draft (pure non-AI check). */
+export function checkProblematiqueDraft(draft: string, doc: string): { ok: boolean; notes: string[] } {
+  const clean = draft.trim();
+  const wc = countWords(clean);
+  const notes: string[] = [];
+  if (wc < 8) notes.push("句子太短（建议 10–30 词），试着写清「矛盾双方 + 核心疑问」。");
+  if (wc > 45) notes.push("偏长，problématique 最好控制在 1–2 句精炼提问内。");
+  const isQuestion = clean.includes("?") || /\b(savoir si|dans quelle mesure|comment|jusqu'à quel point|faut-il|peut-on|convient-il)\b/i.test(clean);
+  if (!isQuestion) notes.push("缺少提问或间接疑问句式（可用 Dans quelle mesure… / Comment concilier… / … ?）。");
+  const docTokens = doc
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
+  const draftNorm = clean.toLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean).join(" ");
+  let copied = false;
+  for (let i = 0; i + 6 <= docTokens.length; i++) {
+    const span = docTokens.slice(i, i + 6).join(" ");
+    if (draftNorm.includes(span)) {
+      copied = true;
+      break;
+    }
+  }
+  if (copied) notes.push("检测到与材料连续 6 词以上重合，尽量换用同义词改写（reformulation）。");
+  return { ok: notes.length === 0, notes };
+}
 
 /** The criteria of the official speaking grid; the last one cannot be judged from a transcript. */
 export const SPEAK_CRITERIA = ["monologue", "interaction", "lexique", "morpho"] as const;

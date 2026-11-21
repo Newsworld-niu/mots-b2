@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { countWords, ESSAY_TASKS } from "./essay";
 import { ESSAY_MODELS, modelEssayFor } from "./essay-models";
-import { assessDebateEscalation, clock, examReadiness, exercisePoints, FORM_SPEC, isSpeakingTyped, outOf25, PAPER, PO_STANDARD_CONSIGNE, realScore25, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speakerIndex, speechChunks, speechTurns, SPEAKING_SUBJECTS, TOPICS, topicOf, weigh } from "./exam";
+import { assessDebateEscalation, checkProblematiqueDraft, clock, examReadiness, exercisePoints, FORM_SPEC, isSpeakingTyped, outOf25, PAPER, PO_STANDARD_CONSIGNE, PROBLEMATIQUE_TIPS, realScore25, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speakerIndex, speechChunks, speechTurns, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, weigh } from "./exam";
 import { SPEAKING_PRESETS, speakingFollowUpsOf, speakingPresetOf } from "./speaking-presets";
 
 test("topics, subjects and essay tasks refer to topics that exist", () => {
@@ -172,4 +172,14 @@ test("SYS-4: all 8 built-in B2 essay models (>=250 words) and 12 speaking preset
     assert.ok(speakingFollowUpsOf(s.id).length >= 6, s.id);
     assert.equal(sp.unverified, true);
   }
+});
+
+test("TALK_PLAN, PROBLEMATIQUE_TIPS and checkProblematiqueDraft catch copy-paste or non-question drafts", () => {
+  assert.ok(TALK_PLAN.length >= 6 && PROBLEMATIQUE_TIPS.length >= 4);
+  const doc = SPEAKING_SUBJECTS[0].doc;
+  const good = checkProblematiqueDraft("Dans quelle mesure les entreprises doivent-elles encadrer le travail à distance sans nuire à la cohésion des équipes ?", doc);
+  assert.equal(good.ok, true);
+  const badCopy = checkProblematiqueDraft("Plusieurs grands groupes français rappellent désormais leurs salariés au bureau.", doc);
+  assert.equal(badCopy.ok, false);
+  assert.ok(badCopy.notes.length >= 2);
 });

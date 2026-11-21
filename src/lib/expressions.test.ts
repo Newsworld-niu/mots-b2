@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { answersOf, checkExpr, EXPR_BY_ID, EXPR_GROUPS, EXPR_ID, EXPRESSIONS, filledEx, gapOf, maskOf, type Expression } from "./expressions.ts";
+import { answersOf, checkExpr, DEBATE_PHRASE_FNS, debatePhrases, EXPR_BY_ID, EXPR_GROUPS, EXPR_ID, EXPRESSIONS, filledEx, gapOf, maskOf, type Expression } from "./expressions.ts";
 import { TOPICS } from "./exam.ts";
 import { COLLOCATIONS } from "./expressions-more.ts";
 
@@ -63,4 +63,12 @@ test("another connector of the same function is a near miss, not a different fun
     { id: "reg-b", group: "reg", fn: "x", fr: "b", zh: "b", ex: "[b]", exZh: "b" },
   ];
   assert.equal(checkExpr("b", fake[0], fake).verdict, "wrong");
+});
+
+test("speaking problématique and debate phrases provide at least 25 valid cards", () => {
+  const groups = debatePhrases();
+  assert.equal(groups.length, DEBATE_PHRASE_FNS.length);
+  const debateCount = groups.reduce((n, [, xs]) => n + xs.length, 0);
+  const probCount = EXPRESSIONS.filter((e) => e.group === "arg" && e.fn.includes("problématique")).length;
+  assert.ok(debateCount + probCount >= 28, `expected >= 28 oral/debate cards, got ${debateCount + probCount}`);
 });

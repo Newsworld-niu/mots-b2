@@ -78,6 +78,19 @@ export const EXPRESSIONS: Expression[] = [
 
 export const EXPR_BY_ID = new Map(EXPRESSIONS.map((e) => [e.id, e]));
 
+/** Oral debate & problématique extraction categories shown in the speaking studio cheat sheet. */
+export const DEBATE_PHRASE_FNS = [
+  "反驳、让步论证",
+  "辩论 · 反驳与质询",
+  "辩论 · 让步与限定",
+  "辩论 · 澄清与重述",
+  "口语 · 思考填充语",
+] as const;
+
+/** Oral debate cards grouped by function, drawn from EXPRESSIONS. */
+export const debatePhrases = (): [fn: string, Expression[]][] =>
+  DEBATE_PHRASE_FNS.map((fn) => [fn, EXPRESSIONS.filter((e) => e.group === "arg" && e.fn === fn)] as [string, Expression[]]).filter(([, xs]) => xs.length > 0);
+
 /** Card ids in the progress: group prefix and slug. */
 export const EXPR_ID = /^(conn|arg|col|reg|lettre)-[a-z0-9-]{1,50}$/;
 
