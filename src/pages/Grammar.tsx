@@ -25,7 +25,7 @@ import {
 import { go } from "../lib/router";
 import { cue } from "../lib/sound";
 import { hashSeed, shuffle } from "../lib/text";
-import { duePoints, ESSAY_TAG, essayErrors, gradePoint, mineDrills, missingPrereqs, nextPoint, pickDrills, REVIEW_ROUND, ROUND, skipDrill, tagKey, untouchedWithErrors } from "../store/grammar";
+import { duePoints, ESSAY_TAG, essayErrors, gradePoint, mineDrills, missingPrereqs, nextPoint, pickDrills, REVIEW_ROUND, ROUND, shouldAmendRewrite, skipDrill, tagKey, untouchedWithErrors } from "../store/grammar";
 import { Rating } from "../store/srs";
 import { store, useStore } from "../store/store";
 import { Speak } from "../ui/Speak";
@@ -593,7 +593,9 @@ function Marked({ s, b, with: w }: { s: string; b: [number, number]; with?: stri
 function Feedback({ point, drill, pending, onNext, onAmend }: { point: GrammarPoint; drill: Drill; pending: Pending; onNext: () => void; onAmend: () => void }) {
   const [skipped, setSkipped] = useState(false);
   const ai = useAiConfig();
-  const [checking, setChecking] = useState<"idle" | "busy" | { verdict: string; why: string; corrected: string } | "error">("idle");
+  const [checking, setChecking] = useState<"idle" | "busy" | { verdict: "correct" | "almost" | "wrong"; why: string; corrected: string } | "error">("idle");
+  const [retryValue, setRetryValue] = useState("");
+  const [retriedOk, setRetriedOk] = useState(false);
   const ok = pending.result !== "wrong";
   const mine = drill.g === ESSAY_TAG;
   const verdict = pending.result === "right" ? "答对了" : pending.result === "accent" ? "字母对了，注意音符" : "没关系，记住它";
@@ -603,12 +605,19 @@ function Feedback({ point, drill, pending, onNext, onAmend }: { point: GrammarPo
     if (drill.k !== "x") return;
     setChecking("busy");
     try {
-      const r = await checkRewrite({ given: drill.q, task: drill.h, reference: drill.s, answer: pending.value });
+      const req = { given: drill.q, task: drill.h, reference: drill.s, answer: pending.value, pointTitle: point.title };
+      const r = await checkRewrite(req);
       setChecking(r);
-      if (r.verdict !== "wrong") onAmend();
+      if (shouldAmendRewrite(r.verdict)) onAmend();
     } catch {
       setChecking("error");
     }
+  };
+  const checkRetry = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (drill.k !== "x" || typeof checking !== "object") return;
+    const targets = [checking.corrected, ...drill.a].filter(Boolean);
+    if (checkTyped(retryValue, targets) === "right") setRetriedOk(true);
   };
   return (
     <div className={`conj-feedback ${ok ? "is-right" : "is-wrong"}`} role="status">
@@ -657,16 +666,36 @@ function Feedback({ point, drill, pending, onNext, onAmend }: { point: GrammarPo
       {drill.k === "x" && !ok && (
         <div className="gram-amend">
           {typeof checking === "object" ? (
-            <p className="gram-ai-verdict">
-              AI：{checking.verdict === "correct" ? "你的句子也对。" : checking.verdict === "almost" ? "转换对了，有个小错。" : "还不对。"}
-              {checking.why}
-              {checking.corrected && checking.corrected !== pending.value && (
-                <>
-                  {" "}
-                  改正：<span lang="fr">{checking.corrected}</span>
-                </>
+            <div className="gram-ai-verdict">
+              <p>
+                AI：{checking.verdict === "correct" ? "你的句子也对。" : checking.verdict === "almost" ? "转换对了，有个小错（保留错误权重，请修正重输）。" : "还不对。"}
+                {checking.why}
+                {checking.corrected && checking.corrected !== pending.value && (
+                  <>
+                    {" "}
+                    改正：<span lang="fr">{checking.corrected}</span>
+                  </>
+                )}
+              </p>
+              {checking.verdict === "almost" && (
+                retriedOk ? (
+                  <p className="muted small">已重输巩固 ✓（仍计入本次错题权重以便近期巩固）</p>
+                ) : (
+                  <form className="gram-almost-retry" onSubmit={checkRetry}>
+                    <input
+                      value={retryValue}
+                      onChange={(e) => setRetryValue(e.target.value)}
+                      placeholder="按改正后的句子重输一遍"
+                      aria-label="重输改正后的句子"
+                      lang="fr"
+                    />
+                    <button type="submit" className="btn btn-ghost btn-sm" disabled={!retryValue.trim()}>
+                      检查重输
+                    </button>
+                  </form>
+                )
               )}
-            </p>
+            </div>
           ) : (
             <>
               {ready.text(ai) && (

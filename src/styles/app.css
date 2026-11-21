@@ -8876,3 +8876,8 @@ button.prep-pill:hover { border-color: var(--ink-4); color: var(--ink); }
 .disc-explanations li.is-ok { border-left-color: var(--sage, #4c8c6b); }
 .disc-explanations li.is-bad { border-left-color: var(--terra); }
 .disc-explanations li p { margin: 0; }
+.gram-almost-retry { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; align-items: center; }
+.gram-almost-retry input {
+  flex: 1 1 220px; padding: 6px 10px; border-radius: 10px; border: 1px solid var(--line-strong, var(--line));
+  background: var(--card); color: var(--ink); font: inherit; font-size: 14px;
+}

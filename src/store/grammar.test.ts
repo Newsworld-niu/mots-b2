@@ -3,7 +3,7 @@ import fs from "node:fs";
 import { test } from "node:test";
 import type { GrammarData } from "../lib/grammar.ts";
 import { DISCOURSE_EXERCISES } from "../lib/grammar-discourse.ts";
-import { nextPoint } from "./grammar.ts";
+import { nextPoint, roundGrade, shouldAmendRewrite } from "./grammar.ts";
 import { review, Rating } from "./srs.ts";
 import { emptyProgress } from "./store.ts";
 
@@ -39,4 +39,15 @@ test("PE-7: discourse exercises cover B1/B2 multi-clause grammar with valid poin
       assert.ok(slot.options.includes(slot.answer[0]));
     }
   }
+});
+
+test("PE-8: only exact 'correct' rewrite verdict amends answer; 'almost' retains error weight for SRS", () => {
+  assert.equal(shouldAmendRewrite("correct"), true);
+  assert.equal(shouldAmendRewrite("almost"), false);
+  assert.equal(shouldAmendRewrite("wrong"), false);
+
+  // Keeping 1 error in a 4-drill review prevents Rating.Good interval inflation
+  assert.equal(roundGrade(0, 4), Rating.Good);
+  assert.equal(roundGrade(1, 4), Rating.Hard);
+  assert.equal(roundGrade(2, 4), Rating.Again);
 });

@@ -191,6 +191,9 @@ export function roundGrade(wrong: number, total: number): Grade {
   return Rating.Again;
 }
 
+/** Only `"correct"` amends a failed rewrite as error-free for SRS; `"almost"` retains error weight. */
+export const shouldAmendRewrite = (verdict: "correct" | "almost" | "wrong") => verdict === "correct";
+
 /** 这题有问题: never ask this drill again. */
 export function skipDrill(point: string, d: Drill) {
   const id = drillId(point, d);
