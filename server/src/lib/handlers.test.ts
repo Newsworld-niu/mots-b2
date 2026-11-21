@@ -157,6 +157,31 @@ describe("sync handlers", () => {
     );
     assert.equal(bogus.status, 403);
     assert.deepEqual(JSON.parse(bogus.body!), { error: "invalid_invite" });
+
+    const invRes = await handleRequest(
+      {
+        method: "POST",
+        path: "/api/admin/invites",
+        headers: { "x-admin-key": ENV.ADMIN_KEY },
+        body: JSON.stringify({ count: 1 }),
+      },
+      store,
+      ENV,
+    );
+    const raceCode = (JSON.parse(invRes.body!) as { invites: string[] }).invites[0];
+    const [r1, r2] = await Promise.all([
+      handleRequest(
+        { method: "POST", path: "/api/register", body: JSON.stringify({ inviteCode: raceCode }) },
+        store,
+        ENV,
+      ),
+      handleRequest(
+        { method: "POST", path: "/api/register", body: JSON.stringify({ inviteCode: raceCode }) },
+        store,
+        ENV,
+      ),
+    ]);
+    assert.deepEqual([r1.status, r2.status].sort((a, b) => a - b), [201, 403]);
   });
 
   it("returns 401 when bearer auth is missing, malformed, or unregistered", async () => {
@@ -266,6 +291,19 @@ describe("sync handlers", () => {
     );
     assert.equal(get304.status, 304);
     assert.equal(get304.body, undefined);
+
+    const getWildcard = await handleRequest(
+      {
+        method: "GET",
+        path: `/api/sync/${DATASET_ID}`,
+        headers: { ...auth, "If-None-Match": "*" },
+      },
+      store,
+      ENV,
+    );
+    assert.equal(getWildcard.status, 304);
+    assert.equal(getWildcard.headers.ETag, etag);
+    assert.equal(getWildcard.body, undefined);
 
     const getDifferentEtag = await handleRequest(
       {

@@ -27,7 +27,7 @@ export interface ObjStore {
   get(key: string, ifNoneMatch?: string): Promise<ObjGetResult | null | "not-modified">;
   put(key: string, body: string, cond?: ObjPutConditions): Promise<string>;
   list(prefix: string): Promise<ObjListItem[]>;
-  delete(key: string): Promise<void>;
+  delete(key: string): Promise<boolean>;
   exists(key: string): Promise<boolean>;
 }
 
@@ -150,9 +150,10 @@ export class BlobObjStore implements ObjStore {
     return out;
   }
 
-  async delete(key: string): Promise<void> {
+  async delete(key: string): Promise<boolean> {
     await this.ensureContainer();
-    await this.container.getBlockBlobClient(key).deleteIfExists();
+    const res = await this.container.getBlockBlobClient(key).deleteIfExists();
+    return res.succeeded;
   }
 
   async exists(key: string): Promise<boolean> {
@@ -220,8 +221,8 @@ export class MemoryObjStore implements ObjStore {
     return out;
   }
 
-  async delete(key: string): Promise<void> {
-    this.items.delete(key);
+  async delete(key: string): Promise<boolean> {
+    return this.items.delete(key);
   }
 
   async exists(key: string): Promise<boolean> {

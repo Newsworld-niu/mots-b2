@@ -204,10 +204,9 @@ async function handleRegister(
   }
 
   const inviteKey = `invites/${sha256hex(inviteCode)}`;
-  if (!(await store.exists(inviteKey))) {
+  if (!(await store.delete(inviteKey))) {
     return jsonResponse(baseHeaders, 403, { error: "invalid_invite" });
   }
-  await store.delete(inviteKey);
 
   const syncCode = "mb2_" + randomBytes(32).toString("base64url");
   const ns = sha256hex(syncCode);
@@ -288,7 +287,7 @@ async function handleGetSync(
   const ifNoneMatch = getHeader(req.headers, "if-none-match")?.trim() || undefined;
   const res = await store.get(
     `users/${ns}/${datasetId}/latest.json`,
-    ifNoneMatch,
+    ifNoneMatch === "*" ? undefined : ifNoneMatch,
   );
   if (res === "not-modified") {
     const headers: Record<string, string> = { ...baseHeaders };
@@ -299,6 +298,9 @@ async function handleGetSync(
   }
   if (res === null) {
     return jsonResponse(baseHeaders, 404, { error: "not_found" });
+  }
+  if (ifNoneMatch === "*") {
+    return { status: 304, headers: { ...baseHeaders, ETag: res.etag } };
   }
   return {
     status: 200,
