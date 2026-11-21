@@ -26,7 +26,6 @@ import { frdicUrl } from "../lib/frdic";
 import { getEntryById, loadMeta, loadSuggest, setLexdbFixtures } from "../lib/lexdb/load";
 import {
   damerauLevenshtein,
-  didYouMean,
   entryToSeed,
   isCjkQuery,
   searchDict,
@@ -597,17 +596,21 @@ export function Dict({ word, query }: { word?: string; query?: string }) {
                 {result && result.entries.length > 1 && (
                   <div className="dict-notice dict-homographs">
                     <span className="muted small">同形 / 相近词条：</span>
-                    {result.entries.map((e, i) => (
-                      <button
-                        key={e.id}
-                        type="button"
-                        className={`chip-btn ${i === selectedIdx ? "is-on" : ""}`}
-                        onClick={() => setSelectedIdx(i)}
-                      >
-                        <span lang="fr">{e.w}</span>
-                        {e.pos[0]?.p && <small> {e.pos[0].p}</small>}
-                      </button>
-                    ))}
+                    {result.entries.map((e, i) => {
+                      const isFormOrigin = lexdbFold(e.w) !== lexdbFold(word ?? query ?? "");
+                      return (
+                        <button
+                          key={e.id}
+                          type="button"
+                          className={`chip-btn ${i === selectedIdx ? "is-on" : ""}`}
+                          onClick={() => setSelectedIdx(i)}
+                        >
+                          <span lang="fr">{e.w}</span>
+                          {e.pos[0]?.p && <small> {e.pos[0].p}</small>}
+                          {isFormOrigin && <small> · 变位原形</small>}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
 
