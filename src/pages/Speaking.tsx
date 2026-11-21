@@ -7,14 +7,14 @@ import { useGrammar } from "../atlas/grammar";
 import { TARGET_LANG } from "../config";
 import { play, stopAudio } from "../lib/audio";
 import { CONNECTORS, countWords, CRITERION_CHECK, CRITERION_LABEL, LEVEL_LABEL, LEVELS, totalScore } from "../lib/essay";
-import { assessDebateEscalation, clock, outOf25, PO_STANDARD_CONSIGNE, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
+import { assessDebateEscalation, clock, isSpeakingTyped, MAX_EXAM_LOG, PO_STANDARD_CONSIGNE, realScore25, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
 import { isNative } from "../lib/native";
 import { href } from "../lib/router";
 import { duck } from "../lib/sound";
 import { canDictate, dictate, pickBrowserFrenchVoice, pickExaminerVoice } from "../lib/speech";
 import { useTimer } from "../lib/timer";
-import { logExam, saveSpeakingCorrections } from "../store/essays";
-import { useStore } from "../store/store";
+import { saveSpeakingCorrections } from "../store/essays";
+import { store, useStore } from "../store/store";
 import { Marking } from "../ui/Marking";
 import { phonoLevel } from "../lib/pronunciation";
 import type { Take } from "../lib/recorder";
@@ -101,6 +101,11 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [voiceOffset, setVoiceOffset] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [prepExpired, setPrepExpired] = useState(false);
+  const [monologueVoice, setMonologueVoice] = useState(false);
+  const [debateVoice, setDebateVoice] = useState(false);
+  const [loggedAt, setLoggedAt] = useState<number | null>(null);
+  const [gradedTyped, setGradedTyped] = useState(false);
+  const voiceWordsRef = useRef(0);
   const recorder = useRecorder();
   const pron = useAssess();
   const stopRec = useRef<(() => void) | null>(null);
@@ -133,12 +138,24 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   useEffect(() => {
     if (phase === "prep" && prep.sec === 0 && !prep.running) setPrepExpired(true);
   }, [phase, prep.sec, prep.running]);
+  const azurePhonoNow = pron.state === "done" ? phonoLevel(pron.result) : null;
+  useEffect(() => {
+    if (phase !== "result" || !fb || !loggedAt || azurePhonoNow === null) return;
+    const nextScore = totalScore(fb) + azurePhonoNow;
+    const cur = store.get().progress.examLog?.find((item) => item.part === "speak" && item.at === loggedAt);
+    if (!cur || (cur.total === 25 && cur.score === nextScore)) return;
+    store.progress((p) => ({
+      ...p,
+      examLog: (p.examLog ?? []).map((item) => (item.part === "speak" && item.at === loggedAt ? { ...item, score: nextScore, total: 25 } : item)),
+    }));
+  }, [phase, fb, loggedAt, azurePhonoNow]);
 
   /** Turn speech into text, appended to what `into` already holds. */
-  const hear = (into: (text: string) => void, start = "") => {
+  const hear = (into: (text: string) => void, start = "", onVoice?: (final: string) => void) => {
     setListening(true);
     stopRec.current = dictate(
       (final, guess) => {
+        if (final.trim()) onVoice?.(final);
         into(start + final);
         setInterim(guess);
       },
@@ -182,6 +199,11 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setVoiceOffset(Math.floor(Math.random() * 12));
     setShowHint(false);
     setPrepExpired(false);
+    setMonologueVoice(false);
+    setDebateVoice(false);
+    setLoggedAt(null);
+    setGradedTyped(false);
+    voiceWordsRef.current = 0;
     pron.reset();
     setSpoke(0);
     setPhase("prep");
@@ -195,7 +217,10 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     if (recorder.supported) await recorder.start();
     talk.start();
     if (!dictation) return;
-    hear(setSaid);
+    hear(setSaid, "", (final) => {
+      setMonologueVoice(true);
+      voiceWordsRef.current = countWords(final);
+    });
   };
 
   const endTalk = async () => {
@@ -208,7 +233,11 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     if (!t || !pron.available) return;
     const r = await pron.run(t.blob);
     // no recogniser in this browser (Safari on iOS, the app): Azure's transcript stands in for the AI marking
-    if (r?.text) setSaid((s) => (s.trim() ? s : r.text));
+    if (r?.text?.trim()) {
+      setMonologueVoice(true);
+      voiceWordsRef.current = Math.max(voiceWordsRef.current, countWords(r.text));
+      setSaid((s) => (s.trim() ? s : r.text));
+    }
   };
 
   /** Ask the examiner's next question and read it aloud. */
@@ -224,7 +253,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       setAsking(false);
       const r = await speakExaminer(q, so.length, voiceOffset, ai, c.signal);
       // as in the room: the examiner stops, the candidate answers
-      if (r !== "stopped" && dictation && !stopRec.current && !c.signal.aborted) hear(setAnswer);
+      if (r !== "stopped" && dictation && !stopRec.current && !c.signal.aborted) hear(setAnswer, "", () => setDebateVoice(true));
     } catch (err) {
       if (c.signal.aborted) return;
       setAsking(false);
@@ -240,6 +269,16 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
 
   const setAnswer = (a: string) => setTurns((ts) => ts.map((t, k) => (k === ts.length - 1 ? { ...t, a } : t)));
 
+  const selectPhono = (v: number) => {
+    setPhono(v);
+    if (!fb || !loggedAt) return;
+    const nextScore = totalScore(fb) + v;
+    store.progress((p) => ({
+      ...p,
+      examLog: (p.examLog ?? []).map((item) => (item.part === "speak" && item.at === loggedAt ? { ...item, score: nextScore, total: 25 } : item)),
+    }));
+  };
+
   const assess = async (so: DebateTurn[]) => {
     if (!subject || !said.trim()) return;
     quiet();
@@ -248,11 +287,43 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     ctrl.current = c;
     setPhase("grading");
     try {
-      const r = await gradeSpeaking({ subject, transcript: said, turns: so.filter((t) => t.a.trim()), points: points() }, c.signal);
+      const answered = so.filter((t) => t.a.trim());
+      const spokenWords = countWords(said);
+      const monoSec = Math.max(spoke, talkTake?.seconds ?? 0);
+      const isTyped = isSpeakingTyped({
+        monologueVoice,
+        voiceMonologueWords: voiceWordsRef.current,
+        totalMonologueWords: spokenWords,
+        answeredTurns: answered.length,
+        debateVoice,
+      });
+      const payload = {
+        subject,
+        transcript: said,
+        turns: answered,
+        points: points(),
+        monologueWords: spokenWords,
+        monologueSec: monoSec,
+        debateSec: debate.sec,
+        typed: isTyped,
+      };
+      const r = await gradeSpeaking(payload, c.signal);
       if (c.signal.aborted) return;
       setFb(r);
       if (r.corrections.length) saveSpeakingCorrections(subject.title, r.corrections);
-      logExam({ part: "speak", what: subject.id.startsWith("ai-") ? subject.topic : subject.id, score: totalScore(r), total: 20 });
+      setGradedTyped(isTyped);
+      const currentAzure = pron.state === "done" ? phonoLevel(pron.result) : null;
+      const effectivePhono = currentAzure ?? phono;
+      const hasProno = effectivePhono !== null;
+      const score = totalScore(r) + (effectivePhono ?? 0);
+      const total = hasProno ? 25 : 20;
+      const what = subject.id.startsWith("ai-") ? subject.topic : subject.id;
+      const at = Date.now();
+      setLoggedAt(at);
+      store.progress((p) => ({
+        ...p,
+        examLog: [{ part: "speak" as const, what, score, total, ...(isTyped ? { typed: true } : {}), at }, ...(p.examLog ?? [])].slice(0, MAX_EXAM_LOG),
+      }));
       setPhase("result");
     } catch (err) {
       if (c.signal.aborted) return;
@@ -284,7 +355,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
           <h1 className="display">想清楚，再开口。</h1>
           <p className="lede">和考试一样：抽两个题选一个，准备 30 分钟，先连续说 5–7 分钟（指出材料提出的问题，表明并论证自己的看法），再和考官辩论 10–13 分钟。这里由 AI 扮考官：它把问题说出来，你开口回答，它接着你的话追问，直到你结束。</p>
           <p className="muted">
-            批改用官方评分表：独白、互动、词汇、语法由 AI 根据文字打分（每项 0／1／3／5）；第五项发音从文字里看不出来，由你对照标准自评。
+            批改用官方评分表：独白、互动、词汇、语法由 AI 根据文字打分（每项 0／1／3／5，共 20 分）；第五项发音由 Azure 语音评测或你对照标准自评（5 分）。未评第五项时仅显示「不含发音 20 分制」，不会按比例折算 25 分；纯键盘输入不计入 25 分口语曲线。
             {dictation ? "语音识别在浏览器里完成，需要联网和麦克风权限。" : "这个浏览器不支持语音识别：可以对着计时说，然后把说的内容打出来（设置了 Azure 语音会用它听出的文字）；用 Chrome、Edge 或 Safari 可以自动转文字。"}
             {recorder.supported ? "独白会录音，只留在这次练习里，可以回放；设置了 Azure 语音还能给发音、流利度和语调打分，代替自评。" : ""}
           </p>
@@ -354,23 +425,32 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
             )}
           </div>
         )}
-        {log.length > 0 && phase === "pick" && (
-          <section className="essay-level">
-            <h3 className="eyebrow">最近的成绩（AI 评的四项，满分 20）</h3>
-            <ul className="essay-history">
-              {log.slice(0, 8).map((r, k) => (
-                <li key={k}>
-                  <span>
-                    {day(r.at)} · {SPEAKING_SUBJECTS.find((s) => s.id === r.what)?.title ?? topicOf(r.what)?.zh ?? r.what}
-                  </span>
-                  <span className="muted">
-                    {r.score}/{r.total} · 折合 {outOf25(r)}/25
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        {log.length > 0 && phase === "pick" && (() => {
+          const realScores = log.map(realScore25).filter((x): x is number => x !== null);
+          const avg25 = realScores.length ? (realScores.reduce((a, b) => a + b, 0) / realScores.length).toFixed(1) : null;
+          return (
+            <section className="essay-level">
+              <h3 className="eyebrow">
+                最近的成绩{avg25 !== null ? `（真实 25 分制均分 ${avg25}/25）` : "（不含发音的 20 分制与打字记录不计入 25 分制）"}
+              </h3>
+              <ul className="essay-history">
+                {log.slice(0, 8).map((r, k) => {
+                  const s25 = realScore25(r);
+                  return (
+                    <li key={k}>
+                      <span>
+                        {day(r.at)} · {SPEAKING_SUBJECTS.find((s) => s.id === r.what)?.title ?? topicOf(r.what)?.zh ?? r.what}
+                      </span>
+                      <span className="muted">
+                        {s25 !== null ? `${s25}/25` : r.typed ? `${r.score}/${r.total} · 打字（不计入 25 分制）` : `${r.score}/20 · 不含发音 20 分制`}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          );
+        })()}
       </div>
     );
   }
@@ -594,7 +674,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                       className="btn btn-ghost"
                       onClick={() => {
                         stopAudio();
-                        hear(setAnswer, turn.a ? `${turn.a.trim()} ` : "");
+                        hear(setAnswer, turn.a ? `${turn.a.trim()} ` : "", () => setDebateVoice(true));
                       }}
                     >
                       <Mic size={16} /> {turn.a ? "接着说" : "开口回答"}
@@ -654,6 +734,12 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         {phase === "result" && fb && (
           <>
             <Marking fb={fb} pointTitle={pointTitle} from={`口语 · ${subject.title}`} extra={{ key: "phono", score: azurePhono ?? phono }} />
+            {(azurePhono ?? phono) === null && (
+              <p className="muted small">
+                当前为「不含发音 20 分制」（未按比例折算 25 分，也不会混入 25 分制曲线）；完成下方第 5 项发音自评后计入 25 分总分。
+              </p>
+            )}
+            {gradedTyped && <p className="muted small">本次练习含纯键盘输入，已标记为「打字」，不计入 25 分口语成绩曲线。</p>}
             {pron.state === "done" && pron.result && <PronReport result={pron.result} title="发音和语调（第五项，Azure 评测）" />}
             {azurePhono === null && (
               <div className="essay-box">
@@ -661,7 +747,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                 <p className="muted small">{CRITERION_CHECK.phono} 官方标准：低于 B2 是「大体听得懂，语调和重音还有不自然」；B2 是「语调、重音、发音清楚，偶尔的问题不影响交流」；B2+ 是「能变化语调来表达意思，能自己纠正」。</p>
                 <div className="segmented">
                   {LEVELS.map((v) => (
-                    <button key={v} className={phono === v ? "is-on" : ""} onClick={() => setPhono(v)} aria-pressed={phono === v}>
+                    <button key={v} className={phono === v ? "is-on" : ""} onClick={() => selectPhono(v)} aria-pressed={phono === v}>
                       {v} · {LEVEL_LABEL[v]}
                     </button>
                   ))}

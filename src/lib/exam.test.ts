@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { countWords, ESSAY_TASKS } from "./essay";
 import { ESSAY_MODELS, modelEssayFor } from "./essay-models";
-import { assessDebateEscalation, clock, examReadiness, exercisePoints, FORM_SPEC, outOf25, PAPER, PO_STANDARD_CONSIGNE, realScore25, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speakerIndex, speechChunks, speechTurns, SPEAKING_SUBJECTS, TOPICS, topicOf, weigh } from "./exam";
+import { assessDebateEscalation, clock, examReadiness, exercisePoints, FORM_SPEC, isSpeakingTyped, outOf25, PAPER, PO_STANDARD_CONSIGNE, realScore25, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speakerIndex, speechChunks, speechTurns, SPEAKING_SUBJECTS, TOPICS, topicOf, weigh } from "./exam";
 import { SPEAKING_PRESETS, speakingFollowUpsOf, speakingPresetOf } from "./speaking-presets";
 
 test("topics, subjects and essay tasks refer to topics that exist", () => {
@@ -84,7 +84,7 @@ test("sanitizeSpeakingFeedback uses the four criteria an AI can mark, at the gri
   assert.equal(sanitizeSubject({ title: "T ?", doc: "court" }, "travail"), null);
 });
 
-test("sanitizeExamLog, outOf25, realScore25, examReadiness and clock", () => {
+test("sanitizeExamLog, outOf25, realScore25, examReadiness, isSpeakingTyped and clock", () => {
   const ok = { part: "listen" as const, what: "travail", score: 4, total: 6, at: 1 };
   const essay = { part: "essay" as const, what: "courrier-voitures", score: 17, total: 25, at: 2 };
   const speakTyped = { part: "speak" as const, what: "s-ia", score: 15, total: 25, at: 3, typed: true };
@@ -92,10 +92,15 @@ test("sanitizeExamLog, outOf25, realScore25, examReadiness and clock", () => {
   assert.equal(sanitizeExamLog([]), undefined);
   assert.equal(outOf25({ score: 4, total: 6 }), 16.7);
   assert.equal(outOf25({ score: 13.5, total: 20 }), 16.9);
+  assert.equal(realScore25({ part: "listen", score: 4, total: 6 }), 16.7);
   assert.equal(realScore25({ part: "speak", score: 14, total: 20 }), null);
   assert.equal(realScore25({ part: "speak", score: 18, total: 25, typed: true }), null);
   assert.equal(realScore25({ part: "speak", score: 18, total: 25 }), 18);
   assert.equal(realScore25({ part: "essay", score: 17, total: 25 }), 17);
+  assert.equal(isSpeakingTyped({ monologueVoice: false, voiceMonologueWords: 0, totalMonologueWords: 300, answeredTurns: 0, debateVoice: false }), true);
+  assert.equal(isSpeakingTyped({ monologueVoice: true, voiceMonologueWords: 280, totalMonologueWords: 300, answeredTurns: 3, debateVoice: false }), true);
+  assert.equal(isSpeakingTyped({ monologueVoice: true, voiceMonologueWords: 50, totalMonologueWords: 300, answeredTurns: 0, debateVoice: false }), true);
+  assert.equal(isSpeakingTyped({ monologueVoice: true, voiceMonologueWords: 280, totalMonologueWords: 300, answeredTurns: 3, debateVoice: true }), false);
 
   // Full 4-part readiness: total /100, gap to 75, and <5/25 elimination guard
   const r1 = examReadiness([
@@ -120,7 +125,6 @@ test("sanitizeExamLog, outOf25, realScore25, examReadiness and clock", () => {
   assert.equal(r2.gapToTarget, 0);
   assert.equal(r2.passed, true);
   assert.equal(r2.eliminated.length, 0);
-
   assert.equal(clock(245), "4:05");
   assert.equal(clock(-3), "0:00");
 });

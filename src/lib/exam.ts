@@ -553,7 +553,7 @@ export interface ExamResult {
   score: number;
   total: number;
   at: number;
-  /** Speaking: true when the candidate typed instead of speaking into a microphone. */
+  /** Speaking only: true when the candidate typed instead of speaking by voice (excluded from /25 curve). */
   typed?: boolean;
 }
 
@@ -567,7 +567,14 @@ export function sanitizeExamLog(v: unknown): ExamResult[] | undefined {
     const e = x as Record<string, unknown>;
     if ((e.part !== "listen" && e.part !== "read" && e.part !== "essay" && e.part !== "speak") || typeof e.what !== "string" || typeof e.at !== "number") continue;
     if (typeof e.score !== "number" || typeof e.total !== "number" || !(e.total > 0) || e.score < 0 || e.score > e.total) continue;
-    out.push({ part: e.part, what: e.what.slice(0, 40), score: e.score, total: e.total, at: e.at, ...(e.typed === true ? { typed: true } : {}) });
+    out.push({
+      part: e.part,
+      what: e.what.slice(0, 40),
+      score: e.score,
+      total: e.total,
+      at: e.at,
+      ...(e.part === "speak" && e.typed === true ? { typed: true } : {}),
+    });
   }
   return out.length ? out.slice(0, MAX_EXAM_LOG) : undefined;
 }
@@ -575,9 +582,13 @@ export function sanitizeExamLog(v: unknown): ExamResult[] | undefined {
 /** A result as the exam counts it: out of 25. */
 export const outOf25 = (r: { score: number; total: number }) => Math.round((r.score / r.total) * 250) / 10;
 
-/** Validated /25 score for official 100-point aggregation: excludes text-only (/20) or typed speaking entries. */
+/**
+ * Real /25 exam score for curves and dashboards.
+ * Speaking sessions without a 5th pronunciation criterion (total !== 25) or typed sessions are never linearly
+ * scaled from /20 to /25 and return null.
+ */
 export function realScore25(r: Pick<ExamResult, "part" | "score" | "total" | "typed">): number | null {
-  if (r.part === "speak" && (r.total !== 25 || r.typed)) return null;
+  if (r.part === "speak" && (r.total !== 25 || r.typed === true)) return null;
   return outOf25(r);
 }
 
@@ -636,6 +647,20 @@ export function examReadiness(log: ExamResult[] | undefined, target = 75): ExamR
   const passed = exact100 !== null ? exact100 >= 50 && eliminated.length === 0 : null;
   const weakest = scored.length ? [...scored].sort((a, b) => (a.score25 ?? 0) - (b.score25 ?? 0))[0] : null;
   return { parts, completed, exact100, estimated100, target, gapToTarget, eliminated, passed, weakest };
+}
+
+/** Determine whether a speaking submission relied on keyboard typing instead of speech recognition / Azure STT. */
+export function isSpeakingTyped(opts: {
+  monologueVoice: boolean;
+  voiceMonologueWords: number;
+  totalMonologueWords: number;
+  answeredTurns: number;
+  debateVoice: boolean;
+}): boolean {
+  if (!opts.monologueVoice) return true;
+  if (opts.answeredTurns > 0 && !opts.debateVoice) return true;
+  const allowedEdits = Math.max(40, Math.round(opts.voiceMonologueWords * 0.4));
+  return opts.totalMonologueWords > opts.voiceMonologueWords + allowedEdits;
 }
 
 /** Minutes and seconds, 4:05. */
