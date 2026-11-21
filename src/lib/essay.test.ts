@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, essayLevelOf, ESSAY_TASKS, GENRE_LABEL, genresFor, hasFormalRegisterViolation, levelLabel, maxScore, pickAiTaskOptions, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_PLANS, essayLevelOf, ESSAY_TASKS, GENRE_LABEL, genresFor, hasFormalRegisterViolation, LETTER_FORMULAS, LETTER_TEMPLATE, levelLabel, maxScore, pickAiTaskOptions, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
 
 test("countWords counts elided and hyphenated words once", () => {
   assert.equal(countWords("L'ami de Paul est arrivé."), 5);
@@ -301,4 +301,25 @@ test("PE-5 B2 genre pool excludes mail/recit, supports article and doc lettre pr
   assert.ok(articleTask);
   assert.equal(articleTask.genre, "article");
   assert.deepEqual(articleTask.words, [250, 350]);
+});
+
+test("PE-6 ESSAY_PLANS provide dialectique/analytique structures, LETTER_TEMPLATE has full layout, and Cordialement is removed/warned", () => {
+  assert.equal(ESSAY_PLANS.dialectique.steps.length, 4);
+  assert.ok(ESSAY_PLANS.dialectique.steps[0].zh.includes("Annonce du plan"));
+  assert.ok(ESSAY_PLANS.dialectique.steps[1].zh.includes("Thèse"));
+  assert.ok(ESSAY_PLANS.dialectique.steps[2].zh.includes("Antithèse"));
+  assert.ok(ESSAY_PLANS.dialectique.steps[3].zh.includes("Synthèse"));
+
+  assert.equal(ESSAY_PLANS.analytique.steps.length, 4);
+  assert.ok(ESSAY_PLANS.analytique.steps[1].zh.includes("Causes"));
+  assert.ok(ESSAY_PLANS.analytique.steps[2].zh.includes("Conséquences"));
+  assert.ok(ESSAY_PLANS.analytique.steps[3].zh.includes("Solutions"));
+
+  const parts = LETTER_TEMPLATE.map((r) => r.part).join(" ");
+  assert.ok(parts.includes("寄信人") && parts.includes("收信人") && parts.includes("事由") && parts.includes("落款") && parts.includes("署名"));
+
+  const closings = LETTER_FORMULAS.find((g) => g.zh === "落款套语")!;
+  assert.ok(closings.fr.every((f) => !/cordialement/i.test(f)));
+  const warn = LETTER_FORMULAS.find((g) => g.zh.includes("禁忌"));
+  assert.ok(warn && warn.fr.some((f) => f.includes("Cordialement")));
 });

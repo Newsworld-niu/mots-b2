@@ -10,6 +10,7 @@ import {
   CRITERIA,
   CRITERION_CHECK,
   CRITERION_LABEL,
+  ESSAY_PLANS,
   ESSAY_TASKS,
   FORMAL_GENRES,
   GENRE_LABEL,
@@ -17,6 +18,7 @@ import {
   genresFor,
   isAiTask,
   LETTER_FORMULAS,
+  LETTER_TEMPLATE,
   MAX_ESSAY_LENGTH,
   maxScore,
   pickAiTaskOptions,
@@ -25,6 +27,7 @@ import {
   type EssayFeedback,
   type EssayTask,
   type Genre,
+  type PlanKind,
   type SavedEssay,
 } from "../lib/essay";
 import { clock, topicOf } from "../lib/exam";
@@ -123,6 +126,8 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
   const [genreFilter, setGenreFilter] = useState<Genre | "all">("all");
   // 范文
   const [modeling, setModeling] = useState(false);
+  // 提纲结构切换（本题提纲 / 辩证 / 分析）
+  const [planKind, setPlanKind] = useState<PlanKind>("task");
   // 模考模式（开启后自动 60 分钟倒计时，到时自动锁卷）
   const [examMode, setExamMode] = useState(false);
   const input = useRef<HTMLTextAreaElement>(null);
@@ -138,6 +143,7 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
 
   const open = (task: EssayTask, initial = readDraft(task.id)) => {
     setText(initial);
+    setPlanKind("task");
     if (examMode) timer.start(60 * 60);
     else timer.stop();
     setView({ at: "write", task });
@@ -737,8 +743,22 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
         <div className="essay-help">
           <details open>
             <summary>提纲</summary>
+            <div className="segmented" role="group" aria-label="提纲模式">
+              {(
+                [
+                  ["task", "本题提纲"],
+                  ["dialectique", ESSAY_PLANS.dialectique.label],
+                  ["analytique", ESSAY_PLANS.analytique.label],
+                ] as const
+              ).map(([k, label]) => (
+                <button key={k} type="button" className={planKind === k ? "is-on" : ""} aria-pressed={planKind === k} onClick={() => setPlanKind(k)}>
+                  {label}
+                </button>
+              ))}
+            </div>
+            {planKind !== "task" && <p className="muted small">{ESSAY_PLANS[planKind].desc}</p>}
             <ol className="essay-plan">
-              {task.plan.map((p, k) => (
+              {(planKind === "task" ? task.plan : ESSAY_PLANS[planKind].steps).map((p, k) => (
                 <li key={k}>
                   <b>{p.zh}</b>
                   <span lang="fr">{p.fr}</span>
@@ -782,17 +802,33 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
             </dl>
           </details>
           {FORMAL_GENRES.includes(task.genre) && (
-            <details>
-              <summary>正式信件的套语</summary>
-              <dl className="essay-links">
-                {LETTER_FORMULAS.map((g) => (
-                  <div key={g.zh}>
-                    <dt>{g.zh}</dt>
-                    <dd lang="fr">{g.fr.join(" / ")}</dd>
-                  </div>
-                ))}
-              </dl>
-            </details>
+            <>
+              <details>
+                <summary>正式信函信头与格式模板</summary>
+                <dl className="essay-links">
+                  {LETTER_TEMPLATE.map((row) => (
+                    <div key={row.part}>
+                      <dt>{row.part}</dt>
+                      <dd lang="fr">
+                        {row.fr}
+                        {row.tip && <small className="muted">（{row.tip}）</small>}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+              <details>
+                <summary>正式信件的套语</summary>
+                <dl className="essay-links">
+                  {LETTER_FORMULAS.map((g) => (
+                    <div key={g.zh}>
+                      <dt>{g.zh}</dt>
+                      <dd lang="fr">{g.fr.join(" / ")}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+            </>
           )}
         </div>
 

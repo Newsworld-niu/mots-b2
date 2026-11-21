@@ -340,13 +340,75 @@ export const CONNECTORS: { zh: string; fr: string[] }[] = [
   { zh: "结尾", fr: ["en conclusion", "pour conclure", "en définitive", "finalement"] },
 ];
 
-/** Formulas of a formal letter. */
+/** Reusable argument structures learners can toggle between on B2 tasks. */
+export type PlanKind = "task" | "dialectique" | "analytique";
+
+export const ESSAY_PLANS: Record<Exclude<PlanKind, "task">, { label: string; desc: string; steps: { zh: string; fr: string }[] }> = {
+  dialectique: {
+    label: "Plan dialectique",
+    desc: "适合“利弊权衡 / 是否赞成”议题：正方论据 + 反方让步 + 综合立场。",
+    steps: [
+      {
+        zh: "引言（Accroche + Problématique + Annonce du plan）",
+        fr: "De nos jours, la question de… suscite de vifs débats. Dans quelle mesure… ? Pour y répondre, nous examinerons d'abord…, puis nous analyserons…, avant de proposer…",
+      },
+      {
+        zh: "正方（Thèse）：核心论点与具体例证",
+        fr: "D'une part, il convient de souligner que… En effet,… À titre d'exemple,…",
+      },
+      {
+        zh: "反方（Antithèse）：对立顾虑与边界条件",
+        fr: "D'autre part, certains estiment toutefois que… Certes,… Néanmoins, cet argument mérite d'être nuancé car…",
+      },
+      {
+        zh: "综合结论（Synthèse + Ouverture）",
+        fr: "Tout bien considéré, la solution réside dans un équilibre entre… En définitive,…",
+      },
+    ],
+  },
+  analytique: {
+    label: "Plan analytique",
+    desc: "适合“社会现象 / 成因—影响—对策”议题：现状剖析 + 多维后果 + 可行措施。",
+    steps: [
+      {
+        zh: "引言（Constat + Problématique + Annonce du plan）",
+        fr: "Force est de constater que… Dès lors, comment expliquer ce phénomène et quelles solutions envisager ? Nous verrons d'abord les causes…, puis les conséquences…, enfin les pistes d'action…",
+      },
+      {
+        zh: "成因（Causes）：体制、经济或习惯原因",
+        fr: "Cette évolution s'explique en premier lieu par… Par ailleurs,…",
+      },
+      {
+        zh: "影响（Conséquences）：对个人或社会的影响",
+        fr: "Une telle situation entraîne plusieurs conséquences majeures, notamment… Si rien n'est fait,…",
+      },
+      {
+        zh: "对策与结语（Solutions + Conclusion）",
+        fr: "Pour remédier à ce problème, il serait souhaitable de… En conclusion,…",
+      },
+    ],
+  },
+};
+
+/** Full DELF B2 formal letter layout template (sender, recipient, date/place, objet, closing). */
+export const LETTER_TEMPLATE: { part: string; fr: string; tip?: string }[] = [
+  { part: "寄信人（左上）", fr: "Prénom Nom / Adresse / Courriel", tip: "考试用虚构姓名（如 Camille Martin），勿写真实隐私" },
+  { part: "收信人（右上）", fr: "À l'attention de Monsieur le Maire / Madame la Directrice, Service / Organisme" },
+  { part: "时间地点（右上）", fr: "Lyon, le 15 mai 2026" },
+  { part: "事由（Objet）", fr: "Objet : Demande de… / Protestation concernant…", tip: "简短名词短语，不加句号" },
+  { part: "称呼（Appellation）", fr: "Madame, Monsieur,（或 Monsieur le Maire,）", tip: "后接逗号，另起一行首字母大写" },
+  { part: "正文结尾与落款（Formule de politesse）", fr: "Je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.", tip: "正式信件忌用 Cordialement / Bien à vous" },
+  { part: "署名（右下）", fr: "Prénom Nom" },
+];
+
+/** Formulas of a formal letter (Cordialement removed with explicit warning). */
 export const LETTER_FORMULAS: { zh: string; fr: string[] }[] = [
   { zh: "称呼", fr: ["Madame, Monsieur,", "Madame la Directrice,", "Monsieur le Maire,"] },
   { zh: "开头", fr: ["Je me permets de vous écrire afin de…", "Suite à votre annonce du…,", "Je vous écris au sujet de…"] },
   { zh: "请求", fr: ["Je vous serais reconnaissant(e) de bien vouloir…", "Pourriez-vous m'indiquer… ?", "Je vous prie de…"] },
   { zh: "结尾", fr: ["Dans l'attente de votre réponse,", "Je vous remercie par avance de…", "Je reste à votre disposition pour…"] },
-  { zh: "落款套语", fr: ["Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.", "Veuillez agréer, Madame, l'expression de mes sentiments respectueux.", "Cordialement,（较随意）"] },
+  { zh: "落款套语", fr: ["Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.", "Veuillez agréer, Madame, l'expression de mes sentiments respectueux.", "Veuillez agréer, Monsieur le Maire, l'assurance de ma haute considération."] },
+  { zh: "禁忌警告", fr: ["勿用 Cordialement / Bien à vous（属日常或半正式邮件套语，DELF B2 正式信函会扣语域分）"] },
 ];
 
 export const FORMAL_GENRES: Genre[] = ["lettre", "motivation", "courrier"];

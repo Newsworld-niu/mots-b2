@@ -114,7 +114,6 @@ export const LETTER: [fn: string, RawExpr[]][] = [
     ["dans l'attente de votre réponse", "期待您的回复", "[Dans l'attente de votre réponse], je vous prie d'agréer mes salutations distinguées.", "期待您的回复，此致敬礼。"],
     ["en vous remerciant par avance", "预先感谢", "[En vous remerciant par avance] de votre aide, je vous adresse mes salutations distinguées.", "预先感谢您的帮助，此致敬礼。", { alt: ["en vous remerciant d'avance"] }],
     ["veuillez agréer", "请接受（结尾敬语）", "[Veuillez agréer], Madame, Monsieur, l'expression de mes salutations distinguées.", "女士/先生，请接受我诚挚的敬意。"],
-    ["l'expression de mes salutations distinguées", "（我的）敬意", "Je vous prie d'agréer, Madame, Monsieur, [l'expression de mes salutations distinguées].", "女士/先生，请接受我诚挚的敬意。", { note: "正式信函结尾的固定写法" }],
-    ["cordialement", "顺致问候（邮件）", "Merci pour votre retour rapide. [Cordialement], Léa Martin", "感谢您的及时回复。顺致问候，莱娅·马丁", { note: "邮件、半正式" }],
+    ["l'expression de mes salutations distinguées", "（我的）敬意", "Je vous prie d'agréer, Madame, Monsieur, [l'expression de mes salutations distinguées].", "女士/先生，请接受我诚挚的敬意。", { note: "正式信函结尾的固定写法；正式信函勿用 Cordialement" }],
   ]],
 ];
