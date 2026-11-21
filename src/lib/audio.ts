@@ -7,13 +7,17 @@ import { isNative, speakNative, stopSpeakingNative } from "./native";
 let current: HTMLAudioElement | null = null;
 let token = 0;
 
-export function stopAudio() {
+function stopSpeechOnly() {
   token++;
   current?.pause();
   current = null;
-  stopListeningNoise();
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   stopSpeakingNative();
+}
+
+export function stopAudio() {
+  stopSpeechOnly();
+  stopListeningNoise();
 }
 
 /** Play a recording, falling back to the device voice. Resolves when playback ends. */
@@ -31,7 +35,7 @@ const DEVICE_PITCHES = [1, 0.78, 1.15, 0.88] as const;
 const DEVICE_RATES = [1, 0.98, 1.03, 0.96] as const;
 
 async function speak(url: string | null | undefined, text: string, accent: "uk" | "us", rate: number, second: boolean | number) {
-  stopAudio();
+  stopSpeechOnly();
   const mine = ++token;
   const who = typeof second === "number" ? Math.max(0, Math.floor(second)) : second ? 1 : 0;
   if (url) {

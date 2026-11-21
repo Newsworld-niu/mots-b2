@@ -43,6 +43,7 @@ const rateFor = (wpm: number, slow: boolean) => Math.min(1.4, Math.max(0.8, wpm 
 const VOICE_KEY = "fb2.listen.voices";
 const STYLE_KEY = "fb2.listen.style";
 const NOISE_KEY = "fb2.listen.noise";
+const CONTINUOUS_KEY = "fb2.listen.continuous";
 const NOISE_IDS = LISTENING_NOISE.map((n) => n.id) as readonly ListeningNoiseId[];
 const readKey = <T extends string>(key: string, ok: readonly T[], d: T): T => {
   try {
@@ -71,9 +72,8 @@ type What = CompForm | "paper";
 
 /**
  * 听力理解 / 应试阅读, in the form of the exam (new format): a whole paper is three exercises worth 9 + 9 + 7 points,
- * every question has three options and is worth 1 or 1.5 points. Listening follows the exam's rhythm: time to
- * read the questions, the recording (twice for a long one, once for the short ones), time to answer. The
- * documents are written by the AI and read by a synthetic voice; the score is logged, memory state is not touched.
+ * with per-question weights from POINT_SETS (0.5 to 2.5 points). Listening follows the exam's rhythm: time to
+ * read the questions, the recording (twice for a long one, once for the short ones), time to answer.
  */
 export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: () => void }) {
   const ai = useAiConfig();
@@ -85,6 +85,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   const [voiceMode, setVoiceMode] = useState<VoiceMode>(() => readKey(VOICE_KEY, ["mixed", "france", "fixed"], "mixed"));
   const [style, setStyle] = useState<"radio" | "natural">(() => readKey(STYLE_KEY, ["radio", "natural"], "natural"));
   const [noise, setNoise] = useState<ListeningNoiseId>(() => readKey(NOISE_KEY, NOISE_IDS, "off"));
+  const [continuousMock, setContinuousMock] = useState<boolean>(() => readKey(CONTINUOUS_KEY, ["0", "1"], "0") === "1");
   const [real, setReal] = useState(false);
   /** The paper being done: its id in the bank, and the question keys asked when only the missed ones are. */
   const [paper, setPaper] = useState<{ id: string; level: "B1" | "B2"; asked?: string[] } | null>(null);
@@ -272,26 +273,48 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
       setPace({ e, label, left });
     });
 
-  /** One listening exercise at the exam's rhythm. */
-  const perform = async (e: number) => {
+  /** Run one listening exercise at the exam's rhythm; returns false if interrupted. */
+  const performExercise = async (e: number, mine: number): Promise<boolean> => {
     const ex = exs[e];
     const spec = FORM_SPEC[ex.form];
-    const mine = ++run.current;
     const alive = () => run.current === mine;
     for (const [d, doc] of ex.docs.entries()) {
       const name = ex.docs.length > 1 ? `录音 ${d + 1}：` : "";
       await pause(e, `${name}读题`, spec.read, mine);
+      if (!alive()) return false;
       for (let n = 1; n <= spec.plays && alive(); n++) {
         setPace({ e, label: `${name}${spec.plays > 1 ? `第 ${n} 遍` : "只放一遍"}`, left: null });
-        if (!(await say(doc.text, mine, voices[e]?.[d]))) break;
-        if (n < spec.plays) await pause(e, `${name}两遍之间`, BETWEEN_PLAYS, mine);
+        if (!(await say(doc.text, mine, voices[e]?.[d]))) return false;
+        if (n < spec.plays) {
+          await pause(e, `${name}两遍之间`, BETWEEN_PLAYS, mine);
+          if (!alive()) return false;
+        }
       }
-      if (!alive()) return;
+      if (!alive()) return false;
       await pause(e, `${name}作答`, spec.answer, mine);
-      if (!alive()) return;
+      if (!alive()) return false;
     }
     setHeard((h) => ({ ...h, [e]: true }));
-    setPace(null);
+    return true;
+  };
+
+  /** Single-exercise trigger. */
+  const perform = async (e: number) => {
+    const mine = ++run.current;
+    await performExercise(e, mine);
+    if (run.current === mine) setPace(null);
+  };
+
+  /** Continuous uninterruptible full-paper exam loop (EXERCICE 1 → 2 → 3 back-to-back). */
+  const performPaper = async () => {
+    const mine = ++run.current;
+    for (let e = 0; e < exs.length; e++) {
+      if (heard[e]) continue;
+      if (askedSet && !exs[e].questions.some((_, k) => askedSet.has(`${e}-${k}`))) continue;
+      const ok = await performExercise(e, mine);
+      if (!ok) return;
+    }
+    if (run.current === mine) setPace(null);
   };
 
   const replay = async (e: number, d: number) => {
@@ -485,6 +508,29 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
               <p className="muted small">
                 {wpm ? `这个声音实测约每分钟 ${wpm} 词，播放速度自动调成 ×${rateFor(wpm, slow).toFixed(2)}。` : "第一次朗读时会测出这个声音的语速，然后自动调到真题的速度。"}
               </p>
+              <h3 className="eyebrow">整卷播放模式</h3>
+              <div className="segmented">
+                <button
+                  className={continuousMock ? "is-on" : ""}
+                  onClick={() => {
+                    setContinuousMock(true);
+                    writeKey(CONTINUOUS_KEY, "1");
+                  }}
+                  aria-pressed={continuousMock}
+                >
+                  连续不可中断（模考真实节奏）
+                </button>
+                <button
+                  className={!continuousMock ? "is-on" : ""}
+                  onClick={() => {
+                    setContinuousMock(false);
+                    writeKey(CONTINUOUS_KEY, "0");
+                  }}
+                  aria-pressed={!continuousMock}
+                >
+                  逐题手动触发（可暂停/跳过）
+                </button>
+              </div>
             </>
           ) : (
             <>
@@ -678,7 +724,46 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
         </header>
 
         {listen && !done && (
-          <p className="muted small">提示：TTS 音频仅用于熟悉题型，考前须搭配真实电台脱敏。</p>
+          <div className="real-flow">
+            <p className="muted small">提示：TTS 音频仅用于熟悉题型，考前须搭配真实电台脱敏。</p>
+            {exs.length > 1 && (
+              <div className="panel exam-player">
+                {continuousMock ? (
+                  <>
+                    <span className="muted small">整卷「连续不可中断」模式：将依次按官方停顿连续播放 Exercice 1 → 2 → 3，期间不可跳过或暂停。</span>
+                    {!pace && exs.some((_, i) => !heard[i]) && (
+                      <button className="btn btn-primary" onClick={() => void performPaper()}>
+                        <Play size={16} /> 开始整卷连续播放（Exercice 1 → {exs.length}）
+                      </button>
+                    )}
+                    {!pace && (
+                      <button
+                        className="btn btn-ghost"
+                        onClick={() => {
+                          setContinuousMock(false);
+                          writeKey(CONTINUOUS_KEY, "0");
+                        }}
+                      >
+                        切回逐题手动
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  !pace && (
+                    <button
+                      className="btn btn-ghost"
+                      onClick={() => {
+                        setContinuousMock(true);
+                        writeKey(CONTINUOUS_KEY, "1");
+                      }}
+                    >
+                      启用整卷「连续不可中断」模式
+                    </button>
+                  )
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         {done && (
@@ -720,17 +805,23 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
                         {pace.label}
                         {pace.left !== null ? ` ${clock(pace.left)}` : "…"}
                       </span>
-                      {pace.left !== null && (
+                      {!continuousMock && pace.left !== null && (
                         <button className="btn btn-ghost" onClick={() => skip.current?.()}>
                           <FastForward size={16} /> 跳过等待
                         </button>
                       )}
-                      <button className="btn btn-ghost" onClick={halt}>
-                        <Square size={16} /> 停止
-                      </button>
+                      {!continuousMock && (
+                        <button className="btn btn-ghost" onClick={halt}>
+                          <Square size={16} /> 停止
+                        </button>
+                      )}
                     </>
                   ) : heard[e] ? (
                     <span className="muted">这个练习的录音已经放完，凭记忆作答。</span>
+                  ) : continuousMock && exs.length > 1 ? (
+                    <span className="muted small">
+                      {pace ? "等待整卷连续播音轮到本练习…" : "请在上方点击「开始整卷连续播放」，将按考场节奏连续播放全卷。"}
+                    </span>
                   ) : (
                     <>
                       <button className="btn btn-primary" onClick={() => void perform(e)} disabled={!!pace}>

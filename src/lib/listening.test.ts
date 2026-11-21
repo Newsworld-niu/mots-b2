@@ -224,6 +224,15 @@ test("PREBUILT_REAL_SOURCES and realPresetQuiz ship 6 verified RFI episodes with
   }
 });
 
+test("CO-3: Comprehension.tsx preserves prefetched urls[k], uses 0.5-2.5 pt POINT_SETS wording, and supports continuous uninterruptible mode", () => {
+  const compSrc = fs.readFileSync(path.resolve("src/pages/Comprehension.tsx"), "utf8");
+  assert.ok(!compSrc.includes("1 分或 1.5 分"));
+  assert.ok(!compSrc.includes("1 or 1.5 points"));
+  assert.ok(compSrc.includes("0.5 至 2.5 分不等"));
+  assert.ok(compSrc.includes("play(urls[k] || null"));
+  assert.ok(compSrc.includes("performPaper"));
+});
+
 test("newWordsOf lists unlearned words once, with counts", () => {
   const tok = (t: string, status: ReadToken["status"], id?: string, w?: string): ReadToken => ({ t, s: 0, e: t.length, status, ...(id ? { id } : {}), ...(w ? { hit: { w } as ReadToken["hit"] } : {}) }) as ReadToken;
   const sent = (text: string, tokens: ReadToken[]): ReadSentence => ({ text, tokens }) as ReadSentence;
