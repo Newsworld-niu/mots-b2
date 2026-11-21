@@ -137,19 +137,38 @@ await page.getByRole("button", { name: "选题目" }).click();
 await page.waitForSelector(".essay-task.is-rec");
 await page.locator(".essay-task.is-rec").click();
 await page.waitForSelector(".essay-consigne");
-const consigneBox = await page.locator(".essay-consigne").boundingBox();
-if (consigneBox) {
-  await page.mouse.move(consigneBox.x + 8, consigneBox.y + 12);
+await page.locator(".essay-consigne").scrollIntoViewIfNeeded();
+const wordRect = await page.locator(".essay-consigne").evaluate((el) => {
+  const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walk.nextNode())) {
+    const txt = node.textContent || "";
+    const m = txt.match(/répondez/i) || txt.match(/[A-Za-zÀ-ÿ]{4,}/);
+    if (!m || m.index === undefined) continue;
+    const r = document.createRange();
+    r.setStart(node, m.index);
+    r.setEnd(node, m.index + m[0].length);
+    const rc = r.getBoundingClientRect();
+    if (rc.width > 4 && rc.height > 4) {
+      return { left: rc.left, right: rc.right, top: rc.top, height: rc.height, word: m[0] };
+    }
+  }
+  return null;
+});
+if (wordRect) {
+  const midY = wordRect.top + wordRect.height / 2;
+  await page.mouse.move(wordRect.left + 1, midY);
   await page.mouse.down();
-  await page.mouse.move(consigneBox.x + 48, consigneBox.y + 12, { steps: 6 });
+  await page.mouse.move(wordRect.right - 1, midY, { steps: 8 });
   await page.mouse.up();
 }
-await page.waitForSelector(".word-popup .word-popup-word", { timeout: 5000 }).catch(() => {});
+await page.waitForSelector(".word-popup .word-popup-actions", { timeout: 6000 }).catch(() => {});
 const popupText = await page.locator(".word-popup").innerText().catch(() => "");
+const popupSenses = await page.locator(".word-popup .word-popup-senses").innerText().catch(() => "");
 check(
   "WordPopup opens on Essay French paragraph selection with gloss and 词典详情 link",
-  /加入生词本/.test(popupText) && /词典详情/.test(popupText) && popupText.trim().length > 10,
-  popupText.replace(/\s+/g, " ").slice(0, 80),
+  /加入生词本/.test(popupText) && /词典详情/.test(popupText) && popupSenses.trim().length > 0,
+  popupText.replace(/\s+/g, " ").slice(0, 90),
 );
 
 // 8) Decks 自己添加 sanity check
