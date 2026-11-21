@@ -115,7 +115,7 @@ export function Onboarding() {
                   </p>
                 )}
                 <div className="onboard-exam-row">
-                  <label className="onboard-field">
+                  <div className="onboard-field" role="group" aria-label="目标总分（/100）">
                     <span>
                       <Target size={14} /> 目标总分（/100）
                     </span>
@@ -126,7 +126,7 @@ export function Onboarding() {
                         </button>
                       ))}
                     </div>
-                  </label>
+                  </div>
                 </div>
               </fieldset>
 

@@ -8923,3 +8923,14 @@ button.prep-pill:hover { border-color: var(--ink-4); color: var(--ink); }
   border-color: var(--ink-4);
   color: var(--ink);
 }
+
+/* ---------- SYS-3/SYS-2: ExamDashboard slots inside Today & Me ---------- */
+.prep-card .exam-dashboard.is-compact {
+  margin-bottom: 0;
+  background: var(--paper-2);
+  box-shadow: none;
+  padding: 14px 16px;
+}
+.me-wide .exam-dashboard {
+  margin-bottom: 0;
+}

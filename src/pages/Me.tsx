@@ -11,8 +11,10 @@ import { isMastered } from "../store/srs";
 import { dayKey, importBackupAsync, MAX_DAILY_NEW, needsBackupReminder, resetProgress, store, useStore, type Settings } from "../store/store";
 import { CountPicker } from "../ui/CountPicker";
 import { EssayTrend } from "../ui/EssayTrend";
+import { ExamDashboard } from "../ui/ExamDashboard";
 import { PlacementTest } from "../ui/PlacementTest";
 import { toast } from "../ui/Toast";
+import { MockExam } from "./MockExam";
 import { streakOf } from "./Today";
 
 export function Me() {
@@ -23,6 +25,7 @@ export function Me() {
   const file = useRef<HTMLInputElement>(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [placeOpen, setPlaceOpen] = useState(false);
+  const [mock, setMock] = useState(false);
   const ai = useAiConfig();
   const daysLeft = daysUntilExam(settings.examDate);
 
@@ -55,6 +58,8 @@ export function Me() {
     toast(r.ok ? `已恢复 ${r.cards} 个词的记忆` : r.error, r.ok ? "ok" : "warn");
   };
   const maxF = Math.max(1, ...stats.forecast);
+
+  if (mock) return <MockExam onExit={() => setMock(false)} />;
 
   return (
     <div className="page me">
@@ -115,7 +120,9 @@ export function Me() {
           </ol>
         </section>
 
-        {/* slot: ExamDashboard (SYS-3) — reserved wide panel for exam 4-skill /100 & 5/25 floor dashboard */}
+        <div className="me-wide">
+          <ExamDashboard onStartMock={() => setMock(true)} />
+        </div>
         <section className="panel me-wide prep-me-panel">
           <div className="panel-head">
             <h3 className="eyebrow">DELF B2 备考档案</h3>

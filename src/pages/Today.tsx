@@ -16,6 +16,7 @@ import { isMastered } from "../store/srs";
 import { CORE_NAME, studyRange } from "../store/decks";
 import { dayKey, MAX_DAILY_NEW, needsBackupReminder, store, useStore } from "../store/store";
 import { Galaxy } from "../galaxy/Galaxy";
+import { ExamDashboard } from "../ui/ExamDashboard";
 import { Highlight, Pronounce } from "../ui/EntryView";
 import { Illustration, plateArticle } from "../ui/Illustration";
 import { PlacementTest } from "../ui/PlacementTest";
@@ -26,6 +27,7 @@ import { ComprehensionStudio } from "./Comprehension";
 import { DrillStudio, DrillTeaser } from "./Drill";
 import { EssayStudio } from "./Essay";
 import { ExprStudio, ExprTeaser } from "./Expressions";
+import { MockExam } from "./MockExam";
 import { SpeakingStudio } from "./Speaking";
 
 const BRAND = `${import.meta.env.BASE_URL}brand`;
@@ -77,7 +79,7 @@ export function Today() {
   const [more, setMore] = useState("");
   const [drill, setDrill] = useState(false);
   const [expr, setExpr] = useState(false);
-  const [studio, setStudio] = useState<"listen" | "read" | "essay" | "speak" | null>(null);
+  const [studio, setStudio] = useState<"listen" | "read" | "essay" | "speak" | "mock" | null>(null);
   const [placeOpen, setPlaceOpen] = useState(false);
   const [backupDismissed, setBackupDismissed] = useState(isBackupSnoozedToday);
   const backupDue = useMemo(() => needsBackupReminder(progress, settings.lastBackupAt), [progress, settings.lastBackupAt]);
@@ -139,6 +141,7 @@ export function Today() {
   if (studio === "read") return <ComprehensionStudio key="read" kind="read" onExit={() => setStudio(null)} />;
   if (studio === "essay") return <EssayStudio onExit={() => setStudio(null)} />;
   if (studio === "speak") return <SpeakingStudio onExit={() => setStudio(null)} />;
+  if (studio === "mock") return <MockExam onExit={() => setStudio(null)} />;
 
   return (
     <div className="page today">
@@ -227,7 +230,7 @@ export function Today() {
           })}
         </ul>
 
-        {/* slot: ExamDashboard (SYS-3) — reserved slot for exam 4-skill /100 & 5/25 floor dashboard */}
+        <ExamDashboard compact onStartMock={() => setStudio("mock")} />
 
         {prep.vocabOverCap && (
           <div className="prep-warn" role="status">
