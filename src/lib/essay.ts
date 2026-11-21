@@ -772,9 +772,20 @@ function isElementaryCorrection(c: EssayCorrection): boolean {
     return true;
   }
   if (/\b(?:beaucoup|trop|peu|plus|moins|assez)\s+des\b/.test(w) && /\bde\b|\bd'/.test(r)) return true;
-  if (/\bplus\s+bon(?:ne|s|nes)?\b|\bplus\s+bien\b|\btrès\s+d'accord\b|\bsur\s+le\s+journal\b/.test(w)) return true;
+  if (/\b(?:plus|moins)\s+bon(?:ne|s|nes)?\b|\bplus\s+bien\b|\btrès\s+d'accord\b|\bsur\s+le\s+journal\b/.test(w)) return true;
   if (/\b(?:il\s+faut|bien|pour|avant|sans)\s+qu[e']/.test(w) && (c.type === "conjugation" || c.type === "tense" || c.type === "other")) return true;
   if (/\b(?:difficile|facile|possible|impossible|utile|important)\s+pour\b/.test(w) && /\b(?:de|d'|à)\b/.test(r)) return true;
+  return false;
+}
+
+const DE_VERB_PREFIX =
+  /\b(?:parl\w*|occup\w*|dépend\w*|profit\w*|souffr\w*|souci\w*|inqui[eéè]t\w*|plai[gn]\w*|m[eé]fi\w*|trait\w*|discut\w*|manqu\w*|abus\w*|besoin|peur|envie|r[eê]v\w*|moqu\w*|serv\w*)$/i;
+
+function hasQuantifierDesError(text: string): boolean {
+  for (const m of text.matchAll(/\b(?:beaucoup|trop|peu|assez)\s+des\b/gi)) {
+    const prev = text.slice(0, m.index ?? 0).trimEnd().split(/\s+/).pop() ?? "";
+    if (!DE_VERB_PREFIX.test(prev)) return true;
+  }
   return false;
 }
 
@@ -785,14 +796,15 @@ export function detectB1ProfileFallback(
 ): Pick<EssayFlags, "hasSystematicB1Errors" | "repetitiveBasicLexis" | "mechanicalB1Structure"> {
   const elementaryFixes = corrections.filter(isElementaryCorrection).length;
   const basicGrammarCount = corrections.filter((c) => BASIC_GRAMMAR_ERROR_TYPES.has(c.type)).length;
-  const textCalques = [
-    /\b(?:est|sont|soit|être|paraît|semble|pas|encore|bien|beaucoup)\s+plus\s+bon(?:ne|s|nes)?\b/i,
-    /\bà\s+la\s+place\s+de\s+l(?:e|es)\b/i,
-    /\btrès\s+d'accord\b/i,
-    /\bsur\s+le\s+journal\b/i,
-    /\b(?:difficile|facile|possible)\s+pour\s+[a-zàâäéèêëïîôùûüç]+(?:er|ir|re)\b/i,
-    /\bil\s+faut\s+que\s+(?:le|la|l'|un|une|on|il|elle|les|[a-zàâäéèêëïîôùûüç]+)\s+(?:fait|va|peut|doit|est|a)\b/i,
-  ].filter((re) => re.test(text)).length;
+  const textCalques =
+    [
+      /\b(?:est|sont|soit|être|paraît|semble|devient|deviennent|reste|restent|pas|encore|bien|beaucoup)\s+(?:plus|moins)\s+bon(?:ne|s|nes)?\b|\bmoins\s+bon\b/i,
+      /\bà\s+la\s+place\s+de\s+l(?:e|es)\b|\b(?:de|à)\s+les\s+(?!(?:y|en|lui|leur)\b|[a-zàâäéèêëïîôùûüç]+(?:er|ir|re|oir)\b)[a-zàâäéèêëïîôùûüç]{2,}\b|\b(?:de|à)\s+le\s+(?!(?:lui|leur|y|en|bien|mal|mieux)\b|[a-zàâäéèêëïîôùûüç]+(?:er|ir|re|oir)\b)[a-zàâäéèêëïîôùûüç]{2,}\b/i,
+      /\btrès\s+d'accord\b/i,
+      /\bsur\s+le\s+journal\b/i,
+      /\b(?:difficile|facile|possible)\s+pour\s+[a-zàâäéèêëïîôùûüç]+(?:er|ir|re)\b/i,
+      /\bil\s+faut\s+qu(?:e\s+(?:tout\s+le\s+monde|(?:(?:l'|d'|un|une|le|la|les|des|ces|ce|cet|cette|mon|ma|mes|ton|ta|tes|son|sa|ses|notre|nos|votre|vos|leur|leurs|chaque|quelques|plusieurs)\s+)?(?!(?:qui|que|dont|où|ne|se|me|te|le|la|les|lui|leur|y|en)\b)[a-zàâäéèêëïîôùûüç-]+)|'(?:on|il|elle|ils|elles))(?:\s+y)?\s+(?:fait|font|va|vont|peut|peuvent|doit|est|sont|a|ont|sait|savent|veut|veulent|prend|vient|dit|met)\b/i,
+    ].filter((re) => re.test(text)).length + (hasQuantifierDesError(text) ? 1 : 0);
 
   const hasSystematicB1Errors = Math.max(elementaryFixes, textCalques) >= 2 || elementaryFixes + textCalques >= 3 || basicGrammarCount >= 5;
 
@@ -808,7 +820,7 @@ export function detectB1ProfileFallback(
   const totalBasicLex = tresHits + beaucoupHits + gensHits + chosesHits + spokenHits + simpleAdjHits;
   const hasLexicalCalque =
     corrections.some((c) => /\b(?:plus|moins)\s+bon(?:ne|s|nes)?\b|\bplus\s+bien\b|\btrès\s+d'accord\b|\bsur\s+le\s+journal\b/i.test(c.wrong)) ||
-    /\b(?:est|sont|soit|être|pas|encore|bien)\s+plus\s+bon(?:ne|s|nes)?\b/i.test(text);
+    /\b(?:est|sont|soit|être|pas|encore|bien)\s+(?:plus|moins)\s+bon(?:ne|s|nes)?\b|\bmoins\s+bon\b/i.test(text);
 
   const repetitiveBasicLexis =
     tresHits >= 5 ||

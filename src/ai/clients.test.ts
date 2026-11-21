@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { DEFAULT_MODELS, GRADING_RECOMMENDED_MODELS } from "./config.ts";
 import { buildAnthropicBody, buildOpenAiChatBody, supportsTemperature, type JsonRequest } from "./clients.ts";
-import { buildRewritePayload, ESSAY_SCHEMA, ESSAY_SYSTEM, MODEL_SYSTEM, REWRITE_SYSTEM, SPEAK_SCHEMA, SPEAK_SYSTEM, TEXT_SYSTEM } from "./tasks.ts";
+import { buildRewritePayload, ESSAY_SCHEMA, ESSAY_SYSTEM, GRADE_SYSTEM, MODEL_SYSTEM, REWRITE_SYSTEM, SPEAK_SCHEMA, SPEAK_SYSTEM, TEXT_SYSTEM } from "./tasks.ts";
 
 const sampleReq: JsonRequest = {
   system: "Mark this.",
@@ -84,4 +84,15 @@ test("PE-10 MODEL_SYSTEM enforces B2 20+/25 standard and CE-3 TEXT_SYSTEM requir
   assert.ok(TEXT_SYSTEM.includes("written in French"));
   assert.ok(TEXT_SYSTEM.includes("4 options written in French"));
   assert.ok(TEXT_SYSTEM.includes("one sentence in Chinese"));
+});
+
+test("G2: all grading prompts isolate learner input as untrusted data and forbid executing embedded directives", () => {
+  assert.match(ESSAY_SYSTEM, /untrusted/i);
+  assert.ok(ESSAY_SYSTEM.includes("learnerText"));
+  assert.match(SPEAK_SYSTEM, /untrusted/i);
+  assert.ok(SPEAK_SYSTEM.includes("talk") && SPEAK_SYSTEM.includes("debate"));
+  assert.match(GRADE_SYSTEM, /untrusted/i);
+  assert.ok(GRADE_SYSTEM.includes("learnerSentence"));
+  assert.match(REWRITE_SYSTEM, /untrusted/i);
+  assert.ok(REWRITE_SYSTEM.includes("learner"));
 });
