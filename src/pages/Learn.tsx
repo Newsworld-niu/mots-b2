@@ -7,6 +7,7 @@ import { play, stopAudio } from "../lib/audio";
 import { burst } from "../lib/burst";
 import { cue } from "../lib/sound";
 import { currentLocation, go, openWord, useLocation } from "../lib/router";
+import { frenchClueFor, readPureFr, writePureFr } from "../lib/pure-fr";
 import { gap, hashSeed, normalize, shuffle } from "../lib/text";
 import { articleVerdict } from "../lib/accent";
 import { AccentKeys } from "../ui/AccentKeys";
@@ -276,6 +277,13 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
   const pending = session.pending;
   const elapsed = useStepTimer();
   const [hints, setHints] = useState(0);
+  const [pureFr, setPureFr] = useState(readPureFr);
+  const [peekZh, setPeekZh] = useState(false);
+  const togglePureFr = () => {
+    const nextVal = !pureFr;
+    setPureFr(nextVal);
+    writePureFr(nextVal);
+  };
   const options = useMemo(
     () => (step.options ?? []).map((id) => atlas.byId.get(id)).filter((w): w is WordRef => !!w).map((w) => (w.id === step.id ? focusRef(w, step.sense) : w)),
     [atlas, step.options, step.id, step.sense],
@@ -351,6 +359,11 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
         <span className={`dot ${step.retry ? "dot-retry" : "dot-review"}`} />
         {step.retry ? "再见一面 · " : ""}
         {kind === "spell" && target !== entry.w ? "拼出这个词（连冠词 un / une）" : KIND_LABEL[kind]}
+        {kind === "cloze" && (
+          <button type="button" className="link pure-fr-toggle" onClick={togglePureFr} aria-pressed={pureFr}>
+            {pureFr ? "纯法语线索：开" : "显示整句中文"}
+          </button>
+        )}
       </p>
 
       <section className="prompt">
@@ -374,7 +387,18 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
                     {sentence.after}
                   </p>
                 )}
-                {(kind === "cloze" || pending) && <p className="cloze-zh">{entry.ex[0].zh}</p>}
+                {kind === "cloze" && pureFr && !pending && !peekZh ? (
+                  <div className="cloze-fr-cue">
+                    <p className="muted" lang="fr">
+                      {frenchClueFor(entry)}
+                    </p>
+                    <button type="button" className="link small" onClick={() => setPeekZh(true)}>
+                      偷看中文翻译
+                    </button>
+                  </div>
+                ) : (
+                  (kind === "cloze" || pending) && <p className="cloze-zh">{entry.ex[0].zh}</p>
+                )}
               </>
             ) : (
               <p className="cloze-gloss">

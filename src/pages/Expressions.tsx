@@ -2,6 +2,7 @@ import { ArrowRight, BookText, Check, Lightbulb, RotateCcw, X } from "lucide-rea
 import { useMemo, useRef, useState } from "react";
 import { stopAudio } from "../lib/audio";
 import { checkExpr, EXPR_BY_ID, EXPR_GROUPS, EXPRESSIONS, filledEx, gapOf, maskOf, type ExprGroup, type ExprVerdict, type Expression } from "../lib/expressions";
+import { readPureFr, writePureFr } from "../lib/pure-fr";
 import { cue } from "../lib/sound";
 import { answerExpr, dueExpr, exprCounts, exprGrade, exprRound, freshExpr, EXPR_NEW } from "../store/expr";
 import { Rating, type Grade } from "../store/srs";
@@ -40,6 +41,12 @@ export function ExprStudio({ onExit, exitLabel = "返回练习" }: { onExit: () 
   };
   const [round, setRound] = useState<{ ids: string[]; key: number } | null>(null);
   const [sheet, setSheet] = useState(false);
+  const [pureFr, setPureFr] = useState(readPureFr);
+  const togglePureFr = () => {
+    const nextVal = !pureFr;
+    setPureFr(nextVal);
+    writePureFr(nextVal);
+  };
 
   const due = dueExpr(progress, Date.now(), group).length;
   const fresh = freshExpr(progress, EXPR_NEW, group).length;
@@ -93,6 +100,9 @@ export function ExprStudio({ onExit, exitLabel = "返回练习" }: { onExit: () 
           </div>
         </dl>
         <div className="writing-actions">
+          <button className={`btn ${pureFr ? "is-on" : "btn-ghost"}`} onClick={togglePureFr} aria-pressed={pureFr}>
+            {pureFr ? "纯法语线索（先隐中文）：开" : "纯法语线索：关（显中文）"}
+          </button>
           <button className="btn btn-ghost" onClick={() => setSheet(true)}>
             <BookText size={16} /> 速查表
           </button>
@@ -122,6 +132,13 @@ function ExprRound({ ids, onExit, onAgain }: { ids: string[]; onExit: () => void
   const [i, setI] = useState(0);
   const [value, setValue] = useState("");
   const [hinted, setHinted] = useState(false);
+  const [pureFr, setPureFr] = useState(readPureFr);
+  const [peekZh, setPeekZh] = useState(false);
+  const togglePureFr = () => {
+    const nextVal = !pureFr;
+    setPureFr(nextVal);
+    writePureFr(nextVal);
+  };
   const [shown, setShown] = useState<{ verdict: ExprVerdict; other?: Expression; grade: Grade } | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const started = useRef(Date.now());
@@ -195,6 +212,7 @@ function ExprRound({ ids, onExit, onAgain }: { ids: string[]; onExit: () => void
     stopAudio();
     setValue("");
     setHinted(false);
+    setPeekZh(false);
     setShown(null);
     started.current = Date.now();
     setI((n) => n + 1);
@@ -223,6 +241,9 @@ function ExprRound({ ids, onExit, onAgain }: { ids: string[]; onExit: () => void
         <div className="learn-progress">
           <span style={{ width: `${((i + (shown ? 1 : 0)) / steps.length) * 100}%` }} />
         </div>
+        <button type="button" className="link" onClick={togglePureFr} aria-pressed={pureFr}>
+          {pureFr ? "纯法语线索" : "显示中文"}
+        </button>
         <span className="typing-meter">
           <b>{answers.filter((a) => a.ok).length}</b> / {answers.length}
         </span>
@@ -234,13 +255,36 @@ function ExprRound({ ids, onExit, onAgain }: { ids: string[]; onExit: () => void
             {isNew.has(e.id) && !step.retry && " · 新"}
             {step.retry && " · 再练一次"}
           </p>
-          <h2 className="writing-zh">{e.zh}</h2>
+          {(!pureFr || !!shown || peekZh) ? (
+            <h2 className="writing-zh">{e.zh}</h2>
+          ) : (
+            <div className="writing-pure-fr">
+              {e.reformFrom && (
+                <p className="writing-hint" lang="fr">
+                  Reformulez : <span className="muted">{e.reformFrom}</span>
+                </p>
+              )}
+              {e.frDef && (
+                <p className="writing-zh" lang="fr" style={{ fontSize: "1.05rem", fontWeight: 500 }}>
+                  {e.frDef}
+                </p>
+              )}
+              {!e.reformFrom && !e.frDef && e.group !== "reg" && (
+                <p className="muted small" lang="fr">
+                  Complétez la phrase selon la fonction ({e.fn}).
+                </p>
+              )}
+              <button type="button" className="link small" onClick={() => setPeekZh(true)}>
+                偷看中文
+              </button>
+            </div>
+          )}
           {e.reg?.familier && e.group === "reg" && (
             <p className="writing-hint">
               口语里说 <span lang="fr">{e.reg.familier}</span>，写作时换成？
             </p>
           )}
-          {e.note && !shown && <p className="muted small">{e.note}</p>}
+          {e.note && !shown && (!pureFr || peekZh) && <p className="muted small">{e.note}</p>}
         </div>
 
         <p className="expr-sentence" lang="fr">
@@ -248,7 +292,7 @@ function ExprRound({ ids, onExit, onAgain }: { ids: string[]; onExit: () => void
           <span className={`expr-gap ${shown ? (ok ? "is-ok" : "is-bad") : ""}`}>{shown ? gap.answer : hinted ? maskOf(gap.answer) : "＿＿＿"}</span>
           {gap.after}
         </p>
-        <p className="writing-line-zh expr-sentence-zh">{e.exZh}</p>
+        {(!pureFr || !!shown || peekZh) && <p className="writing-line-zh expr-sentence-zh">{e.exZh}</p>}
 
         <input
           ref={input}

@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { answersOf, checkExpr, DEBATE_PHRASE_FNS, debatePhrases, EXPR_BY_ID, EXPR_GROUPS, EXPR_ID, EXPRESSIONS, filledEx, gapOf, maskOf, type Expression } from "./expressions.ts";
 import { TOPICS } from "./exam.ts";
 import { COLLOCATIONS } from "./expressions-more.ts";
+import { CORE_FR_DEFS, frenchClueFor, readPureFr, writePureFr } from "./pure-fr.ts";
 
 const card = (id: string) => {
   const e = EXPR_BY_ID.get(id);
@@ -71,4 +72,31 @@ test("speaking problématique and debate phrases provide at least 25 valid cards
   const debateCount = groups.reduce((n, [, xs]) => n + xs.length, 0);
   const probCount = EXPRESSIONS.filter((e) => e.group === "arg" && e.fn.includes("problématique")).length;
   assert.ok(debateCount + probCount >= 28, `expected >= 28 oral/debate cards, got ${debateCount + probCount}`);
+});
+
+test("CE-2: reformulation cards carry French source + definition, pureFr defaults on, and frenchClueFor omits Chinese", () => {
+  const reform = EXPRESSIONS.filter((e) => e.group === "reform");
+  assert.ok(reform.length >= 15);
+  assert.ok(reform.every((e) => e.reformFrom && e.frDef));
+  assert.equal(checkExpr("bien que", card("reform-bien-que")).verdict, "exact");
+  assert.equal(checkExpr("quoique", card("reform-bien-que")).verdict, "exact");
+  // pureFr defaults to true when localStorage is empty or unavailable
+  assert.equal(readPureFr(), true);
+  assert.ok(Object.keys(CORE_FR_DEFS).length >= 50);
+  const clue = frenchClueFor({
+    w: "pallier",
+    senses: [{ pos: "v.t.", zh: "弥补", en: "compensate" }] as never,
+    col: ["pallier les lacunes｜弥补漏洞"],
+    syn: ["compenser (弥补)"],
+  });
+  assert.ok(!/[\u4e00-\u9fff]/.test(clue), clue);
+  const fallbackClue = frenchClueFor({
+    w: "mot-rare",
+    senses: [{ pos: "n.f.", zh: "罕见词", en: "rare word" }] as never,
+    col: ["prendre une décision｜做决定"],
+    syn: ["choix (选择)"],
+  });
+  assert.ok(!/[\u4e00-\u9fff]/.test(fallbackClue), fallbackClue);
+  assert.ok(fallbackClue.includes("prendre une décision"));
+  void writePureFr;
 });

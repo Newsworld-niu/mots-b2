@@ -9,9 +9,9 @@
 import { foldAccents, spellingVerdict } from "./accent";
 import { TOPICS } from "./exam";
 import { CONNECTORS, FRAMES } from "./expressions-conn";
-import { COLLOCATIONS, LETTER, REGISTERS } from "./expressions-more";
+import { COLLOCATIONS, LETTER, REFORMULATIONS, REGISTERS } from "./expressions-more";
 
-export type ExprGroup = "conn" | "arg" | "col" | "reg" | "lettre";
+export type ExprGroup = "conn" | "arg" | "col" | "reg" | "lettre" | "reform";
 
 export const EXPR_GROUPS: [ExprGroup, string, string][] = [
   ["conn", "连接词", "按功能：补充、对立、让步、原因、结果、举例、列举、总结"],
@@ -19,6 +19,7 @@ export const EXPR_GROUPS: [ExprGroup, string, string][] = [
   ["col", "话题搭配", "考试常见话题的固定搭配"],
   ["reg", "语域", "口语说法换成写作用的说法：familier → courant → soutenu"],
   ["lettre", "正式信函", "称呼、开头、请求、投诉、申请、结尾礼貌语"],
+  ["reform", "同义改写", "把基础句子改写成 B2 论证与同义替换表达（reformulation）"],
 ];
 
 /** The same meaning at the three levels of language; a level may be missing. */
@@ -43,12 +44,16 @@ export interface Expression {
   /** Other accepted answers for the gap. */
   alt?: string[];
   reg?: Register;
+  /** Pure-French clue / explanation (used when Chinese translation is hidden before answering). */
+  frDef?: string;
+  /** Source A2/B1 French wording to reformulate into B2 French (reformulation group). */
+  reformFrom?: string;
   /** Exam topic of a collocation (TOPICS id). */
   topic?: string;
 }
 
 /** A card as written in the data files: [French, Chinese, example with gap, Chinese of the example, extras]. */
-export type RawExpr = [fr: string, zh: string, ex: string, exZh: string, more?: Pick<Expression, "note" | "alt" | "reg">];
+export type RawExpr = [fr: string, zh: string, ex: string, exZh: string, more?: Pick<Expression, "note" | "alt" | "reg" | "frDef" | "reformFrom">];
 
 export const exprSlug = (s: string) =>
   foldAccents(s)
@@ -67,13 +72,14 @@ const collocations = (): Expression[] =>
     });
   });
 
-/** Every card, in teaching order: connectors, frames, collocations, register, letters. */
+/** Every card, in teaching order: connectors, frames, collocations, register, letters, reformulation. */
 export const EXPRESSIONS: Expression[] = [
   ...CONNECTORS.flatMap(([fn, list]) => list.map((r) => fromRaw("conn", fn, r))),
   ...FRAMES.flatMap(([fn, list]) => list.map((r) => fromRaw("arg", fn, r))),
   ...collocations(),
   ...REGISTERS.flatMap(([fn, list]) => list.map((r) => fromRaw("reg", fn, r))),
   ...LETTER.flatMap(([fn, list]) => list.map((r) => fromRaw("lettre", fn, r))),
+  ...REFORMULATIONS.flatMap(([fn, list]) => list.map((r) => fromRaw("reform", fn, r))),
 ];
 
 export const EXPR_BY_ID = new Map(EXPRESSIONS.map((e) => [e.id, e]));
@@ -92,7 +98,7 @@ export const debatePhrases = (): [fn: string, Expression[]][] =>
   DEBATE_PHRASE_FNS.map((fn) => [fn, EXPRESSIONS.filter((e) => e.group === "arg" && e.fn === fn)] as [string, Expression[]]).filter(([, xs]) => xs.length > 0);
 
 /** Card ids in the progress: group prefix and slug. */
-export const EXPR_ID = /^(conn|arg|col|reg|lettre)-[a-z0-9-]{1,50}$/;
+export const EXPR_ID = /^(conn|arg|col|reg|lettre|reform)-[a-z0-9-]{1,50}$/;
 
 /** The example split at its gap. */
 export function gapOf(ex: string) {

@@ -53,6 +53,34 @@ export const COLLOCATIONS: [topic: string, [fr: string, ex: string, exZh: string
     ["s'ouvrir à d'autres cultures", "Voyager permet de [s'ouvrir à d'autres cultures].", "旅行让人向其他文化开放。"],
     ["la qualité de vie", "Les espaces verts améliorent [la qualité de vie] en ville.", "绿地提高了城市的生活质量。"],
   ]],
+  ["politique-justice", [
+    ["l'État de droit", "Une justice indépendante est le pilier de [l'État de droit].", "独立的司法是法治国家的支柱。"],
+    ["la démocratie participative", "Le budget citoyen renforce [la démocratie participative] au niveau local.", "公民预算加强了地方层面的参与式民主。"],
+  ]],
+  ["sciences-ethique", [
+    ["encadrer l'intelligence artificielle", "La loi doit [encadrer l'intelligence artificielle] pour éviter les dérives.", "法律必须规范人工智能以防失范。"],
+    ["le principe de précaution", "En matière de santé publique, il convient d'appliquer [le principe de précaution].", "在公共卫生领域应当遵循预防原则。"],
+  ]],
+  ["medias-presse", [
+    ["le pluralisme des médias", "Une presse libre repose sur [le pluralisme des médias].", "新闻自由建立在媒体多元化的基础之上。"],
+    ["lutter contre la manipulation de l'information", "Les rédactions investissent pour [lutter contre la manipulation de l'information].", "各大编辑部投入资源打击信息操纵。"],
+  ]],
+  ["logement-urbanisme", [
+    ["encadrer les loyers", "Plusieurs métropoles choisissent d'[encadrer les loyers] face à la crise.", "多个大都市在危机面前选择限制房租。"],
+    ["la rénovation thermique des bâtiments", "L'État subventionne [la rénovation thermique des bâtiments] anciens.", "国家资助老旧建筑的节能保温改造。"],
+  ]],
+  ["economie-finances", [
+    ["maîtriser l'inflation", "La banque centrale cherche à [maîtriser l'inflation] sans freiner l'emploi.", "央行力图在不拖累就业的情况下控制通胀。"],
+    ["préserver l'État-providence", "Ce débat porte sur les moyens de [préserver l'État-providence].", "这场辩论围绕如何维护福利国家制度展开。"],
+  ]],
+  ["transports-mobilite", [
+    ["les mobilités douces", "La mairie aménage des voies réservées pour encourager [les mobilités douces].", "市政府修建专用车道以鼓励慢行交通。"],
+    ["désenclaver les zones rurales", "La réouverture de petites gares permet de [désenclaver les zones rurales].", "重开小型火车站有助于打破农村偏远地区的孤立。"],
+  ]],
+  ["arts-francophonie", [
+    ["la diversité culturelle et linguistique", "L'UNESCO défend [la diversité culturelle et linguistique] face à l'uniformisation.", "联合国教科文组织在同质化浪潮下捍卫文化与语言多样性。"],
+    ["l'exception culturelle", "La France défend depuis longtemps le principe de [l'exception culturelle].", "法国长期以来坚持“文化例外”原则。"],
+  ]],
 ];
 
 /** Register: the cue is the familiar or everyday wording, the gap wants the one for formal writing. */
@@ -115,5 +143,35 @@ export const LETTER: [fn: string, RawExpr[]][] = [
     ["en vous remerciant par avance", "预先感谢", "[En vous remerciant par avance] de votre aide, je vous adresse mes salutations distinguées.", "预先感谢您的帮助，此致敬礼。", { alt: ["en vous remerciant d'avance"] }],
     ["veuillez agréer", "请接受（结尾敬语）", "[Veuillez agréer], Madame, Monsieur, l'expression de mes salutations distinguées.", "女士/先生，请接受我诚挚的敬意。"],
     ["l'expression de mes salutations distinguées", "（我的）敬意", "Je vous prie d'agréer, Madame, Monsieur, [l'expression de mes salutations distinguées].", "女士/先生，请接受我诚挚的敬意。", { note: "正式信函结尾的固定写法；正式信函勿用 Cordialement" }],
+  ]],
+];
+
+/** Reformulation cards (同义改写): turn A2/B1 phrasing into concise, idiomatic B2 French. */
+export const REFORMULATIONS: [fn: string, RawExpr[]][] = [
+  ["因果转写", [
+    ["en raison de", "由于、因为（正式名词短语）", "Le train est supprimé [en raison d']un incident technique.", "由于技术故障，这趟列车取消了。", { alt: ["en raison de", "à cause de"], note: "替换口语 à cause de（多用于中性或负面客观原因）", reformFrom: "Le train est supprimé à cause d'un incident technique.", frDef: "Locution prépositive soutenue remplaçant « à cause de » + nom." }],
+    ["étant donné que", "鉴于（句首从句连词）", "[Étant donné que] les ressources diminuent, il faut changer nos habitudes.", "鉴于资源正在减少，我们必须改变习惯。", { alt: ["puisque", "comme"], note: "比 parce que 更书面，多置于句首", reformFrom: "Parce que les ressources diminuent, il faut changer nos habitudes.", frDef: "Conjonction formelle équivalente à « comme / puisque » en tête de phrase." }],
+    ["c'est la raison pour laquelle", "正因如此", "Le loyer a doublé ; [c'est la raison pour laquelle] beaucoup quittent le centre.", "房租翻了一倍；正因如此，很多人搬离了市中心。", { alt: ["c'est pourquoi"], note: "替换单一的 donc，连接因果逻辑更自然", reformFrom: "Le loyer a doublé, donc beaucoup quittent le centre.", frDef: "Connecteur de conséquence élégant remplaçant « donc »." }],
+    ["engendrer", "引发、造成（后果）", "Une urbanisation mal maîtrisée risque d'[engendrer] de fortes tensions sociales.", "失控的城市化可能会引发严重的社会矛盾。", { alt: ["provoquer", "entraîner"], note: "比 faire venir / donner 更准确的 B2 动词", reformFrom: "Une urbanisation mal maîtrisée risque de créer de fortes tensions sociales.", frDef: "Verbe formel signifiant « provoquer, faire naître des conséquences »." }],
+  ]],
+  ["让步与对比", [
+    ["bien que", "尽管（+ 虚拟式）", "[Bien que] cette mesure soit coûteuse, elle reste indispensable.", "尽管这项措施成本高昂，但它仍然不可或缺。", { alt: ["quoique"], note: "+ 虚拟式（soit / ait / fasse），替换 même si", reformFrom: "Même si cette mesure est coûteuse, elle reste indispensable.", frDef: "Conjonction de concession suivie du subjonctif (équivalent soutenu de « même si »)." }],
+    ["à l'encontre de", "违背、与……相反", "Cette décision va [à l'encontre des] engagements climatiques du pays.", "这项决定违背了该国的气候承诺。", { alt: ["à l'encontre de", "contre"], note: "比 aller contre 更书面准确", reformFrom: "Cette décision va contre les engagements climatiques du pays.", frDef: "Locution prépositive formelle signifiant « en opposition directe avec »." }],
+    ["en dépit de", "不顾、尽管（+ 名词）", "[En dépit de] ses promesses, la direction n'a pas réduit les horaires.", "尽管作出了承诺，管理层仍未缩短工时。", { alt: ["malgré"], note: "比 malgré 更正式，可直接 + 名词短语", reformFrom: "Malgré ses promesses, la direction n'a pas réduit les horaires.", frDef: "Préposition formelle synonyme de « malgré » (+ nom)." }],
+    ["quant à", "至于（切换比较对象）", "Les jeunes privilégient le train ; [quant aux] entreprises, elles attendent des aides.", "年轻人更偏爱火车；至于企业，它们在等待补贴。", { alt: ["quant à"], note: "注意缩合 quant au / quant aux", reformFrom: "Les jeunes privilégient le train, et pour les entreprises, elles attendent des aides.", frDef: "Préposition permettant d'introduire un contraste avec un second sujet." }],
+  ]],
+  ["限定与精确表述", [
+    ["à moins que", "除非（+ ne 赘词 + 虚拟式）", "La réforme échouera, [à moins qu']on ne consulte les enseignants.", "除非征求教师意见，否则改革将失败。", { alt: ["à moins que"], note: "替换 sauf si，后面须跟虚拟式", reformFrom: "La réforme échouera, sauf si on consulte les enseignants.", frDef: "Exprime une condition restrictive (+ subjonctif), équivalent formel de « sauf si »." }],
+    ["autrement dit", "换言之、也就是说", "Le taux de participation a baissé ; [autrement dit], un électeur sur deux s'abstient.", "投票率下降了；换言之，每两名选民中就有一人弃权。", { alt: ["c'est-à-dire", "en d'autres termes"], note: "文章中解释前一句核心含义的高频表达", reformFrom: "Le taux de participation a baissé ; cela veut dire qu'un électeur sur deux s'abstient.", frDef: "Introduit une reformulation plus claire ou plus précise de l'idée précédente." }],
+    ["ne … guère", "几乎不、并不怎么", "Cette campagne n'a [guère] modifié les habitudes des consommateurs.", "这场宣传活动几乎没有改变消费者的习惯。", { alt: ["ne guère", "guère"], note: "书面语中替代 pas beaucoup / presque pas", reformFrom: "Cette campagne n'a pas beaucoup modifié les habitudes des consommateurs.", frDef: "Adverbe littéraire ou soutenu équivalant à « presque pas, très peu »." }],
+    ["davantage", "更多、进一步（不接 que）", "Les pouvoirs publics devraient investir [davantage] dans la prévention.", "公共部门应当在预防领域投入更多。", { alt: ["plus"], note: "替换口语里的 plus，后不直接跟 que 比较从句", reformFrom: "Les pouvoirs publics devraient investir plus dans la prévention.", frDef: "Adverbe de quantité soutenu synonyme de « plus » en fin de proposition." }],
+  ]],
+  ["B2 书面动词与句架升级", [
+    ["pallier", "弥补、缓解（直接及物）", "Des cours gratuits permettent de [pallier] les lacunes de certains élèves.", "免费课程有助于弥补部分学生的知识缺口。", { alt: ["compenser"], note: "直接加宾语（绝不加 à）", reformFrom: "Des cours gratuits permettent de corriger un peu les manques de certains élèves.", frDef: "Verbe transitif direct signifiant « compenser un manque ou atténuer un défaut »." }],
+    ["il s'avère indispensable de", "事实证明……必不可少", "[Il s'avère indispensable de] réguler l'usage des données biométriques.", "事实证明，规范生物识别数据的使用必不可少。", { alt: ["il faut absolument", "il est indispensable de"], note: "替代干瘪的 il faut，显著提升语域", reformFrom: "Il faut vraiment réguler l'usage des données biométriques.", frDef: "Tournure impersonnelle soutenue remplaçant « il faut absolument »." }],
+    ["force est de constater que", "不得不承认／显而易见", "[Force est de constater que] le télétravail modifie durablement l'immobilier de bureau.", "不得不承认，远程办公正持久地改变写字楼市场。", { alt: ["on doit reconnaître que"], note: "引出客观事实作论据的黄金开头", reformFrom: "Tout le monde voit bien que le télétravail modifie durablement l'immobilier de bureau.", frDef: "Expression formelle pour souligner un fait évident et incontestable." }],
+    ["mettre en évidence", "凸显、揭示", "L'enquête permet de [mettre en évidence] le lien entre sommeil et réussite.", "该调查揭示了睡眠与学业成功之间的联系。", { alt: ["montrer clairement", "souligner"], note: "报告与议论文高频转述动词", reformFrom: "L'enquête permet de montrer clairement le lien entre sommeil et réussite.", frDef: "Locution verbale signifiant « révéler ou faire apparaître clairement un fait »." }],
+    ["en somme", "简而言之、总而言之", "[En somme], l'outil numérique n'est bénéfique que s'il reste maîtrisé.", "总而言之，数字工具只有处于可控之下才是有益的。", { alt: ["en résumé", "bref"], note: "比 bref 更适合 DELF B2 书面结尾段", reformFrom: "Pour résumer en bref, l'outil numérique n'est bénéfique que s'il reste maîtrisé.", frDef: "Connecteur de synthèse soutenu pour conclure un développement." }],
+    ["à titre d'exemple", "举例而言", "[À titre d'exemple], plusieurs villes ont rendu les bus gratuits le week-end.", "举例而言，多个城市已推行周末公交免费。", { alt: ["par exemple"], note: "比反复写 par exemple 更高级", reformFrom: "Par exemple, plusieurs villes ont rendu les bus gratuits le week-end.", frDef: "Introduit un cas concret illustrant un argument (variante formelle de « par exemple »)." }],
   ]],
 ];
