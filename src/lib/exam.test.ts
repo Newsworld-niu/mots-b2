@@ -154,9 +154,9 @@ test("assessDebateEscalation detects short, evasive, unjustified, repetitive rep
   assert.equal(rep.level, 3);
 });
 
-test("SYS-4: all 8 built-in B2 essay models (>=250 words) and 12 speaking preset follow-ups exist", () => {
+test("SYS-4: all built-in B2 essay models (>=250 words) and 12 speaking preset follow-ups exist", () => {
   const b2Ids = ESSAY_TASKS.filter((t) => t.level === "B2").map((t) => t.id);
-  assert.equal(b2Ids.length, 8);
+  assert.equal(b2Ids.length, 9);
   for (const id of b2Ids) {
     const m = modelEssayFor(id);
     assert.ok(m, id);
@@ -164,7 +164,7 @@ test("SYS-4: all 8 built-in B2 essay models (>=250 words) and 12 speaking preset
     assert.ok(m.paragraphs.length >= 4 && m.paragraphs.every((p) => p.fr && p.zhNote), id);
     assert.equal(m.unverified, true);
   }
-  assert.equal(ESSAY_MODELS.length, 8);
+  assert.equal(ESSAY_MODELS.length, b2Ids.length);
   assert.equal(SPEAKING_PRESETS.length, SPEAKING_SUBJECTS.length);
   for (const s of SPEAKING_SUBJECTS) {
     const sp = speakingPresetOf(s.id);

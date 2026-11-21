@@ -1,5 +1,5 @@
 /**
- * 静态 B2+ 范文库：为全部 8 道内置 B2 篇章写作题提供无需 AI Key 即可对照自学的 B2+ 范文与逐段中文点评。
+ * 静态 B2+ 范文库：为全部 9 道内置 B2 篇章写作题提供无需 AI Key 即可对照自学的 B2+ 范文与逐段中文点评。
  * 本文库内容为站点自编示例，尚未经认证考官人工终审（待核对）。
  */
 import { countWords } from "./essay";
@@ -321,7 +321,7 @@ export const ESSAY_MODELS: StaticEssayModel[] = [
   make(
     "doc-sommeil",
     "材料题：学校晚一点上课",
-    "议论文",
+    "报刊评论文章",
     [
       {
         fr: "Selon une récente enquête sur le rythme biologique des adolescents, la majorité des lycéens dorment moins de sept heures par nuit durant la semaine. Face à ce constat alarmant, plusieurs chercheurs recommandent de décaler le début des cours à neuf heures au lieu de huit heures. Si cette proposition suscite l'enthousiasme de nombreux élèves, elle mérite d'être examinée dans toutes ses dimensions.",
@@ -350,6 +350,41 @@ export const ESSAY_MODELS: StaticEssayModel[] = [
       { fr: "la mise en œuvre d'un tel horaire soulèverait d'importantes difficultés", zh: "实施这一作息安排将引发重大的组织困难" },
       { fr: "à condition qu'elle ne se traduise pas par une surcharge", zh: "只要它不导致……的负担加重（à condition que + 虚拟式）" },
       { fr: "sans quoi l'heure gagnée le matin serait vite perdue", zh: "否则早上多睡的那一小时很快就会白费" },
+    ],
+  ),
+
+  make(
+    "doc-mediatheque",
+    "材料题：缩减市立图书馆开放时间",
+    "正式信件",
+    [
+      {
+        fr: "Objet : Réaction à la réduction des horaires d'ouverture de la médiathèque centrale\n\nMonsieur le Maire,\n\nAu nom du collectif « Lecteurs Unis », je me permets d'attirer votre attention sur la récente décision municipale visant à limiter l'accès à la médiathèque centrale, qui fermera désormais à 18 heures en semaine et restera inaccessible le dimanche. Cette mesure, prise dans le but de réduire les dépenses énergétiques, suscite notre profonde inquiétude.",
+        technique: "正式信件抬头（Objet + Monsieur le Maire）与转述公告立场",
+        zhNote: "开篇明确标出信件主题（Objet）和正式称呼（Monsieur le Maire），用自己的话转述市政府公告并代表读者集体表明关切。",
+      },
+      {
+        fr: "Cette restriction aura des conséquences notables pour de nombreux usagers. Les salariés et actifs, dont la majorité termine leur journée de travail à 18 heures, se verront privés d'accès à la médiathèque en semaine. Les étudiants, qui bénéficient d'un environnement propice au travail et à la recherche, perdront un lieu essentiel à leur réussite académique. Quant aux personnes âgées, souvent isolées, elles risquent de voir se réduire un espace de socialisation et d'épanouissement culturel.",
+        technique: "分层论证对上班族、学生与老年群体三类受众的影响",
+        zhNote: "按不同群体（Les salariés… / Les étudiants… / Quant aux personnes âgées…）逐层展开负面后果，兼顾实用学习功能与社会联结价值。",
+      },
+      {
+        fr: "Par ailleurs, il nous semble réducteur de considérer que le prêt de livres numériques peut compenser la fermeture anticipée. Nombre d'usagers rencontrent des difficultés d'accès au numérique, soit par manque d'équipement, soit par méconnaissance des outils. De plus, la lecture prolongée sur écran entraîne une fatigue visuelle non négligeable. Enfin, la médiathèque ne se limite pas à l'emprunt d'ouvrages : elle constitue un lieu de rencontre, d'échanges et d'études irremplaçable pour le lien social.",
+        technique: "驳论段：直击电子书替代论的三大漏洞（数字鸿沟、用眼疲劳、公共空间缺失）",
+        zhNote: "用 « il nous semble réducteur de considérer que… » 委婉反驳官方建议，从数字鸿沟、用眼健康和公共社交纽带三点拆解“仅靠电子书”方案的不合理性。",
+      },
+      {
+        fr: "Conscients de la nécessité de réaliser des économies d'énergie, nous proposons d'étudier des alternatives réalistes : regrouper les activités en soirée dans une seule salle chauffée, ouvrir la médiathèque en nocturne deux jours par semaine, ou encore ajuster l'éclairage et la température selon la fréquentation. Ces compromis permettraient de concilier sobriété énergétique et maintien d'un service public essentiel.\n\nDans l'attente de votre réponse, je vous prie d'agréer, Monsieur le Maire, l'expression de ma considération distinguée.",
+        technique: "建设性折中方案 + 标准官方致敬落款（无 Cordialement）",
+        zhNote: "最后先肯定节能初衷，再提出分区供暖、每周两次夜间延后闭馆等具体可行折中办法，并以正式向市长致敬的标准套语收尾。",
+      },
+    ],
+    [
+      { fr: "je me permets d'attirer votre attention sur…", zh: "谨冒昧提请您关注……（正式信件高频开头）" },
+      { fr: "un environnement propice au travail et à la recherche", zh: "有利于学习与研究的环境" },
+      { fr: "il nous semble réducteur de considérer que…", zh: "认为……未免有失偏颇（礼貌而有力地反驳）" },
+      { fr: "concilier sobriété énergétique et maintien d'un service public", zh: "兼顾能源节约与公共服务维持" },
+      { fr: "je vous prie d'agréer, Monsieur le Maire, l'expression de ma considération distinguée.", zh: "向市长/公职人员致信的标准正式结尾敬语" },
     ],
   ),
 ];
