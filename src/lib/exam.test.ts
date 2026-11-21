@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { countWords, ESSAY_TASKS } from "./essay";
 import { ESSAY_MODELS, modelEssayFor } from "./essay-models";
-import { assessDebateEscalation, checkProblematiqueDraft, clock, examReadiness, exercisePoints, FORM_SPEC, isSpeakingTyped, outOf25, outlineKeywords, PAPER, PO_STANDARD_CONSIGNE, PROBLEMATIQUE_TIPS, realScore25, resolveLockedTranscripts, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speakerIndex, speechChunks, speechTurns, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, weigh } from "./exam";
+import { assessDebateEscalation, checkProblematiqueDraft, clock, examReadiness, exercisePoints, FORM_SPEC, gradeCompQuestion, isSpeakingTyped, isValidComprehension, outOf25, outlineKeywords, PAPER, PO_STANDARD_CONSIGNE, PROBLEMATIQUE_TIPS, realScore25, resolveLockedTranscripts, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speakerIndex, speechChunks, speechTurns, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, weigh } from "./exam";
 import { SPEAKING_PRESETS, speakingFollowUpsOf, speakingPresetOf } from "./speaking-presets";
 
 test("topics, subjects and essay tasks refer to topics that exist", () => {
@@ -224,4 +224,77 @@ test("resolveLockedTranscripts locks raw voice transcripts in noAuxMode against 
   assert.equal(normal.monologueLocked, false);
   assert.equal(normal.transcript, "Texte corrigé");
   assert.equal(normal.turns[0].a, "Réponse modifiée");
+});
+
+test("CE-1: sanitizeExercise, gradeCompQuestion (Vrai/Faux + citation, short), and strict isValidComprehension", () => {
+  const docText = "Depuis trois ans, le télétravail progresse rapidement dans les administrations publiques françaises. Toutefois, plusieurs syndicats s'inquiètent d'un isolement croissant des jeunes agents.";
+  const longText = `${docText} ${"Cette évolution transforme durablement les méthodes d'organisation interne des services. ".repeat(6)}`;
+  const mkQ = (k: number, extra: Record<string, unknown> = {}) => ({
+    doc: 0,
+    q: `Question ${k} ?`,
+    options: ["Option A", "Option B", "Option C"],
+    answer: k % 3,
+    why: "解析",
+    difficulty: (k % 5) + 1,
+    skill: "detail",
+    ...extra,
+  });
+
+  // Strict 7-question + parallel format (vf + short)
+  const validLong = sanitizeExercise(
+    {
+      title: "Télétravail public",
+      docs: [{ text: longText, zh: "中文" }],
+      questions: [
+        mkQ(0),
+        mkQ(1, { qType: "vf", options: ["Vrai", "Faux"], answer: 0, quote: "le télétravail progresse rapidement dans les administrations publiques françaises" }),
+        mkQ(2),
+        mkQ(3, { qType: "short", options: [], answer: 0, accepted: ["un isolement croissant des jeunes agents", "isolement des jeunes agents"] }),
+        mkQ(4),
+        mkQ(5),
+        mkQ(6),
+      ],
+    },
+    "long",
+    "travail",
+  );
+  assert.equal(isValidComprehension(validLong, "long"), true);
+
+  // Vrai/Faux requires BOTH correct option AND matching verbatim citation
+  const vfQ = validLong.questions[1];
+  assert.equal(vfQ.qType, "vf");
+  assert.equal(gradeCompQuestion(vfQ, 0, "", longText).correct, false);
+  assert.equal(gradeCompQuestion(vfQ, 0, "phrase inventée qui n'existe pas dans l'article", longText).correct, false);
+  assert.equal(gradeCompQuestion(vfQ, 1, vfQ.quote, longText).correct, false);
+  assert.equal(gradeCompQuestion(vfQ, 0, "le teletravail progresse rapidement dans les administrations publiques francaises", longText).correct, true);
+
+  // Short open question keyword matching
+  const shortQ = validLong.questions[3];
+  assert.equal(shortQ.qType, "short");
+  assert.equal(gradeCompQuestion(shortQ, 0, "les jeunes agents risquent un isolement croissant", longText).correct, true);
+  assert.equal(gradeCompQuestion(shortQ, 0, "le salaire", longText).correct, false);
+
+  // Strict validation rejects incomplete 6-question long, uneven short doc indices, or skewed opinions
+  const sixOnly = sanitizeExercise({ docs: [{ text: longText, zh: "" }], questions: [0, 1, 2, 3, 4, 5].map((k) => mkQ(k)) }, "long", "travail");
+  assert.equal(isValidComprehension(sixOnly, "long"), false);
+
+  const badShort = sanitizeExercise(
+    {
+      docs: [{ text: longText, zh: "" }, { text: longText, zh: "" }, { text: longText, zh: "" }],
+      questions: [0, 0, 0, 1, 2, 2].map((doc, k) => mkQ(k, { doc })),
+    },
+    "short",
+    "travail",
+  );
+  assert.equal(isValidComprehension(badShort, "short"), false);
+
+  const badOpinions = sanitizeExercise(
+    {
+      docs: [{ text: longText, zh: "" }],
+      questions: [0, 0, 0, 1, 2, 2].map((answer, k) => mkQ(k, { answer })),
+    },
+    "opinions",
+    "travail",
+  );
+  assert.equal(isValidComprehension(badOpinions, "opinions"), false);
 });

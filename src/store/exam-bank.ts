@@ -4,12 +4,14 @@
  * The papers that come with the app (预置题) are not stored; only their attempts are.
  */
 import { useSyncExternalStore } from "react";
-import { sanitizeExercise, type CompExercise, type CompKind } from "../lib/exam";
+import { gradeCompQuestion, sanitizeExercise, type CompExercise, type CompKind } from "../lib/exam";
 
 export interface Attempt {
   at: number;
   /** Chosen option by question key "exercise-question". */
   picked: Record<string, number>;
+  /** Written justification quotes (vf) or short answers (short) keyed by "exercise-question". */
+  typed?: Record<string, string>;
   score: number;
   total: number;
   /** The question keys asked, when only the ones missed last time were (错题重做). */
@@ -100,8 +102,17 @@ function sanitizeAttempts(v: unknown): Attempt[] {
     .map((a) => {
       const picked: Record<string, number> = {};
       if (a.picked && typeof a.picked === "object") for (const [k, n] of Object.entries(a.picked)) if (/^\d+-\d+$/.test(k) && typeof n === "number") picked[k] = n;
+      const typed: Record<string, string> = {};
+      if (a.typed && typeof a.typed === "object") for (const [k, s] of Object.entries(a.typed)) if (/^\d+-\d+$/.test(k) && typeof s === "string" && s.trim()) typed[k] = s.trim().slice(0, 400);
       const asked = Array.isArray(a.asked) ? a.asked.filter((k): k is string => typeof k === "string" && /^\d+-\d+$/.test(k)) : null;
-      return { at: a.at as number, picked, score: a.score as number, total: a.total as number, ...(asked ? { asked } : {}) };
+      return {
+        at: a.at as number,
+        picked,
+        ...(Object.keys(typed).length ? { typed } : {}),
+        score: a.score as number,
+        total: a.total as number,
+        ...(asked ? { asked } : {}),
+      };
     })
     .slice(0, 20);
 }
@@ -195,7 +206,7 @@ export function wrongKeys(paper: Pick<BankPaper, "exs">, attempt: Attempt | unde
     ex.questions.forEach((q, k) => {
       const key = `${e}-${k}`;
       if (asked && !asked.includes(key)) return;
-      if (attempt.picked[key] !== q.answer) out.push(key);
+      if (!gradeCompQuestion(q, attempt.picked[key], attempt.typed?.[key], ex.docs[q.doc]?.text).correct) out.push(key);
     }),
   );
   return out;

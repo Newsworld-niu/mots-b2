@@ -386,11 +386,19 @@ export const BETWEEN_PLAYS = 30;
 export const PAPER: Record<CompKind, CompForm[]> = { listen: ["long", "long", "short"], read: ["long", "long", "opinions"] };
 export const READ_MINUTES = { paper: 60, long: 20, opinions: 15 } as const;
 
+export type CompQuestionType = "qcm" | "vf" | "short";
+
 export interface CompQuestion {
-  /** Question and options in French, as in the exam: three options. */
+  /** Question and options in French, as in the exam: 3 options ("qcm"), Vrai/Faux + citation ("vf"), or short written answer ("short"). */
   q: string;
+  /** Question format; omitted for legacy 3-option QCM questions. */
+  qType?: CompQuestionType;
   options: string[];
   answer: number;
+  /** Exact French quote justifying a Vrai/Faux answer (justifier par une citation). */
+  quote?: string;
+  /** Accepted French short answers (sample answers / keyphrases) when qType === "short". */
+  accepted?: string[];
   /** Why, in Chinese. */
   why: string;
   /** Points, from 0.5 to 2.5, set by `weigh`. */
@@ -442,6 +450,72 @@ export function weigh(difficulty: number[], points: number): number[] {
 /** The measured pace of the official recordings: words per minute over a whole document, pauses included. */
 export const REAL_WPM = 177;
 
+const normCite = (s: string) =>
+  s
+    .replace(/’/g, "'")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}']+/gu, " ")
+    .trim();
+
+const citeWords = (s: string) => normCite(s).split(/\s+/).filter((w) => w.length >= 3);
+
+/** Grade one comprehension question: 3-option QCM, Vrai/Faux + citation justification, or short written answer. */
+export function gradeCompQuestion(
+  q: CompQuestion,
+  picked?: number,
+  typed?: string,
+  docText?: string,
+): { correct: boolean; choiceOk?: boolean; quoteMatched?: boolean } {
+  const qt = q.qType ?? "qcm";
+  if (qt === "vf") {
+    const choiceOk = picked === q.answer;
+    const tNorm = normCite(typed ?? "");
+    const qNorm = normCite(q.quote ?? "");
+    const dNorm = docText ? normCite(docText) : "";
+    let quoteMatched = false;
+    if (tNorm.length >= 12 && qNorm) {
+      const targetWords = citeWords(q.quote ?? "");
+      const typedSet = new Set(normCite(typed ?? "").split(/\s+/).filter(Boolean));
+      const hits = targetWords.filter((w) => typedSet.has(w)).length;
+      const ratio = targetWords.length ? hits / targetWords.length : 0;
+      const inDoc = dNorm ? dNorm.includes(tNorm) : true;
+      quoteMatched = (inDoc && ratio >= 0.55) || ratio >= 0.75;
+    }
+    return { correct: choiceOk && quoteMatched, choiceOk, quoteMatched };
+  }
+  if (qt === "short") {
+    const tNorm = normCite(typed ?? "");
+    const candidates = (q.accepted ?? []).filter(Boolean);
+    if (!tNorm || !candidates.length) return { correct: false };
+    const tSet = new Set(tNorm.split(/\s+/).filter(Boolean));
+    const ok = candidates.some((cand) => {
+      const cNorm = normCite(cand);
+      if (!cNorm) return false;
+      if (tNorm.includes(cNorm) || (tNorm.length >= 4 && cNorm.includes(tNorm) && tNorm.length >= cNorm.length * 0.65)) return true;
+      const words = citeWords(cand);
+      const pool = words.length ? words : cNorm.split(/\s+/).filter(Boolean);
+      const hits = pool.filter((w) => tSet.has(w)).length;
+      return pool.length > 0 && hits / pool.length >= 0.65;
+    });
+    return { correct: ok };
+  }
+  return { correct: picked === q.answer };
+}
+
+/** Strict DELF B2 structural validation used to gate AI-generated exercises and presets. */
+export function isValidComprehension(ex: CompExercise, form: CompForm): boolean {
+  const spec = FORM_SPEC[form];
+  if (ex.docs.length !== (form === "short" ? 3 : 1)) return false;
+  if (!ex.docs.every((d) => d.text.length > 200)) return false;
+  if (ex.questions.length !== spec.questions) return false;
+  if (exercisePoints(ex) !== spec.points) return false;
+  if (form === "short" && ex.questions.map((q) => q.doc).join(",") !== "0,0,1,1,2,2") return false;
+  if (form === "opinions" && ![0, 1, 2].every((j) => ex.questions.filter((q) => q.answer === j).length === 2)) return false;
+  return true;
+}
+
 export function sanitizeExercise(raw: unknown, form: CompForm, topic: string): CompExercise {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   const docs = (Array.isArray(r.docs) ? r.docs : [])
@@ -449,20 +523,39 @@ export function sanitizeExercise(raw: unknown, form: CompForm, topic: string): C
     .map((d) => ({ text: str(d.text, 6000), zh: str(d.zh, 6000) }))
     .filter((d) => d.text)
     .slice(0, form === "short" ? 3 : 1);
-  const rows = (Array.isArray(r.questions) ? r.questions : [])
-    .filter((x): x is Record<string, unknown> => !!x && typeof x === "object")
-    .map((x) => {
-      const options = Array.isArray(x.options) ? x.options.map((o) => str(o, 240)).filter(Boolean).slice(0, 3) : [];
-      const doc = typeof x.doc === "number" ? Math.round(x.doc) : 0;
-      const level = typeof x.difficulty === "number" && Number.isFinite(x.difficulty) ? Math.min(5, Math.max(1, Math.round(x.difficulty))) : 3;
-      const skill = QSKILLS.includes(x.skill as QSkill) ? (x.skill as QSkill) : undefined;
-      return { q: str(x.q, 400), options, answer: typeof x.answer === "number" ? Math.round(x.answer) : -1, why: str(x.why, 500), level, doc: doc >= 0 && doc < docs.length ? doc : 0, ...(skill ? { skill } : {}) };
-    })
-    .filter((x) => x.q && x.options.length === 3 && new Set(x.options).size === 3 && x.answer >= 0 && x.answer < 3)
-    .slice(0, FORM_SPEC[form].questions);
+  const rows: (Omit<CompQuestion, "pts"> & { level: number })[] = [];
+  for (const x of Array.isArray(r.questions) ? r.questions : []) {
+    if (!x || typeof x !== "object") continue;
+    const rec = x as Record<string, unknown>;
+    const q = str(rec.q, 400);
+    if (!q) continue;
+    const docRaw = typeof rec.doc === "number" ? Math.round(rec.doc) : 0;
+    const doc = docRaw >= 0 && docRaw < docs.length ? docRaw : 0;
+    const level = typeof rec.difficulty === "number" && Number.isFinite(rec.difficulty) ? Math.min(5, Math.max(1, Math.round(rec.difficulty))) : 3;
+    const skill = QSKILLS.includes(rec.skill as QSkill) ? (rec.skill as QSkill) : undefined;
+    const why = str(rec.why, 500);
+    const qtRaw = rec.qType;
+    const qType: CompQuestionType = qtRaw === "vf" || qtRaw === "short" ? qtRaw : "qcm";
+    if (qType === "vf") {
+      const answer = typeof rec.answer === "number" ? Math.round(rec.answer) : -1;
+      const quote = str(rec.quote, 360);
+      if ((answer !== 0 && answer !== 1) || !quote) continue;
+      rows.push({ q, qType: "vf", options: ["Vrai", "Faux"], answer, quote, why, level, doc, ...(skill ? { skill } : {}) });
+    } else if (qType === "short") {
+      const accepted = (Array.isArray(rec.accepted) ? rec.accepted : []).map((a) => str(a, 180)).filter(Boolean).slice(0, 4);
+      if (!accepted.length) continue;
+      rows.push({ q, qType: "short", options: [], answer: 0, accepted, why, level, doc, ...(skill ? { skill } : {}) });
+    } else {
+      const options = Array.isArray(rec.options) ? rec.options.map((o) => str(o, 240)).filter(Boolean).slice(0, 3) : [];
+      const answer = typeof rec.answer === "number" ? Math.round(rec.answer) : -1;
+      if (options.length !== 3 || new Set(options).size !== 3 || answer < 0 || answer >= 3) continue;
+      rows.push({ q, options, answer, why, level, doc, ...(skill ? { skill } : {}) });
+    }
+    if (rows.length >= FORM_SPEC[form].questions) break;
+  }
   // points only add up to the exercise's total when every question came back
   const pts = weigh(rows.map((x) => x.level), rows.length === FORM_SPEC[form].questions ? FORM_SPEC[form].points : rows.length);
-  const questions = rows.map(({ level: _l, ...x }, k) => ({ ...x, pts: pts[k] })).sort((a, b) => a.doc - b.doc);
+  const questions: CompQuestion[] = rows.map(({ level: _l, ...x }, k) => ({ ...x, pts: pts[k] })).sort((a, b) => a.doc - b.doc);
   return { form, topic, intro: str(r.intro, 240), title: str(r.title, 120).replace(/^["«\s]+|["»\s]+$/g, ""), docs, questions };
 }
 

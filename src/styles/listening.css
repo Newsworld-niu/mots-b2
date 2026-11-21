@@ -298,3 +298,37 @@
   border-radius: 10px;
   background: #fff;
 }
+.exam-q-badge {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg-soft, rgba(120, 120, 120, 0.12));
+  color: var(--ink);
+}
+.exam-cite-box {
+  margin-top: 8px;
+  display: grid;
+  gap: 4px;
+}
+.exam-cite-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 0.94rem;
+}
+.exam-cite-status {
+  margin: 0;
+  font-size: 0.85rem;
+}
+.exam-cite-status.is-ok {
+  color: var(--sage-ink, #1f6f4a);
+}
+.exam-cite-status.is-miss {
+  color: var(--rose, #b83a3a);
+}

@@ -7,7 +7,7 @@ import { speakerVoices, ttsOn, ttsSsmlUrl, ttsUrl } from "../ai/tts";
 import { useGrammar } from "../atlas/grammar";
 import { play, stopAudio } from "../lib/audio";
 import { countWords, CRITERIA, CRITERION_CHECK, CRITERION_LABEL, ESSAY_TASKS, GENRE_LABEL, LEVELS, totalScore, type EssayFeedback, type EssayTask } from "../lib/essay";
-import { BETWEEN_PLAYS, clock, examReadiness, FORM_SPEC, PART_LABEL, READ_MINUTES, REAL_WPM, speechChunks, speechTurns, SPEAK_CRITERIA, SPEAK_TIMES, SPEAKING_SUBJECTS, topicOf, type CompExercise, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
+import { BETWEEN_PLAYS, clock, examReadiness, FORM_SPEC, gradeCompQuestion, PART_LABEL, READ_MINUTES, REAL_WPM, speechChunks, speechTurns, SPEAK_CRITERIA, SPEAK_TIMES, SPEAKING_SUBJECTS, topicOf, type CompExercise, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
 import { PRESET_PAPERS } from "../lib/exam-presets";
 import { pickVoices, type DocVoices } from "../lib/listening";
 import { canDictate, dictate } from "../lib/speech";
@@ -29,6 +29,7 @@ interface MockState {
   coPicked: Record<string, number>;
   coScore: number | null;
   cePicked: Record<string, number>;
+  ceTyped?: Record<string, string>;
   ceScore: number | null;
   peTaskId: string;
   peText: string;
@@ -66,6 +67,7 @@ function initialMock(setIdx: 0 | 1, strict: boolean): MockState {
     coPicked: {},
     coScore: null,
     cePicked: {},
+    ceTyped: {},
     ceScore: null,
     peTaskId: peTask.id,
     peText: "",
@@ -106,11 +108,12 @@ function saveMock(s: MockState | null) {
   }
 }
 
-const scoreComp = (exs: CompExercise[], picked: Record<string, number>) => {
+const scoreComp = (exs: CompExercise[], picked: Record<string, number>, typed: Record<string, string> = {}) => {
   let s = 0;
   exs.forEach((ex, e) =>
     ex.questions.forEach((q, k) => {
-      if (picked[`${e}-${k}`] === q.answer) s += q.pts;
+      const key = `${e}-${k}`;
+      if (gradeCompQuestion(q, picked[key], typed[key], ex.docs[q.doc]?.text).correct) s += q.pts;
     }),
   );
   return Math.round(s * 10) / 10;
@@ -319,7 +322,7 @@ export function MockExam({ onExit }: { onExit: () => void }) {
   const finishCe = () => {
     if (!m) return;
     const rp = readPapers[m.setIdx] ?? readPapers[0];
-    const sc = scoreComp(rp.exs, m.cePicked);
+    const sc = scoreComp(rp.exs, m.cePicked, m.ceTyped ?? {});
     logExam({ part: "read", what: `mock-${rp.id}`, score: sc, total: 25 });
     const peSec = 60 * 60;
     sectionTimer.start(peSec);
@@ -671,19 +674,36 @@ export function MockExam({ onExit }: { onExit: () => void }) {
                 <ol className="exam-questions">
                   {ex.questions.map((q, k) => {
                     const key = `${e}-${k}`;
+                    const qt = q.qType ?? "qcm";
                     return (
                       <li key={k}>
                         <p className="exam-q" lang="fr">
+                          {qt === "vf" && <span className="exam-q-badge">Vrai / Faux · 引证</span>}
+                          {qt === "short" && <span className="exam-q-badge">简答题</span>}
                           {q.q} <small>{num(q.pts)} pt</small>
                         </p>
-                        <div className="exam-options" role="radiogroup">
-                          {q.options.map((o, j) => (
-                            <button key={j} role="radio" aria-checked={m.cePicked[key] === j} className={`exam-option ${m.cePicked[key] === j ? "is-on" : ""}`} lang="fr" onClick={() => update({ cePicked: { ...m.cePicked, [key]: j } })}>
-                              <span>{"ABC"[j]}</span>
-                              {o}
-                            </button>
-                          ))}
-                        </div>
+                        {qt !== "short" && (
+                          <div className="exam-options" role="radiogroup">
+                            {q.options.map((o, j) => (
+                              <button key={j} role="radio" aria-checked={m.cePicked[key] === j} className={`exam-option ${m.cePicked[key] === j ? "is-on" : ""}`} lang="fr" onClick={() => update({ cePicked: { ...m.cePicked, [key]: j } })}>
+                                <span>{qt === "vf" ? "VF"[j] : "ABC"[j]}</span>
+                                {o}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {(qt === "vf" || qt === "short") && (
+                          <div className="exam-cite-box">
+                            <input
+                              type="text"
+                              className="exam-cite-input"
+                              lang="fr"
+                              value={m.ceTyped?.[key] ?? ""}
+                              onChange={(ev) => update({ ceTyped: { ...(m.ceTyped ?? {}), [key]: ev.target.value } })}
+                              placeholder={qt === "vf" ? "Justifiez par une citation du texte…" : "Réponse courte en français…"}
+                            />
+                          </div>
+                        )}
                       </li>
                     );
                   })}

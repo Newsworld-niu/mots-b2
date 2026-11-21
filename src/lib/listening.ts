@@ -268,13 +268,17 @@ export function qualityIssues(ex: CompExercise): string[] {
   const issues: string[] = [];
   const norm = (t: string) => foldAccents(t.replace(/’/g, "'")).replace(/[^\p{L}\p{N}']+/gu, " ").trim();
   const doc = ` ${ex.docs.map((d) => norm(d.text)).join(" ")} `;
-  const echoes = ex.form === "opinions" ? 0 : ex.questions.filter((q) => {
-    const w = norm(q.options[q.answer] ?? "").split(" ").filter(Boolean);
-    for (let k = 0; k + 5 <= w.length; k++) if (doc.includes(` ${w.slice(k, k + 5).join(" ")} `)) return true;
-    return false;
-  }).length;
+  const qcm = ex.questions.filter((q) => !q.qType || q.qType === "qcm");
+  const echoes =
+    ex.form === "opinions"
+      ? 0
+      : qcm.filter((q) => {
+          const w = norm(q.options[q.answer] ?? "").split(" ").filter(Boolean);
+          for (let k = 0; k + 5 <= w.length; k++) if (doc.includes(` ${w.slice(k, k + 5).join(" ")} `)) return true;
+          return false;
+        }).length;
   if (echoes >= 2) issues.push(`${echoes} 个正确选项照抄原文`);
-  if (ex.form !== "opinions" && ex.questions.length >= 4 && new Set(ex.questions.map((q) => q.answer)).size === 1) issues.push("正确答案都在同一个位置");
+  if (ex.form !== "opinions" && qcm.length >= 4 && new Set(qcm.map((q) => q.answer)).size === 1) issues.push("正确答案都在同一个位置");
   return issues;
 }
 

@@ -7,7 +7,7 @@
 import { sanitizeExercise, type CompForm } from "./exam";
 import type { BankPaper } from "../store/exam-bank";
 
-type RawQ = { q: string; options: [string, string, string]; answer: number; why: string; difficulty: number; skill: string; doc?: number };
+type RawQ = { q: string; qType?: "qcm" | "vf" | "short"; options: string[]; answer: number; quote?: string; accepted?: string[]; why: string; difficulty: number; skill: string; doc?: number };
 type RawDoc = { text: string; zh: string };
 type Raw = { form: CompForm; topic: string; intro: string; title: string; docs: RawDoc[]; questions: RawQ[] };
 
@@ -451,6 +451,316 @@ Nadia：今天最让我反感的并不是本地小店里普通人之间的二手
   ],
 };
 
+
+/* ==================== 阅读整套 3（25 分 · 官方并行格式：含 Vrai/Faux 原文引证 + 简答） ==================== */
+
+const R3_LONG_1: Raw = {
+  "form": "long",
+  "topic": "sciences-ethique",
+  "intro": "Dans un magazine scientifique francophone, vous lisez cet article sur l'usage de l'intelligence artificielle dans les diagnostics médicaux.",
+  "title": "L’intelligence artificielle au service du diagnostic médical : progrès ou danger ?",
+  "docs": [
+    {
+      "text": "Depuis quelques années, l’intelligence artificielle (IA) s’invite dans les hôpitaux et les cabinets médicaux. Selon une étude publiée en 2023, 38% des établissements de santé français utilisent déjà des outils d’IA pour aider à poser des diagnostics, notamment dans le domaine de l’imagerie médicale. Cette technologie s’appuie sur l’analyse de grandes quantités de données médicales, telles que des radiographies, des scanners ou des dossiers patients, pour détecter des anomalies parfois imperceptibles à l’œil humain. Par exemple, dans plusieurs hôpitaux parisiens, des logiciels d’IA sont utilisés pour trier automatiquement les images de mammographie et signaler les cas suspects aux radiologues, ce qui permet de réduire les délais de prise en charge.\nPour le professeur Alain Dubois, chef du service de radiologie à Lyon, ces technologies représentent « une avancée majeure ». Il affirme : « Grâce à l’IA, nous détectons plus précocement certains cancers, ce qui améliore considérablement les chances de guérison. » En effet, une récente expérimentation menée sur 1 200 patients a montré que l’IA permettait d’identifier des anomalies invisibles à l’œil humain dans 17% des cas. Un exemple concret est celui d’un patient de 54 ans chez qui une tumeur pulmonaire a été repérée par un algorithme, alors que les médecins n’avaient rien détecté lors de la première lecture.\nCependant, tout le monde ne partage pas cet enthousiasme. La docteure Sophie Martin, généraliste à Paris, met en garde contre une confiance excessive dans ces systèmes. « L’IA ne remplace pas le jugement clinique du médecin. Il existe toujours un risque d’erreur, surtout si l’on s’appuie uniquement sur la machine », souligne-t-elle. Elle rappelle que, selon une enquête menée en 2022, 12% des diagnostics assistés par IA se sont révélés incorrects. Elle cite le cas d’un patient dont l’IA avait écarté une infection grave, alors que le médecin, grâce à son expérience, a su insister pour réaliser des examens complémentaires. Pour la docteure Martin, l’IA doit rester un outil d’aide à la décision, mais ne doit jamais remplacer l’expertise humaine, notamment dans les situations complexes ou atypiques.\nUn autre enjeu concerne la protection des données médicales. Les logiciels d’IA nécessitent l’accès à d’importantes quantités d’informations personnelles pour fonctionner efficacement. Or, la Commission nationale de l’informatique et des libertés (CNIL) a déjà signalé plusieurs failles de sécurité en 2021, dont une ayant exposé les dossiers de 5 000 patients. Cette fuite a suscité l’inquiétude de nombreux professionnels de santé, qui craignent que des données sensibles puissent être utilisées à des fins commerciales ou tomber entre de mauvaises mains. Certains experts estiment que le développement de l’IA doit impérativement s’accompagner de garanties strictes en matière de confidentialité et de transparence sur l’utilisation des données.\nMalgré ces réserves, le ministère de la Santé encourage le développement de l’IA dans le secteur médical. Il a investi 45 millions d’euros en 2023 pour financer des projets innovants, tout en promettant de renforcer la réglementation sur la sécurité des données. Des appels à projets ont permis de soutenir des start-ups françaises spécialisées dans la détection précoce des maladies chroniques ou dans l’analyse automatisée des dossiers médicaux. Le gouvernement insiste sur la nécessité de trouver un équilibre entre innovation et sécurité, en veillant à ce que l’IA bénéficie à tous les patients, y compris dans les zones rurales où l’accès aux spécialistes est parfois limité.",
+      "zh": "近年来，人工智能（AI）逐渐进入医院和诊所。根据2023年发布的一项研究，法国已有38%的医疗机构在诊断中使用AI工具，尤其是在医学影像领域。这项技术依赖于对大量医学数据的分析，如X光片、CT扫描或病历，用于发现肉眼难以察觉的异常。例如，在巴黎的多家医院，AI软件被用于自动筛查乳腺X光片，将可疑病例标记给放射科医生，从而缩短了诊疗时间。\n里昂放射科主任阿兰·杜布瓦教授认为，这些技术是“重大进步”。他表示：“借助AI，我们能更早发现某些癌症，这大大提高了治愈的机会。”事实上，一项针对1200名患者的最新实验显示，AI在17%的病例中能识别出肉眼无法察觉的异常。具体来说，有一位54岁的患者，其肺部肿瘤是通过AI算法发现的，而医生初次检查时并未察觉。在杜布瓦教授的科室，AI还帮助检测到乳腺X光片中的微钙化灶，从而更早诊断出乳腺癌。\n然而，并非所有人都持乐观态度。巴黎全科医生索菲·马丁提醒人们不要对这些系统过度信任。“AI不能取代医生的临床判断。如果只依赖机器，总会有出错的风险。”她指出。她还提到，根据2022年的一项调查，12%的AI辅助诊断结果是错误的。她举例说，有一位患者被AI排除了严重感染，但凭借经验，医生坚持做了进一步检查，最终发现了问题。马丁医生认为，AI应作为辅助决策的工具，而不能取代人类的专业判断，尤其是在复杂或特殊病例中。她还补充，目前医生对这些工具的培训还不够，增加了误判或误用的风险。\n另一个问题是医疗数据的保护。AI软件需要大量个人信息才能高效运行。而国家信息与自由委员会（CNIL）在2021年已报告多起安全漏洞，其中一起导致5000名患者的档案被泄露。这一事件引发了许多医务人员的担忧，他们担心敏感数据被用于商业目的或落入不法分子手中。有专家认为，AI的发展必须严格保障数据的机密性和透明度。此外，患者是否同意将其信息用于AI学习数据库，也是一个重要的伦理争议。\n尽管存在这些担忧，卫生部仍鼓励在医疗领域发展AI。2023年，政府为创新项目投入了4500万欧元，并承诺加强数据安全监管。通过项目招标，支持了多家专注于慢性病早期检测或自动化病历分析的法国初创企业。政府强调要在创新与安全之间取得平衡，确保AI惠及所有患者，包括那些在农村地区难以获得专家服务的人群。还设立了伦理委员会，监督这些技术的推广，保障患者的基本权利。"
+    }
+  ],
+  "questions": [
+    {
+      "q": "Quel est le principal domaine médical où l’IA est déjà largement utilisée selon l’article ?",
+      "qType": "qcm",
+      "options": [
+        "La chirurgie cardiaque",
+        "La détection par imagerie médicale",
+        "La psychiatrie"
+      ],
+      "answer": 1,
+      "why": "文章第一段提到“notamment dans le domaine de l’imagerie médicale”，说明主要应用在医学影像领域。",
+      "difficulty": 2,
+      "skill": "detail"
+    },
+    {
+      "q": "Selon le professeur Dubois, l’IA permet de détecter plus tôt certains cancers.",
+      "qType": "vf",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "answer": 0,
+      "quote": "Grâce à l’IA, nous détectons plus précocement certains cancers, ce qui améliore considérablement les chances de guérison.",
+      "why": "文章第二段直接引用了杜布瓦教授的话，说明AI能更早发现癌症。",
+      "difficulty": 2,
+      "skill": "detail"
+    },
+    {
+      "q": "Quelle est la principale inquiétude de la docteure Martin concernant l’IA ?",
+      "qType": "qcm",
+      "options": [
+        "Le coût élevé des logiciels d’IA",
+        "Le manque de formation des médecins",
+        "Une confiance aveugle dans la machine, source potentielle d'erreurs"
+      ],
+      "answer": 2,
+      "why": "第三段马丁医生强调“Il existe toujours un risque d’erreur, surtout si l’on s’appuie uniquement sur la machine”。",
+      "difficulty": 3,
+      "skill": "gist"
+    },
+    {
+      "q": "Quel pourcentage des diagnostics assistés par IA se sont révélés incorrects selon une enquête de 2022 ?",
+      "qType": "short",
+      "options": [],
+      "answer": 0,
+      "accepted": [
+        "12%",
+        "douze pour cent",
+        "12 %"
+      ],
+      "why": "第三段提到“12% des diagnostics assistés par IA se sont révélés incorrects”。",
+      "difficulty": 3,
+      "skill": "detail"
+    },
+    {
+      "q": "La CNIL n’a signalé aucune faille de sécurité concernant les données médicales en 2021.",
+      "qType": "vf",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "answer": 1,
+      "quote": "la Commission nationale de l’informatique et des libertés (CNIL) a déjà signalé plusieurs failles de sécurité en 2021",
+      "why": "第四段明确说CNIL报告了多起安全漏洞，因此说“aucune faille”是错误的。",
+      "difficulty": 3,
+      "skill": "negation"
+    },
+    {
+      "q": "Quel montant le ministère de la Santé a-t-il investi en 2023 pour l’IA médicale ?",
+      "qType": "qcm",
+      "options": [
+        "15 millions d’euros",
+        "45 millions d’euros",
+        "75 millions d’euros"
+      ],
+      "answer": 1,
+      "why": "第五段提到“Il a investi 45 millions d’euros en 2023”。",
+      "difficulty": 2,
+      "skill": "detail"
+    },
+    {
+      "q": "Selon l’article, quelle est la position du ministère de la Santé sur l’IA ?",
+      "qType": "qcm",
+      "options": [
+        "Il encourage son développement tout en promettant plus de sécurité",
+        "Il interdit l’utilisation de l’IA dans les hôpitaux",
+        "Il reste neutre sur le sujet"
+      ],
+      "answer": 0,
+      "why": "第五段说卫生部鼓励AI发展，同时承诺加强数据安全。",
+      "difficulty": 3,
+      "skill": "gist"
+    }
+  ]
+};
+
+const R3_LONG_2: Raw = {
+  "form": "long",
+  "topic": "logement-urbanisme",
+  "intro": "Vous lisez cette enquête dans un quotidien national sur l'encadrement des loyers et les locations touristiques dans les grandes villes.",
+  "title": "Loyers sous contrôle : un défi pour les métropoles françaises",
+  "docs": [
+    {
+      "text": "Face à la flambée des prix de l’immobilier, plusieurs grandes villes françaises ont mis en place des mesures pour encadrer les loyers. À Paris, le plafond fixé en 2022 limite le loyer moyen à 38 euros le mètre carré, soit une hausse de 3% par rapport à l’année précédente. Cette mesure vise à freiner la hausse continue des loyers, qui pèse lourdement sur les budgets des ménages, en particulier chez les jeunes actifs et les familles modestes. À Marseille et Lille, des dispositifs similaires ont été adoptés, mais avec des plafonds adaptés au marché local.\nPourtant, de nombreux locataires dénoncent des abus. Selon une enquête menée par l’association Droit au Logement, 27% des baux signés en 2023 dépassaient le plafond légal. « Certains propriétaires profitent du manque de contrôles pour augmenter les loyers », explique Julie Laurent, porte-parole de l’association. Camille, locataire à Paris depuis 5 ans, témoigne : « Mon propriétaire a augmenté mon loyer de 80 euros sans justification, alors que je savais que le plafond n’était pas respecté. J’ai hésité à porter plainte, mais la procédure est longue et compliquée. » Un autre locataire, Rachid, habitant à Lyon, ajoute : « Même avec l’encadrement, il est difficile de trouver un logement abordable. Beaucoup de propriétaires demandent des compléments de loyer injustifiés. » Ces situations créent un sentiment d’injustice et de frustration chez de nombreux habitants.\nEn parallèle, la multiplication des locations touristiques via des plateformes comme Airbnb aggrave la pénurie de logements disponibles à long terme. À Lyon, on estime que 6 000 appartements sont loués en courte durée, soit 4% du parc locatif privé. Pour Pierre Martin, agent immobilier, « la location touristique prive les habitants de logements abordables ». Il précise que dans certains quartiers du centre-ville, près d’un logement sur cinq est proposé à la location saisonnière, ce qui fait grimper les prix et pousse les familles à s’éloigner. Julie Laurent ajoute : « On voit des immeubles entiers transformés en locations de vacances, au détriment des résidents permanents. »\nLes municipalités tentent de réagir. À Bordeaux, la mairie a instauré une amende de 5 000 euros pour les propriétaires qui ne respectent pas la réglementation. Malgré cela, le nombre d’annonces touristiques a augmenté de 12% en 2023. À Nice, la mairie a mis en place un service de contrôle dédié, mais les moyens restent limités face à la multiplication des plateformes. Un économiste du logement, Thomas Girard, analyse : « L’encadrement des loyers est utile mais insuffisant s’il n’est pas accompagné de contrôles efficaces et de mesures contre la spéculation. Dans certaines villes comme Berlin ou Barcelone, des politiques plus strictes ont permis de stabiliser les loyers, mais au prix d’un marché locatif parfois plus rigide. »\nCertains experts estiment que l’encadrement des loyers n’est pas suffisant. Selon une étude de l’INSEE, le revenu médian des ménages locataires à Paris a baissé de 2% en deux ans, tandis que le coût du logement continue de grimper. À Lyon, la part du budget consacrée au logement atteint désormais 38% pour les locataires, contre 32% il y a cinq ans. Pour résoudre la crise, beaucoup plaident pour une politique nationale plus ambitieuse, combinant encadrement strict et construction de nouveaux logements. Thomas Girard conclut : « Il faut agir sur tous les leviers : réguler les loyers, lutter contre les abus, mais aussi accélérer la construction de logements sociaux et intermédiaires. »",
+      "zh": "面对房价飙升，法国多座大城市出台了租金管控措施。2022年，巴黎设定的上限将平均租金限制在每平方米38欧元，比前一年上涨了3%。这一措施旨在遏制租金的持续上涨，减轻家庭，尤其是年轻人和低收入家庭的经济压力。马赛和里尔等地也采取了类似的政策，但根据当地市场设定了不同的上限。\n然而，许多租户仍然抱怨违规行为。根据住房权利协会进行的一项调查，2023年签署的租约中有27%超过了法定上限。“一些房东利用监管不足提高租金。”该协会发言人朱莉·洛朗解释道。巴黎租户卡米耶表示：“我的房东无故把房租涨了80欧元，我明知道超过了上限，但投诉程序又长又复杂。”里昂的租户拉希德补充说：“即使有管控，找到负担得起的住房还是很难。很多房东还会额外收取不合理的费用。”这些情况让许多居民感到不公和无奈。\n与此同时，通过Airbnb等平台的短租增加，加剧了长期住房的短缺。在里昂，估计有6000套公寓用于短租，占私人出租房源的4%。房地产经纪人皮埃尔·马丁表示：“短租让居民失去了负担得起的住房。”他补充说，在市中心某些街区，五分之一的住房都被用作季节性出租，推高了房价，迫使家庭搬离。朱莉·洛朗还说：“我们看到整栋楼都变成了度假公寓，常住居民被挤出去了。”\n市政府正在努力应对。在波尔多，市政府对不遵守规定的房东处以5000欧元罚款。尽管如此，2023年短租广告数量仍增长了12%。尼斯市政府设立了专门的监管部门，但面对平台数量的增加，力量仍然有限。住房经济学家托马斯·吉拉尔分析道：“租金管控有用，但如果没有有效监管和反投机措施，作用有限。在柏林和巴塞罗那等城市，更严格的政策确实稳定了租金，但也让租赁市场变得僵化。”\n一些专家认为，租金管控措施还不够。根据INSEE的一项研究，巴黎租户家庭的中位收入两年内下降了2%，而住房成本持续上涨。在里昂，租户用于住房的预算比例已达38%，而五年前为32%。为解决危机，许多人呼吁出台更有力的全国性政策，既要严格管控，也要新建住房。吉拉尔总结道：“要多管齐下：规范租金、打击违规，还要加快建设社会和中等价位住房。”"
+    }
+  ],
+  "questions": [
+    {
+      "q": "Quel est le plafond moyen du loyer au mètre carré à Paris en 2022 ?",
+      "qType": "qcm",
+      "options": [
+        "28 euros",
+        "38 euros",
+        "48 euros"
+      ],
+      "answer": 1,
+      "why": "第一段明确说巴黎2022年租金上限为38欧元/平方米。",
+      "difficulty": 2,
+      "skill": "detail"
+    },
+    {
+      "q": "En 2023, 27% des baux signés à Paris dépassaient le plafond légal.",
+      "qType": "vf",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "answer": 0,
+      "quote": "27% des baux signés en 2023 dépassaient le plafond légal",
+      "why": "第二段直接引用了这一数据，说明是真的。",
+      "difficulty": 2,
+      "skill": "detail"
+    },
+    {
+      "q": "Quel est l’impact principal des locations touristiques selon Pierre Martin ?",
+      "qType": "qcm",
+      "options": [
+        "Elles améliorent la qualité des logements",
+        "Elles augmentent la sécurité dans les quartiers",
+        "Les résidents peinent davantage à se loger à un prix raisonnable"
+      ],
+      "answer": 2,
+      "why": "第三段皮埃尔·马丁说短租让居民失去负担得起的住房。",
+      "difficulty": 3,
+      "skill": "gist"
+    },
+    {
+      "q": "Le nombre d’annonces touristiques à Bordeaux a diminué en 2023.",
+      "qType": "vf",
+      "options": [
+        "Vrai",
+        "Faux"
+      ],
+      "answer": 1,
+      "quote": "le nombre d’annonces touristiques a augmenté de 12% en 2023",
+      "why": "第四段明确说短租广告数量增长了12%，不是减少。",
+      "difficulty": 3,
+      "skill": "negation"
+    },
+    {
+      "q": "De combien le revenu médian des ménages locataires à Paris a-t-il baissé en deux ans selon l’INSEE ?",
+      "qType": "short",
+      "options": [],
+      "answer": 0,
+      "accepted": [
+        "2%",
+        "deux pour cent",
+        "2 %"
+      ],
+      "why": "第五段提到“le revenu médian des ménages locataires à Paris a baissé de 2% en deux ans”。",
+      "difficulty": 3,
+      "skill": "detail"
+    },
+    {
+      "q": "Quelle solution est évoquée pour résoudre la crise du logement selon l’article ?",
+      "qType": "qcm",
+      "options": [
+        "Associer une régulation rigoureuse à un effort de construction neuve",
+        "Supprimer toutes les locations touristiques",
+        "Augmenter les taxes sur les propriétaires"
+      ],
+      "answer": 0,
+      "why": "最后一段说要结合严格管控和新建住房。",
+      "difficulty": 3,
+      "skill": "gist"
+    },
+    {
+      "q": "Quelle ville a instauré une amende de 5 000 euros pour non-respect de la réglementation ?",
+      "qType": "qcm",
+      "options": [
+        "Lyon",
+        "Bordeaux",
+        "Paris"
+      ],
+      "answer": 1,
+      "why": "第四段说波尔多市政府设立了5000欧元罚款。",
+      "difficulty": 2,
+      "skill": "detail"
+    }
+  ]
+};
+
+const R3_OPINIONS: Raw = {
+  "form": "opinions",
+  "topic": "politique-justice",
+  "intro": "Vous lisez les témoignages de trois citoyens sur un forum municipal consacré au vote obligatoire.",
+  "title": "Faut-il instaurer le vote obligatoire aux élections locales ?",
+  "docs": [
+    {
+      "text": "Claire\nJe pense que rendre le vote obligatoire serait une bonne chose. Beaucoup de gens ne se déplacent pas par manque de motivation ou parce qu’ils pensent que leur voix ne compte pas. Si tout le monde devait voter, cela renforcerait la légitimité des élus et obligerait les candidats à s’adresser à tous les citoyens, pas seulement à ceux qui votent déjà. Dans d’autres pays européens, comme la Belgique, ce système existe et le taux de participation est bien plus élevé qu’en France. Bien sûr, il faudrait accompagner cette mesure d’une meilleure information sur les enjeux des élections, pour que chacun puisse voter en connaissance de cause. À mon avis, le vote obligatoire permettrait aussi de lutter contre l’abstention massive qui affaiblit notre démocratie. Il est important que chaque citoyen prenne conscience de sa responsabilité et de l’impact de son choix, même s’il n’est pas passionné par la politique. Enfin, pour éviter que le vote ne devienne une simple formalité, il faudrait faciliter l’accès aux bureaux de vote et proposer des bulletins blancs pour ceux qui ne soutiennent aucun candidat.\nMehdi\nJe suis contre le vote obligatoire. Pour moi, le droit de vote inclut aussi le droit de s’abstenir. On ne devrait pas forcer les gens à participer s’ils ne le souhaitent pas. Il y a des raisons légitimes de ne pas voter : manque de confiance dans les politiques, absence d’offre convaincante ou contraintes personnelles. Plutôt que de sanctionner les abstentionnistes, il vaudrait mieux s’attaquer aux causes de la démobilisation et améliorer le fonctionnement de la démocratie locale. Par exemple, il faudrait rendre les élus plus accessibles, encourager la transparence et favoriser le dialogue avec les citoyens. Si on impose le vote, on risque d’obtenir des bulletins sans conviction, ce qui ne reflète pas la véritable opinion de la population. À mon sens, la liberté de choix est essentielle dans une démocratie, et chacun doit pouvoir décider de s’exprimer ou non, sans pression ni sanction.\nSophie\nJe comprends les arguments des deux côtés, mais je pense qu’imposer le vote ne résoudra pas le problème de fond. Beaucoup de citoyens voteraient sans conviction, juste pour éviter une amende, ce qui risquerait de fausser les résultats. À mon avis, il faudrait surtout rendre le vote plus accessible, par exemple en développant le vote en ligne ou par correspondance. Cela permettrait à plus de gens de participer sans contrainte, tout en respectant la liberté de chacun. De plus, il serait utile de renforcer l’éducation civique dès le plus jeune âge afin de donner du sens à la participation électorale. Le vote doit rester un acte volontaire et réfléchi, pas une obligation administrative. Si l’on veut vraiment augmenter la participation, il faut s’attaquer aux causes du désintérêt, comme le manque d’information ou la défiance envers les institutions, plutôt que de rendre le vote obligatoire.",
+      "zh": "克莱尔\n我认为强制投票是件好事。许多人因为缺乏动力或认为自己的声音无关紧要而不去投票。如果每个人都必须投票，这将增强当选者的合法性，并迫使候选人面向所有公民，而不仅仅是那些已经投票的人。在比利时等其他欧洲国家，这一制度已经存在，投票率比法国高得多。当然，这项措施还需要更好的选举信息宣传，让每个人都能明智地投票。在我看来，强制投票还能遏制大规模弃权现象，避免削弱我们的民主。每个公民都应意识到自己的责任和选择的影响，即使对政治不感兴趣。最后，为了避免投票流于形式，还应简化投票流程，并为不支持任何候选人的人提供空白选票。\n梅迪\n我反对强制投票。在我看来，投票权也包括弃权的权利。如果人们不愿意，就不应该强迫他们参与。不投票有正当理由：对政治缺乏信任、没有有说服力的候选人或个人原因。与其惩罚弃权者，不如解决人们不参与的根本原因，改善地方民主的运作。例如，应让民选官员更容易接触，鼓励透明度，加强与市民的对话。如果强制投票，可能会出现没有真实意愿的选票，这无法反映民众的真实想法。在我看来，选择的自由是民主的核心，每个人都应有权决定是否表达自己的意见，而不应受到压力或惩罚。\n索菲\n我理解双方的观点，但我认为强制投票并不能解决根本问题。许多公民只是为了避免罚款而无心投票，这可能会扭曲选举结果。在我看来，应该让投票更方便，比如发展网络投票或邮寄投票。这样可以让更多人自由参与，同时尊重每个人的选择。此外，还应从小加强公民教育，让选举参与更有意义。投票应当是自愿和深思熟虑的行为，而不是行政上的义务。如果真的想提高参与率，应解决人们冷漠的根本原因，如信息不足或对体制的不信任，而不是强制投票。"
+    }
+  ],
+  "questions": [
+    {
+      "q": "Qui estime que le vote obligatoire renforcerait la légitimité des élus ?",
+      "qType": "qcm",
+      "options": [
+        "Claire",
+        "Mehdi",
+        "Sophie"
+      ],
+      "answer": 0,
+      "why": "克莱尔明确表示强制投票能增强当选者的合法性。",
+      "difficulty": 2,
+      "skill": "opinion"
+    },
+    {
+      "q": "Qui pense que le droit de vote inclut aussi le droit de s’abstenir ?",
+      "qType": "qcm",
+      "options": [
+        "Claire",
+        "Mehdi",
+        "Sophie"
+      ],
+      "answer": 1,
+      "why": "梅迪认为投票权也包括弃权权。",
+      "difficulty": 2,
+      "skill": "opinion"
+    },
+    {
+      "q": "Qui cite la Belgique comme exemple de pays où le vote obligatoire existe ?",
+      "qType": "qcm",
+      "options": [
+        "Claire",
+        "Mehdi",
+        "Sophie"
+      ],
+      "answer": 0,
+      "why": "克莱尔提到比利时有强制投票制度。",
+      "difficulty": 2,
+      "skill": "detail"
+    },
+    {
+      "q": "Qui pense que le vote obligatoire risquerait de fausser les résultats ?",
+      "qType": "qcm",
+      "options": [
+        "Claire",
+        "Mehdi",
+        "Sophie"
+      ],
+      "answer": 2,
+      "why": "索菲认为强制投票可能会扭曲选举结果。",
+      "difficulty": 3,
+      "skill": "inference"
+    },
+    {
+      "q": "Qui propose de développer le vote en ligne ou par correspondance ?",
+      "qType": "qcm",
+      "options": [
+        "Claire",
+        "Mehdi",
+        "Sophie"
+      ],
+      "answer": 2,
+      "why": "索菲建议发展网络投票或邮寄投票。",
+      "difficulty": 2,
+      "skill": "detail"
+    },
+    {
+      "q": "Qui pense qu’il faut s’attaquer aux causes de la démobilisation plutôt que de sanctionner les abstentionnistes ?",
+      "qType": "qcm",
+      "options": [
+        "Claire",
+        "Mehdi",
+        "Sophie"
+      ],
+      "answer": 1,
+      "why": "梅迪主张解决不参与投票的根本原因，而不是惩罚弃权者。",
+      "difficulty": 3,
+      "skill": "paraphrase"
+    }
+  ]
+};
+
 const toEx = (raw: Raw) => sanitizeExercise(raw, raw.form, raw.topic);
 
 export const PRESET_PAPERS: BankPaper[] = [
@@ -487,5 +797,13 @@ export const PRESET_PAPERS: BankPaper[] = [
     created: 0,
     src: "preset",
     exs: [toEx(R2_LONG_1), toEx(R2_LONG_2), toEx(R2_OPINIONS)],
+  },
+  {
+    id: "preset-read-3",
+    kind: "read",
+    level: "B2",
+    created: 0,
+    src: "preset",
+    exs: [toEx(R3_LONG_1), toEx(R3_LONG_2), toEx(R3_OPINIONS)],
   },
 ];

@@ -10,7 +10,7 @@ import { cleanFamily } from "../lib/families";
 import { sanitizeQuiz, type QuizItem } from "../lib/reader";
 import { applyEssayGridCaps, applySpeakingCaps, buildTask, countWords, CRITERIA, GENRE_LABEL, MAX_ESSAY_LENGTH, needsModelLengthRetry, pickBetterModel, sanitizeEssayFeedback, sanitizeModel, wordsFor, type EssayFeedback, type EssayTask, type Genre, type ModelEssay } from "../lib/essay";
 import { qualityIssues } from "../lib/listening";
-import { assessDebateEscalation, FORM_SPEC, sanitizeExercise, TOPICS, sanitizeSpeakingFeedback, sanitizeSubject, SPEAK_CRITERIA, type CompExercise, type CompForm, type CompKind, type DebateTurn, type SpeakingFeedback, type SpeakingSubject, type Topic } from "../lib/exam";
+import { assessDebateEscalation, FORM_SPEC, isValidComprehension, sanitizeExercise, TOPICS, sanitizeSpeakingFeedback, sanitizeSubject, SPEAK_CRITERIA, type CompExercise, type CompForm, type CompKind, type DebateTurn, type SpeakingFeedback, type SpeakingSubject, type Topic } from "../lib/exam";
 import { ERROR_TYPES, sanitizeFeedback, type Feedback } from "../lib/writing";
 import { aiJson, generateImage, type Attachment } from "./clients";
 
@@ -752,30 +752,69 @@ Calibrate on the official DELF B2 papers (France Éducation International sample
 "questions" has exactly the number asked. "skill" says what the question tests: "gist" (the general subject, the aim of the document or a speaker's role), "detail" (an explicit fact, figure, place or date), "paraphrase" (an idea of the document said with other words), "opinion" (a speaker's or the author's opinion or attitude), "inference" (not said, but follows from the document), "negation" (turns on a negation, restriction or exception). "difficulty": 1 to 5 for each question (1 = an explicit detail, 3 = a reworded idea, 5 = an inference or the synthesis of several passages); use the whole range. "doc": 0 unless the form is short. "why": one or two sentences in Chinese saying which part of the document gives the answer.
 "title": a short French title. Each "zh": a faithful Chinese translation of that document, same lines.`;
 
+const COMP_PARALLEL_SCHEMA = {
+  type: "object",
+  properties: {
+    intro: str,
+    title: str,
+    docs: COMP_SCHEMA.properties.docs,
+    questions: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          doc: { type: "integer" },
+          q: str,
+          qType: { type: "string", enum: ["qcm", "vf", "short"] },
+          options: { type: "array", items: str },
+          answer: { type: "integer" },
+          quote: str,
+          accepted: { type: "array", items: str },
+          why: str,
+          difficulty: { type: "integer" },
+          skill: { type: "string", enum: ["gist", "detail", "paraphrase", "opinion", "inference", "negation"] },
+        },
+        required: ["doc", "q", "qType", "options", "answer", "quote", "accepted", "why", "difficulty", "skill"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["intro", "title", "docs", "questions"],
+  additionalProperties: false,
+};
+
 // lengths measured on the official sample paper: long recordings of 475 and 530 words, short ones of 200 to 250, articles of about 515, opinions of about 140 each
 const LENGTH: Record<CompKind, Partial<Record<CompForm, number>>> = { listen: { long: 500, short: 215 }, read: { long: 515, opinions: 140 } };
 
+const PARALLEL_ADDENDUM = `
+PARALLEL OFFICIAL FORMAT ("parallel"): When form is "long" or "short", include a realistic DELF B2 official mix instead of only QCM:
+- At least 4 questions with "qType": "qcm" (3 options in French, "quote": "", "accepted": []).
+- Exactly 2 questions with "qType": "vf" (affirmation to judge Vrai ou Faux): set "options": ["Vrai", "Faux"], "answer": 0 (Vrai) or 1 (Faux), "quote": an exact verbatim sentence or clause copied from the French document text that proves Vrai or disproves Faux, "accepted": [].
+- 1 question (when form="long", so total is strictly 7) with "qType": "short" (open short question in French): set "options": [], "answer": 0, "quote": "", "accepted": [1 to 3 concise French keyphrase answers verbatim or paraphrased].
+When form is "opinions", keep all 6 questions as "qType": "qcm" with the 3 first names in "options", with each person as "answer" exactly twice.`;
+
 /** One exercise of the listening or reading paper, from the 生成卡片 service. */
-export async function makeComprehension(input: { kind: CompKind; form: CompForm; topic: Topic; level: "B1" | "B2"; style?: "radio" | "natural" }, signal?: AbortSignal): Promise<CompExercise> {
+export async function makeComprehension(input: { kind: CompKind; form: CompForm; topic: Topic; level: "B1" | "B2"; style?: "radio" | "natural"; format?: "qcm" | "parallel" }, signal?: AbortSignal): Promise<CompExercise> {
   const spec = FORM_SPEC[input.form];
+  const parallel = input.format === "parallel" && input.form !== "opinions";
   const length = Math.round((LENGTH[input.kind][input.form] ?? 400) * (input.level === "B1" ? 0.7 : 1));
+  const system = parallel ? `${COMP_SYSTEM}\n${PARALLEL_ADDENDUM}` : COMP_SYSTEM;
   const once = async () => {
     const r = await aiJson<unknown>("text", {
-      system: COMP_SYSTEM,
-      text: JSON.stringify({ kind: input.kind, form: input.form, level: input.level, ...(input.kind === "listen" ? { style: input.style ?? "radio" } : {}), topic: `${input.topic.fr} (${input.topic.zh})`, length, questions: spec.questions, seed: Math.random().toString(36).slice(2, 8) }),
-      schema: COMP_SCHEMA,
-      schemaName: "comprehension",
+      system,
+      text: JSON.stringify({ kind: input.kind, form: input.form, level: input.level, ...(parallel ? { format: "parallel" } : {}), ...(input.kind === "listen" ? { style: input.style ?? "radio" } : {}), topic: `${input.topic.fr} (${input.topic.zh})`, length, questions: spec.questions, seed: Math.random().toString(36).slice(2, 8) }),
+      schema: parallel ? COMP_PARALLEL_SCHEMA : COMP_SCHEMA,
+      schemaName: parallel ? "comprehension_parallel" : "comprehension",
       signal,
       maxTokens: 12000,
     });
     const ex = sanitizeExercise(r, input.form, input.topic.id);
-    const enough = ex.docs.length === (input.form === "short" ? 3 : 1) && ex.docs.every((d) => d.text.length > 200) && ex.questions.length >= spec.questions - 1;
-    return enough ? ex : null;
+    return isValidComprehension(ex, input.form) ? ex : null;
   };
-  // an exercise the exam would never set (incomplete, answers copied from the text, all at one position) is made once more
+  // Strict gate: exact question count & points, [0,0,1,1,2,2] for short, [2,2,2] for opinions, and no quality defects.
   let ex = await once();
   if (!ex || qualityIssues(ex).length) ex = (await once()) ?? ex;
-  if (!ex) throw new Error("生成的题目不完整，请再试一次");
+  if (!ex || !isValidComprehension(ex, input.form)) throw new Error("生成的题目未满足严格题型与分值要求，请重试");
   return ex;
 }
 

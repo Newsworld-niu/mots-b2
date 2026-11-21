@@ -121,11 +121,15 @@ test("qualityIssues flags copied answers and one answer position", () => {
   assert.equal(qualityIssues(ex([1, 1, 1, 1, 1, 1, 1], (k) => `réponse ${k}`)).length, 1);
 });
 
-test("preset papers are >=2 full 25-pt listening and >=2 full 25-pt reading papers meeting B2 word counts and quality gate", () => {
+test("preset papers are >=2 full 25-pt listening and >=3 full 25-pt reading papers (incl. parallel Vrai/Faux + short) meeting B2 word counts and quality gate", () => {
   const listen = PRESET_PAPERS.filter((p) => p.kind === "listen");
   const read = PRESET_PAPERS.filter((p) => p.kind === "read");
   assert.ok(listen.length >= 2);
-  assert.ok(read.length >= 2);
+  assert.ok(read.length >= 3);
+  const parallel = PRESET_PAPERS.find((p) => p.id === "preset-read-3");
+  assert.ok(parallel);
+  assert.ok(parallel.exs.some((ex) => ex.questions.some((q) => q.qType === "vf" && Boolean(q.quote))));
+  assert.ok(parallel.exs.some((ex) => ex.questions.some((q) => q.qType === "short" && Boolean(q.accepted?.length))));
   assert.equal(new Set(PRESET_PAPERS.map((p) => p.id)).size, PRESET_PAPERS.length);
   for (const p of PRESET_PAPERS) {
     assert.equal(p.src, "preset");
@@ -171,6 +175,13 @@ test("sanitizePaper rejects junk and keeps stored points; wrongKeys follows the 
   assert.deepEqual(wrongKeys(p, { at: 1, picked, score: 0, total: 9 }), ["0-1", "0-3", "0-4", "0-5", "0-6"]);
   assert.deepEqual(wrongKeys(p, { at: 1, picked, score: 0, total: 9, asked: ["0-1", "0-2"] }), ["0-1"]);
   assert.deepEqual(wrongKeys(p, undefined), []);
+  // Parallel Vrai/Faux + citation wrongKeys check
+  const pVf = sanitizePaper(PRESET_PAPERS.find((x) => x.id === "preset-read-3"));
+  assert.ok(pVf);
+  const vfIdx = pVf.exs[0].questions.findIndex((q) => q.qType === "vf");
+  const vfQ = pVf.exs[0].questions[vfIdx];
+  assert.ok(wrongKeys(pVf, { at: 1, picked: { [`0-${vfIdx}`]: vfQ.answer }, typed: {}, score: 0, total: 25 }).includes(`0-${vfIdx}`));
+  assert.ok(!wrongKeys(pVf, { at: 1, picked: { [`0-${vfIdx}`]: vfQ.answer }, typed: { [`0-${vfIdx}`]: vfQ.quote ?? "" }, score: 0, total: 25 }).includes(`0-${vfIdx}`));
 });
 
 test("parseClock, sanitizeSources and playerFor", () => {

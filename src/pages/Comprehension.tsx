@@ -6,7 +6,7 @@ import { makeComprehension } from "../ai/tasks";
 import { speakerVoices, ttsOn, ttsSsmlUrl, ttsUrl } from "../ai/tts";
 import { play, stopAudio } from "../lib/audio";
 import { countWords } from "../lib/essay";
-import { BETWEEN_PLAYS, clock, COMP_LABEL, exercisePoints, FORM_SPEC, outOf25, PAPER, QSKILL_LABEL, READ_MINUTES, REAL_WPM, speakerIndex, speechChunks, speechTurns, TOPICS, topicOf, type CompExercise, type CompForm, type CompKind } from "../lib/exam";
+import { BETWEEN_PLAYS, clock, COMP_LABEL, exercisePoints, FORM_SPEC, gradeCompQuestion, outOf25, PAPER, QSKILL_LABEL, READ_MINUTES, REAL_WPM, speakerIndex, speechChunks, speechTurns, TOPICS, topicOf, type CompExercise, type CompForm, type CompKind } from "../lib/exam";
 import { accentNames, sentencesOf, CAUSE_LABEL, CAUSE_TIP, causeFromSkill, MISS_CAUSES, missStats, pickVoices, skillStats, type CompMiss, type DocVoices, type MissCause, type VoiceMode } from "../lib/listening";
 import { PRESET_PAPERS } from "../lib/exam-presets";
 import { LISTENING_NOISE, startListeningNoise, stopListeningNoise, type ListeningNoiseId } from "../lib/sound";
@@ -96,7 +96,9 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   const [topic, setTopic] = useState("random");
   const [level, setLevel] = useState<"B1" | "B2">("B2");
   const [what, setWhat] = useState<What>("paper");
+  const [qFormat, setQFormat] = useState<"qcm" | "parallel">("parallel");
   const [timed, setTimed] = useState(true);
+  const [strictLock, setStrictLock] = useState(true);
   const [slow, setSlow] = useState(false);
   const [wpm, setWpm] = useState(readPace);
   const measured = useRef({ words: 0, sec: 0 });
@@ -104,6 +106,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   const [made, setMade] = useState(0);
   const [exs, setExs] = useState<CompExercise[]>([]);
   const [picked, setPicked] = useState<Record<string, number>>({});
+  const [typed, setTyped] = useState<Record<string, string>>({});
   const [heard, setHeard] = useState<Record<number, boolean>>({});
   const [pace, setPace] = useState<{ e: number; label: string; left: number | null } | null>(null);
   const [showZh, setShowZh] = useState(false);
@@ -111,6 +114,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   const run = useRef(0);
   const skip = useRef<(() => void) | null>(null);
   const timer = useTimer();
+  const autoLocked = useRef(false);
 
   const halt = () => {
     run.current++;
@@ -138,10 +142,12 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
     setExs(list);
     setPaper(p);
     setPicked({});
+    setTyped({});
     setHeard({});
     setCauses({});
     setPanel(null);
     setShowZh(false);
+    autoLocked.current = false;
     setPhase("work");
     const minutes = list.length > 1 ? READ_MINUTES.paper : list[0].form === "opinions" ? READ_MINUTES.opinions : READ_MINUTES.long;
     if (!listen && timed) timer.start(Math.round(minutes * (p.asked ? Math.max(0.25, p.asked.length / list.reduce((n, x) => n + x.questions.length, 0)) : 1) * 60));
@@ -165,7 +171,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
       const out: CompExercise[] = [];
       for (const [k, form] of list.entries()) {
         const t = topic === "random" || k > 0 ? pool[k % pool.length] : topicOf(topic)!;
-        out.push(await makeComprehension({ kind, form, topic: t, level, style }, c.signal));
+        out.push(await makeComprehension({ kind, form, topic: t, level, style, format: qFormat }, c.signal));
         if (c.signal.aborted) return;
         setMade(k + 1);
       }
@@ -308,10 +314,10 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
 
   const askedSet = paper?.asked ? new Set(paper.asked) : null;
   const isAsked = (key: string) => !askedSet || askedSet.has(key);
-  const all = exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ q, key: `${e}-${k}` }))).filter(({ key }) => isAsked(key));
+  const all = exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ q, ex, key: `${e}-${k}` }))).filter(({ key }) => isAsked(key));
   const total = askedSet ? all.reduce((n, { q }) => n + q.pts, 0) : exs.reduce((n, ex) => n + exercisePoints(ex), 0);
-  const score = all.reduce((n, { q, key }) => n + (picked[key] === q.answer ? q.pts : 0), 0);
-  const answered = all.filter(({ key }) => picked[key] !== undefined).length;
+  const score = all.reduce((n, { q, ex, key }) => n + (gradeCompQuestion(q, picked[key], typed[key], ex.docs[q.doc]?.text).correct ? q.pts : 0), 0);
+  const answered = all.filter(({ q, key }) => (q.qType === "short" ? Boolean(typed[key]?.trim()) : picked[key] !== undefined)).length;
 
   const finish = () => {
     halt();
@@ -320,14 +326,24 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
     // a redo of the missed questions only is not a score of the paper
     if (!askedSet) logExam({ part: kind, what: exs.length > 1 ? "paper" : exs[0].topic, score, total });
     const missed: CompMiss[] = all
-      .filter(({ q, key }) => picked[key] !== q.answer)
+      .filter(({ q, ex, key }) => !gradeCompQuestion(q, picked[key], typed[key], ex.docs[q.doc]?.text).correct)
       .map(({ q, key }) => ({ at, part: kind, q: key, cause: causeFromSkill(q.skill) ?? (listen ? "heard" : "paraphrase"), ...(q.skill ? { skill: q.skill } : {}) }));
     addMisses(missed);
     setCauses(Object.fromEntries(missed.map((m) => [m.q!, m.cause])));
-    if (paper) void addAttempt(paper.id, { at, picked, score, total, ...(paper.asked ? { asked: paper.asked } : {}) });
+    if (paper) void addAttempt(paper.id, { at, picked, ...(Object.keys(typed).length ? { typed } : {}), score, total, ...(paper.asked ? { asked: paper.asked } : {}) });
     setFinishedAt(at);
     setPhase("done");
   };
+
+  const finishRef = useRef(finish);
+  finishRef.current = finish;
+  useEffect(() => {
+    if (phase === "work" && !listen && timed && strictLock && timer.down && !timer.running && timer.sec === 0 && !autoLocked.current) {
+      autoLocked.current = true;
+      toast("阅读计时到时，已按模考规定自动锁卷交卷！", "warn");
+      finishRef.current();
+    }
+  }, [phase, listen, timed, strictLock, timer.down, timer.running, timer.sec]);
 
   const blame = (key: string, cause: MissCause) => {
     setCauses((c) => ({ ...c, [key]: cause }));
@@ -344,7 +360,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
     const bySkill = skillStats(
       papers.flatMap((p) => {
         const a = bank.attempts[p.id]?.find((x) => !x.asked);
-        return a ? p.exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ skill: q.skill, right: a.picked[`${e}-${k}`] === q.answer }))) : [];
+        return a ? p.exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ skill: q.skill, right: gradeCompQuestion(q, a.picked[`${e}-${k}`], a.typed?.[`${e}-${k}`], ex.docs[q.doc]?.text).correct }))) : [];
       }),
     );
     const count = what === "paper" ? PAPER[kind].length : 1;
@@ -396,6 +412,19 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
             ))}
           </div>
           {what === "paper" && topic !== "random" && <p className="muted small">整套题的第一个练习用所选话题，后两个换别的话题。</p>}
+          {what !== "opinions" && (
+            <>
+              <h3 className="eyebrow">题目格式</h3>
+              <div className="segmented">
+                <button className={qFormat === "parallel" ? "is-on" : ""} onClick={() => setQFormat("parallel")} aria-pressed={qFormat === "parallel"}>
+                  官方并行题型（含 Vrai/Faux 引证与简答）
+                </button>
+                <button className={qFormat === "qcm" ? "is-on" : ""} onClick={() => setQFormat("qcm")} aria-pressed={qFormat === "qcm"}>
+                  纯三选一 QCM
+                </button>
+              </div>
+            </>
+          )}
           <h3 className="eyebrow">难度</h3>
           <div className="segmented">
             {(["B1", "B2"] as const).map((l) => (
@@ -468,6 +497,16 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
                   不限时
                 </button>
               </div>
+              {timed && (
+                <div className="segmented" style={{ marginTop: 8 }}>
+                  <button className={strictLock ? "is-on" : ""} onClick={() => setStrictLock(true)} aria-pressed={strictLock}>
+                    模考严格到时锁卷交卷
+                  </button>
+                  <button className={!strictLock ? "is-on" : ""} onClick={() => setStrictLock(false)} aria-pressed={!strictLock}>
+                    仅计时提醒
+                  </button>
+                </div>
+              )}
             </>
           )}
           {ready.text(ai) ? (
@@ -757,28 +796,73 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
                 {ex.questions.map((q, k) => {
                   const key = `${e}-${k}`;
                   if (!isAsked(key)) return null;
-                  const miss = done && picked[key] !== q.answer;
+                  const docText = ex.docs[q.doc]?.text;
+                  const verdict = done ? gradeCompQuestion(q, picked[key], typed[key], docText) : null;
+                  const miss = done && !verdict?.correct;
+                  const qt = q.qType ?? "qcm";
                   const first = ex.docs.length > 1 && (k === 0 || ex.questions[k - 1].doc !== q.doc);
                   return (
                     <li key={k}>
                       {first && <p className="eyebrow">Document {q.doc + 1}</p>}
                       <p className="exam-q" lang="fr">
+                        {qt === "vf" && <span className="exam-q-badge">Vrai / Faux · 须原文引证</span>}
+                        {qt === "short" && <span className="exam-q-badge">简答题 · 写核心要点</span>}
                         {q.q} <small>{num(q.pts)} pt</small>
                       </p>
-                      <div className="exam-options" role="radiogroup" aria-label={`第 ${k + 1} 题`}>
-                        {q.options.map((o, j) => {
-                          const on = picked[key] === j;
-                          const state = done ? (j === q.answer ? "is-right" : on ? "is-wrong" : "") : on ? "is-on" : "";
-                          return (
-                            <button key={j} role="radio" aria-checked={on} className={`exam-option ${state}`} disabled={done} lang="fr" onClick={() => setPicked((p) => ({ ...p, [key]: j }))}>
-                              <span>{"ABC"[j]}</span>
-                              {o}
-                              {done && j === q.answer && <Check size={16} />}
-                              {done && on && j !== q.answer && <X size={16} />}
-                            </button>
-                          );
-                        })}
-                      </div>
+                      {qt !== "short" && (
+                        <div className="exam-options" role="radiogroup" aria-label={`第 ${k + 1} 题`}>
+                          {q.options.map((o, j) => {
+                            const on = picked[key] === j;
+                            const state = done ? (j === q.answer ? "is-right" : on ? "is-wrong" : "") : on ? "is-on" : "";
+                            return (
+                              <button key={j} role="radio" aria-checked={on} className={`exam-option ${state}`} disabled={done} lang="fr" onClick={() => setPicked((p) => ({ ...p, [key]: j }))}>
+                                <span>{qt === "vf" ? "VF"[j] : "ABC"[j]}</span>
+                                {o}
+                                {done && j === q.answer && <Check size={16} />}
+                                {done && on && j !== q.answer && <X size={16} />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {qt === "vf" && (
+                        <div className="exam-cite-box">
+                          <input
+                            type="text"
+                            className="exam-cite-input"
+                            lang="fr"
+                            disabled={done}
+                            value={typed[key] ?? ""}
+                            onChange={(ev) => setTyped((t) => ({ ...t, [key]: ev.target.value }))}
+                            placeholder="Justifiez votre réponse en recopiant une phrase ou un extrait exact du document…"
+                            aria-label={`第 ${k + 1} 题原文引证`}
+                          />
+                          {done && (
+                            <p className={`exam-cite-status ${verdict?.quoteMatched ? "is-ok" : "is-miss"}`}>
+                              {verdict?.quoteMatched ? "✓ 原文引证核对通过。" : `✗ 未匹配原文引证（官方规则：判断对但无正确引证不得分）。参考引证：「${q.quote}」`}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      {qt === "short" && (
+                        <div className="exam-cite-box">
+                          <input
+                            type="text"
+                            className="exam-cite-input"
+                            lang="fr"
+                            disabled={done}
+                            value={typed[key] ?? ""}
+                            onChange={(ev) => setTyped((t) => ({ ...t, [key]: ev.target.value }))}
+                            placeholder="Réponse courte en français (mots-clés ou expression du texte)…"
+                            aria-label={`第 ${k + 1} 题简答`}
+                          />
+                          {done && (
+                            <p className={`exam-cite-status ${verdict?.correct ? "is-ok" : "is-miss"}`}>
+                              {verdict?.correct ? "✓ 简答核心要点命中。" : "✗ 未命中核心采分点。"} 参考答案：<span lang="fr">{q.accepted?.join(" / ")}</span>
+                            </p>
+                          )}
+                        </div>
+                      )}
                       {done && q.why && <p className="exam-why">{q.why}</p>}
                       {miss && (
                         <div className="miss-cause" role="group" aria-label="错因">
