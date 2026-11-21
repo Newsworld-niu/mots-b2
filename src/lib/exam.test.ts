@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { countWords, ESSAY_TASKS } from "./essay";
-import { assessDebateEscalation, clock, exercisePoints, FORM_SPEC, outOf25, PAPER, PO_STANDARD_CONSIGNE, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speakerIndex, speechChunks, speechTurns, SPEAKING_SUBJECTS, TOPICS, topicOf, weigh } from "./exam";
+import { ESSAY_MODELS, modelEssayFor } from "./essay-models";
+import { assessDebateEscalation, clock, examReadiness, exercisePoints, FORM_SPEC, outOf25, PAPER, PO_STANDARD_CONSIGNE, realScore25, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speakerIndex, speechChunks, speechTurns, SPEAKING_SUBJECTS, TOPICS, topicOf, weigh } from "./exam";
+import { SPEAKING_PRESETS, speakingFollowUpsOf, speakingPresetOf } from "./speaking-presets";
 
 test("topics, subjects and essay tasks refer to topics that exist", () => {
   assert.equal(new Set(TOPICS.map((t) => t.id)).size, TOPICS.length);
@@ -82,12 +84,43 @@ test("sanitizeSpeakingFeedback uses the four criteria an AI can mark, at the gri
   assert.equal(sanitizeSubject({ title: "T ?", doc: "court" }, "travail"), null);
 });
 
-test("sanitizeExamLog, outOf25 and clock", () => {
-  const ok = { part: "listen", what: "travail", score: 4, total: 6, at: 1 };
-  assert.deepEqual(sanitizeExamLog([ok, { ...ok, part: "x" }, { ...ok, score: 9 }, { ...ok, total: 0 }, null]), [ok]);
+test("sanitizeExamLog, outOf25, realScore25, examReadiness and clock", () => {
+  const ok = { part: "listen" as const, what: "travail", score: 4, total: 6, at: 1 };
+  const essay = { part: "essay" as const, what: "courrier-voitures", score: 17, total: 25, at: 2 };
+  const speakTyped = { part: "speak" as const, what: "s-ia", score: 15, total: 25, at: 3, typed: true };
+  assert.deepEqual(sanitizeExamLog([ok, essay, speakTyped, { ...ok, part: "x" }, { ...ok, score: 9 }, { ...ok, total: 0 }, null]), [ok, essay, speakTyped]);
   assert.equal(sanitizeExamLog([]), undefined);
   assert.equal(outOf25({ score: 4, total: 6 }), 16.7);
   assert.equal(outOf25({ score: 13.5, total: 20 }), 16.9);
+  assert.equal(realScore25({ part: "speak", score: 14, total: 20 }), null);
+  assert.equal(realScore25({ part: "speak", score: 18, total: 25, typed: true }), null);
+  assert.equal(realScore25({ part: "speak", score: 18, total: 25 }), 18);
+  assert.equal(realScore25({ part: "essay", score: 17, total: 25 }), 17);
+
+  // Full 4-part readiness: total /100, gap to 75, and <5/25 elimination guard
+  const r1 = examReadiness([
+    { part: "listen", what: "p1", score: 20, total: 25, at: 10 },
+    { part: "read", what: "p1", score: 18, total: 25, at: 11 },
+    { part: "essay", what: "t1", score: 19, total: 25, at: 12 },
+    { part: "speak", what: "s1", score: 4, total: 25, at: 13 },
+  ]);
+  assert.equal(r1.completed, 4);
+  assert.equal(r1.exact100, 61);
+  assert.equal(r1.gapToTarget, 14);
+  assert.equal(r1.passed, false);
+  assert.deepEqual(r1.eliminated.map((p) => p.part), ["speak"]);
+
+  const r2 = examReadiness([
+    { part: "listen", what: "p1", score: 20, total: 25, at: 10 },
+    { part: "read", what: "p1", score: 19, total: 25, at: 11 },
+    { part: "essay", what: "t1", score: 18, total: 25, at: 12 },
+    { part: "speak", what: "s1", score: 19, total: 25, at: 13 },
+  ]);
+  assert.equal(r2.exact100, 76);
+  assert.equal(r2.gapToTarget, 0);
+  assert.equal(r2.passed, true);
+  assert.equal(r2.eliminated.length, 0);
+
   assert.equal(clock(245), "4:05");
   assert.equal(clock(-3), "0:00");
 });
@@ -114,4 +147,25 @@ test("assessDebateEscalation detects short, evasive, unjustified, repetitive rep
   assert.ok(rep.reasons.includes("repetitive"));
   assert.ok(rep.reasons.includes("strict_mode"));
   assert.equal(rep.level, 3);
+});
+
+test("SYS-4: all 8 built-in B2 essay models (>=250 words) and 12 speaking preset follow-ups exist", () => {
+  const b2Ids = ESSAY_TASKS.filter((t) => t.level === "B2").map((t) => t.id);
+  assert.equal(b2Ids.length, 8);
+  for (const id of b2Ids) {
+    const m = modelEssayFor(id);
+    assert.ok(m, id);
+    assert.ok(m.wordCount >= 250, `${id} has ${m.wordCount} words`);
+    assert.ok(m.paragraphs.length >= 4 && m.paragraphs.every((p) => p.fr && p.zhNote), id);
+    assert.equal(m.unverified, true);
+  }
+  assert.equal(ESSAY_MODELS.length, 8);
+  assert.equal(SPEAKING_PRESETS.length, SPEAKING_SUBJECTS.length);
+  for (const s of SPEAKING_SUBJECTS) {
+    const sp = speakingPresetOf(s.id);
+    assert.ok(sp, s.id);
+    assert.ok(sp.problematique && sp.outline.length >= 3, s.id);
+    assert.ok(speakingFollowUpsOf(s.id).length >= 6, s.id);
+    assert.equal(sp.unverified, true);
+  }
 });

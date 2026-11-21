@@ -127,3 +127,127 @@
   display: grid;
   gap: 4px;
 }
+.exam-dashboard {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.exam-dash-title {
+  margin: 2px 0 0;
+  font-size: 24px;
+  line-height: 1.2;
+}
+.exam-dash-title small {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ink-3);
+  margin-left: 4px;
+}
+.exam-dash-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.chip.is-pass {
+  border-color: var(--sage);
+  color: var(--sage-ink);
+}
+.chip.is-danger {
+  border-color: var(--terra);
+  color: var(--terra-ink);
+  background: color-mix(in srgb, var(--terra) 14%, var(--card));
+}
+.exam-alert {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: var(--r);
+  border: 1.5px solid var(--terra);
+  background: color-mix(in srgb, var(--terra) 12%, var(--card));
+  color: var(--terra-ink);
+  font-size: 14px;
+}
+.exam-four-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 10px;
+}
+.exam-four-cell {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: var(--r);
+  border: 1px solid var(--line);
+  background: var(--bg);
+}
+.exam-four-cell.is-danger {
+  border-color: var(--terra);
+  background: color-mix(in srgb, var(--terra) 10%, var(--card));
+}
+.exam-four-cell.is-strong {
+  border-color: var(--sage);
+}
+.exam-four-score {
+  font-size: 20px;
+  line-height: 1.2;
+}
+.exam-four-score small {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-3);
+  margin-left: 2px;
+}
+.exam-dash-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.exam-dash-foot p {
+  margin: 0;
+  flex: 1 1 260px;
+}
+.mock-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+}
+.mock-steps li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.mock-steps li.is-now {
+  border-color: var(--accent, var(--ink));
+  color: var(--ink);
+  font-weight: 600;
+}
+.mock-steps li.is-done {
+  border-color: var(--sage);
+  color: var(--sage-ink);
+}
+.mock-rubric-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.essay-model-paras {
+  display: grid;
+  gap: 12px;
+}
+.essay-model-para {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}

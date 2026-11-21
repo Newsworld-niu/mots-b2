@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ArrowRight, BookOpenCheck, Check, Ear, FileText, Headphones, Keyboard, Languages, MessageSquareQuote, Mic, PenLine, RotateCcw, Sparkles, Timer, Type, X } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, Award, BookOpenCheck, Check, Ear, FileText, Headphones, Keyboard, Languages, MessageSquareQuote, Mic, PenLine, RotateCcw, Sparkles, Timer, Type, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { prefetch, useAtlas } from "../atlas/context";
 import { MEDIA, type Accent, type Entry, type WordRef } from "../atlas/types";
@@ -23,8 +23,10 @@ import { toast } from "../ui/Toast";
 import { ComprehensionStudio } from "./Comprehension";
 import { EssayStudio } from "./Essay";
 import { SpeakingStudio } from "./Speaking";
+import { MockExam } from "./MockExam";
 import { DrillStudio } from "./Drill";
 import { ExprStudio } from "./Expressions";
+import { ExamDashboard } from "../ui/ExamDashboard";
 import { EXPRESSIONS } from "../lib/expressions";
 import { coreSet, CORE_LABEL, isCore } from "../lib/core-words";
 import { DRILL_QUESTIONS } from "../lib/drill";
@@ -35,10 +37,10 @@ import { PRACTICE_SOURCES as SOURCES, type PracticeSource as Source } from "../l
 import { PracticeSourcePicker } from "../ui/PracticeSource";
 
 /** Modes that open a page of their own instead of a round on the learner's words. */
-type Studio = "essay" | "listen" | "examread" | "speak" | "drill" | "expr";
+type Studio = "essay" | "listen" | "examread" | "speak" | "mock" | "drill" | "expr";
 type Mode = "word" | "sentence" | "dictation" | "gender" | Studio | WritingMode;
 type TypingMode = Exclude<Mode, "gender" | Studio | WritingMode>;
-const isStudio = (m: Mode): m is Studio => m === "essay" || m === "listen" || m === "examread" || m === "speak" || m === "drill" || m === "expr";
+const isStudio = (m: Mode): m is Studio => m === "essay" || m === "listen" || m === "examread" || m === "speak" || m === "mock" || m === "drill" || m === "expr";
 const isWriting = (m: Mode): m is WritingMode => m === "translate" || m === "compose";
 
 const MODES: [Mode, string, string, typeof Type][] = [
@@ -53,6 +55,7 @@ const MODES: [Mode, string, string, typeof Type][] = [
   ["listen", "听力理解", "按真题题型：三个练习一套", Ear],
   ["examread", "应试阅读", "按真题题型：三篇一套，限时", BookOpenCheck],
   ["speak", "口语", "抽题、准备、独白、辩论", Mic],
+  ["mock", "全真模考", "2h30 笔试连考 + 口语（100 分制）", Award],
   ["drill", "一分钟口语", "想 15 秒，说 60 秒，录音回放", Timer],
 ];
 
@@ -212,6 +215,7 @@ export function Practice() {
   if (studio === "listen") return <ComprehensionStudio key="listen" kind="listen" onExit={() => setStudio(null)} />;
   if (studio === "examread") return <ComprehensionStudio key="read" kind="read" onExit={() => setStudio(null)} />;
   if (studio === "speak") return <SpeakingStudio onExit={() => setStudio(null)} />;
+  if (studio === "mock") return <MockExam onExit={() => setStudio(null)} />;
   if (studio === "drill") return <DrillStudio onExit={() => setStudio(null)} />;
   if (studio === "expr") return <ExprStudio onExit={() => setStudio(null)} />;
   if (writing) return <WritingRound key={writing.key} mode={writing.mode} entries={writing.entries} onExit={() => setWriting(null)} onAgain={start} />;
@@ -228,6 +232,7 @@ export function Practice() {
           易混词辨析：ou / où、voir / regarder …… <ArrowRight size={16} />
         </a>
       </header>
+      <ExamDashboard onStartMock={() => setStudio("mock")} />
       <div className="practice-grid">
         <section className="panel">
           <h3 className="eyebrow">模式</h3>
@@ -264,8 +269,10 @@ export function Practice() {
                   ? `${EXPRESSIONS.length} 张表达卡：连接词、论证句型、话题搭配、语域、正式信函。看中文，在例句的空里写出法语，按记忆曲线复习。`
                 : mode === "drill"
                   ? `抽一个问题（内置 ${DRILL_QUESTIONS.length} 个），说出观点和两个理由；录音可以回放，设置了 Azure 语音还能给发音打分。`
-                : mode === "listen" || mode === "examread"
-                  ? `${TOPICS.length} 个考试常见话题，每次由 AI 按真题题型新出：可以练单个练习，也可以做整套 25 分。`
+                  : mode === "mock"
+                    ? "四项全真模考：CO 30m → CE 60m → PE 60m 连续 2h30 笔试，加 PO 口语 50 分钟，汇总 /100 总分与 <5/25 淘汰底线预警（有或无 AI 均可完整考完）。"
+                    : mode === "listen" || mode === "examread"
+                      ? `${TOPICS.length} 个考试常见话题，内置完整 25 分离线套卷；有 AI 时也可按真题题型新出整套。`
                   : pool.length
               ? mode === "gender"
                 ? `可练 ${pool.length} 个名词，每轮随机 20 个。只练冠词，不改动记忆进度。`
@@ -303,21 +310,25 @@ export function Practice() {
         </section>
         <section className="panel practice-side">
           <img src={`${import.meta.env.BASE_URL}brand/${mode === "dictation" ? "listen" : "typing"}.webp`} alt="" />
-          {mode === "listen" || mode === "examread" || mode === "speak" ? (
+          {mode === "listen" || mode === "examread" || mode === "speak" || mode === "mock" ? (
             <>
               <p className="muted">
                 {mode === "listen"
                   ? "对应考试的听力部分：两段长录音各听两遍、三段短录音各听一遍，按考试的读题和作答时间进行；交卷后看原文和译文。"
                   : mode === "examread"
                     ? "对应考试的阅读部分：两篇报刊文章加一组「这是谁的观点」，整套限时 1 小时。"
-                    : "对应考试的口语部分：准备 30 分钟，独白 5–7 分钟，再由 AI 扮考官辩论；按官方评分表批改，发音一项自评。"}
+                    : mode === "mock"
+                      ? "完整四项模考：按考场顺序连续完成 CO 听力 → CE 阅读 → PE 写作（共 2h30，CE/PE 到时自动锁卷），随后完成 PO 口语并汇总 /100 总成绩单。"
+                      : "对应考试的口语部分：准备 30 分钟，独白 5–7 分钟，再由 AI 扮考官辩论；按官方评分表批改，发音一项自评。"}
               </p>
               <p className="muted">
-                {ready.text(ai) ? (
+                {mode === "mock" ? (
+                  "内置完整 25 分套卷、B2+ 静态范文与预设考官追问：有无 AI 接口均可完整走完模考。"
+                ) : ready.text(ai) ? (
                   mode === "speak" ? "辩论每个问题一次请求，批改一次请求。" : "每个练习一次请求（整套三次），每次约 20–60 秒。"
                 ) : (
                   <>
-                    需要 AI：先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务。
+                    无需 AI 也可做题库里的完整 25 分预置卷；若需 AI 出新题，到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置。
                   </>
                 )}
               </p>

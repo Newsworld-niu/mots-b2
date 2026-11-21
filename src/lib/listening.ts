@@ -5,7 +5,7 @@
  */
 import { foldAccents } from "./accent";
 import { clean } from "./typing";
-import { QSKILL_LABEL, type CompExercise, type ExamPart, type QSkill } from "./exam";
+import { QSKILL_LABEL, type CompExercise, type CompKind, type QSkill } from "./exam";
 
 /* ---------- accents ---------- */
 
@@ -214,7 +214,7 @@ export function causeFromSkill(skill: QSkill | undefined): MissCause | undefined
 
 export interface CompMiss {
   at: number;
-  part: Exclude<ExamPart, "speak">;
+  part: CompKind;
   skill?: QSkill;
   cause: MissCause;
   /** Which question of the paper ("exercise-question"). */

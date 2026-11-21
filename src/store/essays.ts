@@ -1,20 +1,43 @@
 /** 篇章写作: the learner's texts and their marking, kept with the progress (and so in backups), newest first. */
-import { MAX_AI_TASKS, MAX_ESSAY_LENGTH, MAX_ESSAYS, MAX_NOTES, type EssayCorrection, type EssayFeedback, type EssayTask, type ModelEssay, type Revision, type SavedEssay, type SavedNote } from "../lib/essay";
+import { MAX_AI_TASKS, MAX_ESSAY_LENGTH, MAX_ESSAYS, MAX_NOTES, maxScore, totalScore, type EssayCorrection, type EssayFeedback, type EssayTask, type ModelEssay, type Revision, type SavedEssay, type SavedNote } from "../lib/essay";
+import { MAX_EXAM_LOG, type ExamResult } from "../lib/exam";
 import { MAX_SPEAK_CORRECTIONS, store, type Progress, type SavedSpeakingCorrection } from "./store";
 
 const rid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 
+export function appendExamLog(p: Progress, r: Omit<ExamResult, "at">, at = Date.now()): Progress {
+  return { ...p, examLog: [{ ...r, at }, ...(p.examLog ?? [])].slice(0, MAX_EXAM_LOG) };
+}
+
+export function applySaveEssay(p: Progress, input: { id?: string; task: string; text: string; fb?: EssayFeedback }, now = Date.now()): { progress: Progress; id: string } {
+  const id = input.id ?? `e-${rid()}`;
+  const essay: SavedEssay = { id, task: input.task, text: input.text.replace(/\r/g, "").trim().slice(0, MAX_ESSAY_LENGTH), created: now, ...(input.fb ? { fb: input.fb } : {}) };
+  let next: Progress = { ...p, essays: [essay, ...(p.essays ?? []).filter((e) => e.id !== id)].slice(0, MAX_ESSAYS) };
+  if (input.fb && maxScore(input.fb) > 0) {
+    next = appendExamLog(next, { part: "essay", what: input.task, score: totalScore(input.fb), total: maxScore(input.fb) }, now);
+  }
+  return { progress: next, id };
+}
+
+export function applyPatchEssay(p: Progress, id: string, patch: { rev?: Revision; model?: ModelEssay }, now = Date.now()): Progress {
+  const existing = (p.essays ?? []).find((e) => e.id === id);
+  let next: Progress = { ...p, essays: (p.essays ?? []).map((e) => (e.id === id ? { ...e, ...patch } : e)) };
+  if (patch.rev?.fb && maxScore(patch.rev.fb) > 0) {
+    next = appendExamLog(next, { part: "essay", what: existing?.task ?? id, score: totalScore(patch.rev.fb), total: maxScore(patch.rev.fb) }, now);
+  }
+  return next;
+}
+
 /** Save a text (or replace the one with this id); the oldest beyond MAX_ESSAYS are dropped. Returns its id. */
 export function saveEssay(input: { id?: string; task: string; text: string; fb?: EssayFeedback }): string {
   const id = input.id ?? `e-${rid()}`;
-  const essay: SavedEssay = { id, task: input.task, text: input.text.replace(/\r/g, "").trim().slice(0, MAX_ESSAY_LENGTH), created: Date.now(), ...(input.fb ? { fb: input.fb } : {}) };
-  store.progress((p) => ({ ...p, essays: [essay, ...(p.essays ?? []).filter((e) => e.id !== id)].slice(0, MAX_ESSAYS) }));
+  store.progress((p) => applySaveEssay(p, { ...input, id }).progress);
   return id;
 }
 
 /** Add to a saved essay: its second draft, or a model text. */
 export function patchEssay(id: string, patch: { rev?: Revision; model?: ModelEssay }) {
-  store.progress((p) => ({ ...p, essays: (p.essays ?? []).map((e) => (e.id === id ? { ...e, ...patch } : e)) }));
+  store.progress((p) => applyPatchEssay(p, id, patch));
 }
 
 /** Keep a task the AI wrote. */
@@ -58,9 +81,9 @@ export function deleteEssay(id: string) {
   });
 }
 
-/** Note a result of 听力理解、应试阅读 or 口语. */
-export function logExam(r: Omit<import("../lib/exam").ExamResult, "at">) {
-  store.progress((p) => ({ ...p, examLog: [{ ...r, at: Date.now() }, ...(p.examLog ?? [])].slice(0, 60) }));
+/** Note a result of 听力理解、应试阅读、写作 or 口语. */
+export function logExam(r: Omit<ExamResult, "at">) {
+  store.progress((p) => appendExamLog(p, r));
 }
 
 /** Pure helper to prepend valid speaking marking corrections into Progress. */

@@ -542,16 +542,19 @@ export function sanitizeSubject(raw: unknown, topic: string): SpeakingSubject | 
 
 /* ---------- 成绩记录 ---------- */
 
-export type ExamPart = CompKind | "speak";
-export const PART_LABEL: Record<ExamPart, string> = { listen: "听力", read: "阅读", speak: "口语" };
+export type ExamPart = CompKind | "essay" | "speak";
+export const EXAM_PARTS: ExamPart[] = ["listen", "read", "essay", "speak"];
+export const PART_LABEL: Record<ExamPart, string> = { listen: "听力", read: "阅读", essay: "写作", speak: "口语" };
 
 export interface ExamResult {
   part: ExamPart;
-  /** Topic id (comprehension) or subject id (speaking). */
+  /** Topic id (comprehension), task id (essay), or subject id (speaking). */
   what: string;
   score: number;
   total: number;
   at: number;
+  /** Speaking: true when the candidate typed instead of speaking into a microphone. */
+  typed?: boolean;
 }
 
 export const MAX_EXAM_LOG = 60;
@@ -562,15 +565,78 @@ export function sanitizeExamLog(v: unknown): ExamResult[] | undefined {
   for (const x of v) {
     if (!x || typeof x !== "object") continue;
     const e = x as Record<string, unknown>;
-    if ((e.part !== "listen" && e.part !== "read" && e.part !== "speak") || typeof e.what !== "string" || typeof e.at !== "number") continue;
+    if ((e.part !== "listen" && e.part !== "read" && e.part !== "essay" && e.part !== "speak") || typeof e.what !== "string" || typeof e.at !== "number") continue;
     if (typeof e.score !== "number" || typeof e.total !== "number" || !(e.total > 0) || e.score < 0 || e.score > e.total) continue;
-    out.push({ part: e.part, what: e.what.slice(0, 40), score: e.score, total: e.total, at: e.at });
+    out.push({ part: e.part, what: e.what.slice(0, 40), score: e.score, total: e.total, at: e.at, ...(e.typed === true ? { typed: true } : {}) });
   }
   return out.length ? out.slice(0, MAX_EXAM_LOG) : undefined;
 }
 
 /** A result as the exam counts it: out of 25. */
 export const outOf25 = (r: { score: number; total: number }) => Math.round((r.score / r.total) * 250) / 10;
+
+/** Validated /25 score for official 100-point aggregation: excludes text-only (/20) or typed speaking entries. */
+export function realScore25(r: Pick<ExamResult, "part" | "score" | "total" | "typed">): number | null {
+  if (r.part === "speak" && (r.total !== 25 || r.typed)) return null;
+  return outOf25(r);
+}
+
+export interface PartReadiness {
+  part: ExamPart;
+  label: string;
+  score25: number | null;
+  at: number | null;
+  eliminatory: boolean;
+  /** Latest speaking log was /20 (no pronunciation) or typed, so not counted into /25. */
+  incompleteSpeak?: boolean;
+  latestRaw?: ExamResult;
+}
+
+export interface ExamReadiness {
+  parts: PartReadiness[];
+  completed: number;
+  /** Exact sum /100 when all 4 parts have a valid /25 score. */
+  exact100: number | null;
+  /** Estimated /100 across whatever parts have been scored so far. */
+  estimated100: number | null;
+  target: number;
+  gapToTarget: number | null;
+  eliminated: PartReadiness[];
+  passed: boolean | null;
+  weakest: PartReadiness | null;
+}
+
+const round1 = (n: number) => Math.round(n * 10) / 10;
+
+/** Summarise DELF B2 readiness across CO/CE/PE/PO: /100 estimate, target gap, and <5/25 elimination guard. */
+export function examReadiness(log: ExamResult[] | undefined, target = 75): ExamReadiness {
+  const rows = [...(log ?? [])].sort((a, b) => b.at - a.at);
+  const parts: PartReadiness[] = EXAM_PARTS.map((part) => {
+    const mine = rows.filter((r) => r.part === part);
+    const valid = mine.find((r) => realScore25(r) !== null);
+    const latest = mine[0];
+    const score25 = valid ? realScore25(valid) : null;
+    return {
+      part,
+      label: PART_LABEL[part],
+      score25,
+      at: valid?.at ?? null,
+      eliminatory: score25 !== null && score25 < 5,
+      incompleteSpeak: part === "speak" && !!latest && realScore25(latest) === null && !valid,
+      ...(latest ? { latestRaw: latest } : {}),
+    };
+  });
+  const scored = parts.filter((p) => p.score25 !== null);
+  const completed = scored.length;
+  const sum = scored.reduce((n, p) => n + (p.score25 ?? 0), 0);
+  const exact100 = completed === 4 ? round1(sum) : null;
+  const estimated100 = completed === 4 ? exact100 : completed > 0 ? round1((sum / completed) * 4) : null;
+  const gapToTarget = estimated100 !== null ? round1(Math.max(0, target - estimated100)) : null;
+  const eliminated = scored.filter((p) => p.eliminatory);
+  const passed = exact100 !== null ? exact100 >= 50 && eliminated.length === 0 : null;
+  const weakest = scored.length ? [...scored].sort((a, b) => (a.score25 ?? 0) - (b.score25 ?? 0))[0] : null;
+  return { parts, completed, exact100, estimated100, target, gapToTarget, eliminated, passed, weakest };
+}
 
 /** Minutes and seconds, 4:05. */
 export const clock = (sec: number) => `${Math.floor(Math.max(0, sec) / 60)}:${String(Math.max(0, sec) % 60).padStart(2, "0")}`;
