@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { applyEssayGridCaps, applyEssayLengthCaps, buildTask, CONNECTORS, countWords, CRITERIA, essayLevelOf, ESSAY_TASKS, hasFormalRegisterViolation, levelLabel, maxScore, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, buildTask, CONNECTORS, countWords, CRITERIA, essayLevelOf, ESSAY_TASKS, hasFormalRegisterViolation, levelLabel, maxScore, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
 
 test("countWords counts elided and hyphenated words once", () => {
   assert.equal(countWords("L'ami de Paul est arrivé."), 5);
@@ -217,4 +217,34 @@ test("PE-4 isolates B1 and B2 level labels and trend partitions", () => {
   assert.deepEqual(b1.map((e) => e.id), ["e1", "e3"]);
   assert.deepEqual(b2.map((e) => e.id), ["e2"]);
   assert.equal(essayLevelOf(b1[1], [...ESSAY_TASKS, aiB1]), "B1");
+});
+
+test("PO-1 applySpeakingCaps enforces monologue words/duration, paste risk, repetition and cursory debate", () => {
+  const highSpeak = sanitizeEssayFeedback({ scores: { monologue: 5, interaction: 5, lexique: 5, morpho: 5 }, comment: "ok" }, new Set(), ["monologue", "interaction", "lexique", "morpho"]);
+  const words = (n: number) => Array.from({ length: n }, (_, i) => `mot${i}`).join(" ");
+  const turns5 = Array.from({ length: 5 }, (_, k) => ({ q: `Q${k}`, a: words(30) }));
+
+  // <250 words caps monologue <= 1
+  const shortTalk = applySpeakingCaps(highSpeak, { transcript: words(184), doc: "autre sujet complètement différent", turns: turns5 });
+  assert.equal(shortTalk.scores.monologue, 1);
+
+  // >=250 words but <150s caps monologue <= 1
+  const shortDur = applySpeakingCaps(highSpeak, { transcript: words(280), doc: "autre sujet", turns: turns5, monologueWords: 280, monologueSec: 90, typed: true });
+  assert.equal(shortDur.scores.monologue, 1);
+  assert.ok(shortDur.comment.includes("打字替代"));
+
+  // Copy-paste from prompt document caps monologue <= 1 and lexique <= 1
+  const doc = Array.from({ length: 140 }, (_, i) => `terme${i}`).join(" ");
+  const pasted = applySpeakingCaps(highSpeak, { transcript: `${doc} ${doc}`, doc, turns: turns5 });
+  assert.equal(pasted.scores.monologue, 1);
+  assert.equal(pasted.scores.lexique, 1);
+  assert.equal(pasted.flags?.pastedFromDoc, true);
+  assert.ok(speakingPasteStats(`${doc} ${doc}`, doc).copyRatio >= 0.9);
+
+  // Cursory 2-turn or <80w debate caps interaction <= 1; empty debate sets 0
+  const emptyDebate = applySpeakingCaps(highSpeak, { transcript: words(300), doc: "autre", turns: [] });
+  assert.equal(emptyDebate.scores.interaction, 0);
+  assert.equal(emptyDebate.scores.monologue, 3); // <450 words cannot be 5
+  const shortDebate = applySpeakingCaps(highSpeak, { transcript: words(300), doc: "autre", turns: [{ q: "Q1", a: "oui je suis d'accord" }, { q: "Q2", a: "c'est vrai" }] });
+  assert.equal(shortDebate.scores.interaction, 1);
 });

@@ -498,8 +498,8 @@ function parseFlags(r: Record<string, unknown>): EssayFlags | undefined {
 }
 
 function capScoresByFlags(scores: Record<string, number>, flags?: EssayFlags): Record<string, number> {
-  if (!flags) return scores;
   const s = { ...scores };
+  if (!flags) return s;
   if (flags.offTopic === "partial") {
     if ("task" in s) s.task = Math.min(s.task, 3);
     if ("monologue" in s) s.monologue = Math.min(s.monologue, 3);
@@ -635,6 +635,108 @@ export function applyEssayGridCaps(fb: EssayFeedback, opts: { genre: Genre; text
     comment: notes.length ? `${notes.join("")}${fb.comment}` : fb.comment,
   };
   return applyEssayLengthCaps(withGridCaps, opts.text, opts.minWords);
+}
+
+const wordTokens = (s: string): string[] => (s.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []);
+
+function ngrams(tokens: string[], size: number): string[] {
+  if (tokens.length < size) return [];
+  const out: string[] = [];
+  for (let i = 0; i <= tokens.length - size; i++) out.push(tokens.slice(i, i + size).join(" "));
+  return out;
+}
+
+/**
+ * Measure verbatim 5-gram copying from the prompt document and internal 4-gram repetition in a speaking transcript.
+ */
+export function speakingPasteStats(transcript: string, doc: string): { copyRatio: number; originalWords: number; unique4GramRatio: number; total4Grams: number } {
+  const talk = wordTokens(transcript);
+  const src = new Set(ngrams(wordTokens(doc), 5));
+  const covered = new Set<number>();
+  if (src.size > 0 && talk.length >= 5) {
+    for (let i = 0; i <= talk.length - 5; i++) {
+      if (src.has(talk.slice(i, i + 5).join(" "))) {
+        for (let k = i; k < i + 5; k++) covered.add(k);
+      }
+    }
+  }
+  const g4 = ngrams(talk, 4);
+  return {
+    copyRatio: talk.length ? covered.size / talk.length : 0,
+    originalWords: talk.length - covered.size,
+    unique4GramRatio: g4.length ? new Set(g4).size / g4.length : 1,
+    total4Grams: g4.length,
+  };
+}
+
+/** Deterministic DELF B2 speaking caps (length, duration, copy-paste/padding, cursory debate). */
+export function applySpeakingCaps(
+  fb: EssayFeedback,
+  opts: {
+    transcript: string;
+    doc: string;
+    turns: { q: string; a: string }[];
+    monologueWords?: number;
+    monologueSec?: number;
+    debateSec?: number;
+    typed?: boolean;
+  },
+): EssayFeedback {
+  const monologueWords = opts.monologueWords ?? countWords(opts.transcript);
+  const answered = opts.turns.filter((t) => t.a.trim());
+  const debateWords = answered.reduce((n, t) => n + countWords(t.a), 0);
+  const paste = speakingPasteStats(opts.transcript, opts.doc);
+  const highCopyPaste = (monologueWords >= 40 && paste.copyRatio >= 0.35) || (monologueWords >= 120 && paste.originalWords < Math.min(120, monologueWords * 0.65));
+  const highRepetition = paste.total4Grams >= 40 && paste.unique4GramRatio < 0.55;
+
+  let flags = fb.flags ? { ...fb.flags } : undefined;
+  if (highCopyPaste || highRepetition) flags = { ...flags, pastedFromDoc: true };
+  const shortDebate = answered.length > 0 && (answered.length <= 2 || debateWords < 80 || debateWords / answered.length < 12 || (opts.debateSec !== undefined && opts.debateSec < 90 && debateWords < 120));
+  if (shortDebate) flags = { ...flags, cursoryDebate: true };
+
+  const scores = capScoresByFlags(fb.scores, flags);
+  const notes: string[] = [];
+
+  if (monologueWords < 80) {
+    scores.monologue = 0;
+    scores.lexique = Math.min(scores.lexique ?? 0, 1);
+    scores.morpho = Math.min(scores.morpho ?? 0, 1);
+    notes.push(`【独白过短（${monologueWords} 词），独白记 0 分且语言封顶 1 分】`);
+  } else if (monologueWords < 250 || (opts.monologueSec !== undefined && opts.monologueSec < 150)) {
+    scores.monologue = Math.min(scores.monologue ?? 0, 1);
+    notes.push(
+      opts.monologueSec !== undefined && opts.monologueSec < 150 && monologueWords >= 250
+        ? `【独白时长不足（${opts.monologueSec} 秒，远短于 5–7 分钟），独白封顶 1 分】`
+        : `【独白不足 250 词（实测 ${monologueWords} 词），独白封顶 1 分】`,
+    );
+  } else if (monologueWords < 450) {
+    scores.monologue = Math.min(scores.monologue ?? 0, 3);
+  }
+
+  if (flags?.pastedFromDoc) {
+    scores.monologue = Math.min(scores.monologue ?? 0, 1);
+    scores.lexique = Math.min(scores.lexique ?? 0, 1);
+    if (highRepetition) scores.morpho = Math.min(scores.morpho ?? 0, 1);
+    notes.push("【检测到高比例照抄材料或重复凑字，独白与词汇封顶 1 分】");
+  }
+
+  if (answered.length === 0) {
+    scores.interaction = 0;
+  } else if (flags?.cursoryDebate) {
+    scores.interaction = Math.min(scores.interaction ?? 0, 1);
+    notes.push("【辩论轮次或有效作答偏少/偏敷衍，互动封顶 1 分】");
+  }
+
+  if (flags?.offTopic === "total") notes.push("【严重偏题：独白与互动记 0 分】");
+  else if (flags?.offTopic === "partial") notes.push("【部分偏题：独白与词汇封顶 3 分】");
+  if (opts.typed) notes.push("（本次为打字替代口语输入，无法核验口语即时反应与流利度。）");
+
+  return {
+    ...fb,
+    scores,
+    ...(flags ? { flags } : {}),
+    comment: notes.length ? `${notes.join("")}${fb.comment}` : fb.comment,
+  };
 }
 
 /** Saved essays read back from storage or a backup. */

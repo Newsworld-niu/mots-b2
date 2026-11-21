@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { buildAnthropicBody, buildOpenAiChatBody, supportsTemperature, type JsonRequest } from "./clients.ts";
-import { ESSAY_SCHEMA, ESSAY_SYSTEM, SPEAK_SCHEMA } from "./tasks.ts";
+import { ESSAY_SCHEMA, ESSAY_SYSTEM, SPEAK_SCHEMA, SPEAK_SYSTEM } from "./tasks.ts";
 
 const sampleReq: JsonRequest = {
   system: "Mark this.",
@@ -57,4 +57,6 @@ test("ESSAY_SCHEMA and SPEAK_SCHEMA restrict scores to integer enum [0, 1, 3, 5]
   }
   assert.ok(ESSAY_SYSTEM.includes("Calibration anchors"));
   assert.ok(!ESSAY_SYSTEM.includes("voitures") && !ESSAY_SYSTEM.includes("télétravail"));
+  assert.ok(SPEAK_SYSTEM.includes("Calibration anchors"));
+  assert.ok(!SPEAK_SYSTEM.includes("voitures") && !SPEAK_SYSTEM.includes("télétravail"));
 });
