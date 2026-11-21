@@ -2,7 +2,7 @@ import { ArrowRight, Check, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import { useConj, type ConjData } from "../atlas/conj";
-import { checkAnswer, distractorsFor, promptFor, PRONOUNS, TENSE_FR, TENSE_ZH, TENSES, tensesForLevel, type ConjTense, type ConjVerb } from "../lib/conjugation";
+import { checkAnswer, distractorsFor, isCompoundTense, promptFor, PRONOUNS, TENSE_FR, TENSE_ZH, TENSES, tensesForLevel, type ConjTense, type ConjVerb } from "../lib/conjugation";
 import { cue } from "../lib/sound";
 import { hashSeed, shuffle } from "../lib/text";
 import { answerConj, buildConjSession, conjGrade, conjPlan, repeatConj, startedConjVerbs, splitKey, type ConjStep } from "../store/conj";
@@ -246,7 +246,7 @@ function ConjQuestion({ step, verb, zh, pending, onAssist, onSubmit, onNext }: {
       el.setSelectionRange(a + ch.length, a + ch.length);
     });
   };
-  const joiner = prompt.before.endsWith("'") ? "" : " ";
+  const joiner = !prompt.before || prompt.before.endsWith("'") ? "" : " ";
   const inf = verb.p ? (/^[aeiouyhéèêâîôû]/.test(verb.i) ? `s'${verb.i}` : `se ${verb.i}`) : verb.i;
 
   return (
@@ -339,7 +339,7 @@ function ConjQuestion({ step, verb, zh, pending, onAssist, onSubmit, onNext }: {
             {prompt.before}
             {joiner}
             <b>{prompt.shown}</b>
-            {step.tense === "pc" && (verb.a === "ae" && !verb.p ? <small>（不及物用 être；带宾语时用 avoir）</small> : null)}
+            {isCompoundTense(step.tense) && (verb.a === "ae" && !verb.p ? <small>（不及物用 être；带宾语时用 avoir）</small> : null)}
           </p>
           <ConjTable verb={verb} tense={step.tense} highlight={step.person} />
           <button className={`btn btn-xl ${pending.result === "wrong" ? "btn-terra" : "btn-sage"}`} onClick={onNext} autoFocus>
@@ -368,7 +368,7 @@ function ConjSummary({ log, data, onExit }: { log: { step: ConjStep; ok: boolean
           <ul className="gender-wrong">
             {wrong.map(({ step }) => (
               <li key={step.key} lang="fr">
-                {data.verbs[step.verbId].i} <small lang="zh">{TENSE_ZH[step.tense]} · {PRONOUNS[step.person]}</small>
+                {data.verbs[step.verbId].i} <small lang="zh">{TENSE_ZH[step.tense]}{step.tense === "ppres" ? "" : ` · ${PRONOUNS[step.person]}`}</small>
               </li>
             ))}
           </ul>

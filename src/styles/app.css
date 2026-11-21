@@ -8831,3 +8831,48 @@ button.prep-pill:hover { border-color: var(--ink-4); color: var(--ink); }
 .placement-miss p { margin: 0; }
 .placement-actions { display: grid; gap: 10px; }
 .placement-sub-actions { display: flex; justify-content: center; gap: 10px; }
+
+/* ---------- PE-7: grammar discourse exercises ---------- */
+.gram-discourse-box { display: grid; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+.gram-discourse-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px; }
+.gram-discourse-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.gram-discourse-item {
+  width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--paper-2);
+  text-align: left; color: var(--ink);
+}
+.gram-discourse-item:hover { border-color: var(--ink-4); }
+.gram-discourse-item > span { display: grid; gap: 2px; }
+.gram-discourse-item b { font-size: 13.5px; }
+.gram-discourse-item small { font-size: 12px; color: var(--ink-2); }
+.gram-discourse-panel { display: grid; gap: 16px; }
+.gram-discourse-toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
+.gram-discourse-score { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+.gram-discourse-passage {
+  margin: 0; padding: 16px 18px; border-radius: 14px; background: var(--paper-2); border: 1px solid var(--line);
+  font-size: 16px; line-height: 1.9;
+}
+.disc-slot { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px; margin: 0 3px; }
+.disc-num { font-size: 11.5px; font-family: var(--mono); color: var(--ink-3); }
+.disc-wrong-shown { text-decoration: wavy underline var(--terra); text-underline-offset: 3px; color: var(--ink-2); }
+.disc-fill {
+  padding: 1px 8px; border-radius: 8px; background: var(--card); border: 1px solid var(--line-strong, var(--line));
+  font-weight: 600;
+}
+.disc-slot.is-right .disc-fill { border-color: var(--sage, #4c8c6b); color: var(--sage, #4c8c6b); }
+.disc-slot.is-accent .disc-fill, .disc-slot.is-wrong .disc-fill { border-color: var(--terra); color: var(--terra); }
+.disc-fill del { opacity: 0.7; margin-right: 4px; }
+.disc-fill ins { text-decoration: none; font-weight: 700; }
+.disc-input {
+  width: 150px; padding: 2px 8px; border-radius: 8px; border: 1px solid var(--line-strong, var(--line));
+  background: var(--card); color: var(--ink); font: inherit; font-size: 15px;
+}
+.disc-choices { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.disc-choices li { display: grid; gap: 6px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); }
+.disc-choice-label { font-size: 13.5px; color: var(--ink-2); }
+.disc-choice-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.disc-explanations { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.disc-explanations li { padding: 10px 12px; border-radius: 12px; background: var(--paper-2); border-left: 3px solid var(--line); display: grid; gap: 4px; }
+.disc-explanations li.is-ok { border-left-color: var(--sage, #4c8c6b); }
+.disc-explanations li.is-bad { border-left-color: var(--terra); }
+.disc-explanations li p { margin: 0; }

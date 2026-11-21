@@ -214,3 +214,33 @@ test("changing tense selection expands an existing verb without consuming anothe
   assert.equal(more.length, 6);
   assert.ok(more.every(k => splitKey(k).verbId === "etre" && splitKey(k).tense === "fut"));
 });
+
+test("PE-7: B1 default tenses include subj; compound B2 tenses and ppres schedule & sanitize cleanly", () => {
+  const b1Tenses = activeTenses({ ...defaultSettings, startLevel: 2 });
+  assert.ok(b1Tenses.includes("subj"));
+
+  const parlerReal: ConjVerb = {
+    i: "parler",
+    a: "a",
+    pp: "parlé",
+    m: "er",
+    f: {
+      pres: ["parle", "parles", "parle", "parlons", "parlez", "parlent"],
+      imp: six("parl"),
+      fut: six("parl"),
+      cond: six("parl"),
+      subj: six("parl"),
+    },
+  };
+  const d: ConjData = { v: 1, verbs: { parler: parlerReal } };
+  const s = { ...defaultSettings, conjTenses: ["pqp", "fa", "condp", "subjp", "ppres"] };
+  const keys = newConj(atlas, emptyProgress("t"), s, d, 1, ["parler"]);
+  // 4 compound tenses * 6 persons + 1 invariable ppres card = 25
+  assert.equal(keys.length, 25);
+  assert.deepEqual(keys.filter((k) => splitKey(k).tense === "ppres"), ["parler|ppres|0"]);
+
+  const card = review(undefined, Rating.Good, Date.now());
+  const p = sanitizeProgress({ ...emptyProgress("t"), conj: Object.fromEntries(keys.map((k) => [k, card])) }, "t");
+  assert.equal(Object.keys(p.conj ?? {}).length, 25);
+  assert.deepEqual(sanitizeSettings({ conjTenses: ["pqp", "ppres", "bogus"] }).conjTenses, ["pqp", "ppres"]);
+});

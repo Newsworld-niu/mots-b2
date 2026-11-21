@@ -3,21 +3,23 @@
  * Tenses follow the learner's level unless chosen by hand. */
 import type { Atlas } from "../atlas/types";
 import type { ConjData } from "../atlas/conj";
-import { persons, TENSES, tensesForLevel, type ConjTense } from "../lib/conjugation";
+import { isCompoundTense, participePresentForm, personsFor, TENSES, tensesForLevel, type ConjTense } from "../lib/conjugation";
 import { review, Rating, type Grade } from "./srs";
 import { dayKey, store, type Progress, type Settings } from "./store";
 
 export const conjKey = (verbId: string, tense: ConjTense, person: number) => `${verbId}|${tense}|${person}`;
 /** Legacy keys are retained for backup compatibility, but cannot prove any person's mastery. */
 export const splitKey = (key: string) => {
-  const match = key.match(/^(.*)\|(pres|pc|imp|fut|cond|subj)(?:\|([0-5]))?$/);
+  const match = key.match(/^(.*)\|(pres|pc|imp|fut|cond|subj|pqp|fa|condp|subjp|ppres)(?:\|([0-5]))?$/);
   return { verbId: match?.[1] ?? "", tense: match?.[2] as ConjTense, person: match?.[3] === undefined ? undefined : Number(match[3]) };
 };
 
 function validForm(key: string, data: ConjData) {
   const { verbId, tense, person } = splitKey(key);
   const v = data.verbs[verbId];
-  return !!v && person !== undefined && persons(v).includes(person) && (tense === "pc" ? !!v.pp : !!v.f[tense]?.[person]);
+  if (!v || person === undefined || !personsFor(v, tense).includes(person)) return false;
+  if (tense === "ppres") return participePresentForm(v) !== null;
+  return isCompoundTense(tense) ? !!v.pp : !!v.f[tense]?.[person];
 }
 
 export function activeTenses(s: Settings): ConjTense[] {
@@ -49,7 +51,7 @@ export function newConj(atlas: Atlas, p: Progress, s: Settings, data: ConjData, 
   let added = 0;
   return verbs.flatMap(id => {
     // Alternate tenses within each person so all selected tenses appear early.
-    const missing = persons(data.verbs[id]).flatMap(person => tenses.map(t => conjKey(id, t, person)))
+    const missing = [0, 1, 2, 3, 4, 5].flatMap(person => tenses.filter(t => personsFor(data.verbs[id], t).includes(person)).map(t => conjKey(id, t, person)))
       .filter(k => validForm(k, data) && !p.conj?.[k]);
     if (!missing.length) return [];
     // A partially practised verb can always be completed, even with a zero limit.

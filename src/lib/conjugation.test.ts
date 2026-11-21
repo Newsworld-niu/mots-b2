@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { agree, checkAnswer, distractorsFor, promptFor, tableFor, tensesForLevel, type ConjVerb } from "./conjugation.ts";
+import { agree, checkAnswer, distractorsFor, participePresentForm, personsFor, promptFor, tableFor, TENSES, tensesForLevel, type ConjVerb } from "./conjugation.ts";
 
 const parler: ConjVerb = { i: "parler", a: "a", pp: "parlé", m: "er", f: { pres: ["parle", "parles", "parle", "parlons", "parlez", "parlent"], imp: ["parlais", "parlais", "parlait", "parlions", "parliez", "parlaient"], fut: ["parlerai", "parleras", "parlera", "parlerons", "parlerez", "parleront"], cond: ["parlerais", "parlerais", "parlerait", "parlerions", "parleriez", "parleraient"], subj: ["parle", "parles", "parle", "parlions", "parliez", "parlent"] } };
 const aimer: ConjVerb = { ...parler, i: "aimer", pp: "aimé", f: { pres: ["aime", "aimes", "aime", "aimons", "aimez", "aiment"], imp: ["aimais", "aimais", "aimait", "aimions", "aimiez", "aimaient"], fut: ["aimerai", "aimeras", "aimera", "aimerons", "aimerez", "aimeront"], cond: ["aimerais", "aimerais", "aimerait", "aimerions", "aimeriez", "aimeraient"], subj: ["aime", "aimes", "aime", "aimions", "aimiez", "aiment"] } };
@@ -56,7 +56,36 @@ test("multiple choice offers three distinct wrong forms; the wrong auxiliary and
 test("tables and level unlocking", () => {
   assert.deepEqual(tableFor(aller, "pres").map((r) => `${r.before} ${r.form}`), ["je vais", "tu vas", "il va", "nous allons", "vous allez", "ils vont"]);
   assert.deepEqual(tensesForLevel(0), ["pres", "pc"]);
-  assert.equal(tensesForLevel(3).length, 6);
+  assert.ok(tensesForLevel(2).includes("subj"), "B1 start level enables subj by default");
+  assert.equal(tensesForLevel(3).length, TENSES.length);
   const falloir: ConjVerb = { ...parler, i: "falloir", imp: 1, f: { ...parler.f, pres: ["", "", "faut", "", "", ""] } };
   assert.deepEqual(tableFor(falloir, "pres").map((r) => r.form), ["faut"]);
+  assert.deepEqual(personsFor(falloir, "ppres"), []);
+});
+
+test("PE-7: compound B2 tenses and participe présent compute auxiliaries, que/qu' and agreements", () => {
+  const avoir: ConjVerb = { ...parler, i: "avoir", a: "a", pp: "eu" };
+  const etre: ConjVerb = { ...parler, i: "être", a: "e", pp: "été" };
+  const savoir: ConjVerb = { ...parler, i: "savoir", a: "a", pp: "su" };
+
+  assert.equal(promptFor(parler, "pqp", 0).shown, "avais parlé");
+  assert.equal(promptFor(aller, "pqp", 3).shown, "étions allé(e)s");
+  assert.ok(promptFor(aller, "pqp", 3).accepted.includes("étions allées"));
+  assert.equal(promptFor(parler, "fa", 2).shown, "aura parlé");
+  assert.equal(promptFor(aller, "condp", 0).shown, "serais allé(e)");
+  assert.equal(promptFor(parler, "subjp", 0).before, "que j'");
+  assert.equal(promptFor(parler, "subjp", 0).shown, "aie parlé");
+  assert.equal(promptFor(aller, "subjp", 2).before, "qu'il");
+  assert.equal(promptFor(aller, "subjp", 2).shown, "soit allé");
+  assert.equal(promptFor(lever, "subjp", 1).before, "que tu te");
+  assert.equal(promptFor(lever, "subjp", 1).shown, "sois levé(e)");
+
+  assert.equal(participePresentForm(parler), "parlant");
+  assert.equal(participePresentForm(etre), "étant");
+  assert.equal(participePresentForm(avoir), "ayant");
+  assert.equal(participePresentForm(savoir), "sachant");
+  assert.equal(promptFor(parler, "ppres", 0).before, "");
+  assert.equal(promptFor(parler, "ppres", 0).shown, "parlant");
+  assert.equal(promptFor(lever, "ppres", 0).before, "se");
+  assert.ok(promptFor(lever, "ppres", 0).accepted.includes("se levant"));
 });

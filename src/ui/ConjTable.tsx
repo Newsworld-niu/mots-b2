@@ -37,7 +37,7 @@ export function VerbConjugation({ id }: { id: string }) {
     <details className="block conj-entry">
       <summary className="eyebrow">变位</summary>
       <div className="conj-tabs" role="tablist">
-        {TENSES.map((t) => (
+        {TENSES.filter((t) => tableFor(v, t).length > 0).map((t) => (
           <button key={t} role="tab" aria-selected={t === tense} className={t === tense ? "is-on" : ""} onClick={() => setTense(t)} title={TENSE_ZH[t]}>
             <span lang="fr">{TENSE_FR[t]}</span>
           </button>

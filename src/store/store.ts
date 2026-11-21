@@ -12,6 +12,7 @@ import { sanitizeExamLog, type ExamResult } from "../lib/exam";
 import { sanitizeMisses, sanitizeSources, type CompMiss, type RealSource } from "../lib/listening";
 import { sanitizeDrillDays } from "../lib/drill";
 import { sanitizePlacement, type PlacementResult } from "../lib/placement";
+import { TENSES } from "../lib/conjugation";
 import { EXPR_ID } from "../lib/expressions";
 
 /**
@@ -358,7 +359,7 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
       .slice(-500);
   if (isObj(v.conj)) {
     const conj: Record<string, CardState> = {};
-    for (const [k, c] of Object.entries(v.conj)) if (/^[^|]+\|(pres|pc|imp|fut|cond|subj)(\|[0-5])?$/.test(k) && validCard(c)) conj[k] = c;
+    for (const [k, c] of Object.entries(v.conj)) if (/^[^|]+\|(pres|pc|imp|fut|cond|subj|pqp|fa|condp|subjp|ppres)(\|[0-5])?$/.test(k) && validCard(c)) conj[k] = c;
     if (Object.keys(conj).length) out.conj = conj;
   }
   if (isObj(v.conjDays)) {
@@ -589,7 +590,7 @@ export function sanitizeSettings(v: unknown): Settings {
   if (num(v.ambienceVolume, 0, 1)) s.ambienceVolume = v.ambienceVolume as number;
   if (typeof v.splash === "boolean") s.splash = v.splash;
   if (Array.isArray(v.conjTenses)) {
-    const t = v.conjTenses.filter((x): x is string => ["pres", "pc", "imp", "fut", "cond", "subj"].includes(x as string));
+    const t = v.conjTenses.filter((x): x is string => (TENSES as readonly string[]).includes(x as string));
     s.conjTenses = t.length ? [...new Set(t)] : null;
   }
   if (num(v.conjNew, 0, MAX_DAILY_NEW)) s.conjNew = Math.round(v.conjNew as number);

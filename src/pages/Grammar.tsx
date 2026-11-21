@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ready, useAiConfig } from "../ai/config";
 import { checkRewrite } from "../ai/tasks";
 import { useGrammar } from "../atlas/grammar";
+import { DISCOURSE_EXERCISES, type DiscourseExercise } from "../lib/grammar-discourse";
 import {
   answerOf,
   checkTyped,
@@ -55,14 +56,16 @@ interface Step {
 export function Grammar({ pointId, sheet }: { pointId?: string; sheet?: boolean }) {
   const { data, error } = useGrammar();
   const [run, setRun] = useState<{ steps: Step[]; key: number } | null>(null);
+  const [discourse, setDiscourse] = useState<DiscourseExercise | null>(null);
   if (error) return <div className="page"><p className="muted">{error}</p></div>;
   if (!data) return <div className="page learn-loading"><span className="spinner" /></div>;
   if (run) return <Session key={run.key} data={data} initial={run.steps} onExit={() => setRun(null)} />;
+  if (discourse) return <DiscourseSession key={discourse.id} exercise={discourse} onExit={() => setDiscourse(null)} onOpenExercise={setDiscourse} />;
   const start = (steps: Step[]) => steps.length && setRun({ steps, key: Date.now() });
   if (sheet) return <CheatSheet data={data} />;
   const point = pointId ? data.points.find((p) => p.id === pointId) : undefined;
   if (point) return <PointView data={data} point={point} onStart={start} />;
-  return <Overview data={data} onStart={start} />;
+  return <Overview data={data} onStart={start} onDiscourse={setDiscourse} />;
 }
 
 const titleOf = (data: GrammarData, id: string) => data.points.find((p) => p.id === id)?.title ?? id;
@@ -76,13 +79,18 @@ function status(card: { due: number } | undefined, now: number) {
   return { label: `${days} 天后复习`, cls: "is-ok" };
 }
 
-function Overview({ data, onStart }: { data: GrammarData; onStart: (s: Step[]) => void }) {
+function Overview({ data, onStart, onDiscourse }: { data: GrammarData; onStart: (s: Step[]) => void; onDiscourse: (ex: DiscourseExercise) => void }) {
   const progress = useStore((s) => s.progress);
+  const startLevel = useStore((s) => s.settings.startLevel);
   const now = Date.now();
   const due = useMemo(() => duePoints(data, progress, now), [data, progress, now]);
   const fresh = useMemo(() => untouchedWithErrors(data, progress), [data, progress]);
   const started = data.points.filter((p) => progress.gram?.[p.id]).length;
-  const next = nextPoint(data, progress);
+  const next = nextPoint(data, progress, startLevel);
+  const orderedLevels = useMemo(() => {
+    const startBand = Math.min(startLevel, LEVELS.length - 1);
+    return [...LEVELS.slice(startBand), ...LEVELS.slice(0, startBand)];
+  }, [startLevel]);
   const review = () => {
     const seed = Date.now();
     const errors = essayErrors(progress);
@@ -116,17 +124,25 @@ function Overview({ data, onStart }: { data: GrammarData; onStart: (s: Step[]) =
             </button>
           ) : next ? (
             <p className="muted">
-              没有要复习的语法点。下一个可以学：{" "}
+              按当前起点（{LEVELS[Math.min(startLevel, LEVELS.length - 1)]}）推荐优先学：{" "}
               <button className="link" onClick={() => go({ page: "grammar", p: next.id })}>
-                {next.title}
+                {next.level} · {next.title}
               </button>
             </p>
           ) : (
             <p className="muted">所有语法点都在复习计划里了，今天没有到期的。</p>
           )}
+          {due.length > 0 && next && (
+            <p className="muted small">
+              下一个推荐新学（{next.level}）：{" "}
+              <button className="link" onClick={() => go({ page: "grammar", p: next.id })}>
+                {next.title}
+              </button>
+            </p>
+          )}
           {fresh.length > 0 && (
             <div className="gram-fresh">
-              <p className="muted">作文批改里出现过、还没开始练的语法点：</p>
+              <p className="muted">批改纠错里出现过、还没开始练的语法点：</p>
               <ul>
                 {fresh.map(({ point, n }) => (
                   <li key={point.id}>
@@ -139,17 +155,39 @@ function Overview({ data, onStart }: { data: GrammarData; onStart: (s: Step[]) =
               </ul>
             </div>
           )}
+          <div className="gram-discourse-box">
+            <div className="gram-discourse-head">
+              <h3 className="eyebrow">语篇级综合训练 · 跨句时态与改错</h3>
+              <span className="muted small">整段上下文里练时态呼应与纠错</span>
+            </div>
+            <ul className="gram-discourse-list">
+              {DISCOURSE_EXERCISES.map((ex) => (
+                <li key={ex.id}>
+                  <button type="button" className="gram-discourse-item" onClick={() => onDiscourse(ex)}>
+                    <span>
+                      <span className="chip">{ex.level}</span> <b>{ex.title}</b>
+                      <small>{ex.subtitle}</small>
+                    </span>
+                    <ArrowRight size={15} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
           <a className="btn btn-ghost gram-sheet-link" href="#/grammar?sheet=1">
             <FileText size={16} /> 速查表：所有语法点的口诀和判断顺序
           </a>
         </section>
         <section className="gram-levels">
-          {LEVELS.map((lv) => {
+          {orderedLevels.map((lv) => {
             const list = data.points.filter((p) => p.level === lv);
             if (!list.length) return null;
             return (
               <div key={lv} className="gram-level">
-                <h3 className="eyebrow">{lv}</h3>
+                <h3 className="eyebrow">
+                  {lv}
+                  {lv === LEVELS[Math.min(startLevel, LEVELS.length - 1)] && " · 当前起点优先"}
+                </h3>
                 <ul className="gram-list">
                   {list.map((p) => {
                     const st = status(progress.gram?.[p.id], now);
@@ -989,6 +1027,202 @@ function Summary({ data, log, graded, onExit }: { data: GrammarData; log: Answer
             <RotateCcw size={18} /> 返回
           </button>
         </div>
+      </section>
+    </div>
+  );
+}
+
+/* ---------- 语篇级综合训练 ---------- */
+
+function DiscourseSession({
+  exercise,
+  onExit,
+  onOpenExercise,
+}: {
+  exercise: DiscourseExercise;
+  onExit: () => void;
+  onOpenExercise: (ex: DiscourseExercise) => void;
+}) {
+  const settings = useStore((s) => s.settings);
+  const [mode, setMode] = useState<"choice" | "type">("choice");
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [submitted, setSubmitted] = useState(false);
+
+  const parts = useMemo(() => exercise.text.split(/(\{\{\d+\}\})/g), [exercise.text]);
+  const filledCount = exercise.slots.filter((s) => (answers[s.id] ?? "").trim().length > 0).length;
+
+  const evalSlot = (id: string) => {
+    const slot = exercise.slots.find((s) => s.id === id)!;
+    const val = (answers[id] ?? "").trim();
+    return checkTyped(val, [...slot.answer]);
+  };
+
+  const correctCount = submitted ? exercise.slots.filter((s) => evalSlot(s.id) === "right").length : 0;
+  const fullPassage = useMemo(
+    () =>
+      parts
+        .map((part) => {
+          const m = part.match(/^\{\{(\d+)\}\}$/);
+          if (!m) return part;
+          return exercise.slots[Number(m[1])].answer[0];
+        })
+        .join(""),
+    [parts, exercise.slots],
+  );
+
+  const submit = () => {
+    setSubmitted(true);
+    const allOk = exercise.slots.every((s) => evalSlot(s.id) === "right");
+    if (settings.sfx) void cue(allOk ? "correct" : "wrong");
+  };
+
+  const reset = () => {
+    setAnswers({});
+    setSubmitted(false);
+  };
+
+  const nextExercise = DISCOURSE_EXERCISES[(DISCOURSE_EXERCISES.findIndex((e) => e.id === exercise.id) + 1) % DISCOURSE_EXERCISES.length];
+
+  return (
+    <div className="page practice gram-discourse">
+      <header className="page-head">
+        <button className="link deck-back" onClick={onExit}>
+          <ArrowLeft size={16} /> 返回语法总览
+        </button>
+        <p className="eyebrow">
+          {exercise.level} · {exercise.kind === "fix" ? "语篇跨句改错" : "语篇跨句填空"}
+        </p>
+        <h1 className="display">{exercise.title}</h1>
+        <p className="lede">{exercise.subtitle}</p>
+      </header>
+
+      <section className="panel gram-discourse-panel">
+        <div className="gram-discourse-toolbar">
+          <div className="segmented">
+            <button type="button" className={mode === "choice" ? "is-on" : ""} onClick={() => !submitted && setMode("choice")} disabled={submitted}>
+              选择模式
+            </button>
+            <button type="button" className={mode === "type" ? "is-on" : ""} onClick={() => !submitted && setMode("type")} disabled={submitted}>
+              自主拼写模式
+            </button>
+          </div>
+          {submitted && (
+            <span className="gram-discourse-score">
+              正确 <b>{correctCount}</b> / {exercise.slots.length}
+              <Speak url={null} text={fullPassage} size="sm" />
+            </span>
+          )}
+        </div>
+
+        <p className="gram-discourse-passage" lang="fr">
+          {parts.map((part, idx) => {
+            const m = part.match(/^\{\{(\d+)\}\}$/);
+            if (!m) return <span key={idx}>{part}</span>;
+            const slotIndex = Number(m[1]);
+            const slot = exercise.slots[slotIndex];
+            const val = answers[slot.id] ?? "";
+            const status = submitted ? evalSlot(slot.id) : null;
+            return (
+              <span key={slot.id} className={`disc-slot ${status ? `is-${status}` : ""}`}>
+                <span className="disc-num">[{slotIndex + 1}]</span>
+                {exercise.kind === "fix" && slot.shown && (
+                  <u className="disc-wrong-shown" title={slot.hint}>
+                    {slot.shown}
+                  </u>
+                )}
+                {mode === "type" && !submitted ? (
+                  <input
+                    className="disc-input"
+                    value={val}
+                    onChange={(e) => setAnswers((p) => ({ ...p, [slot.id]: e.target.value }))}
+                    placeholder={slot.hint}
+                    aria-label={`第 ${slotIndex + 1} 处（${slot.hint}）`}
+                    lang="fr"
+                  />
+                ) : (
+                  <b className="disc-fill">
+                    {submitted ? (
+                      status === "right" ? (
+                        val || slot.answer[0]
+                      ) : (
+                        <>
+                          {val && <del>{val}</del>} <ins>{slot.answer[0]}</ins>
+                        </>
+                      )
+                    ) : (
+                      val || `（${slot.hint}）`
+                    )}
+                  </b>
+                )}
+              </span>
+            );
+          })}
+        </p>
+
+        {!submitted && mode === "choice" && (
+          <ol className="disc-choices">
+            {exercise.slots.map((slot, si) => (
+              <li key={slot.id}>
+                <span className="disc-choice-label">
+                  <b>[{si + 1}]</b> {exercise.kind === "fix" && slot.shown ? <span lang="fr">改写 “{slot.shown}”</span> : <span lang="fr">{slot.hint}</span>}
+                </span>
+                <div className="disc-choice-opts">
+                  {slot.options.map((opt) => {
+                    const on = answers[slot.id] === opt;
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        lang="fr"
+                        className={`chip-btn ${on ? "is-on" : ""}`}
+                        aria-pressed={on}
+                        onClick={() => setAnswers((p) => ({ ...p, [slot.id]: opt }))}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        {!submitted ? (
+          <button type="button" className="btn btn-primary btn-xl" disabled={filledCount < exercise.slots.length} onClick={submit}>
+            提交整篇检查（{filledCount}/{exercise.slots.length}） <Check size={18} />
+          </button>
+        ) : (
+          <>
+            <ol className="disc-explanations">
+              {exercise.slots.map((slot, si) => {
+                const res = evalSlot(slot.id);
+                return (
+                  <li key={slot.id} className={res === "right" ? "is-ok" : "is-bad"}>
+                    <p>
+                      <b>[{si + 1}]</b>{" "}
+                      {res === "right" ? "答对了" : res === "accent" ? "注意重音" : "应为"}：
+                      <b lang="fr"> {slot.answer[0]}</b>
+                      {res !== "right" && answers[slot.id] ? `（你填：${answers[slot.id]}）` : ""}
+                    </p>
+                    <p className="muted small">{slot.why}</p>
+                    <a className="link small" href={`#/grammar?p=${slot.point}`}>
+                      去练对应语法点 <ArrowRight size={13} />
+                    </a>
+                  </li>
+                );
+              })}
+            </ol>
+            <div className="summary-actions">
+              <button type="button" className="btn btn-ghost" onClick={reset}>
+                <RotateCcw size={16} /> 重做本篇
+              </button>
+              <button type="button" className="btn btn-primary" onClick={() => onOpenExercise(nextExercise)}>
+                下一篇：{nextExercise.title} <ArrowRight size={16} />
+              </button>
+            </div>
+          </>
+        )}
       </section>
     </div>
   );

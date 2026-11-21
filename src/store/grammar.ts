@@ -81,10 +81,45 @@ export function missingPrereqs(data: GrammarData, point: GrammarPoint, p: Progre
   return (point.prereq ?? []).map((id) => data.points.find((x) => x.id === id)).filter((x): x is GrammarPoint => !!x && !p.gram?.[x.id]);
 }
 
-/** The next point to learn: the first not started whose prerequisites are started. */
-export function nextPoint(data: GrammarData, p: Progress) {
+const LEVEL_RANK: Record<GrammarPoint["level"], number> = { A1: 0, A2: 1, B1: 2, B2: 3 };
+
+/** High-frequency DELF B1/B2 exam syllabus points prioritized when startLevel >= B1. */
+export const EXAM_GRAMMAR_PRIORITY = [
+  "subjonctif",
+  "subj-indicatif",
+  "connecteurs",
+  "opposition-concession",
+  "cause-consequence",
+  "but",
+  "conditionnel",
+  "cond-passe",
+  "plus-que-parfait",
+  "pc-imparfait",
+  "discours-indirect",
+  "relatifs",
+  "relatifs-composes",
+  "nominalisation",
+  "gerondif",
+  "participe-present",
+  "accord-pp",
+  "futur-anterieur",
+  "subj-passe",
+  "passif",
+] as const;
+
+const EXAM_RANK = new Map<string, number>(EXAM_GRAMMAR_PRIORITY.map((id, i) => [id, i]));
+
+/** The next point to learn: follows `startLevel`, prioritizing B1/B2 exam syllabus points when starting at B1+. */
+export function nextPoint(data: GrammarData, p: Progress, startLevel = store.get().settings.startLevel) {
   const fresh = data.points.filter((g) => !p.gram?.[g.id]);
-  return fresh.find((g) => !missingPrereqs(data, g, p).length) ?? fresh[0];
+  if (!fresh.length) return undefined;
+  const above = fresh.filter((g) => LEVEL_RANK[g.level] >= startLevel);
+  const pool = above.length ? above : fresh;
+  const ordered =
+    startLevel >= 2
+      ? [...pool].sort((a, b) => (EXAM_RANK.get(a.id) ?? 999) - (EXAM_RANK.get(b.id) ?? 999))
+      : pool;
+  return ordered.find((g) => !missingPrereqs(data, g, p).some((pre) => LEVEL_RANK[pre.level] >= startLevel)) ?? ordered[0];
 }
 
 /** How the learner did on one tag of a point: answered and wrong. */
