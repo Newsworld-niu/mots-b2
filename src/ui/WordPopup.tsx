@@ -208,7 +208,16 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
   const close = useCallback(() => {
     reqId.current++;
     setPopup(null);
-  }, []);
+    const el = containerRef?.current ?? internalRef.current;
+    const sel = window.getSelection();
+    if (el && sel && !sel.isCollapsed && el.contains(sel.anchorNode)) {
+      const anchorEl =
+        sel.anchorNode?.nodeType === Node.ELEMENT_NODE
+          ? (sel.anchorNode as Element)
+          : sel.anchorNode?.parentElement;
+      if (!anchorEl?.closest("input, textarea")) sel.removeAllRanges();
+    }
+  }, [containerRef]);
 
   const lookup = useCallback(async (rawText: string) => {
     const query = cleanSelectionText(rawText);
@@ -226,6 +235,12 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
   useEffect(() => {
     const el = containerRef?.current ?? internalRef.current;
     if (!el) return;
+    el.setAttribute("data-word-popup-zone", "1");
+
+    const isInteractive = (target: Element | null) =>
+      !!target?.closest(
+        "button, a, input, textarea, select, label, summary, [role='button'], [role='radio'], .rw, .word-popup",
+      );
 
     const checkSelection = () => {
       const sel = window.getSelection();
@@ -235,6 +250,7 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
       if (!anchor || !focus || !el.contains(anchor) || !el.contains(focus)) return false;
       const anchorEl = anchor.nodeType === Node.ELEMENT_NODE ? (anchor as Element) : anchor.parentElement;
       if (anchorEl?.closest("input, textarea, .word-popup")) return false;
+      if (anchorEl?.closest("[data-word-popup-zone]") !== el) return false;
       const text = cleanSelectionText(sel.toString());
       if (!text || text.length > 60 || !FRENCH_LETTER_RE.test(text)) return false;
       lastSelectAt.current = Date.now();
@@ -242,13 +258,19 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
       return true;
     };
 
-    const onMouseUp = () => {
+    const onMouseUp = (e: MouseEvent) => {
+      const target = e.target as Element | null;
+      if (isInteractive(target)) return;
+      if (target?.closest("[data-word-popup-zone]") !== el) return;
       window.setTimeout(() => {
         checkSelection();
       }, 12);
     };
 
-    const onTouchEnd = () => {
+    const onTouchEnd = (e: TouchEvent) => {
+      const target = e.target as Element | null;
+      if (isInteractive(target)) return;
+      if (target?.closest("[data-word-popup-zone]") !== el) return;
       window.setTimeout(() => {
         checkSelection();
       }, 30);
@@ -262,9 +284,8 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
 
       const target = e.target as Element | null;
       if (!target || !el.contains(target)) return;
-      if (target.closest("button, a, input, textarea, select, label, summary, [role='button'], [role='radio'], .rw, .word-popup")) {
-        return;
-      }
+      if (target.closest("[data-word-popup-zone]") !== el) return;
+      if (isInteractive(target)) return;
       const token = extractTappedFrenchWord(el, e.clientX, e.clientY);
       if (token) void lookup(token);
     };
@@ -276,6 +297,7 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
       el.removeEventListener("mouseup", onMouseUp);
       el.removeEventListener("touchend", onTouchEnd);
       el.removeEventListener("click", onClick);
+      el.removeAttribute("data-word-popup-zone");
     };
   }, [containerRef, allowWordTap, lookup]);
 

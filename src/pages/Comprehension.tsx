@@ -78,14 +78,16 @@ type What = CompForm | "paper";
  * read the questions, the recording (twice for a long one, once for the short ones), time to answer.
  */
 export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: () => void }) {
+  const [real, setReal] = useState(false);
+  if (real) return <RealListening onExit={() => setReal(false)} />;
   return (
     <WordPopup>
-      <ComprehensionStudioBody kind={kind} onExit={onExit} />
+      <ComprehensionStudioBody kind={kind} onExit={onExit} onOpenReal={() => setReal(true)} />
     </WordPopup>
   );
 }
 
-function ComprehensionStudioBody({ kind, onExit }: { kind: CompKind; onExit: () => void }) {
+function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind; onExit: () => void; onOpenReal: () => void }) {
   const ai = useAiConfig();
   const log = (useStore((s) => s.progress.examLog) ?? []).filter((r) => r.part === kind);
   const misses = useStore((s) => s.progress.compMisses) ?? [];
@@ -96,7 +98,6 @@ function ComprehensionStudioBody({ kind, onExit }: { kind: CompKind; onExit: () 
   const [style, setStyle] = useState<"radio" | "natural">(() => readKey(STYLE_KEY, ["radio", "natural"], "natural"));
   const [noise, setNoise] = useState<ListeningNoiseId>(() => readKey(NOISE_KEY, NOISE_IDS, "off"));
   const [continuousMock, setContinuousMock] = useState<boolean>(() => readKey(CONTINUOUS_KEY, ["0", "1"], "0") === "1");
-  const [real, setReal] = useState(false);
   /** The paper being done: its id in the bank, and the question keys asked when only the missed ones are. */
   const [paper, setPaper] = useState<{ id: string; level: "B1" | "B2"; asked?: string[] } | null>(null);
   const [voices, setVoices] = useState<DocVoices[][]>([]);
@@ -387,8 +388,6 @@ function ComprehensionStudioBody({ kind, onExit }: { kind: CompKind; onExit: () 
     setMissCause(finishedAt, key, cause);
   };
 
-  if (real) return <RealListening onExit={() => setReal(false)} />;
-
   if (phase === "setup" || phase === "making") {
     const making = phase === "making";
     const papers = [...PRESET_PAPERS, ...bank.papers].filter((p) => p.kind === kind);
@@ -422,7 +421,7 @@ function ComprehensionStudioBody({ kind, onExit }: { kind: CompKind; onExit: () 
                 <b>TTS 音频仅用于熟悉题型，考前须搭配真实电台脱敏。</b>
                 <span className="muted small">真实 DELF B2 录音来自法国电台（带现场底噪、语流吞连与多人抢话）。考前请务必结合「真实材料精听」（RFI / TV5Monde / France Culture）及官方样题脱敏。</span>
               </p>
-              <button className="btn btn-ghost" onClick={() => setReal(true)}>
+              <button className="btn btn-ghost" onClick={onOpenReal}>
                 <Headphones size={15} /> 去听真实电台
               </button>
             </div>
@@ -602,7 +601,7 @@ function ComprehensionStudioBody({ kind, onExit }: { kind: CompKind; onExit: () 
           <section className="panel">
             <h3 className="eyebrow">真实材料精听</h3>
             <p className="muted">用 RFI、TV5Monde、France Culture 的真人节目：盲听 → 答题 → 逐句听写 → 跟读。应用里只存链接和时间点。</p>
-            <button className="btn btn-ghost" onClick={() => setReal(true)}>
+            <button className="btn btn-ghost" onClick={onOpenReal}>
               <Headphones size={16} /> 打开真实材料精听
             </button>
           </section>
@@ -673,7 +672,7 @@ function ComprehensionStudioBody({ kind, onExit }: { kind: CompKind; onExit: () 
                   <span className="muted small">{CAUSE_LABEL[x.cause]} →</span>
                   {missLinksFor(x.cause, kind).map((item) =>
                     item.action === "real" ? (
-                      <button key={item.label} type="button" className="chip" onClick={() => setReal(true)}>
+                      <button key={item.label} type="button" className="chip" onClick={onOpenReal}>
                         {item.label}
                       </button>
                     ) : item.route ? (
