@@ -39,8 +39,14 @@ The Chinese glosses, the examples and translations marked `origin=supplement`, t
 
 - **Lexique 3.83**（New, Pallier et al., www.lexique.org），[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)：`references/lexique/Lexique383.tsv.gz`，以及由它派生的 `data/frequency.json`、`data/nouns.json`、`data/ipa.json`、`data/forms.json` 和 `public/atlas/conj.json` 中用它核对的部分。相同方式共享条款适用于这些文件。
 - **离线词典** `public/dict/` 由三个来源生成：Lexique 3.83（CC BY-SA 4.0）、法语维基词典（Wiktionnaire，经 kaikki.org 提取，[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)）、Tatoeba 例句（[CC BY 2.0 FR](https://creativecommons.org/licenses/by/2.0/fr/)）。整个目录按 CC BY-SA 4.0 使用，并保留对三个来源的署名。
+- **扩展法汉词典库** `public/lexdb/` 在上述来源与项目自有词表（`atlas`）基础上，新增并署名以下开放来源（详见 `data/lexdb/SOURCES.md`）：
+  - **中文维基词典（zh.wiktionary.org）** 经 kaikki.org 提取的法语词条：[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) / GFDL；
+  - **CFDICT**（汉法自由词典，https://chine.in/mandarin/dictionnaire/CFDICT/ ）：[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)；
+  - **WOLF (`omw-fr` 1.4)**（Wordnet Libre du Français，Benoit Sagot & Darla Fišer）：[CeCILL-C V1](http://www.cecill.info/licenses/Licence_CeCILL-C_V1-en.html)；
+  - **Chinese Open Wordnet (`omw-cmn` 1.4)**（Shan Wang & Francis Bond，https://bond-lab.github.io/cow/ ）：WordNet License；
+  - 由 AI 模型生成或跨模型复核的释义、例句译文与短语标记为 `src: "ai"` / `"ai-reviewed"`，按 CC BY 4.0 随 `public/lexdb/` 提供；由于包含 CC BY-SA 来源，整个 `public/lexdb/` 分片目录遵循 **CC BY-SA 4.0** 协议发布，并保留全部上游署名。
 
-The offline dictionary in `public/dict/` is built from Lexique 3.83, the French Wiktionary (via kaikki.org) and Tatoeba sentences; use the directory under CC BY-SA 4.0 and credit all three sources.
+The offline dictionary in `public/dict/` is built from Lexique 3.83, the French Wiktionary (via kaikki.org) and Tatoeba sentences; use the directory under CC BY-SA 4.0 and credit all three sources. The extended `public/lexdb/` shards additionally incorporate zh.wiktionary (CC BY-SA 4.0 / GFDL), CFDICT (CC BY-SA 3.0), WOLF / omw-fr (CeCILL-C V1), Chinese Open Wordnet / omw-cmn (WordNet License), and AI-assisted translations (CC BY 4.0); redistribute `public/lexdb/` under CC BY-SA 4.0 with attribution to all upstream sources.
 
 ## 说明 / Notes
 
