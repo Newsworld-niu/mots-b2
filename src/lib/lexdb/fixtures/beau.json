@@ -1,0 +1,139 @@
+{
+  "id": "beau",
+  "w": "beau",
+  "ipa": "bo",
+  "level": "A1",
+  "rank": 115,
+  "atlasId": "beau",
+  "forms": {
+    "f": "belle",
+    "pl": "beaux",
+    "fpl": "belles"
+  },
+  "pos": [
+    {
+      "p": "adj.",
+      "senses": [
+        {
+          "zh": "英俊的；美丽的；漂亮的；好看的；优美的",
+          "fr": "D'aspect agréable à l'œil ou à l'oreille",
+          "ex": [
+            {
+              "fr": "Michel est beau, c'est un bel homme.",
+              "zh": "米歇尔很帅，他是个英俊的男人。",
+              "hl": [11, 15],
+              "src": "atlas"
+            },
+            {
+              "fr": "La vieille église du lac est très belle.",
+              "zh": "河边的老教堂很漂亮。",
+              "hl": [34, 39],
+              "src": "tatoeba"
+            }
+          ],
+          "src": ["atlas", "wikt-zh", "wikt-fr", "tatoeba"],
+          "conf": 3
+        },
+        {
+          "zh": "（天气）晴朗的，美好的",
+          "fr": "Qualifie un temps ensoleillé ; agréable",
+          "ex": [
+            {
+              "fr": "Il fait beau aujourd'hui, comme demain.",
+              "zh": "今天天气很好，和明天一样。",
+              "hl": [8, 12],
+              "src": "tatoeba"
+            }
+          ],
+          "src": ["atlas", "wikt-fr", "tatoeba"],
+          "conf": 3
+        },
+        {
+          "zh": "大的；可观的",
+          "fr": "Gros ; grand",
+          "ex": [
+            {
+              "fr": "Prendre trois belles tomates.",
+              "zh": "拿三个大番茄。",
+              "hl": [14, 20],
+              "src": "wikt-fr"
+            }
+          ],
+          "src": ["wikt-fr"],
+          "conf": 1
+        }
+      ]
+    },
+    {
+      "p": "n.m.",
+      "g": "m",
+      "senses": [
+        {
+          "zh": "美；美好的事物",
+          "fr": "Tout ce qui est excellent, parfait, admirable dans son genre",
+          "src": ["wikt-fr"],
+          "conf": 1
+        },
+        {
+          "zh": "晴天，好天气",
+          "fr": "Beau temps",
+          "reg": "省",
+          "src": ["wikt-fr"],
+          "conf": 1
+        }
+      ]
+    },
+    {
+      "p": "adv.",
+      "senses": [
+        {
+          "zh": "（与 avoir 连用）尽管，白费力气",
+          "fr": "Marque des efforts vains, inutiles (voir avoir beau)",
+          "src": ["wikt-fr"],
+          "conf": 1
+        }
+      ]
+    }
+  ],
+  "phrases": [
+    { "fr": "il fait beau", "zh": "天气好", "src": "atlas", "conf": 3 },
+    { "fr": "beau temps", "zh": "好天气", "src": "atlas", "conf": 3 },
+    { "fr": "beau-frère", "zh": "姐夫／妹夫", "src": "atlas", "conf": 3 },
+    { "fr": "avoir beau", "zh": "尽管……还是；白费力气", "src": "wikt-fr", "conf": 1 },
+    { "fr": "à la belle étoile", "zh": "在露天；在星空下", "src": "wikt-fr", "conf": 1 }
+  ],
+  "syn": ["avenant", "élégant", "gracieux", "joli"],
+  "ant": ["affreux", "hideux", "horrible", "laid", "vilain"],
+  "derived": [
+    "beauté",
+    "beaucoup",
+    "à la belle étoile",
+    "au beau milieu de",
+    "avoir beau",
+    "faire le beau"
+  ],
+  "family": "beau",
+  "frDefs": [
+    {
+      "p": "adj.",
+      "gloss": "D'aspect agréable à l'œil ou à l'oreille.",
+      "ex": "Il n'y a de beau que ce qui nous semble inutile !"
+    },
+    {
+      "p": "adj.",
+      "gloss": "Qualifie un temps ensoleillé.",
+      "ex": "Le ciel demeurait beau, mais le vent fraîchissait."
+    },
+    {
+      "p": "n.m.",
+      "gloss": "Tout ce qui est excellent, parfait, admirable dans son genre."
+    },
+    {
+      "p": "adv.",
+      "gloss": "Marque des efforts vains, inutiles. → voir avoir beau"
+    }
+  ],
+  "etym": "Du latin bellus (« beau, élégant, gracieux »), devenu très fréquent en bas latin en supplantant le classique pulcher.",
+  "confusable": ["lait-laid"],
+  "sources": ["atlas", "wikt-fr", "wikt-zh", "tatoeba", "lexique"]
+}

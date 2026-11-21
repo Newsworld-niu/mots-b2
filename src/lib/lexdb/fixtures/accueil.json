@@ -1,0 +1,102 @@
+{
+  "id": "accueil",
+  "w": "accueil",
+  "ipa": "akœj",
+  "level": "B2",
+  "rank": 1650,
+  "atlasId": "accueil",
+  "forms": {
+    "pl": "accueils"
+  },
+  "pos": [
+    {
+      "p": "n.m.",
+      "g": "m",
+      "senses": [
+        {
+          "zh": "接待；迎接；欢迎",
+          "fr": "Cérémonie ou prestation réservée à un nouvel arrivant",
+          "ex": [
+            {
+              "fr": "J'ai reçu un accueil chaleureux.",
+              "zh": "我受到了热烈欢迎。",
+              "hl": [13, 20],
+              "src": "tatoeba"
+            },
+            {
+              "fr": "L'accueil des clients est aimable.",
+              "zh": "对顾客的接待很友好。",
+              "hl": [2, 9],
+              "src": "atlas"
+            }
+          ],
+          "src": ["atlas", "wikt-zh", "wikt-fr"],
+          "conf": 3
+        },
+        {
+          "zh": "接待处；柜台；前台",
+          "fr": "Lieu où sont accueillies les personnes",
+          "ex": [
+            {
+              "fr": "À l'accueil, ils t'expliqueront comment aller à son bureau.",
+              "zh": "在前台，他们会告诉你怎么去他的办公室。",
+              "hl": [4, 11],
+              "src": "wikt-fr"
+            }
+          ],
+          "src": ["wikt-zh", "wikt-fr"],
+          "conf": 1
+        },
+        {
+          "zh": "首页；主页",
+          "fr": "Page d'accès ou d'accueil à un site web",
+          "src": ["wikt-fr"],
+          "conf": 1
+        },
+        {
+          "zh": "（对作品等的）反响，评价",
+          "fr": "Manière dont une œuvre a été acceptée lors de sa sortie par le public et les critiques",
+          "src": ["wikt-fr"],
+          "conf": 1
+        }
+      ]
+    }
+  ],
+  "phrases": [
+    { "fr": "page d'accueil", "zh": "主页；网站首页", "src": "wikt-fr", "conf": 1 },
+    { "fr": "agent d'accueil", "zh": "接待员", "src": "wikt-fr", "conf": 1 },
+    { "fr": "famille d'accueil", "zh": "寄宿家庭；寄养家庭", "src": "wikt-fr", "conf": 1 },
+    { "fr": "faire bon accueil", "zh": "热情接待；欢迎", "src": "wikt-fr", "conf": 1 }
+  ],
+  "syn": ["réception", "bienvenue", "page d'accueil"],
+  "derived": [
+    "accueil de loisirs",
+    "accueil sécurité",
+    "agent d'accueil",
+    "comité d'accueil",
+    "famille d'accueil",
+    "page d'accueil"
+  ],
+  "frDefs": [
+    {
+      "p": "n.m.",
+      "gloss": "Cérémonie ou prestation réservée à un nouvel arrivant, consistant généralement à lui souhaiter la bienvenue et à l'aider dans son intégration ou ses démarches.",
+      "ex": "Nous réservâmes aux nouveaux venus un accueil qui fut cordial et empressé."
+    },
+    {
+      "p": "n.m.",
+      "gloss": "Lieu où sont accueillies les personnes.",
+      "ex": "À l'accueil, ils t'expliqueront comment aller à son bureau."
+    },
+    {
+      "p": "n.m.",
+      "gloss": "Page d'accès ou d'accueil à un site web."
+    },
+    {
+      "p": "n.m.",
+      "gloss": "Manière dont une œuvre a été acceptée lors de sa sortie par le public et les critiques."
+    }
+  ],
+  "etym": "Déverbal de accueillir.",
+  "sources": ["atlas", "wikt-fr", "wikt-zh", "tatoeba", "lexique"]
+}

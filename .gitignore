@@ -37,3 +37,8 @@ server/local.settings.json
 server/.admin-key
 server/.azurite/
 server/.deploy.env
+
+# LexDB raw downloads, build SQLite master DB and AI response cache
+references/lexdb/
+data/lexdb/lexdb.sqlite
+data/lexdb/ai-cache/

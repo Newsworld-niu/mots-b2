@@ -1,0 +1,98 @@
+{
+  "id": "prendre",
+  "w": "prendre",
+  "ipa": "pʁɑ̃dʁ",
+  "level": "A1",
+  "rank": 45,
+  "atlasId": "prendre",
+  "pos": [
+    {
+      "p": "v.",
+      "senses": [
+        {
+          "zh": "拿；取；抓住",
+          "fr": "Saisir, mettre en sa main",
+          "ex": [
+            {
+              "fr": "Il prit un siège et alluma une cigarette.",
+              "zh": "他找了把椅子坐下，点了一支烟。",
+              "hl": [3, 7],
+              "src": "wikt-fr"
+            }
+          ],
+          "src": ["atlas", "wikt-fr"],
+          "conf": 3
+        },
+        {
+          "zh": "乘坐（交通工具）；走（某条路）",
+          "fr": "Monter dans un véhicule pour voyager ; emprunter un chemin",
+          "ex": [
+            {
+              "fr": "J'ai peur d'avoir pris le mauvais train.",
+              "zh": "我很怕乘错了火车。",
+              "hl": [18, 22],
+              "src": "tatoeba"
+            },
+            {
+              "fr": "Appelle un taxi pour venir nous prendre.",
+              "zh": "叫辆出租车来接我们。",
+              "hl": [32, 39],
+              "src": "tatoeba"
+            }
+          ],
+          "src": ["atlas", "tatoeba", "wikt-fr"],
+          "conf": 3
+        },
+        {
+          "zh": "吃；喝；服用",
+          "fr": "Manger, boire ou absorber un aliment, une boisson, un médicament",
+          "ex": [
+            {
+              "fr": "N'oublie pas de prendre le temps de souffler un peu.",
+              "zh": "别忘了花点时间喘口气。",
+              "hl": [16, 23],
+              "src": "atlas"
+            }
+          ],
+          "src": ["atlas", "wikt-fr"],
+          "conf": 3
+        }
+      ]
+    }
+  ],
+  "phrases": [
+    { "fr": "prendre le temps", "zh": "花时间", "src": "atlas", "conf": 3 },
+    { "fr": "à prendre ou à laisser", "zh": "要么接受，要么放弃；没有商量余地", "src": "wikt-fr", "conf": 1 },
+    { "fr": "à tout prendre", "zh": "总而言之；权衡起来", "src": "wikt-fr", "conf": 1 },
+    { "fr": "se prendre pour", "zh": "自以为是……", "src": "wikt-fr", "conf": 1 }
+  ],
+  "syn": ["emprunter", "attraper", "saisir"],
+  "derived": [
+    "apprendre",
+    "comprendre",
+    "entreprendre",
+    "reprendre",
+    "surprendre",
+    "à prendre ou à laisser",
+    "à tout prendre"
+  ],
+  "frDefs": [
+    {
+      "p": "v.",
+      "gloss": "Saisir, mettre en sa main.",
+      "ex": "Joseph offre un bouquet de roses à son amoureuse, qui étend la main pour le prendre."
+    },
+    {
+      "p": "v.",
+      "gloss": "Saisir une chose, l'enlever, la tirer à soi autrement qu'avec la main."
+    },
+    {
+      "p": "v.",
+      "gloss": "Saisir les choses avec leur gueule, leur bec, leurs griffes, etc., en parlant des animaux.",
+      "ex": "Le perroquet prend souvent avec sa patte ce qu'il veut prendre ensuite avec son bec."
+    }
+  ],
+  "etym": "Du moyen français prendre, de l'ancien français prendre, prindre (842), du latin prēndĕre (« prendre, saisir »), de prĕhendĕre.",
+  "conj": true,
+  "sources": ["atlas", "wikt-fr", "tatoeba", "lexique"]
+}
