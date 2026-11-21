@@ -27,6 +27,8 @@ export interface JsonRequest {
   schemaName: string;
   signal?: AbortSignal;
   maxTokens?: number;
+  /** Sampling temperature; defaults to 0 on non-reasoning models and is omitted on reasoning models. */
+  temperature?: number;
 }
 
 const NAMES: Record<string, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic", openrouter: "OpenRouter", azure: "Azure 语音" };
@@ -66,36 +68,50 @@ function parseJson(text: string, service: string) {
 
 /* ---------- OpenAI / DeepSeek / OpenRouter ---------- */
 
-async function openaiJson(provider: ChatProvider, model: string, req: JsonRequest) {
-  const k = key(provider);
+/** Reasoning models (OpenAI o-series / gpt-5*, DeepSeek reasoner/R1, thinking variants) reject temperature != 1. */
+export function supportsTemperature(model: string): boolean {
+  const m = model.trim().toLowerCase();
+  if (/(?:^|\/)(?:o\d|gpt-5(?!-chat))/i.test(m)) return false;
+  if (/reasoner|deepseek-r1|qwq|[-/:]thinking\b/i.test(m)) return false;
+  return true;
+}
+
+export function buildOpenAiChatBody(provider: ChatProvider, model: string, req: JsonRequest): Record<string, unknown> {
   const parts: unknown[] = [{ type: "text", text: req.text }];
   for (const a of req.attachments ?? []) {
     if (provider === "deepseek") throw new AiError("DeepSeek 不能看图片或 PDF，请在设置里把「识图」换成 OpenAI 或 Anthropic");
     if (a.mime === "application/pdf") parts.push({ type: "file", file: { filename: a.name || "document.pdf", file_data: `data:application/pdf;base64,${a.data}` } });
     else parts.push({ type: "image_url", image_url: { url: `data:${a.mime};base64,${a.data}`, detail: "high" } });
   }
-  const body: Record<string, unknown> =
-    provider === "openai"
-      ? {
-          model,
-          messages: [
-            { role: "system", content: req.system },
-            { role: "user", content: parts },
-          ],
-          response_format: { type: "json_schema", json_schema: { name: req.schemaName, strict: true, schema: req.schema } },
-          max_completion_tokens: req.maxTokens ?? 16000,
-        }
-      : {
-          model,
-          // DeepSeek takes json_object only, and OpenRouter's models differ in what they accept: the schema goes
-          // into the instructions (OpenRouter drops response_format for a model that has no JSON mode)
-          messages: [
-            { role: "system", content: `${req.system}\n\nAnswer with one JSON object only, following this JSON schema exactly:\n${JSON.stringify(req.schema)}` },
-            { role: "user", content: provider === "openrouter" && parts.length > 1 ? parts : req.text },
-          ],
-          response_format: { type: "json_object" },
-          max_tokens: provider === "deepseek" ? Math.min(req.maxTokens ?? 8000, 8000) : (req.maxTokens ?? 16000),
-        };
+  const temp = supportsTemperature(model) ? (req.temperature ?? 0) : undefined;
+  return provider === "openai"
+    ? {
+        model,
+        messages: [
+          { role: "system", content: req.system },
+          { role: "user", content: parts },
+        ],
+        response_format: { type: "json_schema", json_schema: { name: req.schemaName, strict: true, schema: req.schema } },
+        max_completion_tokens: req.maxTokens ?? 16000,
+        ...(temp !== undefined ? { temperature: temp } : {}),
+      }
+    : {
+        model,
+        // DeepSeek takes json_object only, and OpenRouter's models differ in what they accept: the schema goes
+        // into the instructions (OpenRouter drops response_format for a model that has no JSON mode)
+        messages: [
+          { role: "system", content: `${req.system}\n\nAnswer with one JSON object only, following this JSON schema exactly:\n${JSON.stringify(req.schema)}` },
+          { role: "user", content: provider === "openrouter" && parts.length > 1 ? parts : req.text },
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: provider === "deepseek" ? Math.min(req.maxTokens ?? 8000, 8000) : (req.maxTokens ?? 16000),
+        ...(temp !== undefined ? { temperature: temp } : {}),
+      };
+}
+
+async function openaiJson(provider: ChatProvider, model: string, req: JsonRequest) {
+  const k = key(provider);
+  const body = buildOpenAiChatBody(provider, model, req);
   const r = await aiFetch(proxyUrl(provider, `${CHAT_BASE[provider]}/chat/completions`), {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${k}` },
@@ -136,25 +152,28 @@ function anthropicError(e: unknown, Sdk: typeof Anthropic, model?: string) {
   return e;
 }
 
-async function anthropicJson(model: string, req: JsonRequest) {
+export function buildAnthropicBody(model: string, req: JsonRequest) {
   const content: Anthropic.Beta.BetaContentBlockParam[] = [];
   for (const a of req.attachments ?? []) {
     if (a.mime === "application/pdf") content.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: a.data } });
     else content.push({ type: "image", source: { type: "base64", media_type: a.mime as "image/jpeg" | "image/png" | "image/webp", data: a.data } });
   }
   content.push({ type: "text", text: req.text });
+  const temp = supportsTemperature(model) ? (req.temperature ?? 0) : undefined;
+  return {
+    model,
+    max_tokens: req.maxTokens ?? 16000,
+    system: req.system,
+    messages: [{ role: "user" as const, content }],
+    output_config: { format: { type: "json_schema" as const, schema: req.schema } },
+    ...(temp !== undefined ? { temperature: temp } : {}),
+    ...(hasFallback(model) ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
+  };
+}
+
+async function anthropicJson(model: string, req: JsonRequest) {
   const Sdk = await sdk();
-  const stream = (await anthropic()).beta.messages.stream(
-    {
-      model,
-      max_tokens: req.maxTokens ?? 16000,
-      system: req.system,
-      messages: [{ role: "user", content }],
-      output_config: { format: { type: "json_schema", schema: req.schema } },
-      ...(hasFallback(model) ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const } : {}),
-    },
-    { signal: req.signal },
-  );
+  const stream = (await anthropic()).beta.messages.stream(buildAnthropicBody(model, req), { signal: req.signal });
   let msg: Anthropic.Beta.BetaMessage;
   try {
     msg = await stream.finalMessage();

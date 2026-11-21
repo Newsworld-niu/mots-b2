@@ -497,13 +497,16 @@ export async function gradeSentence(input: GradeInput, signal?: AbortSignal): Pr
     schemaName: "marking",
     signal,
     maxTokens: 3000,
+    temperature: 0,
   });
   return sanitizeFeedback(r, input.answer);
 }
 
 /* ---------- 批改一整篇作文（篇章写作） ---------- */
 
-const ESSAY_SCHEMA = {
+const SCORE_LEVEL_SCHEMA = { type: "integer", enum: [0, 1, 3, 5] };
+
+export const ESSAY_SCHEMA = {
   type: "object",
   properties: {
     offTopic: { type: "string", enum: ["none", "partial", "total"] },
@@ -511,7 +514,7 @@ const ESSAY_SCHEMA = {
     registerViolation: { type: "boolean" },
     scores: {
       type: "object",
-      properties: Object.fromEntries(CRITERIA.map((c) => [c, { type: "number" }])),
+      properties: Object.fromEntries(CRITERIA.map((c) => [c, SCORE_LEVEL_SCHEMA])),
       required: [...CRITERIA],
       additionalProperties: false,
     },
@@ -539,7 +542,7 @@ const GRID_LEVELS = `Each criterion gets exactly one of four marks, as in the of
 const GRID_LANGUAGE = `- "lexique": 1 = simple vocabulary used correctly but too limited for everyday social topics, paraphrases for anything complex; 3 = a wide range of vocabulary for the topic, varied wording to avoid repetition, a few slips that may hinder understanding; 5 = a vast repertoire in varied fields, gaps overcome easily with synonyms, only occasional awkwardness.
 - "morpho": 1 = simple structures and forms are mastered, fairly correct in common complex structures, but accuracy breaks down when expressing a more elaborate idea; 3 = good control of the most frequent complex structures, though with little variety, errors in more elaborate ones cause no misunderstanding; 5 = good control overall with varied constructions, only occasional non-systematic errors.`;
 
-const ESSAY_SYSTEM = `You mark a French text written by a Chinese learner of French for a DELF-style writing task (level B1 or B2, as given; apply the B2 grid below, one level lower in expectations when the task is B1). Be exact and fair: report only real errors, never invent one. Write every explanation in Chinese; French only for French words.
+export const ESSAY_SYSTEM = `You mark a French text written by a Chinese learner of French for a DELF-style writing task (level B1 or B2, as given; apply the B2 grid below, one level lower in expectations when the task is B1). Be exact and fair: report only real errors, never invent one. Write every explanation in Chinese; French only for French words.
 
 ${GRID_LEVELS}
 First, set the three compliance flags accurately (FEI 2022 DELF B2 rules):
@@ -552,6 +555,11 @@ The five criteria of the official grid:
 - "coherence" (cohérence et cohésion): 1 = a continuous text with a few basic linking words, layout and punctuation not always well used; 3 = generally well organised, a range of linking words, layout and punctuation help understanding despite occasional slips; 5 = clear, fluent, well structured, varied connectors, logical layout and punctuation. Wrong genre: at most 1. Total off-topic: 0.
 - "socio" (adéquation sociolinguistique): 1 = the most common expressions, or register/salutation/closing slips (missing formal formulas, casual "Bonjour", or using "tu" in a formal genre -> must be <= 1); 3 = adapted to the addressee and register of the task (formal salutation, consistent "vous", proper politeness closing formula), rare confusions; 5 = the degree of formality is adjusted flexibly and kept throughout. Total off-topic: 0.
 ${GRID_LANGUAGE} Spelling counts under "lexique": 1 = many spelling errors; 3 = fairly accurate; 5 = accurate except on complex words. Partial or total off-topic: "lexique" at most 3.
+
+Calibration anchors (independent theme: turning off public streetlights at night; apply the same strictness to every task):
+- Score 1 (B1, below B2): "Bonjour Monsieur, Je pense que éteindre les lumières la nuit est une bonne idée. Il y a beaucoup des problèmes avec l'électricité et ça fait cher pour la ville. Il faut que la mairie fait ça vite. Merci beaucoup." -> socio=1 (casual opening/closing), task=1 (thin unsupported claim, no counter-argument), coherence=1 (few basic linkers), lexique=1 (limited/repetitive, "beaucoup des", "fait cher"), morpho=1 (systematic B1 errors: "beaucoup des", indicative "il faut que... fait").
+- Score 3 (solid B2): "Madame, Monsieur, ... En premier lieu, réduire l'éclairage nocturne permettrait d'alléger la facture énergétique tout en préservant la biodiversité. Certes, certains riverains redoutent un sentiment d'insécurité ; toutefois, des détecteurs de mouvement limiteraient ce risque, comme à Annecy. ... Je vous prie d'agréer, Madame, Monsieur, mes salutations distinguées." -> task=3 (clear stance, developed arguments, concrete example, concession/rebuttal), coherence=3 (clear structure and linkers), socio=3 (consistent formal register and letter formulas), lexique=3 (good topic vocabulary with occasional slips), morpho=3 (good control of conditionnel/subjonctif/relatives; a few non-systematic agreement or preposition slips still keep it at 3, NOT 5).
+- Score 5 (B2+, clearly above B2): "Monsieur le Maire, ... Force est de constater que la pollution lumineuse pèse lourdement sur les écosystèmes nocturnes. On pourrait certes objecter que l'obscurité suscite une appréhension légitime ; encore faudrait-il privilégier une modulation horaire ciblée... Je vous prie d'agréer, Monsieur le Maire, l'assurance de ma considération distinguée." -> 5 ONLY when synthesis is nuanced, syntax is varied and complex, vocabulary is rich/idiomatic, and grammar/spelling is virtually error-free.
 
 Return:
 - "offTopic", "wrongGenre", "registerViolation": the three compliance checks.
@@ -586,6 +594,7 @@ export async function gradeEssay(input: { task: EssayTask; text: string; points:
     schemaName: "essay_marking",
     signal,
     maxTokens: 8000,
+    temperature: 0,
   });
   const fb = sanitizeEssayFeedback(r, new Set(input.points.map((p) => p.id)));
   return applyEssayGridCaps(fb, { genre: t.genre, text: input.text, minWords: t.words[0] });
@@ -629,6 +638,7 @@ export async function makeEssayTask(input: { genre: Genre; level: "B1" | "B2"; w
     schemaName: "essay_task",
     signal,
     maxTokens: 4000,
+    temperature: 0.7,
   });
   const topic = TOPICS.some((t) => t.id === r?.topic) ? (r.topic as string) : undefined;
   const task = buildTask({ ...r, level: input.level, genre: input.genre, ...(input.withDocument ? {} : { doc: "" }), topic }, `ai-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`);
@@ -801,12 +811,21 @@ export async function debateQuestion(input: { subject: SpeakingSubject; monologu
   return q;
 }
 
-const SPEAK_SCHEMA = {
-  ...ESSAY_SCHEMA,
-  properties: { ...ESSAY_SCHEMA.properties, scores: { type: "object", properties: Object.fromEntries(SPEAK_CRITERIA.map((c) => [c, { type: "number" }])), required: [...SPEAK_CRITERIA], additionalProperties: false } },
+export const SPEAK_SCHEMA = {
+  type: "object",
+  properties: {
+    scores: { type: "object", properties: Object.fromEntries(SPEAK_CRITERIA.map((c) => [c, SCORE_LEVEL_SCHEMA])), required: [...SPEAK_CRITERIA], additionalProperties: false },
+    comment: str,
+    strengths: { type: "array", items: str },
+    todo: { type: "array", items: str },
+    corrections: ESSAY_SCHEMA.properties.corrections,
+    rewrite: str,
+  },
+  required: ["scores", "comment", "strengths", "todo", "corrections", "rewrite"],
+  additionalProperties: false,
 };
 
-const SPEAK_SYSTEM = `You assess a Chinese learner's performance in a practice DELF B2 speaking test: a talk defending a point of view on a short document (monologue suivi, 5 to 7 minutes expected), then a debate with the examiner (exercice en interaction). You receive the document and TRANSCRIPTS made by speech recognition or typed by the learner. Write every explanation in Chinese; French only for French words.
+export const SPEAK_SYSTEM = `You assess a Chinese learner's performance in a practice DELF B2 speaking test: a talk defending a point of view on a short document (monologue suivi, 5 to 7 minutes expected), then a debate with the examiner (exercice en interaction). You receive the document and TRANSCRIPTS made by speech recognition or typed by the learner. Write every explanation in Chinese; French only for French words.
 
 The transcripts have no reliable punctuation and may contain recognition mistakes: ignore punctuation, capitals and spelling, and do not report as an error a word that is plausibly a mis-recognition of a correct word. You cannot hear the learner: the grid's fifth criterion (pronunciation) is not yours to mark; say nothing about pronunciation, fluency or accent.
 
@@ -835,6 +854,7 @@ export async function gradeSpeaking(input: { subject: SpeakingSubject; transcrip
     schemaName: "speaking_assessment",
     signal,
     maxTokens: 8000,
+    temperature: 0,
   });
   const fb = sanitizeSpeakingFeedback(r, new Set(input.points.map((p) => p.id)));
   if (!input.turns.some((t) => t.a.trim())) fb.scores.interaction = 0;
