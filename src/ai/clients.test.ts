@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { DEFAULT_MODELS, GRADING_RECOMMENDED_MODELS } from "./config.ts";
 import { buildAnthropicBody, buildOpenAiChatBody, supportsTemperature, type JsonRequest } from "./clients.ts";
-import { ESSAY_SCHEMA, ESSAY_SYSTEM, SPEAK_SCHEMA, SPEAK_SYSTEM } from "./tasks.ts";
+import { buildRewritePayload, ESSAY_SCHEMA, ESSAY_SYSTEM, REWRITE_SYSTEM, SPEAK_SCHEMA, SPEAK_SYSTEM } from "./tasks.ts";
 
 const sampleReq: JsonRequest = {
   system: "Mark this.",
@@ -67,4 +67,13 @@ test("DEFAULT_MODELS.openrouter uses google/gemini-2.5-flash and GRADING_RECOMME
   assert.equal(supportsTemperature(DEFAULT_MODELS.openrouter), true);
   assert.ok(GRADING_RECOMMENDED_MODELS.openrouter.includes("google/gemini-2.5-flash"));
   assert.ok(GRADING_RECOMMENDED_MODELS.openrouter.includes("deepseek/deepseek-chat"));
+});
+
+test("PE-8 checkRewrite payload forwards optional pointTitle as grammarPoint and prompt enforces it", () => {
+  assert.ok(REWRITE_SYSTEM.includes("grammarPoint"));
+  assert.deepEqual(
+    buildRewritePayload({ given: "Il pleut.", task: "用 bien que 改写", reference: "Bien qu'il pleuve, je sors.", answer: "Bien qu'il pleuve, je pars.", pointTitle: "让步状语从句（bien que + 虚拟式）" }),
+    { grammarPoint: "让步状语从句（bien que + 虚拟式）", given: "Il pleut.", task: "用 bien que 改写", reference: "Bien qu'il pleuve, je sors.", learner: "Bien qu'il pleuve, je pars." },
+  );
+  assert.equal("grammarPoint" in buildRewritePayload({ given: "A", task: "B", reference: "C", answer: "D", pointTitle: "  " }), false);
 });
