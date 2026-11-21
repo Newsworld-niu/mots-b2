@@ -381,6 +381,9 @@ export interface EssayFlags {
   registerViolation?: boolean;
   pastedFromDoc?: boolean;
   cursoryDebate?: boolean;
+  hasSystematicB1Errors?: boolean;
+  repetitiveBasicLexis?: boolean;
+  mechanicalB1Structure?: boolean;
 }
 
 export interface EssayFeedback {
@@ -482,22 +485,29 @@ const OLD_KEYS: Record<string, string> = { structure: "coherence", grammar: "mor
 
 function parseFlags(r: Record<string, unknown>): EssayFlags | undefined {
   const f = (r.flags && typeof r.flags === "object" ? r.flags : r) as Record<string, unknown>;
+  const prof = (r.profile && typeof r.profile === "object" ? r.profile : f) as Record<string, unknown>;
   const offTopic = f.offTopic === "partial" || f.offTopic === "total" ? f.offTopic : "none";
   const wrongGenre = f.wrongGenre === true;
   const registerViolation = f.registerViolation === true;
   const pastedFromDoc = f.pastedFromDoc === true;
   const cursoryDebate = f.cursoryDebate === true;
-  if (offTopic === "none" && !wrongGenre && !registerViolation && !pastedFromDoc && !cursoryDebate) return undefined;
+  const hasSystematicB1Errors = prof.hasSystematicB1Errors === true;
+  const repetitiveBasicLexis = prof.repetitiveBasicLexis === true;
+  const mechanicalB1Structure = prof.mechanicalB1Structure === true;
+  if (offTopic === "none" && !wrongGenre && !registerViolation && !pastedFromDoc && !cursoryDebate && !hasSystematicB1Errors && !repetitiveBasicLexis && !mechanicalB1Structure) return undefined;
   return {
     ...(offTopic !== "none" ? { offTopic } : {}),
     ...(wrongGenre ? { wrongGenre } : {}),
     ...(registerViolation ? { registerViolation } : {}),
     ...(pastedFromDoc ? { pastedFromDoc } : {}),
     ...(cursoryDebate ? { cursoryDebate } : {}),
+    ...(hasSystematicB1Errors ? { hasSystematicB1Errors } : {}),
+    ...(repetitiveBasicLexis ? { repetitiveBasicLexis } : {}),
+    ...(mechanicalB1Structure ? { mechanicalB1Structure } : {}),
   };
 }
 
-function capScoresByFlags(scores: Record<string, number>, flags?: EssayFlags): Record<string, number> {
+function capScoresByFlags(scores: Record<string, number>, flags?: EssayFlags, level: "B1" | "B2" = "B2"): Record<string, number> {
   const s = { ...scores };
   if (!flags) return s;
   if (flags.offTopic === "partial") {
@@ -505,12 +515,8 @@ function capScoresByFlags(scores: Record<string, number>, flags?: EssayFlags): R
     if ("monologue" in s) s.monologue = Math.min(s.monologue, 3);
     if ("lexique" in s) s.lexique = Math.min(s.lexique, 3);
   } else if (flags.offTopic === "total") {
-    if ("task" in s) s.task = 0;
-    if ("coherence" in s) s.coherence = 0;
-    if ("socio" in s) s.socio = 0;
-    if ("monologue" in s) s.monologue = 0;
-    if ("interaction" in s) s.interaction = 0;
-    if ("lexique" in s) s.lexique = Math.min(s.lexique, 3);
+    for (const k of Object.keys(s)) s[k] = 0;
+    return s;
   }
   if (flags.wrongGenre) {
     if ("task" in s) s.task = Math.min(s.task, 1);
@@ -518,6 +524,18 @@ function capScoresByFlags(scores: Record<string, number>, flags?: EssayFlags): R
   }
   if (flags.registerViolation && "socio" in s) {
     s.socio = Math.min(s.socio, 1);
+  }
+  if (level === "B2") {
+    if (flags.hasSystematicB1Errors && "morpho" in s) {
+      s.morpho = Math.min(s.morpho, 1);
+    }
+    if (flags.repetitiveBasicLexis && "lexique" in s) {
+      s.lexique = Math.min(s.lexique, 1);
+    }
+    if (flags.mechanicalB1Structure) {
+      if ("coherence" in s) s.coherence = Math.min(s.coherence, 1);
+      if ("task" in s) s.task = Math.min(s.task, 1);
+    }
   }
   if (flags.pastedFromDoc) {
     if ("monologue" in s) s.monologue = Math.min(s.monologue, 1);
@@ -530,7 +548,7 @@ function capScoresByFlags(scores: Record<string, number>, flags?: EssayFlags): R
 }
 
 /** Make an AI marking safe to show. `points` are the grammar point ids that may be linked. */
-export function sanitizeEssayFeedback(raw: unknown, points: ReadonlySet<string>, criteria: readonly string[] = CRITERIA): EssayFeedback {
+export function sanitizeEssayFeedback(raw: unknown, points: ReadonlySet<string>, criteria: readonly string[] = CRITERIA, level: "B1" | "B2" = "B2"): EssayFeedback {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   const given = (r.scores && typeof r.scores === "object" ? r.scores : {}) as Record<string, unknown>;
   const s: Record<string, unknown> = { ...given };
@@ -538,7 +556,7 @@ export function sanitizeEssayFeedback(raw: unknown, points: ReadonlySet<string>,
   const rawScores: Record<string, number> = {};
   for (const c of criteria) rawScores[c] = toLevel(typeof s[c] === "number" && Number.isFinite(s[c]) ? (s[c] as number) : 0);
   const flags = parseFlags(r);
-  const scores = capScoresByFlags(rawScores, flags);
+  const scores = capScoresByFlags(rawScores, flags, level);
   const corrections: EssayCorrection[] = (Array.isArray(r.corrections) ? r.corrections : [])
     .filter((e): e is Record<string, unknown> => !!e && typeof e === "object")
     .map((e) => ({
@@ -617,14 +635,14 @@ export function hasFormalRegisterViolation(text: string): boolean {
 }
 
 /** Apply FEI 2022 essay grid caps (off-topic, wrong genre, register/format, and word count). */
-export function applyEssayGridCaps(fb: EssayFeedback, opts: { genre: Genre; text: string; minWords: number }): EssayFeedback {
+export function applyEssayGridCaps(fb: EssayFeedback, opts: { genre: Genre; text: string; minWords: number; level?: "B1" | "B2" }): EssayFeedback {
   let flags = fb.flags ? { ...fb.flags } : undefined;
   if (FORMAL_GENRES.includes(opts.genre) && hasFormalRegisterViolation(opts.text)) {
     flags = { ...flags, registerViolation: true };
   }
-  const cappedScores = capScoresByFlags(fb.scores, flags);
+  const cappedScores = capScoresByFlags(fb.scores, flags, opts.level ?? "B2");
   const notes: string[] = [];
-  if (flags?.offTopic === "total") notes.push("【严重偏题：完成任务、连贯衔接与语体得体记 0 分】");
+  if (flags?.offTopic === "total") notes.push("【严重偏题：按规则全卷记 0 分】");
   else if (flags?.offTopic === "partial") notes.push("【部分偏题：完成任务与词汇封顶 3 分】");
   if (flags?.wrongGenre) notes.push("【文体错位：完成任务与连贯衔接封顶 1 分】");
   if (flags?.registerViolation) notes.push("【语域/格式不符：语体得体封顶 1 分】");
@@ -727,7 +745,7 @@ export function applySpeakingCaps(
     notes.push("【辩论轮次或有效作答偏少/偏敷衍，互动封顶 1 分】");
   }
 
-  if (flags?.offTopic === "total") notes.push("【严重偏题：独白与互动记 0 分】");
+  if (flags?.offTopic === "total") notes.push("【严重偏题：按规则记 0 分】");
   else if (flags?.offTopic === "partial") notes.push("【部分偏题：独白与词汇封顶 3 分】");
   if (opts.typed) notes.push("（本次为打字替代口语输入，无法核验口语即时反应与流利度。）");
 
@@ -752,10 +770,11 @@ export function sanitizeEssays(v: unknown): SavedEssay[] | undefined {
     if (typeof e.id !== "string" || typeof e.task !== "string" || !(known.has(e.task) || (isAiTask(e.task) && e.task.length <= 40)) || typeof e.text !== "string" || !e.text.trim() || typeof e.created !== "number") continue;
     const essay: SavedEssay = { id: e.id.slice(0, 40), task: e.task, text: e.text.slice(0, MAX_ESSAY_LENGTH), created: e.created };
     // any grammar id is kept here: the page only links the ones that exist
-    if (e.fb && typeof e.fb === "object") essay.fb = sanitizeEssayFeedback(e.fb, anyPoint);
+    const lv = ESSAY_TASKS.find((t) => t.id === e.task)?.level ?? "B2";
+    if (e.fb && typeof e.fb === "object") essay.fb = sanitizeEssayFeedback(e.fb, anyPoint, CRITERIA, lv);
     const r = e.rev as Record<string, unknown> | undefined;
     if (r && typeof r === "object" && typeof r.text === "string" && r.text.trim() && typeof r.at === "number") {
-      essay.rev = { text: r.text.slice(0, MAX_ESSAY_LENGTH), at: r.at, ...(r.fb && typeof r.fb === "object" ? { fb: sanitizeEssayFeedback(r.fb, anyPoint) } : {}) };
+      essay.rev = { text: r.text.slice(0, MAX_ESSAY_LENGTH), at: r.at, ...(r.fb && typeof r.fb === "object" ? { fb: sanitizeEssayFeedback(r.fb, anyPoint, CRITERIA, lv) } : {}) };
     }
     const m = e.model as Record<string, unknown> | undefined;
     if (m && typeof m === "object" && typeof m.text === "string" && m.text.trim()) essay.model = sanitizeModel(m);

@@ -155,7 +155,7 @@ test("PE-2 flags and formal register rules enforce FEI 2022 caps", () => {
   assert.equal(partial.flags?.offTopic, "partial");
 
   const total = sanitizeEssayFeedback({ ...high, offTopic: "total", wrongGenre: true, registerViolation: true }, new Set());
-  assert.deepEqual(total.scores, { task: 0, coherence: 0, socio: 0, lexique: 3, morpho: 5 });
+  assert.deepEqual(total.scores, { task: 0, coherence: 0, socio: 0, lexique: 0, morpho: 0 });
 
   const genreBad = sanitizeEssayFeedback({ ...high, wrongGenre: true }, new Set());
   assert.deepEqual(genreBad.scores, { task: 1, coherence: 1, socio: 5, lexique: 5, morpho: 5 });
@@ -178,6 +178,19 @@ test("PE-2 flags and formal register rules enforce FEI 2022 caps", () => {
   // Flags survive backup round-trip without duplicating notes
   const round = sanitizeEssays([{ id: "e-cap", task: "courrier-voitures", text: "Madame, Monsieur, ...", created: 1, fb: capped }]);
   assert.deepEqual(round?.[0].fb?.flags, { registerViolation: true });
+
+  // B1 profile flags cap B2 essays at 1 on affected dimensions, while leaving B1-level tasks unaffected
+  const profRaw = {
+    ...high,
+    profile: { hasSystematicB1Errors: true, repetitiveBasicLexis: true, mechanicalB1Structure: true, exceedsB2ToC1: false },
+  };
+  const profFb = sanitizeEssayFeedback(profRaw, new Set());
+  assert.deepEqual(profFb.scores, { task: 1, coherence: 1, socio: 5, lexique: 1, morpho: 1 });
+  const b1TaskCapped = applyEssayGridCaps(
+    sanitizeEssayFeedback({ ...high, scores: { task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 }, profile: { hasSystematicB1Errors: true } }, new Set(), CRITERIA, "B1"),
+    { genre: "forum", level: "B1", text: filler, minWords: 160 },
+  );
+  assert.equal(b1TaskCapped.scores.morpho, 3);
 });
 
 test("PE-4 isolates B1 and B2 level labels and trend partitions", () => {
