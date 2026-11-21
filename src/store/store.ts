@@ -11,6 +11,7 @@ import { sanitizeAiTasks, sanitizeEssays, sanitizeNotes, type EssayTask, type Sa
 import { sanitizeExamLog, type ExamResult } from "../lib/exam";
 import { sanitizeMisses, sanitizeSources, type CompMiss, type RealSource } from "../lib/listening";
 import { sanitizeDrillDays } from "../lib/drill";
+import { sanitizePlacement, type PlacementResult } from "../lib/placement";
 import { EXPR_ID } from "../lib/expressions";
 
 /**
@@ -208,6 +209,8 @@ export interface Progress {
   listenSources?: RealSource[];
   /** 每日一分钟口语 done per day (dayKey → count). */
   drillDays?: Record<string, number>;
+  /** Optional DELF diagnostic placement result (摸底定级小测). */
+  placement?: PlacementResult;
 }
 
 /** The most new words a day can be set to: the learner decides, the app only keeps the number sane. */
@@ -223,6 +226,10 @@ export interface Settings {
   spell: boolean;
   startLevel: number;
   onboarded: boolean;
+  /** Target DELF B2 exam date ("YYYY-MM-DD"), or null if unset. */
+  examDate: string | null;
+  /** Target total score out of 100 (default 75). */
+  targetScore: number;
   dataset: "open" | "private";
   ambience: "off" | "stars" | "rain" | "sea" | "forest" | "fire" | "voyage" | "cafe";
   ambienceVolume: number;
@@ -254,6 +261,8 @@ export const defaultSettings: Settings = {
   spell: true,
   startLevel: 0,
   onboarded: false,
+  examDate: null,
+  targetScore: 75,
   dataset: "open",
   ambience: "stars",
   ambienceVolume: 0.45,
@@ -401,6 +410,8 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
   if (listenSources) out.listenSources = listenSources;
   const drillDays = sanitizeDrillDays(v.drillDays);
   if (drillDays) out.drillDays = drillDays;
+  const placement = sanitizePlacement(v.placement);
+  if (placement) out.placement = placement;
   const s = v.session;
   if (isObj(s) && typeof s.id === "string" && Array.isArray(s.steps) && num(s.index, 0) && isObj(s.graded))
     out.session = s as unknown as ActiveSession;
@@ -567,6 +578,12 @@ export function sanitizeSettings(v: unknown): Settings {
   if (typeof v.spell === "boolean") s.spell = v.spell;
   if (num(v.startLevel, 0, 5)) s.startLevel = Math.round(v.startLevel as number);
   if (typeof v.onboarded === "boolean") s.onboarded = v.onboarded;
+  if (typeof v.examDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.examDate)) {
+    const [y, m, d] = v.examDate.split("-").map(Number);
+    const dt = new Date(y, m - 1, d);
+    if (dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d) s.examDate = v.examDate;
+  }
+  if (num(v.targetScore, 50, 100)) s.targetScore = Math.round(v.targetScore as number);
   if (v.dataset === "open" || v.dataset === "private") s.dataset = v.dataset;
   if (["off", "stars", "rain", "sea", "forest", "fire", "voyage", "cafe"].includes(v.ambience as string)) s.ambience = v.ambience as Settings["ambience"];
   if (num(v.ambienceVolume, 0, 1)) s.ambienceVolume = v.ambienceVolume as number;

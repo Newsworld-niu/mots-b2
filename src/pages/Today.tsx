@@ -1,12 +1,15 @@
 import { HomeDictionary } from "../ui/HomeDictionary";
 import { FamilyPicker } from "../ui/FamilyPicker";
 import { POS_OPTIONS } from "../lib/pos";
-import { ArrowRight, Flame, Keyboard, Sparkles } from "lucide-react";
+import { ArrowRight, Calendar, Compass, Flame, Keyboard, Sparkles, Target } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { prefetch, useAtlas, useEntry } from "../atlas/context";
+import { useGrammar } from "../atlas/grammar";
 import { go, openWord } from "../lib/router";
 import { cue } from "../lib/sound";
+import { buildPrepSchedule, type PrepKind } from "../lib/study-plan";
 import { hashSeed } from "../lib/text";
+import { duePoints, untouchedWithErrors } from "../store/grammar";
 import { buildSession, isTaughtReady, masteredCount, todayPlan } from "../store/session";
 import { isMastered } from "../store/srs";
 import { CORE_NAME, studyRange } from "../store/decks";
@@ -14,9 +17,15 @@ import { dayKey, MAX_DAILY_NEW, store, useStore } from "../store/store";
 import { Galaxy } from "../galaxy/Galaxy";
 import { Highlight, Pronounce } from "../ui/EntryView";
 import { Illustration, plateArticle } from "../ui/Illustration";
+import { PlacementTest } from "../ui/PlacementTest";
 import { Ring } from "../ui/Ring";
+import { Sheet } from "../ui/Sheet";
+import { toast } from "../ui/Toast";
+import { ComprehensionStudio } from "./Comprehension";
 import { DrillStudio, DrillTeaser } from "./Drill";
+import { EssayStudio } from "./Essay";
 import { ExprStudio, ExprTeaser } from "./Expressions";
+import { SpeakingStudio } from "./Speaking";
 
 const BRAND = `${import.meta.env.BASE_URL}brand`;
 /** Topics without their own tile art borrow a related one. */
@@ -67,6 +76,8 @@ export function Today() {
   const [more, setMore] = useState("");
   const [drill, setDrill] = useState(false);
   const [expr, setExpr] = useState(false);
+  const [studio, setStudio] = useState<"listen" | "read" | "essay" | "speak" | null>(null);
+  const [placeOpen, setPlaceOpen] = useState(false);
   const moreN = Math.min(MAX_DAILY_NEW, Math.max(0, Math.round(Number(more) || 0)));
   const start = (opts?: { reviewOnly?: boolean; extra?: number }) => {
     if (!active) {
@@ -76,6 +87,36 @@ export function Today() {
     }
     if (settings.sfx) void cue("start");
     go({ page: "learn" });
+  };
+
+  const { data: grammar } = useGrammar();
+  const grammarDueCount = useMemo(() => (grammar ? duePoints(grammar, progress).length : 0), [grammar, progress]);
+  const grammarUntouchedErrors = useMemo(() => (grammar ? untouchedWithErrors(grammar, progress).length : 0), [grammar, progress]);
+  const prep = useMemo(
+    () =>
+      buildPrepSchedule({
+        progress,
+        settings,
+        vocabMinutes: plan.minutes,
+        dueCount: plan.due.length,
+        freshCount: plan.fresh.length,
+        grammarDueCount,
+        grammarUntouchedErrors,
+      }),
+    [progress, settings, plan.minutes, plan.due.length, plan.fresh.length, grammarDueCount, grammarUntouchedErrors],
+  );
+
+  const launchPrepTask = (kind: PrepKind) => {
+    if (kind === "listen" || kind === "read" || kind === "essay" || kind === "speak") {
+      setStudio(kind);
+      return;
+    }
+    if (kind === "grammar") {
+      go({ page: "grammar" });
+      return;
+    }
+    if (active || total > 0) start();
+    else go({ page: "practice" });
   };
 
   const week = Array.from({ length: 7 }, (_, i) => {
@@ -91,6 +132,10 @@ export function Today() {
 
   if (drill) return <DrillStudio onExit={() => setDrill(false)} exitLabel="返回今日" />;
   if (expr) return <ExprStudio onExit={() => setExpr(false)} exitLabel="返回今日" />;
+  if (studio === "listen") return <ComprehensionStudio key="listen" kind="listen" onExit={() => setStudio(null)} />;
+  if (studio === "read") return <ComprehensionStudio key="read" kind="read" onExit={() => setStudio(null)} />;
+  if (studio === "essay") return <EssayStudio onExit={() => setStudio(null)} />;
+  if (studio === "speak") return <SpeakingStudio onExit={() => setStudio(null)} />;
 
   return (
     <div className="page today">
@@ -104,6 +149,97 @@ export function Today() {
       </header>
 
       <HomeDictionary />
+
+      <section className="panel prep-card" aria-label="今日备考调度">
+        <div className="prep-head">
+          <div className="prep-meta">
+            <p className="eyebrow">今日备考调度 · DELF B2</p>
+            <div className="prep-pills">
+              <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
+                <Calendar size={14} />
+                {prep.daysLeft === null
+                  ? "未设考期 · 点此设定"
+                  : prep.daysLeft > 0
+                    ? `距考还有 ${prep.daysLeft} 天`
+                    : prep.daysLeft === 0
+                      ? "考试就在今天"
+                      : "已过设定考期"}
+              </button>
+              <span className="prep-pill">
+                <Target size={14} /> 目标 {prep.targetScore}/100（均 {prep.targetPerPart}/25）
+              </span>
+            </div>
+          </div>
+          <div className="prep-head-actions">
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPlaceOpen(true)}>
+              <Compass size={15} /> {progress.placement ? `重测定级（${atlas.cefr[progress.placement.level] ?? "B1"}）` : "摸底定级"}
+            </button>
+          </div>
+        </div>
+
+        <ul className="prep-skills" aria-label="四科当前表现">
+          {(["listen", "read", "essay", "speak"] as const).map((k) => {
+            const st = prep.skills[k];
+            const isWeak = prep.weakest === k;
+            return (
+              <li key={k} className={`prep-skill ${isWeak ? "is-weak" : ""}`}>
+                <span>
+                  {st.label} <b>{st.code}</b>
+                </span>
+                <strong>
+                  {st.score25 !== null ? (
+                    <>
+                      {st.score25}
+                      <small>/25{st.source === "placement" ? " 定级" : ""}</small>
+                    </>
+                  ) : (
+                    <small>待测</small>
+                  )}
+                </strong>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* slot: ExamDashboard (SYS-3) — reserved slot for exam 4-skill /100 & 5/25 floor dashboard */}
+
+        {prep.vocabOverCap && (
+          <div className="prep-warn" role="status">
+            <span>
+              距考不足 6 个月：当前背词预计 {prep.vocabRawMinutes} 分钟（占今日 {prep.vocabSharePct}%），建议控制在 ≤{prep.vocabCapPct}%（≤{prep.vocabCapMinutes} 分钟）。
+            </span>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => {
+                store.settings({ dailyNew: prep.suggestedDailyNew });
+                toast(`已将每日新词调为 ${prep.suggestedDailyNew} 个（背词控制在 25% 以内）`, "ok");
+              }}
+            >
+              调为每日 {prep.suggestedDailyNew} 新词
+            </button>
+          </div>
+        )}
+
+        <ol className="prep-tasks">
+          {prep.tasks.map((t) => (
+            <li key={t.kind} className={`prep-task is-${t.kind}`}>
+              <div className="prep-task-body">
+                <div className="prep-task-top">
+                  <b>{t.title}</b>
+                  <span className="prep-task-time">
+                    {t.minutes} 分钟 · {t.sharePct}%
+                  </span>
+                </div>
+                <small className="muted">{t.reason}</small>
+              </div>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => launchPrepTask(t.kind)}>
+                {t.cta} <ArrowRight size={14} />
+              </button>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       <section className={`journey ${total === 0 && !active ? "is-clear" : ""}`}>
         <img className="journey-art" src={`${BRAND}/hero.webp`} alt="" fetchPriority="high" />
@@ -257,6 +393,21 @@ export function Today() {
         <GalaxyPanel learned={learned} total={atlas.count} />
         <Topics />
       </div>
+      <Sheet open={placeOpen} onClose={() => setPlaceOpen(false)} label="摸底定级小测" wide>
+        <h2 className="sheet-title">摸底定级小测</h2>
+        {placeOpen && (
+          <PlacementTest
+            initial={progress.placement}
+            onCancel={() => setPlaceOpen(false)}
+            onApply={(res) => {
+              store.progress((p) => ({ ...p, placement: res }));
+              store.settings({ startLevel: res.level });
+              setPlaceOpen(false);
+              toast(`已定级为 ${atlas.cefr[res.level] ?? "B1"}，备考任务已更新`, "ok");
+            }}
+          />
+        )}
+      </Sheet>
     </div>
   );
 }

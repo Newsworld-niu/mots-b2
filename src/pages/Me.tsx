@@ -1,14 +1,17 @@
-import { Download, RotateCcw, Sparkles, Upload } from "lucide-react";
+import { Compass, Download, RotateCcw, Sparkles, Upload } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { ready, useAiConfig } from "../ai/config";
 import { AiSettings } from "../ui/AiSettings";
 import { Sheet } from "../ui/Sheet";
 import { useAtlas } from "../atlas/context";
 import { isNative, shareFileNative } from "../lib/native";
+import { PLACEMENT_ESTIMATE, SECTION_META } from "../lib/placement";
+import { addMonthsDate, daysUntilExam } from "../lib/study-plan";
 import { isMastered } from "../store/srs";
 import { dayKey, exportBackup, importBackup, MAX_DAILY_NEW, resetProgress, store, useStore, type Settings } from "../store/store";
 import { CountPicker } from "../ui/CountPicker";
 import { EssayTrend } from "../ui/EssayTrend";
+import { PlacementTest } from "../ui/PlacementTest";
 import { toast } from "../ui/Toast";
 import { streakOf } from "./Today";
 
@@ -19,7 +22,9 @@ export function Me() {
   const saveError = useStore((s) => s.saveError);
   const file = useRef<HTMLInputElement>(null);
   const [aiOpen, setAiOpen] = useState(false);
+  const [placeOpen, setPlaceOpen] = useState(false);
   const ai = useAiConfig();
+  const daysLeft = daysUntilExam(settings.examDate);
 
   const stats = useMemo(() => {
     const cards = Object.values(progress.cards);
@@ -117,6 +122,44 @@ export function Me() {
           </ol>
         </section>
 
+        {/* slot: ExamDashboard (SYS-3) — reserved wide panel for exam 4-skill /100 & 5/25 floor dashboard */}
+        <section className="panel me-wide prep-me-panel">
+          <div className="panel-head">
+            <h3 className="eyebrow">DELF B2 备考档案</h3>
+            <button className="btn btn-ghost btn-sm" onClick={() => setPlaceOpen(true)}>
+              <Compass size={16} /> {progress.placement ? "重新摸底定级" : `摸底定级小测（${PLACEMENT_ESTIMATE}）`}
+            </button>
+          </div>
+          <div className="prep-me-summary">
+            <span>
+              考期倒计时：
+              <b>
+                {daysLeft === null
+                  ? "未设定"
+                  : daysLeft > 0
+                    ? `还有 ${daysLeft} 天（${settings.examDate}）`
+                    : daysLeft === 0
+                      ? "就是今天"
+                      : `已过设定日期（${settings.examDate}）`}
+              </b>
+            </span>
+            <span>
+              目标总分：<b>{settings.targetScore} / 100</b>（每项均需约 {Math.round((settings.targetScore / 4) * 10) / 10}/25）
+            </span>
+            <span>
+              摸底定级：
+              {progress.placement ? (
+                <b>
+                  {atlas.cefr[progress.placement.level] ?? "B1"}（{progress.placement.score}%）
+                  {progress.placement.weak.length ? ` · 薄弱：${progress.placement.weak.map((k) => SECTION_META[k].label).join("、")}` : ""}
+                </b>
+              ) : (
+                <span className="muted">尚未测评，可选做约 10–15 分钟定级</span>
+              )}
+            </span>
+          </div>
+        </section>
+
         <section className="panel me-wide">
           <h3 className="eyebrow">写作进步</h3>
           <EssayTrend essays={progress.essays ?? []} />
@@ -124,6 +167,39 @@ export function Me() {
 
         <section className="panel settings">
           <h3 className="eyebrow">学习设置</h3>
+          <Field
+            label="考试日期"
+            hint={
+              daysLeft === null
+                ? "设置目标考期后，首页会自动显示倒计时与四科备考配比；距考不足 6 个月时建议背词时间 ≤25%。"
+                : daysLeft < 183
+                  ? `距考试还有 ${Math.max(0, daysLeft)} 天（不足 6 个月，首页已开启 ≤25% 背词上限提醒）。`
+                  : `距考试还有 ${daysLeft} 天。`
+            }
+          >
+            <div className="exam-date-field">
+              <input
+                type="date"
+                value={settings.examDate ?? ""}
+                onChange={(e) => set({ examDate: e.target.value || null })}
+                aria-label="考试日期"
+              />
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => set({ examDate: addMonthsDate(3) })}>
+                3 个月后
+              </button>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => set({ examDate: addMonthsDate(6) })}>
+                6 个月后
+              </button>
+              {settings.examDate && (
+                <button type="button" className="link small" onClick={() => set({ examDate: null })}>
+                  清除
+                </button>
+              )}
+            </div>
+          </Field>
+          <Field label="目标总分（/100）" hint="DELF B2 及格线为 50/100（且四项均须 ≥5/25）；默认冲刺目标 75 分。">
+            <CountPicker label="目标总分" value={settings.targetScore} onChange={(n) => set({ targetScore: Math.max(50, Math.min(100, n)) })} presets={[60, 75, 85, 90]} max={100} unit=" 分" />
+          </Field>
           <Field label="每日新词" hint={`想学多少自己定，1–${MAX_DAILY_NEW} 都可以。复习不设上限，算法只安排快要遗忘的词；一天新学的越多，之后几天要复习的也越多（大约是新词数的 3–5 倍）。`}>
             <CountPicker label="每日新词" value={settings.dailyNew} onChange={(n) => set({ dailyNew: n })} presets={[5, 10, 20, 30, 50, 100]} max={MAX_DAILY_NEW} />
           </Field>
@@ -210,6 +286,21 @@ export function Me() {
       <Sheet open={aiOpen} onClose={() => setAiOpen(false)} label="AI 接口">
         <h2 className="sheet-title">AI 接口</h2>
         {aiOpen && <AiSettings />}
+      </Sheet>
+      <Sheet open={placeOpen} onClose={() => setPlaceOpen(false)} label="摸底定级小测" wide>
+        <h2 className="sheet-title">摸底定级小测</h2>
+        {placeOpen && (
+          <PlacementTest
+            initial={progress.placement}
+            onCancel={() => setPlaceOpen(false)}
+            onApply={(res) => {
+              store.progress((p) => ({ ...p, placement: res }));
+              set({ startLevel: res.level });
+              setPlaceOpen(false);
+              toast(`已定级为 ${atlas.cefr[res.level] ?? "B1"}，并更新学习起点`, "ok");
+            }}
+          />
+        )}
       </Sheet>
     </div>
   );

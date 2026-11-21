@@ -28,4 +28,25 @@ test("rejects other versions and unknown settings", () => {
   assert.equal(s.dailyNew, 10);
   assert.equal(s.theme, "dark");
   assert.equal(s.retention, 0.9);
+  assert.equal(s.examDate, null);
+  assert.equal(s.targetScore, 75);
+});
+
+test("SYS-2: examDate, targetScore and placement survive sanitization cleanly", () => {
+  const s = sanitizeSettings({ examDate: "2027-03-15", targetScore: 82 });
+  assert.equal(s.examDate, "2027-03-15");
+  assert.equal(s.targetScore, 82);
+  assert.equal(sanitizeSettings({ examDate: "2027-02-30", targetScore: 120 }).examDate, null);
+  assert.equal(sanitizeSettings({ targetScore: 30 }).targetScore, 75);
+
+  const p = sanitizeProgress(
+    {
+      version: 2,
+      cards: {},
+      placement: { at: 100, level: 2, score: 66, sections: { vocab: 75, grammar: 60, read: 65, listen: null }, weak: ["grammar", "read"] },
+    },
+    "word-atlas-open",
+  );
+  assert.equal(p.placement?.level, 2);
+  assert.equal(p.placement?.sections.listen, null);
 });
