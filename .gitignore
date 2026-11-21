@@ -31,3 +31,9 @@ data/batches/
 
 # built Android packages
 *.apk
+
+# Azure Functions sync backend secrets and local emulator state
+server/local.settings.json
+server/.admin-key
+server/.azurite/
+server/.deploy.env

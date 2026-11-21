@@ -1,0 +1,10 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "SYNC_STORAGE_CONNECTION": "UseDevelopmentStorage=true",
+    "ADMIN_KEY": "localdev",
+    "ALLOWED_ORIGINS": "https://newsworld-niu.github.io,http://127.0.0.1:5190,http://localhost:5190,http://127.0.0.1:5188,https://localhost,capacitor://localhost"
+  }
+}

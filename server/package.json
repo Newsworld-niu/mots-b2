@@ -1,0 +1,24 @@
+{
+  "name": "word-atlas-sync-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/src/functions/*.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
+    "start": "func start",
+    "azurite": "azurite-blob --location .azurite --silent",
+    "invite": "node scripts/invite.mjs"
+  },
+  "dependencies": {
+    "@azure/functions": "^4",
+    "@azure/storage-blob": "^12"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "azurite": "^3",
+    "tsx": "^4",
+    "typescript": "^5"
+  }
+}
