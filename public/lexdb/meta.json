@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "generated": "2026-11-22",
+  "sources": {
+    "atlas": "Mots B2 Atlas (data/lexicon.json)",
+    "lexique": "Lexique 3.83 (CC BY-SA 4.0)",
+    "wikt-fr": "Wiktionnaire fr via wiktextract (CC BY-SA 4.0)",
+    "wikt-zh": "Wiktionary zh / fr-zh (CC BY-SA 4.0)",
+    "cfdict": "CFDICT (CC BY-SA 3.0)",
+    "omw": "WOLF (OMW-fr, CeCILL-C V1) x Chinese Open Wordnet (OMW-cmn)",
+    "tatoeba": "Tatoeba fra-cmn (CC BY 2.0 FR)",
+    "ai": "OpenRouter LLM generation",
+    "ai-reviewed": "OpenRouter cross-model review"
+  },
+  "licenses": [
+    "CC BY-SA 4.0",
+    "CC BY 2.0 FR",
+    "CC BY-SA 3.0",
+    "CeCILL-C V1",
+    "WordNet License"
+  ],
+  "splits": [
+    "ca",
+    "co",
+    "de",
+    "in",
+    "ma",
+    "pr",
+    "re"
+  ],
+  "counts": {
+    "lemmas": 41077,
+    "withZh": 26273,
+    "top15kComplete": 6796,
+    "pilot": 200,
+    "phrases": 1955,
+    "conf": {
+      "0": 0,
+      "1": 18127,
+      "2": 5051,
+      "3": 12005
+    }
+  }
+}

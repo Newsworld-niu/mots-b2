@@ -1,0 +1,1 @@
+{"tva":{"id":"tva","w":"TVA","level":"B2","rank":39526,"atlasId":"tva","pos":[{"p":"n.f.","g":"f","senses":[{"zh":"增值税","ex":[{"fr":"La TVA est incluse dans le prix.","zh":"增值税已包含在价格里。","src":"atlas","hl":[3,6]}],"src":["atlas","cfdict","omw"],"conf":3}]}],"derived":["carrousel de TVA","TVA sociale","TVAC"],"family":"taxe","sources":["atlas","cfdict","omw","wikt-fr"]}}

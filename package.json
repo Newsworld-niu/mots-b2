@@ -24,7 +24,11 @@
     "android:sync": "npm run build && cap sync android",
     "android:apk": "npm run android:sync && cd android && ./gradlew assembleRelease",
     "lexicon:ids": "tsx scripts/check-id-stability.ts",
-    "lexicon:families": "python3 scripts/build-families.py"
+    "lexicon:families": "python3 scripts/build-families.py",
+    "lexdb:build": "python3 -B scripts/lexdb/build-db.py",
+    "lexdb:ai": "tsx scripts/lexdb/ai-run.ts",
+    "lexdb:export": "python3 -B scripts/lexdb/export.py",
+    "lexdb:check": "python3 -B scripts/lexdb/check.py"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",
