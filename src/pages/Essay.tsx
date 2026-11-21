@@ -38,6 +38,7 @@ import { deleteAiTask, deleteEssay, deleteNote, patchEssay, saveAiTask, saveEssa
 import { useStore } from "../store/store";
 import { AccentKeys } from "../ui/AccentKeys";
 import { Marking } from "../ui/Marking";
+import { StaticEssayModel } from "../ui/StaticEssayModel";
 import { toast } from "../ui/Toast";
 
 const DRAFT = (task: string) => `fb2.essay.draft.${task}`;
@@ -666,6 +667,7 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
               )}
             </div>
           )}
+          <StaticEssayModel taskId={task.id} />
 
           {fb && <p className="muted small">AI 的批改和分数可能有偏差，拿不准的地方对照语法点和词典。</p>}
           <div className="writing-actions">
