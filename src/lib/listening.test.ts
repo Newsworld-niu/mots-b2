@@ -1,9 +1,12 @@
+import fs from "node:fs";
+import path from "node:path";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { countWords } from "./essay";
 import { exercisePoints, FORM_SPEC, PAPER, sanitizeExercise, speechChunks, type CompExercise } from "./exam";
 import { PRESET_PAPERS } from "./exam-presets";
-import { ACCENTS, causeFromSkill, checkDictation, missStats, paragraphsOf, parseClock, pickVoices, playerFor, qualityIssues, sanitizeMisses, sanitizeSources, sentencesOf, skillStats } from "./listening";
+import { ACCENTS, causeFromSkill, checkDictation, missStats, paragraphsOf, parseClock, pickVoices, playerFor, qualityIssues, resolveMaterialUrl, sanitizeMisses, sanitizeSources, sentencesOf, skillStats } from "./listening";
+import { PREBUILT_REAL_SOURCES, realPresetQuiz } from "./real-presets";
 import { newWordsOf } from "./transcript";
 import type { ReadSentence, ReadToken } from "./reader";
 import { sanitizePaper, wrongKeys } from "../store/exam-bank";
@@ -176,12 +179,38 @@ test("parseClock, sanitizeSources and playerFor", () => {
   assert.equal(parseClock("90"), 90);
   assert.ok(Number.isNaN(parseClock("abc")));
   assert.equal(sanitizeSources([{ id: "bad", url: "https://x", created: 1 }]), undefined);
-  const s = sanitizeSources([{ id: "s-abcd12", url: "https://rfi.fr/x", created: 1, start: 30, end: 10, transcript: "  ", title: "" }, { id: "s-zz99zz", url: "javascript:alert(1)", created: 1 }]);
-  assert.deepEqual(s, [{ id: "s-abcd12", title: "https://rfi.fr/x", url: "https://rfi.fr/x", start: 30, end: 30, created: 1 }]);
+  const s = sanitizeSources([
+    { id: "s-abcd12", url: "https://rfi.fr/x", created: 1, start: 30, end: 10, transcript: "  ", title: "" },
+    { id: "rfi-20261120", url: "materials/rfi/rfi-jff-20261120.mp3", pdfUrl: "materials/rfi/rfi-jff-20261120.txt", presetId: "rfi-jff-20261120", created: 2, start: 0, end: 0 },
+    { id: "s-local1", url: "idb:audio:s-local1", pdfUrl: "idb:pdf:s-local1", created: 3, start: 0, end: 120 },
+    { id: "s-zz99zz", url: "javascript:alert(1)", created: 1 },
+  ]);
+  assert.deepEqual(s, [
+    { id: "s-abcd12", title: "https://rfi.fr/x", url: "https://rfi.fr/x", start: 30, end: 30, created: 1 },
+    { id: "rfi-20261120", title: "materials/rfi/rfi-jff-20261120.mp3", url: "materials/rfi/rfi-jff-20261120.mp3", pdfUrl: "materials/rfi/rfi-jff-20261120.txt", presetId: "rfi-jff-20261120", start: 0, end: 0, created: 2 },
+    { id: "s-local1", title: "idb:audio:s-local1", url: "idb:audio:s-local1", pdfUrl: "idb:pdf:s-local1", start: 0, end: 120, created: 3 },
+  ]);
   assert.deepEqual(playerFor("https://www.youtube.com/watch?v=abcDEF12345", 60, 120), { kind: "youtube", src: "https://www.youtube-nocookie.com/embed/abcDEF12345?start=60&end=120&rel=0" });
   assert.deepEqual(playerFor("https://x.org/a/file.mp3", 5, 0), { kind: "media", src: "https://x.org/a/file.mp3#t=5", video: false });
+  assert.deepEqual(playerFor("materials/rfi/rfi-jff-20261120.mp3", 10, 90, "/words/"), { kind: "media", src: "/words/materials/rfi/rfi-jff-20261120.mp3#t=10,90", video: false });
+  assert.deepEqual(playerFor("idb:audio:s-local1", 0, 120), { kind: "idb", key: "audio:s-local1", start: 0, end: 120 });
+  assert.equal(resolveMaterialUrl("materials/rfi/a.txt", "/words/"), "/words/materials/rfi/a.txt");
   assert.deepEqual(playerFor("https://www.radiofrance.fr/franceculture/podcasts/x", 0, 60), { kind: "page" });
   assert.deepEqual(playerFor("not a url", 0, 0), { kind: "page" });
+});
+
+test("PREBUILT_REAL_SOURCES and realPresetQuiz ship 6 verified RFI episodes with public assets and 7-QCM quizzes", () => {
+  assert.equal(PREBUILT_REAL_SOURCES.length, 6);
+  for (const p of PREBUILT_REAL_SOURCES) {
+    assert.ok(fs.existsSync(path.resolve("public", p.url)), `missing ${p.url}`);
+    if (p.pdfUrl) assert.ok(fs.existsSync(path.resolve("public", p.pdfUrl)), `missing ${p.pdfUrl}`);
+    assert.ok((p.transcript ?? "").length > 2000);
+    const quiz = realPresetQuiz(p.presetId);
+    assert.ok(quiz);
+    assert.equal(quiz.questions.length, 7);
+    assert.equal(quiz.questions.reduce((n, q) => n + (q.pts ?? 1), 0), 9);
+    assert.deepEqual(qualityIssues(quiz), []);
+  }
 });
 
 test("newWordsOf lists unlearned words once, with counts", () => {

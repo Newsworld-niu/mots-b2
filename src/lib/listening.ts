@@ -283,7 +283,12 @@ export function qualityIssues(ex: CompExercise): string[] {
 export interface RealSource {
   id: string;
   title: string;
+  /** Either an HTTP(S) URL, a bundled `materials/...` path, or an `idb:<key>` stored in IndexedDB. */
   url: string;
+  /** Optional companion PDF / official sheet / transcript path (`https://...`, `materials/...`, or `idb:...`). */
+  pdfUrl?: string;
+  /** Optional preset key linking offline exam questions (`PREBUILT_REAL_QUIZZES`). */
+  presetId?: string;
   /** The part to work on, in seconds from the start of the recording. */
   start: number;
   end: number;
@@ -297,15 +302,23 @@ export interface RealSource {
 }
 
 export const MAX_SOURCES = 40;
-export const MAX_TRANSCRIPT = 8000;
-export const SOURCE_ID = /^s-[a-z0-9]{4,24}$/;
+export const MAX_TRANSCRIPT = 12000;
+export const SOURCE_ID = /^(?:s|rfi)-[a-z0-9-]{4,32}$/;
+export const VALID_SOURCE_URL = /^(?:https?:\/\/|materials\/|idb:)/i;
 
-/** Sites with French radio and video for learners (and natives), with transcripts for some. Only their home pages. */
+/** Sites with French radio and video for learners (and natives), with transcripts for some. */
 export const REAL_SITES: { name: string; url: string; zh: string }[] = [
-  { name: "RFI 法语学习（原 RFI Savoirs）", url: "https://francaisfacile.rfi.fr/fr/", zh: "新闻慢速版和按级别的听力练习，多数有原文。" },
+  { name: "FEI 官方 DELF B2 样题（MP3 / PDF）", url: "https://www.france-education-international.fr/diplome/delf-tout-public/niveau-b2/exemples-sujets", zh: "官方有 Proof-of-Work 人机验证；在浏览器下载 MP3/PDF 后可用下方「导入本地文件」离线练。" },
+  { name: "RFI 法语学习（Journal en français facile）", url: "https://francaisfacile.rfi.fr/fr/podcasts/journal-en-fran%C3%A7ais-facile/", zh: "已内置 6 期真实广播与文字稿，也可自行添加更多最新期数。" },
   { name: "TV5Monde Apprendre", url: "https://apprendre.tv5monde.com/fr", zh: "按 A1–C1 分级的短视频，带练习和原文；选 B2。" },
   { name: "France Culture", url: "https://www.radiofrance.fr/franceculture", zh: "真实的访谈和辩论节目，选 3–5 分钟的一段，难度高于考试。" },
 ];
+
+/** Resolve a `materials/...` relative path against Vite BASE_URL while preserving external or `idb:` URLs. */
+export function resolveMaterialUrl(url: string, base = "/"): string {
+  if (/^materials\//i.test(url)) return `${base.replace(/\/?$/, "/")}${url}`;
+  return url;
+}
 
 /** "1:05" → 65, "65" → 65; NaN when it is not a time. */
 export function parseClock(s: string): number {
@@ -321,17 +334,22 @@ export function sanitizeSources(v: unknown): RealSource[] | undefined {
   for (const x of v) {
     if (!x || typeof x !== "object") continue;
     const r = x as Record<string, unknown>;
-    if (typeof r.id !== "string" || !SOURCE_ID.test(r.id) || typeof r.url !== "string" || !/^https?:\/\//i.test(r.url) || typeof r.created !== "number") continue;
+    if (typeof r.id !== "string" || !SOURCE_ID.test(r.id) || typeof r.url !== "string" || !VALID_SOURCE_URL.test(r.url) || typeof r.created !== "number") continue;
     const sec = (n: unknown) => (typeof n === "number" && Number.isFinite(n) && n >= 0 ? Math.round(n) : 0);
     const start = sec(r.start);
     const end = Math.max(start, sec(r.end));
     const text = (k: string, max: number) => (typeof r[k] === "string" && (r[k] as string).trim() ? (r[k] as string).slice(0, max) : undefined);
     const transcript = text("transcript", MAX_TRANSCRIPT);
     const notes = text("notes", 2000);
+    const rawPdf = text("pdfUrl", 600);
+    const pdfUrl = rawPdf && VALID_SOURCE_URL.test(rawPdf) ? rawPdf : undefined;
+    const presetId = text("presetId", 48);
     out.push({
       id: r.id,
       title: (text("title", 120) ?? "").trim() || r.url.slice(0, 120),
       url: r.url.slice(0, 600),
+      ...(pdfUrl ? { pdfUrl } : {}),
+      ...(presetId ? { presetId } : {}),
       start,
       end,
       created: r.created,
@@ -344,11 +362,23 @@ export function sanitizeSources(v: unknown): RealSource[] | undefined {
   return out.length ? out : undefined;
 }
 
-/** How to play a source in the app: a YouTube embed, an audio/video file, or only a link to the page. */
-export function playerFor(url: string, start: number, end: number): { kind: "youtube"; src: string } | { kind: "media"; src: string; video: boolean } | { kind: "page" } {
+/** How to play a source in the app: IndexedDB blob, YouTube embed, an audio/video file, or only a link to the page. */
+export function playerFor(
+  url: string,
+  start: number,
+  end: number,
+  base = "/",
+): { kind: "idb"; key: string; start: number; end: number } | { kind: "youtube"; src: string } | { kind: "media"; src: string; video: boolean } | { kind: "page" } {
+  if (/^idb:/i.test(url)) return { kind: "idb", key: url.slice(4), start, end };
+  const resolved = resolveMaterialUrl(url, base);
+  const fragment = `#t=${start}${end > start ? `,${end}` : ""}`;
+  if (/^materials\//i.test(url)) {
+    const ext = url.toLowerCase().match(/\.(mp3|m4a|aac|ogg|oga|wav|mp4|webm|m4v)$/)?.[1];
+    if (ext) return { kind: "media", src: `${resolved.split("#")[0]}${fragment}`, video: ["mp4", "webm", "m4v"].includes(ext) };
+  }
   let u: URL;
   try {
-    u = new URL(url);
+    u = new URL(resolved);
   } catch {
     return { kind: "page" };
   }
@@ -356,6 +386,6 @@ export function playerFor(url: string, start: number, end: number): { kind: "you
   const yt = host === "youtu.be" ? u.pathname.slice(1) : host === "youtube.com" ? (u.searchParams.get("v") ?? u.pathname.match(/^\/(?:embed|shorts)\/([\w-]+)/)?.[1] ?? "") : "";
   if (yt && /^[\w-]{6,20}$/.test(yt)) return { kind: "youtube", src: `https://www.youtube-nocookie.com/embed/${yt}?start=${start}${end > start ? `&end=${end}` : ""}&rel=0` };
   const ext = u.pathname.toLowerCase().match(/\.(mp3|m4a|aac|ogg|oga|wav|mp4|webm|m4v)$/)?.[1];
-  if (ext) return { kind: "media", src: `${url.split("#")[0]}#t=${start}${end > start ? `,${end}` : ""}`, video: ["mp4", "webm", "m4v"].includes(ext) };
+  if (ext) return { kind: "media", src: `${resolved.split("#")[0]}${fragment}`, video: ["mp4", "webm", "m4v"].includes(ext) };
   return { kind: "page" };
 }

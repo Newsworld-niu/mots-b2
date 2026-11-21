@@ -251,3 +251,50 @@
   padding-bottom: 10px;
   border-bottom: 1px solid var(--line);
 }
+.real-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.real-tag {
+  font-size: 0.78rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--bg-soft, rgba(120, 120, 120, 0.1));
+  color: var(--muted);
+}
+.real-upload-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+.real-file-box {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  font-size: 0.88rem;
+}
+.real-exam-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+.real-exam-bar .learn-progress {
+  flex: 1;
+}
+.real-exam-box {
+  display: grid;
+  gap: 8px;
+}
+.real-pdf-frame {
+  width: 100%;
+  min-height: 460px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
