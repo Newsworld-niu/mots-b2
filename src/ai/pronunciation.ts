@@ -15,7 +15,7 @@ export const canAssess = (c: AiConfig = getAiConfig()) => !!c.keys.azure && !!c.
 
 const PATH = "/speech/recognition/conversation/cognitiveservices/v1?language=fr-FR&format=detailed";
 
-async function assessPiece(wav: Uint8Array, signal?: AbortSignal): Promise<PronResult | null> {
+async function assessPiece(wav: Uint8Array, signal?: AbortSignal, referenceText = ""): Promise<PronResult | null> {
   const c = getAiConfig();
   const init: RequestInit = {
     method: "POST",
@@ -23,7 +23,7 @@ async function assessPiece(wav: Uint8Array, signal?: AbortSignal): Promise<PronR
       "Ocp-Apim-Subscription-Key": c.keys.azure,
       "Content-Type": "audio/wav; codecs=audio/pcm; samplerate=16000",
       Accept: "application/json",
-      "Pronunciation-Assessment": assessmentHeader(),
+      "Pronunciation-Assessment": assessmentHeader(referenceText),
     },
     body: wav as BodyInit,
     signal,
@@ -36,9 +36,9 @@ async function assessPiece(wav: Uint8Array, signal?: AbortSignal): Promise<PronR
 
 /**
  * Assess a recording (mono samples at 16 kHz). `onProgress(done, total)` after each piece. Null when nothing
- * could be recognised.
+ * could be recognised. Pass `referenceText` for scripted shadowing assessment.
  */
-export async function assessPronunciation(samples: Float32Array, onProgress?: (done: number, total: number) => void, signal?: AbortSignal): Promise<PronResult | null> {
+export async function assessPronunciation(samples: Float32Array, onProgress?: (done: number, total: number) => void, signal?: AbortSignal, referenceText = ""): Promise<PronResult | null> {
   const c = getAiConfig();
   if (!c.keys.azure) throw new AiError("还没有填 Azure 语音服务的 Key（在「我的 → AI 接口」里填）");
   if (!c.azureRegion) throw new AiError("还没有填 Azure 语音服务的区域");
@@ -51,7 +51,7 @@ export async function assessPronunciation(samples: Float32Array, onProgress?: (d
     const piece = samples.subarray(a, b);
     // a silent piece (a long pause) has nothing to assess
     if (!isSilent(piece)) {
-      const r = await assessPiece(encodeWav(piece, SPEECH_RATE), signal);
+      const r = await assessPiece(encodeWav(piece, SPEECH_RATE), signal, pieces.length === 1 ? referenceText : "");
       if (r) results.push(r);
     }
     onProgress?.(i + 1, pieces.length);
@@ -60,6 +60,6 @@ export async function assessPronunciation(samples: Float32Array, onProgress?: (d
 }
 
 /** Assess a recording as made by the recorder (WebM, MP4…): decoded to 16 kHz first. */
-export async function assessRecording(blob: Blob, onProgress?: (done: number, total: number) => void, signal?: AbortSignal): Promise<PronResult | null> {
-  return assessPronunciation(await decodeSpeech(blob), onProgress, signal);
+export async function assessRecording(blob: Blob, onProgress?: (done: number, total: number) => void, signal?: AbortSignal, referenceText = ""): Promise<PronResult | null> {
+  return assessPronunciation(await decodeSpeech(blob), onProgress, signal, referenceText);
 }

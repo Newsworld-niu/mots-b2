@@ -6,7 +6,7 @@ import { Volume2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { canAssess, assessRecording } from "../ai/pronunciation";
 import { play } from "../lib/audio";
-import { ERROR_LABEL, overall, phonoLevel, SCORE_HINT, SCORE_KEYS, SCORE_LABEL, weakWords, type PronResult } from "../lib/pronunciation";
+import { ERROR_LABEL, overall, phonoGateInfo, phonemeInsights, SCORE_HINT, SCORE_KEYS, SCORE_LABEL, weakWords, type PronResult } from "../lib/pronunciation";
 import { canRecord, startRecording, type Recording, type Take } from "../lib/recorder";
 import { LEVEL_LABEL } from "../lib/essay";
 import { href } from "../lib/router";
@@ -62,13 +62,13 @@ export function useAssess() {
   const [s, setS] = useState<AssessState>({ state: "idle" });
   const ctrl = useRef<AbortController | null>(null);
   useEffect(() => () => ctrl.current?.abort(), []);
-  const run = useCallback(async (blob: Blob): Promise<PronResult | null> => {
+  const run = useCallback(async (blob: Blob, referenceText?: string): Promise<PronResult | null> => {
     ctrl.current?.abort();
     const c = new AbortController();
     ctrl.current = c;
     setS({ state: "busy", done: 0, total: 1 });
     try {
-      const result = await assessRecording(blob, (done, total) => !c.signal.aborted && setS({ state: "busy", done, total }), c.signal);
+      const result = await assessRecording(blob, (done, total) => !c.signal.aborted && setS({ state: "busy", done, total }), c.signal, referenceText);
       if (c.signal.aborted) return null;
       setS({ state: "done", result });
       return result;
@@ -117,8 +117,10 @@ export function AssessStatus({ a }: { a: AssessState }) {
 /** The scores of an assessment and the words to practise. */
 export function PronReport({ result, title = "发音评测（Azure）" }: { result: PronResult; title?: string }) {
   const total = overall(result);
-  const level = phonoLevel(result);
+  const gate = phonoGateInfo(result);
+  const level = gate.level;
   const weak = weakWords(result.words);
+  const insights = phonemeInsights(result.words);
   return (
     <div className="essay-box pron-report">
       <p className="eyebrow">{title}</p>
@@ -146,8 +148,29 @@ export function PronReport({ result, title = "发音评测（Azure）" }: { resu
       </div>
       {level !== null && (
         <p className="muted small">
-          折合评分表第五项（发音和语调）约 {level}/5 · {LEVEL_LABEL[level]}。这是按总分换算的估计，考试由考官凭听感评。
+          折合评分表第五项（发音和语调）约 {level}/5 · {LEVEL_LABEL[level]}。
+          {gate.gatedBy === "prosody"
+            ? `（虽综合分达标，但韵律/语调重音 ${Math.round(result.prosody ?? 0)} 分未过门控线，已由 ${gate.rawLevel} 下调至 ${level}）`
+            : gate.gatedBy === "accuracy_or_fluency"
+              ? `（音准或流利度未达 B2+ 门控线，已由 ${gate.rawLevel} 下调至 ${level}）`
+              : "这是按总分与韵律门控换算的估计，考试由考官凭听感评。"}
         </p>
+      )}
+      {insights.length > 0 && (
+        <div className="essay-box">
+          <p className="eyebrow">音素与联诵诊断（中文考生高频易错点）</p>
+          <ul className="essay-check essay-box-list">
+            {insights.map((ins) => (
+              <li key={ins.id}>
+                <b>
+                  {ins.label}：{ins.avg}/100
+                </b>{" "}
+                {ins.examples.length > 0 ? `偏弱词例：${ins.examples.join("、")}。` : "总体稳定。"}
+                <small className="muted">{ins.tip}</small>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
       {weak.length > 0 ? (
         <>

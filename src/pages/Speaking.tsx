@@ -18,7 +18,7 @@ import { useTimer } from "../lib/timer";
 import { saveSpeakingCorrections } from "../store/essays";
 import { store, useStore } from "../store/store";
 import { Marking } from "../ui/Marking";
-import { phonoLevel, type PronResult } from "../lib/pronunciation";
+import { combineSpeakingProns, phonoLevel, sampleDebateTakes, type PronResult } from "../lib/pronunciation";
 import type { Take } from "../lib/recorder";
 import { AssessHint, AssessStatus, PronReport, TakePlayer, useAssess, useRecorder } from "../ui/Recording";
 import { toast } from "../ui/Toast";
@@ -152,7 +152,12 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   useEffect(() => {
     if (phase === "prep" && prep.sec === 0 && !prep.running) setPrepExpired(true);
   }, [phase, prep.sec, prep.running]);
-  const azurePhonoNow = pron.state === "done" ? phonoLevel(pron.result) : null;
+  const talkPronResult = pron.state === "done" ? pron.result : null;
+  const combinedPron = useMemo(
+    () => combineSpeakingProns(talkPronResult, Object.values(turnProns)),
+    [talkPronResult, turnProns],
+  );
+  const azurePhonoNow = phonoLevel(combinedPron);
   useEffect(() => {
     if (phase !== "result" || !fb || !loggedAt || azurePhonoNow === null) return;
     const nextScore = totalScore(fb) + azurePhonoNow;
@@ -390,12 +395,36 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         debateSec: debate.sec,
         typed: isTyped,
       };
-      const r = await gradeSpeaking(payload, c.signal);
+      const assessDebateSamples = async (): Promise<Record<number, PronResult>> => {
+        if (!canAssess()) return turnProns;
+        const missing = sampleDebateTakes(
+          Object.entries(turnTakes)
+            .map(([k, t]) => [Number(k), t] as [number, Take])
+            .filter(([k]) => !!so[k]?.a.trim() && !turnProns[k]),
+          4,
+        );
+        if (!missing.length) return turnProns;
+        const nextMap: Record<number, PronResult> = { ...turnProns };
+        for (const [k, take] of missing) {
+          if (c.signal.aborted) break;
+          try {
+            const pr = await assessRecording(take.blob, undefined, c.signal);
+            if (pr) nextMap[k] = pr;
+          } catch {
+            /* skip silent or failed debate sample without blocking grading */
+          }
+        }
+        return nextMap;
+      };
+      const [r, updatedTurnProns] = await Promise.all([gradeSpeaking(payload, c.signal), assessDebateSamples()]);
       if (c.signal.aborted) return;
+      setTurnProns(updatedTurnProns);
       setFb(r);
       if (r.corrections.length) saveSpeakingCorrections(subject.title, r.corrections);
       setGradedTyped(isTyped);
-      const currentAzure = pron.state === "done" ? phonoLevel(pron.result) : null;
+      const talkPron = pron.state === "done" ? pron.result : null;
+      const freshCombined = combineSpeakingProns(talkPron, Object.values(updatedTurnProns));
+      const currentAzure = phonoLevel(freshCombined);
       const effectivePhono = currentAzure ?? phono;
       const hasProno = effectivePhono !== null;
       const score = totalScore(r) + (effectivePhono ?? 0);
@@ -546,8 +575,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const canEndDebate = !strictMode || debate.sec >= SPEAK_TIMES.debate[0] || answeredTurns >= 6;
   const escalation = assessDebateEscalation(turns, Math.floor(debate.sec / 60), strictMode);
   const [min, max] = SPEAK_TIMES.monologue;
-  /** The fifth criterion from Azure's assessment, when there is one; else the learner's own rating. */
-  const azurePhono = pron.state === "done" ? phonoLevel(pron.result) : null;
+  /** The fifth criterion from Azure's combined monologue+debate assessment, when available; else self-assessed. */
+  const azurePhono = phonoLevel(combinedPron);
 
   return (
     <div className="page practice">
@@ -932,7 +961,16 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
               </p>
             )}
             {gradedTyped && <p className="muted small">本次练习含纯键盘输入，已标记为「打字」，不计入 25 分口语成绩曲线。</p>}
-            {pron.state === "done" && pron.result && <PronReport result={pron.result} title="发音和语调（第五项，Azure 评测）" />}
+            {combinedPron && (
+              <PronReport
+                result={combinedPron}
+                title={
+                  Object.keys(turnProns).length
+                    ? `发音和语调（第五项，独白 + 辩论 ${Object.keys(turnProns).length} 轮抽样加权）`
+                    : "发音和语调（第五项，Azure 评测）"
+                }
+              />
+            )}
             {azurePhono === null && (
               <div className="essay-box">
                 <p className="eyebrow">发音和语调：自己评（第五项，AI 听不到）</p>

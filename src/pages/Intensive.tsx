@@ -3,10 +3,11 @@
  * sentence or paragraph by paragraph, then shadowing (hear a sentence, say it, compare with your recording).
  */
 import { Check, Mic, Play, RotateCcw, Square } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { checkDictation, paragraphsOf, sentencesOf, type DictResult, type DictUnit } from "../lib/listening";
-import { stopAudio } from "../lib/audio";
-import { toast } from "../ui/Toast";
+import { play, stopAudio } from "../lib/audio";
+import type { Take } from "../lib/recorder";
+import { AssessHint, AssessStatus, PronReport, TakePlayer, useAssess, useRecorder } from "../ui/Recording";
 import "../styles/listening.css";
 
 /** Read a piece aloud at `rate`; resolves when done. Absent when the audio is played outside the app. */
@@ -146,62 +147,56 @@ function Dictation({ units, speak }: { units: DictUnit[]; speak?: Speak }) {
   );
 }
 
-/** Record the microphone into an object URL kept for this session only. */
-function useClip() {
-  const [url, setUrl] = useState<string | null>(null);
-  const [on, setOn] = useState(false);
-  const rec = useRef<MediaRecorder | null>(null);
-  const can = typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== "undefined";
-  useEffect(
-    () => () => {
-      rec.current?.stream.getTracks().forEach((t) => t.stop());
-    },
-    [],
-  );
-  useEffect(() => () => void (url && URL.revokeObjectURL(url)), [url]);
-  const start = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const r = new MediaRecorder(stream);
-      const parts: Blob[] = [];
-      r.ondataavailable = (e) => e.data.size && parts.push(e.data);
-      r.onstop = () => {
-        stream.getTracks().forEach((t) => t.stop());
-        setUrl(URL.createObjectURL(new Blob(parts, { type: r.mimeType })));
-        setOn(false);
-      };
-      rec.current = r;
-      r.start();
-      setOn(true);
-    } catch {
-      setOn(false);
-      toast("无法使用麦克风：请在浏览器或系统设置里允许本应用使用麦克风", "warn");
-    }
-  };
-  const stop = () => rec.current?.state === "recording" && rec.current.stop();
-  return { can, on, url, start, stop, clear: () => setUrl(null) };
-}
-
-/** Shadowing: hear the sentence, say it right after, listen to yourself and compare. */
+/** Shadowing: hear the sentence, say it right after, listen to yourself, and run pronunciation assessment. */
 function Shadowing({ units, speak }: { units: DictUnit[]; speak?: Speak }) {
   const [i, setI] = useState(0);
   const [showText, setShowText] = useState(true);
-  const clip = useClip();
+  const [busy, setBusy] = useState(false);
+  const [take, setTake] = useState<Take | null>(null);
+  const recorder = useRecorder();
+  const pron = useAssess();
   const unit = units[i];
   useEffect(() => () => stopAudio(), []);
   if (!unit) return <p className="muted">没有可以跟读的句子。</p>;
   const go = (k: number) => {
     stopAudio();
-    clip.stop();
-    clip.clear();
+    if (recorder.on) void recorder.stop();
+    setTake(null);
+    pron.reset();
+    setBusy(false);
     setI(Math.max(0, Math.min(units.length - 1, k)));
+  };
+  const listen = async (rate = 1) => {
+    setBusy(true);
+    try {
+      if (speak) await speak(unit.text, rate, unit.who);
+      else await play(null, unit.text, "uk", rate);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const toggleRecord = async () => {
+    if (recorder.on) {
+      const t = await recorder.stop();
+      setTake(t);
+      if (t && pron.available) void pron.run(t.blob, unit.text);
+    } else {
+      stopAudio();
+      setTake(null);
+      pron.reset();
+      await recorder.start();
+    }
   };
   return (
     <div className="intensive-unit">
       <p className="eyebrow">
         第 {i + 1}/{units.length} 句{unit.who ? ` · ${unit.who}` : ""}
       </p>
-      <p className="muted small">先听一遍，然后不看原文、紧跟着说一遍；录下来和原声比一比语调、连读和停顿。</p>
+      <p className="muted small">
+        {speak
+          ? "先听一遍，然后不看原文、紧跟着说一遍；录下来和原声比一比语调、连读和停顿。"
+          : "当前材料来自上方原声播放器：可用上方播放器反复听原音跟读，也可点下方「TTS 示范朗读」听单句发音。"}
+      </p>
       {showText ? (
         <p className="essay-text" lang="fr">
           {unit.text}
@@ -210,26 +205,40 @@ function Shadowing({ units, speak }: { units: DictUnit[]; speak?: Speak }) {
         <p className="muted">（原文已隐藏）</p>
       )}
       <div className="exam-doc-actions">
-        {speak && (
-          <button className="btn btn-ghost" onClick={() => void speak(unit.text, 1, unit.who)}>
-            <Play size={16} /> 听原句
+        <button className="btn btn-ghost" onClick={() => void listen(1)} disabled={busy}>
+          <Play size={16} /> {speak ? "听原句" : "TTS 示范朗读"}
+        </button>
+        {busy && (
+          <button
+            className="btn btn-ghost"
+            onClick={() => {
+              stopAudio();
+              setBusy(false);
+            }}
+          >
+            <Square size={16} /> 停
           </button>
         )}
-        {clip.can &&
-          (clip.on ? (
-            <button className="btn btn-primary" onClick={clip.stop}>
-              <Square size={16} /> 停止录音
-            </button>
-          ) : (
-            <button className="btn btn-ghost" onClick={() => void clip.start()}>
-              <Mic size={16} /> {clip.url ? "重录" : "录我的跟读"}
-            </button>
-          ))}
+        {recorder.supported && (
+          <button className={recorder.on ? "btn btn-primary" : "btn btn-ghost"} onClick={() => void toggleRecord()}>
+            {recorder.on ? (
+              <>
+                <Square size={16} /> 停止录音
+              </>
+            ) : (
+              <>
+                <Mic size={16} /> {take ? "重录" : "录我的跟读"}
+              </>
+            )}
+          </button>
+        )}
         <button className="link" onClick={() => setShowText((v) => !v)}>
           {showText ? "隐藏原文" : "显示原文"}
         </button>
       </div>
-      {clip.url && <audio className="intensive-audio" src={clip.url} controls />}
+      <TakePlayer take={take} label="听我的跟读" />
+      {take && (pron.available ? <AssessStatus a={pron} /> : <AssessHint />)}
+      {pron.state === "done" && pron.result && <PronReport result={pron.result} title="跟读发音评测（对照原句）" />}
       <div className="exam-doc-actions">
         <button className="link" onClick={() => go(i - 1)} disabled={i === 0}>
           上一句
