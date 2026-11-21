@@ -698,5 +698,70 @@ export function isSpeakingTyped(opts: {
   return opts.totalMonologueWords > opts.voiceMonologueWords + allowedEdits;
 }
 
+const OUTLINE_STOPWORDS = new Set([
+  "le", "la", "les", "un", "une", "des", "du", "de", "au", "aux", "et", "ou", "mais", "donc", "or", "ni", "car",
+  "a", "à", "en", "dans", "par", "pour", "sur", "sous", "avec", "sans", "chez", "vers", "entre", "selon",
+  "ce", "cet", "cette", "ces", "ca", "ça", "il", "elle", "ils", "elles", "on", "nous", "vous", "je", "tu", "se",
+  "qui", "que", "quoi", "dont", "où", "ne", "pas", "plus", "très", "bien", "est", "sont", "ont", "être", "avoir",
+]);
+
+function stripElision(word: string): string {
+  return word.toLowerCase().replace(/^(?:l|d|qu|n|s|c|j|m|t)[’']/i, "");
+}
+
+/**
+ * Compress full preparation notes into short keyword-outline cues for no-aux speaking delivery.
+ * Complete prose sentences are reduced to at most 3 keywords per clause (up to 8 cues).
+ */
+export function outlineKeywords(notes: string): string[] {
+  const segments = notes
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^\s*(?:[-*•]+|\d+[.)])\s*/, "").trim())
+    .flatMap((line) => line.split(/[.!?;。！？；]+/))
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const cues: string[] = [];
+  for (const seg of segments) {
+    const words = seg.match(/[\p{L}\p{N}'’-]+/gu) ?? [];
+    if (!words.length) continue;
+    const meaningful = words.filter((w) => {
+      const bare = stripElision(w);
+      return /\p{Script=Han}/u.test(bare) || (bare.length >= 3 && !OUTLINE_STOPWORDS.has(bare));
+    });
+    const picked = (meaningful.length >= 2 ? meaningful : words).slice(0, 3);
+    const suffix = words.length > 3 ? " …" : "";
+    cues.push(`${picked.join(" · ")}${suffix}`);
+    if (cues.length >= 8) break;
+  }
+  return cues;
+}
+
+/**
+ * Enforce immutable original transcripts in no-aux exam mode so pre-grading edits cannot alter what is assessed.
+ */
+export function resolveLockedTranscripts(opts: {
+  noAuxMode: boolean;
+  said: string;
+  rawSaid: string;
+  turns: DebateTurn[];
+  rawTurns: Record<number, string>;
+}): { transcript: string; turns: DebateTurn[]; monologueLocked: boolean; lockedTurnIndices: number[] } {
+  if (!opts.noAuxMode) {
+    return { transcript: opts.said, turns: opts.turns, monologueLocked: false, lockedTurnIndices: [] };
+  }
+  const monologueLocked = !!opts.rawSaid.trim();
+  const transcript = monologueLocked ? opts.rawSaid : opts.said;
+  const lockedTurnIndices: number[] = [];
+  const turns = opts.turns.map((t, idx) => {
+    const raw = opts.rawTurns[idx];
+    if (raw && raw.trim()) {
+      lockedTurnIndices.push(idx);
+      return { ...t, a: raw };
+    }
+    return t;
+  });
+  return { transcript, turns, monologueLocked, lockedTurnIndices };
+}
+
 /** Minutes and seconds, 4:05. */
 export const clock = (sec: number) => `${Math.floor(Math.max(0, sec) / 60)}:${String(Math.max(0, sec) % 60).padStart(2, "0")}`;

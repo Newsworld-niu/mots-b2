@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { countWords, ESSAY_TASKS } from "./essay";
 import { ESSAY_MODELS, modelEssayFor } from "./essay-models";
-import { assessDebateEscalation, checkProblematiqueDraft, clock, examReadiness, exercisePoints, FORM_SPEC, isSpeakingTyped, outOf25, PAPER, PO_STANDARD_CONSIGNE, PROBLEMATIQUE_TIPS, realScore25, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speakerIndex, speechChunks, speechTurns, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, weigh } from "./exam";
+import { assessDebateEscalation, checkProblematiqueDraft, clock, examReadiness, exercisePoints, FORM_SPEC, isSpeakingTyped, outOf25, outlineKeywords, PAPER, PO_STANDARD_CONSIGNE, PROBLEMATIQUE_TIPS, realScore25, resolveLockedTranscripts, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speakerIndex, speechChunks, speechTurns, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, weigh } from "./exam";
 import { SPEAKING_PRESETS, speakingFollowUpsOf, speakingPresetOf } from "./speaking-presets";
 
 test("topics, subjects and essay tasks refer to topics that exist", () => {
@@ -182,4 +182,45 @@ test("TALK_PLAN, PROBLEMATIQUE_TIPS and checkProblematiqueDraft catch copy-paste
   const badCopy = checkProblematiqueDraft("Plusieurs grands groupes français rappellent désormais leurs salariés au bureau.", doc);
   assert.equal(badCopy.ok, false);
   assert.ok(badCopy.notes.length >= 2);
+});
+
+test("outlineKeywords strips full prose sentences into keyword cues for no-aux delivery", () => {
+  const cues = outlineKeywords(
+    "- Problématique : Comment concilier flexibilité du télétravail et cohésion d'équipe ?\n1. Productivité, autonomie des salariés et gain de temps dans les transports.\n2. Risque d'isolement social ; perte de culture commune",
+  );
+  assert.equal(cues.length, 4);
+  assert.ok(cues.every((c) => !c.includes("Comment concilier flexibilité du télétravail et cohésion d'équipe")));
+  assert.ok(cues[0].includes("Problématique"));
+  assert.ok(cues.some((c) => c.includes("Productivité")));
+  assert.ok(cues.some((c) => c.includes("Risque")));
+  assert.deepEqual(outlineKeywords("   \n  "), []);
+});
+
+test("resolveLockedTranscripts locks raw voice transcripts in noAuxMode against post-hoc edits", () => {
+  const edited = resolveLockedTranscripts({
+    noAuxMode: true,
+    said: "Version corrigée et embellie par écrit",
+    rawSaid: "Version orale brute avec hésitation",
+    turns: [
+      { q: "Q1 ?", a: "Réponse réécrite proprement" },
+      { q: "Q2 ?", a: "Réponse tapée manuellement" },
+    ],
+    rawTurns: { 0: "Réponse orale brute" },
+  });
+  assert.equal(edited.monologueLocked, true);
+  assert.equal(edited.transcript, "Version orale brute avec hésitation");
+  assert.deepEqual(edited.lockedTurnIndices, [0]);
+  assert.equal(edited.turns[0].a, "Réponse orale brute");
+  assert.equal(edited.turns[1].a, "Réponse tapée manuellement");
+
+  const normal = resolveLockedTranscripts({
+    noAuxMode: false,
+    said: "Texte corrigé",
+    rawSaid: "Texte brut",
+    turns: [{ q: "Q1 ?", a: "Réponse modifiée" }],
+    rawTurns: { 0: "Réponse brute" },
+  });
+  assert.equal(normal.monologueLocked, false);
+  assert.equal(normal.transcript, "Texte corrigé");
+  assert.equal(normal.turns[0].a, "Réponse modifiée");
 });

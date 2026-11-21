@@ -8,7 +8,7 @@ import { useGrammar } from "../atlas/grammar";
 import { TARGET_LANG } from "../config";
 import { play, stopAudio } from "../lib/audio";
 import { CONNECTORS, countWords, CRITERION_CHECK, CRITERION_LABEL, LEVEL_LABEL, LEVELS, totalScore } from "../lib/essay";
-import { assessDebateEscalation, checkProblematiqueDraft, clock, isSpeakingTyped, MAX_EXAM_LOG, PO_STANDARD_CONSIGNE, PROBLEMATIQUE_TIPS, realScore25, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
+import { assessDebateEscalation, checkProblematiqueDraft, clock, isSpeakingTyped, MAX_EXAM_LOG, outlineKeywords, PO_STANDARD_CONSIGNE, PROBLEMATIQUE_TIPS, realScore25, resolveLockedTranscripts, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
 import { debatePhrases } from "../lib/expressions";
 import { isNative } from "../lib/native";
 import { href } from "../lib/router";
@@ -100,6 +100,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [phono, setPhono] = useState<number | null>(null);
   const [talkTake, setTalkTake] = useState<Take | null>(null);
   const [strictMode, setStrictMode] = useState(false);
+  const [noAuxMode, setNoAuxMode] = useState(false);
   const [voiceOffset, setVoiceOffset] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [prepExpired, setPrepExpired] = useState(false);
@@ -113,9 +114,15 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [turnProns, setTurnProns] = useState<Record<number, PronResult>>({});
   const [speechFailed, setSpeechFailed] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
+  const [rawMonologue, setRawMonologue] = useState("");
+  const [rawTurns, setRawTurns] = useState<Record<number, string>>({});
+  const [gradedLock, setGradedLock] = useState(false);
   const voiceWordsRef = useRef(0);
   const turnBaseRef = useRef("");
   const speechFailedRef = useRef(false);
+  const rawMonologueRef = useRef("");
+  const rawTurnsRef = useRef<Record<number, string>>({});
+  const gradedLockRef = useRef(false);
   const turnsRef = useRef<DebateTurn[]>(turns);
   turnsRef.current = turns;
   const turnTakesRef = useRef<Record<number, Take>>(turnTakes);
@@ -131,6 +138,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const talk = useTimer();
   const debate = useTimer();
   const debatePhraseGroups = useMemo(() => debatePhrases(), []);
+  const noteCues = useMemo(() => outlineKeywords(notes), [notes]);
   const MAX_TURNS = 20;
   const dictation = canDictate();
   const hasAi = ready.text(ai);
@@ -235,8 +243,14 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setTurnProns({});
     setSpeechFailed(false);
     setTranscribing(false);
+    setRawMonologue("");
+    setRawTurns({});
+    setGradedLock(false);
     speechFailedRef.current = false;
     turnBaseRef.current = "";
+    rawMonologueRef.current = "";
+    rawTurnsRef.current = {};
+    gradedLockRef.current = false;
     turnTakesRef.current = {};
     turnPronsRef.current = {};
     micro.stop();
@@ -258,6 +272,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     hear(setSaid, "", (final) => {
       setMonologueVoice(true);
       voiceWordsRef.current = countWords(final);
+      rawMonologueRef.current = final;
+      setRawMonologue(final);
     });
   };
 
@@ -274,6 +290,10 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     if (r?.text?.trim()) {
       setMonologueVoice(true);
       voiceWordsRef.current = Math.max(voiceWordsRef.current, countWords(r.text));
+      if (!rawMonologueRef.current.trim()) {
+        rawMonologueRef.current = r.text;
+        setRawMonologue(r.text);
+      }
       setSaid((s) => (s.trim() ? s : r.text));
     }
   };
@@ -281,13 +301,20 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   /** Start recording (and browser dictation when available) for debate turn `turnIdx`. */
   const beginDebateAnswer = async (turnIdx: number, existingText: string) => {
     stopAudio();
-    turnBaseRef.current = existingText.trim();
+    const baseText = (noAuxMode && rawTurnsRef.current[turnIdx]?.trim() ? rawTurnsRef.current[turnIdx] : existingText).trim();
+    turnBaseRef.current = baseText;
     if (recorder.supported && !recorder.on) await recorder.start();
     if (dictation && !speechFailedRef.current) {
       hear(
         (text) => setTurns((ts) => ts.map((t, k) => (k === turnIdx ? { ...t, a: text } : t))),
-        existingText.trim() ? `${existingText.trim()} ` : "",
-        () => setDebateVoice(true),
+        baseText ? `${baseText} ` : "",
+        (final) => {
+          setDebateVoice(true);
+          const combined = (baseText ? `${baseText} ` : "") + final.trim();
+          const nextRaw = { ...rawTurnsRef.current, [turnIdx]: combined };
+          rawTurnsRef.current = nextRaw;
+          setRawTurns(nextRaw);
+        },
         (err) => {
           speechFailedRef.current = true;
           setSpeechFailed(true);
@@ -323,6 +350,9 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
             setDebateVoice(true);
             const base = turnBaseRef.current;
             const merged = curText.trim() && !speechFailedRef.current ? curText : base ? `${base} ${pr.text.trim()}` : pr.text.trim();
+            const nextRaw = { ...rawTurnsRef.current, [turnIdx]: merged };
+            rawTurnsRef.current = nextRaw;
+            setRawTurns(nextRaw);
             const next = turnsRef.current.map((t, k) => (k === turnIdx ? { ...t, a: merged } : t));
             turnsRef.current = next;
             setTurns(next);
@@ -345,7 +375,17 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     ctrl.current = c;
     setAsking(true);
     try {
-      const q = await debateQuestion({ subject, monologue: said, turns: so, minutes: Math.floor(debate.sec / 60), strict: strictMode }, c.signal);
+      const resolvedForAsk = resolveLockedTranscripts({
+        noAuxMode,
+        said,
+        rawSaid: rawMonologueRef.current,
+        turns: so,
+        rawTurns: rawTurnsRef.current,
+      });
+      const q = await debateQuestion(
+        { subject, monologue: resolvedForAsk.transcript, turns: resolvedForAsk.turns, minutes: Math.floor(debate.sec / 60), strict: strictMode },
+        c.signal,
+      );
       if (c.signal.aborted) return;
       const next = [...so, { q, a: "" }];
       turnsRef.current = next;
@@ -362,12 +402,23 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   };
 
   const startDebate = () => {
+    if (noAuxMode && !rawMonologueRef.current.trim() && said.trim()) {
+      rawMonologueRef.current = said;
+      setRawMonologue(said);
+    }
     setPhase("debate");
     debate.start();
     void ask([]);
   };
 
-  const setAnswer = (a: string) => setTurns((ts) => ts.map((t, k) => (k === ts.length - 1 ? { ...t, a } : t)));
+  const setAnswer = (a: string) =>
+    setTurns((ts) =>
+      ts.map((t, k) => {
+        if (k !== ts.length - 1) return t;
+        if (noAuxMode && (gradedLockRef.current || !!rawTurnsRef.current[k]?.trim())) return t;
+        return { ...t, a };
+      }),
+    );
 
   const selectPhono = (v: number) => {
     setPhono(v);
@@ -381,14 +432,31 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
 
   const assess = async (so: DebateTurn[]) => {
     if (!subject || !said.trim()) return;
+    if (noAuxMode && gradedLockRef.current) return;
     quiet();
     debate.stop();
+    const resolved = resolveLockedTranscripts({
+      noAuxMode,
+      said,
+      rawSaid: rawMonologueRef.current,
+      turns: so,
+      rawTurns: rawTurnsRef.current,
+    });
+    if (noAuxMode) {
+      if (!rawMonologueRef.current.trim() && resolved.transcript.trim()) {
+        rawMonologueRef.current = resolved.transcript;
+        setRawMonologue(resolved.transcript);
+      }
+      setSaid(resolved.transcript);
+      turnsRef.current = resolved.turns;
+      setTurns(resolved.turns);
+    }
     const c = new AbortController();
     ctrl.current = c;
     setPhase("grading");
     try {
-      const answered = so.filter((t) => t.a.trim());
-      const spokenWords = countWords(said);
+      const answered = resolved.turns.filter((t) => t.a.trim());
+      const spokenWords = countWords(resolved.transcript);
       const monoSec = Math.max(spoke, talkTake?.seconds ?? 0);
       const isTyped = isSpeakingTyped({
         monologueVoice,
@@ -399,7 +467,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       });
       const payload = {
         subject,
-        transcript: said,
+        transcript: resolved.transcript,
         turns: answered,
         points: points(),
         monologueWords: spokenWords,
@@ -410,7 +478,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       const assessDebateSamples = async (): Promise<Record<number, PronResult>> => {
         const latestProns = turnPronsRef.current;
         if (!canAssess()) return latestProns;
-        const missing = pendingDebateSamples(so, turnTakesRef.current, latestProns, 4);
+        const missing = pendingDebateSamples(resolved.turns, turnTakesRef.current, latestProns, 4);
         if (!missing.length) return latestProns;
         const nextMap: Record<number, PronResult> = { ...latestProns };
         for (const [k, take] of missing) {
@@ -445,6 +513,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         ...p,
         examLog: [{ part: "speak" as const, what, score, total, ...(isTyped ? { typed: true } : {}), at }, ...(p.examLog ?? [])].slice(0, MAX_EXAM_LOG),
       }));
+      gradedLockRef.current = true;
+      setGradedLock(true);
       setPhase("result");
     } catch (err) {
       if (c.signal.aborted) return;
@@ -529,6 +599,14 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                   <input type="checkbox" role="switch" checked={strictMode} onChange={(e) => setStrictMode(e.target.checked)} />
                   <span className="switch" aria-hidden="true" />
                 </label>
+                <label className="field toggle" style={{ width: "100%" }}>
+                  <div>
+                    <b>考场脱稿无辅助模式</b>
+                    <small>隐藏准备期模板/词汇与思路提示，发言期隐藏完整笔记仅留关键词提纲，且锁定原始转写禁止考前篡改后重评。</small>
+                  </div>
+                  <input type="checkbox" role="switch" checked={noAuxMode} onChange={(e) => setNoAuxMode(e.target.checked)} />
+                  <span className="switch" aria-hidden="true" />
+                </label>
                 {hasAi ? (
                   <>
                     <button className="btn btn-primary btn-xl" onClick={() => void draw(true)}>
@@ -597,6 +675,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
           <span className="eyebrow">
             口语 · {topic?.zh}
             {strictMode ? " · 严格模考" : ""}
+            {noAuxMode ? " · 脱稿无辅助" : ""}
           </span>
           {phase === "prep" && <span className={`exam-clock ${prep.sec === 0 ? "is-over" : ""}`}>{prep.sec === 0 ? "准备时间到" : `准备 ${clock(prep.sec)}`}</span>}
           {phase === "talk" && <span className={`exam-clock ${talk.sec > max ? "is-over" : talk.sec >= min ? "is-ok" : ""}`}>{clock(talk.sec)} · 目标 5–7 分钟</span>}
@@ -616,13 +695,13 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         <p className="essay-situation" lang="fr">
           {PO_STANDARD_CONSIGNE}
         </p>
-        {showHint || prepExpired ? (
+        {showHint || (prepExpired && !noAuxMode) ? (
           <p className="muted small">
             <strong>思路提示：</strong>
             {subject.ask}
           </p>
         ) : (
-          ((phase === "prep" && !strictMode) || phase === "result") && (
+          ((phase === "prep" && !strictMode && !noAuxMode) || phase === "result") && (
             <div className="writing-actions">
               <button className="link" type="button" onClick={() => setShowHint(true)}>
                 思路提示（查看中文要点）
@@ -633,7 +712,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
 
         {phase === "prep" && (
           <>
-            {!strictMode && (
+            {!strictMode && !noAuxMode && (
               <div className="essay-box">
                 <p className="eyebrow">1 分钟审题微训 · 提炼 problématique（核心矛盾）</p>
                 <ol className="essay-check">
@@ -679,53 +758,57 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                 )}
               </div>
             )}
-            <div className="essay-help">
-              <details open>
-                <summary>怎么组织这段话</summary>
-                <ol className="essay-plan">
-                  {TALK_PLAN.map((p, k) => (
-                    <li key={k}>
-                      <b>{p.zh}</b>
-                      <span lang="fr">{p.fr}</span>
-                    </li>
-                  ))}
-                </ol>
-              </details>
-              <details>
-                <summary>评分表看什么</summary>
-                <ul className="essay-check essay-box-list">
-                  {["monologue", "interaction", "lexique", "morpho", "phono"].map((c) => (
-                    <li key={c}>
-                      <b>{CRITERION_LABEL[c]}</b> {CRITERION_CHECK[c]}
-                    </li>
-                  ))}
-                </ul>
-              </details>
-              {topic && (
-                <details>
-                  <summary>话题词汇：{topic.zh}</summary>
-                  <ul className="essay-phrases">
-                    {topic.vocab.map(([fr, zh], k) => (
+            {!noAuxMode ? (
+              <div className="essay-help">
+                <details open>
+                  <summary>怎么组织这段话</summary>
+                  <ol className="essay-plan">
+                    {TALK_PLAN.map((p, k) => (
                       <li key={k}>
-                        <span lang="fr">{fr}</span>
-                        <small>{zh}</small>
+                        <b>{p.zh}</b>
+                        <span lang="fr">{p.fr}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </details>
+                <details>
+                  <summary>评分表看什么</summary>
+                  <ul className="essay-check essay-box-list">
+                    {["monologue", "interaction", "lexique", "morpho", "phono"].map((c) => (
+                      <li key={c}>
+                        <b>{CRITERION_LABEL[c]}</b> {CRITERION_CHECK[c]}
                       </li>
                     ))}
                   </ul>
                 </details>
-              )}
-              <details>
-                <summary>衔接语</summary>
-                <dl className="essay-links">
-                  {CONNECTORS.map((g) => (
-                    <div key={g.zh}>
-                      <dt>{g.zh}</dt>
-                      <dd lang="fr">{g.fr.join(" · ")}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </details>
-            </div>
+                {topic && (
+                  <details>
+                    <summary>话题词汇：{topic.zh}</summary>
+                    <ul className="essay-phrases">
+                      {topic.vocab.map(([fr, zh], k) => (
+                        <li key={k}>
+                          <span lang="fr">{fr}</span>
+                          <small>{zh}</small>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+                <details>
+                  <summary>衔接语</summary>
+                  <dl className="essay-links">
+                    {CONNECTORS.map((g) => (
+                      <div key={g.zh}>
+                        <dt>{g.zh}</dt>
+                        <dd lang="fr">{g.fr.join(" · ")}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </details>
+              </div>
+            ) : (
+              <p className="muted small">脱稿无辅助模式已开启：准备期已隐藏模板、评分提示、话题词汇与衔接语，发言期仅保留关键词提纲。</p>
+            )}
             <textarea className="writing-input essay-notes" lang="fr" rows={6} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="准备时记关键词和提纲（考试时可以看笔记，但不能念稿）" spellCheck={false} aria-label="准备笔记" />
             <div className="writing-actions">
               <button className="btn btn-primary btn-xl" onClick={() => void startTalk()}>
@@ -738,10 +821,23 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         {phase === "talk" && (
           <>
             {notes.trim() && (
-              <div className="essay-box">
-                <p className="eyebrow">你的笔记</p>
-                <p className="essay-text">{notes}</p>
-              </div>
+              noAuxMode ? (
+                <div className="essay-box">
+                  <p className="eyebrow">关键词提纲（脱稿模式，已隐藏完整笔记）</p>
+                  <ul className="essay-check">
+                    {noteCues.map((cue, k) => (
+                      <li key={k} lang="fr">
+                        {cue}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <div className="essay-box">
+                  <p className="eyebrow">你的笔记</p>
+                  <p className="essay-text">{notes}</p>
+                </div>
+              )
             )}
             {dictation ? (
               <div className={`exam-live ${listening ? "is-on" : ""}`} aria-live="polite">
@@ -770,37 +866,56 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
           </>
         )}
 
-        {phase === "review" && (
-          <>
-            <p className="muted">
-              {spoke > 0 ? `说了 ${clock(spoke)}。` : ""}
-              {dictation ? "识别难免有错：把听错的词改回你实际说的话，但不要趁机改语法，否则批改就不准了。" : "请把刚才说的独白内容完整打出来，供 AI 批改与辩论追问。"}
-            </p>
-            <TakePlayer take={talkTake} label="听自己的独白" />
-            {talkTake && (pron.available ? <AssessStatus a={pron} /> : <AssessHint />)}
-            {pron.state === "done" && pron.result && <PronReport result={pron.result} />}
-            <textarea className="writing-input essay-input" lang="fr" rows={10} value={said} onChange={(e) => setSaid(e.target.value)} placeholder="你说的内容" spellCheck={false} aria-label="你说的内容" />
-            <div className="writing-actions">
-              <span className={`essay-count ${words >= 450 ? "is-ok" : ""}`}>{words} 词 · 5 分钟大约 450 词以上</span>
-              {hasAi ? (
-                <>
-                  {!strictMode ? (
-                    <button className="btn btn-ghost" onClick={() => void assess([])} disabled={!said.trim()}>
-                      跳过辩论，直接批改
+        {phase === "review" && (() => {
+          const monoLocked = noAuxMode && (gradedLock || !!rawMonologue.trim());
+          return (
+            <>
+              <p className="muted">
+                {spoke > 0 ? `说了 ${clock(spoke)}。` : ""}
+                {monoLocked
+                  ? "脱稿无辅助模式已锁定原始语音转写：禁止在评审前修改独白原文后重评。"
+                  : dictation
+                    ? "识别难免有错：把听错的词改回你实际说的话，但不要趁机改语法，否则批改就不准了。"
+                    : "请把刚才说的独白内容完整打出来，供 AI 批改与辩论追问。"}
+              </p>
+              <TakePlayer take={talkTake} label="听自己的独白" />
+              {talkTake && (pron.available ? <AssessStatus a={pron} /> : <AssessHint />)}
+              {pron.state === "done" && pron.result && <PronReport result={pron.result} />}
+              <textarea
+                className="writing-input essay-input"
+                lang="fr"
+                rows={10}
+                value={said}
+                readOnly={monoLocked}
+                onChange={(e) => {
+                  if (!monoLocked) setSaid(e.target.value);
+                }}
+                placeholder="你说的内容"
+                spellCheck={false}
+                aria-label="你说的内容"
+              />
+              <div className="writing-actions">
+                <span className={`essay-count ${words >= 450 ? "is-ok" : ""}`}>{words} 词 · 5 分钟大约 450 词以上</span>
+                {hasAi ? (
+                  <>
+                    {!strictMode && !noAuxMode ? (
+                      <button className="btn btn-ghost" onClick={() => void assess([])} disabled={!said.trim() || gradedLock}>
+                        跳过辩论，直接批改
+                      </button>
+                    ) : (
+                      <span className="muted small">{strictMode ? "严格模考中不可跳过辩论" : "脱稿无辅助模式中请完整完成辩论"}</span>
+                    )}
+                    <button className="btn btn-primary btn-xl" onClick={startDebate} disabled={!said.trim()}>
+                      进入辩论 <ArrowRight size={18} />
                     </button>
-                  ) : (
-                    <span className="muted small">严格模考中不可跳过辩论</span>
-                  )}
-                  <button className="btn btn-primary btn-xl" onClick={startDebate} disabled={!said.trim()}>
-                    进入辩论 <ArrowRight size={18} />
-                  </button>
-                </>
-              ) : (
-                <span className="muted">没有设置 AI 接口，没有辩论和批改。对照准备时的评分要点自己检查。</span>
-              )}
-            </div>
-          </>
-        )}
+                  </>
+                ) : (
+                  <span className="muted">没有设置 AI 接口，没有辩论和批改。对照准备时的评分要点自己检查。</span>
+                )}
+              </div>
+            </>
+          );
+        })()}
 
         {phase === "debate" && (
           <>
@@ -822,6 +937,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
               const turnIdx = turns.length - 1;
               const curTake = turnTakes[turnIdx];
               const azureOn = canAssess();
+              const turnLocked = noAuxMode && (gradedLock || !!rawTurns[turnIdx]?.trim());
               return (
                 <div className={`exam-live ${listening || recorder.on ? "is-on" : ""}`} aria-live="polite">
                   <p className="eyebrow">
@@ -838,7 +954,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                         : "当前浏览器离线或不支持语音识别：已启用本地录音兜底，停止后可回放录音并对照补全文字。"}
                     </p>
                   )}
-                  <textarea className="writing-input essay-notes" lang="fr" rows={4} value={turn.a + (listening ? interim : "")} readOnly={listening || transcribing} onChange={(e) => setAnswer(e.target.value)} placeholder={dictation && !speechFailed ? "点「开口回答」，或直接打字" : recorder.supported ? "用麦克风录音回答，或直接打字" : "把你的回答打出来"} spellCheck={false} aria-label="你的回答" />
+                  <textarea className="writing-input essay-notes" lang="fr" rows={4} value={turn.a + (listening ? interim : "")} readOnly={listening || transcribing || turnLocked} onChange={(e) => setAnswer(e.target.value)} placeholder={dictation && !speechFailed ? "点「开口回答」，或直接打字" : recorder.supported ? "用麦克风录音回答，或直接打字" : "把你的回答打出来"} spellCheck={false} aria-label="你的回答" />
+                  {turnLocked && <p className="muted small">脱稿无辅助模式已锁定本轮原始语音转写。</p>}
                   {transcribing && <p className="muted small">Azure 语音转写中…</p>}
                   {turnProns[turnIdx] && <p className="muted small">已通过 Azure 转写本轮回答（可用于发音综合评测）。</p>}
                   <TakePlayer take={curTake} label="听这一轮录音" />
@@ -881,7 +998,13 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                         onClick={async () => {
                           const latest = await stopDebateAnswer(turnIdx);
                           quiet();
-                          if (latest[turnIdx]?.a.trim()) void ask(latest);
+                          const ans = latest[turnIdx]?.a;
+                          if (noAuxMode && ans?.trim() && !rawTurnsRef.current[turnIdx]?.trim()) {
+                            const nextRaw = { ...rawTurnsRef.current, [turnIdx]: ans };
+                            rawTurnsRef.current = nextRaw;
+                            setRawTurns(nextRaw);
+                          }
+                          if (ans?.trim()) void ask(latest);
                         }}
                       >
                         答完了，下一个问题 <ArrowRight size={16} />
@@ -889,7 +1012,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                     ) : (
                       <button
                         className="btn btn-primary"
-                        disabled={transcribing}
+                        disabled={transcribing || gradedLock}
                         onClick={async () => {
                           const latest = await stopDebateAnswer(turnIdx);
                           void assess(latest);
@@ -913,7 +1036,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                 </span>
                 <button
                   className="link"
-                  disabled={!canEndDebate || transcribing}
+                  disabled={!canEndDebate || transcribing || gradedLock}
                   onClick={async () => {
                     const latest = await stopDebateAnswer(turns.length - 1);
                     void assess(latest);
@@ -923,7 +1046,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                 </button>
               </div>
             )}
-            {!strictMode ? (
+            {!strictMode && !noAuxMode ? (
               <details className="essay-fold">
                 <summary>辩论话术速查（反驳 / 让步 / 澄清 / 填充语，{debatePhraseGroups.reduce((n, [, xs]) => n + xs.length, 0)} 句）</summary>
                 {debatePhraseGroups.map(([fn, xs]) => (
@@ -941,7 +1064,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                 ))}
               </details>
             ) : (
-              <p className="muted small">严格模考中已隐藏辩论话术速查。</p>
+              <p className="muted small">{strictMode ? "严格模考中已隐藏辩论话术速查。" : "脱稿无辅助模式中已隐藏辩论话术速查。"}</p>
             )}
           </>
         )}
