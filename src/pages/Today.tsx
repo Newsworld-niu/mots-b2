@@ -5,7 +5,7 @@ import { ArrowRight, Calendar, Compass, Download, Flame, Keyboard, Sparkles, Tar
 import { useEffect, useMemo, useState } from "react";
 import { prefetch, useAtlas, useEntry } from "../atlas/context";
 import { useGrammar } from "../atlas/grammar";
-import { downloadBackupFile, isBackupSnoozedToday, snoozeBackupToday } from "../lib/backup";
+import { cloudSyncHealthy, downloadBackupFile, isBackupSnoozedToday, snoozeBackupToday } from "../lib/backup";
 import { go, openWord } from "../lib/router";
 import { cue } from "../lib/sound";
 import { buildPrepSchedule, type PrepKind } from "../lib/study-plan";
@@ -15,6 +15,7 @@ import { buildSession, isTaughtReady, masteredCount, todayPlan } from "../store/
 import { isMastered } from "../store/srs";
 import { CORE_NAME, studyRange } from "../store/decks";
 import { dayKey, MAX_DAILY_NEW, needsBackupReminder, store, useStore } from "../store/store";
+import { useSyncState } from "../sync/state";
 import { Galaxy } from "../galaxy/Galaxy";
 import { ExamDashboard } from "../ui/ExamDashboard";
 import { Highlight, Pronounce } from "../ui/EntryView";
@@ -81,6 +82,7 @@ export function Today() {
   const [expr, setExpr] = useState(false);
   const [studio, setStudio] = useState<"listen" | "read" | "essay" | "speak" | "mock" | null>(null);
   const [placeOpen, setPlaceOpen] = useState(false);
+  const sync = useSyncState();
   const [backupDismissed, setBackupDismissed] = useState(isBackupSnoozedToday);
   const backupDue = useMemo(() => needsBackupReminder(progress, settings.lastBackupAt), [progress, settings.lastBackupAt]);
   const moreN = Math.min(MAX_DAILY_NEW, Math.max(0, Math.round(Number(more) || 0)));
@@ -156,7 +158,7 @@ export function Today() {
 
       <HomeDictionary />
 
-      {backupDue.remind && !backupDismissed && (
+      {backupDue.remind && !cloudSyncHealthy(sync) && !backupDismissed && (
         <aside className="backup-remind" role="status">
           <span>
             已超过 {backupDue.daysSince} 天未导出备份（Safari 等浏览器可能清理本地数据），建议保存一份 JSON 备份。
