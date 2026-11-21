@@ -526,6 +526,7 @@ export interface SavedNote {
 }
 
 export const MAX_ESSAY_LENGTH = 4000;
+export const MAX_SPEAKING_MONOLOGUE_LENGTH = MAX_ESSAY_LENGTH + 2000;
 export const MAX_ESSAYS = 40;
 export const MAX_NOTES = 150;
 export const MAX_AI_TASKS = 24;
@@ -948,15 +949,16 @@ export function applySpeakingCaps(
   const scores = capScoresByFlags(fb.scores, flags);
   const notes: string[] = [];
 
+  const tooShortSec = !opts.typed && opts.monologueSec !== undefined && opts.monologueSec < 150;
   if (monologueWords < 80) {
     scores.monologue = 0;
     scores.lexique = Math.min(scores.lexique ?? 0, 1);
     scores.morpho = Math.min(scores.morpho ?? 0, 1);
     notes.push(`【独白过短（${monologueWords} 词），独白记 0 分且语言封顶 1 分】`);
-  } else if (monologueWords < 250 || (opts.monologueSec !== undefined && opts.monologueSec < 150)) {
+  } else if (monologueWords < 250 || tooShortSec) {
     scores.monologue = Math.min(scores.monologue ?? 0, 1);
     notes.push(
-      opts.monologueSec !== undefined && opts.monologueSec < 150 && monologueWords >= 250
+      tooShortSec && monologueWords >= 250
         ? `【独白时长不足（${opts.monologueSec} 秒，远短于 5–7 分钟），独白封顶 1 分】`
         : `【独白不足 250 词（实测 ${monologueWords} 词），独白封顶 1 分】`,
     );

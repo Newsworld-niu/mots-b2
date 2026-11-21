@@ -8,7 +8,7 @@ import { cleanFamily } from "../lib/families";
  *  - writeText: a short reading text around the words the learner is reviewing (阅读)
  */
 import { sanitizeQuiz, type QuizItem } from "../lib/reader";
-import { applyEssayGridCaps, applySpeakingCaps, buildTask, countWords, CRITERIA, GENRE_LABEL, MAX_ESSAY_LENGTH, needsModelLengthRetry, pickBetterModel, sanitizeEssayFeedback, sanitizeModel, wordsFor, type EssayFeedback, type EssayTask, type Genre, type ModelEssay } from "../lib/essay";
+import { applyEssayGridCaps, applySpeakingCaps, buildTask, countWords, CRITERIA, GENRE_LABEL, MAX_ESSAY_LENGTH, MAX_SPEAKING_MONOLOGUE_LENGTH, needsModelLengthRetry, pickBetterModel, sanitizeEssayFeedback, sanitizeModel, wordsFor, type EssayFeedback, type EssayTask, type Genre, type ModelEssay } from "../lib/essay";
 import { qualityIssues } from "../lib/listening";
 import { assessDebateEscalation, FORM_SPEC, isValidComprehension, sanitizeExercise, TOPICS, sanitizeSpeakingFeedback, sanitizeSubject, SPEAK_CRITERIA, type CompExercise, type CompForm, type CompKind, type DebateTurn, type SpeakingFeedback, type SpeakingSubject, type Topic } from "../lib/exam";
 import { ERROR_TYPES, sanitizeFeedback, type Feedback } from "../lib/writing";
@@ -897,7 +897,7 @@ export async function debateQuestion(input: { subject: SpeakingSubject; monologu
     text: JSON.stringify({
       title: input.subject.title,
       document: input.subject.doc,
-      talk: input.monologue.slice(0, MAX_ESSAY_LENGTH),
+      talk: input.monologue.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH),
       minutesElapsed: minutes,
       strictExam: !!input.strict,
       escalation,
@@ -945,7 +945,7 @@ First, set the three compliance flags accurately:
 - "cursoryDebate": true if debate answers are superficial, evasive, repetitive, or consist of only a couple of brief personal replies ("interaction" <= 1).
 
 Grid criteria:
-- "monologue" (réalisation de la tâche 1): 1 = theme identified with simple opinion/personal examples, thin organisation or copied phrasing; 3 = issue stated in a brief introduction, clear point of view with concrete arguments and examples, generally well structured with connectors; 5 = clear problematisation, varied persuasive arguments and examples, fluent structure with nuanced connectors. Use "monologueWords" and "monologueSec": under 250 words OR under 150 seconds CANNOT be above 1; under 450 words CANNOT be 5.
+- "monologue" (réalisation de la tâche 1): 1 = theme identified with simple opinion/personal examples, thin organisation or copied phrasing; 3 = issue stated in a brief introduction, clear point of view with concrete arguments and examples, generally well structured with connectors; 5 = clear problematisation, varied persuasive arguments and examples, fluent structure with nuanced connectors. Use "monologueWords" and "monologueSec": under 250 words OR (when "typed" is not true) under 150 seconds CANNOT be above 1; under 450 words CANNOT be 5. When "typed" is true, judge monologue length strictly by "monologueWords" and never penalize "monologueSec" = 0.
 - "interaction" (réalisation de la tâche 2): 1 = answers simply or defensively, struggles once questions leave personal/everyday ideas, or gives brief unelaborated replies; 3 = confirms, nuances and defends opinion with relevant examples, responds to counter-arguments on the subject; 5 = argues precisely, expands the discussion with new perspectives, handles unexpected challenges convincingly. 0 when there was no debate or answers are empty; 1–2 short turns or total debate under ~80 words cannot be above 1.
 ${GRID_LANGUAGE}
 "lexique" and "morpho" are judged across BOTH parts together. If systematic B1 grammar/article/preposition errors appear, "morpho" MUST be 1.
@@ -985,13 +985,13 @@ export async function gradeSpeaking(input: GradeSpeakingInput, signal?: AbortSig
       title: input.subject.title,
       document: input.subject.doc,
       monologueWords,
-      ...(input.monologueSec !== undefined ? { monologueSec: input.monologueSec } : {}),
+      ...(input.monologueSec !== undefined && !input.typed ? { monologueSec: input.monologueSec } : {}),
       debateTurns: answered.length,
       debateWords,
       ...(input.debateSec !== undefined ? { debateSec: input.debateSec } : {}),
       ...(input.typed !== undefined ? { typed: input.typed } : {}),
       grammarPoints: input.points,
-      talk: input.transcript.slice(0, MAX_ESSAY_LENGTH + 2000),
+      talk: input.transcript.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH),
       debate: answered.map((t) => ({ examiner: t.q, candidate: t.a.slice(0, 1500) })),
     }),
     schema: SPEAK_SCHEMA,

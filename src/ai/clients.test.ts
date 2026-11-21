@@ -95,4 +95,5 @@ test("G2: all grading prompts isolate learner input as untrusted data and forbid
   assert.ok(GRADE_SYSTEM.includes("learnerSentence"));
   assert.match(REWRITE_SYSTEM, /untrusted/i);
   assert.ok(REWRITE_SYSTEM.includes("learner"));
+  assert.match(SPEAK_SYSTEM, /When "typed" is true.*monologueWords/i);
 });

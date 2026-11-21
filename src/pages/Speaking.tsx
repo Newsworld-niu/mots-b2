@@ -7,7 +7,7 @@ import { ttsOn, ttsUrl } from "../ai/tts";
 import { useGrammar } from "../atlas/grammar";
 import { TARGET_LANG } from "../config";
 import { play, stopAudio } from "../lib/audio";
-import { CONNECTORS, countWords, CRITERION_CHECK, CRITERION_LABEL, LEVEL_LABEL, LEVELS, totalScore } from "../lib/essay";
+import { CONNECTORS, countWords, CRITERION_CHECK, CRITERION_LABEL, LEVEL_LABEL, LEVELS, MAX_SPEAKING_MONOLOGUE_LENGTH, totalScore } from "../lib/essay";
 import { assessDebateEscalation, checkProblematiqueDraft, clock, isSpeakingTyped, MAX_EXAM_LOG, outlineKeywords, PO_STANDARD_CONSIGNE, PROBLEMATIQUE_TIPS, realScore25, resolveLockedTranscripts, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
 import { debatePhrases } from "../lib/expressions";
 import { isNative } from "../lib/native";
@@ -96,6 +96,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [spoke, setSpoke] = useState(0);
   const [turns, setTurns] = useState<DebateTurn[]>([]);
   const [asking, setAsking] = useState(false);
+  const [askError, setAskError] = useState<string | null>(null);
   const [fb, setFb] = useState<SpeakingFeedback | null>(null);
   const [phono, setPhono] = useState<number | null>(null);
   const [talkTake, setTalkTake] = useState<Take | null>(null);
@@ -227,6 +228,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setSaid("");
     setInterim("");
     setTurns([]);
+    setAskError(null);
     setFb(null);
     setPhono(null);
     setTalkTake(null);
@@ -269,12 +271,17 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     if (recorder.supported) await recorder.start();
     talk.start();
     if (!dictation) return;
-    hear(setSaid, "", (final) => {
-      setMonologueVoice(true);
-      voiceWordsRef.current = countWords(final);
-      rawMonologueRef.current = final;
-      setRawMonologue(final);
-    });
+    hear(
+      (text) => setSaid(text.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH)),
+      "",
+      (final) => {
+        const clipped = final.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH);
+        setMonologueVoice(true);
+        voiceWordsRef.current = countWords(clipped);
+        rawMonologueRef.current = clipped;
+        setRawMonologue(clipped);
+      },
+    );
   };
 
   const endTalk = async () => {
@@ -288,13 +295,14 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     const r = await pron.run(t.blob);
     // no recogniser in this browser (Safari on iOS, the app): Azure's transcript stands in for the AI marking
     if (r?.text?.trim()) {
+      const clipped = r.text.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH);
       setMonologueVoice(true);
-      voiceWordsRef.current = Math.max(voiceWordsRef.current, countWords(r.text));
+      voiceWordsRef.current = Math.max(voiceWordsRef.current, countWords(clipped));
       if (!rawMonologueRef.current.trim()) {
-        rawMonologueRef.current = r.text;
-        setRawMonologue(r.text);
+        rawMonologueRef.current = clipped;
+        setRawMonologue(clipped);
       }
-      setSaid((s) => (s.trim() ? s : r.text));
+      setSaid((s) => (s.trim() ? s.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH) : clipped));
     }
   };
 
@@ -374,6 +382,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     const c = new AbortController();
     ctrl.current = c;
     setAsking(true);
+    setAskError(null);
     try {
       const resolvedForAsk = resolveLockedTranscripts({
         noAuxMode,
@@ -387,6 +396,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         c.signal,
       );
       if (c.signal.aborted) return;
+      if (so.length === 0 && !debate.running) debate.start();
       const next = [...so, { q, a: "" }];
       turnsRef.current = next;
       setTurns(next);
@@ -397,7 +407,9 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     } catch (err) {
       if (c.signal.aborted) return;
       setAsking(false);
-      toast((err as Error).message || "考官没有接上话", "warn");
+      const msg = (err as Error).message || "考官没有接上话";
+      setAskError(msg);
+      toast(msg, "warn");
     }
   };
 
@@ -406,8 +418,9 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       rawMonologueRef.current = said;
       setRawMonologue(said);
     }
+    setAskError(null);
     setPhase("debate");
-    debate.start();
+    debate.stop();
     void ask([]);
   };
 
@@ -533,6 +546,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     talk.stop();
     debate.stop();
     setAsking(false);
+    setAskError(null);
     setPhase("pick");
   };
 
@@ -885,17 +899,21 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                 className="writing-input essay-input"
                 lang="fr"
                 rows={10}
+                maxLength={MAX_SPEAKING_MONOLOGUE_LENGTH}
                 value={said}
                 readOnly={monoLocked}
                 onChange={(e) => {
-                  if (!monoLocked) setSaid(e.target.value);
+                  if (!monoLocked) setSaid(e.target.value.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH));
                 }}
                 placeholder="你说的内容"
                 spellCheck={false}
                 aria-label="你说的内容"
               />
               <div className="writing-actions">
-                <span className={`essay-count ${words >= 450 ? "is-ok" : ""}`}>{words} 词 · 5 分钟大约 450 词以上</span>
+                <span className={`essay-count ${words >= 450 ? "is-ok" : ""}`}>
+                  {words} 词 · 5 分钟大约 450 词以上
+                  {said.length >= MAX_SPEAKING_MONOLOGUE_LENGTH ? ` · 已达 ${MAX_SPEAKING_MONOLOGUE_LENGTH} 字符上限` : ""}
+                </span>
                 {hasAi ? (
                   <>
                     {!strictMode && !noAuxMode ? (
@@ -933,6 +951,20 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
               ))}
             </ol>
             {asking && <p className="muted">考官在想下一个问题…</p>}
+            {!asking && turns.length === 0 && (
+              <div className="essay-box">
+                <p className="eyebrow">考官提问暂未成功</p>
+                <p className="muted small">{askError || "考官第 1 问请求失败，你可以重试提问或跳过辩论直接批改独白。"}</p>
+                <div className="writing-actions">
+                  <button className="btn btn-primary" onClick={() => void ask([])}>
+                    重试提问
+                  </button>
+                  <button className="btn btn-ghost" disabled={!said.trim() || gradedLock} onClick={() => void assess([])}>
+                    跳过辩论，直接批改独白
+                  </button>
+                </div>
+              </div>
+            )}
             {turn && !asking && (() => {
               const turnIdx = turns.length - 1;
               const curTake = turnTakes[turnIdx];
@@ -959,6 +991,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                   {transcribing && <p className="muted small">Azure 语音转写中…</p>}
                   {turnProns[turnIdx] && <p className="muted small">已通过 Azure 转写本轮回答（可用于发音综合评测）。</p>}
                   <TakePlayer take={curTake} label="听这一轮录音" />
+                  {askError && <p className="warn-text">{askError}</p>}
                   <div className="writing-actions">
                     <button
                       className="link"

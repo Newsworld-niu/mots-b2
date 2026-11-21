@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, detectB1ProfileFallback, ESSAY_PLANS, essayLevelOf, ESSAY_TASKS, FORMAL_GENRES, GENRE_LABEL, genresFor, hasFormalRegisterViolation, hasInformalEssayRegisterViolation, LETTER_FORMULAS, LETTER_TEMPLATE, levelLabel, maxScore, needsModelLengthRetry, pickAiTaskOptions, pickBetterModel, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, detectB1ProfileFallback, ESSAY_PLANS, essayLevelOf, ESSAY_TASKS, FORMAL_GENRES, GENRE_LABEL, genresFor, hasFormalRegisterViolation, hasInformalEssayRegisterViolation, LETTER_FORMULAS, LETTER_TEMPLATE, levelLabel, MAX_ESSAY_LENGTH, MAX_SPEAKING_MONOLOGUE_LENGTH, maxScore, needsModelLengthRetry, pickAiTaskOptions, pickBetterModel, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
 import { ESSAY_MODELS } from "./essay-models";
 
 test("countWords counts elided and hyphenated words once", () => {
@@ -293,10 +293,19 @@ test("PO-1 applySpeakingCaps enforces monologue words/duration, paste risk, repe
   const shortTalk = applySpeakingCaps(highSpeak, { transcript: words(184), doc: "autre sujet complètement différent", turns: turns5 });
   assert.equal(shortTalk.scores.monologue, 1);
 
-  // >=250 words but <150s caps monologue <= 1
-  const shortDur = applySpeakingCaps(highSpeak, { transcript: words(280), doc: "autre sujet", turns: turns5, monologueWords: 280, monologueSec: 90, typed: true });
+  // >=250 words but <150s spoken caps monologue <= 1; typed mode exempts monologueSec < 150 while keeping word-count caps
+  const shortDur = applySpeakingCaps(highSpeak, { transcript: words(280), doc: "autre sujet", turns: turns5, monologueWords: 280, monologueSec: 90, typed: false });
   assert.equal(shortDur.scores.monologue, 1);
-  assert.ok(shortDur.comment.includes("打字替代"));
+  assert.ok(shortDur.comment.includes("独白时长不足"));
+
+  const typedZeroSec = applySpeakingCaps(highSpeak, { transcript: words(280), doc: "autre sujet", turns: turns5, monologueWords: 280, monologueSec: 0, typed: true });
+  assert.equal(typedZeroSec.scores.monologue, 3);
+  assert.ok(!typedZeroSec.comment.includes("独白时长不足"));
+  assert.ok(typedZeroSec.comment.includes("打字替代"));
+
+  const typedShortWords = applySpeakingCaps(highSpeak, { transcript: words(184), doc: "autre sujet", turns: turns5, monologueWords: 184, monologueSec: 0, typed: true });
+  assert.equal(typedShortWords.scores.monologue, 1);
+  assert.ok(typedShortWords.comment.includes("独白不足 250 词"));
 
   // Copy-paste from prompt document caps monologue <= 1 and lexique <= 1
   const doc = Array.from({ length: 140 }, (_, i) => `terme${i}`).join(" ");
@@ -531,4 +540,17 @@ test("G2: detectB1ProfileFallback catches elementary B1 errors from plain text e
   const validEdge =
     "Il est essentiel de les responsabiliser au lieu de le leur imposer, car ceux qui parlent beaucoup des conséquences savent qu'il faut que ce qui est important soit fait.";
   assert.deepEqual(detectB1ProfileFallback(validEdge, []), {});
+});
+
+test("G3: Speaking monologue input cap aligns with grading slice and Turn 1 failure renders retry and skip actions", () => {
+  assert.equal(MAX_SPEAKING_MONOLOGUE_LENGTH, MAX_ESSAY_LENGTH + 2000);
+  const speakingSrc = readFileSync(new URL("../pages/Speaking.tsx", import.meta.url), "utf8");
+  const tasksSrc = readFileSync(new URL("../ai/tasks.ts", import.meta.url), "utf8");
+  assert.ok(speakingSrc.includes("maxLength={MAX_SPEAKING_MONOLOGUE_LENGTH}"));
+  assert.ok(speakingSrc.includes("slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH)"));
+  assert.ok(tasksSrc.includes("input.transcript.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH)"));
+  assert.ok(tasksSrc.includes("input.monologue.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH)"));
+  assert.ok(speakingSrc.includes("turns.length === 0"));
+  assert.ok(speakingSrc.includes("重试提问"));
+  assert.ok(speakingSrc.includes("跳过辩论，直接批改独白"));
 });
