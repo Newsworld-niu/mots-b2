@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_PLANS, essayLevelOf, ESSAY_TASKS, GENRE_LABEL, genresFor, hasFormalRegisterViolation, hasInformalEssayRegisterViolation, LETTER_FORMULAS, LETTER_TEMPLATE, levelLabel, maxScore, needsModelLengthRetry, pickAiTaskOptions, pickBetterModel, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, detectB1ProfileFallback, ESSAY_PLANS, essayLevelOf, ESSAY_TASKS, FORMAL_GENRES, GENRE_LABEL, genresFor, hasFormalRegisterViolation, hasInformalEssayRegisterViolation, LETTER_FORMULAS, LETTER_TEMPLATE, levelLabel, maxScore, needsModelLengthRetry, pickAiTaskOptions, pickBetterModel, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { ESSAY_MODELS } from "./essay-models";
 
 test("countWords counts elided and hyphenated words once", () => {
   assert.equal(countWords("L'ami de Paul est arrivé."), 5);
@@ -382,4 +383,104 @@ test("PE-10 needsModelLengthRetry and pickBetterModel enforce B2 minimum word fl
   assert.equal(needsModelLengthRetry(fullModel, 250), false);
   assert.equal(pickBetterModel(shortModel, fullModel, 250), fullModel);
   assert.equal(pickBetterModel(fullModel, shortModel, 250), fullModel);
+});
+
+test("G1: formal ESSAY_MODELS and LETTER_TEMPLATE pass formal register checks, while missing salutations or late Bonjour still fail", () => {
+  for (const m of ESSAY_MODELS) {
+    const task = ESSAY_TASKS.find((t) => t.id === m.taskId)!;
+    if (FORMAL_GENRES.includes(task.genre)) {
+      assert.equal(hasFormalRegisterViolation(m.text), false, `${m.taskId} should pass formal register`);
+    }
+    assert.deepEqual(detectB1ProfileFallback(m.text, []), {}, `${m.taskId} should not trigger B1 fallback`);
+  }
+
+  assert.equal(hasFormalRegisterViolation(LETTER_TEMPLATE.map((r) => r.fr).join("\n")), false);
+  const templateLetter = [
+    "Camille Martin",
+    "12 rue de la République, 69002 Lyon",
+    "À l'attention de la mairie de Lyon",
+    "Lyon, le 15 mai 2026",
+    "Objet : Réclamation concernant les horaires d'ouverture",
+    "",
+    "Madame, Monsieur,",
+    "",
+    new Array(240).fill("argument").join(" ") + ".",
+    "",
+    "Je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.",
+    "Camille Martin",
+    "P.J. : copie de la pétition signée",
+  ].join("\n");
+  assert.equal(hasFormalRegisterViolation(templateLetter), false);
+
+  assert.equal(
+    hasFormalRegisterViolation("Objet : Réclamation\nJe vous écris pour protester.\nJe vous prie d'agréer, Madame, Monsieur, mes salutations distinguées."),
+    true,
+  );
+  assert.equal(
+    hasFormalRegisterViolation("Objet : Réclamation\n\nBonjour Monsieur,\nJe vous prie d'agréer, Madame, Monsieur, mes salutations distinguées."),
+    true,
+  );
+});
+
+test("G1: solid 284w B2 essay avoids B1 fallback false positive while H1-B1 and E1-B1 still trigger caps", () => {
+  const solidB2Essay = [
+    "De nos jours, la question du télétravail suscite de vifs débats dans notre société.",
+    "Selon moi, cette évolution présente à la fois des avancées notables et des défis humains.",
+    "D'abord, la suppression des trajets quotidiens réduit considérablement la fatigue.",
+    "Ensuite, les salariés bénéficient d'une autonomie appréciable pour organiser leurs tâches.",
+    "Cependant, il est difficile d'ignorer les risques d'isolement pour les gens qui vivent seuls.",
+    "Certes, beaucoup d'entreprises proposent des outils collaboratifs utiles, mais quelque chose manque parfois dans les échanges spontanés.",
+    "Beaucoup de responsables estiment d'ailleurs que les gens ont besoin de contacts directs.",
+    "Mais cette contrainte peut être encadrée grâce au modèle hybride.",
+    "En définitive, il est utile de trouver un compromis équilibré. " + new Array(170).fill("réflexion").join(" ") + ".",
+  ].join("\n\n");
+  assert.ok(countWords(solidB2Essay) >= 280);
+  assert.deepEqual(detectB1ProfileFallback(solidB2Essay, []), {});
+  const cappedSolid = applyEssayGridCaps(
+    sanitizeEssayFeedback({ scores: { task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 } }, new Set()),
+    { genre: "essai", text: solidB2Essay, minWords: 250, level: "B2" },
+  );
+  assert.equal(totalScore(cappedSolid), 15);
+
+  const e1B1 = `Bonjour Monsieur,\n\nJ'ai lu votre article sur le journal à propos de le projet de la mairie pour interdire les voitures dans le centre-ville. Je suis très d'accord avec cette idée et je veux donner mon avis.\n\nD'abord, il y a beaucoup des voitures dans le centre-ville aujourd'hui. Ça fait beaucoup de pollution et du bruit. Quand je vais faire des courses le samedi, c'est très difficile pour marcher parce que les rues sont pleines de voitures. En plus, les enfants et les personnes âgés sont en danger quand ils traversent la rue. Si on interdit les voitures, l'air va être plus propre et tout le monde va être plus calme.\n\nEnsuite, les gens peuvent prendre le bus ou le métro pour aller au centre-ville. C'est plus écologique et pas trop cher. Par exemple, dans ma ville en Chine, il y a beaucoup de métros et c'est très pratique pour aller au travail chaque jour. Il faut que la mairie fait plus de bus pour aider les habitants.\n\nMais je sais que quelques magasins ont peur parce qu'ils pensent que les clients ne vont pas venir sans voiture. C'est un grande problème pour eux. Mais moi je pense que si la rue est plus jolie et sans voitures, beaucoup de gens vont venir se promener et acheter des choses dans les petits magasins.\n\nPour finir, je pense que interdire les voitures est une très bonne décision pour notre ville et pour notre santé. J'espère que la mairie va commencer ce projet bientôt.\n\nMerci beaucoup,\nUn habitant`;
+  const h1B1 = `Aujourd'hui, dans beaucoup des lycées, les professeurs veulent utiliser des tablettes numériques à la place de les livres en papier. Beaucoup de parents et de jeunes parlent de ce sujet sur internet. Selon moi, cette idée a des avantages, mais je pense qu'il ne faut pas supprimer tous les livres en papier.\n\nD'abord, les sacs des lycéens sont très lourds aujourd'hui. Quand mon petit frère va au lycée le matin, il doit porter cinq ou six gros livres dans son sac et ça fait mal au dos tous les jours. Si on utilise une tablette, le sac est très léger et plus pratique pour marcher ou prendre le bus. En plus, sur la tablette, les professeurs peuvent changer les informations vite quand il y a des nouvelles choses dans le monde. C'est très utile pour la géographie ou pour les cours de langue.\n\nEnsuite, il y a aussi beaucoup de problèmes avec les tablettes. Premièrement, regarder un écran pendant toute la journée est très mauvais pour les yeux des jeunes. Déjà, ils regardent beaucoup leur téléphone à la maison le soir. Deuxièmement, pendant le cours, certains élèves ne vont pas écouter le professeur parce qu'ils veulent jouer à des jeux ou parler avec ses amis sur internet. Aussi, une tablette coûte très cher, et si elle tombe par terre, c'est cassé.\n\nPour finir, à mon avis je pense qu'il faut que les écoles gardent les deux systèmes. On peut utiliser les tablettes pour les exercices, mais pour lire les textes longs, les livres en papier sont plus bon et plus calmes pour apprendre.`;
+
+  const e1Capped = applyEssayGridCaps(
+    sanitizeEssayFeedback(
+      {
+        scores: { task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 },
+        corrections: [
+          { wrong: "sur le journal", right: "dans le journal", type: "preposition", why: "介词" },
+          { wrong: "de le projet", right: "du projet", type: "article", why: "缩合冠词" },
+          { wrong: "Il faut que la mairie fait", right: "Il faut que la mairie fasse", type: "conjugation", why: "虚拟式" },
+        ],
+      },
+      new Set(),
+    ),
+    { genre: "courrier", text: e1B1, minWords: 250, level: "B2" },
+  );
+  assert.equal(e1Capped.flags?.registerViolation, true);
+  assert.equal(e1Capped.flags?.hasSystematicB1Errors, true);
+  assert.equal(e1Capped.flags?.repetitiveBasicLexis, true);
+  assert.equal(e1Capped.flags?.mechanicalB1Structure, true);
+  assert.ok(totalScore(e1Capped) <= 9);
+
+  const h1Capped = applyEssayGridCaps(
+    sanitizeEssayFeedback(
+      {
+        scores: { task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 },
+        corrections: [
+          { wrong: "beaucoup des lycées", right: "beaucoup de lycées", type: "article", why: "数量副词后用 de" },
+          { wrong: "à la place de les livres", right: "à la place des livres", type: "article", why: "缩合冠词" },
+          { wrong: "sont plus bon", right: "sont meilleurs", type: "word-choice", why: "比较级" },
+        ],
+      },
+      new Set(),
+    ),
+    { genre: "essai", text: h1B1, minWords: 250, level: "B2" },
+  );
+  assert.equal(h1Capped.flags?.hasSystematicB1Errors, true);
+  assert.equal(h1Capped.flags?.repetitiveBasicLexis, true);
+  assert.equal(h1Capped.flags?.mechanicalB1Structure, true);
+  assert.ok(totalScore(h1Capped) <= 11);
 });

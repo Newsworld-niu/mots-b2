@@ -732,6 +732,8 @@ const stripQuotedText = (text: string): string => text.replace(/«[^»]*»|"[^"]
 const hasInformalPronoun = (unquoted: string): boolean =>
   /(?:^|[.!?;:\n]\s*|\b(?:si|quand|lorsque|que|où|comme|mais|et|donc|car|or|puisque|parce\s+que)\s+)tu\b|\btoi\b/i.test(unquoted);
 
+const CLOSING_FORMULA_LINE = /\b(?:je\s+vous\s+prie\s+(?:d'agréer|de\s+croire)|veuillez\s+(?:agréer|recevoir))\b[^\n]*/gi;
+
 /**
  * Deterministic formal-register check for FORMAL_GENRES (lettre, motivation, courrier):
  * flags informal `tu`/`toi` outside quotes, casual openings (`Bonjour`/`Salut`), or missing formal salutation/closing.
@@ -739,16 +741,14 @@ const hasInformalPronoun = (unquoted: string): boolean =>
 export function hasFormalRegisterViolation(text: string): boolean {
   const unquoted = stripQuotedText(text);
   if (hasInformalPronoun(unquoted)) return true;
-  const lines = text
-    .split(/\n+/)
-    .map((l) => l.trim())
-    .filter(Boolean);
-  if (!lines.length) return true;
-  const head = lines.slice(0, 2).join(" ").slice(0, 220);
-  const tail = lines.slice(-2).join(" ").slice(-280);
-  if (/^(?:bonjour|salut|coucou|hello)\b/i.test(head)) return true;
-  const hasSalutation = /\b(?:madame|monsieur|mesdames|messieurs|mme|rédact(?:eur|rice)|direct(?:eur|rice)|maire|rédaction|service)\b/i.test(head);
-  const hasClosing = /\b(?:agréer|salutations|sentiments|considération|respectueu\w*|distingué\w*|dévoué\w*|hommages)\b/i.test(tail);
+  const trimmed = unquoted.trim();
+  if (!trimmed) return true;
+  const head = trimmed.slice(0, 600);
+  const tail = trimmed.slice(-500);
+  if (/(?:^|\n)\s*(?:bonjour|salut|coucou|hello)\b/i.test(head)) return true;
+  const headWithoutClosing = head.replace(CLOSING_FORMULA_LINE, " ");
+  const hasSalutation = /\b(?:madame|monsieur|mesdames|messieurs|mme|rédact(?:eur|rice)|direct(?:eur|rice)|maire|rédaction|service)\b/i.test(headWithoutClosing);
+  const hasClosing = /(?:\bagréer\b|\bsalutations\b|\b(?:sentiments|considération|hommages)\s+(?:distingué\w*|respectueu\w*|dévoué\w*|meilleur\w*)|\b(?:distingué\w*|respectueu\w*|dévoué\w*)\s+(?:salutations|sentiments|considération|hommages)\b|\b(?:expression|assurance)\s+de\s+(?:ma|mes)\s+(?:considération|sentiments|hommages)\b|\brespectueusement\b)/i.test(tail);
   return !hasSalutation || !hasClosing;
 }
 
@@ -800,19 +800,44 @@ export function detectB1ProfileFallback(
   const beaucoupHits = (text.match(/\bbeaucoup\b/gi) ?? []).length;
   const gensHits = (text.match(/\bles\s+gens\b/gi) ?? []).length;
   const chosesHits = (text.match(/\b(?:des?|les)\s+choses?\b|\bquelque\s+chose\b/gi) ?? []).length;
-  const spokenHits = (text.match(/\b(?:ça|moi\s+je|pour\s+moi|selon\s+moi)\b/gi) ?? []).length;
-  const simpleAdjHits = (text.match(/\b(?:c'est|est|sont)\s+(?:très\s+)?(?:bon|bonne|bons|bonnes|bien|mauvais|mauvaise|joli|jolie|facile|difficile|utile|intéressant)\b/gi) ?? []).length;
+  const spokenHits = (text.match(/\b(?:ça|moi\s+je)\b/gi) ?? []).length;
+  const simpleAdjHits = [...text.matchAll(/\b(?:c'est|est|sont)\s+(?:très\s+)?(?:bon|bonne|bons|bonnes|bien|mauvais|mauvaise|joli|jolie|facile|difficile|utile|intéressant)\b/gi)]
+    .filter((m) => !/\bil\s+$/i.test(text.slice(Math.max(0, (m.index ?? 0) - 6), m.index ?? 0)))
+    .length;
   const buckets = [tresHits >= 2, beaucoupHits >= 2, gensHits >= 1, chosesHits >= 1, spokenHits >= 1, simpleAdjHits >= 2].filter(Boolean).length;
   const totalBasicLex = tresHits + beaucoupHits + gensHits + chosesHits + spokenHits + simpleAdjHits;
   const hasLexicalCalque =
-    corrections.some((c) => /\bplus\s+bon(?:ne|s|nes)?\b|\bplus\s+bien\b|\btrès\s+d'accord\b|\bsur\s+le\s+journal\b/i.test(c.wrong)) ||
+    corrections.some((c) => /\b(?:plus|moins)\s+bon(?:ne|s|nes)?\b|\bplus\s+bien\b|\btrès\s+d'accord\b|\bsur\s+le\s+journal\b/i.test(c.wrong)) ||
     /\b(?:est|sont|soit|être|pas|encore|bien)\s+plus\s+bon(?:ne|s|nes)?\b/i.test(text);
 
-  const repetitiveBasicLexis = tresHits >= 4 || (buckets >= 3 && totalBasicLex >= 6) || (hasSystematicB1Errors && (hasLexicalCalque || totalBasicLex >= 3));
+  const repetitiveBasicLexis =
+    tresHits >= 5 ||
+    (tresHits >= 4 && totalBasicLex >= 6) ||
+    (buckets >= 4 && totalBasicLex >= 9) ||
+    (hasSystematicB1Errors && (hasLexicalCalque || totalBasicLex >= 3));
 
   const mechCount = (text.match(/(?:^|[.!?\n]\s*)(?:D'abord|Ensuite|Et\s+puis|Mais|Pour\s+finir)\b/g) ?? []).length;
-  const hasB2Connectors = /\b(?:En premier lieu|Par ailleurs|De surcroît|Toutefois|Néanmoins|En revanche|Force est de constater|Bien que)\b/i.test(text);
-  const mechanicalB1Structure = mechCount >= 3 && !hasB2Connectors;
+  const b2ConnectorCount = [
+    /\bEn premier lieu\b/i,
+    /\bPar ailleurs\b/i,
+    /\bDe surcroît\b/i,
+    /\bToutefois\b/i,
+    /\bNéanmoins\b/i,
+    /\bEn revanche\b/i,
+    /\bForce est de constater\b/i,
+    /\bBien que\b/i,
+    /\bCertes\b/i,
+    /\bCependant\b/i,
+    /\bEn définitive\b/i,
+    /\bD'une part\b/i,
+    /\bD'autre part\b/i,
+    /\bPour autant\b/i,
+    /\bEncore faut-il\b/i,
+    /\bC'est pourquoi\b/i,
+    /\bEn somme\b/i,
+    /\bEn outre\b/i,
+  ].filter((re) => re.test(text)).length;
+  const mechanicalB1Structure = (mechCount >= 3 && b2ConnectorCount === 0) || (mechCount >= 4 && b2ConnectorCount < 2);
 
   return {
     ...(hasSystematicB1Errors ? { hasSystematicB1Errors: true } : {}),
