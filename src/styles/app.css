@@ -517,6 +517,11 @@ ul.chips {
   overflow-x: auto;
   scrollbar-width: none;
 }
+.segmented:not(.segmented-icons) {
+  flex-wrap: wrap;
+  border-radius: 18px;
+  overflow-x: visible;
+}
 .segmented button {
   height: 32px;
   padding: 0 14px;
@@ -526,6 +531,17 @@ ul.chips {
   color: var(--ink-3);
   white-space: nowrap;
   transition: all 0.22s var(--ease);
+}
+.segmented:not(.segmented-icons) button {
+  height: auto;
+  min-height: 32px;
+  padding: 6px 14px;
+  border-radius: 14px;
+  white-space: normal;
+  line-height: 1.35;
+  text-align: center;
+  min-width: 0;
+  max-width: 100%;
 }
 .segmented button:hover {
   color: var(--ink);
@@ -546,8 +562,8 @@ ul.chips {
   display: flex;
   width: 100%;
 }
-.segmented-wide button {
-  flex: 1;
+.segmented-wide:not(.segmented-icons) button {
+  flex: 1 1 auto;
 }
 .practice-sources {
   flex-wrap: wrap;
@@ -556,20 +572,10 @@ ul.chips {
   flex: 1 0 auto;
 }
 @media (max-width: 640px) {
-  .segmented:not(.segmented-icons) {
-    flex-wrap: wrap;
-    border-radius: 16px;
-    overflow-x: visible;
-  }
   .segmented:not(.segmented-icons) button {
-    height: auto;
     min-height: 36px;
     padding: 6px 12px;
     border-radius: 12px;
-    white-space: normal;
-    line-height: 1.35;
-    text-align: center;
-    min-width: 0;
   }
   .segmented-wide:not(.segmented-icons) button {
     flex: 1 1 140px;
