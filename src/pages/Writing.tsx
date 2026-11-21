@@ -5,7 +5,7 @@ import { gradeSentence } from "../ai/tasks";
 import type { Entry } from "../atlas/types";
 import { stopAudio } from "../lib/audio";
 import { cue } from "../lib/sound";
-import { diffWords, ERROR_LABEL, sameSentence, translatable, VERDICT_LABEL, type Feedback, type Verdict } from "../lib/writing";
+import { diffWords, ERROR_LABEL, sameSentence, translatable, VERDICT_LABEL, verdictCue, type Feedback, type Verdict } from "../lib/writing";
 import { useStore } from "../store/store";
 import { AccentKeys } from "../ui/AccentKeys";
 import { Speak } from "../ui/Speak";
@@ -85,7 +85,7 @@ export function WritingRound({ mode, entries, onExit, onAgain }: { mode: Writing
   }, []);
 
   const show = (fb: Feedback, self = false, zh?: string) => {
-    if (settings.sfx) void cue(fb.verdict === "wrong" ? "wrong" : "correct");
+    if (settings.sfx) void cue(verdictCue(fb.verdict));
     setResults((xs) => [...xs, { entry: e, answer: value.trim(), fb, self, ...(zh ? { zh } : {}) }]);
     setPhase("shown");
   };
@@ -99,7 +99,7 @@ export function WritingRound({ mode, entries, onExit, onAgain }: { mode: Writing
     ctrl.current = c;
     setPhase("grading");
     try {
-      const fb = await gradeSentence({ task: mode, word: e.w, pos: sense?.pos ?? "", zh: sense?.zh ?? "", sourceZh: ex?.zh, reference, answer }, c.signal);
+      const fb = await gradeSentence({ task: mode, word: e.w, pos: sense?.pos ?? "", zh: sense?.zh ?? "", ...(e.cefr ? { cefr: e.cefr } : {}), sourceZh: ex?.zh, reference, answer }, c.signal);
       if (!c.signal.aborted) show(fb);
     } catch (err) {
       if (c.signal.aborted) return;

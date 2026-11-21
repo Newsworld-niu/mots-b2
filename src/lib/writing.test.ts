@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { diffWords, sameSentence, sanitizeFeedback, translatable } from "./writing.ts";
+import { diffWords, sameSentence, sanitizeFeedback, translatable, verdictCue } from "./writing.ts";
 
 test("the same sentence, give or take capitals, final punctuation and French spacing", () => {
   assert.ok(sameSentence("il habite à Paris", "Il habite à Paris."));
@@ -42,4 +42,29 @@ test("a translation item needs a Chinese translation and a sentence short enough
   const long = "x".repeat(200);
   assert.equal(translatable([{ en: long, zh: "长" }, { en: "Bonjour.", zh: "" }, { en: "Merci beaucoup.", zh: "非常感谢。" }])?.en, "Merci beaucoup.");
   assert.equal(translatable([{ en: "Bonjour.", zh: " " }]), undefined);
+});
+
+test("PE-9 sanitizeFeedback keeps verdict consistent with error counts and verdictCue distinguishes almost", () => {
+  const many = sanitizeFeedback(
+    {
+      verdict: "almost",
+      corrected: "Il a pris une décision.",
+      errors: [
+        { wrong: "à", right: "a", type: "conjugation", why: "动词avoir" },
+        { wrong: "prendre", right: "pris", type: "tense", why: "复合过去时" },
+        { wrong: "un", right: "une", type: "gender", why: "阴性名词" },
+      ],
+      comment: "多处语法错误",
+      natural: "",
+    },
+    "Il à prendre un décision",
+  );
+  assert.equal(many.verdict, "wrong");
+
+  const emptyAlmost = sanitizeFeedback({ verdict: "almost", corrected: "C'est une bonne idée.", errors: [], comment: "", natural: "" }, "C'est une bonne idée");
+  assert.equal(emptyAlmost.verdict, "correct");
+
+  assert.equal(verdictCue("correct"), "correct");
+  assert.equal(verdictCue("almost"), "tap");
+  assert.equal(verdictCue("wrong"), "wrong");
 });

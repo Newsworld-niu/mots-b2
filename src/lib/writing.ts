@@ -71,10 +71,17 @@ export function sanitizeFeedback(raw: unknown, answer: string): Feedback {
     .slice(0, 8);
   const corrected = text(r.corrected) || answer.trim();
   let verdict: Verdict = r.verdict === "correct" || r.verdict === "almost" || r.verdict === "wrong" ? r.verdict : "wrong";
-  // "correct" with corrections is not correct
+  // "correct" with corrections is not correct; too many slips cannot stay "almost"; zero diffs shouldn't stay "almost"
   if (verdict === "correct" && (errors.length > 0 || !sameSentence(corrected, answer))) verdict = "almost";
+  if (verdict === "almost" && errors.length >= 3) verdict = "wrong";
+  else if (verdict === "almost" && errors.length === 0 && sameSentence(corrected, answer)) verdict = "correct";
   const natural = text(r.natural);
   return { verdict, corrected, errors, comment: text(r.comment), natural: natural && !sameSentence(natural, corrected) ? natural : "" };
+}
+
+/** Sound cue for sentence grading verdicts (keeps "almost" distinct from full "correct"). */
+export function verdictCue(verdict: Verdict): "correct" | "tap" | "wrong" {
+  return verdict === "wrong" ? "wrong" : verdict === "almost" ? "tap" : "correct";
 }
 
 export interface DiffToken {
