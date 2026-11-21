@@ -9,4 +9,5 @@ export const DATASET_ID = "francais-b2-lexicon";
 
 /** Optional cloud sync server base URL (e.g. https://...azurewebsites.net). */
 export const SYNC_API_URL: string =
-  (typeof import.meta !== "undefined" && import.meta.env ? (import.meta.env.VITE_SYNC_URL as string | undefined) : undefined) ?? "";
+  (typeof import.meta !== "undefined" && import.meta.env ? (import.meta.env.VITE_SYNC_URL as string | undefined) : undefined) ??
+  "https://mots-b2-sync-e12d4e.azurewebsites.net";

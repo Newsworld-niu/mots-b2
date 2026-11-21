@@ -1,0 +1,10 @@
+.git*
+.vscode
+local.settings.json
+local.settings.json.example
+.azurite
+.admin-key
+.deploy.env
+node_modules
+src/**/*.test.ts
+dist/**/*.test.js
