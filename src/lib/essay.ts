@@ -901,6 +901,19 @@ export function sanitizeModel(m: Record<string, unknown>): ModelEssay {
   return { text: str(m.text, MAX_ESSAY_LENGTH + 1000), patterns };
 }
 
+/** Whether a generated model answer fell below the task minimum word floor and warrants a retry. */
+export function needsModelLengthRetry(model: ModelEssay, minWords: number): boolean {
+  return !model.text || countWords(model.text) < minWords;
+}
+
+/** Pick whichever model candidate meets the minimum word target (or has more words). */
+export function pickBetterModel(first: ModelEssay, retry: ModelEssay, minWords: number): ModelEssay {
+  const w1 = countWords(first.text);
+  const w2 = countWords(retry.text);
+  if (w2 >= minWords && w1 < minWords) return retry;
+  return w2 > w1 ? retry : first;
+}
+
 /** Kept mistakes read back from storage or a backup. */
 export function sanitizeNotes(v: unknown): SavedNote[] | undefined {
   if (!Array.isArray(v)) return undefined;

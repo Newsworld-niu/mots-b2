@@ -128,8 +128,9 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
   const [modeling, setModeling] = useState(false);
   // 提纲结构切换（本题提纲 / 辩证 / 分析）
   const [planKind, setPlanKind] = useState<PlanKind>("task");
-  // 模考模式（开启后自动 60 分钟倒计时，到时自动锁卷）
+  // 模考模式（开启后自动 60 分钟倒计时，到时自动锁卷）与考场无辅助模式（隐藏中文解析、提纲、句型和衔接语）
   const [examMode, setExamMode] = useState(false);
+  const [noAid, setNoAid] = useState(false);
   const input = useRef<HTMLTextAreaElement>(null);
   const ctrl = useRef<AbortController | null>(null);
   const timer = useTimer();
@@ -725,7 +726,7 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
           {GENRE_LABEL[task.genre]} · {task.level} · 至少 {min} 词（推荐 {min}–{max}）
         </p>
         <h2 className="essay-title">{task.title}</h2>
-        <p className="essay-situation">{task.situation}</p>
+        {!noAid && <p className="essay-situation">{task.situation}</p>}
         {task.doc && (
           <blockquote className="essay-doc" lang="fr">
             {task.doc}
@@ -734,109 +735,117 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
         <p className="essay-consigne" lang="fr">
           {task.consigne}
         </p>
-        <ul className="essay-points">
-          {task.points.map((p, k) => (
-            <li key={k}>{p}</li>
-          ))}
-        </ul>
-
-        <div className="essay-help">
-          <details open>
-            <summary>提纲</summary>
-            <div className="segmented" role="group" aria-label="提纲模式">
-              {(
-                [
-                  ["task", "本题提纲"],
-                  ["dialectique", ESSAY_PLANS.dialectique.label],
-                  ["analytique", ESSAY_PLANS.analytique.label],
-                ] as const
-              ).map(([k, label]) => (
-                <button key={k} type="button" className={planKind === k ? "is-on" : ""} aria-pressed={planKind === k} onClick={() => setPlanKind(k)}>
-                  {label}
-                </button>
-              ))}
-            </div>
-            {planKind !== "task" && <p className="muted small">{ESSAY_PLANS[planKind].desc}</p>}
-            <ol className="essay-plan">
-              {(planKind === "task" ? task.plan : ESSAY_PLANS[planKind].steps).map((p, k) => (
-                <li key={k}>
-                  <b>{p.zh}</b>
-                  <span lang="fr">{p.fr}</span>
-                </li>
-              ))}
-            </ol>
-          </details>
-          <details>
-            <summary>这个题目用得上的句子</summary>
-            <ul className="essay-phrases">
-              {task.phrases.map(([fr, zh], k) => (
-                <li key={k}>
-                  <span lang="fr">{fr}</span>
-                  <small>{zh}</small>
-                </li>
-              ))}
-            </ul>
-          </details>
-          {topicOf(task.topic) && (
-            <details>
-              <summary>话题词汇：{topicOf(task.topic)!.zh}</summary>
-              <ul className="essay-phrases">
-                {topicOf(task.topic)!.vocab.map(([fr, zh], k) => (
-                  <li key={k}>
-                    <span lang="fr">{fr}</span>
-                    <small>{zh}</small>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-          <details>
-            <summary>衔接语</summary>
-            <dl className="essay-links">
-              {CONNECTORS.map((g) => (
-                <div key={g.zh}>
-                  <dt>{g.zh}</dt>
-                  <dd lang="fr">{g.fr.join(" · ")}</dd>
-                </div>
-              ))}
-            </dl>
-          </details>
-          {FORMAL_GENRES.includes(task.genre) && (
-            <>
-              <details>
-                <summary>正式信函信头与格式模板</summary>
-                <dl className="essay-links">
-                  {LETTER_TEMPLATE.map((row) => (
-                    <div key={row.part}>
-                      <dt>{row.part}</dt>
-                      <dd lang="fr">
-                        {row.fr}
-                        {row.tip && <small className="muted">（{row.tip}）</small>}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </details>
-              <details>
-                <summary>正式信件的套语</summary>
-                <dl className="essay-links">
-                  {LETTER_FORMULAS.map((g) => (
-                    <div key={g.zh}>
-                      <dt>{g.zh}</dt>
-                      <dd lang="fr">{g.fr.join(" / ")}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </details>
-            </>
-          )}
-        </div>
-
         <div className="writing-actions">
           <label className="essay-check-doc">
             <input type="checkbox" checked={examMode} disabled={grading || locked} onChange={(ev) => toggleExamMode(ev.target.checked)} /> 模考模式（60 分钟自动锁卷）
           </label>
+          <label className="essay-check-doc">
+            <input type="checkbox" checked={noAid} disabled={grading} onChange={(ev) => setNoAid(ev.target.checked)} /> 考场无辅助模式（仅看原题，隐藏中文与写作支架）
+          </label>
         </div>
+        {noAid ? (
+          <p className="muted small">已开启考场无辅助模式：已隐藏中文情景说明、要点提示、提纲、句型与信函套语，模拟真实考场环境。</p>
+        ) : (
+          <>
+            <ul className="essay-points">
+              {task.points.map((p, k) => (
+                <li key={k}>{p}</li>
+              ))}
+            </ul>
+
+            <div className="essay-help">
+              <details open>
+                <summary>提纲</summary>
+                <div className="segmented" role="group" aria-label="提纲模式">
+                  {(
+                    [
+                      ["task", "本题提纲"],
+                      ["dialectique", ESSAY_PLANS.dialectique.label],
+                      ["analytique", ESSAY_PLANS.analytique.label],
+                    ] as const
+                  ).map(([k, label]) => (
+                    <button key={k} type="button" className={planKind === k ? "is-on" : ""} aria-pressed={planKind === k} onClick={() => setPlanKind(k)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {planKind !== "task" && <p className="muted small">{ESSAY_PLANS[planKind].desc}</p>}
+                <ol className="essay-plan">
+                  {(planKind === "task" ? task.plan : ESSAY_PLANS[planKind].steps).map((p, k) => (
+                    <li key={k}>
+                      <b>{p.zh}</b>
+                      <span lang="fr">{p.fr}</span>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+              <details>
+                <summary>这个题目用得上的句子</summary>
+                <ul className="essay-phrases">
+                  {task.phrases.map(([fr, zh], k) => (
+                    <li key={k}>
+                      <span lang="fr">{fr}</span>
+                      <small>{zh}</small>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+              {topicOf(task.topic) && (
+                <details>
+                  <summary>话题词汇：{topicOf(task.topic)!.zh}</summary>
+                  <ul className="essay-phrases">
+                    {topicOf(task.topic)!.vocab.map(([fr, zh], k) => (
+                      <li key={k}>
+                        <span lang="fr">{fr}</span>
+                        <small>{zh}</small>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+              <details>
+                <summary>衔接语</summary>
+                <dl className="essay-links">
+                  {CONNECTORS.map((g) => (
+                    <div key={g.zh}>
+                      <dt>{g.zh}</dt>
+                      <dd lang="fr">{g.fr.join(" · ")}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </details>
+              {FORMAL_GENRES.includes(task.genre) && (
+                <>
+                  <details>
+                    <summary>正式信函信头与格式模板</summary>
+                    <dl className="essay-links">
+                      {LETTER_TEMPLATE.map((row) => (
+                        <div key={row.part}>
+                          <dt>{row.part}</dt>
+                          <dd lang="fr">
+                            {row.fr}
+                            {row.tip && <small className="muted">（{row.tip}）</small>}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </details>
+                  <details>
+                    <summary>正式信件的套语</summary>
+                    <dl className="essay-links">
+                      {LETTER_FORMULAS.map((g) => (
+                        <div key={g.zh}>
+                          <dt>{g.zh}</dt>
+                          <dd lang="fr">{g.fr.join(" / ")}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </details>
+                </>
+              )}
+            </div>
+          </>
+        )}
         <textarea
           ref={input}
           className="writing-input essay-input"

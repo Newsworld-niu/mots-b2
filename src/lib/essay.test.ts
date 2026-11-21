@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_PLANS, essayLevelOf, ESSAY_TASKS, GENRE_LABEL, genresFor, hasFormalRegisterViolation, LETTER_FORMULAS, LETTER_TEMPLATE, levelLabel, maxScore, pickAiTaskOptions, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_PLANS, essayLevelOf, ESSAY_TASKS, GENRE_LABEL, genresFor, hasFormalRegisterViolation, LETTER_FORMULAS, LETTER_TEMPLATE, levelLabel, maxScore, needsModelLengthRetry, pickAiTaskOptions, pickBetterModel, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
 
 test("countWords counts elided and hyphenated words once", () => {
   assert.equal(countWords("L'ami de Paul est arrivé."), 5);
@@ -322,4 +322,13 @@ test("PE-6 ESSAY_PLANS provide dialectique/analytique structures, LETTER_TEMPLAT
   assert.ok(closings.fr.every((f) => !/cordialement/i.test(f)));
   const warn = LETTER_FORMULAS.find((g) => g.zh.includes("禁忌"));
   assert.ok(warn && warn.fr.some((f) => f.includes("Cordialement")));
+});
+
+test("PE-10 needsModelLengthRetry and pickBetterModel enforce B2 minimum word floor", () => {
+  const shortModel = { text: Array.from({ length: 180 }, (_, i) => `mot${i}`).join(" "), patterns: [] };
+  const fullModel = { text: Array.from({ length: 270 }, (_, i) => `mot${i}`).join(" "), patterns: [{ fr: "Il convient de", zh: "应当" }] };
+  assert.equal(needsModelLengthRetry(shortModel, 250), true);
+  assert.equal(needsModelLengthRetry(fullModel, 250), false);
+  assert.equal(pickBetterModel(shortModel, fullModel, 250), fullModel);
+  assert.equal(pickBetterModel(fullModel, shortModel, 250), fullModel);
 });
