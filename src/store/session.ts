@@ -1,10 +1,11 @@
+import { coreSet } from "../lib/core-words";
 import { familyWords, familiesFor } from "../lib/families";
 import { matchesStudyPos } from "../lib/pos";
 import type { Atlas, WordRef } from "../atlas/types";
 import { MEDIA } from "../atlas/types";
 import { hashSeed, normalize, shuffle } from "../lib/text";
 import { isMastered, review, Rating, type Grade } from "./srs";
-import { bumpDay, dayKey, store, type ActiveSession, type Progress, type QuizKind, type Settings, type Step } from "./store";
+import { bumpDay, CORE_DECK, dayKey, store, type ActiveSession, type Progress, type QuizKind, type Settings, type Step } from "./store";
 import { deckIndex, inRange, senseFor, studyRange, type DeckIndex, type StudyRange } from "./decks";
 
 export function dueIds(p: Progress, now = Date.now()) {
@@ -36,10 +37,12 @@ const NOUN_SLOTS = new Set([1, 3]);
 export function nextNew(atlas: Atlas, p: Progress, settings: Settings, count: number, ctx = rangeOf(atlas, p, settings)) {
   if (count <= 0) return [];
   const { idx, range } = ctx;
-  const family = familyWords(settings.studyFamilies, settings.studyFamilies?.length ? familiesFor(atlas,p) : []);
+  const family = familyWords(settings.studyFamilies, settings.studyFamilies?.length ? familiesFor(atlas, p) : []);
   const out: string[] = [];
   const taken = new Set<string>();
-  for (const d of range.decks)
+  const userDecks = range.decks.filter((d) => d.id !== CORE_DECK);
+  const coreDeck = range.decks.find((d) => d.id === CORE_DECK);
+  for (const d of userDecks)
     for (const id of d.words) {
       if (out.length >= count) return out;
       const w = atlas.byId.get(id);
@@ -47,30 +50,39 @@ export function nextNew(atlas: Atlas, p: Progress, settings: Settings, count: nu
       taken.add(id);
       out.push(id);
     }
-  if (!range.core) return out;
-  const want = count - out.length;
-  const topic = settings.focusTopic ? atlas.topics.findIndex((t) => t[0] === settings.focusTopic) : -1;
-  // nouns and other words are gathered separately, up to `want` each: the path's first words are nearly all function words
-  const nouns: WordRef[] = [];
-  const rest: WordRef[] = [];
-  const pass = (from: number) => {
-    for (const w of atlas.words) {
-      if (nouns.length >= want && rest.length >= want) return;
-      if ((family && !family.has(w.id)) || !matchesStudyPos(w.pos, settings.studyPos) || !isTaughtReady(w) || w.cefr < from || p.cards[w.id] || taken.has(w.id) || idx.hidden.has(w.id)) continue;
+  if (!coreDeck && !range.core) return out;
+  const topic = settings.focusTopic ? (atlas.topics?.findIndex((t) => t[0] === settings.focusTopic) ?? -1) : -1;
+  // After migrateCoreDeck, CORE_DECK lives in range.decks (with coreMigrated=true, range.core=false).
+  // Use its actual word list so removals/additions survive, while restoring level, topic and noun interleaving.
+  const coreWords: WordRef[] = coreDeck
+    ? coreDeck.words.map((id) => atlas.byId.get(id)).filter((w): w is WordRef => !!w)
+    : atlas.words.filter((w) => !idx.hidden.has(w.id));
+  const core = settings.startLevel >= 2 ? coreSet(atlas) : null;
+  const takeTier = (match: (w: WordRef) => boolean) => {
+    const want = count - out.length;
+    if (want <= 0) return;
+    // nouns and other words are gathered separately, up to `want` each: the path's first words are nearly all function words
+    const nouns: WordRef[] = [];
+    const rest: WordRef[] = [];
+    for (const w of coreWords) {
+      if (nouns.length >= want && rest.length >= want) break;
+      if ((family && !family.has(w.id)) || !matchesStudyPos(w.pos, settings.studyPos) || !isTaughtReady(w) || p.cards[w.id] || taken.has(w.id)) continue;
       if (topic >= 0 && w.topic !== topic) continue;
+      if (!match(w)) continue;
       const list = w.g ? nouns : rest;
       if (list.length >= want) continue;
       taken.add(w.id);
       list.push(w);
     }
+    for (let i = 0; out.length < count && (nouns.length || rest.length); i++) {
+      const preferNoun = NOUN_SLOTS.has(i % 5);
+      const w = (preferNoun ? nouns.shift() ?? rest.shift() : rest.shift() ?? nouns.shift())!;
+      out.push(w.id);
+    }
   };
-  pass(settings.startLevel);
-  if (nouns.length + rest.length < want) pass(0);
-  for (let i = 0; out.length < count && (nouns.length || rest.length); i++) {
-    const preferNoun = NOUN_SLOTS.has(i % 5);
-    const w = (preferNoun ? nouns.shift() ?? rest.shift() : rest.shift() ?? nouns.shift())!;
-    out.push(w.id);
-  }
+  if (core) takeTier((w) => w.custom || (w.cefr >= settings.startLevel && core.has(w.id)));
+  takeTier((w) => w.custom || w.cefr >= settings.startLevel);
+  if (settings.startLevel > 0) takeTier(() => true);
   return out;
 }
 

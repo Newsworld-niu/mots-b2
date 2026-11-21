@@ -206,3 +206,71 @@ test("part-of-speech study filters new words and reviews across selected decks",
   assert.deepEqual(sanitizeSettings({ studyPos: "noun" }).studyPos, ["noun"]);
   assert.equal(sanitizeSettings({ studyPos: "invalid" }).studyPos, null);
 });
+
+test("SYS-1: after migrateCoreDeck (coreMigrated: true), nextNew honours startLevel, coreSet priority, focusTopic, noun slots and user deck precedence", async () => {
+  const { CORE_DECK } = await import("./store.ts");
+  const { CORE_NAME } = await import("./decks.ts");
+  const mk = (id: string, word: string, cefr: number, topic: number, order: number, g?: "m" | "f"): WordRef => ({
+    ...ref(id, word, order, g),
+    cefr,
+    topic,
+  });
+  const words: WordRef[] = [
+    mk("a1-verb", "etre", 0, 0, 0),
+    mk("a1-noun", "chat", 0, 0, 1, "m"),
+    mk("a2-verb", "aller", 1, 0, 2),
+    mk("a2-noun", "train", 1, 1, 3, "m"),
+    mk("b1-core-v1", "agir", 2, 0, 4),
+    mk("b1-core-v2", "reduire", 2, 0, 5),
+    mk("b1-core-v3", "penser", 2, 0, 6),
+    mk("b1-core-n1", "preuve", 2, 0, 7, "f"),
+    mk("b2-core-n2", "enjeu", 3, 0, 8, "m"),
+    mk("b2-topic-core", "gaspiller", 3, 1, 2001),
+    mk("b1-noncore", "nuance", 2, 0, 2000),
+    mk("b2-noncore-n", "bilan", 3, 1, 2002, "m"),
+  ];
+  const customWord: WordRef = { id: "u-custom1", word: "fauteuil", zh: "扶手椅", ipa: "", cefr: -1, topic: -1, media: 0, order: -1, g: "m", custom: true };
+  const atlas = {
+    words,
+    custom: [customWord],
+    byId: new Map([...words, customWord].map((w) => [w.id, w])),
+    topics: [["a", "A"], ["b", "B"]],
+  } as unknown as Atlas;
+
+  const p: Progress = {
+    ...emptyProgress("t"),
+    coreMigrated: true,
+    cards: { "b1-core-v1": review(undefined, Rating.Good, Date.now()) },
+    decks: [
+      { id: CORE_DECK, name: CORE_NAME, created: 0, words: words.filter((w) => w.id !== "b1-core-v3").map((w) => w.id) },
+    ],
+  };
+
+  // B1 startLevel=2: skips A1/A2 and already-learned b1-core-v1 and removed b1-core-v3; picks coreSet B1/B2 words with noun slots [1, 3], then non-core B1/B2, then A1/A2 fallback
+  const b1 = nextNew(atlas, p, { ...settings, startLevel: 2 }, 7);
+  assert.deepEqual(b1, ["b1-core-v2", "b1-core-n1", "b2-topic-core", "b2-core-n2", "b1-noncore", "b2-noncore-n", "a1-verb"]);
+
+  // focusTopic limits to topic 1 ("b"), still preferring >= startLevel and falling back to A2 within topic 1
+  const topicOnly = nextNew(atlas, p, { ...settings, startLevel: 2, focusTopic: "b" }, 5);
+  assert.deepEqual(topicOnly, ["b2-topic-core", "b2-noncore-n", "a2-noun"]);
+
+  // User's own deck comes before CORE_DECK even if created after CORE_DECK in p.decks, and custom words inside CORE_DECK are reachable
+  const withUserDeck: Progress = {
+    ...p,
+    decks: [
+      { id: CORE_DECK, name: CORE_NAME, created: 0, words: [...p.decks![0].words, "u-custom1"] },
+      { id: "d-trip1", name: "Trip", created: 1, words: ["a2-noun"] },
+    ],
+  };
+  const mixed = nextNew(atlas, withUserDeck, { ...settings, startLevel: 2 }, 3);
+  assert.equal(mixed[0], "a2-noun");
+  assert.ok(mixed.includes("b1-core-v2") && mixed.includes("b1-core-n1"));
+  assert.ok(nextNew(atlas, withUserDeck, { ...settings, startLevel: 2 }, 20).includes("u-custom1"));
+
+  // Selecting only user's own deck ignores CORE_DECK
+  assert.deepEqual(nextNew(atlas, withUserDeck, { ...settings, startLevel: 2, studyDecks: ["d-trip1"] }, 5), ["a2-noun"]);
+
+  // Deleting CORE_DECK yields no core words
+  const deletedCore: Progress = { ...emptyProgress("t"), coreMigrated: true, decks: [] };
+  assert.deepEqual(nextNew(atlas, deletedCore, { ...settings, startLevel: 2 }, 5), []);
+});
