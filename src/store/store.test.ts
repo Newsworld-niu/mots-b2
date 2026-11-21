@@ -1,6 +1,183 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
-import { compactProgressForLocalStorage, emptyProgress, exportBackup, importBackup, needsBackupReminder, sanitizeProgress, sanitizeSettings } from "./store";
+import { afterEach, test } from "node:test";
+import {
+  compactProgressForLocalStorage,
+  emptyProgress,
+  exportBackup,
+  flush,
+  handleStorageEvent,
+  importBackup,
+  importBackupAsync,
+  needsBackupReminder,
+  resetProgress,
+  sanitizeProgress,
+  sanitizeSettings,
+  store,
+} from "./store";
+import { DRAFT_PREFIX, getHeavy, putHeavy, resetVaultConnection } from "./vault";
+
+function makeMemoryStorage() {
+  const map = new Map<string, string>();
+  return {
+    map,
+    get length() {
+      return map.size;
+    },
+    key: (i: number) => [...map.keys()][i] ?? null,
+    getItem: (k: string) => map.get(k) ?? null,
+    setItem: (k: string, v: string) => {
+      map.set(k, v);
+    },
+    removeItem: (k: string) => {
+      map.delete(k);
+    },
+    clear: () => {
+      map.clear();
+    },
+  };
+}
+
+function makeFakeMultiDbIndexedDb() {
+  const dbs = new Map<string, Map<string, Map<string, unknown>>>();
+  let failVaultWrites = false;
+  let failVaultOpens = 0;
+
+  const getStoreMap = (dbName: string, storeName: string) => {
+    let dbMap = dbs.get(dbName);
+    if (!dbMap) {
+      dbMap = new Map();
+      dbs.set(dbName, dbMap);
+    }
+    let sMap = dbMap.get(storeName);
+    if (!sMap) {
+      sMap = new Map();
+      dbMap.set(storeName, sMap);
+    }
+    return sMap;
+  };
+
+  const makeReq = <T,>(run: () => T) => {
+    const req: any = { result: undefined, error: null, onsuccess: null, onerror: null };
+    queueMicrotask(() => {
+      try {
+        req.result = run();
+        req.onsuccess?.();
+      } catch (err) {
+        req.error = err;
+        req.onerror?.();
+      }
+    });
+    return req;
+  };
+
+  const factory: any = {
+    open(dbName: string) {
+      const req: any = { result: undefined, error: null, onsuccess: null, onerror: null, onupgradeneeded: null };
+      queueMicrotask(() => {
+        if (dbName === "fb2-vault" && failVaultOpens > 0) {
+          failVaultOpens--;
+          req.error = new Error("open failed");
+          req.onerror?.();
+          return;
+        }
+        let dbMap = dbs.get(dbName);
+        if (!dbMap) {
+          dbMap = new Map();
+          dbs.set(dbName, dbMap);
+        }
+        const db: any = {
+          objectStoreNames: { contains: (n: string) => dbMap!.has(n) },
+          createObjectStore: (n: string) => getStoreMap(dbName, n),
+          close: () => {},
+          onclose: null,
+          onversionchange: null,
+          transaction(storeNames: string | string[]) {
+            const names = Array.isArray(storeNames) ? storeNames : [storeNames];
+            const tx: any = { oncomplete: null, onerror: null, onabort: null };
+            let pending = 0;
+            let failed = false;
+            const finishOne = (err?: boolean) => {
+              if (err) failed = true;
+              pending--;
+              if (pending === 0) {
+                if (failed || (dbName === "fb2-vault" && failVaultWrites)) tx.onerror?.();
+                else tx.oncomplete?.();
+              }
+            };
+            const wrap = <T,>(fn: () => T) => {
+              pending++;
+              const r = makeReq(fn);
+              const origOk = r.onsuccess;
+              const origErr = r.onerror;
+              queueMicrotask(() => {
+                void origOk;
+                void origErr;
+              });
+              const r2: any = { result: undefined, error: null, onsuccess: null, onerror: null };
+              queueMicrotask(() => {
+                try {
+                  if (dbName === "fb2-vault" && failVaultWrites) throw new Error("vault write failed");
+                  r2.result = fn();
+                  r2.onsuccess?.();
+                  finishOne(false);
+                } catch (e) {
+                  r2.error = e;
+                  r2.onerror?.();
+                  finishOne(true);
+                }
+              });
+              return r2;
+            };
+            tx.objectStore = (name: string) => {
+              if (!names.includes(name)) throw new Error(`store ${name} not in tx`);
+              const map = getStoreMap(dbName, name);
+              return {
+                get: (k: string) => wrap(() => map.get(k)),
+                getAll: () => wrap(() => [...map.values()]),
+                getAllKeys: () => wrap(() => [...map.keys()]),
+                put: (val: unknown, key?: string) =>
+                  wrap(() => {
+                    const k = key ?? (val as { id: string }).id;
+                    map.set(k, structuredClone(val));
+                    return k;
+                  }),
+                delete: (k: string) => wrap(() => map.delete(k)),
+                clear: () => wrap(() => map.clear()),
+              };
+            };
+            return tx;
+          },
+        };
+        req.result = db;
+        req.onupgradeneeded?.();
+        req.onsuccess?.();
+      });
+      return req;
+    },
+  };
+
+  return {
+    factory,
+    getStoreMap,
+    setFailVaultWrites: (v: boolean) => {
+      failVaultWrites = v;
+    },
+    setFailVaultOpens: (n: number) => {
+      failVaultOpens = n;
+    },
+  };
+}
+
+const origLocalStorage = (globalThis as Record<string, unknown>).localStorage;
+const origWindow = (globalThis as Record<string, unknown>).window;
+const origIndexedDb = (globalThis as Record<string, unknown>).indexedDB;
+
+afterEach(() => {
+  resetVaultConnection();
+  (globalThis as Record<string, unknown>).localStorage = origLocalStorage;
+  (globalThis as Record<string, unknown>).window = origWindow;
+  (globalThis as Record<string, unknown>).indexedDB = origIndexedDb;
+});
 
 const card = { due: 1, s: 2, d: 5, el: 0, sd: 1, ls: 0, reps: 1, lapses: 0, st: 2, seen: 1 };
 
@@ -84,4 +261,145 @@ test("SYS-5: compactProgress strips heavy blobs, backup reminder checks 7-day th
   assert.ok(payload.examBank?.attempts?.p1);
   const res = importBackup(JSON.stringify(payload));
   assert.equal(res.ok, true);
+});
+
+test("SYS-5: cross-tab storage event keeps in-memory heavy texts/essays and never deletes IDB vault", async () => {
+  const storage = makeMemoryStorage();
+  const idb = makeFakeMultiDbIndexedDb();
+  (globalThis as Record<string, unknown>).localStorage = storage;
+  (globalThis as Record<string, unknown>).indexedDB = idb.factory;
+  (globalThis as Record<string, unknown>).window = {
+    setTimeout: globalThis.setTimeout.bind(globalThis),
+    clearTimeout: globalThis.clearTimeout.bind(globalThis),
+    addEventListener: () => undefined,
+  };
+
+  const ds = "tab-sync-ds";
+  store.useDataset(ds);
+  resetProgress();
+  await new Promise((r) => setTimeout(r, 20));
+
+  const t1 = { id: "t-sync1", title: "Article", text: "Texte long en français.", created: 100, src: "paste" as const };
+  const e1 = { id: "e-sync1", task: "courrier-voitures", text: "Madame, Monsieur...", created: 100 };
+  store.progress((p) => ({ ...p, texts: [t1], essays: [e1] }));
+  flush();
+  await new Promise((r) => setTimeout(r, 20));
+
+  // Verify heavy data is in IDB
+  const before = await getHeavy(ds);
+  assert.equal(before?.texts?.length, 1);
+  assert.equal(before?.essays?.length, 1);
+
+  // Another tab writes a compact progress payload (without texts/essays) to localStorage
+  const otherTab = compactProgressForLocalStorage({
+    ...emptyProgress(ds),
+    cards: { bonjour: card as never },
+    texts: [t1],
+    essays: [e1],
+  });
+  assert.equal(otherTab.texts, undefined);
+  assert.equal(otherTab.essays, undefined);
+
+  handleStorageEvent({ key: `word-atlas:v2:${ds}`, newValue: JSON.stringify(otherTab) });
+  await new Promise((r) => setTimeout(r, 20));
+
+  // Tab A must adopt bonjour AND preserve texts/essays in memory and IDB
+  const cur = store.get().progress;
+  assert.ok(cur.cards.bonjour);
+  assert.deepEqual(cur.texts?.map((x) => x.id), ["t-sync1"]);
+  assert.deepEqual(cur.essays?.map((x) => x.id), ["e-sync1"]);
+
+  // Subsequent edit + flush must NOT wipe IDB vault
+  store.progress((p) => ({ ...p, cards: { ...p.cards, merci: card as never } }));
+  flush();
+  await new Promise((r) => setTimeout(r, 20));
+  const after = await getHeavy(ds);
+  assert.deepEqual(after?.texts?.map((x) => x.id), ["t-sync1"]);
+  assert.deepEqual(after?.essays?.map((x) => x.id), ["e-sync1"]);
+});
+
+test("SYS-5: IDB write failure surfaces saveError and clears when a later write succeeds", async () => {
+  const storage = makeMemoryStorage();
+  const idb = makeFakeMultiDbIndexedDb();
+  (globalThis as Record<string, unknown>).localStorage = storage;
+  (globalThis as Record<string, unknown>).indexedDB = idb.factory;
+  (globalThis as Record<string, unknown>).window = {
+    setTimeout: globalThis.setTimeout.bind(globalThis),
+    clearTimeout: globalThis.clearTimeout.bind(globalThis),
+    addEventListener: () => undefined,
+  };
+
+  const ds = "save-err-ds";
+  store.useDataset(ds);
+  resetProgress();
+  await new Promise((r) => setTimeout(r, 20));
+
+  idb.setFailVaultWrites(true);
+  store.progress((p) => ({
+    ...p,
+    essays: [{ id: "e-err", task: "courrier-voitures", text: "Mon essai...", created: 100 }],
+  }));
+  flush();
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(store.get().saveError, true);
+
+  // Recover on subsequent write
+  idb.setFailVaultWrites(false);
+  store.progress((p) => ({ ...p, cards: { salut: card as never } }));
+  flush();
+  await new Promise((r) => setTimeout(r, 30));
+  assert.equal(store.get().saveError, false);
+});
+
+test("SYS-5: importBackupAsync clears stale examBank and essayDrafts when omitted and awaits IDB writes", async () => {
+  const storage = makeMemoryStorage();
+  const idb = makeFakeMultiDbIndexedDb();
+  (globalThis as Record<string, unknown>).localStorage = storage;
+  (globalThis as Record<string, unknown>).indexedDB = idb.factory;
+  (globalThis as Record<string, unknown>).window = {
+    setTimeout: globalThis.setTimeout.bind(globalThis),
+    clearTimeout: globalThis.clearTimeout.bind(globalThis),
+    addEventListener: () => undefined,
+  };
+
+  const ds = "import-clean-ds";
+  store.useDataset(ds);
+  resetProgress();
+  await new Promise((r) => setTimeout(r, 20));
+
+  // Seed stale essay draft, stale examBank records, and stale heavy vault data
+  storage.setItem(`${DRAFT_PREFIX}old-task`, "Brouillon obsolète");
+  idb.getStoreMap("fb2-exam-bank", "papers").set("old-p", {
+    id: "old-p",
+    kind: "read",
+    level: "B2",
+    created: 1,
+    src: "ai",
+    exs: [{ form: "long", topic: "work", docs: [{ text: "Doc" }], questions: [{ q: "Q", options: ["A", "B", "C"], answer: 0 }] }],
+  });
+  idb.getStoreMap("fb2-exam-bank", "attempts").set("old-p", [{ at: 1, picked: { "0-0": 0 }, score: 1, total: 1 }]);
+  await putHeavy(ds, { essays: [{ id: "stale-e", task: "courrier-voitures", text: "stale", created: 1 }] });
+
+  // Import minimal backup WITHOUT examBank and WITHOUT essayDrafts (and with new heavy essay)
+  const backup = {
+    app: "word-atlas",
+    version: 2,
+    exported: new Date().toISOString(),
+    progress: {
+      ...emptyProgress(ds),
+      cards: { maison: card },
+      essays: [{ id: "new-e", task: "courrier-voitures", text: "Nouvel essai", created: 200 }],
+    },
+    settings: sanitizeSettings({ onboarded: true }),
+  };
+
+  const res = await importBackupAsync(JSON.stringify(backup));
+  assert.equal(res.ok, true);
+
+  // Immediately after await importBackupAsync (no extra sleep), stale drafts, examBank, and old heavy data must already be updated
+  assert.equal(storage.getItem(`${DRAFT_PREFIX}old-task`), null);
+  assert.equal(idb.getStoreMap("fb2-exam-bank", "papers").size, 0);
+  assert.equal(idb.getStoreMap("fb2-exam-bank", "attempts").size, 0);
+  const heavy = await getHeavy(ds);
+  assert.deepEqual(heavy?.essays?.map((x) => x.id), ["new-e"]);
 });

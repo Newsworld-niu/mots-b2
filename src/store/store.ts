@@ -28,6 +28,7 @@ import {
   restoreEssayDrafts,
   restoreExamBankBackup,
   type ExamBankBackup,
+  type PutHeavyOptions,
 } from "./vault";
 
 /**
@@ -695,6 +696,19 @@ let loadedId: string | null = null;
 const vaultSynced = new Set<string>();
 const vaultHydrating = new Map<string, Promise<void>>();
 const vaultWriting = new Map<string, Promise<boolean>>();
+const pendingClearAll = new Set<string>();
+const pendingClearTexts = new Set<string>();
+const pendingClearEssays = new Set<string>();
+let storageSaveError = false;
+let vaultSaveError = false;
+
+function syncSaveError() {
+  const next = storageSaveError || vaultSaveError;
+  if (next !== state.saveError) {
+    state = { ...state, saveError: next };
+    emit();
+  }
+}
 
 /** Strip heavy essays/texts from the localStorage mirror once IndexedDB vault holds them. */
 export function compactProgressForLocalStorage(p: Progress): Progress {
@@ -705,11 +719,21 @@ export function compactProgressForLocalStorage(p: Progress): Progress {
   return rest;
 }
 
-function queueHeavySave(p: Progress): Promise<boolean> {
-  const op = putHeavy(p.datasetId, { texts: p.texts, essays: p.essays }).then((ok) => {
-    if (ok) vaultSynced.add(p.datasetId);
-    return ok;
-  });
+function queueHeavySave(p: Progress, opts?: PutHeavyOptions): Promise<boolean> {
+  const prev = vaultWriting.get(p.datasetId) ?? Promise.resolve(true);
+  const op = prev
+    .catch(() => true)
+    .then(() => putHeavy(p.datasetId, { texts: p.texts, essays: p.essays }, opts))
+    .then((ok) => {
+      if (ok) {
+        vaultSynced.add(p.datasetId);
+        vaultSaveError = false;
+      } else {
+        vaultSaveError = true;
+      }
+      syncSaveError();
+      return ok;
+    });
   vaultWriting.set(p.datasetId, op);
   return op;
 }
@@ -719,40 +743,44 @@ async function hydrateVaultForDataset(datasetId: string): Promise<void> {
   const existing = vaultHydrating.get(datasetId);
   if (existing) return existing;
   const task = (async () => {
-    // 1. Migrate legacy localStorage snapshots into IndexedDB and free localStorage quota
-    for (const key of listSnapshots(datasetId)) {
-      const snap = read<Progress>(key);
-      if (snap && (await putSnapshotIdb(key, sanitizeProgress(snap, datasetId)))) {
-        try {
-          localStorage.removeItem(key);
-        } catch {
-          /* ignore */
+    try {
+      // 1. Migrate legacy localStorage snapshots into IndexedDB and free localStorage quota
+      for (const key of listSnapshots(datasetId)) {
+        const snap = read<Progress>(key);
+        if (snap && (await putSnapshotIdb(key, sanitizeProgress(snap, datasetId)))) {
+          try {
+            localStorage.removeItem(key);
+          } catch {
+            /* ignore */
+          }
         }
       }
-    }
-    // 2. Merge heavy texts/essays from IndexedDB with any legacy localStorage or in-memory entries
-    const idb = await getHeavy(datasetId);
-    const cur = state.progress.datasetId === datasetId ? state.progress : null;
-    if (!cur) return;
-    const texts = mergeHeavy(cur.texts, idb?.texts, 60);
-    const essays = mergeHeavy(cur.essays, idb?.essays, 40);
-    const ok = await queueHeavySave({ ...cur, texts, essays });
-    if (!ok) return;
-    if (state.progress.datasetId === datasetId) {
-      const changed = (texts?.length ?? 0) !== (state.progress.texts?.length ?? 0) || (essays?.length ?? 0) !== (state.progress.essays?.length ?? 0);
-      if (changed) {
-        state = {
-          ...state,
-          progress: {
-            ...state.progress,
-            ...(texts ? { texts } : {}),
-            ...(essays ? { essays } : {}),
-          },
-        };
-        emit();
+      // 2. Merge heavy texts/essays from IndexedDB with any legacy localStorage or in-memory entries
+      const idb = await getHeavy(datasetId);
+      const cur = state.progress.datasetId === datasetId ? state.progress : null;
+      if (!cur) return;
+      const texts = mergeHeavy(cur.texts, idb?.texts, 60);
+      const essays = mergeHeavy(cur.essays, idb?.essays, 40);
+      const ok = await queueHeavySave({ ...cur, texts, essays });
+      if (!ok) return;
+      if (state.progress.datasetId === datasetId) {
+        const changed = (texts?.length ?? 0) !== (state.progress.texts?.length ?? 0) || (essays?.length ?? 0) !== (state.progress.essays?.length ?? 0);
+        if (changed) {
+          state = {
+            ...state,
+            progress: {
+              ...state.progress,
+              ...(texts ? { texts } : {}),
+              ...(essays ? { essays } : {}),
+            },
+          };
+          emit();
+        }
+        // Rewrite compact localStorage copy so legacy large blobs are freed
+        write(progressKey(datasetId), compactProgressForLocalStorage(state.progress));
       }
-      // Rewrite compact localStorage copy so legacy large blobs are freed
-      write(progressKey(datasetId), compactProgressForLocalStorage(state.progress));
+    } finally {
+      vaultHydrating.delete(datasetId);
     }
   })();
   vaultHydrating.set(datasetId, task);
@@ -765,26 +793,31 @@ function emit() {
 
 function scheduleSave() {
   dirty = true;
-  window.clearTimeout(saveTimer);
-  saveTimer = window.setTimeout(flush, 250);
+  if (typeof window !== "undefined") {
+    window.clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(() => flush(), 250);
+  }
 }
 
-export function flush() {
-  window.clearTimeout(saveTimer);
+export function flush(opts?: { skipHeavy?: boolean }) {
+  if (typeof window !== "undefined") window.clearTimeout(saveTimer);
   if (!dirty) return;
   dirty = false;
   let progressOk = true;
   if (loadedId === state.progress.datasetId) {
     const p = state.progress;
+    const clearAll = pendingClearAll.delete(p.datasetId);
+    const clearTexts = pendingClearTexts.delete(p.datasetId);
+    const clearEssays = pendingClearEssays.delete(p.datasetId);
     if (typeof indexedDB !== "undefined") {
-      if (vaultSynced.has(p.datasetId)) {
-        void queueHeavySave(p);
+      if (vaultSynced.has(p.datasetId) || clearAll || clearTexts || clearEssays) {
+        if (!opts?.skipHeavy) void queueHeavySave(p, { clear: clearAll, clearTexts, clearEssays });
         progressOk = write(progressKey(p.datasetId), compactProgressForLocalStorage(p));
       } else {
         progressOk = write(progressKey(p.datasetId), p);
         if (!progressOk) {
           // QuotaExceededError on full payload: offload heavy fields to IDB and keep compact progress in localStorage
-          void queueHeavySave(p);
+          if (!opts?.skipHeavy) void queueHeavySave(p);
           progressOk = write(progressKey(p.datasetId), compactProgressForLocalStorage(p));
         }
       }
@@ -792,29 +825,47 @@ export function flush() {
       progressOk = write(progressKey(p.datasetId), p);
     }
   }
-  const ok = progressOk && write(SETTINGS_KEY, state.settings);
-  if (ok === state.saveError) {
-    state = { ...state, saveError: !ok };
+  storageSaveError = !(progressOk && write(SETTINGS_KEY, state.settings));
+  syncSaveError();
+}
+
+export function handleStorageEvent(e: { key: string | null; newValue: string | null }): void {
+  if (!e.newValue) return;
+  try {
+    if (e.key === SETTINGS_KEY) {
+      state = { ...state, settings: sanitizeSettings(JSON.parse(e.newValue)) };
+    } else if (e.key === progressKey(state.progress.datasetId)) {
+      const prev = state.progress;
+      const incoming = sanitizeProgress(JSON.parse(e.newValue), prev.datasetId);
+      const texts = incoming.texts?.length ? mergeHeavy(incoming.texts, prev.texts, 60) : prev.texts;
+      const essays = incoming.essays?.length ? mergeHeavy(incoming.essays, prev.essays, 40) : prev.essays;
+      state = {
+        ...state,
+        progress: syncFavorites({
+          ...incoming,
+          ...(texts?.length ? { texts } : {}),
+          ...(essays?.length ? { essays } : {}),
+        }),
+      };
+      emit();
+      if (typeof indexedDB !== "undefined") void hydrateVaultForDataset(prev.datasetId);
+      return;
+    } else {
+      return;
+    }
     emit();
+  } catch {
+    /* ignore malformed writes */
   }
 }
 
 if (typeof window !== "undefined") {
-  window.addEventListener("pagehide", flush);
-  document.addEventListener("visibilitychange", () => document.visibilityState === "hidden" && flush());
-  // Another tab saved: adopt its data instead of keeping a stale copy.
-  window.addEventListener("storage", (e) => {
-    if (!e.newValue) return;
-    try {
-      if (e.key === SETTINGS_KEY) state = { ...state, settings: sanitizeSettings(JSON.parse(e.newValue)) };
-      else if (e.key === progressKey(state.progress.datasetId))
-        state = { ...state, progress: sanitizeProgress(JSON.parse(e.newValue), state.progress.datasetId) };
-      else return;
-      emit();
-    } catch {
-      /* ignore malformed writes */
-    }
-  });
+  window.addEventListener("pagehide", () => flush());
+  if (typeof document !== "undefined") {
+    document.addEventListener("visibilitychange", () => document.visibilityState === "hidden" && flush());
+  }
+  // Another tab saved: adopt its data while preserving heavy texts/essays and never wiping IDB vault.
+  window.addEventListener("storage", handleStorageEvent);
 }
 
 /* ---------- alias migration with snapshots ---------- */
@@ -890,7 +941,13 @@ export const store = {
     void hydrateVaultForDataset(datasetId);
   },
   progress(fn: (p: Progress) => Progress) {
-    state = { ...state, progress: syncFavorites(fn(state.progress)) };
+    const prev = state.progress;
+    const next = syncFavorites(fn(prev));
+    if (prev.texts?.length && !next.texts?.length) pendingClearTexts.add(next.datasetId);
+    if (next.texts?.length) pendingClearTexts.delete(next.datasetId);
+    if (prev.essays?.length && !next.essays?.length) pendingClearEssays.add(next.datasetId);
+    if (next.essays?.length) pendingClearEssays.delete(next.datasetId);
+    state = { ...state, progress: next };
     emit();
     scheduleSave();
   },
@@ -1002,16 +1059,15 @@ function markDirty() {
   dirty = true;
 }
 
-function applyImportData(data: Record<string, unknown>, id: string): { progress: Progress; imgs: Record<string, string> | null; examBank: unknown } {
+function applyImportData(data: Record<string, unknown>, id: string): { progress: Progress; imgs: Record<string, string>; examBank: unknown } {
   const progress = sanitizeProgress({ ...((data.progress as Record<string, unknown>) ?? {}), session: null }, id);
   state = { ...state, progress, settings: { ...sanitizeSettings(data.settings), onboarded: true } };
-  let imgs: Record<string, string> | null = null;
+  const imgs: Record<string, string> = {};
   if (isObj(data.images)) {
-    imgs = {};
     for (const [k, v] of Object.entries(data.images)) if (WORD_ID.test(k) && isImageDataUrl(v)) imgs[k] = v;
   }
-  if (isObj(data.essayDrafts)) restoreEssayDrafts(data.essayDrafts);
-  return { progress, imgs, examBank: data.examBank };
+  restoreEssayDrafts(isObj(data.essayDrafts) ? data.essayDrafts : {});
+  return { progress, imgs, examBank: isObj(data.examBank) ? data.examBank : { papers: [], attempts: {} } };
 }
 
 export function importBackup(text: string): { ok: true; cards: number } | { ok: false; error: string } {
@@ -1026,12 +1082,12 @@ export function importBackup(text: string): { ok: true; cards: number } | { ok: 
   const id = state.progress.datasetId;
   if (data.progress.datasetId !== id) return { ok: false, error: "备份来自另一个词库，请先切换到对应词库。" };
   const { progress, imgs, examBank } = applyImportData(data, id);
-  if (imgs) void replaceImages(imgs);
-  if (examBank) void restoreExamBankBackup(examBank).then((ok) => ok && void reloadBank());
-  if (typeof indexedDB !== "undefined") void queueHeavySave(progress);
+  void replaceImages(imgs);
+  void restoreExamBankBackup(examBank).then((ok) => ok && void reloadBank());
+  if (typeof indexedDB !== "undefined") void queueHeavySave(progress, { clear: true });
   emit();
   markDirty();
-  flush();
+  flush({ skipHeavy: true });
   return { ok: true, cards: Object.keys(progress.cards).length };
 }
 
@@ -1047,22 +1103,24 @@ export async function importBackupAsync(text: string): Promise<{ ok: true; cards
   const id = state.progress.datasetId;
   if (data.progress.datasetId !== id) return { ok: false, error: "备份来自另一个词库，请先切换到对应词库。" };
   const { progress, imgs, examBank } = applyImportData(data, id);
-  if (imgs) await replaceImages(imgs);
-  if (examBank) {
-    const ok = await restoreExamBankBackup(examBank);
-    if (ok) await reloadBank();
-  }
-  if (typeof indexedDB !== "undefined") await queueHeavySave(progress);
+  const ops: Promise<unknown>[] = [
+    replaceImages(imgs),
+    restoreExamBankBackup(examBank).then((ok) => (ok ? reloadBank() : undefined)),
+  ];
+  if (typeof indexedDB !== "undefined") ops.push(queueHeavySave(progress, { clear: true }));
+  await Promise.all(ops);
   emit();
   markDirty();
-  flush();
+  flush({ skipHeavy: true });
   return { ok: true, cards: Object.keys(progress.cards).length };
 }
 
 export function resetProgress() {
-  state = { ...state, progress: emptyProgress(state.progress.datasetId) };
-  if (typeof indexedDB !== "undefined") void queueHeavySave(state.progress);
+  const id = state.progress.datasetId;
+  state = { ...state, progress: emptyProgress(id) };
+  pendingClearAll.add(id);
+  if (typeof indexedDB !== "undefined") void queueHeavySave(state.progress, { clear: true });
   emit();
   markDirty();
-  flush();
+  flush({ skipHeavy: true });
 }

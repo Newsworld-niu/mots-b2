@@ -36,24 +36,50 @@ export interface ExamBankBackup {
   attempts: Record<string, Attempt[]>;
 }
 
+export interface PutHeavyOptions {
+  clear?: boolean;
+  clearTexts?: boolean;
+  clearEssays?: boolean;
+}
+
 let vaultDb: Promise<IDBDatabase | null> | null = null;
-function openVault(): Promise<IDBDatabase | null> {
+export function openVault(): Promise<IDBDatabase | null> {
   if (typeof indexedDB === "undefined") return Promise.resolve(null);
-  vaultDb ??= new Promise((resolve) => {
-    try {
-      const req = indexedDB.open(DB, 1);
-      req.onupgradeneeded = () => {
-        const d = req.result;
-        if (!d.objectStoreNames.contains(HEAVY)) d.createObjectStore(HEAVY);
-        if (!d.objectStoreNames.contains(SNAPSHOTS)) d.createObjectStore(SNAPSHOTS, { keyPath: "key" });
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => resolve(null);
-    } catch {
-      resolve(null);
-    }
-  });
+  if (!vaultDb) {
+    vaultDb = new Promise<IDBDatabase | null>((resolve) => {
+      try {
+        const req = indexedDB.open(DB, 1);
+        req.onupgradeneeded = () => {
+          const d = req.result;
+          if (!d.objectStoreNames.contains(HEAVY)) d.createObjectStore(HEAVY);
+          if (!d.objectStoreNames.contains(SNAPSHOTS)) d.createObjectStore(SNAPSHOTS, { keyPath: "key" });
+        };
+        req.onsuccess = () => {
+          const d = req.result;
+          d.onclose = () => {
+            vaultDb = null;
+          };
+          d.onversionchange = () => {
+            d.close();
+            vaultDb = null;
+          };
+          resolve(d);
+        };
+        req.onerror = () => {
+          vaultDb = null;
+          resolve(null);
+        };
+      } catch {
+        vaultDb = null;
+        resolve(null);
+      }
+    });
+  }
   return vaultDb;
+}
+
+export function resetVaultConnection(): void {
+  vaultDb = null;
 }
 
 function vtx<T>(store: string, mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T | null> {
@@ -81,20 +107,62 @@ export async function getHeavy(datasetId: string): Promise<HeavyData | null> {
   return { ...(texts ? { texts } : {}), ...(essays ? { essays } : {}) };
 }
 
-export async function putHeavy(datasetId: string, data: HeavyData): Promise<boolean> {
+export async function putHeavy(datasetId: string, data: HeavyData, opts?: PutHeavyOptions): Promise<boolean> {
   const db = await openVault();
   if (!db) return false;
-  const payload: HeavyData = {};
-  if (data.texts?.length) payload.texts = data.texts.slice(0, MAX_TEXTS);
-  if (data.essays?.length) payload.essays = data.essays.slice(0, MAX_ESSAYS);
+  const hasTexts = Boolean(data.texts?.length);
+  const hasEssays = Boolean(data.essays?.length);
+  const clearAll = Boolean(opts?.clear);
+  const clearTexts = clearAll || Boolean(opts?.clearTexts);
+  const clearEssays = clearAll || Boolean(opts?.clearEssays);
+
+  if (!hasTexts && !hasEssays && !clearTexts && !clearEssays) {
+    return true;
+  }
+
   return new Promise((resolve) => {
     try {
       const tx = db.transaction(HEAVY, "readwrite");
       const store = tx.objectStore(HEAVY);
-      if (payload.texts || payload.essays) store.put(payload, datasetId);
-      else store.delete(datasetId);
       tx.oncomplete = () => resolve(true);
       tx.onerror = () => resolve(false);
+      tx.onabort = () => resolve(false);
+
+      const writeMerged = (prev?: Record<string, unknown> | null) => {
+        const nextTexts = hasTexts
+          ? data.texts!.slice(0, MAX_TEXTS)
+          : clearTexts
+            ? undefined
+            : prev
+              ? sanitizeTexts(prev.texts)
+              : undefined;
+        const nextEssays = hasEssays
+          ? data.essays!.slice(0, MAX_ESSAYS)
+          : clearEssays
+            ? undefined
+            : prev
+              ? sanitizeEssays(prev.essays)
+              : undefined;
+        if (nextTexts?.length || nextEssays?.length) {
+          const payload: HeavyData = {};
+          if (nextTexts?.length) payload.texts = nextTexts;
+          if (nextEssays?.length) payload.essays = nextEssays;
+          store.put(payload, datasetId);
+        } else {
+          store.delete(datasetId);
+        }
+      };
+
+      if (clearAll || (hasTexts && hasEssays)) {
+        writeMerged(null);
+      } else {
+        const req = store.get(datasetId);
+        req.onsuccess = () => {
+          const prev = req.result && typeof req.result === "object" ? (req.result as Record<string, unknown>) : null;
+          writeMerged(prev);
+        };
+        req.onerror = () => resolve(false);
+      }
     } catch {
       resolve(false);
     }
