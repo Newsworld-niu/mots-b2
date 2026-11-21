@@ -7,7 +7,7 @@ import { speakerVoices, ttsOn, ttsSsmlUrl, ttsUrl } from "../ai/tts";
 import { useGrammar } from "../atlas/grammar";
 import { play, stopAudio } from "../lib/audio";
 import { countWords, CRITERIA, CRITERION_CHECK, CRITERION_LABEL, ESSAY_TASKS, GENRE_LABEL, LEVELS, totalScore, type EssayFeedback, type EssayTask } from "../lib/essay";
-import { BETWEEN_PLAYS, clock, examReadiness, FORM_SPEC, gradeCompQuestion, PART_LABEL, READ_MINUTES, REAL_WPM, speechChunks, speechTurns, SPEAK_CRITERIA, SPEAK_TIMES, SPEAKING_SUBJECTS, topicOf, type CompExercise, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
+import { BETWEEN_PLAYS, clock, examReadiness, FORM_SPEC, PART_LABEL, READ_MINUTES, REAL_WPM, speechChunks, speechTurns, SPEAK_CRITERIA, SPEAK_TIMES, SPEAKING_SUBJECTS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
 import { PRESET_PAPERS } from "../lib/exam-presets";
 import { pickVoices, type DocVoices } from "../lib/listening";
 import { canDictate, dictate } from "../lib/speech";
@@ -19,11 +19,12 @@ import { AccentKeys } from "../ui/AccentKeys";
 import { Marking } from "../ui/Marking";
 import { StaticEssayModel } from "../ui/StaticEssayModel";
 import { toast } from "../ui/Toast";
+import { getMockPaperPair, mockPaperOptions, resolveMockPoTyped, scoreComp, shouldShowDebateTurn1Recovery } from "./mock-exam-helpers";
 
 type MockStage = "setup" | "co" | "ce" | "pe" | "pe_grade" | "break_po" | "po_choose" | "po_prep" | "po_talk" | "po_review" | "po_debate" | "po_grade" | "summary";
 
 interface MockState {
-  setIdx: 0 | 1;
+  setIdx: number;
   strict: boolean;
   stage: MockStage;
   coPicked: Record<string, number>;
@@ -40,6 +41,7 @@ interface MockState {
   poSubjectId: string;
   poNotes: string;
   poSaid: string;
+  poVoiceSaid?: string;
   poTurns: DebateTurn[];
   poSelf: Record<string, number>;
   poFb: SpeakingFeedback | null;
@@ -56,7 +58,7 @@ const num = (n: number) => String(n).replace(".", ",");
 const emptyRubric = (keys: readonly string[]) => Object.fromEntries(keys.map((k) => [k, 3]));
 const rubricSum = (m: Record<string, number>, keys: readonly string[]) => keys.reduce((n, k) => n + (m[k] ?? 0), 0);
 
-function initialMock(setIdx: 0 | 1, strict: boolean): MockState {
+function initialMock(setIdx: number, strict: boolean): MockState {
   const b2Essays = ESSAY_TASKS.filter((t) => t.level === "B2");
   const peTask = b2Essays[(setIdx * 3 + Math.floor(Math.random() * b2Essays.length)) % b2Essays.length];
   const drawn = [...SPEAKING_SUBJECTS].sort(() => Math.random() - 0.5).slice(0, 2);
@@ -78,6 +80,7 @@ function initialMock(setIdx: 0 | 1, strict: boolean): MockState {
     poSubjectId: drawn[0].id,
     poNotes: "",
     poSaid: "",
+    poVoiceSaid: "",
     poTurns: [],
     poSelf: emptyRubric([...SPEAK_CRITERIA, "phono"]),
     poFb: null,
@@ -108,17 +111,6 @@ function saveMock(s: MockState | null) {
   }
 }
 
-const scoreComp = (exs: CompExercise[], picked: Record<string, number>, typed: Record<string, string> = {}) => {
-  let s = 0;
-  exs.forEach((ex, e) =>
-    ex.questions.forEach((q, k) => {
-      const key = `${e}-${k}`;
-      if (gradeCompQuestion(q, picked[key], typed[key], ex.docs[q.doc]?.text).correct) s += q.pts;
-    }),
-  );
-  return Math.round(s * 10) / 10;
-};
-
 /**
  * 四项全真模考流（SYS-3）：
  * CO 30m → CE 60m → PE 60m 连续 2h30 笔试 + PO 口语（含离线免 AI Key 与有 AI Key 双路径），
@@ -133,7 +125,7 @@ export function MockExam({ onExit }: { onExit: () => void }) {
   const target = typeof settings.targetScore === "number" && settings.targetScore >= 50 ? settings.targetScore : 75;
 
   const [saved, setSaved] = useState<MockState | null>(() => loadMock());
-  const [setIdx, setSetIdx] = useState<0 | 1>(0);
+  const [setIdx, setSetIdx] = useState<number>(0);
   const [strict, setStrict] = useState(true);
   const [m, setM] = useState<MockState | null>(null);
 
@@ -153,6 +145,7 @@ export function MockExam({ onExit }: { onExit: () => void }) {
   const [poDictating, setPoDictating] = useState(false);
   const [poInterim, setPoInterim] = useState("");
   const [poAsking, setPoAsking] = useState(false);
+  const [poAskError, setPoAskError] = useState<string | null>(null);
   const [poPresetIdx, setPoPresetIdx] = useState(0);
   const [poBusy, setPoBusy] = useState(false);
   const stopRec = useRef<(() => void) | null>(null);
@@ -161,13 +154,15 @@ export function MockExam({ onExit }: { onExit: () => void }) {
 
   const listenPapers = useMemo(() => PRESET_PAPERS.filter((p) => p.kind === "listen"), []);
   const readPapers = useMemo(() => PRESET_PAPERS.filter((p) => p.kind === "read"), []);
+  const paperOptions = useMemo(() => mockPaperOptions(listenPapers, readPapers), [listenPapers, readPapers]);
   const points = useMemo(() => (grammar?.points ?? []).map((p) => ({ id: p.id, title: p.title })), [grammar]);
   const pointTitle = useMemo(() => new Map(points.map((p) => [p.id, p.title])), [points]);
 
-  const update = (patch: Partial<MockState>) => {
+  const update = (patch: Partial<MockState> | ((cur: MockState) => Partial<MockState>)) => {
     setM((cur) => {
       if (!cur) return cur;
-      const next = { ...cur, ...patch };
+      const p = typeof patch === "function" ? patch(cur) : patch;
+      const next = { ...cur, ...p };
       saveMock(next.stage === "summary" ? null : next);
       return next;
     });
@@ -198,8 +193,8 @@ export function MockExam({ onExit }: { onExit: () => void }) {
   useEffect(() => {
     if (!m || !sectionTimer.down || sectionTimer.sec > 0) return;
     if (m.stage === "ce") {
-      const rp = readPapers[m.setIdx] ?? readPapers[0];
-      const sc = scoreComp(rp.exs, m.cePicked);
+      const { readPaper: rp } = getMockPaperPair(listenPapers, readPapers, m.setIdx);
+      const sc = scoreComp(rp.exs, m.cePicked, m.ceTyped ?? {});
       logExam({ part: "read", what: `mock-${rp.id}`, score: sc, total: 25 });
       toast(`阅读 60 分钟时间到，已自动锁卷交卷（${num(sc)}/25），进入写作！`, "info");
       sectionTimer.start(m.peLeftSec);
@@ -213,10 +208,14 @@ export function MockExam({ onExit }: { onExit: () => void }) {
 
   const startNew = () => {
     const s = initialMock(setIdx, strict);
-    const lp = listenPapers[s.setIdx] ?? listenPapers[0];
+    const { listenPaper: lp } = getMockPaperPair(listenPapers, readPapers, s.setIdx);
     setCoVoices(lp.exs.map((ex) => ex.docs.map(() => (azure ? pickVoices("mixed") : { voices: speakerVoices(), accents: [] }))));
     setCoHeard({});
     setCoPace(null);
+    setPoAsking(false);
+    setPoAskError(null);
+    setPoDictating(false);
+    setPoInterim("");
     saveMock(s);
     setSaved(s);
     setM(s);
@@ -226,8 +225,12 @@ export function MockExam({ onExit }: { onExit: () => void }) {
 
   const resumeSaved = () => {
     if (!saved) return;
-    const lp = listenPapers[saved.setIdx] ?? listenPapers[0];
+    const { listenPaper: lp } = getMockPaperPair(listenPapers, readPapers, saved.setIdx);
     setCoVoices(lp.exs.map((ex) => ex.docs.map(() => (azure ? pickVoices("mixed") : { voices: speakerVoices(), accents: [] }))));
+    setPoAsking(false);
+    setPoAskError(null);
+    setPoDictating(false);
+    setPoInterim("");
     setM(saved);
     if (saved.stage === "co" || saved.stage === "ce" || saved.stage === "pe") writtenTimer.start(saved.writtenLeftSec);
     if (saved.stage === "ce") sectionTimer.start(saved.ceLeftSec);
@@ -285,7 +288,7 @@ export function MockExam({ onExit }: { onExit: () => void }) {
 
   const playCoPaper = async (startFrom = 0) => {
     if (!m) return;
-    const lp = listenPapers[m.setIdx] ?? listenPapers[0];
+    const { listenPaper: lp } = getMockPaperPair(listenPapers, readPapers, m.setIdx);
     const mine = ++run.current;
     const alive = () => run.current === mine;
     for (let e = startFrom; e < lp.exs.length && alive(); e++) {
@@ -311,7 +314,7 @@ export function MockExam({ onExit }: { onExit: () => void }) {
   const finishCo = () => {
     if (!m) return;
     haltAudio();
-    const lp = listenPapers[m.setIdx] ?? listenPapers[0];
+    const { listenPaper: lp } = getMockPaperPair(listenPapers, readPapers, m.setIdx);
     const sc = scoreComp(lp.exs, m.coPicked);
     logExam({ part: "listen", what: `mock-${lp.id}`, score: sc, total: 25 });
     const ceSec = READ_MINUTES.paper * 60;
@@ -321,7 +324,7 @@ export function MockExam({ onExit }: { onExit: () => void }) {
 
   const finishCe = () => {
     if (!m) return;
-    const rp = readPapers[m.setIdx] ?? readPapers[0];
+    const { readPaper: rp } = getMockPaperPair(listenPapers, readPapers, m.setIdx);
     const sc = scoreComp(rp.exs, m.cePicked, m.ceTyped ?? {});
     logExam({ part: "read", what: `mock-${rp.id}`, score: sc, total: 25 });
     const peSec = 60 * 60;
@@ -383,14 +386,30 @@ export function MockExam({ onExit }: { onExit: () => void }) {
   const chooseSubject = (s: SpeakingSubject) => {
     sectionTimer.start(SPEAK_TIMES.prep);
     setPoPresetIdx(0);
-    update({ poSubjectId: s.id, poNotes: "", poSaid: "", poTurns: [], stage: "po_prep" });
+    setPoAskError(null);
+    update({ poSubjectId: s.id, poNotes: "", poSaid: "", poVoiceSaid: "", poTurns: [], poTyped: !dictation, stage: "po_prep" });
   };
 
   const startPoTalk = () => {
+    stopRec.current?.();
+    stopRec.current = null;
     sectionTimer.stop();
     sectionTimer.start(); // count up for monologue 5-7m
-    update({ stage: "po_talk", poTyped: !dictation });
-    if (dictation) hear((txt) => update({ poSaid: txt, poTyped: false }));
+    update({ stage: "po_talk", poSaid: "", poVoiceSaid: "", poTyped: !dictation });
+    if (dictation) hear((txt) => update({ poSaid: txt, poVoiceSaid: txt, poTyped: resolveMockPoTyped({ finalSaid: txt, voiceSaid: txt }) }));
+  };
+
+  const redictatePoReview = () => {
+    if (!dictation) return;
+    if (poDictating) {
+      stopRec.current?.();
+      stopRec.current = null;
+      setPoDictating(false);
+      setPoInterim("");
+      return;
+    }
+    update({ poSaid: "", poVoiceSaid: "", poTyped: true });
+    hear((txt) => update({ poSaid: txt, poVoiceSaid: txt, poTyped: resolveMockPoTyped({ finalSaid: txt, voiceSaid: txt }) }));
   };
 
   const endPoTalk = () => {
@@ -404,6 +423,7 @@ export function MockExam({ onExit }: { onExit: () => void }) {
 
   const askNextExaminer = async (so: DebateTurn[], subject: SpeakingSubject) => {
     if (!m) return;
+    setPoAskError(null);
     if (hasAi) {
       setPoAsking(true);
       const c = new AbortController();
@@ -416,11 +436,14 @@ export function MockExam({ onExit }: { onExit: () => void }) {
         setPoAsking(false);
         const r = await play(null, q);
         if (r !== "stopped" && dictation && !stopRec.current) {
-          hear((a) => update({ poTurns: nextTurns.map((t, idx) => (idx === nextTurns.length - 1 ? { ...t, a } : t)) }));
+          hear((a) => update((cur) => ({ poTurns: cur.poTurns.map((t, idx) => (idx === cur.poTurns.length - 1 ? { ...t, a } : t)) })));
         }
       } catch (err) {
+        if (c.signal.aborted) return;
         setPoAsking(false);
-        toast((err as Error).message || "考官追问失败", "warn");
+        const msg = (err as Error).message || "考官追问失败";
+        setPoAskError(msg);
+        toast(msg, "warn");
       }
       return;
     }
@@ -433,13 +456,18 @@ export function MockExam({ onExit }: { onExit: () => void }) {
     update({ poTurns: nextTurns });
     const r = await play(null, item.q);
     if (r !== "stopped" && dictation && !stopRec.current) {
-      hear((a) => update({ poTurns: nextTurns.map((t, idx) => (idx === nextTurns.length - 1 ? { ...t, a } : t)) }));
+      hear((a) => update((cur) => ({ poTurns: cur.poTurns.map((t, idx) => (idx === cur.poTurns.length - 1 ? { ...t, a } : t)) })));
     }
   };
 
   const startPoDebate = (subject: SpeakingSubject) => {
+    stopRec.current?.();
+    stopRec.current = null;
+    setPoDictating(false);
+    setPoInterim("");
     sectionTimer.start();
     setPoPresetIdx(0);
+    setPoAskError(null);
     update({ stage: "po_debate" });
     void askNextExaminer([], subject);
   };
@@ -450,12 +478,16 @@ export function MockExam({ onExit }: { onExit: () => void }) {
     stopRec.current = null;
     stopAudio();
     sectionTimer.stop();
+    setPoAskError(null);
     if (hasAi) {
       setPoBusy(true);
+      const c = new AbortController();
+      ctrl.current = c;
       try {
-        const fb = await gradeSpeaking({ subject, transcript: m.poSaid, turns: so.filter((t) => t.a.trim()), points }, ctrl.current?.signal);
+        const fb = await gradeSpeaking({ subject, transcript: m.poSaid, turns: so.filter((t) => t.a.trim()), points }, c.signal);
         update({ poFb: fb, poPhono: null, stage: "po_grade" });
       } catch (err) {
+        if (c.signal.aborted) return;
         toast((err as Error).message || "口语批改失败，改用自评量表", "warn");
         update({ poFb: null, stage: "po_grade" });
       } finally {
@@ -468,10 +500,12 @@ export function MockExam({ onExit }: { onExit: () => void }) {
 
   const confirmPoScore = () => {
     if (!m) return;
+    const voiceSaid = m.poVoiceSaid ?? (m.poTyped ? "" : m.poSaid);
+    const finalTyped = resolveMockPoTyped({ finalSaid: m.poSaid, voiceSaid });
     const sc = m.poFb ? totalScore(m.poFb) + (m.poPhono ?? 0) : rubricSum(m.poSelf, [...SPEAK_CRITERIA, "phono"]);
-    logExam({ part: "speak", what: `mock-${m.poSubjectId}`, score: sc, total: 25, ...(m.poTyped ? { typed: true } : {}) });
+    logExam({ part: "speak", what: `mock-${m.poSubjectId}`, score: sc, total: 25, ...(finalTyped ? { typed: true } : {}) });
     setSaved(null);
-    update({ poScore: sc, stage: "summary" });
+    update({ poTyped: finalTyped, poScore: sc, stage: "summary" });
   };
 
   /* ---------- Setup view ---------- */
@@ -490,9 +524,9 @@ export function MockExam({ onExit }: { onExit: () => void }) {
         <section className="panel exam-setup">
           <h3 className="eyebrow">选择套卷（各 25 分标准结构）</h3>
           <div className="segmented segmented-wide">
-            {[0, 1].map((idx) => (
-              <button key={idx} className={setIdx === idx ? "is-on" : ""} onClick={() => setSetIdx(idx as 0 | 1)} aria-pressed={setIdx === idx}>
-                全真套卷 {idx + 1}（{listenPapers[idx]?.style === "natural" ? "口语化自然语流" : "电台播音语流"}）
+            {paperOptions.map((opt) => (
+              <button key={opt.readPaper.id} className={setIdx === opt.idx ? "is-on" : ""} onClick={() => setSetIdx(opt.idx)} aria-pressed={setIdx === opt.idx}>
+                {opt.label}
               </button>
             ))}
           </div>
@@ -534,8 +568,7 @@ export function MockExam({ onExit }: { onExit: () => void }) {
     );
   }
 
-  const lp = listenPapers[m.setIdx] ?? listenPapers[0];
-  const rp = readPapers[m.setIdx] ?? readPapers[0];
+  const { listenPaper: lp, readPaper: rp } = getMockPaperPair(listenPapers, readPapers, m.setIdx);
   const peTask = ESSAY_TASKS.find((t) => t.id === m.peTaskId) ?? ESSAY_TASKS.find((t) => t.level === "B2")!;
   const poSubject = SPEAKING_SUBJECTS.find((s) => s.id === m.poSubjectId) ?? SPEAKING_SUBJECTS[0];
   const poPreset = speakingPresetOf(poSubject.id);
@@ -551,8 +584,14 @@ export function MockExam({ onExit }: { onExit: () => void }) {
             onClick={() => {
               haltAudio();
               stopRec.current?.();
+              ctrl.current?.abort();
               writtenTimer.stop();
               sectionTimer.stop();
+              setPoAsking(false);
+              setPoAskError(null);
+              setPoDictating(false);
+              setPoInterim("");
+              setSaved(loadMock());
               setM(null);
             }}
           >
@@ -917,8 +956,33 @@ export function MockExam({ onExit }: { onExit: () => void }) {
         {m.stage === "po_review" && (
           <>
             <h2 className="essay-title">检查独白记录并进入辩论</h2>
-            <textarea className="writing-input essay-input" rows={8} lang="fr" value={m.poSaid} onChange={(e) => update({ poSaid: e.target.value, poTyped: true })} placeholder="如有遗漏可补充你刚说过的法语要点…" />
+            <textarea
+              className="writing-input essay-input"
+              rows={8}
+              lang="fr"
+              value={m.poSaid}
+              onChange={(e) => {
+                const nextSaid = e.target.value;
+                const voiceSaid = m.poVoiceSaid ?? (m.poTyped ? "" : m.poSaid);
+                update({ poSaid: nextSaid, poVoiceSaid: voiceSaid, poTyped: resolveMockPoTyped({ finalSaid: nextSaid, voiceSaid }) });
+              }}
+              placeholder="如有遗漏可补充你刚说过的法语要点…"
+            />
+            {poDictating && <p className="muted small">正在重新语音识别：{poInterim || "请开口说法语…"}</p>}
             <div className="writing-actions">
+              {dictation && (
+                <button className="btn btn-ghost" type="button" onClick={redictatePoReview}>
+                  {poDictating ? (
+                    <>
+                      <Square size={16} /> 停止语音录入
+                    </>
+                  ) : (
+                    <>
+                      <Mic size={16} /> 清空重录语音
+                    </>
+                  )}
+                </button>
+              )}
               <button className="btn btn-primary btn-xl" disabled={!m.poSaid.trim() && hasAi} onClick={() => startPoDebate(poSubject)}>
                 进入考官辩论（10–13 分钟） <ArrowRight size={18} />
               </button>
@@ -945,6 +1009,23 @@ export function MockExam({ onExit }: { onExit: () => void }) {
               ))}
             </ol>
             {poAsking && <p className="muted">考官正在提问…</p>}
+            {shouldShowDebateTurn1Recovery(m.poTurns.length, poAsking) && (
+              <div className="exam-live">
+                <p className="eyebrow">考官首问未能发出</p>
+                <p className="muted">
+                  {poAskError ? `请求失败：${poAskError}。` : "考官暂未接上话。"}
+                  你可以重试提问，或直接跳过辩论批改独白。
+                </p>
+                <div className="writing-actions">
+                  <button className="btn btn-primary" disabled={poBusy} onClick={() => void askNextExaminer(m.poTurns, poSubject)}>
+                    重试提问
+                  </button>
+                  <button className="btn btn-ghost" disabled={poBusy} onClick={() => void finishPoDebate(m.poTurns, poSubject)}>
+                    {poBusy ? "正在批改独白…" : "跳过辩论，直接批改独白"}
+                  </button>
+                </div>
+              </div>
+            )}
             {m.poTurns.length > 0 && !poAsking && (
               <div className="exam-live">
                 <p className="eyebrow">考官问题 {m.poTurns.length}</p>
@@ -956,18 +1037,19 @@ export function MockExam({ onExit }: { onExit: () => void }) {
                   rows={3}
                   lang="fr"
                   value={m.poTurns[m.poTurns.length - 1].a}
-                  onChange={(e) => update({ poTurns: m.poTurns.map((t, k) => (k === m.poTurns.length - 1 ? { ...t, a: e.target.value } : t)), poTyped: true })}
+                  onChange={(e) => update((cur) => ({ poTurns: cur.poTurns.map((t, k) => (k === cur.poTurns.length - 1 ? { ...t, a: e.target.value } : t)) }))}
                   placeholder={dictation ? "开口回答或补充要点…" : "对着提问口头回答，可在此简记要点…"}
                 />
+                {poAskError && <p className="muted small">追问请求失败：{poAskError}（可点击下一个考官追问重试，或直接结束辩论）</p>}
                 <div className="writing-actions">
                   <button className="link" onClick={() => void play(null, m.poTurns[m.poTurns.length - 1].q)}>
                     再听一遍问题
                   </button>
-                  <button className="btn btn-primary" onClick={() => void askNextExaminer(m.poTurns, poSubject)}>
+                  <button className="btn btn-primary" disabled={poBusy} onClick={() => void askNextExaminer(m.poTurns, poSubject)}>
                     下一个考官追问 <ArrowRight size={16} />
                   </button>
-                  <button className="btn btn-ghost" onClick={() => void finishPoDebate(m.poTurns, poSubject)}>
-                    结束辩论并进入评分
+                  <button className="btn btn-ghost" disabled={poBusy} onClick={() => void finishPoDebate(m.poTurns, poSubject)}>
+                    {poBusy ? "正在批改独白…" : "结束辩论并进入评分"}
                   </button>
                 </div>
               </div>
