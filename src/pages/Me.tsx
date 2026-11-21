@@ -4,11 +4,13 @@ import { ready, useAiConfig } from "../ai/config";
 import { AiSettings } from "../ui/AiSettings";
 import { Sheet } from "../ui/Sheet";
 import { useAtlas } from "../atlas/context";
-import { downloadBackupFile, isBackupSnoozedToday, snoozeBackupToday } from "../lib/backup";
+import { downloadBackupFile, isBackupSnoozedToday, snoozeBackupToday, cloudSyncHealthy } from "../lib/backup";
 import { PLACEMENT_ESTIMATE, SECTION_META } from "../lib/placement";
 import { addMonthsDate, daysUntilExam } from "../lib/study-plan";
 import { isMastered } from "../store/srs";
 import { dayKey, importBackupAsync, MAX_DAILY_NEW, needsBackupReminder, resetProgress, store, useStore, type Settings } from "../store/store";
+import { useSyncState } from "../sync/state";
+import { CloudSync } from "../ui/CloudSync";
 import { CountPicker } from "../ui/CountPicker";
 import { EssayTrend } from "../ui/EssayTrend";
 import { ExamDashboard } from "../ui/ExamDashboard";
@@ -49,6 +51,7 @@ export function Me() {
   }, [progress]);
 
   const set = (patch: Partial<Settings>) => store.settings(patch);
+  const sync = useSyncState();
   const [backupDismissed, setBackupDismissed] = useState(isBackupSnoozedToday);
   const backupDue = useMemo(() => needsBackupReminder(progress, settings.lastBackupAt), [progress, settings.lastBackupAt]);
   const download = () => void downloadBackupFile();
@@ -257,13 +260,15 @@ export function Me() {
           </div>
         </section>
 
+        <CloudSync />
+
         <section className="panel">
           <h3 className="eyebrow">数据</h3>
-          <p className="muted">进度只存在这台设备的浏览器里：没有账号，没有服务器。换设备时，导出备份再导入即可（含作文、阅读、模考题库与草稿）。</p>
+          <p className="muted">进度默认只保存在这台设备的浏览器里；如需多设备同步，可在上方开启可选的「云同步」，或手动导出 / 导入 JSON 备份（含作文、阅读、模考题库与草稿）。</p>
           <p className="muted small">
             上次备份：{settings.lastBackupAt ? new Date(settings.lastBackupAt).toLocaleDateString("zh-CN") : "尚未导出过备份"}
           </p>
-          {backupDue.remind && !backupDismissed && (
+          {backupDue.remind && !cloudSyncHealthy(sync) && !backupDismissed && (
             <div className="backup-remind" role="status">
               <span>已超过 {backupDue.daysSince} 天未导出备份，建议立即备份以免浏览器清理缓存丢失进度。</span>
               <button

@@ -13,8 +13,20 @@ export const IMAGE_SIDE = 480;
 
 let images: Record<string, string> = {};
 let dataset = "";
+let loadPromise: Promise<void> | null = null;
 const subs = new Set<() => void>();
 const emit = () => subs.forEach((f) => f());
+
+export function subscribeImages(f: () => void): () => void {
+  subs.add(f);
+  return () => {
+    subs.delete(f);
+  };
+}
+
+export function waitImagesLoaded(): Promise<void> {
+  return loadPromise ?? Promise.resolve();
+}
 
 function open(): Promise<IDBDatabase | null> {
   if (typeof indexedDB === "undefined") return Promise.resolve(null);
@@ -41,24 +53,25 @@ const dbKey = (id: string) => `${dataset}:${id}`;
 /** Read every picture of a dataset into memory (called when the dataset is chosen). */
 export async function loadImages(datasetId: string) {
   dataset = datasetId;
-  const keys = ((await tx("readonly", (s) => s.getAllKeys())) ?? []) as string[];
-  const values = ((await tx("readonly", (s) => s.getAll())) ?? []) as string[];
-  const next: Record<string, string> = {};
-  keys.forEach((k, i) => {
-    if (k.startsWith(`${datasetId}:`) && typeof values[i] === "string") next[k.slice(datasetId.length + 1)] = values[i];
-  });
-  images = next;
-  emit();
+  const task = (async () => {
+    const keys = ((await tx("readonly", (s) => s.getAllKeys())) ?? []) as string[];
+    const values = ((await tx("readonly", (s) => s.getAll())) ?? []) as string[];
+    const next: Record<string, string> = {};
+    keys.forEach((k, i) => {
+      if (k.startsWith(`${datasetId}:`) && typeof values[i] === "string") next[k.slice(datasetId.length + 1)] = values[i];
+    });
+    images = next;
+    emit();
+  })();
+  loadPromise = task;
+  return task;
 }
 
 export const getImages = () => images;
 
 export function useImages() {
   return useSyncExternalStore(
-    (f) => {
-      subs.add(f);
-      return () => subs.delete(f);
-    },
+    subscribeImages,
     () => images,
     () => images,
   );

@@ -23,12 +23,14 @@ import { Today } from "./pages/Today";
 import { cue } from "./lib/sound";
 import { downloadBackupFile } from "./lib/backup";
 import { store, useStore } from "./store/store";
+import { startSync } from "./sync/engine";
 import { EntryView } from "./ui/EntryView";
 import { AmbienceController, AmbiencePicker } from "./ui/Ambience";
 import { Logo } from "./ui/Logo";
 import { Palette } from "./ui/Palette";
 import { Sheet } from "./ui/Sheet";
 import { shouldShowSplash, Splash } from "./ui/Splash";
+import { SyncConflictDialog } from "./ui/SyncConflictDialog";
 import { Toasts } from "./ui/Toast";
 import { UpdateNote } from "./ui/UpdateNote";
 
@@ -157,6 +159,10 @@ function Shell() {
   }, [focus]);
 
   useEffect(() => {
+    startSync();
+  }, []);
+
+  useEffect(() => {
     if (!word) window.scrollTo({ top: 0 });
   }, [route.page]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -244,6 +250,7 @@ function Shell() {
       {!onboarded && route.page !== "about" && !splash && <Onboarding />}
       {splash && <Splash onDone={() => setSplash(false)} />}
       <Toasts />
+      <SyncConflictDialog />
       <UpdateNote />
       <AmbienceController />
     </div>

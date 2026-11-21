@@ -5,7 +5,7 @@ import { useSyncExternalStore } from "react";
 import { migrateAliases as migrateAliasesPure, type AliasMap } from "./aliases";
 import type { Accent } from "../atlas/types";
 import type { CardState, Grade } from "./srs";
-import { getImages, isImageDataUrl, replaceImages } from "./images";
+import { getImages, isImageDataUrl, replaceImages, waitImagesLoaded } from "./images";
 import { sanitizeTexts, type SavedText } from "../lib/reader";
 import { sanitizeAiTasks, sanitizeEssays, sanitizeNotes, type EssayCorrection, type EssayTask, type SavedEssay, type SavedNote } from "../lib/essay";
 import { ERROR_TYPES, type ErrorType } from "../lib/writing";
@@ -931,14 +931,24 @@ export function markBackupExported(now = Date.now()) {
   flush();
 }
 
-export function needsBackupReminder(p: Progress, lastBackupAt: number | null, now = Date.now()): { remind: boolean; daysSince: number } {
-  const hasProgress =
-    Object.keys(p.cards).length > 0 ||
+export function hasAnyProgress(p: Progress): boolean {
+  if (!p || typeof p !== "object") return false;
+  return (
+    Object.keys(p.cards ?? {}).length > 0 ||
     (p.essays?.length ?? 0) > 0 ||
     (p.examLog?.length ?? 0) > 0 ||
     (p.texts?.length ?? 0) > 0 ||
-    Object.keys(p.gram ?? {}).length > 0;
-  if (!hasProgress) return { remind: false, daysSince: 0 };
+    Object.keys(p.gram ?? {}).length > 0 ||
+    Object.keys(p.conj ?? {}).length > 0 ||
+    Object.keys(p.expr ?? {}).length > 0 ||
+    Object.keys(p.custom ?? {}).length > 0 ||
+    (p.bookmarks?.length ?? 0) > 0 ||
+    !!p.placement
+  );
+}
+
+export function needsBackupReminder(p: Progress, lastBackupAt: number | null, now = Date.now()): { remind: boolean; daysSince: number } {
+  if (!hasAnyProgress(p)) return { remind: false, daysSince: 0 };
   if (lastBackupAt !== null) {
     const daysSince = Math.max(0, Math.floor((now - lastBackupAt) / 86400000));
     return { remind: daysSince >= 7, daysSince };
@@ -981,7 +991,7 @@ export function exportBackup(extra?: { examBank?: ExamBankBackup | null; essayDr
 }
 
 export async function exportBackupAsync(): Promise<string> {
-  await hydrateVaultForDataset(state.progress.datasetId);
+  await Promise.all([hydrateVaultForDataset(state.progress.datasetId), waitImagesLoaded()]);
   const pending = vaultWriting.get(state.progress.datasetId);
   if (pending) await pending;
   const examBank = await readExamBankBackup();
