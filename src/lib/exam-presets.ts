@@ -462,7 +462,7 @@ const R3_LONG_1: Raw = {
   "docs": [
     {
       "text": "Depuis quelques années, l’intelligence artificielle (IA) s’invite dans les hôpitaux et les cabinets médicaux. Selon une étude publiée en 2023, 38% des établissements de santé français utilisent déjà des outils d’IA pour aider à poser des diagnostics, notamment dans le domaine de l’imagerie médicale. Cette technologie s’appuie sur l’analyse de grandes quantités de données médicales, telles que des radiographies, des scanners ou des dossiers patients, pour détecter des anomalies parfois imperceptibles à l’œil humain. Par exemple, dans plusieurs hôpitaux parisiens, des logiciels d’IA sont utilisés pour trier automatiquement les images de mammographie et signaler les cas suspects aux radiologues, ce qui permet de réduire les délais de prise en charge.\nPour le professeur Alain Dubois, chef du service de radiologie à Lyon, ces technologies représentent « une avancée majeure ». Il affirme : « Grâce à l’IA, nous détectons plus précocement certains cancers, ce qui améliore considérablement les chances de guérison. » En effet, une récente expérimentation menée sur 1 200 patients a montré que l’IA permettait d’identifier des anomalies invisibles à l’œil humain dans 17% des cas. Un exemple concret est celui d’un patient de 54 ans chez qui une tumeur pulmonaire a été repérée par un algorithme, alors que les médecins n’avaient rien détecté lors de la première lecture.\nCependant, tout le monde ne partage pas cet enthousiasme. La docteure Sophie Martin, généraliste à Paris, met en garde contre une confiance excessive dans ces systèmes. « L’IA ne remplace pas le jugement clinique du médecin. Il existe toujours un risque d’erreur, surtout si l’on s’appuie uniquement sur la machine », souligne-t-elle. Elle rappelle que, selon une enquête menée en 2022, 12% des diagnostics assistés par IA se sont révélés incorrects. Elle cite le cas d’un patient dont l’IA avait écarté une infection grave, alors que le médecin, grâce à son expérience, a su insister pour réaliser des examens complémentaires. Pour la docteure Martin, l’IA doit rester un outil d’aide à la décision, mais ne doit jamais remplacer l’expertise humaine, notamment dans les situations complexes ou atypiques.\nUn autre enjeu concerne la protection des données médicales. Les logiciels d’IA nécessitent l’accès à d’importantes quantités d’informations personnelles pour fonctionner efficacement. Or, la Commission nationale de l’informatique et des libertés (CNIL) a déjà signalé plusieurs failles de sécurité en 2021, dont une ayant exposé les dossiers de 5 000 patients. Cette fuite a suscité l’inquiétude de nombreux professionnels de santé, qui craignent que des données sensibles puissent être utilisées à des fins commerciales ou tomber entre de mauvaises mains. Certains experts estiment que le développement de l’IA doit impérativement s’accompagner de garanties strictes en matière de confidentialité et de transparence sur l’utilisation des données.\nMalgré ces réserves, le ministère de la Santé encourage le développement de l’IA dans le secteur médical. Il a investi 45 millions d’euros en 2023 pour financer des projets innovants, tout en promettant de renforcer la réglementation sur la sécurité des données. Des appels à projets ont permis de soutenir des start-ups françaises spécialisées dans la détection précoce des maladies chroniques ou dans l’analyse automatisée des dossiers médicaux. Le gouvernement insiste sur la nécessité de trouver un équilibre entre innovation et sécurité, en veillant à ce que l’IA bénéficie à tous les patients, y compris dans les zones rurales où l’accès aux spécialistes est parfois limité.",
-      "zh": "近年来，人工智能（AI）逐渐进入医院和诊所。根据2023年发布的一项研究，法国已有38%的医疗机构在诊断中使用AI工具，尤其是在医学影像领域。这项技术依赖于对大量医学数据的分析，如X光片、CT扫描或病历，用于发现肉眼难以察觉的异常。例如，在巴黎的多家医院，AI软件被用于自动筛查乳腺X光片，将可疑病例标记给放射科医生，从而缩短了诊疗时间。\n里昂放射科主任阿兰·杜布瓦教授认为，这些技术是“重大进步”。他表示：“借助AI，我们能更早发现某些癌症，这大大提高了治愈的机会。”事实上，一项针对1200名患者的最新实验显示，AI在17%的病例中能识别出肉眼无法察觉的异常。具体来说，有一位54岁的患者，其肺部肿瘤是通过AI算法发现的，而医生初次检查时并未察觉。在杜布瓦教授的科室，AI还帮助检测到乳腺X光片中的微钙化灶，从而更早诊断出乳腺癌。\n然而，并非所有人都持乐观态度。巴黎全科医生索菲·马丁提醒人们不要对这些系统过度信任。“AI不能取代医生的临床判断。如果只依赖机器，总会有出错的风险。”她指出。她还提到，根据2022年的一项调查，12%的AI辅助诊断结果是错误的。她举例说，有一位患者被AI排除了严重感染，但凭借经验，医生坚持做了进一步检查，最终发现了问题。马丁医生认为，AI应作为辅助决策的工具，而不能取代人类的专业判断，尤其是在复杂或特殊病例中。她还补充，目前医生对这些工具的培训还不够，增加了误判或误用的风险。\n另一个问题是医疗数据的保护。AI软件需要大量个人信息才能高效运行。而国家信息与自由委员会（CNIL）在2021年已报告多起安全漏洞，其中一起导致5000名患者的档案被泄露。这一事件引发了许多医务人员的担忧，他们担心敏感数据被用于商业目的或落入不法分子手中。有专家认为，AI的发展必须严格保障数据的机密性和透明度。此外，患者是否同意将其信息用于AI学习数据库，也是一个重要的伦理争议。\n尽管存在这些担忧，卫生部仍鼓励在医疗领域发展AI。2023年，政府为创新项目投入了4500万欧元，并承诺加强数据安全监管。通过项目招标，支持了多家专注于慢性病早期检测或自动化病历分析的法国初创企业。政府强调要在创新与安全之间取得平衡，确保AI惠及所有患者，包括那些在农村地区难以获得专家服务的人群。还设立了伦理委员会，监督这些技术的推广，保障患者的基本权利。"
+      "zh": "近年来，人工智能（AI）逐渐进入医院和诊所。根据2023年发布的一项研究，法国已有38%的医疗机构在诊断中使用AI工具，尤其是在医学影像领域。这项技术依赖于对大量医学数据的分析，如X光片、CT扫描或病历，用于发现肉眼难以察觉的异常。例如，在巴黎的多家医院，AI软件被用于自动筛查乳腺X光片，将可疑病例标记给放射科医生，从而缩短了诊疗时间。\n里昂放射科主任阿兰·杜布瓦教授认为，这些技术是“重大进步”。他表示：“借助AI，我们能更早发现某些癌症，这大大提高了治愈的机会。”事实上，一项针对1200名患者的最新实验显示，AI在17%的病例中能识别出肉眼无法察觉的异常。具体来说，有一位54岁的患者，其肺部肿瘤是通过AI算法发现的，而医生初次检查时并未察觉。\n然而，并非所有人都持乐观态度。巴黎全科医生索菲·马丁提醒人们不要对这些系统过度信任。“AI不能取代医生的临床判断。如果只依赖机器，总会有出错的风险。”她指出。她还提到，根据2022年的一项调查，12%的AI辅助诊断结果是错误的。她举例说，有一位患者被AI排除了严重感染，但凭借经验，医生坚持做了进一步检查，最终发现了问题。马丁医生认为，AI应作为辅助决策的工具，而不能取代人类的专业判断，尤其是在复杂或特殊病例中。\n另一个问题是医疗数据的保护。AI软件需要大量个人信息才能高效运行。而国家信息与自由委员会（CNIL）在2021年已报告多起安全漏洞，其中一起导致5000名患者的档案被泄露。这一事件引发了许多医务人员的担忧，他们担心敏感数据被用于商业目的或落入不法分子手中。有专家认为，AI的发展必须严格保障数据的机密性和透明度。\n尽管存在这些担忧，卫生部仍鼓励在医疗领域发展AI。2023年，政府为创新项目投入了4500万欧元，并承诺加强数据安全监管。通过项目招标，支持了多家专注于慢性病早期检测或自动化病历分析的法国初创企业。政府强调要在创新与安全之间取得平衡，确保AI惠及所有患者，包括那些在农村地区难以获得专家服务的人群。"
     }
   ],
   "questions": [
@@ -587,7 +587,7 @@ const R3_LONG_2: Raw = {
       "skill": "detail"
     },
     {
-      "q": "En 2023, 27% des baux signés à Paris dépassaient le plafond légal.",
+      "q": "En 2023, 27% des baux signés dépassaient le plafond légal.",
       "qType": "vf",
       "options": [
         "Vrai",
@@ -632,8 +632,9 @@ const R3_LONG_2: Raw = {
       "answer": 0,
       "accepted": [
         "2%",
-        "deux pour cent",
-        "2 %"
+        "de 2%",
+        "de 2 %",
+        "deux pour cent"
       ],
       "why": "第五段提到“le revenu médian des ménages locataires à Paris a baissé de 2% en deux ans”。",
       "difficulty": 3,
@@ -720,7 +721,7 @@ const R3_OPINIONS: Raw = {
       "skill": "detail"
     },
     {
-      "q": "Qui pense que le vote obligatoire risquerait de fausser les résultats ?",
+      "q": "Qui souhaite développer l’éducation civique dès le plus jeune âge pour donner du sens au vote ?",
       "qType": "qcm",
       "options": [
         "Claire",
@@ -728,9 +729,9 @@ const R3_OPINIONS: Raw = {
         "Sophie"
       ],
       "answer": 2,
-      "why": "索菲认为强制投票可能会扭曲选举结果。",
+      "why": "索菲提出应从小加强公民教育，让参与选举更有意义。",
       "difficulty": 3,
-      "skill": "inference"
+      "skill": "paraphrase"
     },
     {
       "q": "Qui propose de développer le vote en ligne ou par correspondance ?",
