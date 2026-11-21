@@ -556,7 +556,7 @@ export function Dict({ word, query }: { word?: string; query?: string }) {
           <div className="dict-main">
             {usingFixtures && (
               <div className="dict-notice" role="status">
-                <span>当前处于样例词条回退模式（未检测到 `public/lexdb/meta.json`），支持 `accueil`、`prendre`、`beau` 及其变位与短语。</span>
+                <span>当前处于样例词条回退模式（未检测到离线分片），支持 accueil、prendre、beau 及其变位与短语。</span>
               </div>
             )}
 
@@ -582,7 +582,14 @@ export function Dict({ word, query }: { word?: string; query?: string }) {
                   <div className="dict-notice" role="status">
                     <span className="chip">短语搭配</span>
                     <span>
-                      「<span lang="fr">{word ?? query}</span>」收录于词条 <strong lang="fr">{activeEntry.w}</strong>
+                      「<span lang="fr">{word ?? query}</span>」
+                      {(() => {
+                        const hit = (activeEntry.phrases ?? []).find(
+                          (p) => lexdbFold(p.fr) === lexdbFold(word ?? query ?? ""),
+                        );
+                        return hit ? `：${hit.zh} · ` : " · ";
+                      })()}
+                      收录于词条 <strong lang="fr">{activeEntry.w}</strong>
                     </span>
                   </div>
                 )}
@@ -863,7 +870,9 @@ function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; highlightP
 
   const allExamples = useMemo(() => collectExamples(entry), [entry]);
 
-  const activeDeck = decks.find((d) => d.id === (selectedDeckId || readDeck));
+  const activeDeck =
+    decks.find((d) => d.id === (selectedDeckId || readDeck)) ??
+    (!selectedDeckId && !readDeck ? decks.find((d) => d.name === DICT_DECK) : undefined);
   const ensureTargetDeck = () => {
     if (activeDeck) return activeDeck.id;
     const existing = decks.find((d) => d.name === DICT_DECK)?.id;

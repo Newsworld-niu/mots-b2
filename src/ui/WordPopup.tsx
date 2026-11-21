@@ -306,7 +306,7 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
     };
   }, [popup, formState, allowWordTap, containerRef, close]);
 
-  const deck = decks.find((d) => d.id === readDeck);
+  const deck = decks.find((d) => d.id === readDeck) ?? (!readDeck ? decks.find((d) => d.name === POPUP_DECK) : undefined);
   const deckName = deck?.name ?? POPUP_DECK;
   const targetDeck = () => {
     if (deck) return deck.id;
