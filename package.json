@@ -21,6 +21,7 @@
     "lexicon:grammar": "tsx scripts/build-grammar.ts",
     "lexicon:check": "tsx scripts/check-lexicon.ts",
     "e2e": "node scripts/e2e.mjs",
+    "e2e:lexdb": "node scripts/e2e-lexdb.mjs",
     "android:sync": "npm run build && cap sync android",
     "android:apk": "npm run android:sync && cd android && ./gradlew assembleRelease",
     "lexicon:ids": "tsx scripts/check-id-stability.ts",
