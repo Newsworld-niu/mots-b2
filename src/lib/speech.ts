@@ -1,4 +1,51 @@
-/** Speech-to-text with the browser's own recogniser (Chrome, Edge, Safari). Nothing is recorded or kept. */
+/** Speech-to-text with the browser's own recogniser (Chrome, Edge, Safari) and examiner voice rotation helpers. */
+import { ACCENTS } from "./listening";
+
+const french = ACCENTS[0];
+/** Interleaved female/male French (fr-FR) Azure neural voices for multi-examiner rotation. */
+export const FRENCH_EXAMINER_VOICES: string[] = Array.from({ length: Math.max(french.f.length, french.m.length) }, (_, i) => [french.f[i], french.m[i]]).flat().filter((v): v is string => !!v);
+
+/**
+ * Ordered pool of French examiner voices: configured fr-FR voices first (female/male),
+ * followed by the remaining standard fr-FR voices without duplicates.
+ */
+export function examinerVoicePool(preferredFemale?: string, preferredMale?: string): string[] {
+  const out: string[] = [];
+  const add = (v?: string) => {
+    const clean = v?.trim();
+    if (clean && clean.startsWith("fr-FR") && !out.includes(clean)) out.push(clean);
+  };
+  add(preferredFemale);
+  add(preferredMale);
+  for (const v of FRENCH_EXAMINER_VOICES) add(v);
+  return out;
+}
+
+/** Pick which French Azure voice speaks examiner turn `turnIndex` (with per-session `offset`). */
+export function pickExaminerVoice(turnIndex: number, offset = 0, preferred?: { female?: string; male?: string }): string {
+  const pool = examinerVoicePool(preferred?.female, preferred?.male);
+  const idx = (Math.max(0, Math.floor(turnIndex)) + Math.max(0, Math.floor(offset))) % pool.length;
+  return pool[idx];
+}
+
+const BROWSER_PITCHES = [1, 0.82, 1.08, 0.76];
+
+/**
+ * Pick a French browser `speechSynthesis` voice and pitch for examiner turn `turnIndex`.
+ * Prioritizes fr-FR voices, rotating through all available French voices; varies pitch when fewer than 2 exist.
+ */
+export function pickBrowserFrenchVoice<T extends { lang: string; name: string }>(voices: readonly T[], turnIndex: number, offset = 0): { voice: T | undefined; pitch: number } {
+  const fr = voices.filter((v) => v.lang.replace("_", "-").toLowerCase().startsWith("fr"));
+  const ordered = [
+    ...fr.filter((v) => v.lang.replace("_", "-").toLowerCase().startsWith("fr-fr")),
+    ...fr.filter((v) => !v.lang.replace("_", "-").toLowerCase().startsWith("fr-fr")),
+  ];
+  const step = Math.max(0, Math.floor(turnIndex)) + Math.max(0, Math.floor(offset));
+  if (!ordered.length) return { voice: undefined, pitch: BROWSER_PITCHES[step % BROWSER_PITCHES.length] };
+  const voice = ordered[step % ordered.length];
+  const pitch = ordered.length >= 2 ? 1 : BROWSER_PITCHES[step % BROWSER_PITCHES.length];
+  return { voice, pitch };
+}
 
 interface Recognizer {
   lang: string;

@@ -1,13 +1,17 @@
 import { ArrowLeft, ArrowRight, Mic, Shuffle, Sparkles, Square } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ready, useAiConfig } from "../ai/config";
+import { ready, useAiConfig, type AiConfig } from "../ai/config";
 import { debateQuestion, gradeSpeaking, makeSubject } from "../ai/tasks";
+import { ttsOn, ttsUrl } from "../ai/tts";
 import { useGrammar } from "../atlas/grammar";
+import { TARGET_LANG } from "../config";
 import { play, stopAudio } from "../lib/audio";
 import { CONNECTORS, countWords, CRITERION_CHECK, CRITERION_LABEL, LEVEL_LABEL, LEVELS, totalScore } from "../lib/essay";
-import { clock, outOf25, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
+import { assessDebateEscalation, clock, outOf25, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
+import { isNative } from "../lib/native";
 import { href } from "../lib/router";
-import { canDictate, dictate } from "../lib/speech";
+import { duck } from "../lib/sound";
+import { canDictate, dictate, pickBrowserFrenchVoice, pickExaminerVoice } from "../lib/speech";
 import { useTimer } from "../lib/timer";
 import { logExam } from "../store/essays";
 import { useStore } from "../store/store";
@@ -19,6 +23,53 @@ import { toast } from "../ui/Toast";
 
 const day = (ms: number) => new Date(ms).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" });
 const two = <T,>(xs: T[]) => [...xs].sort(() => Math.random() - 0.5).slice(0, 2);
+
+/** Read an examiner turn aloud, rotating among multiple French voices (Azure fr-FR or browser French voices). */
+async function speakExaminer(text: string, turnIndex: number, offset: number, aiConfig: AiConfig, signal?: AbortSignal): Promise<"recorded" | "device" | "stopped" | "unsupported"> {
+  if (signal?.aborted) return "stopped";
+  const second = turnIndex % 2 === 1;
+  if (ttsOn()) {
+    const voice = pickExaminerVoice(turnIndex, offset, { female: aiConfig.azureVoice, male: aiConfig.azureVoiceMale });
+    const src = await ttsUrl(text, voice).catch(() => null);
+    if (signal?.aborted) return "stopped";
+    return play(src, text, second ? "us" : "uk", 1, second);
+  }
+  if (!isNative() && typeof window !== "undefined" && "speechSynthesis" in window) {
+    stopAudio();
+    duck(true);
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      const { voice, pitch } = pickBrowserFrenchVoice(window.speechSynthesis.getVoices(), turnIndex, offset);
+      u.lang = TARGET_LANG;
+      u.rate = 0.95;
+      u.pitch = pitch;
+      if (voice) u.voice = voice;
+      return await new Promise<"device" | "stopped">((resolve) => {
+        let settled = false;
+        const finish = (res: "device" | "stopped") => {
+          if (settled) return;
+          settled = true;
+          signal?.removeEventListener("abort", onAbort);
+          resolve(res);
+        };
+        const onAbort = () => {
+          stopAudio();
+          finish("stopped");
+        };
+        signal?.addEventListener("abort", onAbort, { once: true });
+        u.onend = () => finish(signal?.aborted ? "stopped" : "device");
+        u.onerror = (e) => {
+          const err = (e as SpeechSynthesisErrorEvent).error;
+          finish(signal?.aborted || err === "interrupted" || err === "canceled" ? "stopped" : "device");
+        };
+        window.speechSynthesis.speak(u);
+      });
+    } finally {
+      duck(false);
+    }
+  }
+  return play(null, text, second ? "us" : "uk", 1, second);
+}
 
 type Phase = "pick" | "drawing" | "choose" | "prep" | "talk" | "review" | "debate" | "grading" | "result";
 
@@ -46,6 +97,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [fb, setFb] = useState<SpeakingFeedback | null>(null);
   const [phono, setPhono] = useState<number | null>(null);
   const [talkTake, setTalkTake] = useState<Take | null>(null);
+  const [strictMode, setStrictMode] = useState(false);
+  const [voiceOffset, setVoiceOffset] = useState(0);
   const recorder = useRecorder();
   const pron = useAssess();
   const stopRec = useRef<(() => void) | null>(null);
@@ -121,6 +174,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setFb(null);
     setPhono(null);
     setTalkTake(null);
+    setVoiceOffset(Math.floor(Math.random() * 12));
     pron.reset();
     setSpoke(0);
     setPhase("prep");
@@ -130,10 +184,10 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const startTalk = async () => {
     prep.stop();
     setPhase("talk");
-    // the recording first (it asks for the microphone), then the recogniser alongside it
+    // the recording first (it asks for the microphone), then start the stopwatch unconditionally and the recogniser alongside it
     if (recorder.supported) await recorder.start();
-    if (!dictation) return;
     talk.start();
+    if (!dictation) return;
     hear(setSaid);
   };
 
@@ -157,11 +211,11 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     ctrl.current = c;
     setAsking(true);
     try {
-      const q = await debateQuestion({ subject, monologue: said, turns: so, minutes: Math.floor(debate.sec / 60) }, c.signal);
+      const q = await debateQuestion({ subject, monologue: said, turns: so, minutes: Math.floor(debate.sec / 60), strict: strictMode }, c.signal);
       if (c.signal.aborted) return;
       setTurns([...so, { q, a: "" }]);
       setAsking(false);
-      const r = await play(null, q);
+      const r = await speakExaminer(q, so.length, voiceOffset, ai, c.signal);
       // as in the room: the examiner stops, the candidate answers
       if (r !== "stopped" && dictation && !stopRec.current && !c.signal.aborted) hear(setAnswer);
     } catch (err) {
@@ -261,6 +315,14 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
               </>
             ) : (
               <>
+                <label className="field toggle" style={{ width: "100%" }}>
+                  <div>
+                    <b>严格模考模式</b>
+                    <small>禁止跳过辩论；辩论须满 10 分钟或完成 ≥6 轮有效回答，考官会连续追问施压。</small>
+                  </div>
+                  <input type="checkbox" role="switch" checked={strictMode} onChange={(e) => setStrictMode(e.target.checked)} />
+                  <span className="switch" aria-hidden="true" />
+                </label>
                 <button className="btn btn-primary btn-xl" onClick={() => void draw(false)}>
                   <Shuffle size={18} /> 抽两个题
                 </button>
@@ -297,6 +359,9 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const topic = topicOf(subject.topic);
   const words = countWords(said);
   const turn = turns[turns.length - 1];
+  const answeredTurns = turns.filter((t) => t.a.trim()).length;
+  const canEndDebate = !strictMode || debate.sec >= SPEAK_TIMES.debate[0] || answeredTurns >= 6;
+  const escalation = assessDebateEscalation(turns, Math.floor(debate.sec / 60), strictMode);
   const [min, max] = SPEAK_TIMES.monologue;
   /** The fifth criterion from Azure's assessment, when there is one; else the learner's own rating. */
   const azurePhono = pron.state === "done" ? phonoLevel(pron.result) : null;
@@ -308,9 +373,12 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
           <button className="btn btn-ghost" onClick={leave}>
             {phase === "result" ? "再抽一次" : "放弃这题"}
           </button>
-          <span className="eyebrow">口语 · {topic?.zh}</span>
+          <span className="eyebrow">
+            口语 · {topic?.zh}
+            {strictMode ? " · 严格模考" : ""}
+          </span>
           {phase === "prep" && <span className={`exam-clock ${prep.sec === 0 ? "is-over" : ""}`}>{prep.sec === 0 ? "准备时间到" : `准备 ${clock(prep.sec)}`}</span>}
-          {phase === "talk" && dictation && <span className={`exam-clock ${talk.sec > max ? "is-over" : talk.sec >= min ? "is-ok" : ""}`}>{clock(talk.sec)} · 目标 5–7 分钟</span>}
+          {phase === "talk" && <span className={`exam-clock ${talk.sec > max ? "is-over" : talk.sec >= min ? "is-ok" : ""}`}>{clock(talk.sec)} · 目标 5–7 分钟</span>}
           {phase === "debate" && <span className={`exam-clock ${debate.sec > SPEAK_TIMES.debate[1] ? "is-over" : debate.sec >= SPEAK_TIMES.debate[0] ? "is-ok" : ""}`}>辩论 {clock(debate.sec)} · 考试是 10–13 分钟</span>}
         </header>
         <h2 className="essay-title" lang="fr">
@@ -373,7 +441,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
             <textarea className="writing-input essay-notes" lang="fr" rows={6} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="准备时记关键词和提纲（考试时可以看笔记，但不能念稿）" spellCheck={false} aria-label="准备笔记" />
             <div className="writing-actions">
               <button className="btn btn-primary btn-xl" onClick={() => void startTalk()}>
-                <Mic size={18} /> {dictation ? "准备好了，开始说" : "准备好了"}
+                <Mic size={18} /> 准备好了，开始说
               </button>
             </div>
           </>
@@ -417,8 +485,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         {phase === "review" && (
           <>
             <p className="muted">
-              {dictation ? `说了 ${clock(spoke)}。` : ""}
-              识别难免有错：把听错的词改回你实际说的话，但不要趁机改语法，否则批改就不准了。
+              {spoke > 0 ? `说了 ${clock(spoke)}。` : ""}
+              {dictation ? "识别难免有错：把听错的词改回你实际说的话，但不要趁机改语法，否则批改就不准了。" : "请把刚才说的独白内容完整打出来，供 AI 批改与辩论追问。"}
             </p>
             <TakePlayer take={talkTake} label="听自己的独白" />
             {talkTake && (pron.available ? <AssessStatus a={pron} /> : <AssessHint />)}
@@ -428,9 +496,13 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
               <span className={`essay-count ${words >= 450 ? "is-ok" : ""}`}>{words} 词 · 5 分钟大约 450 词以上</span>
               {hasAi ? (
                 <>
-                  <button className="btn btn-ghost" onClick={() => void assess([])} disabled={!said.trim()}>
-                    跳过辩论，直接批改
-                  </button>
+                  {!strictMode ? (
+                    <button className="btn btn-ghost" onClick={() => void assess([])} disabled={!said.trim()}>
+                      跳过辩论，直接批改
+                    </button>
+                  ) : (
+                    <span className="muted small">严格模考中不可跳过辩论</span>
+                  )}
                   <button className="btn btn-primary btn-xl" onClick={startDebate} disabled={!said.trim()}>
                     进入辩论 <ArrowRight size={18} />
                   </button>
@@ -459,7 +531,10 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
             {asking && <p className="muted">考官在想下一个问题…</p>}
             {turn && !asking && (
               <div className={`exam-live ${listening ? "is-on" : ""}`} aria-live="polite">
-                <p className="eyebrow">考官问</p>
+                <p className="eyebrow">
+                  考官 {((Math.max(0, turns.length - 1) + voiceOffset) % 2) + 1} 问
+                  {escalation.level >= 2 ? ` · 追问升级 L${escalation.level}` : ""}
+                </p>
                 <p className="exam-q" lang="fr">
                   {turn.q}
                 </p>
@@ -469,7 +544,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                     className="link"
                     onClick={() => {
                       quiet();
-                      void play(null, turn.q);
+                      void speakExaminer(turn.q, Math.max(0, turns.length - 1), voiceOffset, ai);
                     }}
                   >
                     再听一遍问题
@@ -507,9 +582,13 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
             {!asking && turns.length > 0 && debate.sec < SPEAK_TIMES.debate[1] && (
               <div className="writing-actions">
                 <span className="muted small">
-                  {debate.sec < SPEAK_TIMES.debate[0] ? "考官会一直追问到你结束为止；考试里这一段有 10–13 分钟，尽量撑到 10 分钟。" : "已经到 10 分钟，可以结束了。"}
+                  {!canEndDebate
+                    ? `严格模考：需满 10:00 或完成至少 6 轮有效回答才可交卷（已答 ${answeredTurns}/6 轮）`
+                    : debate.sec < SPEAK_TIMES.debate[0]
+                      ? "考官会一直追问到你结束为止；考试里这一段有 10–13 分钟，尽量撑到 10 分钟。"
+                      : "已经到 10 分钟，可以结束了。"}
                 </span>
-                <button className="link" onClick={() => void assess(turns)}>
+                <button className="link" disabled={!canEndDebate} onClick={() => void assess(turns)}>
                   结束辩论，批改
                 </button>
               </div>

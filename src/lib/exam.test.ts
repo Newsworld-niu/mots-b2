@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { ESSAY_TASKS } from "./essay";
-import { clock, exercisePoints, FORM_SPEC, outOf25, PAPER, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speechChunks, SPEAKING_SUBJECTS, TOPICS, topicOf, weigh } from "./exam";
+import { assessDebateEscalation, clock, exercisePoints, FORM_SPEC, outOf25, PAPER, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speechChunks, SPEAKING_SUBJECTS, TOPICS, topicOf, weigh } from "./exam";
 
 test("topics, subjects and essay tasks refer to topics that exist", () => {
   assert.equal(new Set(TOPICS.map((t) => t.id)).size, TOPICS.length);
@@ -67,4 +67,28 @@ test("sanitizeExamLog, outOf25 and clock", () => {
   assert.equal(outOf25({ score: 13.5, total: 20 }), 16.9);
   assert.equal(clock(245), "4:05");
   assert.equal(clock(-3), "0:00");
+});
+
+test("assessDebateEscalation detects short, evasive, unjustified, repetitive replies and strict mode", () => {
+  assert.equal(assessDebateEscalation([], 0, false).level, 1);
+  const shortEvasive = assessDebateEscalation([{ q: "Pourquoi ?", a: "Je ne sais pas, peut-être." }], 1, false);
+  assert.equal(shortEvasive.level, 2);
+  assert.ok(shortEvasive.reasons.includes("short_answer"));
+  assert.ok(shortEvasive.reasons.includes("evasive"));
+
+  const noJustify = assessDebateEscalation([{ q: "Votre avis ?", a: "Les entreprises préfèrent garder leurs employés dans les grands bureaux modernes toute la semaine." }], 4, false);
+  assert.ok(noJustify.reasons.includes("no_justification"));
+  assert.equal(noJustify.level, 3);
+
+  const rep = assessDebateEscalation(
+    [
+      { q: "Q1", a: "Le télétravail permet aux salariés de gagner du temps et réduit le stress quotidien dans les transports parce que les trajets sont longs." },
+      { q: "Q2", a: "En effet, le télétravail permet aux salariés de gagner du temps et réduit le stress quotidien dans les transports." },
+    ],
+    4,
+    true,
+  );
+  assert.ok(rep.reasons.includes("repetitive"));
+  assert.ok(rep.reasons.includes("strict_mode"));
+  assert.equal(rep.level, 3);
 });

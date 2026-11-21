@@ -3,7 +3,7 @@
  * what a generated comprehension exercise and a marked talk look like, and the log of results.
  * Topics, vocabulary and subjects are written for this site (待核对).
  */
-import { sanitizeEssayFeedback, type EssayFeedback } from "./essay";
+import { countWords, sanitizeEssayFeedback, type EssayFeedback } from "./essay";
 
 export interface Topic {
   id: string;
@@ -350,6 +350,56 @@ export interface DebateTurn {
   q: string;
   /** What the candidate answered. */
   a: string;
+}
+
+export interface DebateEscalation {
+  /** 1 = probe & clarify, 2 = counter-argument & press, 3 = high-pressure dilemma / widening. */
+  level: 1 | 2 | 3;
+  /** Diagnostic triggers detected in the candidate's recent answers. */
+  reasons: ("short_answer" | "evasive" | "no_justification" | "repetitive" | "strict_mode")[];
+}
+
+const EVASIVE_RE = /\b(je ne sais pas|aucune idée|peut-être|ça dépend|pas vraiment|c'est compliqué|bof)\b/i;
+const JUSTIFY_RE = /\b(parce que|car|puisque|en effet|par exemple|cependant|toutefois|néanmoins|certes|malgré|afin de|donc|d'autant plus|en revanche)\b/i;
+const tokenSet = (s: string) =>
+  new Set(
+    s
+      .toLowerCase()
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter((w) => w.length >= 4),
+  );
+
+/**
+ * Determine how strongly the AI examiner should press the candidate on the next turn based on elapsed time,
+ * turn count, strict exam mode, and superficial/evasive/repetitive replies.
+ */
+export function assessDebateEscalation(turns: DebateTurn[], minutes = 0, strict = false): DebateEscalation {
+  const answered = turns.filter((t) => t.a.trim());
+  const last = answered[answered.length - 1];
+  const reasons: DebateEscalation["reasons"] = [];
+  if (strict) reasons.push("strict_mode");
+  if (last) {
+    const wc = countWords(last.a);
+    if (wc < 18) reasons.push("short_answer");
+    if (EVASIVE_RE.test(last.a) && wc < 30) reasons.push("evasive");
+    if (wc >= 8 && wc < 30 && !JUSTIFY_RE.test(last.a)) reasons.push("no_justification");
+    if (answered.length >= 2 && wc >= 10) {
+      const cur = tokenSet(last.a);
+      const prev = answered.slice(0, -1).map((t) => tokenSet(t.a));
+      const maxOverlap = prev.reduce((best, s) => {
+        if (!cur.size || !s.size) return best;
+        let hit = 0;
+        for (const w of cur) if (s.has(w)) hit++;
+        return Math.max(best, hit / Math.min(cur.size, s.size));
+      }, 0);
+      if (maxOverlap >= 0.6) reasons.push("repetitive");
+    }
+  }
+  const hasWeakness = reasons.some((r) => r !== "strict_mode");
+  let level: 1 | 2 | 3 = minutes >= 8 || answered.length >= 6 ? 3 : minutes >= 3 || answered.length >= 2 ? 2 : 1;
+  if (hasWeakness) level = Math.min(3, level + 1) as 1 | 2 | 3;
+  else if (strict && answered.length >= 1) level = Math.min(3, Math.max(level, 2)) as 1 | 2 | 3;
+  return { level, reasons };
 }
 
 export type SpeakingFeedback = EssayFeedback;

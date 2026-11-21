@@ -10,7 +10,7 @@ import { cleanFamily } from "../lib/families";
 import { sanitizeQuiz, type QuizItem } from "../lib/reader";
 import { buildTask, CRITERIA, GENRE_LABEL, MAX_ESSAY_LENGTH, sanitizeEssayFeedback, sanitizeModel, tooShort, wordsFor, type EssayFeedback, type EssayTask, type Genre, type ModelEssay } from "../lib/essay";
 import { qualityIssues } from "../lib/listening";
-import { FORM_SPEC, sanitizeExercise, TOPICS, sanitizeSpeakingFeedback, sanitizeSubject, SPEAK_CRITERIA, type CompExercise, type CompForm, type CompKind, type DebateTurn, type SpeakingFeedback, type SpeakingSubject, type Topic } from "../lib/exam";
+import { assessDebateEscalation, FORM_SPEC, sanitizeExercise, TOPICS, sanitizeSpeakingFeedback, sanitizeSubject, SPEAK_CRITERIA, type CompExercise, type CompForm, type CompKind, type DebateTurn, type SpeakingFeedback, type SpeakingSubject, type Topic } from "../lib/exam";
 import { ERROR_TYPES, sanitizeFeedback, type Feedback } from "../lib/writing";
 import { aiJson, generateImage, type Attachment } from "./clients";
 
@@ -758,20 +758,33 @@ export async function makeSubject(topic: Topic, signal?: AbortSignal): Promise<S
 
 const DEBATE_SCHEMA = { type: "object", properties: { question: str }, required: ["question"], additionalProperties: false };
 
-const DEBATE_SYSTEM = `You are the examiner in the second part of the DELF B2 speaking test (exercice en interaction: débat, 10 to 13 minutes). The candidate, a Chinese learner of French, has just defended a point of view on the document. You receive the document, a transcript of their talk, the exchanges so far and the minutes elapsed (transcripts made by speech recognition: ignore their spelling and punctuation).
+const DEBATE_SYSTEM = `You are the examiner in the second part of the DELF B2 speaking test (exercice en interaction: débat, 10 to 13 minutes). The candidate, a Chinese learner of French, has just defended a point of view on the document. You receive the document, a transcript of their talk, the exchanges so far, the minutes elapsed, "strictExam" (true in strict mock exam mode), and "escalation" ({ level: 1|2|3, reasons }) indicating how hard to press (transcripts made by speech recognition: ignore their spelling and punctuation).
 
 Say your NEXT turn in French, as a courteous but demanding examiner speaking aloud: one to three sentences, B2 level, ending with one question. Behave as in the real test:
 - React first to what the candidate just said, in a few words (take up a word of theirs, grant a point, show doubt), then ask.
-- Follow the thread: when an answer is short, vague or unsupported, stay on it and ask for a reason, a concrete example or a clarification before moving on. When it is solid, challenge it.
-- Over the debate, use all the moves of the official grid: ask them to confirm or qualify their opinion, put a counter-argument or a concrete opposing case ("Certains diraient que…"), point to a contradiction or a weak point in what they actually said, ask about consequences or who would pay, and widen the subject beyond the document (other countries, other generations, their own country, the future).
-- Before 3 minutes: start from their talk. After about 9 minutes: widen or ask them to conclude ("Pour finir, …").
+- Follow the escalation level and reasons strictly:
+  - Level 1 (probe): target an unverified assumption, missing nuance or gap in their talk; ask for a concrete example or precise reason.
+  - Level 2 (challenge / press): push back firmly with a strong counter-argument ("Certains diraient au contraire que…", "Mais comment expliquez-vous que… ?"), point out a contradiction or real-world constraint (budget, fairness, unintended effects).
+  - Level 3 (high-pressure / widening): raise a tough policy/ethical dilemma, macro-economic consequence, or widen beyond the document (other countries, generations, extreme scenarios), or ask them to reconcile opposing principles ("Pour finir, …" only after 9+ minutes).
+- Whenever "escalation.reasons" contains "short_answer", "evasive", "no_justification", or "repetitive", DO NOT politely move to a new topic: directly challenge the vague, short or repetitive reply ("Vous restez très général : pouvez-vous justifier précisément… ?", "Vous reprenez le même argument, mais que répondez-vous à l'objection… ?") and require a reasoned answer before advancing.
+- When "strictExam" is true, hold high DELF B2 jury standards: never accept superficial agreement or one-sentence answers without pressing further.
 Never answer for them, never comment on their French, never repeat a question already asked, never ask two questions at once.`;
 
 /** The examiner's next question in the debate that follows the talk. */
-export async function debateQuestion(input: { subject: SpeakingSubject; monologue: string; turns: DebateTurn[]; minutes?: number }, signal?: AbortSignal): Promise<string> {
+export async function debateQuestion(input: { subject: SpeakingSubject; monologue: string; turns: DebateTurn[]; minutes?: number; strict?: boolean }, signal?: AbortSignal): Promise<string> {
+  const minutes = input.minutes ?? 0;
+  const escalation = assessDebateEscalation(input.turns, minutes, !!input.strict);
   const r = await aiJson<Record<string, unknown>>("text", {
     system: DEBATE_SYSTEM,
-    text: JSON.stringify({ title: input.subject.title, document: input.subject.doc, talk: input.monologue.slice(0, MAX_ESSAY_LENGTH), minutesElapsed: input.minutes ?? 0, exchanges: input.turns.slice(-12).map((t) => ({ examiner: t.q, candidate: t.a.slice(0, 1200) })) }),
+    text: JSON.stringify({
+      title: input.subject.title,
+      document: input.subject.doc,
+      talk: input.monologue.slice(0, MAX_ESSAY_LENGTH),
+      minutesElapsed: minutes,
+      strictExam: !!input.strict,
+      escalation,
+      exchanges: input.turns.slice(-12).map((t) => ({ examiner: t.q, candidate: t.a.slice(0, 1200) })),
+    }),
     schema: DEBATE_SCHEMA,
     schemaName: "debate_question",
     signal,
