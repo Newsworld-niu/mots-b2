@@ -47,6 +47,16 @@ export function pickBrowserFrenchVoice<T extends { lang: string; name: string }>
   return { voice, pitch };
 }
 
+/** Decide whether a recorded debate clip should automatically fall back to Azure STT transcription. */
+export function shouldFallbackToAzureStt(opts: {
+  dictationSupported: boolean;
+  speechFailed: boolean;
+  transcript: string;
+  azureAvailable: boolean;
+}): boolean {
+  return opts.azureAvailable && (!opts.dictationSupported || opts.speechFailed || !opts.transcript.trim());
+}
+
 interface Recognizer {
   lang: string;
   continuous: boolean;

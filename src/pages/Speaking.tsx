@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, Mic, Shuffle, Sparkles, Square } from "lucide-re
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ready, useAiConfig, type AiConfig } from "../ai/config";
 import { debateQuestion, gradeSpeaking, makeSubject } from "../ai/tasks";
+import { assessRecording, canAssess } from "../ai/pronunciation";
 import { ttsOn, ttsUrl } from "../ai/tts";
 import { useGrammar } from "../atlas/grammar";
 import { TARGET_LANG } from "../config";
@@ -12,12 +13,12 @@ import { debatePhrases } from "../lib/expressions";
 import { isNative } from "../lib/native";
 import { href } from "../lib/router";
 import { duck } from "../lib/sound";
-import { canDictate, dictate, pickBrowserFrenchVoice, pickExaminerVoice } from "../lib/speech";
+import { canDictate, dictate, pickBrowserFrenchVoice, pickExaminerVoice, shouldFallbackToAzureStt } from "../lib/speech";
 import { useTimer } from "../lib/timer";
 import { saveSpeakingCorrections } from "../store/essays";
 import { store, useStore } from "../store/store";
 import { Marking } from "../ui/Marking";
-import { phonoLevel } from "../lib/pronunciation";
+import { phonoLevel, type PronResult } from "../lib/pronunciation";
 import type { Take } from "../lib/recorder";
 import { AssessHint, AssessStatus, PronReport, TakePlayer, useAssess, useRecorder } from "../ui/Recording";
 import { toast } from "../ui/Toast";
@@ -108,7 +109,15 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [gradedTyped, setGradedTyped] = useState(false);
   const [probDraft, setProbDraft] = useState("");
   const [probChecked, setProbChecked] = useState<{ ok: boolean; notes: string[] } | null>(null);
+  const [turnTakes, setTurnTakes] = useState<Record<number, Take>>({});
+  const [turnProns, setTurnProns] = useState<Record<number, PronResult>>({});
+  const [speechFailed, setSpeechFailed] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const voiceWordsRef = useRef(0);
+  const turnBaseRef = useRef("");
+  const speechFailedRef = useRef(false);
+  const turnsRef = useRef<DebateTurn[]>(turns);
+  turnsRef.current = turns;
   const recorder = useRecorder();
   const pron = useAssess();
   const stopRec = useRef<(() => void) | null>(null);
@@ -156,7 +165,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   }, [phase, fb, loggedAt, azurePhonoNow]);
 
   /** Turn speech into text, appended to what `into` already holds. */
-  const hear = (into: (text: string) => void, start = "", onVoice?: (final: string) => void) => {
+  const hear = (into: (text: string) => void, start = "", onVoice?: (final: string) => void, onError?: (err: string) => void) => {
     setListening(true);
     stopRec.current = dictate(
       (final, guess) => {
@@ -167,7 +176,10 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       (error) => {
         setListening(false);
         setInterim("");
-        if (error) toast(error, "warn");
+        if (error) {
+          if (onError) onError(error);
+          else toast(error, "warn");
+        }
       },
     );
   };
@@ -210,6 +222,12 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setGradedTyped(false);
     setProbDraft("");
     setProbChecked(null);
+    setTurnTakes({});
+    setTurnProns({});
+    setSpeechFailed(false);
+    setTranscribing(false);
+    speechFailedRef.current = false;
+    turnBaseRef.current = "";
     micro.stop();
     voiceWordsRef.current = 0;
     pron.reset();
@@ -249,6 +267,60 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     }
   };
 
+  /** Start recording (and browser dictation when available) for debate turn `turnIdx`. */
+  const beginDebateAnswer = async (turnIdx: number, existingText: string) => {
+    stopAudio();
+    turnBaseRef.current = existingText.trim();
+    if (recorder.supported && !recorder.on) await recorder.start();
+    if (dictation && !speechFailedRef.current) {
+      hear(
+        (text) => setTurns((ts) => ts.map((t, k) => (k === turnIdx ? { ...t, a: text } : t))),
+        existingText.trim() ? `${existingText.trim()} ` : "",
+        () => setDebateVoice(true),
+        (err) => {
+          speechFailedRef.current = true;
+          setSpeechFailed(true);
+          toast(`${err}${canAssess() ? "（已继续录音，停止后将自动用 Azure 转写）" : "（已继续录音，停止后可回放补全文字）"}`, "warn");
+        },
+      );
+    }
+  };
+
+  /** Stop debate recording/dictation for `turnIdx` and fall back to Azure STT when speech recognition failed/missing. */
+  const stopDebateAnswer = async (turnIdx: number): Promise<DebateTurn[]> => {
+    stopRec.current?.();
+    stopRec.current = null;
+    setListening(false);
+    setInterim("");
+    const take = recorder.on ? await recorder.stop() : null;
+    if (take) setTurnTakes((m) => ({ ...m, [turnIdx]: take }));
+    const curTurn = turnsRef.current[turnIdx];
+    const curText = curTurn?.a ?? "";
+    if (take && shouldFallbackToAzureStt({ dictationSupported: dictation, speechFailed: speechFailedRef.current, transcript: curText, azureAvailable: canAssess() })) {
+      setTranscribing(true);
+      try {
+        const pr = await assessRecording(take.blob);
+        if (pr) {
+          setTurnProns((m) => ({ ...m, [turnIdx]: pr }));
+          if (pr.text.trim()) {
+            setDebateVoice(true);
+            const base = turnBaseRef.current;
+            const merged = curText.trim() && !speechFailedRef.current ? curText : base ? `${base} ${pr.text.trim()}` : pr.text.trim();
+            const next = turnsRef.current.map((t, k) => (k === turnIdx ? { ...t, a: merged } : t));
+            turnsRef.current = next;
+            setTurns(next);
+            return next;
+          }
+        }
+      } catch (err) {
+        toast((err as Error).message || "Azure 转写失败，可回放下方录音手动补充文字", "warn");
+      } finally {
+        setTranscribing(false);
+      }
+    }
+    return turnsRef.current;
+  };
+
   /** Ask the examiner's next question and read it aloud. */
   const ask = async (so: DebateTurn[]) => {
     if (!subject) return;
@@ -258,11 +330,13 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     try {
       const q = await debateQuestion({ subject, monologue: said, turns: so, minutes: Math.floor(debate.sec / 60), strict: strictMode }, c.signal);
       if (c.signal.aborted) return;
-      setTurns([...so, { q, a: "" }]);
+      const next = [...so, { q, a: "" }];
+      turnsRef.current = next;
+      setTurns(next);
       setAsking(false);
       const r = await speakExaminer(q, so.length, voiceOffset, ai, c.signal);
-      // as in the room: the examiner stops, the candidate answers
-      if (r !== "stopped" && dictation && !stopRec.current && !c.signal.aborted) hear(setAnswer, "", () => setDebateVoice(true));
+      // as in the room: the examiner stops, the candidate answers (recording + dictation/Azure fallback)
+      if (r !== "stopped" && !stopRec.current && !c.signal.aborted) void beginDebateAnswer(so.length, "");
     } catch (err) {
       if (c.signal.aborted) return;
       setAsking(false);
@@ -701,60 +775,95 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                   <p className="essay-text" lang="fr">
                     {t.a || "（没有回答）"}
                   </p>
+                  <TakePlayer take={turnTakes[k]} label={`听第 ${k + 1} 轮回答`} />
                 </li>
               ))}
             </ol>
             {asking && <p className="muted">考官在想下一个问题…</p>}
-            {turn && !asking && (
-              <div className={`exam-live ${listening ? "is-on" : ""}`} aria-live="polite">
-                <p className="eyebrow">
-                  考官 {((Math.max(0, turns.length - 1) + voiceOffset) % 2) + 1} 问
-                  {escalation.level >= 2 ? ` · 追问升级 L${escalation.level}` : ""}
-                </p>
-                <p className="exam-q" lang="fr">
-                  {turn.q}
-                </p>
-                <textarea className="writing-input essay-notes" lang="fr" rows={4} value={turn.a + (listening ? interim : "")} readOnly={listening} onChange={(e) => setAnswer(e.target.value)} placeholder={dictation ? "点「开口回答」，或直接打字" : "把你的回答打出来"} spellCheck={false} aria-label="你的回答" />
-                <div className="writing-actions">
-                  <button
-                    className="link"
-                    onClick={() => {
-                      quiet();
-                      void speakExaminer(turn.q, Math.max(0, turns.length - 1), voiceOffset, ai);
-                    }}
-                  >
-                    再听一遍问题
-                  </button>
-                  {dictation && !listening && (
-                    <button
-                      className="btn btn-ghost"
-                      onClick={() => {
-                        stopAudio();
-                        hear(setAnswer, turn.a ? `${turn.a.trim()} ` : "", () => setDebateVoice(true));
-                      }}
-                    >
-                      <Mic size={16} /> {turn.a ? "接着说" : "开口回答"}
-                    </button>
+            {turn && !asking && (() => {
+              const turnIdx = turns.length - 1;
+              const curTake = turnTakes[turnIdx];
+              const azureOn = canAssess();
+              return (
+                <div className={`exam-live ${listening || recorder.on ? "is-on" : ""}`} aria-live="polite">
+                  <p className="eyebrow">
+                    考官 {((Math.max(0, turnIdx) + voiceOffset) % 2) + 1} 问
+                    {escalation.level >= 2 ? ` · 追问升级 L${escalation.level}` : ""}
+                  </p>
+                  <p className="exam-q" lang="fr">
+                    {turn.q}
+                  </p>
+                  {(!dictation || speechFailed) && (
+                    <p className="muted small">
+                      {azureOn
+                        ? "当前使用麦克风录音 + Azure 语音自动转写；停止录音后将自动填入文字。"
+                        : "当前浏览器离线或不支持语音识别：已启用本地录音兜底，停止后可回放录音并对照补全文字。"}
+                    </p>
                   )}
-                  {debate.sec < SPEAK_TIMES.debate[1] && turns.length < MAX_TURNS ? (
+                  <textarea className="writing-input essay-notes" lang="fr" rows={4} value={turn.a + (listening ? interim : "")} readOnly={listening || transcribing} onChange={(e) => setAnswer(e.target.value)} placeholder={dictation && !speechFailed ? "点「开口回答」，或直接打字" : recorder.supported ? "用麦克风录音回答，或直接打字" : "把你的回答打出来"} spellCheck={false} aria-label="你的回答" />
+                  {transcribing && <p className="muted small">Azure 语音转写中…</p>}
+                  {turnProns[turnIdx] && <p className="muted small">已通过 Azure 转写本轮回答（可用于发音综合评测）。</p>}
+                  <TakePlayer take={curTake} label="听这一轮录音" />
+                  <div className="writing-actions">
                     <button
-                      className="btn btn-primary"
-                      disabled={!turn.a.trim() && !interim}
+                      className="link"
                       onClick={() => {
+                        void stopDebateAnswer(turnIdx);
                         quiet();
-                        void ask(turns);
+                        void speakExaminer(turn.q, Math.max(0, turnIdx), voiceOffset, ai);
                       }}
                     >
-                      答完了，下一个问题 <ArrowRight size={16} />
+                      再听一遍问题
                     </button>
-                  ) : (
-                    <button className="btn btn-primary" onClick={() => void assess(turns)}>
-                      时间到，结束辩论并批改 <ArrowRight size={16} />
-                    </button>
-                  )}
+                    {(listening || recorder.on) ? (
+                      <>
+                        <span className="muted small">
+                          <i className="rec-dot" aria-hidden="true" />
+                          {listening ? "正在听写并录音" : "录音中"}
+                        </span>
+                        <button className="btn btn-ghost" onClick={() => void stopDebateAnswer(turnIdx)} disabled={transcribing}>
+                          <Square size={15} /> {azureOn && (!dictation || speechFailed) ? "停止并转写" : "停止录音"}
+                        </button>
+                      </>
+                    ) : (
+                      (dictation || recorder.supported) && (
+                        <button
+                          className="btn btn-ghost"
+                          disabled={transcribing}
+                          onClick={() => void beginDebateAnswer(turnIdx, turn.a)}
+                        >
+                          <Mic size={16} /> {turn.a ? "接着说" : !dictation || speechFailed ? "录音回答" : "开口回答"}
+                        </button>
+                      )
+                    )}
+                    {debate.sec < SPEAK_TIMES.debate[1] && turns.length < MAX_TURNS ? (
+                      <button
+                        className="btn btn-primary"
+                        disabled={transcribing || (!turn.a.trim() && !interim && !recorder.on)}
+                        onClick={async () => {
+                          const latest = await stopDebateAnswer(turnIdx);
+                          quiet();
+                          if (latest[turnIdx]?.a.trim()) void ask(latest);
+                        }}
+                      >
+                        答完了，下一个问题 <ArrowRight size={16} />
+                      </button>
+                    ) : (
+                      <button
+                        className="btn btn-primary"
+                        disabled={transcribing}
+                        onClick={async () => {
+                          const latest = await stopDebateAnswer(turnIdx);
+                          void assess(latest);
+                        }}
+                      >
+                        时间到，结束辩论并批改 <ArrowRight size={16} />
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
             {!asking && turns.length > 0 && debate.sec < SPEAK_TIMES.debate[1] && (
               <div className="writing-actions">
                 <span className="muted small">
@@ -764,7 +873,14 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                       ? "考官会一直追问到你结束为止；考试里这一段有 10–13 分钟，尽量撑到 10 分钟。"
                       : "已经到 10 分钟，可以结束了。"}
                 </span>
-                <button className="link" disabled={!canEndDebate} onClick={() => void assess(turns)}>
+                <button
+                  className="link"
+                  disabled={!canEndDebate || transcribing}
+                  onClick={async () => {
+                    const latest = await stopDebateAnswer(turns.length - 1);
+                    void assess(latest);
+                  }}
+                >
                   结束辩论，批改
                 </button>
               </div>
@@ -843,6 +959,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                       <p className="essay-text" lang="fr">
                         {t.a || "（没有回答）"}
                       </p>
+                      <TakePlayer take={turnTakes[k]} label={`听第 ${k + 1} 轮回答`} />
                     </li>
                   ))}
                 </ol>

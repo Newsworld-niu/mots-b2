@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { examinerVoicePool, FRENCH_EXAMINER_VOICES, pickBrowserFrenchVoice, pickExaminerVoice } from "./speech.ts";
+import { examinerVoicePool, FRENCH_EXAMINER_VOICES, pickBrowserFrenchVoice, pickExaminerVoice, shouldFallbackToAzureStt } from "./speech.ts";
 
 test("examinerVoicePool keeps fr-FR defaults first without duplicates and rotates across turns", () => {
   assert.ok(FRENCH_EXAMINER_VOICES.length >= 8);
@@ -41,4 +41,12 @@ test("pickBrowserFrenchVoice cycles French voices and varies pitch when fewer th
 
   const none = [{ lang: "en-US", name: "Alex" }];
   assert.equal(pickBrowserFrenchVoice(none, 0).voice, undefined);
+});
+
+test("shouldFallbackToAzureStt triggers when dictation is unsupported, errored, or empty and Azure is configured", () => {
+  assert.equal(shouldFallbackToAzureStt({ dictationSupported: false, speechFailed: false, transcript: "", azureAvailable: true }), true);
+  assert.equal(shouldFallbackToAzureStt({ dictationSupported: true, speechFailed: true, transcript: "bonjour", azureAvailable: true }), true);
+  assert.equal(shouldFallbackToAzureStt({ dictationSupported: true, speechFailed: false, transcript: "  ", azureAvailable: true }), true);
+  assert.equal(shouldFallbackToAzureStt({ dictationSupported: true, speechFailed: false, transcript: "bonjour", azureAvailable: true }), false);
+  assert.equal(shouldFallbackToAzureStt({ dictationSupported: false, speechFailed: true, transcript: "", azureAvailable: false }), false);
 });
