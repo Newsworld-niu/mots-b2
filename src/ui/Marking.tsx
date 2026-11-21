@@ -36,6 +36,16 @@ export function Marking({ fb, pointTitle, extra, from }: { fb: EssayFeedback; po
           ))}
         </dl>
       </div>
+      {fb.flags && (
+        <div className="essay-chips">
+          {fb.flags.offTopic === "total" && <span className="chip warn-text">严重偏题</span>}
+          {fb.flags.offTopic === "partial" && <span className="chip warn-text">部分偏题</span>}
+          {fb.flags.wrongGenre && <span className="chip warn-text">文体错位</span>}
+          {fb.flags.registerViolation && <span className="chip warn-text">语域/格式不符</span>}
+          {fb.flags.pastedFromDoc && <span className="chip warn-text">照抄材料</span>}
+          {fb.flags.cursoryDebate && <span className="chip warn-text">辩论敷衍</span>}
+        </div>
+      )}
       {fb.comment && <p className="essay-comment">{fb.comment}</p>}
       {fb.todo.length > 0 && (
         <div className="essay-box">

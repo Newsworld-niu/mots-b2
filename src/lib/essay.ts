@@ -370,6 +370,14 @@ export interface EssayCorrection {
   point: string;
 }
 
+export interface EssayFlags {
+  offTopic?: "none" | "partial" | "total";
+  wrongGenre?: boolean;
+  registerViolation?: boolean;
+  pastedFromDoc?: boolean;
+  cursoryDebate?: boolean;
+}
+
 export interface EssayFeedback {
   /** 0, 1, 3 or 5 per criterion of the grid used. */
   scores: Record<string, number>;
@@ -379,6 +387,8 @@ export interface EssayFeedback {
   corrections: EssayCorrection[];
   /** The learner's text with its errors fixed, keeping their ideas and wording where acceptable. */
   rewrite: string;
+  /** Structured compliance flags from the grid check, when any anomaly is present. */
+  flags?: EssayFlags;
 }
 
 /** The learner's second draft after reading the marking, and how it was marked. */
@@ -451,14 +461,65 @@ const list = (v: unknown, max: number) =>
 /** Scores stored before the official grid was used (four criteria out of 5 each). */
 const OLD_KEYS: Record<string, string> = { structure: "coherence", grammar: "morpho", vocabulary: "lexique" };
 
+function parseFlags(r: Record<string, unknown>): EssayFlags | undefined {
+  const f = (r.flags && typeof r.flags === "object" ? r.flags : r) as Record<string, unknown>;
+  const offTopic = f.offTopic === "partial" || f.offTopic === "total" ? f.offTopic : "none";
+  const wrongGenre = f.wrongGenre === true;
+  const registerViolation = f.registerViolation === true;
+  const pastedFromDoc = f.pastedFromDoc === true;
+  const cursoryDebate = f.cursoryDebate === true;
+  if (offTopic === "none" && !wrongGenre && !registerViolation && !pastedFromDoc && !cursoryDebate) return undefined;
+  return {
+    ...(offTopic !== "none" ? { offTopic } : {}),
+    ...(wrongGenre ? { wrongGenre } : {}),
+    ...(registerViolation ? { registerViolation } : {}),
+    ...(pastedFromDoc ? { pastedFromDoc } : {}),
+    ...(cursoryDebate ? { cursoryDebate } : {}),
+  };
+}
+
+function capScoresByFlags(scores: Record<string, number>, flags?: EssayFlags): Record<string, number> {
+  if (!flags) return scores;
+  const s = { ...scores };
+  if (flags.offTopic === "partial") {
+    if ("task" in s) s.task = Math.min(s.task, 3);
+    if ("monologue" in s) s.monologue = Math.min(s.monologue, 3);
+    if ("lexique" in s) s.lexique = Math.min(s.lexique, 3);
+  } else if (flags.offTopic === "total") {
+    if ("task" in s) s.task = 0;
+    if ("coherence" in s) s.coherence = 0;
+    if ("socio" in s) s.socio = 0;
+    if ("monologue" in s) s.monologue = 0;
+    if ("interaction" in s) s.interaction = 0;
+    if ("lexique" in s) s.lexique = Math.min(s.lexique, 3);
+  }
+  if (flags.wrongGenre) {
+    if ("task" in s) s.task = Math.min(s.task, 1);
+    if ("coherence" in s) s.coherence = Math.min(s.coherence, 1);
+  }
+  if (flags.registerViolation && "socio" in s) {
+    s.socio = Math.min(s.socio, 1);
+  }
+  if (flags.pastedFromDoc) {
+    if ("monologue" in s) s.monologue = Math.min(s.monologue, 1);
+    if ("lexique" in s) s.lexique = Math.min(s.lexique, 1);
+  }
+  if (flags.cursoryDebate && "interaction" in s) {
+    s.interaction = Math.min(s.interaction, 1);
+  }
+  return s;
+}
+
 /** Make an AI marking safe to show. `points` are the grammar point ids that may be linked. */
 export function sanitizeEssayFeedback(raw: unknown, points: ReadonlySet<string>, criteria: readonly string[] = CRITERIA): EssayFeedback {
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   const given = (r.scores && typeof r.scores === "object" ? r.scores : {}) as Record<string, unknown>;
   const s: Record<string, unknown> = { ...given };
   for (const [old, now] of Object.entries(OLD_KEYS)) if (s[now] === undefined && given[old] !== undefined) s[now] = given[old];
-  const scores: Record<string, number> = {};
-  for (const c of criteria) scores[c] = toLevel(typeof s[c] === "number" && Number.isFinite(s[c]) ? (s[c] as number) : 0);
+  const rawScores: Record<string, number> = {};
+  for (const c of criteria) rawScores[c] = toLevel(typeof s[c] === "number" && Number.isFinite(s[c]) ? (s[c] as number) : 0);
+  const flags = parseFlags(r);
+  const scores = capScoresByFlags(rawScores, flags);
   const corrections: EssayCorrection[] = (Array.isArray(r.corrections) ? r.corrections : [])
     .filter((e): e is Record<string, unknown> => !!e && typeof e === "object")
     .map((e) => ({
@@ -470,7 +531,15 @@ export function sanitizeEssayFeedback(raw: unknown, points: ReadonlySet<string>,
     }))
     .filter((e) => (e.wrong || e.right) && e.wrong !== e.right)
     .slice(0, 25);
-  return { scores, comment: str(r.comment, 800), strengths: list(r.strengths, 4), todo: list(r.todo, 4), corrections, rewrite: str(r.rewrite, MAX_ESSAY_LENGTH + 1000) };
+  return {
+    scores,
+    comment: str(r.comment, 800),
+    strengths: list(r.strengths, 4),
+    todo: list(r.todo, 4),
+    corrections,
+    rewrite: str(r.rewrite, MAX_ESSAY_LENGTH + 1000),
+    ...(flags ? { flags } : {}),
+  };
 }
 
 /**
@@ -504,6 +573,49 @@ export function applyEssayLengthCaps(fb: EssayFeedback, text: string, minWords: 
     note = `字数低于容忍下限（实测 ${wc} 词，低于 ${Math.round(minWords * 0.9)} 词），完成任务封顶 1 分。`;
   }
   return note ? { ...fb, scores, comment: `${note}${fb.comment}` } : fb;
+}
+
+/**
+ * Deterministic formal-register check for FORMAL_GENRES (lettre, motivation, courrier):
+ * flags informal `tu`/`toi` outside quotes, casual openings (`Bonjour`/`Salut`), or missing formal salutation/closing.
+ */
+export function hasFormalRegisterViolation(text: string): boolean {
+  const unquoted = text.replace(/«[^»]*»|"[^"]*"|“[^”]*”/g, " ");
+  if (/(?:^|[.!?;:\n]\s*|\b(?:si|quand|lorsque|que|où|comme|mais|et|donc|car|or|puisque|parce\s+que)\s+)tu\b|\btoi\b/i.test(unquoted)) {
+    return true;
+  }
+  const lines = text
+    .split(/\n+/)
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (!lines.length) return true;
+  const head = lines.slice(0, 2).join(" ").slice(0, 220);
+  const tail = lines.slice(-2).join(" ").slice(-280);
+  if (/^(?:bonjour|salut|coucou|hello)\b/i.test(head)) return true;
+  const hasSalutation = /\b(?:madame|monsieur|mesdames|messieurs|mme|rédact(?:eur|rice)|direct(?:eur|rice)|maire|rédaction|service)\b/i.test(head);
+  const hasClosing = /\b(?:agréer|salutations|sentiments|considération|respectueu\w*|distingué\w*|dévoué\w*|hommages)\b/i.test(tail);
+  return !hasSalutation || !hasClosing;
+}
+
+/** Apply FEI 2022 essay grid caps (off-topic, wrong genre, register/format, and word count). */
+export function applyEssayGridCaps(fb: EssayFeedback, opts: { genre: Genre; text: string; minWords: number }): EssayFeedback {
+  let flags = fb.flags ? { ...fb.flags } : undefined;
+  if (FORMAL_GENRES.includes(opts.genre) && hasFormalRegisterViolation(opts.text)) {
+    flags = { ...flags, registerViolation: true };
+  }
+  const cappedScores = capScoresByFlags(fb.scores, flags);
+  const notes: string[] = [];
+  if (flags?.offTopic === "total") notes.push("【严重偏题：完成任务、连贯衔接与语体得体记 0 分】");
+  else if (flags?.offTopic === "partial") notes.push("【部分偏题：完成任务与词汇封顶 3 分】");
+  if (flags?.wrongGenre) notes.push("【文体错位：完成任务与连贯衔接封顶 1 分】");
+  if (flags?.registerViolation) notes.push("【语域/格式不符：语体得体封顶 1 分】");
+  const withGridCaps: EssayFeedback = {
+    ...fb,
+    scores: cappedScores,
+    ...(flags ? { flags } : {}),
+    comment: notes.length ? `${notes.join("")}${fb.comment}` : fb.comment,
+  };
+  return applyEssayLengthCaps(withGridCaps, opts.text, opts.minWords);
 }
 
 /** Saved essays read back from storage or a backup. */

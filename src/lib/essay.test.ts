@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { applyEssayLengthCaps, buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_TASKS, maxScore, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { applyEssayGridCaps, applyEssayLengthCaps, buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_TASKS, hasFormalRegisterViolation, maxScore, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, tooShort, toLevel, totalScore, wordsFor } from "./essay";
 
 test("countWords counts elided and hyphenated words once", () => {
   assert.equal(countWords("L'ami de Paul est arrivé."), 5);
@@ -146,4 +146,36 @@ test("applyEssayLengthCaps enforces DELF tolerance thresholds (<125 zero, <175 t
   assert.equal(totalScore(s225), 25);
   const s360 = applyEssayLengthCaps(full, words(360), 250);
   assert.equal(totalScore(s360), 25);
+});
+
+test("PE-2 flags and formal register rules enforce FEI 2022 caps", () => {
+  const high = { scores: { task: 5, coherence: 5, socio: 5, lexique: 5, morpho: 5 }, comment: "ok" };
+  const partial = sanitizeEssayFeedback({ ...high, offTopic: "partial" }, new Set());
+  assert.deepEqual(partial.scores, { task: 3, coherence: 5, socio: 5, lexique: 3, morpho: 5 });
+  assert.equal(partial.flags?.offTopic, "partial");
+
+  const total = sanitizeEssayFeedback({ ...high, offTopic: "total", wrongGenre: true, registerViolation: true }, new Set());
+  assert.deepEqual(total.scores, { task: 0, coherence: 0, socio: 0, lexique: 3, morpho: 5 });
+
+  const genreBad = sanitizeEssayFeedback({ ...high, wrongGenre: true }, new Set());
+  assert.deepEqual(genreBad.scores, { task: 1, coherence: 1, socio: 5, lexique: 5, morpho: 5 });
+
+  const regBad = sanitizeEssayFeedback({ ...high, registerViolation: true }, new Set());
+  assert.deepEqual(regBad.scores, { task: 5, coherence: 5, socio: 1, lexique: 5, morpho: 5 });
+
+  // Formal register detector: catches Bonjour/Merci, missing salutation/closing, and unquoted tu; ignores quoted tu
+  const filler = new Array(250).fill("mot").join(" ");
+  assert.equal(hasFormalRegisterViolation(`Bonjour Monsieur,\n${filler}\nMerci beaucoup.`), true);
+  assert.equal(hasFormalRegisterViolation(`Madame, Monsieur,\nQuand tu veux réussir.\nJe vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.`), true);
+  assert.equal(hasFormalRegisterViolation(`Madame, Monsieur,\nUn passant a crié « tu exagères ».\n${filler}\nJe vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.`), false);
+
+  const capped = applyEssayGridCaps(
+    sanitizeEssayFeedback(high, new Set()),
+    { genre: "courrier", text: `Bonjour Monsieur,\n${filler}\nMerci beaucoup.`, minWords: 250 },
+  );
+  assert.equal(capped.scores.socio, 1);
+  assert.equal(capped.flags?.registerViolation, true);
+  // Flags survive backup round-trip without duplicating notes
+  const round = sanitizeEssays([{ id: "e-cap", task: "courrier-voitures", text: "Madame, Monsieur, ...", created: 1, fb: capped }]);
+  assert.deepEqual(round?.[0].fb?.flags, { registerViolation: true });
 });
