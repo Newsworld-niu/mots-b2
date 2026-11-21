@@ -230,7 +230,29 @@ export interface Progress {
   placement?: PlacementResult;
   /** Mistakes recorded from speaking markings (口语纠错), newest first. */
   speakCorrections?: SavedSpeakingCorrection[];
+  /** Dictionary lookup history (entry ids), newest first, capped at MAX_DICT_HISTORY. */
+  dictHistory?: string[];
+  /** Dictionary favorited entry ids, newest first. */
+  dictFavs?: string[];
+  /** Learner notes per dictionary entry id. */
+  dictNotes?: Record<string, string>;
+  /** Learner-submitted dictionary error reports, newest first. */
+  dictReports?: DictReport[];
 }
+
+export interface DictReport {
+  id: string;
+  entryId: string;
+  w?: string;
+  kind?: string;
+  detail: string;
+  at: number;
+}
+
+export const MAX_DICT_HISTORY = 200;
+export const MAX_DICT_FAVS = 5000;
+export const MAX_DICT_NOTES = 5000;
+export const MAX_DICT_REPORTS = 200;
 
 export interface SavedSpeakingCorrection {
   id: string;
@@ -445,6 +467,50 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
   if (placement) out.placement = placement;
   const speakCorrections = sanitizeSpeakingCorrections(v.speakCorrections);
   if (speakCorrections) out.speakCorrections = speakCorrections;
+  const validDictId = (x: unknown): string => {
+    if (typeof x !== "string") return "";
+    const s = x.trim();
+    return !s || s.length > 120 || /[\u0000-\u001f]/.test(s) ? "" : s;
+  };
+  if (Array.isArray(v.dictHistory)) {
+    const dictHistory = [...new Set(v.dictHistory.map(validDictId).filter(Boolean))].slice(0, MAX_DICT_HISTORY);
+    if (dictHistory.length) out.dictHistory = dictHistory;
+  }
+  if (Array.isArray(v.dictFavs)) {
+    const dictFavs = [...new Set(v.dictFavs.map(validDictId).filter(Boolean))].slice(0, MAX_DICT_FAVS);
+    if (dictFavs.length) out.dictFavs = dictFavs;
+  }
+  if (isObj(v.dictNotes)) {
+    const dictNotes: Record<string, string> = {};
+    for (const [k, raw] of Object.entries(v.dictNotes)) {
+      const id = validDictId(k);
+      const note = str(raw, MAX_TIP);
+      if (!id || !note) continue;
+      dictNotes[id] = note;
+      if (Object.keys(dictNotes).length >= MAX_DICT_NOTES) break;
+    }
+    if (Object.keys(dictNotes).length) out.dictNotes = dictNotes;
+  }
+  if (Array.isArray(v.dictReports)) {
+    const seen = new Set<string>();
+    const dictReports: DictReport[] = [];
+    for (const r of v.dictReports) {
+      if (!isObj(r)) continue;
+      const id = str(r.id, 60);
+      const entryId = validDictId(r.entryId);
+      const detail = str(r.detail, 500);
+      if (!id || seen.has(id) || !entryId || !detail || !num(r.at, 0)) continue;
+      seen.add(id);
+      const item: DictReport = { id, entryId, detail, at: r.at as number };
+      const w = str(r.w, 120);
+      if (w) item.w = w;
+      const kind = str(r.kind, 40);
+      if (kind) item.kind = kind;
+      dictReports.push(item);
+      if (dictReports.length >= MAX_DICT_REPORTS) break;
+    }
+    if (dictReports.length) out.dictReports = dictReports;
+  }
   const s = v.session;
   if (isObj(s) && typeof s.id === "string" && Array.isArray(s.steps) && num(s.index, 0) && isObj(s.graded))
     out.session = s as unknown as ActiveSession;
@@ -1000,6 +1066,8 @@ export function hasAnyProgress(p: Progress): boolean {
     Object.keys(p.expr ?? {}).length > 0 ||
     Object.keys(p.custom ?? {}).length > 0 ||
     (p.bookmarks?.length ?? 0) > 0 ||
+    (p.dictFavs?.length ?? 0) > 0 ||
+    Object.keys(p.dictNotes ?? {}).length > 0 ||
     !!p.placement
   );
 }
