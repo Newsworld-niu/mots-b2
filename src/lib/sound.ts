@@ -151,3 +151,55 @@ export function duck(on: boolean) {
 }
 
 export const ambienceId = () => amb?.id ?? null;
+
+/* ---------- listening noise bed (ultra-low ambient texture for exam TTS desensitisation) ---------- */
+
+export const LISTENING_NOISE = [
+  { id: "off", label: "关闭（纯净音质）" },
+  { id: "cafe", label: "室内微噪（咖啡馆）" },
+  { id: "voyage", label: "户外/交通低噪" },
+  { id: "rain", label: "雨声背景微噪" },
+] as const;
+export type ListeningNoiseId = (typeof LISTENING_NOISE)[number]["id"];
+
+let noiseNode: { src: AudioBufferSourceNode; gain: GainNode } | null = null;
+let noiseGen = 0;
+
+export function stopListeningNoise() {
+  noiseGen++;
+  const cur = noiseNode;
+  noiseNode = null;
+  if (!cur) return;
+  try {
+    if (ctx) {
+      fadeTo(cur.gain, 0, 0.2);
+      cur.src.stop(ctx.currentTime + 0.22);
+    } else {
+      cur.src.stop();
+    }
+  } catch {
+    /* already stopped */
+  }
+}
+
+/** Play ultra-low-level ambient noise from `public/sfx/amb-*.mp3` during listening playback. */
+export async function startListeningNoise(id: ListeningNoiseId, gainLevel = 0.065) {
+  stopListeningNoise();
+  if (id === "off") return;
+  const mine = noiseGen;
+  const c = audio();
+  if (!c || !master) return;
+  const buf = await load(`amb-${id}.mp3`);
+  if (!buf || mine !== noiseGen) return;
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  src.loop = true;
+  src.loopStart = 0.06;
+  src.loopEnd = Math.max(0.12, buf.duration - 0.06);
+  const gain = c.createGain();
+  gain.gain.value = 0;
+  src.connect(gain).connect(master);
+  src.start(0, 0.06);
+  noiseNode = { src, gain };
+  fadeTo(gain, gainLevel, 0.25);
+}

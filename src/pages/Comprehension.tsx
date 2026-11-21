@@ -1,13 +1,15 @@
 import { ArrowLeft, ArrowRight, Check, FastForward, Headphones, ListPlus, Play, RotateCcw, Square, Star, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ready, useAiConfig } from "../ai/config";
+import { buildDialogueSsmlBatches } from "../ai/ssml";
 import { makeComprehension } from "../ai/tasks";
-import { otherVoice, ttsOn, ttsUrl } from "../ai/tts";
+import { speakerVoices, ttsOn, ttsSsmlUrl, ttsUrl } from "../ai/tts";
 import { play, stopAudio } from "../lib/audio";
 import { countWords } from "../lib/essay";
-import { BETWEEN_PLAYS, clock, COMP_LABEL, exercisePoints, FORM_SPEC, outOf25, PAPER, QSKILL_LABEL, READ_MINUTES, REAL_WPM, speechChunks, TOPICS, topicOf, type CompExercise, type CompForm, type CompKind } from "../lib/exam";
+import { BETWEEN_PLAYS, clock, COMP_LABEL, exercisePoints, FORM_SPEC, outOf25, PAPER, QSKILL_LABEL, READ_MINUTES, REAL_WPM, speakerIndex, speechChunks, speechTurns, TOPICS, topicOf, type CompExercise, type CompForm, type CompKind } from "../lib/exam";
 import { accentNames, sentencesOf, CAUSE_LABEL, CAUSE_TIP, causeFromSkill, MISS_CAUSES, missStats, pickVoices, skillStats, type CompMiss, type DocVoices, type MissCause, type VoiceMode } from "../lib/listening";
 import { PRESET_PAPERS } from "../lib/exam-presets";
+import { LISTENING_NOISE, startListeningNoise, stopListeningNoise, type ListeningNoiseId } from "../lib/sound";
 import { addAttempt, deletePaper, savePaper, starPaper, useBank, wrongKeys, type BankPaper } from "../store/exam-bank";
 import { addMisses, setMissCause } from "../store/misses";
 import { TranscriptWords } from "../ui/TranscriptWords";
@@ -37,9 +39,11 @@ const readPace = () => {
 /** How much to speed the voice up or slow it down to reach the pace of the official recordings. */
 const rateFor = (wpm: number, slow: boolean) => Math.min(1.4, Math.max(0.8, wpm ? REAL_WPM / wpm : 1)) * (slow ? 0.85 : 1);
 
-/** Listening choices kept on this device: which voices read, and how the people speak. */
+/** Listening choices kept on this device: which voices read, how the people speak, and ambient noise bed. */
 const VOICE_KEY = "fb2.listen.voices";
 const STYLE_KEY = "fb2.listen.style";
+const NOISE_KEY = "fb2.listen.noise";
+const NOISE_IDS = LISTENING_NOISE.map((n) => n.id) as readonly ListeningNoiseId[];
 const readKey = <T extends string>(key: string, ok: readonly T[], d: T): T => {
   try {
     const v = localStorage.getItem(key) as T | null;
@@ -80,6 +84,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   const azure = ready.tts(ai);
   const [voiceMode, setVoiceMode] = useState<VoiceMode>(() => readKey(VOICE_KEY, ["mixed", "france", "fixed"], "mixed"));
   const [style, setStyle] = useState<"radio" | "natural">(() => readKey(STYLE_KEY, ["radio", "natural"], "natural"));
+  const [noise, setNoise] = useState<ListeningNoiseId>(() => readKey(NOISE_KEY, NOISE_IDS, "off"));
   const [real, setReal] = useState(false);
   /** The paper being done: its id in the bank, and the question keys asked when only the missed ones are. */
   const [paper, setPaper] = useState<{ id: string; level: "B1" | "B2"; asked?: string[] } | null>(null);
@@ -129,7 +134,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   /** Start a paper: voices for every document, answers cleared, the reading clock started. */
   const begin = (list: CompExercise[], p: { id: string; level: "B1" | "B2"; asked?: string[] }) => {
     const mode = azure && voiceMode !== "fixed" ? voiceMode : null;
-    setVoices(list.map((ex) => ex.docs.map(() => (mode ? pickVoices(mode) : { voices: ["uk", "us"] as [string, string], accents: [] }))));
+    setVoices(list.map((ex) => ex.docs.map(() => (mode ? pickVoices(mode) : { voices: speakerVoices(), accents: [] }))));
     setExs(list);
     setPaper(p);
     setPicked({});
@@ -175,43 +180,73 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   };
 
   /**
-   * Read one document aloud at the pace of the official recordings, the second speaker with the other voice.
-   * The audio of every piece is fetched first, so that there is no gap in the middle of a sentence; the voice's
-   * own pace is measured as it reads and the speed adjusted for what follows. False when stopped.
+   * Read one document aloud at the pace of the official recordings, distinguishing 3+ speakers.
+   * When Azure is enabled, builds whole-passage <prosody>/<break> SSML per turn batch so there are
+   * no mid-sentence gaps; otherwise falls back to chunked device speech. Optionally mixes in an
+   * ultra-low ambient noise bed from public/sfx/. False when stopped.
    */
   const say = async (text: string, mine: number, dv?: DocVoices) => {
-    const chunks = speechChunks(text);
-    // the two voices of this document (other accents in 多口音), or the ones set in 我的 → AI 接口
-    const custom = dv && dv.accents.length ? dv.voices : null;
-    const voiceOf = (who: number) => (custom ? custom[who === 1 ? 1 : 0] : who === 1 ? otherVoice() : "uk");
-    let urls: string[] = [];
-    if (ttsOn()) {
-      urls = await Promise.all(chunks.map((c) => ttsUrl(c.t, voiceOf(c.who)).catch(() => "")));
-      if (run.current !== mine) return false;
-    }
-    for (const [k, c] of chunks.entries()) {
-      const rate = rateFor(measured.current.sec > 20 ? (measured.current.words / measured.current.sec) * 60 : wpm, slow);
-      const t0 = performance.now();
-      const r = await play(custom ? urls[k] || null : null, c.t, "uk", rate, c.who === 1);
-      if (run.current !== mine || r === "stopped" || r === "unsupported") return false;
-      const words = countWords(c.t);
-      // what the piece would have taken at normal speed; the device voice is slowed by 5% in `play`
-      const sec = ((performance.now() - t0) / 1000) * rate * (r === "device" ? 0.95 : 1);
+    const voicePool = dv && dv.voices.length >= 3 ? dv.voices : speakerVoices();
+    const voiceOf = (who: number) => voicePool[who % voicePool.length];
+    const recordPace = (words: number, sec: number) => {
       if (words >= 12 && sec > 2) {
         measured.current.words += words;
         measured.current.sec += sec;
       }
-    }
-    if (measured.current.sec > 20) {
-      const now = Math.round((measured.current.words / measured.current.sec) * 60);
-      setWpm(now);
-      try {
-        localStorage.setItem(PACE_KEY, String(now));
-      } catch {
-        /* the pace is measured again next time */
+      if (measured.current.sec > 20) {
+        const now = Math.round((measured.current.words / measured.current.sec) * 60);
+        setWpm(now);
+        try {
+          localStorage.setItem(PACE_KEY, String(now));
+        } catch {
+          /* the pace is measured again next time */
+        }
       }
+    };
+    const keepNoise = noise !== "off";
+    if (keepNoise) void startListeningNoise(noise);
+    try {
+      if (ttsOn()) {
+        const turns = speechTurns(text);
+        const batches = buildDialogueSsmlBatches(turns, voicePool, { style });
+        try {
+          const batchUrls = await Promise.all(batches.map((ssml) => ttsSsmlUrl(ssml)));
+          if (run.current !== mine) return false;
+          const totalWords = countWords(text);
+          const t0 = performance.now();
+          for (const url of batchUrls) {
+            const rate = rateFor(measured.current.sec > 20 ? (measured.current.words / measured.current.sec) * 60 : wpm, slow);
+            const r = await play(url, "", "uk", rate);
+            if (run.current !== mine || r === "stopped" || r === "unsupported") return false;
+          }
+          const avgRate = rateFor(measured.current.sec > 20 ? (measured.current.words / measured.current.sec) * 60 : wpm, slow);
+          recordPace(totalWords, ((performance.now() - t0) / 1000) * avgRate);
+          return true;
+        } catch {
+          if (run.current !== mine) return false;
+          // Fall back to per-chunk synthesis / device speech if a batch SSML call fails
+        }
+      }
+      const chunks = speechChunks(text);
+      let urls: string[] = [];
+      if (ttsOn()) {
+        urls = await Promise.all(chunks.map((c) => ttsUrl(c.t, voiceOf(c.who)).catch(() => "")));
+        if (run.current !== mine) return false;
+      }
+      for (const [k, c] of chunks.entries()) {
+        const rate = rateFor(measured.current.sec > 20 ? (measured.current.words / measured.current.sec) * 60 : wpm, slow);
+        const t0 = performance.now();
+        const r = await play(urls[k] || null, c.t, "uk", rate, c.who);
+        if (run.current !== mine || r === "stopped" || r === "unsupported") return false;
+        const words = countWords(c.t);
+        // what the piece would have taken at normal speed; the device voice is slowed by 5% in `play`
+        const sec = ((performance.now() - t0) / 1000) * rate * (r === "device" ? 0.95 : 1);
+        recordPace(words, sec);
+      }
+      return true;
+    } finally {
+      if (keepNoise) stopListeningNoise();
     }
-    return true;
   };
 
   /** A pause of the exam (reading the questions, answering): counts down, and can be skipped. */
@@ -260,14 +295,15 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
     if (run.current === mine) setPace(null);
   };
 
-  /** One piece of a document for 精听, in the voice its speaker had in the recording (the first one named: the first voice). */
+  /** One piece of a document for 精听, in the voice its speaker had in the recording. */
   const speakPiece = async (text: string, rate: number, doc: string, dv?: DocVoices, who?: string) => {
-    // as speechChunks does: speakers in order of appearance, alternating between the two voices
-    const names = [...new Set(sentencesOf(doc).flatMap((u) => (u.who ? [u.who] : [])))];
-    const second = !!who && names.indexOf(who) % 2 === 1;
-    const voice = dv && dv.accents.length ? dv.voices[second ? 1 : 0] : second ? otherVoice() : "uk";
+    const names: string[] = [];
+    for (const u of sentencesOf(doc)) if (u.who) speakerIndex(names, u.who);
+    const whoIdx = who ? speakerIndex(names, who) : 0;
+    const pool = dv && dv.voices.length >= 3 ? dv.voices : speakerVoices();
+    const voice = pool[whoIdx % pool.length];
     const url = ttsOn() ? await ttsUrl(text, voice).catch(() => null) : null;
-    await play(url, text, "uk", rate, second);
+    await play(url, text, "uk", rate, whoIdx);
   };
 
   const askedSet = paper?.asked ? new Set(paper.asked) : null;
@@ -324,9 +360,20 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
           <h1 className="display">{listen ? "只听，不看。" : "读得快，也读得准。"}</h1>
           <p className="lede">
             {listen
-              ? "和考试一样：一套三个练习共 25 分。两段长录音各听两遍，三段短录音各听一遍；每题三个选项，1 分或 1.5 分。先读题，再听，按考试的停顿时间作答。"
-              : "和考试一样：一套三个练习共 25 分，限时 1 小时。两篇报刊文章各 7 题，再加一组「这是谁的观点」；每题三个选项，1 分或 1.5 分。"}
+              ? "和考试一样：一套三个练习共 25 分。两段长录音各听两遍，三段短录音各听一遍；每题三个选项，按难度占 0.5 至 2.5 分不等。先读题，再听，按考试的停顿时间作答。"
+              : "和考试一样：一套三个练习共 25 分，限时 1 小时。两篇报刊文章各 7 题，再加一组「这是谁的观点」；每题三个选项，按难度占 0.5 至 2.5 分不等。"}
           </p>
+          {listen && (
+            <div className="exam-notice" role="note">
+              <p>
+                <b>TTS 音频仅用于熟悉题型，考前须搭配真实电台脱敏。</b>
+                <span className="muted small">真实 DELF B2 录音来自法国电台（带现场底噪、语流吞连与多人抢话）。考前请务必结合「真实材料精听」（RFI / TV5Monde / France Culture）及官方样题脱敏。</span>
+              </p>
+              <button className="btn btn-ghost" onClick={() => setReal(true)}>
+                <Headphones size={15} /> 去听真实电台
+              </button>
+            </div>
+          )}
         </header>
         <section className="panel exam-setup">
           <h3 className="eyebrow">练什么</h3>
@@ -379,12 +426,20 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
                       </button>
                     ))}
                   </div>
-                  <p className="muted small">{voiceMode === "mixed" ? "每段录音随机换声音，约一半用加拿大、比利时或瑞士口音；真题里也会出现非法国口音。" : voiceMode === "france" ? "每段录音随机换一对法国声音，不总是同两个人。" : "用「我的 → AI 接口」里设置的 Azure 语音，对话里的第二个人换另一个声音。"}</p>
+                  <p className="muted small">{voiceMode === "mixed" ? "每段录音随机换声音（支持 3 人以上对话不同音色），约一半用加拿大、比利时或瑞士口音；真题里也会出现非法国口音。" : voiceMode === "france" ? "每段录音随机换一组法国声音（支持 3 人以上不同音色），不总是同几个人。" : "用「我的 → AI 接口」里设置的 Azure 语音作为主声，其余说话人自动分配不同音色。"}</p>
                 </>
               ) : (
                 <p className="muted">没有设置 Azure 语音，会用这台设备自带的法语语音朗读，音质和语速可能不理想，也换不了口音。</p>
               )}
-              <p className="muted small">真题是多人真人录音；想听真人，用下面的「真实材料精听」。</p>
+              <h3 className="eyebrow">环境底噪（可选）</h3>
+              <div className="segmented segmented-wide">
+                {LISTENING_NOISE.map((n) => (
+                  <button key={n.id} className={noise === n.id ? "is-on" : ""} onClick={() => (setNoise(n.id), writeKey(NOISE_KEY, n.id))} aria-pressed={noise === n.id}>
+                    {n.label}
+                  </button>
+                ))}
+              </div>
+              <p className="muted small">仅在播放录音时以极低音量混入环境底噪（复用系统环境音），帮助适应电台现场或考场扬声器的声场背景。</p>
             </>
           )}
           {listen ? (
@@ -576,6 +631,10 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
           </span>
           {!listen && !done && timed && <span className={`exam-clock ${timer.sec === 0 ? "is-over" : ""}`}>{timer.sec === 0 ? "时间到" : clock(timer.sec)}</span>}
         </header>
+
+        {listen && !done && (
+          <p className="muted small">提示：TTS 音频仅用于熟悉题型，考前须搭配真实电台脱敏。</p>
+        )}
 
         {done && (
           <div className="essay-marks">

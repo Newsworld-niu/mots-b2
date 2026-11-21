@@ -261,8 +261,32 @@ export const exercisePoints = (ex: CompExercise) => ex.questions.reduce((n, q) =
 
 export interface SpeechChunk {
   t: string;
-  /** 0 for the first speaker (or no speaker), 1 for the second, alternating as new names appear. */
+  /** 0 for the first speaker (or no speaker), 1 for the second, 2 for the third, etc. */
   who: number;
+}
+
+/**
+ * Resolve a speaker label ("Hélène Martin", later "Hélène") to a stable zero-based speaker index,
+ * supporting 3+ speakers while keeping full-name and first-name turns on the same voice when unambiguous.
+ */
+export function speakerIndex(speakers: string[], rawName: string): number {
+  const name = rawName.trim();
+  const exact = speakers.indexOf(name);
+  if (exact >= 0) return exact;
+  if (!name.includes(" ")) {
+    const pref = `${name} `;
+    const hits = speakers.map((s, i) => (s.startsWith(pref) ? i : -1)).filter((i) => i >= 0);
+    if (hits.length === 1) return hits[0];
+  } else {
+    const first = name.split(" ")[0];
+    const hits = speakers.map((s, i) => (s === first ? i : -1)).filter((i) => i >= 0);
+    if (hits.length === 1) {
+      speakers[hits[0]] = name;
+      return hits[0];
+    }
+  }
+  speakers.push(name);
+  return speakers.length - 1;
 }
 
 /**
@@ -274,12 +298,7 @@ export function speechChunks(text: string, max = 360): SpeechChunk[] {
   const speakers: string[] = [];
   for (const line of text.split(/\n+/)) {
     const m = line.match(/^\s*([\p{Lu}][\p{L} .'’-]{0,24})\s:\s*/u);
-    let who = 0;
-    if (m) {
-      const name = m[1].trim();
-      if (!speakers.includes(name)) speakers.push(name);
-      who = speakers.indexOf(name) % 2;
-    }
+    const who = m ? speakerIndex(speakers, m[1]) : 0;
     const said = (m ? line.slice(m[0].length) : line).trim();
     if (!said) continue;
     let cur = "";
@@ -299,6 +318,17 @@ export function speechChunks(text: string, max = 360): SpeechChunk[] {
       }
     }
     push(cur);
+  }
+  return out;
+}
+
+/** Merge consecutive lines of the same speaker into full turns (for whole-passage Azure SSML). */
+export function speechTurns(text: string): SpeechChunk[] {
+  const out: SpeechChunk[] = [];
+  for (const c of speechChunks(text, 2400)) {
+    const prev = out[out.length - 1];
+    if (prev && prev.who === c.who) prev.t = `${prev.t} ${c.t}`;
+    else out.push({ ...c });
   }
   return out;
 }

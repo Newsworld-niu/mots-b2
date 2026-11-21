@@ -110,3 +110,20 @@
   border: 0;
   border-radius: var(--r);
 }
+.exam-notice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--terra);
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--terra) 10%, var(--card));
+}
+.exam-notice p {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}

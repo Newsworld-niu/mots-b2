@@ -12,10 +12,12 @@ const seq = (...xs: number[]) => {
   return () => xs[i++ % xs.length];
 };
 
-test("pickVoices: two voices of different sexes, france mode stays in France", () => {
+test("pickVoices: >=3 distinct voices, first two of different sexes, france mode stays in France", () => {
   for (let k = 0; k < 50; k++) {
     const v = pickVoices("france");
     assert.deepEqual(v.accents, ["fr-FR"]);
+    assert.ok(v.voices.length >= 3);
+    assert.equal(new Set(v.voices).size, v.voices.length);
     const fr = ACCENTS[0];
     const sexes = v.voices.map((x) => (fr.f.includes(x) ? "f" : fr.m.includes(x) ? "m" : "?"));
     assert.ok(!sexes.includes("?"));

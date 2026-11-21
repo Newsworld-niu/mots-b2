@@ -31,15 +31,15 @@ export const accentOf = (voice: string) => ACCENTS.find((a) => voice.startsWith(
 /** "fixed": the voices set in 我的 → AI 接口; "france": varied voices of France; "mixed": any accent. */
 export type VoiceMode = "fixed" | "france" | "mixed";
 
-/** The two voices of one document: [first speaker, second speaker], of different sexes. */
+/** The voices of one document: at least 3–4 distinct voices (first two of different sexes). */
 export interface DocVoices {
-  voices: [string, string];
+  voices: string[];
   accents: AccentId[];
 }
 
 /**
  * Voices for one document. In "mixed" mode about half the documents are read in another accent than
- * France's, and the two speakers of an interview may come from different countries, as on the radio.
+ * France's, and the speakers of an interview or panel may come from different countries, as on the radio.
  */
 export function pickVoices(mode: Exclude<VoiceMode, "fixed">, rnd: () => number = Math.random): DocVoices {
   const pick = <T,>(a: T[]) => a[Math.floor(rnd() * a.length) % a.length];
@@ -50,7 +50,21 @@ export function pickVoices(mode: Exclude<VoiceMode, "fixed">, rnd: () => number 
   const a2 = mode === "mixed" && rnd() < 0.4 ? pick(ACCENTS) : a1;
   const v1 = pick(female ? a1.f : a1.m);
   const v2 = pick(female ? a2.m : a2.f);
-  return { voices: [v1, v2], accents: [...new Set([a1.id, a2.id])] };
+  const sameAccentPool = [...new Set([...a1.f, ...a1.m, ...a2.f, ...a2.m])].filter((v) => v !== v1 && v !== v2);
+  const extraAccents: AccentId[] = [];
+  const voices = [v1, v2];
+  while (voices.length < 4) {
+    if (sameAccentPool.length) {
+      const idx = Math.floor(rnd() * sameAccentPool.length) % sameAccentPool.length;
+      voices.push(sameAccentPool.splice(idx, 1)[0]);
+    } else {
+      const fallbackPool = [...france.f, ...france.m].filter((v) => !voices.includes(v));
+      if (!fallbackPool.length) break;
+      voices.push(pick(fallbackPool));
+      extraAccents.push(france.id);
+    }
+  }
+  return { voices, accents: [...new Set([a1.id, a2.id, ...extraAccents])] };
 }
 
 export const accentNames = (ids: AccentId[]) => ids.map((id) => ACCENTS.find((a) => a.id === id)?.zh ?? id).join("、");

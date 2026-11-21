@@ -8,6 +8,7 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { getAiConfig, type TextProvider } from "./config";
 import { AiError, aiFetch, errorFrom, proxyAvailable, proxyUrl } from "./proxy";
+import { buildVoiceSsml, type SsmlOptions } from "./ssml";
 
 export interface Attachment {
   /** image/jpeg, image/png, image/webp or application/pdf */
@@ -251,17 +252,11 @@ export async function generateImage(prompt: string, signal?: AbortSignal): Promi
 
 /* ---------- Azure AI Speech ---------- */
 
-const xml = (s: string) => s.replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c]!);
-
-/** French speech for a text (MP3). */
-export async function azureSpeak(text: string, voice = getAiConfig().azureVoice, signal?: AbortSignal): Promise<Blob> {
+/** Send a complete SSML <speak> document to Azure AI Speech and return MP3 audio. */
+export async function azureSpeakSsml(ssml: string, signal?: AbortSignal): Promise<Blob> {
   await needProxy();
   const c = getAiConfig();
   if (!c.azureRegion) throw new AiError("还没有填 Azure 语音服务的区域");
-  const lang = voice.match(/^[a-z]{2}-[A-Z]{2}/)?.[0] ?? "fr-FR";
-  // a French voice (fr-FR, fr-CA, fr-BE, fr-CH) reads in its own accent; a multilingual voice is told to speak French
-  const body = lang.startsWith("fr-") ? xml(text) : `<lang xml:lang="fr-FR">${xml(text)}</lang>`;
-  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${lang}"><voice name="${xml(voice)}">${body}</voice></speak>`;
   const r = await aiFetch(proxyUrl("azure", `/${c.azureRegion}/cognitiveservices/v1`), {
     method: "POST",
     headers: {
@@ -274,6 +269,11 @@ export async function azureSpeak(text: string, voice = getAiConfig().azureVoice,
   });
   if (!r.ok) throw await errorFrom(r, "Azure 语音");
   return new Blob([await r.arrayBuffer()], { type: "audio/mpeg" });
+}
+
+/** French speech for a text (MP3), wrapped in <prosody> and natural <break> SSML. */
+export async function azureSpeak(text: string, voice = getAiConfig().azureVoice, signal?: AbortSignal, opts?: SsmlOptions): Promise<Blob> {
+  return azureSpeakSsml(buildVoiceSsml(text, voice, opts), signal);
 }
 
 export interface AzureVoice {
