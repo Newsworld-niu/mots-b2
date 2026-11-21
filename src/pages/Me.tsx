@@ -4,11 +4,11 @@ import { ready, useAiConfig } from "../ai/config";
 import { AiSettings } from "../ui/AiSettings";
 import { Sheet } from "../ui/Sheet";
 import { useAtlas } from "../atlas/context";
-import { isNative, shareFileNative } from "../lib/native";
+import { downloadBackupFile, isBackupSnoozedToday, snoozeBackupToday } from "../lib/backup";
 import { PLACEMENT_ESTIMATE, SECTION_META } from "../lib/placement";
 import { addMonthsDate, daysUntilExam } from "../lib/study-plan";
 import { isMastered } from "../store/srs";
-import { dayKey, exportBackup, importBackup, MAX_DAILY_NEW, resetProgress, store, useStore, type Settings } from "../store/store";
+import { dayKey, importBackupAsync, MAX_DAILY_NEW, needsBackupReminder, resetProgress, store, useStore, type Settings } from "../store/store";
 import { CountPicker } from "../ui/CountPicker";
 import { EssayTrend } from "../ui/EssayTrend";
 import { PlacementTest } from "../ui/PlacementTest";
@@ -46,19 +46,12 @@ export function Me() {
   }, [progress]);
 
   const set = (patch: Partial<Settings>) => store.settings(patch);
-  const download = () => {
-    const blob = new Blob([exportBackup()], { type: "application/json" });
-    const name = `atlas-du-francais-backup-${dayKey()}.json`;
-    if (isNative()) return void shareFileNative(blob, name, "学习备份").catch(() => toast("备份导出失败，请稍后再试", "warn"));
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  };
+  const [backupDismissed, setBackupDismissed] = useState(isBackupSnoozedToday);
+  const backupDue = useMemo(() => needsBackupReminder(progress, settings.lastBackupAt), [progress, settings.lastBackupAt]);
+  const download = () => void downloadBackupFile();
   const restore = async (f: File) => {
     if (f.size > 30 * 1024 * 1024) return toast("文件太大，不像是学习备份。", "warn");
-    const r = importBackup(await f.text());
+    const r = await importBackupAsync(await f.text());
     toast(r.ok ? `已恢复 ${r.cards} 个词的记忆` : r.error, r.ok ? "ok" : "warn");
   };
   const maxF = Math.max(1, ...stats.forecast);
@@ -259,7 +252,25 @@ export function Me() {
 
         <section className="panel">
           <h3 className="eyebrow">数据</h3>
-          <p className="muted">进度只存在这台设备的浏览器里：没有账号，没有服务器。换设备时，导出备份再导入即可。</p>
+          <p className="muted">进度只存在这台设备的浏览器里：没有账号，没有服务器。换设备时，导出备份再导入即可（含作文、阅读、模考题库与草稿）。</p>
+          <p className="muted small">
+            上次备份：{settings.lastBackupAt ? new Date(settings.lastBackupAt).toLocaleDateString("zh-CN") : "尚未导出过备份"}
+          </p>
+          {backupDue.remind && !backupDismissed && (
+            <div className="backup-remind" role="status">
+              <span>已超过 {backupDue.daysSince} 天未导出备份，建议立即备份以免浏览器清理缓存丢失进度。</span>
+              <button
+                type="button"
+                className="link small"
+                onClick={() => {
+                  snoozeBackupToday();
+                  setBackupDismissed(true);
+                }}
+              >
+                今天先不提醒
+              </button>
+            </div>
+          )}
           {saveError && <p className="warn-text">浏览器拒绝保存（可能是隐私模式或空间已满）。请尽快导出备份。</p>}
           <div className="data-actions">
             <button className="btn btn-ghost" onClick={download}>

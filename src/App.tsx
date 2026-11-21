@@ -21,6 +21,7 @@ import { Compare } from "./pages/Compare";
 import { Decks } from "./pages/Decks";
 import { Today } from "./pages/Today";
 import { cue } from "./lib/sound";
+import { downloadBackupFile } from "./lib/backup";
 import { store, useStore } from "./store/store";
 import { EntryView } from "./ui/EntryView";
 import { AmbienceController, AmbiencePicker } from "./ui/Ambience";
@@ -134,6 +135,7 @@ function Shell() {
   }, [word, target, route]);
   const onboarded = useStore((s) => s.settings.onboarded);
   const theme = useStore((s) => s.settings.theme);
+  const saveError = useStore((s) => s.saveError);
   const [palette, setPalette] = useState(false);
   const [splash, setSplash] = useState(shouldShowSplash);
   const focus = route.page === "learn";
@@ -192,6 +194,14 @@ function Shell() {
       )}
 
       <main className="main" id="main">
+        {saveError && (
+          <div className="global-save-alert" role="alert">
+            <span>本地存储空间不足或被浏览器拒绝，新学习进度可能无法保存。请尽快导出 JSON 备份以免丢失！</span>
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => void downloadBackupFile()}>
+              立即导出备份
+            </button>
+          </div>
+        )}
         {route.page === "today" && <Today />}
         {route.page === "atlas" && <AtlasPage route={route} />}
         {route.page === "learn" && <Learn />}

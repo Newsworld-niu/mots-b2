@@ -134,6 +134,11 @@ export function loadBank() {
   return loading;
 }
 
+export function reloadBank() {
+  loading = null;
+  return loadBank();
+}
+
 export function useBank() {
   return useSyncExternalStore(
     (f) => {

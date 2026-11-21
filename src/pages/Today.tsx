@@ -1,10 +1,11 @@
 import { HomeDictionary } from "../ui/HomeDictionary";
 import { FamilyPicker } from "../ui/FamilyPicker";
 import { POS_OPTIONS } from "../lib/pos";
-import { ArrowRight, Calendar, Compass, Flame, Keyboard, Sparkles, Target } from "lucide-react";
+import { ArrowRight, Calendar, Compass, Download, Flame, Keyboard, Sparkles, Target } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { prefetch, useAtlas, useEntry } from "../atlas/context";
 import { useGrammar } from "../atlas/grammar";
+import { downloadBackupFile, isBackupSnoozedToday, snoozeBackupToday } from "../lib/backup";
 import { go, openWord } from "../lib/router";
 import { cue } from "../lib/sound";
 import { buildPrepSchedule, type PrepKind } from "../lib/study-plan";
@@ -13,7 +14,7 @@ import { duePoints, untouchedWithErrors } from "../store/grammar";
 import { buildSession, isTaughtReady, masteredCount, todayPlan } from "../store/session";
 import { isMastered } from "../store/srs";
 import { CORE_NAME, studyRange } from "../store/decks";
-import { dayKey, MAX_DAILY_NEW, store, useStore } from "../store/store";
+import { dayKey, MAX_DAILY_NEW, needsBackupReminder, store, useStore } from "../store/store";
 import { Galaxy } from "../galaxy/Galaxy";
 import { Highlight, Pronounce } from "../ui/EntryView";
 import { Illustration, plateArticle } from "../ui/Illustration";
@@ -78,6 +79,8 @@ export function Today() {
   const [expr, setExpr] = useState(false);
   const [studio, setStudio] = useState<"listen" | "read" | "essay" | "speak" | null>(null);
   const [placeOpen, setPlaceOpen] = useState(false);
+  const [backupDismissed, setBackupDismissed] = useState(isBackupSnoozedToday);
+  const backupDue = useMemo(() => needsBackupReminder(progress, settings.lastBackupAt), [progress, settings.lastBackupAt]);
   const moreN = Math.min(MAX_DAILY_NEW, Math.max(0, Math.round(Number(more) || 0)));
   const start = (opts?: { reviewOnly?: boolean; extra?: number }) => {
     if (!active) {
@@ -149,6 +152,29 @@ export function Today() {
       </header>
 
       <HomeDictionary />
+
+      {backupDue.remind && !backupDismissed && (
+        <aside className="backup-remind" role="status">
+          <span>
+            已超过 {backupDue.daysSince} 天未导出备份（Safari 等浏览器可能清理本地数据），建议保存一份 JSON 备份。
+          </span>
+          <div className="backup-remind-actions">
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => void downloadBackupFile()}>
+              <Download size={14} /> 立即导出
+            </button>
+            <button
+              type="button"
+              className="link small"
+              onClick={() => {
+                snoozeBackupToday();
+                setBackupDismissed(true);
+              }}
+            >
+              今天先不提醒
+            </button>
+          </div>
+        </aside>
+      )}
 
       <section className="panel prep-card" aria-label="今日备考调度">
         <div className="prep-head">

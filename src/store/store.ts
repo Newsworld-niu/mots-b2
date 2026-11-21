@@ -14,6 +14,20 @@ import { sanitizeDrillDays } from "../lib/drill";
 import { sanitizePlacement, type PlacementResult } from "../lib/placement";
 import { TENSES } from "../lib/conjugation";
 import { EXPR_ID } from "../lib/expressions";
+import { reloadBank } from "./exam-bank";
+import {
+  collectEssayDrafts,
+  getHeavy,
+  getSnapshotIdb,
+  listSnapshotsIdb,
+  mergeHeavy,
+  putHeavy,
+  putSnapshotIdb,
+  readExamBankBackup,
+  restoreEssayDrafts,
+  restoreExamBankBackup,
+  type ExamBankBackup,
+} from "./vault";
 
 /**
  * "gender": choose un / une for a noun (no options list; the two articles are fixed).
@@ -250,6 +264,8 @@ export interface Settings {
   readColors: boolean;
   /** 阅读: the deck new words go to; null = none chosen yet. */
   readDeck: string | null;
+  /** Epoch ms when the learner last exported a JSON backup; null if never exported. */
+  lastBackupAt: number | null;
 }
 
 export const defaultSettings: Settings = {
@@ -276,6 +292,7 @@ export const defaultSettings: Settings = {
   studyFamilies: null,
   readColors: true,
   readDeck: null,
+  lastBackupAt: null,
 };
 
 export const emptyProgress = (datasetId: string): Progress => ({
@@ -608,6 +625,7 @@ export function sanitizeSettings(v: unknown): Settings {
   }
   if (typeof v.readColors === "boolean") s.readColors = v.readColors;
   if (typeof v.readDeck === "string" && (v.readDeck === CORE_DECK || DECK_ID.test(v.readDeck))) s.readDeck = v.readDeck;
+  if (num(v.lastBackupAt, 0)) s.lastBackupAt = v.lastBackupAt as number;
   return s;
 }
 
@@ -630,6 +648,73 @@ let saveTimer: number | undefined;
 let dirty = false;
 /** Progress is written only after it has been read from storage for this dataset. */
 let loadedId: string | null = null;
+/** Datasets whose heavy fields (texts, essays) have been synced to IndexedDB fb2-vault. */
+const vaultSynced = new Set<string>();
+const vaultHydrating = new Map<string, Promise<void>>();
+const vaultWriting = new Map<string, Promise<boolean>>();
+
+/** Strip heavy essays/texts from the localStorage mirror once IndexedDB vault holds them. */
+export function compactProgressForLocalStorage(p: Progress): Progress {
+  if (!p.texts?.length && !p.essays?.length) return p;
+  const { texts: _t, essays: _e, ...rest } = p;
+  void _t;
+  void _e;
+  return rest;
+}
+
+function queueHeavySave(p: Progress): Promise<boolean> {
+  const op = putHeavy(p.datasetId, { texts: p.texts, essays: p.essays }).then((ok) => {
+    if (ok) vaultSynced.add(p.datasetId);
+    return ok;
+  });
+  vaultWriting.set(p.datasetId, op);
+  return op;
+}
+
+async function hydrateVaultForDataset(datasetId: string): Promise<void> {
+  if (typeof indexedDB === "undefined") return;
+  const existing = vaultHydrating.get(datasetId);
+  if (existing) return existing;
+  const task = (async () => {
+    // 1. Migrate legacy localStorage snapshots into IndexedDB and free localStorage quota
+    for (const key of listSnapshots(datasetId)) {
+      const snap = read<Progress>(key);
+      if (snap && (await putSnapshotIdb(key, sanitizeProgress(snap, datasetId)))) {
+        try {
+          localStorage.removeItem(key);
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+    // 2. Merge heavy texts/essays from IndexedDB with any legacy localStorage or in-memory entries
+    const idb = await getHeavy(datasetId);
+    const cur = state.progress.datasetId === datasetId ? state.progress : null;
+    if (!cur) return;
+    const texts = mergeHeavy(cur.texts, idb?.texts, 60);
+    const essays = mergeHeavy(cur.essays, idb?.essays, 40);
+    const ok = await queueHeavySave({ ...cur, texts, essays });
+    if (!ok) return;
+    if (state.progress.datasetId === datasetId) {
+      const changed = (texts?.length ?? 0) !== (state.progress.texts?.length ?? 0) || (essays?.length ?? 0) !== (state.progress.essays?.length ?? 0);
+      if (changed) {
+        state = {
+          ...state,
+          progress: {
+            ...state.progress,
+            ...(texts ? { texts } : {}),
+            ...(essays ? { essays } : {}),
+          },
+        };
+        emit();
+      }
+      // Rewrite compact localStorage copy so legacy large blobs are freed
+      write(progressKey(datasetId), compactProgressForLocalStorage(state.progress));
+    }
+  })();
+  vaultHydrating.set(datasetId, task);
+  return task;
+}
 
 function emit() {
   listeners.forEach((l) => l());
@@ -645,7 +730,25 @@ export function flush() {
   window.clearTimeout(saveTimer);
   if (!dirty) return;
   dirty = false;
-  const progressOk = loadedId !== state.progress.datasetId || write(progressKey(state.progress.datasetId), state.progress);
+  let progressOk = true;
+  if (loadedId === state.progress.datasetId) {
+    const p = state.progress;
+    if (typeof indexedDB !== "undefined") {
+      if (vaultSynced.has(p.datasetId)) {
+        void queueHeavySave(p);
+        progressOk = write(progressKey(p.datasetId), compactProgressForLocalStorage(p));
+      } else {
+        progressOk = write(progressKey(p.datasetId), p);
+        if (!progressOk) {
+          // QuotaExceededError on full payload: offload heavy fields to IDB and keep compact progress in localStorage
+          void queueHeavySave(p);
+          progressOk = write(progressKey(p.datasetId), compactProgressForLocalStorage(p));
+        }
+      }
+    } else {
+      progressOk = write(progressKey(p.datasetId), p);
+    }
+  }
   const ok = progressOk && write(SETTINGS_KEY, state.settings);
   if (ok === state.saveError) {
     state = { ...state, saveError: !ok };
@@ -674,13 +777,24 @@ if (typeof window !== "undefined") {
 /* ---------- alias migration with snapshots ---------- */
 
 export const listSnapshots = (datasetId: string) =>
-  Object.keys(localStorage)
-    .filter((k) => k.startsWith(`word-atlas:snapshot:${datasetId}:`))
-    .sort();
+  typeof localStorage === "undefined"
+    ? []
+    : Object.keys(localStorage)
+        .filter((k) => k.startsWith(`word-atlas:snapshot:${datasetId}:`))
+        .sort();
 
-/** Keep the five newest snapshots; older ones are removed. */
+export async function listSnapshotsAsync(datasetId: string): Promise<string[]> {
+  const idb = await listSnapshotsIdb(datasetId);
+  return [...new Set([...listSnapshots(datasetId), ...idb])].sort();
+}
+
+/** Keep the five newest snapshots; write to IndexedDB when available to spare localStorage quota. */
 function writeSnapshot(p: Progress): string {
   const key = `word-atlas:snapshot:${p.datasetId}:${Date.now()}`;
+  if (typeof indexedDB !== "undefined") {
+    void putSnapshotIdb(key, p);
+    return key;
+  }
   write(key, p);
   const keys = listSnapshots(p.datasetId);
   for (const k of keys.slice(0, Math.max(0, keys.length - 5))) localStorage.removeItem(k);
@@ -711,6 +825,16 @@ export const store = {
     flush();
     return true;
   },
+  async restoreSnapshotAsync(key: string): Promise<boolean> {
+    const raw = (await getSnapshotIdb(key)) ?? read<Progress>(key);
+    if (!raw) return false;
+    const restored = sanitizeProgress(raw, state.progress.datasetId);
+    state = { ...state, progress: restored };
+    emit();
+    scheduleSave();
+    flush();
+    return true;
+  },
   subscribe(l: () => void) {
     listeners.add(l);
     return () => listeners.delete(l);
@@ -720,6 +844,7 @@ export const store = {
     state = { ...state, progress: sanitizeProgress(read(progressKey(datasetId)), datasetId) };
     loadedId = datasetId;
     emit();
+    void hydrateVaultForDataset(datasetId);
   },
   progress(fn: (p: Progress) => Progress) {
     state = { ...state, progress: syncFavorites(fn(state.progress)) };
@@ -758,15 +883,82 @@ export function toggleBookmark(id: string) {
 
 /* ---------- backup ---------- */
 
-export function exportBackup() {
+export function markBackupExported(now = Date.now()) {
+  store.settings({ lastBackupAt: now });
+  flush();
+}
+
+export function needsBackupReminder(p: Progress, lastBackupAt: number | null, now = Date.now()): { remind: boolean; daysSince: number } {
+  const hasProgress =
+    Object.keys(p.cards).length > 0 ||
+    (p.essays?.length ?? 0) > 0 ||
+    (p.examLog?.length ?? 0) > 0 ||
+    (p.texts?.length ?? 0) > 0 ||
+    Object.keys(p.gram ?? {}).length > 0;
+  if (!hasProgress) return { remind: false, daysSince: 0 };
+  if (lastBackupAt !== null) {
+    const daysSince = Math.max(0, Math.floor((now - lastBackupAt) / 86400000));
+    return { remind: daysSince >= 7, daysSince };
+  }
+  const stamps: number[] = [];
+  for (const k of Object.keys(p.days)) {
+    const [y, m, d] = k.split("-").map(Number);
+    if (y && m && d) stamps.push(new Date(y, m - 1, d).getTime());
+  }
+  for (const c of Object.values(p.cards)) if (c.seen > 0) stamps.push(c.seen);
+  for (const e of p.essays ?? []) stamps.push(e.created);
+  for (const r of p.examLog ?? []) stamps.push(r.at);
+  for (const t of p.texts ?? []) stamps.push(t.created);
+  if (p.placement?.at) stamps.push(p.placement.at);
+  if (!stamps.length) return { remind: false, daysSince: 0 };
+  const earliest = Math.min(...stamps);
+  const daysSince = Math.max(0, Math.floor((now - earliest) / 86400000));
+  return { remind: daysSince >= 7, daysSince };
+}
+
+export function exportBackup(extra?: { examBank?: ExamBankBackup | null; essayDrafts?: Record<string, string> }) {
   flush();
   const { progress, settings } = state;
   const images = getImages();
-  return JSON.stringify({ app: "word-atlas", version: 2, exported: new Date().toISOString(), progress: { ...progress, session: null }, settings, ...(Object.keys(images).length ? { images } : {}) }, null, 1);
+  const essayDrafts = extra?.essayDrafts ?? collectEssayDrafts();
+  return JSON.stringify(
+    {
+      app: "word-atlas",
+      version: 2,
+      exported: new Date().toISOString(),
+      progress: { ...progress, session: null },
+      settings,
+      ...(Object.keys(images).length ? { images } : {}),
+      ...(Object.keys(essayDrafts).length ? { essayDrafts } : {}),
+      ...(extra?.examBank ? { examBank: extra.examBank } : {}),
+    },
+    null,
+    1,
+  );
+}
+
+export async function exportBackupAsync(): Promise<string> {
+  await hydrateVaultForDataset(state.progress.datasetId);
+  const pending = vaultWriting.get(state.progress.datasetId);
+  if (pending) await pending;
+  const examBank = await readExamBankBackup();
+  return exportBackup({ examBank, essayDrafts: collectEssayDrafts() });
 }
 
 function markDirty() {
   dirty = true;
+}
+
+function applyImportData(data: Record<string, unknown>, id: string): { progress: Progress; imgs: Record<string, string> | null; examBank: unknown } {
+  const progress = sanitizeProgress({ ...((data.progress as Record<string, unknown>) ?? {}), session: null }, id);
+  state = { ...state, progress, settings: { ...sanitizeSettings(data.settings), onboarded: true } };
+  let imgs: Record<string, string> | null = null;
+  if (isObj(data.images)) {
+    imgs = {};
+    for (const [k, v] of Object.entries(data.images)) if (WORD_ID.test(k) && isImageDataUrl(v)) imgs[k] = v;
+  }
+  if (isObj(data.essayDrafts)) restoreEssayDrafts(data.essayDrafts);
+  return { progress, imgs, examBank: data.examBank };
 }
 
 export function importBackup(text: string): { ok: true; cards: number } | { ok: false; error: string } {
@@ -780,14 +972,34 @@ export function importBackup(text: string): { ok: true; cards: number } | { ok: 
     return { ok: false, error: "这不是法语词光的学习备份。" };
   const id = state.progress.datasetId;
   if (data.progress.datasetId !== id) return { ok: false, error: "备份来自另一个词库，请先切换到对应词库。" };
-  const progress = sanitizeProgress({ ...data.progress, session: null }, id);
-  state = { ...state, progress, settings: { ...sanitizeSettings(data.settings), onboarded: true } };
-  // pictures the learner added (卡组 / 自建词), when the backup has them
-  if (isObj(data.images)) {
-    const imgs: Record<string, string> = {};
-    for (const [k, v] of Object.entries(data.images)) if (WORD_ID.test(k) && isImageDataUrl(v)) imgs[k] = v;
-    void replaceImages(imgs);
+  const { progress, imgs, examBank } = applyImportData(data, id);
+  if (imgs) void replaceImages(imgs);
+  if (examBank) void restoreExamBankBackup(examBank).then((ok) => ok && void reloadBank());
+  if (typeof indexedDB !== "undefined") void queueHeavySave(progress);
+  emit();
+  markDirty();
+  flush();
+  return { ok: true, cards: Object.keys(progress.cards).length };
+}
+
+export async function importBackupAsync(text: string): Promise<{ ok: true; cards: number } | { ok: false; error: string }> {
+  let data: unknown;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return { ok: false, error: "文件不是有效的 JSON。" };
   }
+  if (!isObj(data) || data.app !== "word-atlas" || data.version !== 2 || !isObj(data.progress))
+    return { ok: false, error: "这不是法语词光的学习备份。" };
+  const id = state.progress.datasetId;
+  if (data.progress.datasetId !== id) return { ok: false, error: "备份来自另一个词库，请先切换到对应词库。" };
+  const { progress, imgs, examBank } = applyImportData(data, id);
+  if (imgs) await replaceImages(imgs);
+  if (examBank) {
+    const ok = await restoreExamBankBackup(examBank);
+    if (ok) await reloadBank();
+  }
+  if (typeof indexedDB !== "undefined") await queueHeavySave(progress);
   emit();
   markDirty();
   flush();
@@ -796,6 +1008,7 @@ export function importBackup(text: string): { ok: true; cards: number } | { ok: 
 
 export function resetProgress() {
   state = { ...state, progress: emptyProgress(state.progress.datasetId) };
+  if (typeof indexedDB !== "undefined") void queueHeavySave(state.progress);
   emit();
   markDirty();
   flush();
