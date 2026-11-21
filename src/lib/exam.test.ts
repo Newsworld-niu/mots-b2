@@ -7,7 +7,8 @@ import { SPEAKING_PRESETS, speakingFollowUpsOf, speakingPresetOf } from "./speak
 
 test("topics, subjects and essay tasks refer to topics that exist", () => {
   assert.equal(new Set(TOPICS.map((t) => t.id)).size, TOPICS.length);
-  assert.ok(TOPICS.every((t) => t.vocab.length >= 8 && t.vocab.every(([fr, zh]) => fr && zh)));
+  assert.ok(TOPICS.length >= 14 && TOPICS.length <= 16, `TOPICS.length=${TOPICS.length}`);
+  assert.ok(TOPICS.every((t) => t.vocab.length >= 15 && t.vocab.every(([fr, zh]) => fr && zh)));
   assert.equal(new Set(SPEAKING_SUBJECTS.map((s) => s.id)).size, SPEAKING_SUBJECTS.length);
   assert.equal(SPEAKING_SUBJECTS.length, 12);
   assert.ok(
