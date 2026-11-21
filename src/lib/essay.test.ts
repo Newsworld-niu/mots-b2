@@ -179,13 +179,52 @@ test("PE-2 flags and formal register rules enforce FEI 2022 caps", () => {
   const round = sanitizeEssays([{ id: "e-cap", task: "courrier-voitures", text: "Madame, Monsieur, ...", created: 1, fb: capped }]);
   assert.deepEqual(round?.[0].fb?.flags, { registerViolation: true });
 
-  // B1 profile flags cap B2 essays at 1 on affected dimensions, while leaving B1-level tasks unaffected
+  // B1 profile flags cap B2 essays without creating 4-pt single-flag swings, while leaving B1-level tasks unaffected
   const profRaw = {
     ...high,
     profile: { hasSystematicB1Errors: true, repetitiveBasicLexis: true, mechanicalB1Structure: true, exceedsB2ToC1: false },
   };
   const profFb = sanitizeEssayFeedback(profRaw, new Set());
-  assert.deepEqual(profFb.scores, { task: 1, coherence: 1, socio: 5, lexique: 1, morpho: 1 });
+  assert.deepEqual(profFb.scores, { task: 3, coherence: 1, socio: 3, lexique: 1, morpho: 1 });
+  assert.equal(totalScore(profFb), 9);
+
+  // If the AI leaves profile flags false on B2 despite elementary corrections ("beaucoup des", "à la place de les livres", "plus bon"),
+  // detectB1ProfileFallback caps morpho & lexique <= 1 so total cannot leak into B2 (>=12)
+  const missedProfile = sanitizeEssayFeedback(
+    {
+      scores: { task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 },
+      profile: { hasSystematicB1Errors: false, repetitiveBasicLexis: false, mechanicalB1Structure: false, exceedsB2ToC1: false },
+      corrections: [
+        { wrong: "beaucoup des", right: "beaucoup de", type: "article", why: "数量副词后用 de" },
+        { wrong: "à la place de les livres", right: "à la place des livres", type: "article", why: "缩合冠词" },
+        { wrong: "plus bon", right: "meilleur", type: "word-choice", why: "特殊比较级" },
+        { wrong: "ses amis", right: "leurs amis", type: "agreement", why: "复数所有格" },
+      ],
+    },
+    new Set(),
+    CRITERIA,
+    "B2",
+  );
+  const b1Text260 = `${filler} beaucoup des livres à la place de les livres plus bon.`;
+  const guarded = applyEssayGridCaps(missedProfile, { genre: "essai", text: b1Text260, minWords: 250, level: "B2" });
+  assert.equal(guarded.scores.morpho, 1);
+  assert.equal(guarded.scores.lexique, 1);
+  assert.ok(totalScore(guarded) <= 11);
+
+  // Genuine B2 with 1 subtle agreement error stays 15/25 (never caught by B1 fallback)
+  const solidB2 = sanitizeEssayFeedback(
+    {
+      scores: { task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 },
+      profile: { hasSystematicB1Errors: false, repetitiveBasicLexis: false, mechanicalB1Structure: false, exceedsB2ToC1: false },
+      corrections: [{ wrong: "personnes âgés", right: "personnes âgées", type: "agreement", why: "阴性复数配合" }],
+    },
+    new Set(),
+    CRITERIA,
+    "B2",
+  );
+  const b2Text = `Madame, Monsieur,\nEn premier lieu, ${filler}\nPar ailleurs, les personnes âgés apprécient.\nJe vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.`;
+  assert.equal(totalScore(applyEssayGridCaps(solidB2, { genre: "courrier", text: b2Text, minWords: 250, level: "B2" })), 15);
+
   const b1TaskCapped = applyEssayGridCaps(
     sanitizeEssayFeedback({ ...high, scores: { task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 }, profile: { hasSystematicB1Errors: true } }, new Set(), CRITERIA, "B1"),
     { genre: "forum", level: "B1", text: filler, minWords: 160 },

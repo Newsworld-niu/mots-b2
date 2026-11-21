@@ -572,9 +572,9 @@ Follow this exact assessment workflow and JSON field order:
 "wrong" = exact words from text, "right" = correction, "type" = listed error type, "why" = one short Chinese sentence, "point" = id from "grammarPoints" or "".
 
 3) Set "profile" based on the text and the "corrections" you just found (for B2 tasks, evaluate strictly against B2; for B1 tasks, evaluate relative to B1):
-- "hasSystematicB1Errors": true if "corrections" shows systematic target-level grammar errors (for B2: article/partitive errors like "beaucoup des"/"de le", missing subjunctive "il faut que... fait", multiple gender/agreement/preposition errors -> caps "morpho" <= 1).
-- "repetitiveBasicLexis": true if the text relies heavily on repetitive elementary vocabulary ("très bon/mauvais/cher/utile", "beaucoup de", "des choses", "plus bon", "sur le journal") instead of B2 collocations -> caps "lexique" <= 1.
-- "mechanicalB1Structure": true if the essay is an elementary mechanical listing ("D'abord… Ensuite… Mais… Pour finir…") with simple everyday claims lacking nuanced B2 mechanisms/subordination -> caps "task" <= 1, "coherence" <= 1.
+- "hasSystematicB1Errors": true if "corrections" shows 2+ elementary/B1 errors (article/partitive/contraction errors like "beaucoup des", uncontracted "de les"/"de le"/"à les", "plus bon", missing subjunctive "il faut que... fait") OR 4+ grammar/article/gender/agreement/conjugation errors total -> caps "morpho" <= 1. Never set false when "corrections" lists multiple such errors.
+- "repetitiveBasicLexis": true if the text uses repetitive elementary vocabulary ("très bon/mauvais/cher/utile", "beaucoup de", "des choses", "les gens", "ça") or lexical calques ("plus bon", "très d'accord", "sur le journal") instead of B2 collocations -> caps "lexique" <= 1.
+- "mechanicalB1Structure": true if the essay relies on elementary mechanical listing ("D'abord… Ensuite… Mais… Pour finir…") lacking B2 discourse progression -> caps "coherence" <= 1.
 - "exceedsB2ToC1": true ONLY if the text has virtually 0 errors in "corrections" AND demonstrates C1-near synthesis, organic transitions, elevated register, and rich idiomatic lexis (standard well-written B2 with textbook connectors like "En premier lieu / Par ailleurs / Certes... toutefois" has "exceedsB2ToC1": false -> scores stay at 3!).
 
 4) Assign "scores" (0/1/3/5) matching "profile" and the five criteria:

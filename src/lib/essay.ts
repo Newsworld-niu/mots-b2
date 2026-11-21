@@ -641,9 +641,15 @@ function capScoresByFlags(scores: Record<string, number>, flags?: EssayFlags, le
     if (flags.repetitiveBasicLexis && "lexique" in s) {
       s.lexique = Math.min(s.lexique, 1);
     }
+    // Single-flag caps stay 1 criterion wide (2-pt max step) to prevent 4-pt single-flag swings
     if (flags.mechanicalB1Structure) {
       if ("coherence" in s) s.coherence = Math.min(s.coherence, 1);
-      if ("task" in s) s.task = Math.min(s.task, 1);
+      if ("task" in s) s.task = Math.min(s.task, 3);
+    }
+    if (flags.hasSystematicB1Errors || flags.repetitiveBasicLexis) {
+      for (const k of ["task", "coherence", "socio"]) {
+        if (k in s) s[k] = Math.min(s[k], 3);
+      }
     }
   }
   if (flags.pastedFromDoc) {
@@ -743,13 +749,78 @@ export function hasFormalRegisterViolation(text: string): boolean {
   return !hasSalutation || !hasClosing;
 }
 
+const BASIC_GRAMMAR_ERROR_TYPES = new Set<ErrorType>(["article", "gender", "conjugation", "tense", "agreement", "preposition"]);
+
+function isElementaryCorrection(c: EssayCorrection): boolean {
+  const w = c.wrong.toLowerCase();
+  const r = c.right.toLowerCase();
+  if ((/\bde\s+les\b/.test(w) && /\bdes\b/.test(r)) || (/\bde\s+le\b/.test(w) && /\bdu\b/.test(r)) || (/\bà\s+les\b/.test(w) && /\baux\b/.test(r)) || (/\bà\s+le\b/.test(w) && /\bau\b/.test(r))) {
+    return true;
+  }
+  if (/\b(?:beaucoup|trop|peu|plus|moins|assez)\s+des\b/.test(w) && /\bde\b|\bd'/.test(r)) return true;
+  if (/\bplus\s+bon(?:ne|s|nes)?\b|\bplus\s+bien\b|\btrès\s+d'accord\b|\bsur\s+le\s+journal\b/.test(w)) return true;
+  if (/\b(?:il\s+faut|bien|pour|avant|sans)\s+qu[e']/.test(w) && (c.type === "conjugation" || c.type === "tense" || c.type === "other")) return true;
+  if (/\b(?:difficile|facile|possible|impossible|utile|important)\s+pour\b/.test(w) && /\b(?:de|d'|à)\b/.test(r)) return true;
+  return false;
+}
+
+/** Deterministic B1-level guard on B2 tasks when the model detects elementary errors yet skips profile booleans. */
+export function detectB1ProfileFallback(
+  text: string,
+  corrections: readonly EssayCorrection[],
+): Pick<EssayFlags, "hasSystematicB1Errors" | "repetitiveBasicLexis" | "mechanicalB1Structure"> {
+  const elementaryFixes = corrections.filter(isElementaryCorrection).length;
+  const basicGrammarCount = corrections.filter((c) => BASIC_GRAMMAR_ERROR_TYPES.has(c.type)).length;
+  const textCalques = [
+    /\b(?:est|sont|soit|être|paraît|semble|pas|encore|bien|beaucoup)\s+plus\s+bon(?:ne|s|nes)?\b/i,
+    /\bà\s+la\s+place\s+de\s+l(?:e|es)\b/i,
+    /\btrès\s+d'accord\b/i,
+    /\bsur\s+le\s+journal\b/i,
+    /\b(?:difficile|facile|possible)\s+pour\s+[a-zàâäéèêëïîôùûüç]+(?:er|ir|re)\b/i,
+    /\bil\s+faut\s+que\s+(?:le|la|l'|un|une|on|il|elle|les|[a-zàâäéèêëïîôùûüç]+)\s+(?:fait|va|peut|doit|est|a)\b/i,
+  ].filter((re) => re.test(text)).length;
+
+  const hasSystematicB1Errors = Math.max(elementaryFixes, textCalques) >= 2 || elementaryFixes + textCalques >= 3 || basicGrammarCount >= 5;
+
+  const tresHits = (text.match(/\btrès\s+[a-zàâäéèêëïîôùûüç]+/gi) ?? []).length;
+  const beaucoupHits = (text.match(/\bbeaucoup\b/gi) ?? []).length;
+  const gensHits = (text.match(/\bles\s+gens\b/gi) ?? []).length;
+  const chosesHits = (text.match(/\b(?:des?|les)\s+choses?\b|\bquelque\s+chose\b/gi) ?? []).length;
+  const spokenHits = (text.match(/\b(?:ça|moi\s+je|pour\s+moi|selon\s+moi)\b/gi) ?? []).length;
+  const simpleAdjHits = (text.match(/\b(?:c'est|est|sont)\s+(?:très\s+)?(?:bon|bonne|bons|bonnes|bien|mauvais|mauvaise|joli|jolie|facile|difficile|utile|intéressant)\b/gi) ?? []).length;
+  const buckets = [tresHits >= 2, beaucoupHits >= 2, gensHits >= 1, chosesHits >= 1, spokenHits >= 1, simpleAdjHits >= 2].filter(Boolean).length;
+  const totalBasicLex = tresHits + beaucoupHits + gensHits + chosesHits + spokenHits + simpleAdjHits;
+  const hasLexicalCalque =
+    corrections.some((c) => /\bplus\s+bon(?:ne|s|nes)?\b|\bplus\s+bien\b|\btrès\s+d'accord\b|\bsur\s+le\s+journal\b/i.test(c.wrong)) ||
+    /\b(?:est|sont|soit|être|pas|encore|bien)\s+plus\s+bon(?:ne|s|nes)?\b/i.test(text);
+
+  const repetitiveBasicLexis = tresHits >= 4 || (buckets >= 3 && totalBasicLex >= 6) || (hasSystematicB1Errors && (hasLexicalCalque || totalBasicLex >= 3));
+
+  const mechCount = (text.match(/(?:^|[.!?\n]\s*)(?:D'abord|Ensuite|Et\s+puis|Mais|Pour\s+finir)\b/g) ?? []).length;
+  const hasB2Connectors = /\b(?:En premier lieu|Par ailleurs|De surcroît|Toutefois|Néanmoins|En revanche|Force est de constater|Bien que)\b/i.test(text);
+  const mechanicalB1Structure = mechCount >= 3 && !hasB2Connectors;
+
+  return {
+    ...(hasSystematicB1Errors ? { hasSystematicB1Errors: true } : {}),
+    ...(repetitiveBasicLexis ? { repetitiveBasicLexis: true } : {}),
+    ...(mechanicalB1Structure ? { mechanicalB1Structure: true } : {}),
+  };
+}
+
 /** Apply FEI 2022 essay grid caps (off-topic, wrong genre, register/format, and word count). */
 export function applyEssayGridCaps(fb: EssayFeedback, opts: { genre: Genre; text: string; minWords: number; level?: "B1" | "B2" }): EssayFeedback {
+  const level = opts.level ?? "B2";
   let flags = fb.flags ? { ...fb.flags } : undefined;
   if (FORMAL_GENRES.includes(opts.genre) && hasFormalRegisterViolation(opts.text)) {
     flags = { ...flags, registerViolation: true };
   }
-  const cappedScores = capScoresByFlags(fb.scores, flags, opts.level ?? "B2");
+  if (level === "B2") {
+    const b1Fallback = detectB1ProfileFallback(opts.text, fb.corrections);
+    if (b1Fallback.hasSystematicB1Errors || b1Fallback.repetitiveBasicLexis || b1Fallback.mechanicalB1Structure) {
+      flags = { ...flags, ...b1Fallback };
+    }
+  }
+  const cappedScores = capScoresByFlags(fb.scores, flags, level);
   const notes: string[] = [];
   if (flags?.offTopic === "total") notes.push("【严重偏题：按规则全卷记 0 分】");
   else if (flags?.offTopic === "partial") notes.push("【部分偏题：完成任务与词汇封顶 3 分】");
