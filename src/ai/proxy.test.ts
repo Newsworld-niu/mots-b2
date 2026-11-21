@@ -9,6 +9,8 @@ test("in the app each service is called at its own address; Azure by region", ()
   assert.equal(directUrl("anthropic"), "https://api.anthropic.com");
   assert.equal(directUrl("azure", "/westeurope/cognitiveservices/v1"), "https://westeurope.tts.speech.microsoft.com/cognitiveservices/v1");
   assert.throws(() => directUrl("azure", "/evil.example.com/x"));
+  assert.equal(directUrl("azurestt", "/westeurope/speech/recognition/conversation/cognitiveservices/v1?language=fr-FR"), "https://westeurope.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=fr-FR");
+  assert.throws(() => directUrl("azurestt", "/evil.example.com/x"));
   assert.throws(() => directUrl("elsewhere", "/x"));
 });
 

@@ -17,6 +17,11 @@ const UPSTREAM: Record<string, (rest: string) => string | null> = {
     const m = rest.match(/^([a-z0-9]{2,30})\/(.*)$/);
     return m ? `https://${m[1]}.tts.speech.microsoft.com/${m[2]}` : null;
   },
+  // /ai-proxy/azurestt/<region>/<path> → https://<region>.stt.speech.microsoft.com/<path> (pronunciation assessment)
+  azurestt: (rest) => {
+    const m = rest.match(/^([a-z0-9]{2,30})\/(.*)$/);
+    return m ? `https://${m[1]}.stt.speech.microsoft.com/${m[2]}` : null;
+  },
 };
 
 /** Request headers that describe this hop, not the upstream request. */

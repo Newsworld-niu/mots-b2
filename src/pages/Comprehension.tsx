@@ -1,11 +1,19 @@
-import { ArrowLeft, ArrowRight, Check, FastForward, Play, Square, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, FastForward, Headphones, ListPlus, Play, RotateCcw, Square, Star, Trash2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ready, useAiConfig } from "../ai/config";
 import { makeComprehension } from "../ai/tasks";
 import { otherVoice, ttsOn, ttsUrl } from "../ai/tts";
 import { play, stopAudio } from "../lib/audio";
 import { countWords } from "../lib/essay";
-import { BETWEEN_PLAYS, clock, COMP_LABEL, exercisePoints, FORM_SPEC, outOf25, PAPER, READ_MINUTES, REAL_WPM, speechChunks, TOPICS, topicOf, type CompExercise, type CompForm, type CompKind } from "../lib/exam";
+import { BETWEEN_PLAYS, clock, COMP_LABEL, exercisePoints, FORM_SPEC, outOf25, PAPER, QSKILL_LABEL, READ_MINUTES, REAL_WPM, speechChunks, TOPICS, topicOf, type CompExercise, type CompForm, type CompKind } from "../lib/exam";
+import { accentNames, sentencesOf, CAUSE_LABEL, CAUSE_TIP, causeFromSkill, MISS_CAUSES, missStats, pickVoices, skillStats, type CompMiss, type DocVoices, type MissCause, type VoiceMode } from "../lib/listening";
+import { PRESET_PAPERS } from "../lib/exam-presets";
+import { addAttempt, deletePaper, savePaper, starPaper, useBank, wrongKeys, type BankPaper } from "../store/exam-bank";
+import { addMisses, setMissCause } from "../store/misses";
+import { TranscriptWords } from "../ui/TranscriptWords";
+import { IntensiveDoc } from "./Intensive";
+import { RealListening } from "./RealListening";
+import "../styles/listening.css";
 import { href } from "../lib/router";
 import { useTimer } from "../lib/timer";
 import { logExam } from "../store/essays";
@@ -28,6 +36,31 @@ const readPace = () => {
 /** How much to speed the voice up or slow it down to reach the pace of the official recordings. */
 const rateFor = (wpm: number, slow: boolean) => Math.min(1.4, Math.max(0.8, wpm ? REAL_WPM / wpm : 1)) * (slow ? 0.85 : 1);
 
+/** Listening choices kept on this device: which voices read, and how the people speak. */
+const VOICE_KEY = "fb2.listen.voices";
+const STYLE_KEY = "fb2.listen.style";
+const readKey = <T extends string>(key: string, ok: readonly T[], d: T): T => {
+  try {
+    const v = localStorage.getItem(key) as T | null;
+    return v && ok.includes(v) ? v : d;
+  } catch {
+    return d;
+  }
+};
+const writeKey = (key: string, v: string) => {
+  try {
+    localStorage.setItem(key, v);
+  } catch {
+    /* not remembered */
+  }
+};
+const VOICE_MODES: [VoiceMode, string][] = [
+  ["mixed", "多口音（法、加、比、瑞）"],
+  ["france", "法国口音，多换几个声音"],
+  ["fixed", "只用我设置的两个声音"],
+];
+const paperTopics = (p: Pick<BankPaper, "exs">) => [...new Set(p.exs.map((x) => topicOf(x.topic)?.zh ?? x.title))].join("、");
+
 type Phase = "setup" | "making" | "work" | "done";
 type What = CompForm | "paper";
 
@@ -40,7 +73,19 @@ type What = CompForm | "paper";
 export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: () => void }) {
   const ai = useAiConfig();
   const log = (useStore((s) => s.progress.examLog) ?? []).filter((r) => r.part === kind);
+  const misses = useStore((s) => s.progress.compMisses) ?? [];
+  const bank = useBank();
   const listen = kind === "listen";
+  const azure = ready.tts(ai);
+  const [voiceMode, setVoiceMode] = useState<VoiceMode>(() => readKey(VOICE_KEY, ["mixed", "france", "fixed"], "mixed"));
+  const [style, setStyle] = useState<"radio" | "natural">(() => readKey(STYLE_KEY, ["radio", "natural"], "natural"));
+  const [real, setReal] = useState(false);
+  /** The paper being done: its id in the bank, and the question keys asked when only the missed ones are. */
+  const [paper, setPaper] = useState<{ id: string; level: "B1" | "B2"; asked?: string[] } | null>(null);
+  const [voices, setVoices] = useState<DocVoices[][]>([]);
+  const [finishedAt, setFinishedAt] = useState(0);
+  const [causes, setCauses] = useState<Record<string, MissCause>>({});
+  const [panel, setPanel] = useState<string | null>(null);
   const forms: What[] = ["paper", ...new Set(PAPER[kind])];
   const [topic, setTopic] = useState("random");
   const [level, setLevel] = useState<"B1" | "B2">("B2");
@@ -80,6 +125,29 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
     window.scrollTo({ top: 0 });
   }, [phase]);
 
+  /** Start a paper: voices for every document, answers cleared, the reading clock started. */
+  const begin = (list: CompExercise[], p: { id: string; level: "B1" | "B2"; asked?: string[] }) => {
+    const mode = azure && voiceMode !== "fixed" ? voiceMode : null;
+    setVoices(list.map((ex) => ex.docs.map(() => (mode ? pickVoices(mode) : { voices: ["uk", "us"] as [string, string], accents: [] }))));
+    setExs(list);
+    setPaper(p);
+    setPicked({});
+    setHeard({});
+    setCauses({});
+    setPanel(null);
+    setShowZh(false);
+    setPhase("work");
+    const minutes = list.length > 1 ? READ_MINUTES.paper : list[0].form === "opinions" ? READ_MINUTES.opinions : READ_MINUTES.long;
+    if (!listen && timed) timer.start(Math.round(minutes * (p.asked ? Math.max(0.25, p.asked.length / list.reduce((n, x) => n + x.questions.length, 0)) : 1) * 60));
+  };
+
+  const redo = (p: BankPaper, wrongOnly: boolean) => {
+    const asked = wrongOnly ? wrongKeys(p, bank.attempts[p.id]?.[0]) : undefined;
+    if (wrongOnly && !asked?.length) return toast("上次这套题没有错题", "info");
+    setLevel(p.level);
+    begin(p.exs, { id: p.id, level: p.level, asked });
+  };
+
   const make = async () => {
     const list = what === "paper" ? PAPER[kind] : [what];
     const pool = [...TOPICS].sort(() => Math.random() - 0.5);
@@ -91,16 +159,13 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
       const out: CompExercise[] = [];
       for (const [k, form] of list.entries()) {
         const t = topic === "random" || k > 0 ? pool[k % pool.length] : topicOf(topic)!;
-        out.push(await makeComprehension({ kind, form, topic: t, level }, c.signal));
+        out.push(await makeComprehension({ kind, form, topic: t, level, style }, c.signal));
         if (c.signal.aborted) return;
         setMade(k + 1);
       }
-      setExs(out);
-      setPicked({});
-      setHeard({});
-      setShowZh(false);
-      setPhase("work");
-      if (!listen && timed) timer.start((what === "paper" ? READ_MINUTES.paper : what === "opinions" ? READ_MINUTES.opinions : READ_MINUTES.long) * 60);
+      // kept in the 题库 on this device, to be done again later without asking the AI
+      const id = await savePaper({ kind, level, ...(listen ? { style } : {}), exs: out });
+      begin(out, { id, level });
     } catch (err) {
       if (c.signal.aborted) return;
       toast((err as Error).message || "出题失败", "warn");
@@ -113,17 +178,20 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
    * The audio of every piece is fetched first, so that there is no gap in the middle of a sentence; the voice's
    * own pace is measured as it reads and the speed adjusted for what follows. False when stopped.
    */
-  const say = async (text: string, mine: number) => {
+  const say = async (text: string, mine: number, dv?: DocVoices) => {
     const chunks = speechChunks(text);
+    // the two voices of this document (other accents in 多口音), or the ones set in 我的 → AI 接口
+    const custom = dv && dv.accents.length ? dv.voices : null;
+    const voiceOf = (who: number) => (custom ? custom[who === 1 ? 1 : 0] : who === 1 ? otherVoice() : "uk");
+    let urls: string[] = [];
     if (ttsOn()) {
-      const other = otherVoice();
-      await Promise.all(chunks.map((c) => (c.who === 1 ? ttsUrl(c.t, other) : ttsUrl(c.t)).catch(() => "")));
+      urls = await Promise.all(chunks.map((c) => ttsUrl(c.t, voiceOf(c.who)).catch(() => "")));
       if (run.current !== mine) return false;
     }
-    for (const c of chunks) {
+    for (const [k, c] of chunks.entries()) {
       const rate = rateFor(measured.current.sec > 20 ? (measured.current.words / measured.current.sec) * 60 : wpm, slow);
       const t0 = performance.now();
-      const r = await play(null, c.t, "uk", rate, c.who === 1);
+      const r = await play(custom ? urls[k] || null : null, c.t, "uk", rate, c.who === 1);
       if (run.current !== mine || r === "stopped" || r === "unsupported") return false;
       const words = countWords(c.t);
       // what the piece would have taken at normal speed; the device voice is slowed by 5% in `play`
@@ -173,7 +241,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
       await pause(e, `${name}读题`, spec.read, mine);
       for (let n = 1; n <= spec.plays && alive(); n++) {
         setPace({ e, label: `${name}${spec.plays > 1 ? `第 ${n} 遍` : "只放一遍"}`, left: null });
-        if (!(await say(doc.text, mine))) break;
+        if (!(await say(doc.text, mine, voices[e]?.[d]))) break;
         if (n < spec.plays) await pause(e, `${name}两遍之间`, BETWEEN_PLAYS, mine);
       }
       if (!alive()) return;
@@ -187,24 +255,61 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   const replay = async (e: number, d: number) => {
     const mine = ++run.current;
     setPace({ e, label: "重听", left: null });
-    await say(exs[e].docs[d].text, mine);
+    await say(exs[e].docs[d].text, mine, voices[e]?.[d]);
     if (run.current === mine) setPace(null);
   };
 
-  const all = exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ q, key: `${e}-${k}` })));
-  const total = exs.reduce((n, ex) => n + exercisePoints(ex), 0);
+  /** One piece of a document for 精听, in the voice its speaker had in the recording (the first one named: the first voice). */
+  const speakPiece = async (text: string, rate: number, doc: string, dv?: DocVoices, who?: string) => {
+    // as speechChunks does: speakers in order of appearance, alternating between the two voices
+    const names = [...new Set(sentencesOf(doc).flatMap((u) => (u.who ? [u.who] : [])))];
+    const second = !!who && names.indexOf(who) % 2 === 1;
+    const voice = dv && dv.accents.length ? dv.voices[second ? 1 : 0] : second ? otherVoice() : "uk";
+    const url = ttsOn() ? await ttsUrl(text, voice).catch(() => null) : null;
+    await play(url, text, "uk", rate, second);
+  };
+
+  const askedSet = paper?.asked ? new Set(paper.asked) : null;
+  const isAsked = (key: string) => !askedSet || askedSet.has(key);
+  const all = exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ q, key: `${e}-${k}` }))).filter(({ key }) => isAsked(key));
+  const total = askedSet ? all.reduce((n, { q }) => n + q.pts, 0) : exs.reduce((n, ex) => n + exercisePoints(ex), 0);
   const score = all.reduce((n, { q, key }) => n + (picked[key] === q.answer ? q.pts : 0), 0);
   const answered = all.filter(({ key }) => picked[key] !== undefined).length;
 
   const finish = () => {
     halt();
     timer.stop();
-    logExam({ part: kind, what: exs.length > 1 ? "paper" : exs[0].topic, score, total });
+    const at = Date.now();
+    // a redo of the missed questions only is not a score of the paper
+    if (!askedSet) logExam({ part: kind, what: exs.length > 1 ? "paper" : exs[0].topic, score, total });
+    const missed: CompMiss[] = all
+      .filter(({ q, key }) => picked[key] !== q.answer)
+      .map(({ q, key }) => ({ at, part: kind, q: key, cause: causeFromSkill(q.skill) ?? (listen ? "heard" : "paraphrase"), ...(q.skill ? { skill: q.skill } : {}) }));
+    addMisses(missed);
+    setCauses(Object.fromEntries(missed.map((m) => [m.q!, m.cause])));
+    if (paper) void addAttempt(paper.id, { at, picked, score, total, ...(paper.asked ? { asked: paper.asked } : {}) });
+    setFinishedAt(at);
     setPhase("done");
   };
 
+  const blame = (key: string, cause: MissCause) => {
+    setCauses((c) => ({ ...c, [key]: cause }));
+    setMissCause(finishedAt, key, cause);
+  };
+
+  if (real) return <RealListening onExit={() => setReal(false)} />;
+
   if (phase === "setup" || phase === "making") {
     const making = phase === "making";
+    const papers = [...PRESET_PAPERS, ...bank.papers].filter((p) => p.kind === kind);
+    const stats = missStats(misses, kind);
+    // right / asked by kind of question, over the last attempt at every paper of the bank
+    const bySkill = skillStats(
+      papers.flatMap((p) => {
+        const a = bank.attempts[p.id]?.find((x) => !x.asked);
+        return a ? p.exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ skill: q.skill, right: a.picked[`${e}-${k}`] === q.answer }))) : [];
+      }),
+    );
     const count = what === "paper" ? PAPER[kind].length : 1;
     return (
       <div className="page practice">
@@ -251,12 +356,36 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
               </button>
             ))}
           </div>
-          {listen ? (
-            <p className="muted">
-              {ready.tts(ai) ? "用「我的 → AI 接口」里设置的 Azure 语音朗读，对话里的第二个人换另一个声音。" : "没有设置 Azure 语音，会用这台设备自带的法语语音朗读，音质和语速可能不理想。"}
-              真题是多人真人录音，合成语音更清楚也更平。
-            </p>
-          ) : null}
+          {listen && (
+            <>
+              <h3 className="eyebrow">说话方式</h3>
+              <div className="segmented">
+                <button className={style === "natural" ? "is-on" : ""} onClick={() => (setStyle("natural"), writeKey(STYLE_KEY, "natural"))} aria-pressed={style === "natural"}>
+                  接近真人口语
+                </button>
+                <button className={style === "radio" ? "is-on" : ""} onClick={() => (setStyle("radio"), writeKey(STYLE_KEY, "radio"))} aria-pressed={style === "radio"}>
+                  播音稿
+                </button>
+              </div>
+              <p className="muted small">{style === "natural" ? "AI 写稿时加入 euh、ben、省略 ne（c'est pas）、du coup、自我纠正和插话，更像真题里的嘉宾。" : "句子完整、没有停顿词，适合刚开始练。"}</p>
+              <h3 className="eyebrow">声音</h3>
+              {azure ? (
+                <>
+                  <div className="segmented segmented-wide">
+                    {VOICE_MODES.map(([m, zh]) => (
+                      <button key={m} className={voiceMode === m ? "is-on" : ""} onClick={() => (setVoiceMode(m), writeKey(VOICE_KEY, m))} aria-pressed={voiceMode === m}>
+                        {zh}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="muted small">{voiceMode === "mixed" ? "每段录音随机换声音，约一半用加拿大、比利时或瑞士口音；真题里也会出现非法国口音。" : voiceMode === "france" ? "每段录音随机换一对法国声音，不总是同两个人。" : "用「我的 → AI 接口」里设置的 Azure 语音，对话里的第二个人换另一个声音。"}</p>
+                </>
+              ) : (
+                <p className="muted">没有设置 Azure 语音，会用这台设备自带的法语语音朗读，音质和语速可能不理想，也换不了口音。</p>
+              )}
+              <p className="muted small">真题是多人真人录音；想听真人，用下面的「真实材料精听」。</p>
+            </>
+          )}
           {listen ? (
             <>
               <h3 className="eyebrow">语速</h3>
@@ -310,10 +439,81 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
             </div>
           ) : (
             <p className="muted">
-              出题需要 AI：先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务。
+              出新题需要 AI：先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务。没有 AI 也可以做下面题库里的预置题。
             </p>
           )}
         </section>
+        {listen && (
+          <section className="panel">
+            <h3 className="eyebrow">真实材料精听</h3>
+            <p className="muted">用 RFI、TV5Monde、France Culture 的真人节目：盲听 → 答题 → 逐句听写 → 跟读。应用里只存链接和时间点。</p>
+            <button className="btn btn-ghost" onClick={() => setReal(true)}>
+              <Headphones size={16} /> 打开真实材料精听
+            </button>
+          </section>
+        )}
+        {papers.length > 0 && (
+          <section className="essay-level">
+            <h3 className="eyebrow">题库（{papers.length} 套，存在这台设备上）</h3>
+            <p className="muted small">AI 出过的题都会留下来，可以整套重做，或只重做上次做错的题；不再消耗 AI 额度。「预置」题随应用附带，不用 AI 也能做，内容还未经老师核对。</p>
+            <ul className="bank-list">
+              {papers.slice(0, 30).map((p) => {
+                const last = bank.attempts[p.id]?.[0];
+                const wrong = wrongKeys(p, last).length;
+                return (
+                  <li key={p.id}>
+                    <span>
+                      {p.src === "preset" ? <span className="chip">预置</span> : day(p.created)} {p.exs.length > 1 ? "整套" : FORM_SPEC[p.exs[0].form].zh} · {paperTopics(p)} · {p.level}
+                      {p.style === "natural" ? " · 口语化" : ""}
+                      <span className="muted small">{last ? ` · 上次 ${num(last.score)}/${num(last.total)}` : " · 没做过"}</span>
+                    </span>
+                    <span className="exam-doc-actions">
+                      <button className="link" onClick={() => redo(p, false)} disabled={making}>
+                        <RotateCcw size={14} /> {last ? "重做" : "做题"}
+                      </button>
+                      {wrong > 0 && (
+                        <button className="link" onClick={() => redo(p, true)} disabled={making}>
+                          错题重做（{wrong}）
+                        </button>
+                      )}
+                      {p.src === "ai" && (
+                        <>
+                          <button className="link" onClick={() => void starPaper(p.id, !p.starred)} aria-pressed={!!p.starred} title={p.starred ? "取消收藏" : "收藏：不会被自动清理"}>
+                            <Star size={14} fill={p.starred ? "currentColor" : "none"} />
+                          </button>
+                          <button className="link" onClick={() => confirm("删除这套题和它的做题记录？") && void deletePaper(p.id)} title="删除">
+                            <Trash2 size={14} />
+                          </button>
+                        </>
+                      )}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+        {stats.length > 0 && (
+          <section className="essay-level miss-stats">
+            <h3 className="eyebrow">错因统计（最近 {misses.filter((m) => m.part === kind).length} 道错题）</h3>
+            {stats.map((x) => (
+              <div key={x.cause} className="miss-bar">
+                <span>{CAUSE_LABEL[x.cause]}</span>
+                <i style={{ width: `${Math.max(4, x.share)}%` }} />
+                <span className="muted small">
+                  {x.n} 次 · {x.share}%
+                </span>
+              </div>
+            ))}
+            <p className="muted small">最常见：{CAUSE_LABEL[stats[0].cause]}。{CAUSE_TIP[stats[0].cause]}</p>
+            {bySkill.size > 0 && (
+              <p className="muted small">
+                按题型的正确率：
+                {[...bySkill.entries()].map(([k, v]) => `${QSKILL_LABEL[k]} ${Math.round((v.right / v.n) * 100)}%（${v.n} 题）`).join("，")}
+              </p>
+            )}
+          </section>
+        )}
         {log.length > 0 && (
           <section className="essay-level">
             <h3 className="eyebrow">最近的成绩（折合 25 分制）</h3>
@@ -353,6 +553,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
           </button>
           <span className="eyebrow">
             {COMP_LABEL[kind]} · {level} · {exs.length > 1 ? "整套" : topicOf(exs[0]?.topic)?.zh}
+            {askedSet ? " · 错题重做" : ""}
           </span>
           {!listen && !done && timed && <span className={`exam-clock ${timer.sec === 0 ? "is-over" : ""}`}>{timer.sec === 0 ? "时间到" : clock(timer.sec)}</span>}
         </header>
@@ -371,6 +572,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
         )}
 
         {exs.map((ex, e) => {
+          if (askedSet && !ex.questions.some((_, k) => askedSet.has(`${e}-${k}`))) return null;
           const spec = FORM_SPEC[ex.form];
           const busy = pace?.e === e;
           const showText = !listen || done;
@@ -428,8 +630,17 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
                     <p className="essay-text" lang="fr">
                       {d.text}
                     </p>
+                    {done && listen && voices[e]?.[k]?.accents.length ? <p className="muted small">口音：{accentNames(voices[e][k].accents)}</p> : null}
                     {done && (
                       <div className="exam-doc-actions">
+                        {listen && (
+                          <button className="link" onClick={() => setPanel(panel === `i${e}-${k}` ? null : `i${e}-${k}`)}>
+                            <Headphones size={14} /> 精听：听写 / 跟读
+                          </button>
+                        )}
+                        <button className="link" onClick={() => setPanel(panel === `w${e}-${k}` ? null : `w${e}-${k}`)}>
+                          <ListPlus size={14} /> 原文生词入库
+                        </button>
                         {listen &&
                           (busy ? (
                             <button className="link" onClick={halt}>
@@ -448,6 +659,8 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
                       </div>
                     )}
                     {done && showZh && d.zh && <p className="essay-text exam-zh">{d.zh}</p>}
+                    {done && panel === `w${e}-${k}` && <TranscriptWords text={d.text} deckName={listen ? "听力生词" : "阅读生词"} onClose={() => setPanel(null)} />}
+                    {done && panel === `i${e}-${k}` && <IntensiveDoc text={d.text} speak={(t, rate, who) => speakPiece(t, rate, d.text, voices[e]?.[k], who)} />}
                   </article>
                 ))}
 
@@ -459,6 +672,8 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
               <ol className="exam-questions">
                 {ex.questions.map((q, k) => {
                   const key = `${e}-${k}`;
+                  if (!isAsked(key)) return null;
+                  const miss = done && picked[key] !== q.answer;
                   const first = ex.docs.length > 1 && (k === 0 || ex.questions[k - 1].doc !== q.doc);
                   return (
                     <li key={k}>
@@ -481,6 +696,16 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
                         })}
                       </div>
                       {done && q.why && <p className="exam-why">{q.why}</p>}
+                      {miss && (
+                        <div className="miss-cause" role="group" aria-label="错因">
+                          <span className="muted">错因{q.skill ? `（${QSKILL_LABEL[q.skill]}题）` : ""}：</span>
+                          {MISS_CAUSES.map((c) => (
+                            <button key={c} className={causes[key] === c ? "is-on" : ""} onClick={() => blame(key, c)} aria-pressed={causes[key] === c}>
+                              {CAUSE_LABEL[c]}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </li>
                   );
                 })}

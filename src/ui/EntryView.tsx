@@ -19,6 +19,7 @@ import { ready, useAiConfig } from "../ai/config";
 import { articleTone } from "../lib/gender";
 import { AUX_NOTE, VerbConjugation } from "./ConjTable";
 import { liaisonPoints } from "../lib/liaison";
+import { CORE_LABEL, isCore, PASSIVE_LABEL } from "../lib/core-words";
 import { useConj } from "../atlas/conj";
 
 /** Examples are numbered, not tagged by source; Tatoeba sentences keep their attribution (CC BY 2.0 FR). */
@@ -248,6 +249,7 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
             ) : (
               <span className={`chip chip-level lv-${entry.cefr}`}>{entry.levelStatus === "estimated" ? `推定 ${entry.cefr}` : entry.cefr}</span>
             )}
+            {!mine && (isCore(atlas, entry.id) ? <span className="chip" title="写作、口语要能用出来">{CORE_LABEL}</span> : <span className="chip" title="看懂就行">{PASSIVE_LABEL}</span>)}
             {topic && <span className="chip">{topic[1]}</span>}
             {status && <span className={`chip chip-status ${status === "已掌握" ? "is-done" : ""}`}>{status}</span>}
           </div>

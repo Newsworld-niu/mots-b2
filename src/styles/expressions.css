@@ -1,0 +1,126 @@
+/* 表达: expression review (Expressions.tsx). Reuses .writing-* for the typed answer. */
+.expr-home {
+  display: grid;
+  gap: 14px;
+}
+.expr-groups {
+  justify-self: start;
+}
+.expr-sentence {
+  margin: 0;
+  text-align: center;
+  font: 400 clamp(19px, 2.8vw, 23px) / 1.6 var(--serif);
+  text-wrap: balance;
+}
+.expr-gap {
+  display: inline-block;
+  min-width: 4ch;
+  padding: 0 6px;
+  border-bottom: 2px solid var(--ink-3);
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+}
+.expr-gap.is-ok {
+  color: var(--sage-ink);
+  border-color: var(--sage);
+}
+.expr-gap.is-bad {
+  color: var(--terra-ink);
+  border-color: var(--terra);
+}
+.expr-sentence-zh {
+  text-align: center;
+  margin: -8px 0 0;
+}
+.expr-answer {
+  margin: 0;
+  color: var(--ink-2);
+}
+.expr-answer b {
+  font: 600 18px var(--serif);
+  color: var(--ink);
+  margin-right: 6px;
+}
+.expr-register {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0;
+  font-size: 15px;
+}
+.expr-register small {
+  color: var(--ink-3);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-right: 4px;
+}
+.expr-sheet {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+.expr-sheet h2 {
+  margin: 0;
+  font: 600 22px var(--serif);
+}
+.expr-sheet-fn ul {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.expr-sheet-fn li p {
+  margin: 2px 0 0;
+}
+.expr-sheet-fn small {
+  color: var(--ink-3);
+}
+.expr-reg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.expr-reg-table th,
+.expr-reg-table td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.expr-reg-table th {
+  color: var(--ink-3);
+  font-weight: 500;
+  font-size: 12.5px;
+}
+.expr-teaser {
+  display: grid;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.25s var(--spring), border-color 0.15s;
+}
+.expr-teaser:hover {
+  border-color: var(--ink-3);
+  transform: translateY(-2px);
+}
+.expr-teaser h3 {
+  margin: 0;
+  font: 600 clamp(18px, 3.2vw, 22px) var(--serif);
+}
+.expr-teaser p:not(.eyebrow) {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.expr-teaser-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--terra-ink);
+}
+.expr-teaser.is-done .expr-teaser-go {
+  color: var(--sage-ink);
+}

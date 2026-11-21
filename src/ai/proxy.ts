@@ -21,12 +21,17 @@ const UPSTREAM: Record<string, string> = {
 
 export class AiError extends Error {}
 
-/** The service's own address, for the app. Azure paths start with the region: /<region>/<path>. */
+/** The service's own address, for the app. Azure paths (azure: speech synthesis, azurestt: recognition) start with the region: /<region>/<path>. */
 export function directUrl(service: string, path = "") {
   if (service === "azure") {
     const m = path.match(/^\/([a-z0-9]{2,30})(\/.*)?$/);
     if (!m) throw new AiError("Azure 语音服务的区域不对");
     return `https://${m[1]}.tts.speech.microsoft.com${m[2] ?? ""}`;
+  }
+  if (service === "azurestt") {
+    const m = path.match(/^\/([a-z0-9]{2,30})(\/.*)?$/);
+    if (!m) throw new AiError("Azure 语音服务的区域不对");
+    return `https://${m[1]}.stt.speech.microsoft.com${m[2] ?? ""}`;
   }
   const host = UPSTREAM[service];
   if (!host) throw new AiError(`未知的服务：${service}`);

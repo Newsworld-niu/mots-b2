@@ -15,6 +15,8 @@ import { Galaxy } from "../galaxy/Galaxy";
 import { Highlight, Pronounce } from "../ui/EntryView";
 import { Illustration, plateArticle } from "../ui/Illustration";
 import { Ring } from "../ui/Ring";
+import { DrillStudio, DrillTeaser } from "./Drill";
+import { ExprStudio, ExprTeaser } from "./Expressions";
 
 const BRAND = `${import.meta.env.BASE_URL}brand`;
 /** Topics without their own tile art borrow a related one. */
@@ -63,6 +65,8 @@ export function Today() {
   const doneToday = today?.r ?? 0;
 
   const [more, setMore] = useState("");
+  const [drill, setDrill] = useState(false);
+  const [expr, setExpr] = useState(false);
   const moreN = Math.min(MAX_DAILY_NEW, Math.max(0, Math.round(Number(more) || 0)));
   const start = (opts?: { reviewOnly?: boolean; extra?: number }) => {
     if (!active) {
@@ -84,6 +88,9 @@ export function Today() {
   const learned = Object.keys(progress.cards).length;
   const mastered = masteredCount(progress);
   const teaser = (active ? active.newIds : plan.fresh).slice(0, 5).map((id) => atlas.byId.get(id)!).filter(Boolean);
+
+  if (drill) return <DrillStudio onExit={() => setDrill(false)} exitLabel="返回今日" />;
+  if (expr) return <ExprStudio onExit={() => setExpr(false)} exitLabel="返回今日" />;
 
   return (
     <div className="page today">
@@ -243,6 +250,8 @@ export function Today() {
           </dl>
         </section>
 
+        <DrillTeaser onOpen={() => setDrill(true)} />
+        <ExprTeaser onOpen={() => setExpr(true)} />
         <LevelPath />
         <CompareTeaser />
         <GalaxyPanel learned={learned} total={atlas.count} />

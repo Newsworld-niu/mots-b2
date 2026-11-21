@@ -1,0 +1,112 @@
+/* 听力：精听、听写、原文生词、错因、题库、真实材料 */
+.intensive,
+.intensive-unit,
+.intensive-done,
+.transcript-words,
+.real-flow,
+.bank-list,
+.miss-stats {
+  display: grid;
+  gap: 12px;
+}
+.intensive {
+  padding: 16px 18px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r);
+  background: var(--card);
+}
+.intensive-audio {
+  width: 100%;
+  max-width: 420px;
+}
+.dict-result {
+  font: 400 16px / 1.8 var(--serif);
+}
+.dict-ok {
+  color: var(--sage-ink);
+}
+.dict-accent {
+  color: var(--ink);
+  text-decoration: underline wavy var(--line-strong);
+}
+.dict-wrong {
+  color: var(--terra-ink);
+  text-decoration: underline;
+}
+.dict-missing {
+  color: var(--terra-ink);
+  background: color-mix(in srgb, var(--terra) 14%, transparent);
+  border-radius: 3px;
+}
+.dict-extra {
+  display: block;
+  font: 400 13px var(--sans);
+  color: var(--ink-3);
+}
+.transcript-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px 16px;
+  list-style: none;
+  padding: 0;
+  max-height: 340px;
+  overflow: auto;
+}
+.transcript-list label {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+.miss-cause {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  font-size: 13px;
+}
+.miss-cause button {
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  font: 400 13px var(--sans);
+}
+.miss-cause button.is-on {
+  border-color: var(--terra);
+  color: var(--terra-ink);
+}
+.miss-bar {
+  display: grid;
+  grid-template-columns: 9em 1fr 4em;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+}
+.miss-bar > i {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--terra);
+}
+.bank-list {
+  list-style: none;
+  padding: 0;
+}
+.bank-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+.bank-list .exam-doc-actions {
+  gap: 12px;
+}
+.real-embed {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--r);
+}

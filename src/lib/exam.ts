@@ -188,7 +188,14 @@ export interface CompQuestion {
   pts: number;
   /** Which document of the exercise the question is about (short recordings). */
   doc: number;
+  /** What the question tests, as the AI saw it (older exercises have none). */
+  skill?: QSkill;
 }
+
+/** What a question tests: the main idea, an explicit detail, a reworded idea, someone's opinion, an inference, a negation or restriction. */
+export type QSkill = "gist" | "detail" | "paraphrase" | "opinion" | "inference" | "negation";
+export const QSKILLS: QSkill[] = ["gist", "detail", "paraphrase", "opinion", "inference", "negation"];
+export const QSKILL_LABEL: Record<QSkill, string> = { gist: "主旨", detail: "细节", paraphrase: "同义改写", opinion: "观点态度", inference: "推断", negation: "否定/限定" };
 
 export interface CompExercise {
   form: CompForm;
@@ -239,7 +246,8 @@ export function sanitizeExercise(raw: unknown, form: CompForm, topic: string): C
       const options = Array.isArray(x.options) ? x.options.map((o) => str(o, 240)).filter(Boolean).slice(0, 3) : [];
       const doc = typeof x.doc === "number" ? Math.round(x.doc) : 0;
       const level = typeof x.difficulty === "number" && Number.isFinite(x.difficulty) ? Math.min(5, Math.max(1, Math.round(x.difficulty))) : 3;
-      return { q: str(x.q, 400), options, answer: typeof x.answer === "number" ? Math.round(x.answer) : -1, why: str(x.why, 500), level, doc: doc >= 0 && doc < docs.length ? doc : 0 };
+      const skill = QSKILLS.includes(x.skill as QSkill) ? (x.skill as QSkill) : undefined;
+      return { q: str(x.q, 400), options, answer: typeof x.answer === "number" ? Math.round(x.answer) : -1, why: str(x.why, 500), level, doc: doc >= 0 && doc < docs.length ? doc : 0, ...(skill ? { skill } : {}) };
     })
     .filter((x) => x.q && x.options.length === 3 && new Set(x.options).size === 3 && x.answer >= 0 && x.answer < 3)
     .slice(0, FORM_SPEC[form].questions);

@@ -177,12 +177,16 @@ const LETTER = [
 const openStudio = async (p, card, enter) => {
   // through another page: going to the same hash would leave the open studio in place
   await p.goto(BASE + "#/about");
+  // let the about page render, or both hash changes land in one render and the studio stays mounted
+  await p.waitForSelector("main .about, main h1", { timeout: 5000 }).catch(() => {});
+  await settle(p, 200);
   await p.goto(BASE + "#/practice");
   if (!(await p.locator(".mode-card").first().waitFor({ timeout: 5000 }).then(() => true, () => false))) {
     await p.screenshot({ path: "output/e2e/debug-practice.png" });
     console.log("DEBUG url", p.url(), (await p.locator("main").innerText().catch(() => "")).slice(0, 600));
   }
-  await p.locator(".mode-card").filter({ hasText: card }).click();
+  // anchored: "口语" is also in "一分钟口语"
+  await p.locator(".mode-card").filter({ hasText: new RegExp(`^\\s*${card}`) }).click();
   await p.getByRole("button", { name: enter }).click();
   await settle(p, 400);
 };
@@ -364,6 +368,7 @@ check("口语 sends the talk and both answers for marking", sent("speaking_asses
 check("口语 shows the four AI criteria (3+3+3+1 = 10/20)", (await p3.locator(".essay-total").innerText().catch(() => "")).replace(/\s+/g, "") === "10/20");
 await p3.locator(".essay-box .segmented button", { hasText: /^3 ·/ }).click();
 check("口语 adds the self-rated pronunciation (13/25)", (await p3.locator(".essay-total").innerText()).replace(/\s+/g, "") === "13/25");
+await settle(p3, 400); // progress is saved 250 ms after a change
 check("口语 logs the score out of 20", (await progressOf(p3))?.examLog?.some((r) => r.part === "speak" && r.score === 10 && r.total === 20));
 await p3.screenshot({ path: "output/e2e/speaking-result.png", fullPage: true });
 check("AI studios never reached a real AI service", aiCalls.length > 0 && aiCalls.every((c) => MOCK[c.name]), aiCalls.map((c) => c.name).join(","));

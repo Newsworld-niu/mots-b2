@@ -9,6 +9,7 @@ import { cleanFamily } from "../lib/families";
  */
 import { sanitizeQuiz, type QuizItem } from "../lib/reader";
 import { buildTask, CRITERIA, GENRE_LABEL, MAX_ESSAY_LENGTH, sanitizeEssayFeedback, sanitizeModel, tooShort, wordsFor, type EssayFeedback, type EssayTask, type Genre, type ModelEssay } from "../lib/essay";
+import { qualityIssues } from "../lib/listening";
 import { FORM_SPEC, sanitizeExercise, TOPICS, sanitizeSpeakingFeedback, sanitizeSubject, SPEAK_CRITERIA, type CompExercise, type CompForm, type CompKind, type DebateTurn, type SpeakingFeedback, type SpeakingSubject, type Topic } from "../lib/exam";
 import { ERROR_TYPES, sanitizeFeedback, type Feedback } from "../lib/writing";
 import { aiJson, generateImage, type Attachment } from "./clients";
@@ -667,8 +668,8 @@ const COMP_SCHEMA = {
       type: "array",
       items: {
         type: "object",
-        properties: { doc: { type: "integer" }, q: str, options: { type: "array", items: str }, answer: { type: "integer" }, why: str, difficulty: { type: "integer" } },
-        required: ["doc", "q", "options", "answer", "why", "difficulty"],
+        properties: { doc: { type: "integer" }, q: str, options: { type: "array", items: str }, answer: { type: "integer" }, why: str, difficulty: { type: "integer" }, skill: { type: "string", enum: ["gist", "detail", "paraphrase", "opinion", "inference", "negation"] } },
+        required: ["doc", "q", "options", "answer", "why", "difficulty", "skill"],
         additionalProperties: false,
       },
     },
@@ -682,32 +683,61 @@ const COMP_SYSTEM = `You write one exercise of a DELF B2-style comprehension pap
 "kind" and "form" decide the exercise:
 - listen / long: ONE radio programme of about "length" words (three minutes on air), as on a French public radio magazine: a presenter introduces the subject and one guest (a journalist, researcher or specialist, named with their role), then asks 3 to 5 short questions; the guest's answers are LONG, 60 to 130 words each, and carry the content. Each turn starts with the speaker's full name the first time, then the first name, followed by " : ". "docs" has 1 item. "intro": "Vous écoutez une émission à la radio."
 - listen / short: THREE unrelated short recordings of about "length" words each, on three different aspects of the topic. Each is one specialist or witness speaking almost alone: either a presenter's two-sentence introduction followed by ONE long statement of the guest, or the guest alone. "docs" has 3 items; each question has "doc" = 0, 1 or 2 and there are exactly 2 questions per recording.
-For both listening forms the language is prepared radio speech, not spontaneous chat: complete, well-built sentences of about 20 words, no "euh", no hesitations, no slang, no interruptions; clear logical connectors (d'un côté… de l'autre, en effet, néanmoins, en revanche, d'ailleurs); facts, figures and examples; a nuanced position with advantages and limits. No sound effects, no stage directions.
+For both listening forms, "style" decides how the people speak:
+- "radio": prepared radio speech: complete, well-built sentences of about 20 words, no "euh", no hesitations, no slang, no interruptions; clear logical connectors (d'un côté… de l'autre, en effet, néanmoins, en revanche, d'ailleurs).
+- "natural": how guests really talk on French radio, still at B2 and still mostly clear: the guest's answers contain, spread over the whole document, about one oral feature every 30 words: hesitations ("euh", "ben", "bah", "bon"), dropped "ne" in negations ("c'est pas", "on sait pas"), discourse markers ("du coup", "en fait", "enfin", "voilà", "quoi" at the end of a sentence, "tu vois" / "vous voyez"), a self-correction ("on a… enfin, on avait prévu…"), a sentence restarted or left unfinished with "…", "on" for "nous", "y a" for "il y a". The presenter speaks more carefully but interrupts once or twice with a short question or reaction ("Justement…", "Pardon, mais…"). Never caricature: no slang the learner cannot find in a dictionary, no regional dialect.
+In both styles: facts, figures and examples; a nuanced position with advantages and limits. No sound effects, no stage directions.
 - read / long: ONE press article of about "length" words, informative or argumentative, 5–7 paragraphs separated by one line break, with facts or figures, two or three named people quoted with their role, and at least two points of view. "docs" has 1 item. "intro": one sentence setting the situation ("Dans un magazine francophone, vous lisez un article sur…").
 - read / opinions: THREE people answer one question on a forum; "title" is that question. "docs" has 1 item whose text is the three contributions, each starting on a new line with the person's first name alone on its line, then about "length" words of nuanced personal opinion (they partly agree and partly differ; no one is simply for or against). "intro": "Vous lisez l'opinion de ces trois personnes sur un forum…". Each question "q" is a statement that rewords ONE person's view without their words; "options" are exactly the three first names in the order of the text; "answer" is the person who holds that view. Every person is the answer exactly twice.
 
 For every form except opinions: "questions" are multiple-choice questions in French, in the order of the document, each with exactly 3 options in French, exactly one right, the right option's position varying. Write them as the exam does: most stems are the beginning of a sentence that the options complete ("Selon Claire Morel, les nouveaux magazines vont…"), attributed to the person who says it ("Selon…", "Pour…", "D'après le journaliste…"); a few are direct questions. Options are short, 2 to 9 words, parallel in form. Mix the general subject, precise information (a reason, a consequence, a figure), a speaker's or the author's opinion or attitude, and inference. Wrong options are plausible and reuse words of the document; the right option rewords the document instead of quoting it. No question can be answered without the document.
-"questions" has exactly the number asked. "difficulty": 1 to 5 for each question (1 = an explicit detail, 3 = a reworded idea, 5 = an inference or the synthesis of several passages); use the whole range. "doc": 0 unless the form is short. "why": one or two sentences in Chinese saying which part of the document gives the answer.
+Calibrate on the official DELF B2 papers (France Éducation International sample papers): in a seven-question exercise, about two questions on the general subject or a speaker's role, two or three on precise information, two on an opinion, attitude or inference; at least two right options are paraphrases using different words; at most one question turns on a negation or restriction (ne… que, ne… plus, sauf, seulement). Examples of the register of the stems (do not reuse them): "Le thème principal de l'émission est…", "Selon l'invitée, les jeunes lecteurs…", "Quelle est l'attitude du journaliste vis-à-vis de cette mesure ?", "D'après l'auteur, cette réforme risque de…", "Ce que regrette la chercheuse, c'est…".
+"questions" has exactly the number asked. "skill" says what the question tests: "gist" (the general subject, the aim of the document or a speaker's role), "detail" (an explicit fact, figure, place or date), "paraphrase" (an idea of the document said with other words), "opinion" (a speaker's or the author's opinion or attitude), "inference" (not said, but follows from the document), "negation" (turns on a negation, restriction or exception). "difficulty": 1 to 5 for each question (1 = an explicit detail, 3 = a reworded idea, 5 = an inference or the synthesis of several passages); use the whole range. "doc": 0 unless the form is short. "why": one or two sentences in Chinese saying which part of the document gives the answer.
 "title": a short French title. Each "zh": a faithful Chinese translation of that document, same lines.`;
 
 // lengths measured on the official sample paper: long recordings of 475 and 530 words, short ones of 200 to 250, articles of about 515, opinions of about 140 each
 const LENGTH: Record<CompKind, Partial<Record<CompForm, number>>> = { listen: { long: 500, short: 215 }, read: { long: 515, opinions: 140 } };
 
 /** One exercise of the listening or reading paper, from the 生成卡片 service. */
-export async function makeComprehension(input: { kind: CompKind; form: CompForm; topic: Topic; level: "B1" | "B2" }, signal?: AbortSignal): Promise<CompExercise> {
+export async function makeComprehension(input: { kind: CompKind; form: CompForm; topic: Topic; level: "B1" | "B2"; style?: "radio" | "natural" }, signal?: AbortSignal): Promise<CompExercise> {
   const spec = FORM_SPEC[input.form];
   const length = Math.round((LENGTH[input.kind][input.form] ?? 400) * (input.level === "B1" ? 0.7 : 1));
-  const r = await aiJson<unknown>("text", {
-    system: COMP_SYSTEM,
-    text: JSON.stringify({ kind: input.kind, form: input.form, level: input.level, topic: `${input.topic.fr} (${input.topic.zh})`, length, questions: spec.questions, seed: Math.random().toString(36).slice(2, 8) }),
-    schema: COMP_SCHEMA,
-    schemaName: "comprehension",
+  const once = async () => {
+    const r = await aiJson<unknown>("text", {
+      system: COMP_SYSTEM,
+      text: JSON.stringify({ kind: input.kind, form: input.form, level: input.level, ...(input.kind === "listen" ? { style: input.style ?? "radio" } : {}), topic: `${input.topic.fr} (${input.topic.zh})`, length, questions: spec.questions, seed: Math.random().toString(36).slice(2, 8) }),
+      schema: COMP_SCHEMA,
+      schemaName: "comprehension",
+      signal,
+      maxTokens: 12000,
+    });
+    const ex = sanitizeExercise(r, input.form, input.topic.id);
+    const enough = ex.docs.length === (input.form === "short" ? 3 : 1) && ex.docs.every((d) => d.text.length > 200) && ex.questions.length >= spec.questions - 1;
+    return enough ? ex : null;
+  };
+  // an exercise the exam would never set (incomplete, answers copied from the text, all at one position) is made once more
+  let ex = await once();
+  if (!ex || qualityIssues(ex).length) ex = (await once()) ?? ex;
+  if (!ex) throw new Error("生成的题目不完整，请再试一次");
+  return ex;
+}
+
+const QUESTIONS_SCHEMA = { type: "object", properties: { title: str, questions: COMP_SCHEMA.properties.questions }, required: ["title", "questions"], additionalProperties: false };
+
+/** Seven exam-style questions on a real recording, from the transcript the learner pasted (真实材料精听). */
+export async function questionsForTranscript(text: string, signal?: AbortSignal): Promise<CompExercise> {
+  const r = await aiJson<{ title?: unknown; questions?: unknown }>("text", {
+    system: `${COMP_SYSTEM}
+
+Here the document is NOT yours to write: the user gives the transcript of a real French recording (kind listen, form long). Write only "title" and the 7 "questions" on it, following the rules for questions above ("doc" = 0). Questions only on what the transcript says.`,
+    text: text.slice(0, 8000),
+    schema: QUESTIONS_SCHEMA,
+    schemaName: "questions",
     signal,
-    maxTokens: 12000,
+    maxTokens: 4000,
   });
-  const ex = sanitizeExercise(r, input.form, input.topic.id);
-  const enough = ex.docs.length === (input.form === "short" ? 3 : 1) && ex.docs.every((d) => d.text.length > 200) && ex.questions.length >= spec.questions - 1;
-  if (!enough) throw new Error("生成的题目不完整，请再试一次");
+  const ex = sanitizeExercise({ intro: "", title: r?.title, docs: [{ text, zh: "" }], questions: r?.questions }, "long", "");
+  if (ex.questions.length < 4) throw new Error("生成的题目不完整，请再试一次");
   return ex;
 }
 

@@ -12,6 +12,9 @@ import { useTimer } from "../lib/timer";
 import { logExam } from "../store/essays";
 import { useStore } from "../store/store";
 import { Marking } from "../ui/Marking";
+import { phonoLevel } from "../lib/pronunciation";
+import type { Take } from "../lib/recorder";
+import { AssessHint, AssessStatus, PronReport, TakePlayer, useAssess, useRecorder } from "../ui/Recording";
 import { toast } from "../ui/Toast";
 
 const day = (ms: number) => new Date(ms).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" });
@@ -22,8 +25,9 @@ type Phase = "pick" | "drawing" | "choose" | "prep" | "talk" | "review" | "debat
 /**
  * 口语, in the form of the exam: draw two subjects and keep one, 30 minutes to prepare, a talk of 5 to 7 minutes
  * defending a point of view, then a debate in which the AI plays the examiner. The browser turns speech into
- * text (nothing is recorded); the AI marks the transcripts on four criteria of the official grid. The fifth,
- * pronunciation, cannot be judged from text: the learner rates it against the grid's descriptors.
+ * text and the talk is recorded (kept in memory for playback); the AI marks the transcripts on four criteria of
+ * the official grid. The fifth, pronunciation, comes from Azure's pronunciation assessment of the recording when
+ * it is set up; otherwise the learner rates it against the grid's descriptors.
  */
 export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const ai = useAiConfig();
@@ -41,6 +45,9 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [asking, setAsking] = useState(false);
   const [fb, setFb] = useState<SpeakingFeedback | null>(null);
   const [phono, setPhono] = useState<number | null>(null);
+  const [talkTake, setTalkTake] = useState<Take | null>(null);
+  const recorder = useRecorder();
+  const pron = useAssess();
   const stopRec = useRef<(() => void) | null>(null);
   const ctrl = useRef<AbortController | null>(null);
   const prep = useTimer();
@@ -113,24 +120,34 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setTurns([]);
     setFb(null);
     setPhono(null);
+    setTalkTake(null);
+    pron.reset();
     setSpoke(0);
     setPhase("prep");
     prep.start(SPEAK_TIMES.prep);
   };
 
-  const startTalk = () => {
+  const startTalk = async () => {
     prep.stop();
     setPhase("talk");
+    // the recording first (it asks for the microphone), then the recogniser alongside it
+    if (recorder.supported) await recorder.start();
     if (!dictation) return;
     talk.start();
     hear(setSaid);
   };
 
-  const endTalk = () => {
+  const endTalk = async () => {
     quiet();
     talk.stop();
     setSpoke(talk.sec);
     setPhase("review");
+    const t = await recorder.stop();
+    setTalkTake(t);
+    if (!t || !pron.available) return;
+    const r = await pron.run(t.blob);
+    // no recogniser in this browser (Safari on iOS, the app): Azure's transcript stands in for the AI marking
+    if (r?.text) setSaid((s) => (s.trim() ? s : r.text));
   };
 
   /** Ask the examiner's next question and read it aloud. */
@@ -184,6 +201,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
 
   const leave = () => {
     quiet();
+    void recorder.stop();
+    pron.reset();
     ctrl.current?.abort();
     prep.stop();
     talk.stop();
@@ -204,7 +223,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
           <p className="lede">和考试一样：抽两个题选一个，准备 30 分钟，先连续说 5–7 分钟（指出材料提出的问题，表明并论证自己的看法），再和考官辩论 10–13 分钟。这里由 AI 扮考官：它把问题说出来，你开口回答，它接着你的话追问，直到你结束。</p>
           <p className="muted">
             批改用官方评分表：独白、互动、词汇、语法由 AI 根据文字打分（每项 0／1／3／5）；第五项发音从文字里看不出来，由你对照标准自评。
-            {dictation ? "语音识别在浏览器里完成，不保存录音，需要联网和麦克风权限。" : "这个浏览器不支持语音识别：可以对着计时说，然后把说的内容打出来；用 Chrome、Edge 或 Safari 可以自动转文字。"}
+            {dictation ? "语音识别在浏览器里完成，需要联网和麦克风权限。" : "这个浏览器不支持语音识别：可以对着计时说，然后把说的内容打出来（设置了 Azure 语音会用它听出的文字）；用 Chrome、Edge 或 Safari 可以自动转文字。"}
+            {recorder.supported ? "独白会录音，只留在这次练习里，可以回放；设置了 Azure 语音还能给发音、流利度和语调打分，代替自评。" : ""}
           </p>
           {!hasAi && (
             <p className="muted">
@@ -278,6 +298,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const words = countWords(said);
   const turn = turns[turns.length - 1];
   const [min, max] = SPEAK_TIMES.monologue;
+  /** The fifth criterion from Azure's assessment, when there is one; else the learner's own rating. */
+  const azurePhono = pron.state === "done" ? phonoLevel(pron.result) : null;
 
   return (
     <div className="page practice">
@@ -350,7 +372,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
             </div>
             <textarea className="writing-input essay-notes" lang="fr" rows={6} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="准备时记关键词和提纲（考试时可以看笔记，但不能念稿）" spellCheck={false} aria-label="准备笔记" />
             <div className="writing-actions">
-              <button className="btn btn-primary btn-xl" onClick={startTalk}>
+              <button className="btn btn-primary btn-xl" onClick={() => void startTalk()}>
                 <Mic size={18} /> {dictation ? "准备好了，开始说" : "准备好了"}
               </button>
             </div>
@@ -379,7 +401,13 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
             )}
             <div className="writing-actions">
               <span className="essay-count">{words} 词</span>
-              <button className="btn btn-primary btn-xl" onClick={endTalk}>
+              {recorder.on && (
+                <span className="muted small">
+                  <i className="rec-dot" aria-hidden="true" />
+                  录音中
+                </span>
+              )}
+              <button className="btn btn-primary btn-xl" onClick={() => void endTalk()}>
                 <Square size={16} /> 说完了
               </button>
             </div>
@@ -392,6 +420,9 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
               {dictation ? `说了 ${clock(spoke)}。` : ""}
               识别难免有错：把听错的词改回你实际说的话，但不要趁机改语法，否则批改就不准了。
             </p>
+            <TakePlayer take={talkTake} label="听自己的独白" />
+            {talkTake && (pron.available ? <AssessStatus a={pron} /> : <AssessHint />)}
+            {pron.state === "done" && pron.result && <PronReport result={pron.result} />}
             <textarea className="writing-input essay-input" lang="fr" rows={10} value={said} onChange={(e) => setSaid(e.target.value)} placeholder="你说的内容" spellCheck={false} aria-label="你说的内容" />
             <div className="writing-actions">
               <span className={`essay-count ${words >= 450 ? "is-ok" : ""}`}>{words} 词 · 5 分钟大约 450 词以上</span>
@@ -503,18 +534,22 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
 
         {phase === "result" && fb && (
           <>
-            <Marking fb={fb} pointTitle={pointTitle} extra={{ key: "phono", score: phono }} />
-            <div className="essay-box">
-              <p className="eyebrow">发音和语调：自己评（第五项，AI 听不到）</p>
-              <p className="muted small">{CRITERION_CHECK.phono} 官方标准：低于 B2 是「大体听得懂，语调和重音还有不自然」；B2 是「语调、重音、发音清楚，偶尔的问题不影响交流」；B2+ 是「能变化语调来表达意思，能自己纠正」。</p>
-              <div className="segmented">
-                {LEVELS.map((v) => (
-                  <button key={v} className={phono === v ? "is-on" : ""} onClick={() => setPhono(v)} aria-pressed={phono === v}>
-                    {v} · {LEVEL_LABEL[v]}
-                  </button>
-                ))}
+            <Marking fb={fb} pointTitle={pointTitle} extra={{ key: "phono", score: azurePhono ?? phono }} />
+            {pron.state === "done" && pron.result && <PronReport result={pron.result} title="发音和语调（第五项，Azure 评测）" />}
+            {azurePhono === null && (
+              <div className="essay-box">
+                <p className="eyebrow">发音和语调：自己评（第五项，AI 听不到）</p>
+                <p className="muted small">{CRITERION_CHECK.phono} 官方标准：低于 B2 是「大体听得懂，语调和重音还有不自然」；B2 是「语调、重音、发音清楚，偶尔的问题不影响交流」；B2+ 是「能变化语调来表达意思，能自己纠正」。</p>
+                <div className="segmented">
+                  {LEVELS.map((v) => (
+                    <button key={v} className={phono === v ? "is-on" : ""} onClick={() => setPhono(v)} aria-pressed={phono === v}>
+                      {v} · {LEVEL_LABEL[v]}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+            <TakePlayer take={talkTake} label="听自己的独白" />
             {turns.some((t) => t.a.trim()) && (
               <div className="essay-box">
                 <p className="eyebrow">辩论</p>

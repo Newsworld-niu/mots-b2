@@ -9,6 +9,9 @@ import { getImages, isImageDataUrl, replaceImages } from "./images";
 import { sanitizeTexts, type SavedText } from "../lib/reader";
 import { sanitizeAiTasks, sanitizeEssays, sanitizeNotes, type EssayTask, type SavedEssay, type SavedNote } from "../lib/essay";
 import { sanitizeExamLog, type ExamResult } from "../lib/exam";
+import { sanitizeMisses, sanitizeSources, type CompMiss, type RealSource } from "../lib/listening";
+import { sanitizeDrillDays } from "../lib/drill";
+import { EXPR_ID } from "../lib/expressions";
 
 /**
  * "gender": choose un / une for a noun (no options list; the two articles are fixed).
@@ -179,6 +182,8 @@ export interface Progress {
   gramSkip?: string[];
   /** How the learner does on each part of a grammar point ("point|r2", "point|t0"): answered n, wrong w (rolling). */
   gramTags?: Record<string, { n: number; w: number }>;
+  /** Expression cards (表达: connectors, argument frames, collocations, register, letter formulas), one per expression id. */
+  expr?: Record<string, CardState>;
   /** The learner's own decks, in the order made. */
   decks?: Deck[];
   /** Atlas words taken out of the initial deck (初始词本); still learned when in another deck. */
@@ -197,6 +202,12 @@ export interface Progress {
   essayNotes?: SavedNote[];
   /** Results of 听力理解、应试阅读、口语, newest first. */
   examLog?: ExamResult[];
+  /** Questions missed in 听力理解 / 应试阅读, with why (错因), newest first. */
+  compMisses?: CompMiss[];
+  /** 真实材料精听: recordings on other sites, by link and timestamps. */
+  listenSources?: RealSource[];
+  /** 每日一分钟口语 done per day (dayKey → count). */
+  drillDays?: Record<string, number>;
 }
 
 /** The most new words a day can be set to: the learner decides, the app only keeps the number sane. */
@@ -368,6 +379,11 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
       if (/^[a-z0-9-]{2,40}\|[rt]\d{1,2}$/.test(k) && isObj(t) && num(t.n, 0) && num(t.w, 0) && (t.w as number) <= (t.n as number)) tags[k] = { n: t.n as number, w: t.w as number };
     if (Object.keys(tags).length) out.gramTags = tags;
   }
+  if (isObj(v.expr)) {
+    const expr: Record<string, CardState> = {};
+    for (const [k, c] of Object.entries(v.expr)) if (EXPR_ID.test(k) && validCard(c)) expr[k] = c;
+    if (Object.keys(expr).length) out.expr = expr;
+  }
   Object.assign(out, sanitizeUserData(v));
   const texts = sanitizeTexts(v.texts);
   if (texts) out.texts = texts;
@@ -379,6 +395,12 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
   if (essayNotes) out.essayNotes = essayNotes;
   const examLog = sanitizeExamLog(v.examLog);
   if (examLog) out.examLog = examLog;
+  const compMisses = sanitizeMisses(v.compMisses);
+  if (compMisses) out.compMisses = compMisses;
+  const listenSources = sanitizeSources(v.listenSources);
+  if (listenSources) out.listenSources = listenSources;
+  const drillDays = sanitizeDrillDays(v.drillDays);
+  if (drillDays) out.drillDays = drillDays;
   const s = v.session;
   if (isObj(s) && typeof s.id === "string" && Array.isArray(s.steps) && num(s.index, 0) && isObj(s.graded))
     out.session = s as unknown as ActiveSession;

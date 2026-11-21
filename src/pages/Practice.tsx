@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ArrowRight, BookOpenCheck, Check, Ear, FileText, Headphones, Keyboard, Languages, Mic, PenLine, RotateCcw, Sparkles, Type, X } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, BookOpenCheck, Check, Ear, FileText, Headphones, Keyboard, Languages, MessageSquareQuote, Mic, PenLine, RotateCcw, Sparkles, Timer, Type, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { prefetch, useAtlas } from "../atlas/context";
 import { MEDIA, type Accent, type Entry, type WordRef } from "../atlas/types";
@@ -23,6 +23,11 @@ import { toast } from "../ui/Toast";
 import { ComprehensionStudio } from "./Comprehension";
 import { EssayStudio } from "./Essay";
 import { SpeakingStudio } from "./Speaking";
+import { DrillStudio } from "./Drill";
+import { ExprStudio } from "./Expressions";
+import { EXPRESSIONS } from "../lib/expressions";
+import { coreSet, CORE_LABEL, isCore } from "../lib/core-words";
+import { DRILL_QUESTIONS } from "../lib/drill";
 import { SPEAKING_SUBJECTS, TOPICS } from "../lib/exam";
 import { ESSAY_TASKS } from "../lib/essay";
 import { WritingRound, type WritingMode } from "./Writing";
@@ -30,10 +35,10 @@ import { PRACTICE_SOURCES as SOURCES, type PracticeSource as Source } from "../l
 import { PracticeSourcePicker } from "../ui/PracticeSource";
 
 /** Modes that open a page of their own instead of a round on the learner's words. */
-type Studio = "essay" | "listen" | "examread" | "speak";
+type Studio = "essay" | "listen" | "examread" | "speak" | "drill" | "expr";
 type Mode = "word" | "sentence" | "dictation" | "gender" | Studio | WritingMode;
 type TypingMode = Exclude<Mode, "gender" | Studio | WritingMode>;
-const isStudio = (m: Mode): m is Studio => m === "essay" || m === "listen" || m === "examread" || m === "speak";
+const isStudio = (m: Mode): m is Studio => m === "essay" || m === "listen" || m === "examread" || m === "speak" || m === "drill" || m === "expr";
 const isWriting = (m: Mode): m is WritingMode => m === "translate" || m === "compose";
 
 const MODES: [Mode, string, string, typeof Type][] = [
@@ -43,10 +48,12 @@ const MODES: [Mode, string, string, typeof Type][] = [
   ["gender", "冠词", "un 还是 une，快速判断", ArrowLeftRight],
   ["translate", "中译法", "看中文，自己写出法语句子", Languages],
   ["compose", "造句", "用这个词写一句话，AI 批改", PenLine],
+  ["expr", "表达", "连接词、论证句型、信函套话，填空复习", MessageSquareQuote],
   ["essay", "篇章", "按题目写一封信或一篇短文", FileText],
   ["listen", "听力理解", "按真题题型：三个练习一套", Ear],
   ["examread", "应试阅读", "按真题题型：三篇一套，限时", BookOpenCheck],
   ["speak", "口语", "抽题、准备、独白、辩论", Mic],
+  ["drill", "一分钟口语", "想 15 秒，说 60 秒，录音回放", Timer],
 ];
 
 /** Choices remembered on this device: the decks to practise from and whether 听写 / 中译法 use AI sentences. */
@@ -67,6 +74,8 @@ const writePref = (k: string, v: string) => {
 };
 /** Modes that are about a whole sentence: the card's own, or a new one the AI writes. */
 const usesSentences = (m: Mode) => m === "dictation" || m === "translate";
+/** Modes where the learner produces the word: by default only core words (会用), see lib/core-words. */
+const isProductive = (m: Mode) => m === "word" || isWriting(m);
 const NO_EX_AUDIO = ~(MEDIA.ex | MEDIA.exM | MEDIA.ex2 | MEDIA.ex2M);
 
 export function Practice() {
@@ -102,6 +111,13 @@ export function Practice() {
     setAiSentencesState(v);
     writePref("ai-sentences", v ? "1" : "0");
   };
+  // 单词、中译法、造句: only 会用 words, or every word of the source
+  const [coreOnly, setCoreOnlyState] = useState(() => readPref("core-only") !== "0");
+  const setCoreOnly = (v: boolean) => {
+    setCoreOnlyState(v);
+    writePref("core-only", v ? "1" : "0");
+  };
+  const coreFilter = coreOnly && isProductive(mode);
   const [busy, setBusy] = useState(false);
   const aiCtrl = useRef<AbortController | null>(null);
   useEffect(() => () => aiCtrl.current?.abort(), []);
@@ -127,10 +143,10 @@ export function Practice() {
             ? progress.bookmarks
             : source === "decks"
               ? [...new Set(chosenDecks.flatMap((d) => deckWords(atlas, progress, d)))].filter((id) => mode !== "gender" || isTaughtReady(atlas.byId.get(id)!))
-              : atlas.words.filter((w) => w.cefr >= startLevel && (mode !== "gender" || (w.g && isTaughtReady(w)))).slice(0, 400).map((w) => w.id);
+              : atlas.words.filter((w) => w.cefr >= startLevel && (mode !== "gender" || (w.g && isTaughtReady(w))) && (!coreFilter || isCore(atlas, w.id))).slice(0, 400).map((w) => w.id);
     // the article drill only uses nouns with a quizzable gender
-    return ids.filter((id) => atlas.byId.has(id) && (mode !== "gender" || !!atlas.byId.get(id)!.g));
-  }, [atlas, progress, source, startLevel, mode, chosenDecks]);
+    return ids.filter((id) => atlas.byId.has(id) && (mode !== "gender" || !!atlas.byId.get(id)!.g) && (!coreFilter || isCore(atlas, id)));
+  }, [atlas, progress, source, startLevel, mode, chosenDecks, coreFilter]);
 
   /** A round's draw: from the whole of the chosen decks, otherwise from the first words of the source. */
   const draw = (n: number, from = 60) => shuffle(source === "decks" ? pool : pool.slice(0, from), hashSeed(String(Date.now()))).slice(0, n);
@@ -196,6 +212,8 @@ export function Practice() {
   if (studio === "listen") return <ComprehensionStudio key="listen" kind="listen" onExit={() => setStudio(null)} />;
   if (studio === "examread") return <ComprehensionStudio key="read" kind="read" onExit={() => setStudio(null)} />;
   if (studio === "speak") return <SpeakingStudio onExit={() => setStudio(null)} />;
+  if (studio === "drill") return <DrillStudio onExit={() => setStudio(null)} />;
+  if (studio === "expr") return <ExprStudio onExit={() => setStudio(null)} />;
   if (writing) return <WritingRound key={writing.key} mode={writing.mode} entries={writing.entries} onExit={() => setWriting(null)} onAgain={start} />;
   if (round && !isWriting(mode) && mode !== "gender" && !isStudio(mode)) return <TypingRound key={round.key} mode={mode} entries={round.entries} onExit={() => setRound(null)} onAgain={start} />;
 
@@ -223,11 +241,29 @@ export function Practice() {
             ))}
           </div>
           {!isStudio(mode) && <PracticeSourcePicker source={source} onSource={setSource} decks={deckList} chosenDecks={chosenDecks} onDeck={toggleDeck} />}
+          {isProductive(mode) && (
+            <>
+              <h3 className="eyebrow">练哪些词</h3>
+              <div className="segmented segmented-wide" role="group" aria-label="练哪些词">
+                <button className={coreOnly ? "is-on" : ""} onClick={() => setCoreOnly(true)} aria-pressed={coreOnly}>
+                  只练「{CORE_LABEL}」词
+                </button>
+                <button className={!coreOnly ? "is-on" : ""} onClick={() => setCoreOnly(false)} aria-pressed={!coreOnly}>
+                  全部词
+                </button>
+              </div>
+              {coreOnly && <p className="muted small">「{CORE_LABEL}」是写作、口语要用出来的 {coreSet(atlas).size} 个常用词和考试话题词；其余的词看懂就行，不必默写。</p>}
+            </>
+          )}
           <p className="muted">
             {mode === "essay"
               ? `${ESSAY_TASKS.length} 个题目：邮件、叙事、论坛发帖、正式信件、求职信、读者来信、议论文，其中 3 个是先读材料再写。`
               : mode === "speak"
                 ? `抽两个题选一个（内置 ${SPEAKING_SUBJECTS.length} 个，也可以让 AI 出新题）。`
+                : mode === "expr"
+                  ? `${EXPRESSIONS.length} 张表达卡：连接词、论证句型、话题搭配、语域、正式信函。看中文，在例句的空里写出法语，按记忆曲线复习。`
+                : mode === "drill"
+                  ? `抽一个问题（内置 ${DRILL_QUESTIONS.length} 个），说出观点和两个理由；录音可以回放，设置了 Azure 语音还能给发音打分。`
                 : mode === "listen" || mode === "examread"
                   ? `${TOPICS.length} 个考试常见话题，每次由 AI 按真题题型新出：可以练单个练习，也可以做整套 25 分。`
                   : pool.length
@@ -320,6 +356,8 @@ export function Practice() {
                 )}
               </p>
             </>
+          ) : mode === "drill" ? (
+            <p className="muted">每天开口一次：抽题后先想 15 秒，再对着 60 秒倒计时说。说的内容可以让 AI 点评结构和用词；发音、流利度和语调由 Azure 语音评测。</p>
           ) : mode === "gender" ? (
             <p className="muted">
               冠词颜色：<span className="art art-m">un</span> 阳性 · <span className="art art-f">une</span> 阴性。用不定冠词判断，因为 l' 会遮住阴阳性。

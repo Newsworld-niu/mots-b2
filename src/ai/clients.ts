@@ -259,7 +259,9 @@ export async function azureSpeak(text: string, voice = getAiConfig().azureVoice,
   const c = getAiConfig();
   if (!c.azureRegion) throw new AiError("还没有填 Azure 语音服务的区域");
   const lang = voice.match(/^[a-z]{2}-[A-Z]{2}/)?.[0] ?? "fr-FR";
-  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${lang}"><voice name="${xml(voice)}"><lang xml:lang="fr-FR">${xml(text)}</lang></voice></speak>`;
+  // a French voice (fr-FR, fr-CA, fr-BE, fr-CH) reads in its own accent; a multilingual voice is told to speak French
+  const body = lang.startsWith("fr-") ? xml(text) : `<lang xml:lang="fr-FR">${xml(text)}</lang>`;
+  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${lang}"><voice name="${xml(voice)}">${body}</voice></speak>`;
   const r = await aiFetch(proxyUrl("azure", `/${c.azureRegion}/cognitiveservices/v1`), {
     method: "POST",
     headers: {
