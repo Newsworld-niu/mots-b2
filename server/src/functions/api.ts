@@ -114,7 +114,7 @@ app.http("account", {
 });
 
 app.http("adminInvites", {
-  route: "admin/invites",
+  route: "invites",
   methods: ["POST", "OPTIONS"],
   authLevel: "anonymous",
   handler: dispatch,

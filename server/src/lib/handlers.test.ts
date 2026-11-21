@@ -32,7 +32,7 @@ async function createInviteAndRegister(
   const invRes = await handleRequest(
     {
       method: "POST",
-      path: "/api/admin/invites",
+      path: "/api/invites",
       headers: { "x-admin-key": env.ADMIN_KEY },
       body: JSON.stringify({ count: 1 }),
     },
@@ -74,7 +74,7 @@ describe("sync handlers", () => {
     const store = new MemoryObjStore();
 
     const noKey = await handleRequest(
-      { method: "POST", path: "/api/admin/invites" },
+      { method: "POST", path: "/api/invites" },
       store,
       ENV,
     );
@@ -83,7 +83,7 @@ describe("sync handlers", () => {
     const wrongKey = await handleRequest(
       {
         method: "POST",
-        path: "/api/admin/invites",
+        path: "/api/invites",
         headers: { "X-Admin-Key": "wrong" },
       },
       store,
@@ -94,7 +94,7 @@ describe("sync handlers", () => {
     const emptyEnv = await handleRequest(
       {
         method: "POST",
-        path: "/api/admin/invites",
+        path: "/api/invites",
         headers: { "x-admin-key": "" },
       },
       store,
@@ -105,7 +105,7 @@ describe("sync handlers", () => {
     const badCount = await handleRequest(
       {
         method: "POST",
-        path: "/api/admin/invites",
+        path: "/api/invites",
         headers: { "x-admin-key": ENV.ADMIN_KEY },
         body: JSON.stringify({ count: 21 }),
       },
@@ -117,7 +117,7 @@ describe("sync handlers", () => {
     const ok = await handleRequest(
       {
         method: "POST",
-        path: "/api/admin/invites",
+        path: "/api/invites",
         headers: { "x-admin-key": ENV.ADMIN_KEY },
         body: JSON.stringify({ count: 3 }),
       },
@@ -161,7 +161,7 @@ describe("sync handlers", () => {
     const invRes = await handleRequest(
       {
         method: "POST",
-        path: "/api/admin/invites",
+        path: "/api/invites",
         headers: { "x-admin-key": ENV.ADMIN_KEY },
         body: JSON.stringify({ count: 1 }),
       },

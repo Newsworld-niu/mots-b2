@@ -76,7 +76,7 @@ if (!adminKey) {
   process.exit(1);
 }
 
-const res = await fetch(`${syncUrl}/api/admin/invites`, {
+const res = await fetch(`${syncUrl}/api/invites`, {
   method: "POST",
   headers: {
     "Content-Type": "application/json",

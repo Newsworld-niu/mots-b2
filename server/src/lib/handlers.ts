@@ -478,7 +478,7 @@ export async function handleRequest(
     return handleRegister(req, store, baseHeaders);
   }
 
-  if (path === "/admin/invites") {
+  if (path === "/invites") {
     if (method !== "POST") {
       return jsonResponse(baseHeaders, 405, { error: "method_not_allowed" });
     }
