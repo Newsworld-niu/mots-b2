@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { DEFAULT_MODELS, GRADING_RECOMMENDED_MODELS } from "./config.ts";
 import { buildAnthropicBody, buildOpenAiChatBody, supportsTemperature, type JsonRequest } from "./clients.ts";
-import { buildRewritePayload, ESSAY_SCHEMA, ESSAY_SYSTEM, REWRITE_SYSTEM, SPEAK_SCHEMA, SPEAK_SYSTEM } from "./tasks.ts";
+import { buildRewritePayload, ESSAY_SCHEMA, ESSAY_SYSTEM, MODEL_SYSTEM, REWRITE_SYSTEM, SPEAK_SCHEMA, SPEAK_SYSTEM, TEXT_SYSTEM } from "./tasks.ts";
 
 const sampleReq: JsonRequest = {
   system: "Mark this.",
@@ -76,4 +76,12 @@ test("PE-8 checkRewrite payload forwards optional pointTitle as grammarPoint and
     { grammarPoint: "让步状语从句（bien que + 虚拟式）", given: "Il pleut.", task: "用 bien que 改写", reference: "Bien qu'il pleuve, je sors.", learner: "Bien qu'il pleuve, je pars." },
   );
   assert.equal("grammarPoint" in buildRewritePayload({ given: "A", task: "B", reference: "C", answer: "D", pointTitle: "  " }), false);
+});
+
+test("PE-10 MODEL_SYSTEM enforces B2 20+/25 standard and CE-3 TEXT_SYSTEM requires French quiz questions/options", () => {
+  assert.ok(MODEL_SYSTEM.includes("20+/25"));
+  assert.ok(MODEL_SYSTEM.includes("wordRange"));
+  assert.ok(TEXT_SYSTEM.includes("written in French"));
+  assert.ok(TEXT_SYSTEM.includes("4 options written in French"));
+  assert.ok(TEXT_SYSTEM.includes("one sentence in Chinese"));
 });

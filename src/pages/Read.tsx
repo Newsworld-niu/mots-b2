@@ -584,11 +584,12 @@ function Quiz({ items }: { items: QuizItem[] }) {
           const done = mine !== undefined;
           return (
             <li key={i}>
-              <p className="reader-q">{q.q}</p>
+              <p className="reader-q" lang="fr">{q.q}</p>
               <ul className="reader-options">
                 {q.options.map((o, k) => (
                   <li key={k}>
                     <button
+                      lang="fr"
                       className={`reader-option ${done ? (k === q.answer ? "is-answer" : k === mine ? "is-wrong" : "is-dim") : ""}`}
                       onClick={() => setChosen((c) => ({ ...c, [i]: k }))}
                       disabled={done}

@@ -973,12 +973,12 @@ const TEXT_SCHEMA = {
   additionalProperties: false,
 };
 
-const TEXT_SYSTEM = `You write short reading texts for a Chinese learner of French. The learner is reviewing the words in "words"; write one text that uses them, so they meet each word again in a natural context.
+export const TEXT_SYSTEM = `You write short reading texts for a Chinese learner of French. The learner is reviewing the words in "words"; write one text that uses them, so they meet each word again in a natural context.
 
 - "text": a coherent French text of the kind asked for ("récit": a short story or everyday scene; "dialogue": a conversation, each line starting with the speaker's name and a colon; "article": a short informative text), about "length" words, in 2–5 short paragraphs separated by one line break. Use every word of "words" at least once, in the meaning given, inflected as the sentence needs; a word that truly cannot fit may be left out rather than forced. Everything else stays at CEFR level "level" or below: common vocabulary, sentence length and tenses a learner of that level reads without a dictionary. Correct, natural, contemporary French. No lists, no headings, no markdown, no translation inside the text.
 - "title": a short French title.
 - "zh": a faithful Chinese translation of the whole text, paragraph by paragraph.
-- "quiz": exactly 3 comprehension questions about what the text says, written in Chinese, each with 4 options in Chinese, exactly one of them right; "answer" is the index (0–3) of the right option, and the right option's position varies; "why": one sentence in Chinese pointing to the part of the text that gives the answer. The questions test understanding of the text, not vocabulary definitions, and cannot be answered without reading it.`;
+- "quiz": exactly 3 comprehension questions written in French (never in Chinese), at CEFR level "level" or below, testing real understanding and paraphrase of what the text says, each with 4 options written in French (never in Chinese), exactly one of them right; "answer" is the index (0–3) of the right option, and the right option's position varies; "why": one sentence in Chinese pointing to the part of the text that gives the answer. The questions test understanding of the text, not vocabulary definitions, and cannot be answered without reading it.`;
 
 /** A short text around the learner's words, with its translation and three questions, from the 生成卡片 service. */
 export async function writeText(input: { words: { word: string; zh: string }[]; level: string; kind: "récit" | "dialogue" | "article"; length: number; missing?: string[] }, signal?: AbortSignal): Promise<WrittenText> {
