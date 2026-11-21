@@ -30,9 +30,15 @@ export const DEFAULT_MODELS: Record<TextProvider, string> = {
   openai: "gpt-5-mini",
   deepseek: "deepseek-chat",
   anthropic: "claude-opus-5-5",
-  // OpenRouter names models <maker>/<model>; this one reads pictures too
-  openrouter: "openai/gpt-5-mini",
+  // OpenRouter names models <maker>/<model>; multimodal + calibrated best for DELF B2 grading
+  openrouter: "google/gemini-2.5-flash",
 };
+
+/** Recommended models surfaced in AI settings for DELF B2 grading consistency. */
+export const GRADING_RECOMMENDED_MODELS = {
+  openrouter: ["google/gemini-2.5-flash", "deepseek/deepseek-chat"],
+  deepseek: ["deepseek-chat"],
+} as const;
 export const DEFAULT_IMAGE_MODELS: Record<ImageProvider, string> = { openai: "gpt-image-1", openrouter: "openai/gpt-image-1-mini" };
 
 export const defaultAiConfig = (): AiConfig => ({

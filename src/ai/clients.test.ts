@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { DEFAULT_MODELS, GRADING_RECOMMENDED_MODELS } from "./config.ts";
 import { buildAnthropicBody, buildOpenAiChatBody, supportsTemperature, type JsonRequest } from "./clients.ts";
 import { ESSAY_SCHEMA, ESSAY_SYSTEM, SPEAK_SCHEMA, SPEAK_SYSTEM } from "./tasks.ts";
 
@@ -59,4 +60,11 @@ test("ESSAY_SCHEMA and SPEAK_SCHEMA restrict scores to integer enum [0, 1, 3, 5]
   assert.ok(!ESSAY_SYSTEM.includes("voitures") && !ESSAY_SYSTEM.includes("télétravail"));
   assert.ok(SPEAK_SYSTEM.includes("Calibration anchors"));
   assert.ok(!SPEAK_SYSTEM.includes("voitures") && !SPEAK_SYSTEM.includes("télétravail"));
+});
+
+test("DEFAULT_MODELS.openrouter uses google/gemini-2.5-flash and GRADING_RECOMMENDED_MODELS includes calibrated choices", () => {
+  assert.equal(DEFAULT_MODELS.openrouter, "google/gemini-2.5-flash");
+  assert.equal(supportsTemperature(DEFAULT_MODELS.openrouter), true);
+  assert.ok(GRADING_RECOMMENDED_MODELS.openrouter.includes("google/gemini-2.5-flash"));
+  assert.ok(GRADING_RECOMMENDED_MODELS.openrouter.includes("deepseek/deepseek-chat"));
 });

@@ -1,7 +1,7 @@
 import { Check, ChevronDown, Eye, EyeOff, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { azureSpeak, azureVoices, listImageModels, listModels, type AzureVoice } from "../ai/clients";
-import { DEFAULT_IMAGE_MODELS, DEFAULT_MODELS, IMAGE_PROVIDERS, TEXT_PROVIDERS, VISION_PROVIDERS, getAiConfig, setAiConfig, useAiConfig, type AiConfig, type TextProvider } from "../ai/config";
+import { DEFAULT_IMAGE_MODELS, DEFAULT_MODELS, GRADING_RECOMMENDED_MODELS, IMAGE_PROVIDERS, TEXT_PROVIDERS, VISION_PROVIDERS, getAiConfig, setAiConfig, useAiConfig, type AiConfig, type TextProvider } from "../ai/config";
 import { proxyAvailable } from "../ai/proxy";
 import { clearTtsCache, ttsCacheSize } from "../ai/tts";
 import { toast } from "./Toast";
@@ -306,8 +306,8 @@ export function AiSettings() {
         <ModelField {...field(c.vision.provider)} value={c.vision.model} onChange={(m) => set({ vision: { ...c.vision, model: m } })} models={models[c.vision.provider]} />
       </div>
       <div className="ai-job">
-        <b>生成卡片 · 文本</b>
-        <small>给新词写中文释义、词性和例句（整套生成、AI 补全）。</small>
+        <b>生成与批改 · 文本</b>
+        <small>用于生成词条讲解、写作与口语批改、语法与阅读出题。</small>
         <div className="segmented">
           {TEXT_PROVIDERS.map((p) => (
             <button key={p} className={c.text.provider === p ? "is-on" : ""} onClick={() => set({ text: { provider: p, model: DEFAULT_MODELS[p] } })}>
@@ -316,6 +316,10 @@ export function AiSettings() {
           ))}
         </div>
         <ModelField {...field(c.text.provider)} value={c.text.model} onChange={(m) => set({ text: { ...c.text, model: m } })} models={models[c.text.provider]} />
+        <small>
+          批改推荐模型：OpenRouter 优先 <code>{GRADING_RECOMMENDED_MODELS.openrouter[0]}</code>（最稳且兼顾识图）或{" "}
+          <code>{GRADING_RECOMMENDED_MODELS.openrouter[1]}</code>（纯文本高性价比）；直连推荐 DeepSeek <code>{GRADING_RECOMMENDED_MODELS.deepseek[0]}</code>。
+        </small>
       </div>
       <div className="ai-job">
         <b>生成图片</b>
