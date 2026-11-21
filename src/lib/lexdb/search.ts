@@ -211,6 +211,20 @@ async function resolvePhraseEntries(folded: string, splits?: readonly string[]):
   return [];
 }
 
+function dedupeEntries(lists: readonly (readonly LexEntry[])[]): LexEntry[] {
+  const out: LexEntry[] = [];
+  const seen = new Set<string>();
+  for (const list of lists) {
+    for (const entry of list) {
+      if (!seen.has(entry.id)) {
+        seen.add(entry.id);
+        out.push(entry);
+      }
+    }
+  }
+  return out;
+}
+
 /** Resolve a French word, inflected form, or multi-word phrase into LexEntry results. */
 export async function resolve(q: string): Promise<ResolveResult> {
   const raw = cleanQuery(q);
@@ -222,7 +236,7 @@ export async function resolve(q: string): Promise<ResolveResult> {
   const typed = raw.toLowerCase();
   const hasAccentTyped = typed !== folded;
 
-  const direct = await getEntriesByLemma(folded);
+  const [direct, viaForm] = await Promise.all([getEntriesByLemma(folded), resolveFormLemmas(folded, splits)]);
   direct.sort((a, b) => rankOf(a) - rankOf(b));
   const accentExact = direct.filter((e) => e.w.toLowerCase() === typed);
   const loose = direct.filter((e) => e.w.toLowerCase() !== typed);
@@ -232,17 +246,14 @@ export async function resolve(q: string): Promise<ResolveResult> {
 
   if (accentExact.length > 0) {
     return {
-      entries: [...accentExact, ...loose],
+      entries: dedupeEntries([accentExact, viaForm, loose]),
       matchedVia: isStandalonePhrase ? "phrase" : "exact",
     };
   }
 
-  const viaForm = await resolveFormLemmas(folded, splits);
   if (viaForm.length > 0 && (loose.length === 0 || hasAccentTyped)) {
-    const seen = new Set(viaForm.map((e) => e.id));
-    const combined = [...viaForm, ...loose.filter((e) => !seen.has(e.id))];
     return {
-      entries: combined,
+      entries: dedupeEntries([viaForm, loose]),
       matchedVia: "form",
       formTarget: viaForm[0].w,
     };
@@ -250,7 +261,7 @@ export async function resolve(q: string): Promise<ResolveResult> {
 
   if (loose.length > 0) {
     return {
-      entries: loose,
+      entries: dedupeEntries([accentExact, viaForm, loose]),
       matchedVia: isStandalonePhrase ? "phrase" : "exact",
     };
   }

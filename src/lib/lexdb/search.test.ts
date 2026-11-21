@@ -96,6 +96,56 @@ const entreprendre: LexEntry = {
   sources: ["atlas"],
 };
 
+const estNoun: LexEntry = {
+  id: "est",
+  w: "est",
+  rank: 1200,
+  pos: [{ p: "n.m.", g: "m", senses: [{ zh: "东；东方", src: ["atlas"], conf: 3 }] }],
+  sources: ["atlas"],
+};
+
+const faire: LexEntry = {
+  id: "faire",
+  w: "faire",
+  rank: 12,
+  pos: [{ p: "v.", senses: [{ zh: "做；干", src: ["atlas"], conf: 3 }] }],
+  conj: true,
+  sources: ["atlas"],
+};
+
+const faitNoun: LexEntry = {
+  id: "fait",
+  w: "fait",
+  rank: 280,
+  pos: [{ p: "n.m.", g: "m", senses: [{ zh: "事实；事件", src: ["atlas"], conf: 3 }] }],
+  sources: ["atlas"],
+};
+
+const eteNoun: LexEntry = {
+  id: "ete",
+  w: "été",
+  rank: 350,
+  pos: [{ p: "n.m.", g: "m", senses: [{ zh: "夏天；夏季", src: ["atlas"], conf: 3 }] }],
+  sources: ["atlas"],
+};
+
+const avoir: LexEntry = {
+  id: "avoir",
+  w: "avoir",
+  rank: 2,
+  pos: [{ p: "v.", senses: [{ zh: "有", src: ["atlas"], conf: 3 }] }],
+  conj: true,
+  sources: ["atlas"],
+};
+
+const aPrep: LexEntry = {
+  id: "a",
+  w: "à",
+  rank: 4,
+  pos: [{ p: "prép.", senses: [{ zh: "在；向；到", src: ["atlas"], conf: 3 }] }],
+  sources: ["atlas"],
+};
+
 function installMockLexdb(overrides?: Record<string, unknown>) {
   const meta: LexMeta = {
     version: 1,
@@ -129,17 +179,25 @@ function installMockLexdb(overrides?: Record<string, unknown>) {
     "/lexdb/meta.json": meta,
     "/lexdb/suggest.json": suggestRows,
     "/lexdb/e/ac.json": { accueil, accepter },
+    "/lexdb/e/a_.json": { a: aPrep },
+    "/lexdb/e/av.json": { avoir },
     "/lexdb/e/pre.json": { prendre },
     "/lexdb/e/be.json": { beau, beaucoup },
     "/lexdb/e/vo.json": { vouloir },
-    "/lexdb/e/et.json": { etre },
+    "/lexdb/e/et.json": { etre, ete: eteNoun },
+    "/lexdb/e/es.json": { est: estNoun },
+    "/lexdb/e/fa.json": { faire, fait: faitNoun },
     "/lexdb/e/ba.json": { baille, bailler },
     "/lexdb/e/pa.json": { parler },
     "/lexdb/e/en.json": { entreprendre },
+    "/lexdb/forms/a_.json": { a: ["avoir"] },
     "/lexdb/forms/vo.json": { voulons: ["vouloir"] },
     "/lexdb/forms/pri.json": { pris: ["prendre"] },
     "/lexdb/forms/be.json": { belle: ["beau"], belles: ["beau"], beaux: ["beau"] },
     "/lexdb/forms/ba.json": { baille: ["bailler"] },
+    "/lexdb/forms/es.json": { est: ["etre"] },
+    "/lexdb/forms/fa.json": { fait: ["faire"] },
+    "/lexdb/forms/et.json": { ete: ["etre"] },
     [`/lexdb/zh/${jieBucket}.json`]: {
       接待: [
         ["accueil", 1650],
@@ -224,10 +282,13 @@ test("resolve handles exact, accent-insensitive, inflected forms, and multi-word
   assert.equal(r2.matchedVia, "exact");
   assert.equal(r2.entries[0].id, "accueil");
 
-  // Accent-exact match vs accented verb form (dict.ts parity: bâille -> bâiller before baille)
+  // Accent-exact match vs accented verb form (dict.ts parity: bâille -> bâiller before baille, baille -> baille before bâiller)
   const baillePlain = await resolve("baille");
   assert.equal(baillePlain.matchedVia, "exact");
-  assert.equal(baillePlain.entries[0].w, "baille");
+  assert.deepEqual(
+    baillePlain.entries.map((e) => e.w),
+    ["baille", "bâiller"],
+  );
 
   const bailleAccented = await resolve("bâille");
   assert.equal(bailleAccented.matchedVia, "form");
@@ -235,6 +296,42 @@ test("resolve handles exact, accent-insensitive, inflected forms, and multi-word
   assert.deepEqual(
     bailleAccented.entries.map((e) => e.w),
     ["bâiller", "baille"],
+  );
+
+  // Lemma + conjugated form collisions (est/être, fait/faire, a/avoir/à, ete/été/être)
+  const estRes = await resolve("est");
+  assert.equal(estRes.matchedVia, "exact");
+  assert.deepEqual(
+    estRes.entries.map((e) => e.id),
+    ["est", "etre"],
+  );
+
+  const faitRes = await resolve("fait");
+  assert.equal(faitRes.matchedVia, "exact");
+  assert.deepEqual(
+    faitRes.entries.map((e) => e.id),
+    ["fait", "faire"],
+  );
+
+  const aRes = await resolve("a");
+  assert.equal(aRes.matchedVia, "exact");
+  assert.deepEqual(
+    aRes.entries.map((e) => e.id),
+    ["avoir", "a"],
+  );
+
+  const eteFolded = await resolve("ete");
+  assert.equal(eteFolded.matchedVia, "exact");
+  assert.deepEqual(
+    eteFolded.entries.map((e) => e.id),
+    ["etre", "ete"],
+  );
+
+  const eteAccented = await resolve("été");
+  assert.equal(eteAccented.matchedVia, "exact");
+  assert.deepEqual(
+    eteAccented.entries.map((e) => e.id),
+    ["ete", "etre"],
   );
 
   // Inflected forms via forms/<key>.json (including 3-letter split forms/pri.json)
