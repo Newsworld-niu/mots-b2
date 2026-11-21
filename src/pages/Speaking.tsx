@@ -7,7 +7,7 @@ import { useGrammar } from "../atlas/grammar";
 import { TARGET_LANG } from "../config";
 import { play, stopAudio } from "../lib/audio";
 import { CONNECTORS, countWords, CRITERION_CHECK, CRITERION_LABEL, LEVEL_LABEL, LEVELS, totalScore } from "../lib/essay";
-import { assessDebateEscalation, clock, outOf25, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
+import { assessDebateEscalation, clock, outOf25, PO_STANDARD_CONSIGNE, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
 import { isNative } from "../lib/native";
 import { href } from "../lib/router";
 import { duck } from "../lib/sound";
@@ -99,6 +99,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [talkTake, setTalkTake] = useState<Take | null>(null);
   const [strictMode, setStrictMode] = useState(false);
   const [voiceOffset, setVoiceOffset] = useState(0);
+  const [showHint, setShowHint] = useState(false);
+  const [prepExpired, setPrepExpired] = useState(false);
   const recorder = useRecorder();
   const pron = useAssess();
   const stopRec = useRef<(() => void) | null>(null);
@@ -128,6 +130,9 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [phase]);
+  useEffect(() => {
+    if (phase === "prep" && prep.sec === 0 && !prep.running) setPrepExpired(true);
+  }, [phase, prep.sec, prep.running]);
 
   /** Turn speech into text, appended to what `into` already holds. */
   const hear = (into: (text: string) => void, start = "") => {
@@ -175,6 +180,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setPhono(null);
     setTalkTake(null);
     setVoiceOffset(Math.floor(Math.random() * 12));
+    setShowHint(false);
+    setPrepExpired(false);
     pron.reset();
     setSpoke(0);
     setPhase("prep");
@@ -295,6 +302,11 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                   <span className="chip">{topicOf(s.topic)?.zh}</span>
                   <b lang="fr">{s.title}</b>
                   <small lang="fr">{s.doc}</small>
+                  {s.source && (
+                    <small className="muted" lang="fr">
+                      {s.source}
+                    </small>
+                  )}
                 </button>
               ))}
             </div>
@@ -323,12 +335,18 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
                   <input type="checkbox" role="switch" checked={strictMode} onChange={(e) => setStrictMode(e.target.checked)} />
                   <span className="switch" aria-hidden="true" />
                 </label>
-                <button className="btn btn-primary btn-xl" onClick={() => void draw(false)}>
-                  <Shuffle size={18} /> 抽两个题
-                </button>
-                {hasAi && (
-                  <button className="btn btn-ghost" onClick={() => void draw(true)}>
-                    <Sparkles size={16} /> 让 AI 出两道新题（材料更长，更像真题）
+                {hasAi ? (
+                  <>
+                    <button className="btn btn-primary btn-xl" onClick={() => void draw(true)}>
+                      <Sparkles size={18} /> 抽两个新题（AI 按真题长度出题）
+                    </button>
+                    <button className="btn btn-ghost" onClick={() => void draw(false)}>
+                      <Shuffle size={16} /> 抽内置题库（{SPEAKING_SUBJECTS.length} 题，真题长度）
+                    </button>
+                  </>
+                ) : (
+                  <button className="btn btn-primary btn-xl" onClick={() => void draw(false)}>
+                    <Shuffle size={18} /> 抽两个题（内置 {SPEAKING_SUBJECTS.length} 题）
                   </button>
                 )}
               </>
@@ -387,7 +405,28 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         <p className="essay-consigne" lang="fr">
           {subject.doc}
         </p>
-        <p className="essay-situation">{subject.ask}</p>
+        {subject.source && (
+          <p className="muted small" lang="fr">
+            {subject.source}
+          </p>
+        )}
+        <p className="essay-situation" lang="fr">
+          {PO_STANDARD_CONSIGNE}
+        </p>
+        {showHint || prepExpired ? (
+          <p className="muted small">
+            <strong>思路提示：</strong>
+            {subject.ask}
+          </p>
+        ) : (
+          ((phase === "prep" && !strictMode) || phase === "result") && (
+            <div className="writing-actions">
+              <button className="link" type="button" onClick={() => setShowHint(true)}>
+                思路提示（查看中文要点）
+              </button>
+            </div>
+          )
+        )}
 
         {phase === "prep" && (
           <>

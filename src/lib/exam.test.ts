@@ -1,13 +1,20 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ESSAY_TASKS } from "./essay";
-import { assessDebateEscalation, clock, exercisePoints, FORM_SPEC, outOf25, PAPER, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speechChunks, SPEAKING_SUBJECTS, TOPICS, topicOf, weigh } from "./exam";
+import { countWords, ESSAY_TASKS } from "./essay";
+import { assessDebateEscalation, clock, exercisePoints, FORM_SPEC, outOf25, PAPER, PO_STANDARD_CONSIGNE, sanitizeExamLog, sanitizeExercise, sanitizeSpeakingFeedback, sanitizeSubject, speechChunks, SPEAKING_SUBJECTS, TOPICS, topicOf, weigh } from "./exam";
 
 test("topics, subjects and essay tasks refer to topics that exist", () => {
   assert.equal(new Set(TOPICS.map((t) => t.id)).size, TOPICS.length);
   assert.ok(TOPICS.every((t) => t.vocab.length >= 8 && t.vocab.every(([fr, zh]) => fr && zh)));
   assert.equal(new Set(SPEAKING_SUBJECTS.map((s) => s.id)).size, SPEAKING_SUBJECTS.length);
-  assert.ok(SPEAKING_SUBJECTS.every((s) => topicOf(s.topic) && s.doc.length > 80 && s.ask));
+  assert.equal(SPEAKING_SUBJECTS.length, 12);
+  assert.ok(
+    SPEAKING_SUBJECTS.every((s) => {
+      const wc = countWords(s.doc);
+      return topicOf(s.topic) && wc >= 120 && wc <= 160 && s.source && !/[\u4e00-\u9fff]/.test(s.title + s.doc) && !!s.ask;
+    }),
+  );
+  assert.ok(PO_STANDARD_CONSIGNE.length > 40 && !/[\u4e00-\u9fff]/.test(PO_STANDARD_CONSIGNE));
   assert.ok(ESSAY_TASKS.every((t) => !t.topic || topicOf(t.topic)));
   assert.ok(ESSAY_TASKS.filter((t) => t.doc).length >= 3);
 });

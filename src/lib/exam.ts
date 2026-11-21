@@ -309,25 +309,117 @@ export interface SpeakingSubject {
   id: string;
   topic: string;
   title: string;
-  /** The short document the candidate reacts to. */
+  /** Simulated press source & date (e.g. "D'après Le Courrier économique, 14 octobre 2024"). */
+  source?: string;
+  /** The press excerpt the candidate reacts to (120–160 words). */
   doc: string;
-  /** What to do with it, in Chinese. */
+  /** Chinese key-point hint (hidden by default so the candidate dégages la problématique). */
   ask: string;
+  /** Optional preset examiner follow-up questions (for offline/no-AI practice). */
+  followUps?: string[];
 }
 
+/** Standard official DELF B2 speaking instruction shown instead of Chinese spoilers. */
+export const PO_STANDARD_CONSIGNE =
+  "Vous dégagerez le problème soulevé par le document ci-dessous, puis vous présenterez votre opinion sur le sujet de manière structurée et argumentée, avant de la défendre au cours d'un débat avec l'examinateur.";
+
 export const SPEAKING_SUBJECTS: SpeakingSubject[] = [
-  { id: "s-teletravail", topic: "travail", title: "远程办公", doc: "De plus en plus d'entreprises laissent leurs salariés travailler chez eux plusieurs jours par semaine. Certains y gagnent du temps et du calme ; d'autres se sentent isolés et ne parviennent plus à séparer travail et vie privée.", ask: "远程办公应该成为常态吗？说出你的看法并论证。" },
-  { id: "s-quatre-jours", topic: "travail", title: "四天工作周", doc: "Plusieurs sociétés testent la semaine de quatre jours sans baisse de salaire. Elles affirment que leurs employés sont plus efficaces et moins fatigués. Des économistes doutent que ce modèle convienne à tous les métiers.", ask: "你赞成四天工作周吗？" },
-  { id: "s-avion", topic: "environnement", title: "少坐飞机", doc: "Pour limiter le réchauffement climatique, certains proposent d'interdire les vols intérieurs quand le même trajet peut se faire en train en moins de trois heures. Les compagnies aériennes dénoncent une mesure inefficace.", ask: "为了环保应该限制坐飞机吗？" },
-  { id: "s-viande", topic: "environnement", title: "学校食堂每周一天素食", doc: "Une ville a décidé de servir un repas sans viande par semaine dans toutes ses cantines scolaires. Des parents applaudissent, d'autres estiment que ce n'est pas à la mairie de décider de ce que mangent leurs enfants.", ask: "学校应该强制安排素食日吗？" },
-  { id: "s-portable", topic: "education", title: "学校里禁用手机", doc: "Dans de nombreux collèges, les téléphones portables sont désormais interdits pendant toute la journée. Les enseignants constatent que les élèves sont plus attentifs ; certains élèves, eux, y voient un manque de confiance.", ask: "学校里应该禁止学生用手机吗？" },
-  { id: "s-notes", topic: "education", title: "取消分数", doc: "Des écoles ont remplacé les notes par des appréciations écrites. Selon elles, les élèves ont moins peur de l'échec. Leurs critiques répondent que, sans notes, on ne sait plus où l'on en est.", ask: "学校应该取消打分吗？" },
-  { id: "s-reseaux", topic: "numerique", title: "社交网络的年龄限制", doc: "Un projet de loi veut interdire l'inscription sur les réseaux sociaux avant quinze ans. Ses défenseurs parlent de protéger la santé mentale des adolescents ; ses opposants jugent la mesure impossible à faire respecter.", ask: "应该给社交网络设年龄限制吗？" },
-  { id: "s-ia", topic: "numerique", title: "用人工智能写作业", doc: "Beaucoup d'étudiants utilisent aujourd'hui une intelligence artificielle pour rédiger leurs devoirs. Certaines universités l'interdisent, d'autres préfèrent apprendre aux étudiants à s'en servir intelligemment.", ask: "学生可以用人工智能完成作业吗？" },
-  { id: "s-sport", topic: "sante", title: "医生开运动处方", doc: "Dans certaines villes, les médecins peuvent prescrire du sport comme un médicament, et les séances sont en partie remboursées. L'idée séduit, mais elle coûte cher à la collectivité.", ask: "运动应该像药一样由医保报销吗？" },
-  { id: "s-occasion", topic: "consommation", title: "买二手货", doc: "Le marché des vêtements d'occasion explose, surtout chez les jeunes. Acheter d'occasion permet de dépenser moins et de polluer moins, mais certains y voient surtout une nouvelle façon de consommer toujours plus.", ask: "买二手货真的是更负责任的消费吗？" },
-  { id: "s-tourisme", topic: "culture", title: "限制游客人数", doc: "Pour protéger leurs habitants et leurs monuments, plusieurs villes très touristiques font payer l'entrée du centre historique ou limitent le nombre de visiteurs par jour.", ask: "热门城市应该限制游客吗？" },
-  { id: "s-benevolat", topic: "societe", title: "义务服务", doc: "Faut-il demander à tous les jeunes de consacrer quelques mois à un service utile à la société, dans une association, un hôpital ou une école ? L'idée revient régulièrement dans le débat public.", ask: "应该让所有年轻人参加一段时间的义务服务吗？" },
+  {
+    id: "s-teletravail",
+    topic: "travail",
+    title: "Télétravail : les entreprises doivent-elles imposer le retour au bureau ?",
+    source: "D'après Le Courrier économique, 14 octobre 2024",
+    doc: "Après quatre années d'essor du travail à distance, plusieurs grands groupes français rappellent désormais leurs salariés au bureau au moins trois jours par semaine. Selon une enquête publiée en septembre par l'Observatoire de l'emploi, 42 % des dirigeants estiment que la collaboration spontanée et l'intégration des jeunes diplômés souffrent de l'absence de présence physique. « On ne transmet pas une culture d'entreprise à travers un écran », affirme Claire Deschamps, directrice des ressources humaines d'un groupe industriel lyonnais. Du côté des syndicats, le ton est nettement plus critique. Pour Marc Lefèvre, représentant du personnel dans le secteur bancaire, cette marche arrière risque de briser la confiance acquise : « Les salariés ont prouvé qu'ils restaient productifs chez eux tout en économisant deux heures de transport par jour. » Entre cohésion collective et autonomie individuelle, l'équilibre du travail hybride reste à inventer.",
+    ask: "企业强制要求员工回到办公室上班合理吗？如何在团队协作与个人自主、生活平衡之间权衡？",
+  },
+  {
+    id: "s-quatre-jours",
+    topic: "travail",
+    title: "Semaine de quatre jours : progrès social ou fausse bonne idée ?",
+    source: "D'après La Tribune sociale, 3 décembre 2024",
+    doc: "Expérimentée par plusieurs centaines de PME européennes, la semaine de quatre jours sans baisse de salaire suscite un débat vif en France. Les entreprises volontaires mettent en avant une baisse de l'absentéisme et un regain d'attractivité lors des recrutements. « Nos équipes sont plus reposées et traitent leurs dossiers avec davantage de concentration », témoigne Nadia Bensaïd, dirigeante d'une agence numérique à Nantes. Pourtant, de nombreux économistes et artisans appellent à la prudence. Ils soulignent que ce modèle convient surtout aux emplois de bureau et reste difficile à appliquer dans les hôpitaux, les commerces ou le bâtiment, sauf à embaucher massivement. D'autres craignent une intensification extrême du rythme sur quatre journées rallongées, source de fatigue accrue. Comment concilier ce nouveau rythme de travail avec les contraintes de tous les secteurs professionnels ?",
+    ask: "不降薪的四天工作周值得推广吗？它适用于所有行业吗，会不会加大不同职业群体间的差距或工作强度？",
+  },
+  {
+    id: "s-avion",
+    topic: "environnement",
+    title: "Vols intérieurs courts : faut-il aller plus loin dans l'interdiction de l'avion ?",
+    source: "D'après L'Écho des territoires, 22 novembre 2024",
+    doc: "Alors que la loi interdit déjà certaines liaisons aériennes intérieures lorsqu'une alternative en train existe en moins de deux heures trente, des associations écologistes réclament aujourd'hui d'étendre ce seuil à quatre heures. Selon leurs calculs, le transport aérien intérieur reste proportionnellement bien plus émetteur de gaz à effet de serre par passager que le rail électrique. « Continuer à subventionner des vols entre grandes métropoles reliées par le TGV est un non-sens climatique », soutient Thomas Garnier, porte-parole d'un collectif citoyen. Les compagnies régionales et les chambres de commerce dénoncent toutefois une mesure avant tout symbolique qui fragiliserait les régions enclavées et leurs entreprises exportatrices. Elles rappellent que le prix des billets de train reste parfois supérieur à celui de l'avion. Faut-il contraindre davantage les voyageurs ou rendre d'abord le rail plus accessible et fiable ?",
+    ask: "为了环保应该进一步限制或禁止国内短途航班吗？环保约束与地区联通、铁路票价及出行公平如何兼顾？",
+  },
+  {
+    id: "s-viande",
+    topic: "environnement",
+    title: "Cantines scolaires : faut-il généraliser plusieurs repas végétariens par semaine ?",
+    source: "D'après Le Journal des communes, 9 janvier 2025",
+    doc: "Depuis l'instauration obligatoire d'au moins un menu végétarien hebdomadaire dans les cantines scolaires, plusieurs municipalités envisagent désormais de passer à deux ou trois repas sans viande par semaine. Les élus favorables à cette évolution rappellent l'impact écologique considérable de l'élevage intensif et soulignent que les menus végétariens permettent aussi de maîtriser le budget alimentaire des écoles face à l'inflation. « Il ne s'agit pas d'interdire la viande, mais d'habituer les enfants à une alimentation plus variée et responsable », explique Hélène Moreau, adjointe chargée de l'éducation à Grenoble. En face, des parents d'élèves ainsi que des éleveurs locaux protestent contre une décision jugée idéologique. Ils craignent des carences nutritionnelles pour les enfants issus de familles modestes et dénoncent un gaspillage lorsque les plats sont boudés. La municipalité doit-elle adapter ainsi la restauration scolaire au nom de la transition écologique ?",
+    ask: "市政和学校食堂应该推广每周多次纯素食菜单吗？环保、财政与营养自由、家庭选择权之间应如何划界？",
+  },
+  {
+    id: "s-portable",
+    topic: "education",
+    title: "« Pause numérique » à l'école : la solution contre la distraction des élèves ?",
+    source: "D'après L'Observateur éducatif, 17 octobre 2024",
+    doc: "Testée depuis la rentrée dans près de deux cents collèges français, l'obligation de déposer son téléphone portable dans un casier dès l'arrivée dans l'établissement relance la discussion sur la place du numérique à l'école. D'après les premiers bilans des chefs d'établissement, le climat scolaire s'est apaisé : les élèves discutent davantage dans la cour et les cas de cyberharcèlement survenus pendant les récréations ont nettement diminué. « Sans écran dans la poche, leur attention en cours s'améliore sensiblement », constate Olivier Martin, principal en Seine-Maritime. Des pédagogues et des représentants d'élèves restent néanmoins sceptiques face à une approche purement restrictive. Selon eux, mettre l'appareil en consigne à l'école ne règle rien le soir à la maison et prive les enseignants d'un outil utile pour vérifier une source ou travailler l'esprit critique. Vaut-il mieux interdire strictement le téléphone ou apprendre aux jeunes à le maîtriser ?",
+    ask: "学校应当全面收缴禁用手机，还是教会学生合理使用？校园管控与家庭责任、媒介素养教育哪个更有效？",
+  },
+  {
+    id: "s-notes",
+    topic: "education",
+    title: "Faut-il supprimer les notes chiffrées jusqu'à la fin du collège ?",
+    source: "D'après Cahiers de l'école, 5 novembre 2024",
+    doc: "Dans plusieurs établissements pilotes, les bulletins trimestriels ne comportent plus aucune note sur vingt, remplacée par une grille de compétences acquises et des commentaires détaillés. Les partisans de cette réforme estiment que la notation traditionnelle stigmatise les élèves en difficulté dès le plus jeune âge et encourage une compétition stérile. « Un élève qui reçoit un 6 sur 20 se décourage et cesse d'essayer, alors qu'une appréciation précise lui montre comment progresser », défend Camille Laurent, chercheuse en sciences de l'éducation. À l'inverse, de nombreuses familles et certains professeurs regrettent un système devenu flou et difficile à interpréter. Ils soutiennent que les notes donnent des repères clairs sur le niveau réel d'un jeune et le préparent aux exigences du lycée puis des examens nationaux. L'école peut-elle évaluer avec bienveillance sans perdre en exigence ni en lisibilité ?",
+    ask: "中学取消传统分数制利大于弊还是弊大于利？如何平衡保护学生自信心与提供清晰客观的学业标准？",
+  },
+  {
+    id: "s-reseaux",
+    topic: "numerique",
+    title: "Interdire les réseaux sociaux aux moins de quinze ans : mesure protectrice ou vœu pieux ?",
+    source: "D'après Le Monde numérique, 28 janvier 2025",
+    doc: "Face à la hausse des troubles du sommeil et de l'anxiété chez les préadolescents, plusieurs gouvernements européens veulent instaurer une vérification stricte de l'âge afin de bloquer l'accès aux réseaux sociaux avant quinze ans. Les pédopsychiatres soutiennent largement cette barrière légale : « Les algorithmes captent l'attention de cerveaux encore vulnérables et exposent les plus jeunes à des contenus inadaptés », avertit le docteur Julien Mercier. Mais les associations de défense des libertés numériques et les adolescents eux-mêmes pointent de sérieuses limites pratiques. Pour vérifier l'âge de chaque internaute, il faudrait exiger une pièce d'identité ou une reconnaissance faciale, au risque de menacer la vie privée de tous les utilisateurs. De plus, les jeunes contournent aisément ces blocages en utilisant le compte d'un proche. Peut-on protéger efficacement les mineurs en ligne par la seule interdiction technique ?",
+    ask: "禁止 15 岁以下青少年使用社交网络可行且有效吗？保护未成年人心理健康与隐私安全、技术可行性之间的矛盾怎么解决？",
+  },
+  {
+    id: "s-ia",
+    topic: "numerique",
+    title: "L'intelligence artificielle à l'université : tricherie généralisée ou nouvel outil de travail ?",
+    source: "D'après Campus & Savoirs, 11 février 2025",
+    doc: "Une enquête menée auprès de trois mille étudiants français révèle que près de sept sur dix utilisent régulièrement des modèles d'intelligence artificielle générative pour préparer leurs exposés ou corriger leurs dissertations. Devant l'impossibilité technique de détecter de manière fiable les textes produits par des machines, les universités hésitent sur la conduite à tenir. Certains enseignants réclament le retour massif aux épreuves écrites à la main sur table afin de préserver la valeur des diplômes : « Si l'étudiant ne rédige plus lui-même, il n'apprend plus à structurer sa pensée », s'inquiète Agnès Delacroix, professeure de droit à Bordeaux. D'autres chercheurs plaident au contraire pour l'intégration encadrée de ces outils dans les cursus, arguant que le monde professionnel les exigera demain. L'université doit-elle sanctuariser l'évaluation traditionnelle ou transformer profondément ses méthodes d'apprentissage ?",
+    ask: "高校面对生成式 AI 应当严厉禁止还是纳入教学？这会对学术诚信、独立思考能力以及未来职场能力产生什么影响？",
+  },
+  {
+    id: "s-sport",
+    topic: "sante",
+    title: "Le « sport sur ordonnance » remboursé par la Sécurité sociale divise le monde médical",
+    source: "D'après Santé publique Hebdo, 19 novembre 2024",
+    doc: "Pour lutter contre la sédentarité et les maladies chroniques telles que le diabète ou l'hypertension, plusieurs députés proposent que les séances de sport prescrites par un médecin soient désormais remboursées par l'assurance maladie. Les défenseurs du texte rappellent qu'une activité physique régulière réduit nettement les hospitalisations coûteuses et améliore la santé mentale des patients isolés. « Prévenir coûte toujours moins cher à long terme que soigner des pathologies lourdes », souligne le docteur Karim Hadj, médecin généraliste à Lille. Toutefois, les organismes d'assurance maladie et certains économistes s'alarment du coût immédiat d'une telle mesure dans un contexte de déficit budgétaire. Ils craignent également des abus ou un manque d'encadrement qualifié dans certaines zones rurales. Financer la pratique sportive relève-t-il vraiment de la solidarité nationale ou de la responsabilité personnelle de chacun ?",
+    ask: "医保是否应该报销「运动处方」？公共卫生预防收益与医保财政赤字、个人责任边界之间应当如何取舍？",
+  },
+  {
+    id: "s-occasion",
+    topic: "consommation",
+    title: "Mode de seconde main : véritable sobriété écologique ou nouveau prétexte pour acheter plus ?",
+    source: "D'après Consommation & Société, 7 décembre 2024",
+    doc: "En cinq ans, les plateformes de revente de vêtements entre particuliers ont connu une croissance spectaculaire en France, portées notamment par les moins de trente ans. Pour beaucoup d'acheteurs, la seconde main représente une double victoire : préserver son pouvoir d'achat en période d'inflation tout en évitant la fabrication de textiles neufs, très polluante. « Grâce à la revente, j'ai réduit de moitié mon budget mode sans me priver », confie Léa, étudiante à Lyon. Pourtant, une étude récente de l'Agence de la transition écologique tempère cet enthousiasme. Les chercheurs observent un effet rebond inquiétant : sachant qu'ils pourront revendre facilement à bas prix, certains consommateurs achètent davantage d'articles neufs de mode rapide, tandis que les colis circulent sur de longues distances. La seconde main transforme-t-elle vraiment nos habitudes vers plus de sobriété ou entretient-elle finalement la surconsommation ?",
+    ask: "二手消费潮真的带来了环保与理性消费吗？它在省钱与「回购反弹效应、物流碳排」之间存在哪些隐忧？",
+  },
+  {
+    id: "s-tourisme",
+    topic: "culture",
+    title: "Surtourisme : les quotas de visiteurs et taxes d'entrée sont-ils une bonne réponse ?",
+    source: "D'après Perspectives culturelles, 16 janvier 2025",
+    doc: "Inspirées par Venise ou le parc national des Calanques, plusieurs villes et sites patrimoniaux européens instaurent des jauges journalières ou un droit d'entrée payant pour les visiteurs d'un jour. Les maires concernés défendent une mesure d'urgence destinée à protéger des monuments fragiles et à rendre aux habitants un cadre de vie supportable, menacé par la hausse des locations saisonnières et la saturation des transports. « Sans régulation, nos centres historiques deviennent des décors vidés de leur population », alerte Pierre-Yves Blanc, édile d'une commune littorale bretonne. Les hôteliers et commerçants redoutent au contraire une chute de fréquentation nuisible à l'emploi local, tandis que certaines associations s'inquiètent de voir la culture et le patrimoine réservés aux touristes les plus aisés. Comment concilier préservation des lieux, accueil du public et vitalité économique ?",
+    ask: "热门城市和景区限制游客人数或收取进城费合理吗？如何在保护文化遗产与居民生活、保障旅游经济与文化普及公平之间找到平衡？",
+  },
+  {
+    id: "s-benevolat",
+    topic: "societe",
+    title: "Un service citoyen obligatoire pour les jeunes : levier de cohésion ou contrainte inutile ?",
+    source: "D'après Débat public, 2 février 2025",
+    doc: "Régulièrement relancée dans le débat politique, l'idée d'instaurer un engagement civique obligatoire de quelques mois pour tous les jeunes de dix-huit à vingt-cinq ans divise profondément la société. Ses promoteurs y voient un moyen irremplaçable de brasser des jeunes issus de milieux sociaux très différents tout en renforçant les associations, les hôpitaux ou les écoles publiques en manque de bras. « Passer six mois au service de l'intérêt général développe l'empathie et le sens des responsabilités », plaide Sophie Renard, présidente d'une fédération d'entraide. À l'opposé, de nombreux syndicats étudiants dénoncent une perte d'autonomie et un coût financier lourd pour l'État, craignant en outre que des bénévoles contraints ne remplacent de véritables emplois salariés. L'engagement citoyen peut-il encore garder son sens s'il cesse d'être volontaire ?",
+    ask: "应该要求所有年轻人参加一段时间的强制社会/公民服务吗？社会凝聚力、公共服务需求与个人自由、替代正式岗位风险如何权衡？",
+  },
 ];
 
 /** How a talk on a subject is built (monologue suivi). */
@@ -413,8 +505,9 @@ export function sanitizeSubject(raw: unknown, topic: string): SpeakingSubject | 
   const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
   const title = str(r.title, 140);
   const doc = str(r.doc, 1600);
+  const source = str(r.source, 160);
   if (!title || doc.length < 300) return null;
-  return { id: `ai-${topic}`, topic, title, doc, ask: str(r.ask, 200) || "指出材料提出的问题，表明你的看法并论证。" };
+  return { id: `ai-${topic}`, topic, title, ...(source ? { source } : {}), doc, ask: str(r.ask, 200) || "指出材料提出的问题，表明你的看法并论证。" };
 }
 
 /* ---------- 成绩记录 ---------- */
