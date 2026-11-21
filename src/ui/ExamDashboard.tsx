@@ -24,13 +24,19 @@ export function ExamDashboard({ onStartMock, compact = false }: { onStartMock?: 
           <h3 className="exam-dash-title">
             {r.exact100 !== null ? (
               <>
-                <b>{num(r.exact100)}</b>
-                <small>/100（四科实测）</small>
+                <span className="exam-dash-val">
+                  <b>{num(r.exact100)}</b>
+                  <small>/100</small>
+                </span>
+                <small className="exam-dash-note">（四科实测）</small>
               </>
             ) : r.estimated100 !== null ? (
               <>
-                预估 <b>{num(r.estimated100)}</b>
-                <small>/100（已测 {r.completed}/4 科）</small>
+                <span className="exam-dash-val">
+                  预估 <b>{num(r.estimated100)}</b>
+                  <small>/100</small>
+                </span>
+                <small className="exam-dash-note">（已测 {r.completed}/4 科）</small>
               </>
             ) : (
               <span>尚未完成完整模考</span>

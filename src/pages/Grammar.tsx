@@ -57,6 +57,10 @@ export function Grammar({ pointId, sheet }: { pointId?: string; sheet?: boolean 
   const { data, error } = useGrammar();
   const [run, setRun] = useState<{ steps: Step[]; key: number } | null>(null);
   const [discourse, setDiscourse] = useState<DiscourseExercise | null>(null);
+  useEffect(() => {
+    setRun(null);
+    setDiscourse(null);
+  }, [pointId, sheet]);
   if (error) return <div className="page"><p className="muted">{error}</p></div>;
   if (!data) return <div className="page learn-loading"><span className="spinner" /></div>;
   if (run) return <Session key={run.key} data={data} initial={run.steps} onExit={() => setRun(null)} />;

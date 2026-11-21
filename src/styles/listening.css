@@ -129,19 +129,36 @@
 }
 .exam-dashboard {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 14px;
   margin-bottom: 18px;
 }
+.exam-dashboard .panel-head {
+  flex-wrap: wrap;
+}
 .exam-dash-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 4px;
   margin: 2px 0 0;
   font-size: 24px;
-  line-height: 1.2;
+  line-height: 1.25;
+  min-width: 0;
+}
+.exam-dash-val,
+.exam-dash-note {
+  white-space: nowrap;
 }
 .exam-dash-title small {
   font-size: 14px;
   font-weight: 400;
   color: var(--ink-3);
-  margin-left: 4px;
+  margin-left: 0;
+}
+.exam-dash-val small {
+  margin-left: 2px;
 }
 .exam-dash-badges {
   display: flex;
@@ -171,16 +188,24 @@
 }
 .exam-four-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(135px, 100%), 1fr));
   gap: 10px;
+  min-width: 0;
 }
 .exam-four-cell {
   display: grid;
   gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 10px 12px;
   border-radius: var(--r);
   border: 1px solid var(--line);
   background: var(--bg);
+}
+@media (max-width: 520px) {
+  .exam-four-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .exam-four-cell.is-danger {
   border-color: var(--terra);
