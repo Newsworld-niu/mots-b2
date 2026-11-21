@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { exercisePoints, FORM_SPEC, sanitizeExercise, speechChunks, type CompExercise } from "./exam";
+import { countWords } from "./essay";
+import { exercisePoints, FORM_SPEC, PAPER, sanitizeExercise, speechChunks, type CompExercise } from "./exam";
 import { PRESET_PAPERS } from "./exam-presets";
 import { ACCENTS, causeFromSkill, checkDictation, missStats, paragraphsOf, parseClock, pickVoices, playerFor, qualityIssues, sanitizeMisses, sanitizeSources, sentencesOf, skillStats } from "./listening";
 import { newWordsOf } from "./transcript";
@@ -117,23 +118,34 @@ test("qualityIssues flags copied answers and one answer position", () => {
   assert.equal(qualityIssues(ex([1, 1, 1, 1, 1, 1, 1], (k) => `réponse ${k}`)).length, 1);
 });
 
-test("preset papers are complete exam exercises and pass the quality gate", () => {
-  assert.ok(PRESET_PAPERS.length >= 4);
+test("preset papers are >=2 full 25-pt listening and >=2 full 25-pt reading papers meeting B2 word counts and quality gate", () => {
+  const listen = PRESET_PAPERS.filter((p) => p.kind === "listen");
+  const read = PRESET_PAPERS.filter((p) => p.kind === "read");
+  assert.ok(listen.length >= 2);
+  assert.ok(read.length >= 2);
   assert.equal(new Set(PRESET_PAPERS.map((p) => p.id)).size, PRESET_PAPERS.length);
   for (const p of PRESET_PAPERS) {
     assert.equal(p.src, "preset");
+    assert.deepEqual(p.exs.map((e) => e.form), PAPER[p.kind], p.id);
+    assert.equal(p.exs.reduce((n, e) => n + exercisePoints(e), 0), 25, p.id);
     for (const e of p.exs) {
       assert.equal(e.questions.length, FORM_SPEC[e.form].questions, p.id);
       assert.equal(exercisePoints(e), FORM_SPEC[e.form].points, p.id);
       assert.equal(e.docs.length, e.form === "short" ? 3 : 1, p.id);
+      assert.ok(e.docs.every((d) => d.zh.trim().length > 50), p.id);
+      for (const d of e.docs) {
+        const wc = countWords(d.text);
+        if (p.kind === "listen" && e.form === "long") assert.ok(wc >= 450 && wc <= 550, `${p.id} ${e.title}: ${wc} words`);
+        if (p.kind === "listen" && e.form === "short") assert.ok(wc >= 175 && wc <= 225, `${p.id} ${e.title}: ${wc} words`);
+        if (p.kind === "read" && e.form === "long") assert.ok(wc >= 450 && wc <= 600, `${p.id} ${e.title}: ${wc} words`);
+        if (p.kind === "read" && e.form === "opinions") assert.ok(wc >= 390 && wc <= 480, `${p.id} ${e.title}: ${wc} words`);
+      }
       assert.deepEqual(qualityIssues(e), [], p.id);
       assert.ok(e.questions.every((q) => q.skill), p.id);
       if (e.form === "short") assert.deepEqual(e.questions.map((q) => q.doc), [0, 0, 1, 1, 2, 2]);
       if (e.form === "opinions") for (const j of [0, 1, 2]) assert.equal(e.questions.filter((q) => q.answer === j).length, 2, p.id);
     }
-    // the interview alternates two speakers
     if (p.kind === "listen") assert.ok(p.exs.every((e) => e.docs.every((d) => speechChunks(d.text).length > 1)));
-    // a preset survives being stored and read back
     assert.deepEqual(sanitizePaper(p)?.exs, p.exs);
   }
 });

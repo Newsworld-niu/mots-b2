@@ -511,7 +511,13 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
         {papers.length > 0 && (
           <section className="essay-level">
             <h3 className="eyebrow">题库（{papers.length} 套，存在这台设备上）</h3>
-            <p className="muted small">AI 出过的题都会留下来，可以整套重做，或只重做上次做错的题；不再消耗 AI 额度。「预置」题随应用附带，不用 AI 也能做，内容还未经老师核对。</p>
+            <p className="muted small">
+              AI 出过的题都会留下来，可以整套重做，或只重做上次做错的题；不再消耗 AI 额度。「预置」题包含完整 25 分套卷（每套均达 B2 官方篇幅），不用 AI 也能完整模考，内容还未经老师核对。考前建议同步对照{" "}
+              <a className="link" href="https://www.france-education-international.fr/diplome/delf-tout-public/niveau-b2/exemples-sujets" target="_blank" rel="noreferrer">
+                FEI 官方免费 DELF B2 样题
+              </a>{" "}
+              校准难度。
+            </p>
             <ul className="bank-list">
               {papers.slice(0, 30).map((p) => {
                 const last = bank.attempts[p.id]?.[0];
