@@ -2,7 +2,7 @@
  * 真实材料精听: bundled RFI "Journal en français facile" episodes, FEI official link + local MP3/PDF importer (IndexedDB),
  * and exam-mode two-play blind listening -> graded questions -> examLog -> sentence dictation -> shadowing.
  */
-import { ArrowLeft, ArrowRight, Check, ExternalLink, FileText, Lock, Play, Plus, Rewind, Trash2, Upload, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Download, ExternalLink, FileText, Lock, Play, Plus, Rewind, Trash2, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ready, useAiConfig } from "../ai/config";
 import { questionsForTranscript } from "../ai/tasks";
@@ -30,12 +30,111 @@ const PHASE_LABEL: Record<ExamPhase, string> = {
 };
 const day = (ms: number) => new Date(ms).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" });
 const baseUrl = () => import.meta.env.BASE_URL || "/";
+export const OFFLINE_MEDIA_CACHE = "atlas-offline-media";
+
+export function resolveOfflineMediaUrl(rawUrl: string): string | null {
+  if (!rawUrl || /^idb:/i.test(rawUrl) || typeof window === "undefined") return null;
+  if (!/^materials\//i.test(rawUrl) && !/\.(mp3|m4a|aac|ogg|oga|wav|mp4|webm|m4v)(\?|$)/i.test(rawUrl)) return null;
+  try {
+    const resolved = new URL(resolveMaterialUrl(rawUrl, baseUrl()), window.location.href);
+    if (resolved.origin !== window.location.origin) return null;
+    resolved.hash = "";
+    return resolved.href;
+  } catch {
+    return null;
+  }
+}
+
+interface OfflineMediaState {
+  has: (rawUrl: string) => boolean;
+  busy: string | null;
+  download: (rawUrl: string, extraUrl?: string) => Promise<void>;
+  remove: (rawUrl: string) => Promise<void>;
+}
+
+function useOfflineMedia(): OfflineMediaState {
+  const [cached, setCached] = useState<Set<string>>(() => new Set());
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const sync = useCallback(async () => {
+    if (typeof caches === "undefined") return;
+    try {
+      const cache = await caches.open(OFFLINE_MEDIA_CACHE);
+      const keys = await cache.keys();
+      setCached(new Set(keys.map((req) => req.url.split("#")[0])));
+    } catch {
+      /* CacheStorage unavailable */
+    }
+  }, []);
+
+  useEffect(() => {
+    void sync();
+  }, [sync]);
+
+  const has = useCallback(
+    (rawUrl: string) => {
+      const abs = resolveOfflineMediaUrl(rawUrl);
+      return abs ? cached.has(abs) : false;
+    },
+    [cached],
+  );
+
+  const download = useCallback(
+    async (rawUrl: string, extraUrl?: string) => {
+      const abs = resolveOfflineMediaUrl(rawUrl);
+      if (!abs) return toast("当前音频来源不支持离线缓存", "warn");
+      if (typeof caches === "undefined") return toast("当前浏览器环境不支持离线 CacheStorage", "warn");
+      setBusy(rawUrl);
+      try {
+        const res = await fetch(abs, { cache: "no-store" });
+        const ct = res.headers.get("content-type") || "";
+        if (!res.ok || ct.includes("text/html")) throw new Error("音频下载失败");
+        const cache = await caches.open(OFFLINE_MEDIA_CACHE);
+        await cache.put(abs, res);
+        if (extraUrl && /^materials\//i.test(extraUrl) && typeof window !== "undefined") {
+          const extraAbs = new URL(resolveMaterialUrl(extraUrl, baseUrl()), window.location.href).href.split("#")[0];
+          const extraRes = await fetch(extraAbs, { cache: "no-store" }).catch(() => null);
+          if (extraRes?.ok) await cache.put(extraAbs, extraRes);
+        }
+        await sync();
+        toast("已下载到离线缓存，断网也可播放");
+      } catch (e) {
+        toast((e as Error).message || "下载到离线失败，请检查网络连接", "warn");
+      } finally {
+        setBusy((cur) => (cur === rawUrl ? null : cur));
+      }
+    },
+    [sync],
+  );
+
+  const remove = useCallback(
+    async (rawUrl: string) => {
+      const abs = resolveOfflineMediaUrl(rawUrl);
+      if (!abs || typeof caches === "undefined") return;
+      setBusy(rawUrl);
+      try {
+        const cache = await caches.open(OFFLINE_MEDIA_CACHE);
+        await cache.delete(abs);
+        await sync();
+        toast("已从离线缓存移除");
+      } catch {
+        toast("移除离线缓存失败", "warn");
+      } finally {
+        setBusy((cur) => (cur === rawUrl ? null : cur));
+      }
+    },
+    [sync],
+  );
+
+  return { has, busy, download, remove };
+}
 
 export function RealListening({ onExit }: { onExit: () => void }) {
   const sources = useStore((s) => s.progress.listenSources) ?? [];
   const [open, setOpen] = useState<string | null>(null);
+  const offline = useOfflineMedia();
   const cur = sources.find((s) => s.id === open);
-  if (cur) return <Flow key={cur.id} src={cur} onBack={() => setOpen(null)} />;
+  if (cur) return <Flow key={cur.id} src={cur} offline={offline} onBack={() => setOpen(null)} />;
   return (
     <div className="page practice">
       <header className="page-head">
@@ -45,7 +144,7 @@ export function RealListening({ onExit }: { onExit: () => void }) {
         <p className="eyebrow">真实材料精听与考场盲听</p>
         <h1 className="display">听真人说话，按考场两遍盲听脱敏。</h1>
         <p className="lede">
-          已内置 6 期 RFI《Journal en français facile》真实广播（含音频、完整原文与 7 题 B2 测试，离线可练）；也可导入下载到本地的 FEI 官方样题 `.mp3` / `.pdf`（保存在本地 IndexedDB，刷新不丢失）。
+          已内置 6 期 RFI《Journal en français facile》真实广播（含音频、完整原文与 7 题 B2 测试，点击「下载到离线」即可断网播放）；也可导入下载到本地的 FEI 官方样题 `.mp3` / `.pdf`（保存在本地 IndexedDB，刷新不丢失）。
         </p>
       </header>
 
@@ -54,6 +153,8 @@ export function RealListening({ onExit }: { onExit: () => void }) {
         <ul className="bank-list">
           {PREBUILT_REAL_SOURCES.map((p) => {
             const saved = sources.find((s) => s.presetId === p.presetId || s.id === p.id);
+            const isCached = offline.has(p.url);
+            const isBusy = offline.busy === p.url;
             return (
               <li key={p.id}>
                 <div>
@@ -71,6 +172,25 @@ export function RealListening({ onExit }: { onExit: () => void }) {
                   </div>
                 </div>
                 <span className="exam-doc-actions">
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    disabled={isBusy}
+                    aria-pressed={isCached}
+                    onClick={() => void (isCached ? offline.remove(p.url) : offline.download(p.url, p.pdfUrl))}
+                  >
+                    {isBusy ? (
+                      "下载中…"
+                    ) : isCached ? (
+                      <>
+                        <Check size={14} /> 已离线缓存
+                      </>
+                    ) : (
+                      <>
+                        <Download size={14} /> 下载到离线
+                      </>
+                    )}
+                  </button>
                   <button className="btn btn-primary" onClick={() => setOpen(ensurePresetSource(p))}>
                     进入练习 <ArrowRight size={14} />
                   </button>
@@ -249,6 +369,11 @@ function Player({
   const [localFallback, setLocalFallback] = useState<string | null>(null);
   const [pos, setPos] = useState(0);
   const [dur, setDur] = useState(0);
+  const [mediaError, setMediaError] = useState(false);
+
+  useEffect(() => {
+    setMediaError(false);
+  }, [src.url, localFallback]);
 
   useEffect(() => {
     let alive = true;
@@ -330,7 +455,17 @@ function Player({
       {p.kind === "idb" && idbMissing && <p className="muted small">未在本地 IndexedDB 找到该音频文件，请重新上传或检查浏览器存储。</p>}
       {mediaSrc &&
         (p.kind === "media" && p.video && !localFallback ? (
-          <video ref={(el) => void (media.current = el)} src={mediaSrc} controls={!examMode} preload="metadata" onTimeUpdate={onTime} onEnded={onEnded} style={{ width: "100%" }} />
+          <video
+            ref={(el) => void (media.current = el)}
+            src={mediaSrc}
+            controls={!examMode}
+            preload="metadata"
+            onTimeUpdate={onTime}
+            onEnded={onEnded}
+            onLoadedMetadata={() => setMediaError(false)}
+            onError={() => setMediaError(true)}
+            style={{ width: "100%" }}
+          />
         ) : (
           <audio
             ref={(el) => void (media.current = el)}
@@ -339,9 +474,16 @@ function Player({
             preload="metadata"
             onTimeUpdate={onTime}
             onEnded={onEnded}
+            onLoadedMetadata={() => setMediaError(false)}
+            onError={() => setMediaError(true)}
             className="intensive-audio"
           />
         ))}
+      {mediaError && (
+        <p className="warn-text small" role="alert">
+          音频加载失败：若当前处于离线状态，请先在联网时点击「下载到离线」保存本期音频。
+        </p>
+      )}
       {mediaSrc && examMode && (
         <div className="real-exam-bar">
           <Lock size={14} />
@@ -390,7 +532,7 @@ const GUIDE = [
   "Quelle conclusion, ou quelle question reste ouverte ?",
 ];
 
-function Flow({ src, onBack }: { src: RealSource; onBack: () => void }) {
+function Flow({ src, offline, onBack }: { src: RealSource; offline: OfflineMediaState; onBack: () => void }) {
   const ai = useAiConfig();
   const presetQuiz = realPresetQuiz(src.presetId);
   const [step, setStep] = useState(0);
@@ -409,6 +551,10 @@ function Flow({ src, onBack }: { src: RealSource; onBack: () => void }) {
   const [showPdf, setShowPdf] = useState(false);
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
   const ctrl = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [src.id]);
 
   useEffect(() => () => ctrl.current?.abort(), []);
 
@@ -517,6 +663,9 @@ function Flow({ src, onBack }: { src: RealSource; onBack: () => void }) {
 
   const isPdfDoc = Boolean(src.pdfUrl && (/\.pdf(\?|$)/i.test(src.pdfUrl) || src.pdfUrl.startsWith("idb:pdf:")));
   const hideTxtInBlind = step === 0 && !isPdfDoc;
+  const canCacheOffline = Boolean(resolveOfflineMediaUrl(src.url));
+  const isCached = canCacheOffline && offline.has(src.url);
+  const isCacheBusy = offline.busy === src.url;
 
   return (
     <div className="page practice">
@@ -526,6 +675,27 @@ function Flow({ src, onBack }: { src: RealSource; onBack: () => void }) {
             <ArrowLeft size={16} /> 材料列表
           </button>
           <span className="eyebrow">{src.title}</span>
+          {canCacheOffline && (
+            <button
+              type="button"
+              className="btn btn-ghost"
+              disabled={isCacheBusy}
+              aria-pressed={isCached}
+              onClick={() => void (isCached ? offline.remove(src.url) : offline.download(src.url, src.pdfUrl))}
+            >
+              {isCacheBusy ? (
+                "下载中…"
+              ) : isCached ? (
+                <>
+                  <Check size={14} /> 已离线缓存
+                </>
+              ) : (
+                <>
+                  <Download size={14} /> 下载到离线
+                </>
+              )}
+            </button>
+          )}
         </header>
 
         <div className="exam-doc-actions">
