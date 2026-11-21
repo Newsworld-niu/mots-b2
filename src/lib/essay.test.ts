@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { applyEssayGridCaps, applyEssayLengthCaps, buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_TASKS, hasFormalRegisterViolation, maxScore, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { applyEssayGridCaps, applyEssayLengthCaps, buildTask, CONNECTORS, countWords, CRITERIA, essayLevelOf, ESSAY_TASKS, hasFormalRegisterViolation, levelLabel, maxScore, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
 
 test("countWords counts elided and hyphenated words once", () => {
   assert.equal(countWords("L'ami de Paul est arrivé."), 5);
@@ -178,4 +178,43 @@ test("PE-2 flags and formal register rules enforce FEI 2022 caps", () => {
   // Flags survive backup round-trip without duplicating notes
   const round = sanitizeEssays([{ id: "e-cap", task: "courrier-voitures", text: "Madame, Monsieur, ...", created: 1, fb: capped }]);
   assert.deepEqual(round?.[0].fb?.flags, { registerViolation: true });
+});
+
+test("PE-4 isolates B1 and B2 level labels and trend partitions", () => {
+  assert.equal(levelLabel(1, "B1"), "低于 B1");
+  assert.equal(levelLabel(3, "B1"), "B1");
+  assert.equal(levelLabel(5, "B1"), "B1+");
+  assert.equal(levelLabel(3, "B2"), "B2");
+  assert.equal(levelLabel(5, "B2"), "B2+");
+
+  const fb = sanitizeEssayFeedback({ scores: { task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 } }, new Set());
+  const aiB1 = buildTask(
+    {
+      level: "B1",
+      genre: "forum",
+      title: "AI B1 题",
+      situation: "s",
+      consigne: "c",
+      points: ["a", "b"],
+      plan: [
+        { zh: "1", fr: "1" },
+        { zh: "2", fr: "2" },
+        { zh: "3", fr: "3" },
+      ],
+      phrases: [{ fr: "x", zh: "y" }],
+    },
+    "ai-b1",
+  )!;
+  const { b1, b2 } = splitEssaysByLevel(
+    [
+      { id: "e1", task: "mail-invitation", text: "a", created: 20, fb },
+      { id: "e2", task: "courrier-voitures", text: "b", created: 10, fb },
+      { id: "e3", task: "ai-b1", text: "c", created: 30, fb },
+      { id: "e4", task: "essai-ecrans", text: "d", created: 5 },
+    ],
+    [...ESSAY_TASKS, aiB1],
+  );
+  assert.deepEqual(b1.map((e) => e.id), ["e1", "e3"]);
+  assert.deepEqual(b2.map((e) => e.id), ["e2"]);
+  assert.equal(essayLevelOf(b1[1], [...ESSAY_TASKS, aiB1]), "B1");
 });

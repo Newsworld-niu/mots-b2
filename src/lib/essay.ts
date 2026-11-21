@@ -358,6 +358,11 @@ export const CRITERION_CHECK: Record<string, string> = {
 /** The four levels of the official grids and their points. */
 export const LEVELS = [0, 1, 3, 5] as const;
 export const LEVEL_LABEL: Record<number, string> = { 0: "未作答或不足", 1: "低于 B2", 3: "B2", 5: "B2+" };
+export const LEVEL_LABELS: Record<"B1" | "B2", Record<number, string>> = {
+  B1: { 0: "未作答或不足", 1: "低于 B1", 3: "B1", 5: "B1+" },
+  B2: LEVEL_LABEL,
+};
+export const levelLabel = (score: number, level: "B1" | "B2" = "B2"): string => LEVEL_LABELS[level][score] ?? "";
 /** The nearest level of the grid: 2 counts as 1 (below the level), 4 as 3. */
 export const toLevel = (n: number) => (n >= 5 ? 5 : n >= 3 ? 3 : n >= 1 ? 1 : 0);
 
@@ -445,6 +450,20 @@ export const GENRES = Object.keys(GENRE_LABEL) as Genre[];
 
 export const totalScore = (fb: EssayFeedback) => Object.values(fb.scores).reduce((n, v) => n + v, 0);
 export const maxScore = (fb: EssayFeedback) => Object.keys(fb.scores).length * 5;
+
+/** Resolve the CEFR level ("B1" | "B2") of a saved essay from its task definition (defaulting to "B2"). */
+export function essayLevelOf(essay: SavedEssay, tasks: readonly EssayTask[] = ESSAY_TASKS): "B1" | "B2" {
+  return tasks.find((t) => t.id === essay.task)?.level ?? "B2";
+}
+
+/** Partition marked essays into isolated B1 and B2 lists sorted chronologically (never mixed in trend charts). */
+export function splitEssaysByLevel(essays: readonly SavedEssay[], tasks: readonly EssayTask[] = ESSAY_TASKS): { b1: SavedEssay[]; b2: SavedEssay[] } {
+  const marked = essays.filter((e) => e.fb).sort((a, b) => a.created - b.created);
+  const b1: SavedEssay[] = [];
+  const b2: SavedEssay[] = [];
+  for (const e of marked) (essayLevelOf(e, tasks) === "B1" ? b1 : b2).push(e);
+  return { b1, b2 };
+}
 
 /** Words as an examiner counts them: runs of letters; l'ami and c'est-à-dire count once. */
 export function countWords(text: string): number {

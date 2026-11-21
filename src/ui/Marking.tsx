@@ -1,5 +1,5 @@
 import { ArrowRight, BookmarkPlus, Check } from "lucide-react";
-import { CRITERION_LABEL, LEVEL_LABEL, maxScore, totalScore, type EssayFeedback } from "../lib/essay";
+import { CRITERION_LABEL, levelLabel, maxScore, totalScore, type EssayFeedback } from "../lib/essay";
 import { ERROR_LABEL } from "../lib/writing";
 import { saveNote } from "../store/essays";
 import { useStore } from "../store/store";
@@ -10,7 +10,7 @@ import { useStore } from "../store/store";
  * The picture comes first (score, comment, what to fix first); what went well and the line-by-line corrections are
  * folded away until opened. With `from` (the task's title) each correction can be kept in the 错句本.
  */
-export function Marking({ fb, pointTitle, extra, from }: { fb: EssayFeedback; pointTitle: Map<string, string>; extra?: { key: string; score: number | null }; from?: string }) {
+export function Marking({ fb, pointTitle, extra, from, level = "B2" }: { fb: EssayFeedback; pointTitle: Map<string, string>; extra?: { key: string; score: number | null }; from?: string; level?: "B1" | "B2" }) {
   const kept = useStore((s) => s.progress.essayNotes);
   const rows: [string, number | null][] = [...Object.entries(fb.scores), ...(extra ? [[extra.key, extra.score] as [string, number | null]] : [])];
   const total = totalScore(fb) + (extra?.score ?? 0);
@@ -30,7 +30,7 @@ export function Marking({ fb, pointTitle, extra, from }: { fb: EssayFeedback; po
                 <span className="essay-bar">
                   <span style={{ width: `${((v ?? 0) / 5) * 100}%` }} />
                 </span>
-                {v === null ? "未评" : `${v}/5 · ${LEVEL_LABEL[v] ?? ""}`}
+                {v === null ? "未评" : `${v}/5 · ${levelLabel(v, level)}`}
               </dd>
             </div>
           ))}

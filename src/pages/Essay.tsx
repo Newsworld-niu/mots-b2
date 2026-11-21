@@ -401,7 +401,7 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
                 return (
                   <li key={e.id}>
                     <button className="link" onClick={() => setView({ at: "result", task: t, id: e.id })}>
-                      {day(e.created)} · {t.title}
+                      {day(e.created)} · {t.level} · {t.title}
                     </button>
                     <span className="muted">
                       {countWords(e.text)} 词 · {e.fb ? `${totalScore(e.fb)}/25` : "未批改"}
@@ -544,7 +544,7 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
           <h2 className="essay-title">{task.title}</h2>
 
           {fb ? (
-            <Marking fb={fb} pointTitle={pointTitle} from={task.title} />
+            <Marking fb={fb} level={task.level} pointTitle={pointTitle} from={task.title} />
           ) : (
             <div className="essay-box">
               <p className="eyebrow">对照官方评分表的五项自己检查</p>
@@ -609,7 +609,7 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
               {rev.fb && (
                 <details className="essay-fold">
                   <summary>第二稿的批改</summary>
-                  <Marking fb={rev.fb} pointTitle={pointTitle} from={task.title} />
+                  <Marking fb={rev.fb} level={task.level} pointTitle={pointTitle} from={task.title} />
                 </details>
               )}
             </div>
