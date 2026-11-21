@@ -4,7 +4,7 @@
  */
 import { ERROR_TYPES, type ErrorType } from "./writing";
 
-export type Genre = "mail" | "recit" | "lettre" | "motivation" | "courrier" | "essai" | "forum";
+export type Genre = "mail" | "recit" | "lettre" | "motivation" | "courrier" | "article" | "essai" | "forum";
 
 export const GENRE_LABEL: Record<Genre, string> = {
   mail: "给朋友的邮件",
@@ -12,6 +12,7 @@ export const GENRE_LABEL: Record<Genre, string> = {
   lettre: "正式信件",
   motivation: "求职信",
   courrier: "读者来信",
+  article: "评论文章",
   essai: "议论文",
   forum: "论坛发帖",
 };
@@ -278,7 +279,7 @@ export const ESSAY_TASKS: EssayTask[] = [
     id: "doc-sommeil",
     topic: "sante",
     level: "B2",
-    genre: "essai",
+    genre: "article",
     title: "材料题：学校晚一点上课",
     situation: "学生报的编辑部请你就下面这项研究写一篇评论文章。",
     doc: "D'après une étude récente, les lycéens dorment en moyenne moins de sept heures par nuit en semaine. Des chercheurs proposent de faire commencer les cours à 9 heures au lieu de 8 heures : selon eux, les élèves seraient plus attentifs et moins souvent absents.",
@@ -286,7 +287,7 @@ export const ESSAY_TASKS: EssayTask[] = [
     words: [250, 350],
     points: ["用自己的话概括研究和建议", "分析好处", "指出实行起来的困难", "明确的结论"],
     plan: [
-      { zh: "概括材料", fr: "Selon une étude récente,… Des chercheurs suggèrent donc de…" },
+      { zh: "标题与导语：概括研究", fr: "[Titre accrocheur] — Selon une étude récente,… Des chercheurs suggèrent donc de…" },
       { zh: "好处", fr: "Cette mesure aurait plusieurs avantages :…" },
       { zh: "困难", fr: "Cependant, elle poserait des problèmes d'organisation :…" },
       { zh: "结论", fr: "Tout bien considéré, il me semble que…" },
@@ -296,6 +297,31 @@ export const ESSAY_TASKS: EssayTask[] = [
       ["Cela permettrait aux élèves de…", "这能让学生……"],
       ["Il ne suffit pas de… ; encore faut-il…", "光……是不够的，还得……"],
       ["À condition que les transports suivent, …", "只要交通跟得上……"],
+    ],
+  },
+  {
+    id: "doc-mediatheque",
+    topic: "culture",
+    level: "B2",
+    genre: "lettre",
+    title: "材料题：缩减市立图书馆开放时间",
+    situation: "市政厅发布公告，拟削减市立多媒体图书馆的周末及晚间开放时段，你代表常住读者致信市长反对并提出替代方案。",
+    doc: "Avis municipal : Afin de réduire les dépenses énergétiques de la commune, la médiathèque centrale fermera désormais à 18 heures en semaine et restera fermée le dimanche à compter du mois prochain. La municipalité invite les usagers à privilégier l'emprunt de livres numériques.",
+    consigne: "Au nom d'un collectif de lecteurs, vous écrivez au maire de votre ville pour exprimer votre désaccord face à cette décision, expliquer les conséquences pour les différents publics et proposer des solutions réalistes.",
+    words: [250, 350],
+    points: ["用自己的话转述公告并代表读者表明立场", "说明缩短开放时间对上班族、学生或老人的影响", "反驳仅靠电子书替代的理由", "提出可行折中方案并用正式落款收尾"],
+    plan: [
+      { zh: "信头与主题", fr: "Objet : Protestation contre la réduction des horaires de la médiathèque centrale" },
+      { zh: "称呼与去信缘由", fr: "Monsieur le Maire, Au nom de nombreux usagers, je me permets de vous écrire suite à l'avis annonçant…" },
+      { zh: "具体影响与反驳", fr: "Cette fermeture anticipée pénaliserait d'abord… De plus, le livre numérique ne saurait remplacer…" },
+      { zh: "折中建议", fr: "Afin de concilier sobriété énergétique et service public, il serait envisageable de…" },
+      { zh: "礼貌结尾与落款", fr: "Dans l'attente de votre réponse, je vous prie d'agréer, Monsieur le Maire, mes salutations respectueuses." },
+    ],
+    phrases: [
+      ["Je me permets d'attirer votre attention sur…", "请允许我提请您注意……"],
+      ["Cette mesure priverait de nombreux citoyens de…", "这一举措会使许多市民失去……"],
+      ["Loin d'être un luxe, ce service public constitue…", "这项公共服务绝非奢侈，而是……"],
+      ["Il conviendrait plutôt d'envisager…", "不如考虑采取……"],
     ],
   },
 ];
@@ -450,6 +476,27 @@ export const wordsFor = (level: "B1" | "B2", genre: Genre): [number, number] => 
 
 /** Genres the AI can write a task for. */
 export const GENRES = Object.keys(GENRE_LABEL) as Genre[];
+
+/** Authentic DELF B2 genres (excludes B1-only mail and récit). */
+export const B2_GENRES: Genre[] = GENRES.filter((g) => g !== "mail" && g !== "recit");
+
+export const genresFor = (level: "B1" | "B2"): Genre[] => (level === "B2" ? B2_GENRES : GENRES);
+
+export type DocMode = "random" | "doc" | "none";
+
+/** Resolve the genre and document setting for an AI-generated essay prompt. */
+export function pickAiTaskOptions(
+  level: "B1" | "B2",
+  chosen: Genre | "random",
+  docMode: DocMode = "random",
+  rand: () => number = Math.random,
+): { genre: Genre; withDocument: boolean } {
+  const pool = genresFor(level);
+  const idx = Math.floor(Math.max(0, Math.min(0.999999, rand())) * pool.length);
+  const genre = chosen !== "random" && pool.includes(chosen) ? chosen : pool[idx];
+  const withDocument = docMode === "random" ? rand() < 0.5 : docMode === "doc";
+  return { genre, withDocument };
+}
 
 export const totalScore = (fb: EssayFeedback) => Object.values(fb.scores).reduce((n, v) => n + v, 0);
 export const maxScore = (fb: EssayFeedback) => Object.keys(fb.scores).length * 5;

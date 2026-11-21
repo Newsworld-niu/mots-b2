@@ -629,10 +629,10 @@ Fields:
 - "title": a short Chinese title (under 14 characters); for a task with a document, start it with "材料题：".
 - "situation": 1 or 2 sentences in Chinese: who the writer is, where the text will appear and why.
 - "consigne": the instruction in French, as the exam words it ("Vous écrivez…", "Vous donnez votre avis…"); for an essay, you may open with a quoted statement in « ».
-- "doc": a short French document (40 to 90 words: a press item, a forum message or a letter extract) the text reacts to, only when "withDocument" is true; otherwise "".
+- "doc": a short French document (40 to 90 words: a press item, municipal/official notice, forum message, or letter extract) the text reacts to, only when "withDocument" is true; otherwise "". Works across lettre, courrier, article, essai, and forum.
 - "topic": one of the topic ids in "topics" that fits, or "".
 - "points": 3 or 4 short items in Chinese: what the text must contain.
-- "plan": 4 or 5 steps, each {"zh": what the part does, in Chinese, "fr": a French sentence opening the learner can borrow, ending with "…" where they continue}. Fit the genre: a formal letter gets an "Objet" line and a closing formula; a narrative uses past tenses; an essay or reply has a thesis, arguments with examples, a concession and a conclusion.
+- "plan": 4 or 5 steps, each {"zh": what the part does, in Chinese, "fr": a French sentence opening the learner can borrow, ending with "…" where they continue}. Fit the genre: a formal letter gets an "Objet" line and a closing formula; a press/opinion article ("article") gets a headline + chapô lead + structured paragraphs; a narrative uses past tenses; an essay or reply has a thesis, arguments with examples, a concession and a conclusion.
 - "phrases": 5 to 7 useful French sentences for this task, each with its Chinese meaning {"fr", "zh"}. Natural, correct, at the level.
 Everything in French must be correct and natural.`;
 

@@ -4,6 +4,7 @@ import { ready, useAiConfig } from "../ai/config";
 import { gradeEssay, makeEssayTask, makeModelEssay } from "../ai/tasks";
 import { useGrammar } from "../atlas/grammar";
 import {
+  B2_GENRES,
   CONNECTORS,
   countWords,
   CRITERIA,
@@ -13,11 +14,14 @@ import {
   FORMAL_GENRES,
   GENRE_LABEL,
   GENRES,
+  genresFor,
   isAiTask,
   LETTER_FORMULAS,
   MAX_ESSAY_LENGTH,
   maxScore,
+  pickAiTaskOptions,
   totalScore,
+  type DocMode,
   type EssayFeedback,
   type EssayTask,
   type Genre,
@@ -28,7 +32,6 @@ import { ERROR_LABEL } from "../lib/writing";
 import { href } from "../lib/router";
 import { useTimer } from "../lib/timer";
 import { deleteAiTask, deleteEssay, deleteNote, patchEssay, saveAiTask, saveEssay } from "../store/essays";
-import { shuffle } from "../lib/text";
 import { useStore } from "../store/store";
 import { AccentKeys } from "../ui/AccentKeys";
 import { Marking } from "../ui/Marking";
@@ -110,10 +113,10 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
   const [view, setView] = useState<View>({ at: "list" });
   const [text, setText] = useState("");
   const [grading, setGrading] = useState(false);
-  // 让 AI 出新题
+  // 让 AI 出新题（默认随机混入材料题；B2 默认排除 mail/recit）
   const [aiGenre, setAiGenre] = useState<Genre | "random">("random");
   const [aiLevel, setAiLevel] = useState<"B1" | "B2">("B2");
-  const [aiDoc, setAiDoc] = useState(false);
+  const [aiDoc, setAiDoc] = useState<DocMode>("random");
   const [making, setMaking] = useState(false);
   // 选题页的筛选
   const [need, setNeed] = useState<"all" | "new" | "low" | "draft">("all");
@@ -171,12 +174,12 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
 
   const makeTask = async () => {
     if (making || !ready.text(ai)) return;
-    const genre = aiGenre === "random" ? shuffle([...GENRES], Date.now())[0] : aiGenre;
+    const { genre, withDocument } = pickAiTaskOptions(aiLevel, aiGenre, aiDoc);
     const c = new AbortController();
     ctrl.current = c;
     setMaking(true);
     try {
-      const task = await makeEssayTask({ genre, level: aiLevel, withDocument: aiDoc, avoid: tasks.filter((t) => t.genre === genre).map((t) => t.title) }, c.signal);
+      const task = await makeEssayTask({ genre, level: aiLevel, withDocument, avoid: tasks.filter((t) => t.genre === genre).map((t) => t.title) }, c.signal);
       if (c.signal.aborted) return;
       saveAiTask(task);
       open(task, "");
@@ -229,7 +232,9 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
 
   if (view.at === "list") {
     const stats = new Map(tasks.map((t) => [t.id, statOf(essays, t)] as const));
-    const all = tasks.map((t) => [t, stats.get(t.id)!] as [EssayTask, TaskStat]);
+    const all = tasks
+      .filter((t) => t.level !== "B2" || B2_GENRES.includes(t.genre))
+      .map((t) => [t, stats.get(t.id)!] as [EssayTask, TaskStat]);
     const shown = all
       .filter(([t, st]) => (genreFilter === "all" || t.genre === genreFilter) && (need === "all" || (need === "new" && st.done === 0) || (need === "low" && st.best >= 0 && st.best < LOW) || (need === "draft" && st.draft)))
       .sort(byNeed);
@@ -286,7 +291,7 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
         <section className="panel essay-ai">
           <h3 className="eyebrow">让 AI 出一道新题</h3>
           <ul className="chips" role="group" aria-label="体裁">
-            {(["random", ...GENRES] as const).map((g) => (
+            {(["random", ...genresFor(aiLevel)] as const).map((g) => (
               <li key={g}>
                 <button className={`chip-btn ${aiGenre === g ? "is-on" : ""}`} aria-pressed={aiGenre === g} onClick={() => setAiGenre(g)}>
                   {g === "random" ? "随机体裁" : GENRE_LABEL[g]}
@@ -297,14 +302,32 @@ export function EssayStudio({ onExit }: { onExit: () => void }) {
           <div className="essay-ai-row">
             <div className="segmented">
               {(["B1", "B2"] as const).map((lv) => (
-                <button key={lv} className={aiLevel === lv ? "is-on" : ""} aria-pressed={aiLevel === lv} onClick={() => setAiLevel(lv)}>
+                <button
+                  key={lv}
+                  className={aiLevel === lv ? "is-on" : ""}
+                  aria-pressed={aiLevel === lv}
+                  onClick={() => {
+                    setAiLevel(lv);
+                    if (lv === "B2" && aiGenre !== "random" && !B2_GENRES.includes(aiGenre)) setAiGenre("random");
+                  }}
+                >
                   {lv}
                 </button>
               ))}
             </div>
-            <label className="essay-check-doc">
-              <input type="checkbox" checked={aiDoc} onChange={(ev) => setAiDoc(ev.target.checked)} /> 带一段要回应的材料
-            </label>
+            <div className="segmented" role="group" aria-label="是否带材料">
+              {(
+                [
+                  ["random", "随机含材料"],
+                  ["doc", "必带材料"],
+                  ["none", "无材料"],
+                ] as const
+              ).map(([m, label]) => (
+                <button key={m} className={aiDoc === m ? "is-on" : ""} aria-pressed={aiDoc === m} onClick={() => setAiDoc(m)}>
+                  {label}
+                </button>
+              ))}
+            </div>
             <button className="btn btn-primary" onClick={() => void makeTask()} disabled={making || !ready.text(ai)}>
               <Sparkles size={16} /> {making ? "AI 出题中（约 10–30 秒）…" : "出题并开始写"}
             </button>

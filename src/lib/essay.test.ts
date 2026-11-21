@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, buildTask, CONNECTORS, countWords, CRITERIA, essayLevelOf, ESSAY_TASKS, hasFormalRegisterViolation, levelLabel, maxScore, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, essayLevelOf, ESSAY_TASKS, GENRE_LABEL, genresFor, hasFormalRegisterViolation, levelLabel, maxScore, pickAiTaskOptions, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
 
 test("countWords counts elided and hyphenated words once", () => {
   assert.equal(countWords("L'ami de Paul est arrivé."), 5);
@@ -260,4 +260,45 @@ test("PO-1 applySpeakingCaps enforces monologue words/duration, paste risk, repe
   assert.equal(emptyDebate.scores.monologue, 3); // <450 words cannot be 5
   const shortDebate = applySpeakingCaps(highSpeak, { transcript: words(300), doc: "autre", turns: [{ q: "Q1", a: "oui je suis d'accord" }, { q: "Q2", a: "c'est vrai" }] });
   assert.equal(shortDebate.scores.interaction, 1);
+});
+
+test("PE-5 B2 genre pool excludes mail/recit, supports article and doc lettre presets, and mixes document tasks by default", () => {
+  assert.ok(!B2_GENRES.includes("mail") && !B2_GENRES.includes("recit"));
+  assert.ok(B2_GENRES.includes("article"));
+  assert.equal(GENRE_LABEL.article, "评论文章");
+  assert.deepEqual(genresFor("B2"), B2_GENRES);
+
+  const b2Presets = ESSAY_TASKS.filter((t) => t.level === "B2");
+  assert.ok(b2Presets.every((t) => t.genre !== "mail" && t.genre !== "recit"));
+  assert.ok(b2Presets.some((t) => t.genre === "article" && Boolean(t.doc)));
+  assert.ok(b2Presets.some((t) => t.genre === "lettre" && Boolean(t.doc)));
+
+  const fromMail = pickAiTaskOptions("B2", "mail", "random", () => 0.1);
+  assert.ok(B2_GENRES.includes(fromMail.genre));
+  assert.equal(fromMail.withDocument, true);
+  assert.equal(pickAiTaskOptions("B2", "article", "random", () => 0.7).withDocument, false);
+  assert.equal(pickAiTaskOptions("B2", "article", "doc", () => 0.9).withDocument, true);
+  assert.equal(pickAiTaskOptions("B2", "article", "none", () => 0.1).withDocument, false);
+
+  const articleTask = buildTask(
+    {
+      level: "B2",
+      genre: "article",
+      title: "材料题：远程教育普及",
+      situation: "校刊约稿评论远程教育趋势。",
+      consigne: "Vous rédigez un article critique pour le journal étudiant.",
+      doc: "Une enquête montre que...",
+      points: ["概括调查内容", "提出赞成或保留意见"],
+      plan: [
+        { zh: "标题与导语", fr: "Titre — Selon une enquête,…" },
+        { zh: "分析", fr: "D'une part,…" },
+        { zh: "结论", fr: "En somme,…" },
+      ],
+      phrases: [{ fr: "Il convient de nuancer…", zh: "需要辩证看待……" }],
+    },
+    "ai-art",
+  );
+  assert.ok(articleTask);
+  assert.equal(articleTask.genre, "article");
+  assert.deepEqual(articleTask.words, [250, 350]);
 });
