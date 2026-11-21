@@ -2,6 +2,7 @@
 
 .dict-page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   padding-top: 20px;
 }
@@ -19,6 +20,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+  max-width: 100%;
   padding: 6px 8px 6px 14px;
   border-radius: 999px;
   border: 1.5px solid var(--line-strong);
@@ -54,7 +57,8 @@
 }
 
 .dict-search-bar input {
-  flex: 1;
+  flex: 1 1 0%;
+  width: 0;
   min-width: 0;
   border: 0;
   background: transparent;
@@ -162,7 +166,12 @@
 .dict-main {
   min-width: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
+}
+
+.dict-aside {
+  min-width: 0;
 }
 
 /* ---------- Notices, Disambiguation, Home, Reverse Search, DidYouMean ---------- */
@@ -193,6 +202,8 @@
 
 .dict-home {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 18px;
 }
 
@@ -202,6 +213,8 @@
   border: 1px solid var(--line);
   background: var(--card);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 12px;
 }
 
@@ -222,6 +235,8 @@
   border: 1px solid var(--line);
   background: var(--card);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 14px;
 }
 
@@ -307,8 +322,10 @@
   background: var(--card);
   box-shadow: var(--shadow-sm);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   min-width: 0;
+  max-width: 100%;
 }
 
 .dict-head {
@@ -552,6 +569,8 @@
 
 .dict-panels {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 14px;
 }
 
@@ -559,6 +578,7 @@
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   background: var(--card-2);
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -600,6 +620,8 @@
 .dict-panel-body {
   padding: 14px 16px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 14px;
 }
 
@@ -995,11 +1017,14 @@
   border: 1px solid var(--line);
   background: var(--card);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 12px;
 }
 
 .dict-shelf-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
