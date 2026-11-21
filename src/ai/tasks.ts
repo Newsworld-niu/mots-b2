@@ -787,29 +787,46 @@ const COMP_PARALLEL_SCHEMA = {
 const LENGTH: Record<CompKind, Partial<Record<CompForm, number>>> = { listen: { long: 500, short: 215 }, read: { long: 515, opinions: 140 } };
 
 const PARALLEL_ADDENDUM = `
-PARALLEL OFFICIAL FORMAT ("parallel"): When form is "long" or "short", include a realistic DELF B2 official mix instead of only QCM:
+PARALLEL OFFICIAL FORMAT ("parallel"): ONLY for reading ("kind": "read") when form is "long" or "short" (NEVER for listening "kind": "listen" — listening uses strictly 3-option "qcm" with no "vf" citation quotes): include a realistic DELF B2 official reading mix instead of only QCM:
 - At least 4 questions with "qType": "qcm" (3 options in French, "quote": "", "accepted": []).
-- Exactly 2 questions with "qType": "vf" (affirmation to judge Vrai ou Faux): set "options": ["Vrai", "Faux"], "answer": 0 (Vrai) or 1 (Faux), "quote": an exact verbatim sentence or clause copied from the French document text that proves Vrai or disproves Faux, "accepted": [].
-- 1 question (when form="long", so total is strictly 7) with "qType": "short" (open short question in French): set "options": [], "answer": 0, "quote": "", "accepted": [1 to 3 concise French keyphrase answers verbatim or paraphrased].
+- Exactly 2 questions with "qType": "vf" (ONLY when kind is "read", NEVER for "listen"; affirmation to judge Vrai ou Faux): set "options": ["Vrai", "Faux"], "answer": 0 (Vrai) or 1 (Faux), "quote": an exact verbatim sentence or clause copied from the French document text that proves Vrai or disproves Faux, "accepted": [].
+- 1 question (when form="long" and kind="read", so total is strictly 7) with "qType": "short" (open short question in French): set "options": [], "answer": 0, "quote": "", "accepted": [1 to 3 concise French keyphrase answers verbatim or paraphrased].
 When form is "opinions", keep all 6 questions as "qType": "qcm" with the 3 first names in "options", with each person as "answer" exactly twice.`;
+
+/** Resolve system prompt, schema, and target length for a comprehension exercise (listening never uses parallel/vf). */
+export function buildComprehensionSpec(input: { kind: CompKind; form: CompForm; level: "B1" | "B2"; format?: "qcm" | "parallel" }) {
+  const parallel = input.kind === "read" && input.format === "parallel" && input.form !== "opinions";
+  const length = Math.round((LENGTH[input.kind][input.form] ?? 400) * (input.level === "B1" ? 0.7 : 1));
+  return {
+    parallel,
+    length,
+    system: parallel ? `${COMP_SYSTEM}\n${PARALLEL_ADDENDUM}` : COMP_SYSTEM,
+    schema: parallel ? COMP_PARALLEL_SCHEMA : COMP_SCHEMA,
+    schemaName: parallel ? "comprehension_parallel" : "comprehension",
+  };
+}
+
+/** Validate a generated comprehension exercise, rejecting any vf/short questions in listening mode. */
+export function acceptComprehensionExercise(ex: CompExercise, kind: CompKind, form: CompForm): boolean {
+  if (kind === "listen" && ex.questions.some((q) => q.qType && q.qType !== "qcm")) return false;
+  return isValidComprehension(ex, form);
+}
 
 /** One exercise of the listening or reading paper, from the 生成卡片 service. */
 export async function makeComprehension(input: { kind: CompKind; form: CompForm; topic: Topic; level: "B1" | "B2"; style?: "radio" | "natural"; format?: "qcm" | "parallel" }, signal?: AbortSignal): Promise<CompExercise> {
   const spec = FORM_SPEC[input.form];
-  const parallel = input.format === "parallel" && input.form !== "opinions";
-  const length = Math.round((LENGTH[input.kind][input.form] ?? 400) * (input.level === "B1" ? 0.7 : 1));
-  const system = parallel ? `${COMP_SYSTEM}\n${PARALLEL_ADDENDUM}` : COMP_SYSTEM;
+  const { parallel, length, system, schema, schemaName } = buildComprehensionSpec(input);
   const once = async () => {
     const r = await aiJson<unknown>("text", {
       system,
       text: JSON.stringify({ kind: input.kind, form: input.form, level: input.level, ...(parallel ? { format: "parallel" } : {}), ...(input.kind === "listen" ? { style: input.style ?? "radio" } : {}), topic: `${input.topic.fr} (${input.topic.zh})`, length, questions: spec.questions, seed: Math.random().toString(36).slice(2, 8) }),
-      schema: parallel ? COMP_PARALLEL_SCHEMA : COMP_SCHEMA,
-      schemaName: parallel ? "comprehension_parallel" : "comprehension",
+      schema,
+      schemaName,
       signal,
       maxTokens: 12000,
     });
     const ex = sanitizeExercise(r, input.form, input.topic.id);
-    return isValidComprehension(ex, input.form) ? ex : null;
+    return acceptComprehensionExercise(ex, input.kind, input.form) ? ex : null;
   };
   // Strict gate: exact question count & points, [0,0,1,1,2,2] for short, [2,2,2] for opinions, and no quality defects.
   let ex = await once();

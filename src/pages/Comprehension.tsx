@@ -22,6 +22,7 @@ import { useTimer } from "../lib/timer";
 import { logExam } from "../store/essays";
 import { useStore } from "../store/store";
 import { toast } from "../ui/Toast";
+import { defaultCompFormat, effectiveCompFormat, normalizeCompQuestionForKind, shouldShowCitationInput, shouldShowCompFormatPicker, type CompQFormat } from "./comprehension-helpers";
 
 const day = (ms: number) => new Date(ms).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" });
 const num = (n: number) => String(n).replace(".", ",");
@@ -97,7 +98,8 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   const [topic, setTopic] = useState("random");
   const [level, setLevel] = useState<"B1" | "B2">("B2");
   const [what, setWhat] = useState<What>("paper");
-  const [qFormat, setQFormat] = useState<"qcm" | "parallel">("parallel");
+  const [qFormat, setQFormat] = useState<CompQFormat>(() => defaultCompFormat(kind));
+  const activeFormat = effectiveCompFormat(kind, qFormat);
   const [timed, setTimed] = useState(true);
   const [strictLock, setStrictLock] = useState(true);
   const [slow, setSlow] = useState(false);
@@ -135,6 +137,9 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [phase]);
+  useEffect(() => {
+    setQFormat(defaultCompFormat(kind));
+  }, [kind]);
 
   /** Start a paper: voices for every document, answers cleared, the reading clock started. */
   const begin = (list: CompExercise[], p: { id: string; level: "B1" | "B2"; asked?: string[] }) => {
@@ -172,7 +177,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
       const out: CompExercise[] = [];
       for (const [k, form] of list.entries()) {
         const t = topic === "random" || k > 0 ? pool[k % pool.length] : topicOf(topic)!;
-        out.push(await makeComprehension({ kind, form, topic: t, level, style, format: qFormat }, c.signal));
+        out.push(await makeComprehension({ kind, form, topic: t, level, style, format: activeFormat }, c.signal));
         if (c.signal.aborted) return;
         setMade(k + 1);
       }
@@ -339,8 +344,8 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
   const isAsked = (key: string) => !askedSet || askedSet.has(key);
   const all = exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ q, ex, key: `${e}-${k}` }))).filter(({ key }) => isAsked(key));
   const total = askedSet ? all.reduce((n, { q }) => n + q.pts, 0) : exs.reduce((n, ex) => n + exercisePoints(ex), 0);
-  const score = all.reduce((n, { q, ex, key }) => n + (gradeCompQuestion(q, picked[key], typed[key], ex.docs[q.doc]?.text).correct ? q.pts : 0), 0);
-  const answered = all.filter(({ q, key }) => (q.qType === "short" ? Boolean(typed[key]?.trim()) : picked[key] !== undefined)).length;
+  const score = all.reduce((n, { q, ex, key }) => n + (gradeCompQuestion(normalizeCompQuestionForKind(q, kind), picked[key], typed[key], ex.docs[q.doc]?.text).correct ? q.pts : 0), 0);
+  const answered = all.filter(({ q, key }) => (normalizeCompQuestionForKind(q, kind).qType === "short" ? Boolean(typed[key]?.trim()) : picked[key] !== undefined)).length;
 
   const finish = () => {
     halt();
@@ -349,7 +354,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
     // a redo of the missed questions only is not a score of the paper
     if (!askedSet) logExam({ part: kind, what: exs.length > 1 ? "paper" : exs[0].topic, score, total });
     const missed: CompMiss[] = all
-      .filter(({ q, ex, key }) => !gradeCompQuestion(q, picked[key], typed[key], ex.docs[q.doc]?.text).correct)
+      .filter(({ q, ex, key }) => !gradeCompQuestion(normalizeCompQuestionForKind(q, kind), picked[key], typed[key], ex.docs[q.doc]?.text).correct)
       .map(({ q, key }) => ({ at, part: kind, q: key, cause: causeFromSkill(q.skill) ?? (listen ? "heard" : "paraphrase"), ...(q.skill ? { skill: q.skill } : {}) }));
     addMisses(missed);
     setCauses(Object.fromEntries(missed.map((m) => [m.q!, m.cause])));
@@ -383,7 +388,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
     const bySkill = skillStats(
       papers.flatMap((p) => {
         const a = bank.attempts[p.id]?.find((x) => !x.asked);
-        return a ? p.exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ skill: q.skill, right: gradeCompQuestion(q, a.picked[`${e}-${k}`], a.typed?.[`${e}-${k}`], ex.docs[q.doc]?.text).correct }))) : [];
+        return a ? p.exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ skill: q.skill, right: gradeCompQuestion(normalizeCompQuestionForKind(q, kind), a.picked[`${e}-${k}`], a.typed?.[`${e}-${k}`], ex.docs[q.doc]?.text).correct }))) : [];
       }),
     );
     const count = what === "paper" ? PAPER[kind].length : 1;
@@ -435,7 +440,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
             ))}
           </div>
           {what === "paper" && topic !== "random" && <p className="muted small">整套题的第一个练习用所选话题，后两个换别的话题。</p>}
-          {what !== "opinions" && (
+          {shouldShowCompFormatPicker(kind, what) && (
             <>
               <h3 className="eyebrow">题目格式</h3>
               <div className="segmented">
@@ -887,36 +892,39 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
                 {ex.questions.map((q, k) => {
                   const key = `${e}-${k}`;
                   if (!isAsked(key)) return null;
-                  const docText = ex.docs[q.doc]?.text;
-                  const verdict = done ? gradeCompQuestion(q, picked[key], typed[key], docText) : null;
+                  const nq = normalizeCompQuestionForKind(q, kind);
+                  const docText = ex.docs[nq.doc]?.text;
+                  const verdict = done ? gradeCompQuestion(nq, picked[key], typed[key], docText) : null;
                   const miss = done && !verdict?.correct;
-                  const qt = q.qType ?? "qcm";
-                  const first = ex.docs.length > 1 && (k === 0 || ex.questions[k - 1].doc !== q.doc);
+                  const qt = nq.qType ?? "qcm";
+                  const showCite = shouldShowCitationInput(nq, kind);
+                  const optionLetters = qt === "vf" || (nq.options.length === 2 && nq.options[0] === "Vrai") ? "VF" : "ABC";
+                  const first = ex.docs.length > 1 && (k === 0 || ex.questions[k - 1].doc !== nq.doc);
                   return (
                     <li key={k}>
-                      {first && <p className="eyebrow">Document {q.doc + 1}</p>}
+                      {first && <p className="eyebrow">Document {nq.doc + 1}</p>}
                       <p className="exam-q" lang="fr">
-                        {qt === "vf" && <span className="exam-q-badge">Vrai / Faux · 须原文引证</span>}
+                        {showCite && <span className="exam-q-badge">Vrai / Faux · 须原文引证</span>}
                         {qt === "short" && <span className="exam-q-badge">简答题 · 写核心要点</span>}
-                        {q.q} <small>{num(q.pts)} pt</small>
+                        {nq.q} <small>{num(nq.pts)} pt</small>
                       </p>
                       {qt !== "short" && (
                         <div className="exam-options" role="radiogroup" aria-label={`第 ${k + 1} 题`}>
-                          {q.options.map((o, j) => {
+                          {nq.options.map((o, j) => {
                             const on = picked[key] === j;
-                            const state = done ? (j === q.answer ? "is-right" : on ? "is-wrong" : "") : on ? "is-on" : "";
+                            const state = done ? (j === nq.answer ? "is-right" : on ? "is-wrong" : "") : on ? "is-on" : "";
                             return (
                               <button key={j} role="radio" aria-checked={on} className={`exam-option ${state}`} disabled={done} lang="fr" onClick={() => setPicked((p) => ({ ...p, [key]: j }))}>
-                                <span>{qt === "vf" ? "VF"[j] : "ABC"[j]}</span>
+                                <span>{optionLetters[j]}</span>
                                 {o}
-                                {done && j === q.answer && <Check size={16} />}
-                                {done && on && j !== q.answer && <X size={16} />}
+                                {done && j === nq.answer && <Check size={16} />}
+                                {done && on && j !== nq.answer && <X size={16} />}
                               </button>
                             );
                           })}
                         </div>
                       )}
-                      {qt === "vf" && (
+                      {showCite && (
                         <div className="exam-cite-box">
                           <input
                             type="text"
@@ -930,7 +938,7 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
                           />
                           {done && (
                             <p className={`exam-cite-status ${verdict?.quoteMatched ? "is-ok" : "is-miss"}`}>
-                              {verdict?.quoteMatched ? "✓ 原文引证核对通过。" : `✗ 未匹配原文引证（官方规则：判断对但无正确引证不得分）。参考引证：「${q.quote}」`}
+                              {verdict?.quoteMatched ? "✓ 原文引证核对通过。" : `✗ 未匹配原文引证（官方规则：判断对但无正确引证不得分）。参考引证：「${nq.quote}」`}
                             </p>
                           )}
                         </div>
