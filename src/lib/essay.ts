@@ -727,15 +727,18 @@ export function applyEssayLengthCaps(fb: EssayFeedback, text: string, minWords: 
   return note ? { ...fb, scores, comment: `${note}${fb.comment}` } : fb;
 }
 
+const stripQuotedText = (text: string): string => text.replace(/«[^»]*»|"[^"]*"|“[^”]*”/g, " ");
+
+const hasInformalPronoun = (unquoted: string): boolean =>
+  /(?:^|[.!?;:\n]\s*|\b(?:si|quand|lorsque|que|où|comme|mais|et|donc|car|or|puisque|parce\s+que)\s+)tu\b|\btoi\b/i.test(unquoted);
+
 /**
  * Deterministic formal-register check for FORMAL_GENRES (lettre, motivation, courrier):
  * flags informal `tu`/`toi` outside quotes, casual openings (`Bonjour`/`Salut`), or missing formal salutation/closing.
  */
 export function hasFormalRegisterViolation(text: string): boolean {
-  const unquoted = text.replace(/«[^»]*»|"[^"]*"|“[^”]*”/g, " ");
-  if (/(?:^|[.!?;:\n]\s*|\b(?:si|quand|lorsque|que|où|comme|mais|et|donc|car|or|puisque|parce\s+que)\s+)tu\b|\btoi\b/i.test(unquoted)) {
-    return true;
-  }
+  const unquoted = stripQuotedText(text);
+  if (hasInformalPronoun(unquoted)) return true;
   const lines = text
     .split(/\n+/)
     .map((l) => l.trim())
@@ -747,6 +750,17 @@ export function hasFormalRegisterViolation(text: string): boolean {
   const hasSalutation = /\b(?:madame|monsieur|mesdames|messieurs|mme|rédact(?:eur|rice)|direct(?:eur|rice)|maire|rédaction|service)\b/i.test(head);
   const hasClosing = /\b(?:agréer|salutations|sentiments|considération|respectueu\w*|distingué\w*|dévoué\w*|hommages)\b/i.test(tail);
   return !hasSalutation || !hasClosing;
+}
+
+/**
+ * Deterministic register check for B2 essai/article prompts:
+ * flags unquoted spoken/informal markers (`tu`/`toi`, `moi je`, standalone `ça` instead of `cela`/`ceci`)
+ * so `socio` stays consistently capped at 1 rather than oscillating 1↔3 across runs.
+ */
+export function hasInformalEssayRegisterViolation(text: string): boolean {
+  const unquoted = stripQuotedText(text);
+  if (hasInformalPronoun(unquoted)) return true;
+  return /(?<![\p{L}\p{N}_])(?:ça|moi\s+je)(?![\p{L}\p{N}_])/iu.test(unquoted);
 }
 
 const BASIC_GRAMMAR_ERROR_TYPES = new Set<ErrorType>(["article", "gender", "conjugation", "tense", "agreement", "preposition"]);
@@ -812,6 +826,8 @@ export function applyEssayGridCaps(fb: EssayFeedback, opts: { genre: Genre; text
   const level = opts.level ?? "B2";
   let flags = fb.flags ? { ...fb.flags } : undefined;
   if (FORMAL_GENRES.includes(opts.genre) && hasFormalRegisterViolation(opts.text)) {
+    flags = { ...flags, registerViolation: true };
+  } else if (level === "B2" && (opts.genre === "essai" || opts.genre === "article") && hasInformalEssayRegisterViolation(opts.text)) {
     flags = { ...flags, registerViolation: true };
   }
   if (level === "B2") {

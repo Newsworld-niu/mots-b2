@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
-import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_PLANS, essayLevelOf, ESSAY_TASKS, GENRE_LABEL, genresFor, hasFormalRegisterViolation, LETTER_FORMULAS, LETTER_TEMPLATE, levelLabel, maxScore, needsModelLengthRetry, pickAiTaskOptions, pickBetterModel, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, ESSAY_PLANS, essayLevelOf, ESSAY_TASKS, GENRE_LABEL, genresFor, hasFormalRegisterViolation, hasInformalEssayRegisterViolation, LETTER_FORMULAS, LETTER_TEMPLATE, levelLabel, maxScore, needsModelLengthRetry, pickAiTaskOptions, pickBetterModel, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
 
 test("countWords counts elided and hyphenated words once", () => {
   assert.equal(countWords("L'ami de Paul est arrivé."), 5);
@@ -224,6 +224,18 @@ test("PE-2 flags and formal register rules enforce FEI 2022 caps", () => {
   );
   const b2Text = `Madame, Monsieur,\nEn premier lieu, ${filler}\nPar ailleurs, les personnes âgés apprécient.\nJe vous prie d'agréer, Madame, Monsieur, mes salutations distinguées.`;
   assert.equal(totalScore(applyEssayGridCaps(solidB2, { genre: "courrier", text: b2Text, minWords: 250, level: "B2" })), 15);
+
+  // Spoken register guard on B2 essai/article: catches standalone `ça` and `moi je` outside quotes, ignores `commença`/`français`/`cela`/quotes
+  assert.equal(hasInformalEssayRegisterViolation("Le débat commença en français, et cela paraît juste « ça suffit »."), false);
+  assert.equal(hasInformalEssayRegisterViolation(`En plus, ça fait mal au dos quand on lit longtemps.`), true);
+  assert.equal(hasInformalEssayRegisterViolation(`Pour conclure, moi je préfère les livres en papier.`), true);
+  const spokenB1Essay = applyEssayGridCaps(
+    sanitizeEssayFeedback({ ...high, scores: { task: 3, coherence: 1, socio: 3, lexique: 1, morpho: 1 } }, new Set(), CRITERIA, "B2"),
+    { genre: "essai", level: "B2", minWords: 250, text: `${filler} mais ça fait mal au dos.` },
+  );
+  assert.equal(spokenB1Essay.scores.socio, 1);
+  assert.equal(spokenB1Essay.flags?.registerViolation, true);
+  assert.equal(totalScore(spokenB1Essay), 7);
 
   const b1TaskCapped = applyEssayGridCaps(
     sanitizeEssayFeedback({ ...high, scores: { task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 }, profile: { hasSystematicB1Errors: true } }, new Set(), CRITERIA, "B1"),
