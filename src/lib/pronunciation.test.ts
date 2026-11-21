@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { aggregate, assessmentHeader, combineSpeakingProns, overall, parseAssessment, phonemeInsights, phonoGateInfo, phonoLevel, sampleDebateTakes, weakWords, type PronResult } from "./pronunciation.ts";
+import { aggregate, assessmentHeader, combineSpeakingProns, overall, parseAssessment, pendingDebateSamples, phonemeInsights, phonoGateInfo, phonoLevel, sampleDebateTakes, weakWords, type PronResult } from "./pronunciation.ts";
 
 const answer = {
   RecognitionStatus: "Success",
@@ -114,6 +114,17 @@ test("overall, tightened phonoLevel with prosody gate, phonemeInsights, sampling
 
   const sampled = sampleDebateTakes([[0, { seconds: 10 }], [1, { seconds: 1 }], [2, { seconds: 25 }], [3, { seconds: 8 }], [4, { seconds: 30 }], [5, { seconds: 12 }]], 4);
   assert.deepEqual(sampled.map(([i]) => i), [0, 2, 4, 5]);
+
+  // 1-turn non-strict debate regression: turn 0 recorded and answered just before assess should be picked up
+  const pending1 = pendingDebateSamples([{ a: "Je suis d'accord avec cette mesure." }], { 0: { seconds: 14 } }, {});
+  assert.deepEqual(pending1, [[0, { seconds: 14 }]]);
+  // skips already-assessed, empty turns, and <2s clips
+  const pending2 = pendingDebateSamples(
+    [{ a: "Un" }, { a: "   " }, { a: "Deux" }, { a: "Trois" }],
+    { 0: { seconds: 10 }, 1: { seconds: 10 }, 2: { seconds: 1 }, 3: { seconds: 12 } },
+    { 0: part(10, { pron: 80 }) },
+  );
+  assert.deepEqual(pending2, [[3, { seconds: 12 }]]);
 
   const combined = combineSpeakingProns(part(300, { pron: 80, prosody: 80, text: "mono" }), [part(30, { pron: 60, prosody: 60, text: "deb" })])!;
   assert.equal(combined.pron, 72);

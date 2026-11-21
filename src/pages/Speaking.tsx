@@ -18,7 +18,7 @@ import { useTimer } from "../lib/timer";
 import { saveSpeakingCorrections } from "../store/essays";
 import { store, useStore } from "../store/store";
 import { Marking } from "../ui/Marking";
-import { combineSpeakingProns, phonoLevel, sampleDebateTakes, type PronResult } from "../lib/pronunciation";
+import { combineSpeakingProns, pendingDebateSamples, phonoLevel, type PronResult } from "../lib/pronunciation";
 import type { Take } from "../lib/recorder";
 import { AssessHint, AssessStatus, PronReport, TakePlayer, useAssess, useRecorder } from "../ui/Recording";
 import { toast } from "../ui/Toast";
@@ -118,6 +118,10 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const speechFailedRef = useRef(false);
   const turnsRef = useRef<DebateTurn[]>(turns);
   turnsRef.current = turns;
+  const turnTakesRef = useRef<Record<number, Take>>(turnTakes);
+  turnTakesRef.current = turnTakes;
+  const turnPronsRef = useRef<Record<number, PronResult>>(turnProns);
+  turnPronsRef.current = turnProns;
   const recorder = useRecorder();
   const pron = useAssess();
   const stopRec = useRef<(() => void) | null>(null);
@@ -233,6 +237,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setTranscribing(false);
     speechFailedRef.current = false;
     turnBaseRef.current = "";
+    turnTakesRef.current = {};
+    turnPronsRef.current = {};
     micro.stop();
     voiceWordsRef.current = 0;
     pron.reset();
@@ -298,7 +304,11 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setListening(false);
     setInterim("");
     const take = recorder.on ? await recorder.stop() : null;
-    if (take) setTurnTakes((m) => ({ ...m, [turnIdx]: take }));
+    if (take) {
+      const nextTakes = { ...turnTakesRef.current, [turnIdx]: take };
+      turnTakesRef.current = nextTakes;
+      setTurnTakes(nextTakes);
+    }
     const curTurn = turnsRef.current[turnIdx];
     const curText = curTurn?.a ?? "";
     if (take && shouldFallbackToAzureStt({ dictationSupported: dictation, speechFailed: speechFailedRef.current, transcript: curText, azureAvailable: canAssess() })) {
@@ -306,7 +316,9 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       try {
         const pr = await assessRecording(take.blob);
         if (pr) {
-          setTurnProns((m) => ({ ...m, [turnIdx]: pr }));
+          const nextProns = { ...turnPronsRef.current, [turnIdx]: pr };
+          turnPronsRef.current = nextProns;
+          setTurnProns(nextProns);
           if (pr.text.trim()) {
             setDebateVoice(true);
             const base = turnBaseRef.current;
@@ -396,15 +408,11 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         typed: isTyped,
       };
       const assessDebateSamples = async (): Promise<Record<number, PronResult>> => {
-        if (!canAssess()) return turnProns;
-        const missing = sampleDebateTakes(
-          Object.entries(turnTakes)
-            .map(([k, t]) => [Number(k), t] as [number, Take])
-            .filter(([k]) => !!so[k]?.a.trim() && !turnProns[k]),
-          4,
-        );
-        if (!missing.length) return turnProns;
-        const nextMap: Record<number, PronResult> = { ...turnProns };
+        const latestProns = turnPronsRef.current;
+        if (!canAssess()) return latestProns;
+        const missing = pendingDebateSamples(so, turnTakesRef.current, latestProns, 4);
+        if (!missing.length) return latestProns;
+        const nextMap: Record<number, PronResult> = { ...latestProns };
         for (const [k, take] of missing) {
           if (c.signal.aborted) break;
           try {
@@ -418,6 +426,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       };
       const [r, updatedTurnProns] = await Promise.all([gradeSpeaking(payload, c.signal), assessDebateSamples()]);
       if (c.signal.aborted) return;
+      turnPronsRef.current = updatedTurnProns;
       setTurnProns(updatedTurnProns);
       setFb(r);
       if (r.corrections.length) saveSpeakingCorrections(subject.title, r.corrections);

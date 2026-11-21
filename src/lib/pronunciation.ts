@@ -298,6 +298,19 @@ export function sampleDebateTakes<T extends { seconds: number }>(items: [number,
   return [...chosen.values()].sort((a, b) => a[0] - b[0]);
 }
 
+/** Pick up to `maxCount` answered debate recordings that have not yet been assessed by Azure. */
+export function pendingDebateSamples<T extends { seconds: number }>(
+  turns: readonly { a: string }[],
+  takes: Record<number, T>,
+  assessed: Record<number, PronResult>,
+  maxCount = 4,
+): [number, T][] {
+  const candidates = Object.entries(takes)
+    .map(([k, t]) => [Number(k), t] as [number, T])
+    .filter(([k]) => !!turns[k]?.a.trim() && !assessed[k]);
+  return sampleDebateTakes(candidates, maxCount);
+}
+
 /**
  * Combine monologue and debate pronunciation results with balanced weighting (debate weighted 40%–60% when
  * both parts exist so spontaneous interaction always contributes meaningfully alongside the prepared monologue).
