@@ -14,6 +14,7 @@ import { TranscriptWords } from "../ui/TranscriptWords";
 import { IntensiveDoc } from "./Intensive";
 import { RealListening } from "./RealListening";
 import "../styles/listening.css";
+import { missLinksFor } from "../lib/miss-links";
 import { href } from "../lib/router";
 import { useTimer } from "../lib/timer";
 import { logExam } from "../store/essays";
@@ -506,6 +507,24 @@ export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: 
               </div>
             ))}
             <p className="muted small">最常见：{CAUSE_LABEL[stats[0].cause]}。{CAUSE_TIP[stats[0].cause]}</p>
+            <div className="miss-actions-list">
+              {stats.slice(0, 3).map((x) => (
+                <div key={x.cause} className="miss-actions">
+                  <span className="muted small">{CAUSE_LABEL[x.cause]} →</span>
+                  {missLinksFor(x.cause, kind).map((item) =>
+                    item.action === "real" ? (
+                      <button key={item.label} type="button" className="chip" onClick={() => setReal(true)}>
+                        {item.label}
+                      </button>
+                    ) : item.route ? (
+                      <a key={item.label} className="chip" href={href(item.route)}>
+                        {item.label}
+                      </a>
+                    ) : null,
+                  )}
+                </div>
+              ))}
+            </div>
             {bySkill.size > 0 && (
               <p className="muted small">
                 按题型的正确率：

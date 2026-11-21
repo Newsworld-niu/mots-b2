@@ -13,7 +13,7 @@ import { href } from "../lib/router";
 import { duck } from "../lib/sound";
 import { canDictate, dictate, pickBrowserFrenchVoice, pickExaminerVoice } from "../lib/speech";
 import { useTimer } from "../lib/timer";
-import { logExam } from "../store/essays";
+import { logExam, saveSpeakingCorrections } from "../store/essays";
 import { useStore } from "../store/store";
 import { Marking } from "../ui/Marking";
 import { phonoLevel } from "../lib/pronunciation";
@@ -251,6 +251,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       const r = await gradeSpeaking({ subject, transcript: said, turns: so.filter((t) => t.a.trim()), points: points() }, c.signal);
       if (c.signal.aborted) return;
       setFb(r);
+      if (r.corrections.length) saveSpeakingCorrections(subject.title, r.corrections);
       logExam({ part: "speak", what: subject.id.startsWith("ai-") ? subject.topic : subject.id, score: totalScore(r), total: 20 });
       setPhase("result");
     } catch (err) {
@@ -652,7 +653,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
 
         {phase === "result" && fb && (
           <>
-            <Marking fb={fb} pointTitle={pointTitle} extra={{ key: "phono", score: azurePhono ?? phono }} />
+            <Marking fb={fb} pointTitle={pointTitle} from={`口语 · ${subject.title}`} extra={{ key: "phono", score: azurePhono ?? phono }} />
             {pron.state === "done" && pron.result && <PronReport result={pron.result} title="发音和语调（第五项，Azure 评测）" />}
             {azurePhono === null && (
               <div className="essay-box">

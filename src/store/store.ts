@@ -7,7 +7,8 @@ import type { Accent } from "../atlas/types";
 import type { CardState, Grade } from "./srs";
 import { getImages, isImageDataUrl, replaceImages } from "./images";
 import { sanitizeTexts, type SavedText } from "../lib/reader";
-import { sanitizeAiTasks, sanitizeEssays, sanitizeNotes, type EssayTask, type SavedEssay, type SavedNote } from "../lib/essay";
+import { sanitizeAiTasks, sanitizeEssays, sanitizeNotes, type EssayCorrection, type EssayTask, type SavedEssay, type SavedNote } from "../lib/essay";
+import { ERROR_TYPES, type ErrorType } from "../lib/writing";
 import { sanitizeExamLog, type ExamResult } from "../lib/exam";
 import { sanitizeMisses, sanitizeSources, type CompMiss, type RealSource } from "../lib/listening";
 import { sanitizeDrillDays } from "../lib/drill";
@@ -226,7 +227,18 @@ export interface Progress {
   drillDays?: Record<string, number>;
   /** Optional DELF diagnostic placement result (摸底定级小测). */
   placement?: PlacementResult;
+  /** Mistakes recorded from speaking markings (口语纠错), newest first. */
+  speakCorrections?: SavedSpeakingCorrection[];
 }
+
+export interface SavedSpeakingCorrection {
+  id: string;
+  subject: string;
+  at: number;
+  corrections: EssayCorrection[];
+}
+
+export const MAX_SPEAK_CORRECTIONS = 40;
 
 /** The most new words a day can be set to: the learner decides, the app only keeps the number sane. */
 export const MAX_DAILY_NEW = 2000;
@@ -430,10 +442,41 @@ export function sanitizeProgress(v: unknown, datasetId: string): Progress {
   if (drillDays) out.drillDays = drillDays;
   const placement = sanitizePlacement(v.placement);
   if (placement) out.placement = placement;
+  const speakCorrections = sanitizeSpeakingCorrections(v.speakCorrections);
+  if (speakCorrections) out.speakCorrections = speakCorrections;
   const s = v.session;
   if (isObj(s) && typeof s.id === "string" && Array.isArray(s.steps) && num(s.index, 0) && isObj(s.graded))
     out.session = s as unknown as ActiveSession;
   return syncFavorites(out);
+}
+
+function sanitizeSpeakingCorrections(v: unknown): SavedSpeakingCorrection[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out: SavedSpeakingCorrection[] = [];
+  for (const x of v) {
+    if (!isObj(x) || typeof x.id !== "string" || !x.id.trim() || typeof x.at !== "number" || !Number.isFinite(x.at)) continue;
+    const subject = str(x.subject, 80);
+    if (!subject || !Array.isArray(x.corrections)) continue;
+    const corrections: EssayCorrection[] = [];
+    for (const c of x.corrections) {
+      if (!isObj(c)) continue;
+      const wrong = str(c.wrong, 200);
+      const right = str(c.right, 200);
+      if (!(wrong || right) || wrong === right) continue;
+      corrections.push({
+        wrong,
+        right,
+        type: (ERROR_TYPES as readonly string[]).includes(c.type as string) ? (c.type as ErrorType) : "other",
+        why: str(c.why, 300),
+        point: typeof c.point === "string" && /^[a-z0-9-]{2,40}$/.test(c.point) ? c.point : "",
+      });
+      if (corrections.length >= 25) break;
+    }
+    if (!corrections.length) continue;
+    out.push({ id: x.id.trim().slice(0, 40), subject, at: x.at, corrections });
+    if (out.length >= MAX_SPEAK_CORRECTIONS) break;
+  }
+  return out.length ? out : undefined;
 }
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");

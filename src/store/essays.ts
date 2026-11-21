@@ -1,6 +1,6 @@
 /** 篇章写作: the learner's texts and their marking, kept with the progress (and so in backups), newest first. */
-import { MAX_AI_TASKS, MAX_ESSAY_LENGTH, MAX_ESSAYS, MAX_NOTES, type EssayFeedback, type EssayTask, type ModelEssay, type Revision, type SavedEssay, type SavedNote } from "../lib/essay";
-import { store } from "./store";
+import { MAX_AI_TASKS, MAX_ESSAY_LENGTH, MAX_ESSAYS, MAX_NOTES, type EssayCorrection, type EssayFeedback, type EssayTask, type ModelEssay, type Revision, type SavedEssay, type SavedNote } from "../lib/essay";
+import { MAX_SPEAK_CORRECTIONS, store, type Progress, type SavedSpeakingCorrection } from "./store";
 
 const rid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 
@@ -61,4 +61,32 @@ export function deleteEssay(id: string) {
 /** Note a result of 听力理解、应试阅读 or 口语. */
 export function logExam(r: Omit<import("../lib/exam").ExamResult, "at">) {
   store.progress((p) => ({ ...p, examLog: [{ ...r, at: Date.now() }, ...(p.examLog ?? [])].slice(0, 60) }));
+}
+
+/** Pure helper to prepend valid speaking marking corrections into Progress. */
+export function recordSpeakingCorrections(
+  p: Progress,
+  subject: string,
+  corrections: EssayCorrection[],
+  id = `sp-${rid()}`,
+  at = Date.now(),
+): { next: Progress; id: string } | null {
+  const cleanSubject = subject.trim().slice(0, 80);
+  const valid = corrections
+    .map((c) => ({ ...c, wrong: c.wrong.trim().slice(0, 200), right: c.right.trim().slice(0, 200), why: c.why.trim().slice(0, 300) }))
+    .filter((c) => (c.wrong || c.right) && c.wrong !== c.right)
+    .slice(0, 25);
+  if (!cleanSubject || !valid.length) return null;
+  const entry: SavedSpeakingCorrection = { id, subject: cleanSubject, at, corrections: valid };
+  return { next: { ...p, speakCorrections: [entry, ...(p.speakCorrections ?? [])].slice(0, MAX_SPEAK_CORRECTIONS) }, id };
+}
+
+/** Keep line-by-line corrections from a speaking marking so grammar practice cycles them back, newest first. */
+export function saveSpeakingCorrections(subject: string, corrections: EssayCorrection[]): string | null {
+  const cleanSubject = subject.trim().slice(0, 80);
+  if (!cleanSubject || !corrections.some((c) => (c.wrong.trim() || c.right.trim()) && c.wrong.trim() !== c.right.trim())) return null;
+  const id = `sp-${rid()}`;
+  const at = Date.now();
+  store.progress((p) => recordSpeakingCorrections(p, cleanSubject, corrections, id, at)?.next ?? p);
+  return id;
 }

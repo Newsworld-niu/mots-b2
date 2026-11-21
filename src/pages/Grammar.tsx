@@ -411,10 +411,11 @@ function PointView({ data, point, onStart }: { data: GrammarData; point: Grammar
         )}
         {errors.length > 0 && (
           <section className="panel gram-rule gram-mine">
-            <h3>你在作文里写错过</h3>
+            <h3>你在作文或口语里错过</h3>
             <ul>
               {errors.slice(0, 8).map((e) => (
                 <li key={e.wrong + e.right}>
+                  <span className="chip">{e.source === "speak" ? "口语" : "作文"}</span>
                   <s lang="fr">{e.wrong}</s>
                   <span lang="fr">{e.right}</span>
                   {e.why && <small>{e.why}</small>}

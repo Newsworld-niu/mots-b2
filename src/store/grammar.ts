@@ -18,15 +18,16 @@ export const ESSAY_TAG = "essay";
 /** At most this many of the learner's own mistakes in a round. */
 const MINE_PER_ROUND = 2;
 
-/** One mistake from an essay marking, for a grammar point. */
+/** One mistake from an essay or speaking marking, for a grammar point. */
 export interface EssayError {
   wrong: string;
   right: string;
   why: string;
   at: number;
+  source?: "essay" | "speak";
 }
 
-/** Mistakes from essay markings (kept ones in 错句本 and those of every marking), by grammar point. */
+/** Mistakes from essay and speaking markings (kept ones in 错句本 and those of every marking), by grammar point. */
 export function essayErrors(p: Progress): Map<string, EssayError[]> {
   const out = new Map<string, EssayError[]>();
   const seen = new Set<string>();
@@ -39,20 +40,38 @@ export function essayErrors(p: Progress): Map<string, EssayError[]> {
     seen.add(key);
     out.set(point, [...(out.get(point) ?? []), { ...e, wrong, right }]);
   };
-  for (const n of p.essayNotes ?? []) put(n.point, n);
+  for (const n of p.essayNotes ?? [])
+    put(n.point, {
+      wrong: n.wrong,
+      right: n.right,
+      why: n.why,
+      at: n.at,
+      source: n.from.startsWith("口语") ? "speak" : "essay",
+    });
   for (const essay of p.essays ?? [])
     for (const [fb, at] of [
       [essay.fb, essay.created],
       [essay.rev?.fb, essay.rev?.at ?? essay.created],
     ] as const)
-      for (const c of fb?.corrections ?? []) put(c.point, { wrong: c.wrong, right: c.right, why: c.why, at });
+      for (const c of fb?.corrections ?? []) put(c.point, { wrong: c.wrong, right: c.right, why: c.why, at, source: "essay" });
+  for (const sp of p.speakCorrections ?? [])
+    for (const c of sp.corrections) put(c.point, { wrong: c.wrong, right: c.right, why: c.why, at: sp.at, source: "speak" });
   for (const list of out.values()) list.sort((a, b) => b.at - a.at);
   return out;
 }
 
 /** The learner's own mistakes as fix drills: the whole wrong wording is underlined. */
 export function mineDrills(errors: EssayError[] | undefined): FixDrill[] {
-  return (errors ?? []).map((e) => ({ k: "f", s: e.wrong, z: "", b: [0, e.wrong.length], r: [e.right], h: "你在作文里写过", y: e.why || `应为：${e.right}`, g: ESSAY_TAG }));
+  return (errors ?? []).map((e) => ({
+    k: "f",
+    s: e.wrong,
+    z: "",
+    b: [0, e.wrong.length],
+    r: [e.right],
+    h: e.source === "speak" ? "你在口语里说过" : "你在作文里写过",
+    y: e.why || `应为：${e.right}`,
+    g: ESSAY_TAG,
+  }));
 }
 
 /**

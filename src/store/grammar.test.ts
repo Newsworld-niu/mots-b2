@@ -3,9 +3,10 @@ import fs from "node:fs";
 import { test } from "node:test";
 import type { GrammarData } from "../lib/grammar.ts";
 import { DISCOURSE_EXERCISES } from "../lib/grammar-discourse.ts";
-import { nextPoint, roundGrade, shouldAmendRewrite } from "./grammar.ts";
+import { recordSpeakingCorrections } from "./essays.ts";
+import { duePoints, essayErrors, mineDrills, nextPoint, roundGrade, shouldAmendRewrite, untouchedWithErrors } from "./grammar.ts";
 import { review, Rating } from "./srs.ts";
-import { emptyProgress } from "./store.ts";
+import { emptyProgress, sanitizeProgress } from "./store.ts";
 
 const grammar = JSON.parse(fs.readFileSync("public/atlas/grammar.json", "utf8")) as GrammarData;
 
@@ -50,4 +51,58 @@ test("PE-8: only exact 'correct' rewrite verdict amends answer; 'almost' retains
   assert.equal(roundGrade(0, 4), Rating.Good);
   assert.equal(roundGrade(1, 4), Rating.Hard);
   assert.equal(roundGrade(2, 4), Rating.Again);
+});
+
+test("SYS-7: speaking corrections survive sanitization and feed into essayErrors/mineDrills/duePoints loop", () => {
+  const now = 1_700_000_000_000;
+  let p = emptyProgress("t");
+  assert.equal(recordSpeakingCorrections(p, "   ", [{ wrong: "a", right: "b", type: "other", why: "", point: "subjonctif" }]), null);
+  assert.equal(recordSpeakingCorrections(p, "Télétravail", [{ wrong: "same", right: "same", type: "other", why: "", point: "subjonctif" }]), null);
+
+  const recorded = recordSpeakingCorrections(
+    p,
+    "Le télétravail",
+    [
+      { wrong: "Il faut que tu fais", right: "Il faut que tu fasses", type: "conjugation", why: "falloir + subjonctif", point: "subjonctif" },
+      { wrong: "sans change", right: "sans change", type: "other", why: "noop", point: "subjonctif" },
+    ],
+    "sp-1",
+    now,
+  );
+  assert.ok(recorded);
+  p = recorded.next;
+
+  // Add a kept note marked from Speaking ("口语 · ...")
+  p.essayNotes = [
+    { id: "n1", wrong: "Bien qu'il a raison", right: "Bien qu'il ait raison", type: "tense", why: "bien que + 虚拟式", point: "opposition-concession", at: now - 500, from: "口语 · 远程办公" },
+  ];
+
+  // Ensure Progress sanitization preserves valid speakCorrections and drops bad entries
+  const roundtrip = sanitizeProgress(
+    {
+      ...p,
+      speakCorrections: [
+        ...(p.speakCorrections ?? []),
+        { id: "bad-no-subject", subject: "", at: now, corrections: [{ wrong: "x", right: "y", type: "other", why: "", point: "subjonctif" }] },
+        { id: "bad-no-diff", subject: "ok", at: now, corrections: [{ wrong: "x", right: "x", type: "other", why: "", point: "subjonctif" }] },
+      ],
+    },
+    "t",
+  );
+  assert.equal(roundtrip.speakCorrections?.length, 1);
+
+  // Mark subjonctif as reviewed *earlier* than the speaking correction, and unrelated point later
+  const futureCard = { ...review(undefined, Rating.Good, now - 10_000), due: now + 86_400_000, last: now - 10_000 };
+  roundtrip.gram = { subjonctif: futureCard };
+
+  const errs = essayErrors(roundtrip);
+  assert.equal(errs.get("subjonctif")?.[0]?.source, "speak");
+  assert.equal(errs.get("opposition-concession")?.[0]?.source, "speak");
+
+  const drills = mineDrills(errs.get("subjonctif"));
+  assert.equal(drills[0]?.h, "你在口语里说过");
+  assert.deepEqual(drills[0]?.r, ["Il faut que tu fasses"]);
+
+  assert.ok(duePoints(grammar, roundtrip, now).includes("subjonctif"), "newer speaking error brings grammar point back for review");
+  assert.ok(untouchedWithErrors(grammar, roundtrip).some((x) => x.point.id === "opposition-concession"));
 });

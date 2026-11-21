@@ -8897,3 +8897,29 @@ button.prep-pill:hover { border-color: var(--ink-4); color: var(--ink); }
   font-size: 13px; color: var(--ink);
 }
 .backup-remind-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+
+/* ---------- SYS-7: speaking error tags & miss-cause jump links ---------- */
+.gram-mine .chip {
+  justify-self: start;
+  margin-bottom: 2px;
+}
+.miss-actions-list {
+  display: grid;
+  gap: 8px;
+}
+.miss-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+.miss-actions .chip {
+  border: 1px solid var(--line);
+  font-size: 12.5px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.miss-actions .chip:hover {
+  border-color: var(--ink-4);
+  color: var(--ink);
+}
