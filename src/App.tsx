@@ -1,5 +1,5 @@
 import { migrateCoreDeck } from "./store/decks";
-import { BookOpen, BookOpenText, ChevronLeft, ChevronRight, Compass, Github, Keyboard, Layers, Moon, Search, Sun, User } from "lucide-react";
+import { BookA, BookOpen, BookOpenText, ChevronLeft, ChevronRight, Compass, Github, Keyboard, Layers, Moon, Search, Sun, User } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AtlasContext, useAtlas, useEntry } from "./atlas/context";
 import { loadOpenAtlas } from "./atlas/data";
@@ -19,6 +19,7 @@ import { Conj } from "./pages/Conj";
 import { Grammar } from "./pages/Grammar";
 import { Compare } from "./pages/Compare";
 import { Decks } from "./pages/Decks";
+import { Dict } from "./pages/Dict";
 import { Today } from "./pages/Today";
 import { cue } from "./lib/sound";
 import { downloadBackupFile } from "./lib/backup";
@@ -37,6 +38,7 @@ import { UpdateNote } from "./ui/UpdateNote";
 const NAV: { page: Route["page"]; label: string; icon: typeof Compass }[] = [
   { page: "today", label: "今日", icon: Compass },
   { page: "atlas", label: "图鉴", icon: BookOpen },
+  { page: "dict", label: "词典", icon: BookA },
   { page: "practice", label: "练习", icon: Keyboard },
   { page: "read", label: "阅读", icon: BookOpenText },
   { page: "grammar", label: "语法", icon: Layers },
@@ -210,6 +212,7 @@ function Shell() {
         )}
         {route.page === "today" && <Today />}
         {route.page === "atlas" && <AtlasPage route={route} />}
+        {route.page === "dict" && <Dict word={route.w} query={route.q} />}
         {route.page === "learn" && <Learn />}
         {route.page === "practice" && <Practice />}
         {route.page === "read" && <Read textId={route.t} />}

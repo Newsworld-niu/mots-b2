@@ -753,6 +753,8 @@ ul.chips {
   justify-items: center;
   gap: 2px;
   padding: 6px 0 4px;
+  min-width: 0;
+  white-space: nowrap;
   font-size: 11px;
   font-weight: 600;
   color: var(--ink-3);
@@ -7510,6 +7512,8 @@ button.deck-card:hover {
   padding: 1px 2px;
   margin: 0 -2px;
   cursor: pointer;
+  user-select: text;
+  -webkit-user-select: text;
   transition: background 0.15s var(--ease), box-shadow 0.15s var(--ease);
 }
 button.rw:hover {
@@ -7666,7 +7670,7 @@ button.rw.is-picked {
   font-size: 13px;
 }
 
-/* six tabs (今日 图鉴 练习 阅读 语法 我的): keep them on one line on narrower desktops */
+/* seven tabs (今日 图鉴 词典 练习 阅读 语法 我的): keep them on one line on narrower desktops */
 .topnav {
   flex: none;
 }
@@ -7677,14 +7681,18 @@ button.rw.is-picked {
   .topbar .logo-text small {
     display: none;
   }
+  .topnav {
+    gap: 2px;
+  }
   .topnav a {
-    padding: 0 11px;
+    padding: 0 9px;
+    font-size: 14px;
   }
   .search-pill {
-    min-width: 130px;
+    min-width: 110px;
   }
 }
-@media (min-width: 760px) and (max-width: 899px) {
+@media (min-width: 760px) and (max-width: 960px) {
   .search-pill {
     min-width: 0;
   }

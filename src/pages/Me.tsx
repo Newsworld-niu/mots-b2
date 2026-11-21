@@ -4,7 +4,8 @@ import { ready, useAiConfig } from "../ai/config";
 import { AiSettings } from "../ui/AiSettings";
 import { Sheet } from "../ui/Sheet";
 import { useAtlas } from "../atlas/context";
-import { downloadBackupFile, isBackupSnoozedToday, snoozeBackupToday, cloudSyncHealthy } from "../lib/backup";
+import { downloadBackupFile, downloadRawBackupFile, isBackupSnoozedToday, snoozeBackupToday, cloudSyncHealthy } from "../lib/backup";
+import { exportDictReportsJson, useDictStore } from "../lib/lexdb/store";
 import { PLACEMENT_ESTIMATE, SECTION_META } from "../lib/placement";
 import { addMonthsDate, daysUntilExam } from "../lib/study-plan";
 import { isMastered } from "../store/srs";
@@ -29,6 +30,7 @@ export function Me() {
   const [placeOpen, setPlaceOpen] = useState(false);
   const [mock, setMock] = useState(false);
   const ai = useAiConfig();
+  const { reports: dictReports } = useDictStore();
   const daysLeft = daysUntilExam(settings.examDate);
 
   const stats = useMemo(() => {
@@ -287,6 +289,18 @@ export function Me() {
           <div className="data-actions">
             <button className="btn btn-ghost" onClick={download}>
               <Download size={18} /> 导出备份
+            </button>
+            <button
+              className="btn btn-ghost"
+              onClick={() => {
+                void downloadRawBackupFile(
+                  exportDictReportsJson(),
+                  `lexdb-reports-${dayKey()}.json`,
+                  dictReports.length ? `已导出 ${dictReports.length} 条词典报错记录` : "已导出词典报错记录（当前为空）",
+                );
+              }}
+            >
+              <Download size={18} /> 导出词典报错记录 (JSON){dictReports.length ? ` (${dictReports.length})` : ""}
             </button>
             <button className="btn btn-ghost" onClick={() => file.current?.click()}>
               <Upload size={18} /> 导入备份

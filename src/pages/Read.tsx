@@ -17,6 +17,7 @@ import { isMastered, type CardState } from "../store/srs";
 import { store, useStore } from "../store/store";
 import { deleteText, markTextRead, saveText } from "../store/texts";
 import { toast } from "../ui/Toast";
+import { WordPopup } from "../ui/WordPopup";
 
 const READ_DECK = "阅读生词";
 const SRC_LABEL: Record<SavedText["src"], string> = { paste: "粘贴", file: "导入", ai: "AI 生成" };
@@ -303,6 +304,7 @@ function Reader({ text }: { text: SavedText }) {
   const [playing, setPlaying] = useState<number | null>(null);
   const [showZh, setShowZh] = useState(false);
   const run = useRef(0);
+  const readerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let live = true;
@@ -389,7 +391,7 @@ function Reader({ text }: { text: SavedText }) {
   let cursor = 0;
 
   return (
-    <div className="page read reader">
+    <div className="page read reader" ref={readerRef}>
       <header className="reader-head">
         <a className="btn btn-ghost" href={href({ page: "read" })}>
           <ArrowLeft size={16} /> 文章
@@ -539,6 +541,9 @@ function Reader({ text }: { text: SavedText }) {
                 <BookOpenText size={14} /> 词条
               </button>
             )}
+            <a className="btn btn-ghost btn-sm" href={href({ page: "dict", w: pickedRef?.word ?? picked.tok.hit?.w ?? picked.tok.t })}>
+              词典详情 →
+            </a>
             {(pickedRef || picked.tok.hit?.zh?.length) &&
               (inDeck ? (
                 <span className="reader-in-deck">
@@ -563,6 +568,7 @@ function Reader({ text }: { text: SavedText }) {
         </aside>,
         document.body,
       )}
+      <WordPopup containerRef={readerRef} />
     </div>
   );
 }

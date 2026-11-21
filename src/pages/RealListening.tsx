@@ -15,6 +15,7 @@ import { addSource, deleteSource, ensurePresetSource, newSourceId, patchSource, 
 import { useStore } from "../store/store";
 import { toast } from "../ui/Toast";
 import { TranscriptWords } from "../ui/TranscriptWords";
+import { WordPopup } from "../ui/WordPopup";
 import { IntensiveDoc } from "./Intensive";
 import "../styles/listening.css";
 
@@ -130,6 +131,14 @@ function useOfflineMedia(): OfflineMediaState {
 }
 
 export function RealListening({ onExit }: { onExit: () => void }) {
+  return (
+    <WordPopup>
+      <RealListeningBody onExit={onExit} />
+    </WordPopup>
+  );
+}
+
+function RealListeningBody({ onExit }: { onExit: () => void }) {
   const sources = useStore((s) => s.progress.listenSources) ?? [];
   const [open, setOpen] = useState<string | null>(null);
   const offline = useOfflineMedia();
