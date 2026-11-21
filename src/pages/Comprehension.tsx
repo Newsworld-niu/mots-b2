@@ -22,6 +22,7 @@ import { useTimer } from "../lib/timer";
 import { logExam } from "../store/essays";
 import { useStore } from "../store/store";
 import { toast } from "../ui/Toast";
+import { WordPopup } from "../ui/WordPopup";
 import { defaultCompFormat, effectiveCompFormat, normalizeCompQuestionForKind, shouldShowCitationInput, shouldShowCompFormatPicker, type CompQFormat } from "./comprehension-helpers";
 
 const day = (ms: number) => new Date(ms).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" });
@@ -77,6 +78,14 @@ type What = CompForm | "paper";
  * read the questions, the recording (twice for a long one, once for the short ones), time to answer.
  */
 export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: () => void }) {
+  return (
+    <WordPopup>
+      <ComprehensionStudioBody kind={kind} onExit={onExit} />
+    </WordPopup>
+  );
+}
+
+function ComprehensionStudioBody({ kind, onExit }: { kind: CompKind; onExit: () => void }) {
   const ai = useAiConfig();
   const log = (useStore((s) => s.progress.examLog) ?? []).filter((r) => r.part === kind);
   const misses = useStore((s) => s.progress.compMisses) ?? [];

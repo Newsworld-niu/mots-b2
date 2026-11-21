@@ -40,6 +40,7 @@ import { AccentKeys } from "../ui/AccentKeys";
 import { Marking } from "../ui/Marking";
 import { StaticEssayModel } from "../ui/StaticEssayModel";
 import { toast } from "../ui/Toast";
+import { WordPopup } from "../ui/WordPopup";
 
 const DRAFT = (task: string) => `fb2.essay.draft.${task}`;
 const readDraft = (task: string) => {
@@ -106,6 +107,14 @@ const countLabel = (n: number, min: number, max: number) => `${n} 词 · 至少 
  * Practice only: memory state is not touched.
  */
 export function EssayStudio({ onExit }: { onExit: () => void }) {
+  return (
+    <WordPopup>
+      <EssayStudioBody onExit={onExit} />
+    </WordPopup>
+  );
+}
+
+function EssayStudioBody({ onExit }: { onExit: () => void }) {
   const essaysRaw = useStore((s) => s.progress.essays);
   const essays = useMemo(() => essaysRaw ?? [], [essaysRaw]);
   const aiRaw = useStore((s) => s.progress.essayTasks);

@@ -10,6 +10,7 @@ import { useStore } from "../store/store";
 import { AccentKeys } from "../ui/AccentKeys";
 import { Speak } from "../ui/Speak";
 import { toast } from "../ui/Toast";
+import { WordPopup } from "../ui/WordPopup";
 
 export type WritingMode = "translate" | "compose";
 
@@ -48,6 +49,14 @@ function Diffed({ tokens, tone }: { tokens: { t: string; ok: boolean }[]; tone: 
  * 中译法 falls back to comparing with the book's sentence yourself. Practice only: memory state is not touched.
  */
 export function WritingRound({ mode, entries, onExit, onAgain }: { mode: WritingMode; entries: Entry[]; onExit: () => void; onAgain: () => void }) {
+  return (
+    <WordPopup>
+      <WritingRoundBody mode={mode} entries={entries} onExit={onExit} onAgain={onAgain} />
+    </WordPopup>
+  );
+}
+
+function WritingRoundBody({ mode, entries, onExit, onAgain }: { mode: WritingMode; entries: Entry[]; onExit: () => void; onAgain: () => void }) {
   const settings = useStore((s) => s.settings);
   const ai = useAiConfig();
   const [i, setI] = useState(0);

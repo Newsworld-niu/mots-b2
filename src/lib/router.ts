@@ -4,6 +4,7 @@ import { transition } from "./motion";
 export type Route =
   | { page: "today" }
   | { page: "atlas"; families?: string; pos?: string; d?: string; topic?: string; level?: string; q?: string; view?: string }
+  | { page: "dict"; w?: string; q?: string }
   | { page: "learn" }
   | { page: "practice" }
   | { page: "read"; t?: string }
@@ -26,6 +27,12 @@ function parse(hash: string): Location {
   const word = params.get("w");
   const seg = path.split("/").filter(Boolean);
   let route: Route = { page: "today" };
+  if (seg[0] === "dict") {
+    return {
+      route: { page: "dict", w: params.get("w") || undefined, q: params.get("q") || undefined },
+      word: null,
+    };
+  }
   if (seg[0] === "atlas")
     route = { page: "atlas", families: params.get("families") || undefined, pos: params.get("pos") || undefined, d: params.get("d") || undefined, topic: params.get("topic") || undefined, level: params.get("level") || undefined, q: params.get("q") || undefined, view: params.get("view") || undefined };
   else if (seg[0] === "learn") route = { page: "learn" };
@@ -51,6 +58,10 @@ export function href(route: Route, word?: string | null) {
     if (route.level) params.set("level", route.level);
     if (route.q) params.set("q", route.q);
     if (route.view) params.set("view", route.view);
+  }
+  if (route.page === "dict") {
+    if (route.w && word !== null) params.set("w", route.w);
+    if (route.q) params.set("q", route.q);
   }
   if (route.page === "compare" && route.g) params.set("g", route.g);
   if (route.page === "decks" && route.d) params.set("d", route.d);
