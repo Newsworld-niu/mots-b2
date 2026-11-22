@@ -29,7 +29,8 @@
     "lexdb:build": "python3 -B scripts/lexdb/build-db.py",
     "lexdb:ai": "tsx scripts/lexdb/ai-run.ts",
     "lexdb:export": "python3 -B scripts/lexdb/export.py",
-    "lexdb:check": "python3 -B scripts/lexdb/check.py"
+    "lexdb:check": "python3 -B scripts/lexdb/check.py",
+    "lexdb:session": "tsx scripts/lexdb/session-batch.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

@@ -42,3 +42,4 @@ server/.deploy.env
 references/lexdb/
 data/lexdb/lexdb.sqlite
 data/lexdb/ai-cache/
+data/lexdb/session/
