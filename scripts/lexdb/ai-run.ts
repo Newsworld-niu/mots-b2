@@ -350,12 +350,54 @@ async function main() {
 
   const apiKey = loadOpenRouterKey();
   const db = new DatabaseSync(dbPath);
-  db.exec("PRAGMA busy_timeout = 30000");
+  db.exec("PRAGMA busy_timeout = 60000");
   try {
     db.exec("PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL");
   } catch {
     /* keep existing journal_mode if another connection prevented switching */
   }
+  const hasIdx = db.prepare("SELECT 1 FROM sqlite_master WHERE type='index' AND name='idx_gloss_sense'").get();
+  if (!hasIdx) {
+    try {
+      db.exec("CREATE INDEX IF NOT EXISTS idx_gloss_sense ON gloss(sense_id)");
+    } catch {
+      /* ignore if index creation races */
+    }
+  }
+  const withWriteTx = async (fn: () => void) => {
+    let delay = 200;
+    for (let attempt = 0; attempt < 6; attempt++) {
+      try {
+        db.exec("BEGIN IMMEDIATE");
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (attempt < 5 && /database is locked|SQLITE_BUSY/i.test(msg)) {
+          await new Promise((r) => setTimeout(r, delay + Math.floor(Math.random() * 150)));
+          delay = Math.min(3200, delay * 2);
+          continue;
+        }
+        throw e;
+      }
+      try {
+        fn();
+        db.exec("COMMIT");
+        return;
+      } catch (e) {
+        try {
+          db.exec("ROLLBACK");
+        } catch {
+          /* ignore */
+        }
+        const msg = e instanceof Error ? e.message : String(e);
+        if (attempt < 5 && /database is locked|SQLITE_BUSY/i.test(msg)) {
+          await new Promise((r) => setTimeout(r, delay + Math.floor(Math.random() * 150)));
+          delay = Math.min(3200, delay * 2);
+          continue;
+        }
+        throw e;
+      }
+    }
+  };
   let cumulativeCost = readCumulativeCost();
   console.log(`[ai-run] mode=${isTestCall ? "test-call" : isPilot ? "pilot" : "full"} budget=$${budget.toFixed(2)} startingCost=$${cumulativeCost.toFixed(4)} batchSize=${batchSize}`);
 
@@ -449,17 +491,12 @@ async function main() {
         for (const out of res.parsed?.entries ?? []) {
           if (out?.id) byId.set(String(out.id), out);
         }
-        db.exec("BEGIN IMMEDIATE");
-        try {
+        await withWriteTx(() => {
           for (const id of chunk) {
             applyGenResult(db, id, model, byId.get(id) ?? { id, senses: [], examples: [], phrases: [] });
             runStats.genWords++;
           }
-          db.exec("COMMIT");
-        } catch (e) {
-          try { db.exec("ROLLBACK"); } catch { /* ignore */ }
-          throw e;
-        }
+        });
         console.log(
           `[gen-${tier}] batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(queue.length / batchSize)}: ${chunk.length} words | reasoningTok=${res.usage.reasoningTokens} | cost=$${res.usage.cost.toFixed(5)} | cum=$${cumulativeCost.toFixed(4)}${res.cached ? " (cached)" : ""}`,
         );
@@ -510,8 +547,7 @@ async function main() {
       for (const r of res.parsed?.reviews ?? []) {
         if (r?.id) byId.set(String(r.id), r);
       }
-      db.exec("BEGIN IMMEDIATE");
-      try {
+      await withWriteTx(() => {
         for (const id of ids) {
           const stats = applyReviewResult(db, id, byId.get(id) ?? { id, senseReviews: [], exampleReviews: [], phraseReviews: [] }, MODEL_REVIEW);
           runStats.revWords++;
@@ -519,11 +555,7 @@ async function main() {
           runStats.fix += stats.fixCount;
           runStats.reject += stats.rejectCount;
         }
-        db.exec("COMMIT");
-      } catch (e) {
-        try { db.exec("ROLLBACK"); } catch { /* ignore */ }
-        throw e;
-      }
+      });
       console.log(
         `[review] batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(revPayloads.length / batchSize)}: ${ids.length} words | reasoningTok=${res.usage.reasoningTokens} | cost=$${res.usage.cost.toFixed(5)} | cum=$${cumulativeCost.toFixed(4)}${res.cached ? " (cached)" : ""}`,
       );

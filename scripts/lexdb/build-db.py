@@ -244,6 +244,7 @@ def init_db(conn: sqlite3.Connection) -> None:
         CREATE INDEX idx_sense_lemma ON sense(lemma_id);
         CREATE INDEX idx_sense_pb ON sense(pos_block_id);
         CREATE INDEX idx_gloss_lemma ON gloss(lemma_id);
+        CREATE INDEX idx_gloss_sense ON gloss(sense_id);
         CREATE INDEX idx_example_lemma ON example(lemma_id);
         CREATE INDEX idx_phrase_lemma ON phrase(lemma_id);
         CREATE INDEX idx_rel_lemma ON relation(lemma_id);

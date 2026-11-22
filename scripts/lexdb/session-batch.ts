@@ -37,7 +37,7 @@ const CJK_RE = /[\u3400-\u9fff\uf900-\ufaff]/;
 
 export function openDb(path = DEFAULT_DB): DatabaseSync {
   const db = new DatabaseSync(path);
-  db.exec("PRAGMA busy_timeout = 30000");
+  db.exec("PRAGMA busy_timeout = 60000");
   if (path !== ":memory:") {
     try {
       db.exec("PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL");
@@ -50,17 +50,68 @@ export function openDb(path = DEFAULT_DB): DatabaseSync {
 }
 
 export function ensureBatchTable(db: DatabaseSync) {
-  db.exec(`CREATE TABLE IF NOT EXISTS session_batch (
-    id TEXT PRIMARY KEY,
-    phase TEXT NOT NULL,
-    tier TEXT NOT NULL,
-    worker TEXT,
-    lemma_ids TEXT NOT NULL,
-    status TEXT NOT NULL,
-    created_at TEXT NOT NULL,
-    applied_at TEXT,
-    summary TEXT
-  )`);
+  const hasBatch = db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='session_batch'").get();
+  if (!hasBatch) {
+    db.exec(`CREATE TABLE IF NOT EXISTS session_batch (
+      id TEXT PRIMARY KEY,
+      phase TEXT NOT NULL,
+      tier TEXT NOT NULL,
+      worker TEXT,
+      lemma_ids TEXT NOT NULL,
+      status TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      applied_at TEXT,
+      summary TEXT
+    )`);
+  }
+  const hasGlossIdx = db.prepare("SELECT 1 FROM sqlite_master WHERE type='index' AND name='idx_gloss_sense'").get();
+  if (!hasGlossIdx) {
+    try {
+      db.exec("CREATE INDEX IF NOT EXISTS idx_gloss_sense ON gloss(sense_id)");
+    } catch {
+      /* gloss table may not exist in minimal unit test fixtures */
+    }
+  }
+}
+
+const sleepSync = (ms: number) => {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+};
+
+function withWriteTx<T>(db: DatabaseSync, fn: () => T): T {
+  let delay = 200;
+  for (let attempt = 0; attempt < 6; attempt++) {
+    try {
+      db.exec("BEGIN IMMEDIATE");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (attempt < 5 && /database is locked|SQLITE_BUSY/i.test(msg)) {
+        sleepSync(delay + Math.floor(Math.random() * 150));
+        delay = Math.min(3200, delay * 2);
+        continue;
+      }
+      throw e;
+    }
+    try {
+      const res = fn();
+      db.exec("COMMIT");
+      return res;
+    } catch (e) {
+      try {
+        db.exec("ROLLBACK");
+      } catch {
+        /* ignore */
+      }
+      const msg = e instanceof Error ? e.message : String(e);
+      if (attempt < 5 && /database is locked|SQLITE_BUSY/i.test(msg)) {
+        sleepSync(delay + Math.floor(Math.random() * 150));
+        delay = Math.min(3200, delay * 2);
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw new Error("Unreachable");
 }
 
 const tierSql = (tier: Tier) => (tier === "top15k" ? "l.rank <= 15000" : "(l.rank IS NULL OR l.rank > 15000)");
@@ -104,8 +155,7 @@ export function claim(
 ): ClaimResult {
   const { phase, tier, worker } = opts;
   const size = Math.max(1, Math.min(200, Math.floor(opts.size)));
-  db.exec("BEGIN IMMEDIATE");
-  try {
+  return withWriteTx(db, () => {
     const ids: string[] = [];
     const payloads: unknown[] = [];
     if (phase === "gen") {
@@ -142,7 +192,6 @@ export function claim(
       for (const id of toSkip) skip.run(now, id);
     }
     if (!ids.length) {
-      db.exec("COMMIT");
       return { batchId: null, count: 0 };
     }
     const batchId = `${phase}-${stamp()}-${randomBytes(2).toString("hex")}`;
@@ -157,12 +206,8 @@ export function claim(
     mkdirSync(paths.dir, { recursive: true });
     const instructions = phase === "review" ? SYSTEM_REVIEW : tier === "top15k" ? SYSTEM_TOP15K : SYSTEM_LONGTAIL;
     writeFileSync(paths.inputPath, JSON.stringify({ batchId, phase, tier, instructions, entries: payloads }, null, 2));
-    db.exec("COMMIT");
     return { batchId, inputPath: paths.inputPath, outputPath: paths.outputPath, count: ids.length };
-  } catch (e) {
-    db.exec("ROLLBACK");
-    throw e;
-  }
+  });
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
@@ -279,8 +324,7 @@ export function applyBatch(db: DatabaseSync, opts: { batchId: string; model: str
   const col = row.phase === "gen" ? "gen_status" : "review_status";
   let applied = 0;
   let rejectedItems = 0;
-  db.exec("BEGIN IMMEDIATE");
-  try {
+  withWriteTx(db, () => {
     const back = db.prepare(`UPDATE ai_job SET ${col} = 'pending', updated_at = ? WHERE lemma_id = ? AND ${col} = 'claimed'`);
     const now = new Date().toISOString();
     for (const id of ids) {
@@ -304,18 +348,13 @@ export function applyBatch(db: DatabaseSync, opts: { batchId: string; model: str
     const missing = ids.length - applied;
     const summary = { applied, missing, rejectedItems };
     db.prepare("UPDATE session_batch SET status = 'applied', applied_at = ?, summary = ? WHERE id = ?").run(now, JSON.stringify(summary), row.id);
-    db.exec("COMMIT");
-    return { batchId: row.id, applied, missing, rejectedItems, errors: [] };
-  } catch (e) {
-    db.exec("ROLLBACK");
-    throw e;
-  }
+  });
+  return { batchId: row.id, applied, missing: ids.length - applied, rejectedItems, errors: [] };
 }
 
 export function release(db: DatabaseSync, staleMinutes: number): { released: string[] } {
   const cutoff = new Date(Date.now() - staleMinutes * 60_000).toISOString();
-  db.exec("BEGIN IMMEDIATE");
-  try {
+  return withWriteTx(db, () => {
     const rows = db.prepare("SELECT id, phase, lemma_ids FROM session_batch WHERE status = 'claimed' AND created_at <= ?").all(cutoff) as {
       id: string;
       phase: Phase;
@@ -328,12 +367,8 @@ export function release(db: DatabaseSync, staleMinutes: number): { released: str
       for (const id of JSON.parse(r.lemma_ids) as string[]) back.run(now, id);
       db.prepare("UPDATE session_batch SET status = 'released', applied_at = ? WHERE id = ?").run(now, r.id);
     }
-    db.exec("COMMIT");
     return { released: rows.map((r) => r.id) };
-  } catch (e) {
-    db.exec("ROLLBACK");
-    throw e;
-  }
+  });
 }
 
 export function status(db: DatabaseSync) {
