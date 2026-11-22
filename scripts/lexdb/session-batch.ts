@@ -116,13 +116,20 @@ function withWriteTx<T>(db: DatabaseSync, fn: () => T): T {
 
 const tierSql = (tier: Tier) => (tier === "top15k" ? "l.rank <= 15000" : "(l.rank IS NULL OR l.rank > 15000)");
 
+const BAD_TRAD_KEYS = new Set(["类", "强", "转", "层", "喜", "甚", "著", "乾", "徵"]);
 let tradMap: Record<string, string> | null = null;
 export function setTradMap(m: Record<string, string> | null) {
   tradMap = m;
 }
 function loadTrad(): Record<string, string> {
   if (tradMap) return tradMap;
-  tradMap = existsSync(TRAD_SIMP) ? (JSON.parse(readFileSync(TRAD_SIMP, "utf8")) as Record<string, string>) : {};
+  const raw = existsSync(TRAD_SIMP) ? (JSON.parse(readFileSync(TRAD_SIMP, "utf8")) as Record<string, string>) : {};
+  const clean: Record<string, string> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    if (BAD_TRAD_KEYS.has(k) || raw[v] === k) continue;
+    clean[k] = k === "鷄" ? "鸡" : v;
+  }
+  tradMap = clean;
   return tradMap;
 }
 export function toSimp(s: string): string {

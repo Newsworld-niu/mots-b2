@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import test from "node:test";
-import { applyBatch, claim, ensureBatchTable, release, setTradMap, status, validateOutput } from "./session-batch.ts";
+import { applyBatch, claim, ensureBatchTable, release, setTradMap, status, toSimp, validateOutput } from "./session-batch.ts";
 
 function makeTestDb() {
   const db = new DatabaseSync(":memory:");
@@ -239,5 +239,14 @@ test("session-batch claim, apply (with trad->simp & missing reset), review, and 
     setTradMap(null);
     db.close();
     rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("toSimp converts traditional characters without corrupting common simplified chars", () => {
+  setTradMap(null);
+  try {
+    assert.equal(toSimp("喜欢甚至著名显著转层类强傳統"), "喜欢甚至著名显著转层类强传统");
+  } finally {
+    setTradMap(null);
   }
 });
