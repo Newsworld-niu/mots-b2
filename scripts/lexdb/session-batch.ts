@@ -38,6 +38,13 @@ const CJK_RE = /[\u3400-\u9fff\uf900-\ufaff]/;
 export function openDb(path = DEFAULT_DB): DatabaseSync {
   const db = new DatabaseSync(path);
   db.exec("PRAGMA busy_timeout = 30000");
+  if (path !== ":memory:") {
+    try {
+      db.exec("PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL");
+    } catch {
+      /* ignore if switching journal mode races */
+    }
+  }
   ensureBatchTable(db);
   return db;
 }

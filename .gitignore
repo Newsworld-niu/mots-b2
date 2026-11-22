@@ -41,5 +41,6 @@ server/.deploy.env
 # LexDB raw downloads, build SQLite master DB and AI response cache
 references/lexdb/
 data/lexdb/lexdb.sqlite
+data/lexdb/lexdb.sqlite-*
 data/lexdb/ai-cache/
 data/lexdb/session/

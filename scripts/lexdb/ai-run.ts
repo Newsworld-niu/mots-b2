@@ -350,6 +350,11 @@ async function main() {
   const apiKey = loadOpenRouterKey();
   const db = new DatabaseSync(dbPath);
   db.exec("PRAGMA busy_timeout = 30000");
+  try {
+    db.exec("PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL");
+  } catch {
+    /* keep existing journal_mode if another connection prevented switching */
+  }
   let cumulativeCost = readCumulativeCost();
   console.log(`[ai-run] mode=${isTestCall ? "test-call" : isPilot ? "pilot" : "full"} budget=$${budget.toFixed(2)} startingCost=$${cumulativeCost.toFixed(4)} batchSize=${batchSize}`);
 
@@ -443,12 +448,17 @@ async function main() {
         for (const out of res.parsed?.entries ?? []) {
           if (out?.id) byId.set(String(out.id), out);
         }
-        db.exec("BEGIN");
-        for (const id of chunk) {
-          applyGenResult(db, id, model, byId.get(id) ?? { id, senses: [], examples: [], phrases: [] });
-          runStats.genWords++;
+        db.exec("BEGIN IMMEDIATE");
+        try {
+          for (const id of chunk) {
+            applyGenResult(db, id, model, byId.get(id) ?? { id, senses: [], examples: [], phrases: [] });
+            runStats.genWords++;
+          }
+          db.exec("COMMIT");
+        } catch (e) {
+          try { db.exec("ROLLBACK"); } catch { /* ignore */ }
+          throw e;
         }
-        db.exec("COMMIT");
         console.log(
           `[gen-${tier}] batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(queue.length / batchSize)}: ${chunk.length} words | reasoningTok=${res.usage.reasoningTokens} | cost=$${res.usage.cost.toFixed(5)} | cum=$${cumulativeCost.toFixed(4)}${res.cached ? " (cached)" : ""}`,
         );
@@ -499,15 +509,20 @@ async function main() {
       for (const r of res.parsed?.reviews ?? []) {
         if (r?.id) byId.set(String(r.id), r);
       }
-      db.exec("BEGIN");
-      for (const id of ids) {
-        const stats = applyReviewResult(db, id, byId.get(id) ?? { id, senseReviews: [], exampleReviews: [], phraseReviews: [] }, MODEL_REVIEW);
-        runStats.revWords++;
-        runStats.ok += stats.okCount;
-        runStats.fix += stats.fixCount;
-        runStats.reject += stats.rejectCount;
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        for (const id of ids) {
+          const stats = applyReviewResult(db, id, byId.get(id) ?? { id, senseReviews: [], exampleReviews: [], phraseReviews: [] }, MODEL_REVIEW);
+          runStats.revWords++;
+          runStats.ok += stats.okCount;
+          runStats.fix += stats.fixCount;
+          runStats.reject += stats.rejectCount;
+        }
+        db.exec("COMMIT");
+      } catch (e) {
+        try { db.exec("ROLLBACK"); } catch { /* ignore */ }
+        throw e;
       }
-      db.exec("COMMIT");
       console.log(
         `[review] batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(revPayloads.length / batchSize)}: ${ids.length} words | reasoningTok=${res.usage.reasoningTokens} | cost=$${res.usage.cost.toFixed(5)} | cum=$${cumulativeCost.toFixed(4)}${res.cached ? " (cached)" : ""}`,
       );
