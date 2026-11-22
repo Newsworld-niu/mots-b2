@@ -165,7 +165,8 @@ async function callOpenRouter(opts: {
   else body.reasoning = { effort: "minimal" };
 
   let lastErr: unknown = null;
-  for (let attempt = 0; attempt < 3; attempt++) {
+  const maxAttempts = 5;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
     if (opts.allowTemperature) body.temperature = attempt === 0 ? 0 : Math.min(0.8, 0.35 * attempt);
     try {
       const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -177,6 +178,7 @@ async function callOpenRouter(opts: {
           "X-Title": "Mots B2 LexDB",
         },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(120_000),
       });
       const json = (await resp.json()) as any;
       if (!resp.ok || json.error) {
@@ -222,7 +224,7 @@ async function callOpenRouter(opts: {
       return { parsed, usage, cached: false };
     } catch (e) {
       lastErr = e;
-      if (attempt < 2) await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+      if (attempt < maxAttempts - 1) await new Promise((r) => setTimeout(r, Math.min(30_000, 2000 * 2 ** attempt)));
     }
   }
   throw lastErr;
