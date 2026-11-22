@@ -158,7 +158,7 @@ async function callOpenRouter(opts: {
     ],
     response_format: { type: "json_object" },
     usage: { include: true },
-    max_tokens: 6000,
+    max_tokens: opts.phase === "gen-longtail" ? 1800 : 6000,
   };
   if (opts.allowTemperature) body.temperature = 0;
   if (opts.disableReasoning) body.reasoning = { enabled: false };
@@ -166,6 +166,7 @@ async function callOpenRouter(opts: {
 
   let lastErr: unknown = null;
   for (let attempt = 0; attempt < 3; attempt++) {
+    if (opts.allowTemperature) body.temperature = attempt === 0 ? 0 : Math.min(0.8, 0.35 * attempt);
     try {
       const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
