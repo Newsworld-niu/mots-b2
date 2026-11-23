@@ -119,3 +119,98 @@ export function diffWords(written: string, corrected: string): { written: DiffTo
 export function translatable<T extends { en: string; zh: string }>(examples: T[], max = 110): T | undefined {
   return examples.find((x) => x.zh.trim() && x.en.trim() && x.en.length <= max);
 }
+
+const TRANSFER_STOPS = new Set([
+  "le", "la", "les", "l", "un", "une", "des", "du", "de", "d", "au", "aux",
+  "et", "ou", "mais", "donc", "car", "ni", "or", "que", "qui", "quoi", "dont", "où",
+  "ce", "cet", "cette", "ces", "se", "sa", "son", "ses", "mon", "ma", "mes", "ton", "ta", "tes", "notre", "nos", "votre", "vos", "leur", "leurs",
+  "je", "tu", "il", "elle", "on", "nous", "vous", "ils", "elles", "y", "en", "ne", "pas", "plus",
+  "est", "sont", "a", "ont", "être", "avoir", "fait", "faire", "dans", "pour", "par", "avec", "sans", "sur", "sous", "chez", "vers",
+  "très", "bien", "aussi", "comme", "tout", "tous", "toute", "toutes", "moins",
+]);
+
+export interface TransferCheck {
+  ok: boolean;
+  wordCount: number;
+  usedTarget: boolean;
+  usedWrong: boolean;
+  matchedTokens: string[];
+  targetTokens: string[];
+  tip: string;
+}
+
+/** Check whether a learner's new sentence applies a corrected expression (`right`) in fresh context. */
+export function checkTransferSentence(sentence: string, right: string, wrong = ""): TransferCheck {
+  const sClean = loose(sentence);
+  const rClean = loose(right);
+  const wClean = loose(wrong);
+  const words = sClean.split(/\s+/).filter(Boolean);
+  const tokenize = (s: string) =>
+    loose(s)
+      .split(/[\s'’.,;:!?«»"()-]+/)
+      .map((t) => t.trim())
+      .filter((t) => t.length >= 2 && !TRANSFER_STOPS.has(t));
+  const rawTokens = tokenize(right);
+  const targetTokens = [...new Set(rawTokens.length ? rawTokens : loose(right).split(/[\s'’.,;:!?«»"()-]+/).filter((t) => t.length >= 2))];
+  const sentTokens = new Set(loose(sentence).split(/[\s'’.,;:!?«»"()-]+/).filter(Boolean));
+  const matchedTokens = targetTokens.filter((t) => sentTokens.has(t));
+  const usedTarget =
+    targetTokens.length === 0
+      ? words.length >= 5
+      : matchedTokens.length >= Math.min(2, targetTokens.length) || (targetTokens.length === 1 && matchedTokens.length === 1);
+  const usedWrong = !!wClean && wClean.length >= 4 && wClean !== rClean && sClean.includes(wClean) && !sClean.includes(rClean);
+  const copiedOnly = !!rClean && (sClean === rClean || (sClean.length <= rClean.length + 4 && sClean.includes(rClean)));
+  if (words.length < 5) {
+    return {
+      ok: false,
+      wordCount: words.length,
+      usedTarget,
+      usedWrong,
+      matchedTokens,
+      targetTokens,
+      tip: `请写出至少 5 个法语词的完整新句子（当前 ${words.length} 词）。`,
+    };
+  }
+  if (copiedOnly) {
+    return {
+      ok: false,
+      wordCount: words.length,
+      usedTarget,
+      usedWrong,
+      matchedTokens,
+      targetTokens,
+      tip: "请换一个新的主题/主语造句，不要直接照抄原改写答案。",
+    };
+  }
+  if (usedWrong) {
+    return {
+      ok: false,
+      wordCount: words.length,
+      usedTarget,
+      usedWrong,
+      matchedTokens,
+      targetTokens,
+      tip: `句中仍出现了原错用表达（${wrong.trim()}），请改用推荐表达后再提交。`,
+    };
+  }
+  if (!usedTarget) {
+    return {
+      ok: false,
+      wordCount: words.length,
+      usedTarget,
+      usedWrong,
+      matchedTokens,
+      targetTokens,
+      tip: `暂未检测到目标表达关键词（${targetTokens.slice(0, 3).join(" / ")}），建议用上推荐表达再造一句。`,
+    };
+  }
+  return {
+    ok: true,
+    wordCount: words.length,
+    usedTarget,
+    usedWrong,
+    matchedTokens,
+    targetTokens,
+    tip: `✓ 已在 ${words.length} 词新句中迁移使用目标表达（命中 ${matchedTokens.slice(0, 4).join(" · ")}）；请对照自评语境自然度。`,
+  };
+}

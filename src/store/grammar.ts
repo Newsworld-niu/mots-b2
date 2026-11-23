@@ -28,7 +28,7 @@ export interface EssayError {
 }
 
 /** Mistakes from essay and speaking markings (kept ones in 错句本 and those of every marking), by grammar point. */
-export function essayErrors(p: Progress): Map<string, EssayError[]> {
+export function essayErrors(p: Pick<Progress, "essayNotes" | "essays" | "speakCorrections">): Map<string, EssayError[]> {
   const out = new Map<string, EssayError[]>();
   const seen = new Set<string>();
   const put = (point: string, e: EssayError) => {
@@ -60,25 +60,81 @@ export function essayErrors(p: Progress): Map<string, EssayError[]> {
   return out;
 }
 
-/** The learner's own mistakes as fix drills: the whole wrong wording is underlined. */
+/** Compute the minimal whole-word diff span `[b0, b1]` in `wrong` and corresponding replacement in `right`. */
+export function minimalFixSpan(wrong: string, right: string): { b: [number, number]; r: string } {
+  if (!wrong || wrong === right) return { b: [0, wrong.length], r: right };
+  const isSep = (ch: string | undefined) => !ch || /\s/.test(ch);
+  let p = 0;
+  let lastWordBoundary = 0;
+  const minLen = Math.min(wrong.length, right.length);
+  while (p < minLen && wrong[p] === right[p]) {
+    if (/\s/.test(wrong[p])) lastWordBoundary = p + 1;
+    p++;
+  }
+  if (p === minLen && isSep(wrong[p]) && isSep(right[p])) lastWordBoundary = p;
+  const b0 = lastWordBoundary;
+
+  let ws = wrong.length;
+  let rs = right.length;
+  let b1 = wrong.length;
+  let r1 = right.length;
+  while (ws > b0 && rs > b0 && wrong[ws - 1] === right[rs - 1]) {
+    ws--;
+    rs--;
+    if (/\s/.test(wrong[ws])) {
+      b1 = ws;
+      r1 = rs;
+    }
+  }
+  if (ws === b0 && isSep(wrong[ws - 1]) && isSep(right[rs - 1])) {
+    b1 = ws;
+    r1 = rs;
+  }
+
+  // Pure insertion between spaces: include one adjacent word so the underlined span is non-empty.
+  if (b0 >= b1) {
+    if (b1 < wrong.length) {
+      let nextSpace = b1;
+      if (/\s/.test(wrong[nextSpace])) nextSpace++;
+      while (nextSpace < wrong.length && !/\s/.test(wrong[nextSpace])) nextSpace++;
+      const tailLen = wrong.length - nextSpace;
+      return { b: [b0, nextSpace], r: right.slice(b0, right.length - tailLen).trim() };
+    }
+    let prevSpace = Math.max(0, b0 - 1);
+    while (prevSpace > 0 && /\s/.test(wrong[prevSpace - 1])) prevSpace--;
+    while (prevSpace > 0 && !/\s/.test(wrong[prevSpace - 1])) prevSpace--;
+    return { b: [prevSpace, wrong.length], r: right.slice(prevSpace).trim() };
+  }
+
+  return { b: [b0, b1], r: right.slice(b0, r1) };
+}
+
+/** The learner's own mistakes as fix drills: only the minimal differing word/phrase span is underlined. */
 export function mineDrills(errors: EssayError[] | undefined): FixDrill[] {
-  return (errors ?? []).map((e) => ({
-    k: "f",
-    s: e.wrong,
-    z: "",
-    b: [0, e.wrong.length],
-    r: [e.right],
-    h: e.source === "speak" ? "你在口语里说过" : "你在作文里写过",
-    y: e.why || `应为：${e.right}`,
-    g: ESSAY_TAG,
-  }));
+  return (errors ?? []).map((e) => {
+    const span = minimalFixSpan(e.wrong, e.right);
+    return {
+      k: "f",
+      s: e.wrong,
+      z: "",
+      b: span.b,
+      r: [span.r],
+      h: e.source === "speak" ? "你在口语里说过" : "你在作文里写过",
+      y: e.why || `应为：${e.right}`,
+      g: ESSAY_TAG,
+    };
+  });
 }
 
 /**
  * Points due for review: their card is due, or an essay marking found a mistake on them after their
  * last practice.
  */
-export function duePoints(data: GrammarData, p: Progress, now = Date.now()) {
+export function duePoints(
+  data: { points: Pick<GrammarPoint, "id">[] },
+  p: Pick<Progress, "gram" | "essayNotes" | "essays" | "speakCorrections">,
+  now = Date.now(),
+) {
   const errors = essayErrors(p);
   return data.points
     .filter((g) => {
@@ -90,13 +146,16 @@ export function duePoints(data: GrammarData, p: Progress, now = Date.now()) {
 }
 
 /** Points with essay mistakes that the learner has not started. */
-export function untouchedWithErrors(data: GrammarData, p: Progress) {
+export function untouchedWithErrors<P extends Pick<GrammarPoint, "id">>(
+  data: { points: P[] },
+  p: Pick<Progress, "gram" | "essayNotes" | "essays" | "speakCorrections">,
+) {
   const errors = essayErrors(p);
   return data.points.filter((g) => !p.gram?.[g.id] && errors.has(g.id)).map((g) => ({ point: g, n: errors.get(g.id)!.length }));
 }
 
 /** Prerequisites of a point that the learner has not started yet. */
-export function missingPrereqs(data: GrammarData, point: GrammarPoint, p: Progress) {
+export function missingPrereqs(data: GrammarData, point: GrammarPoint, p: Pick<Progress, "gram">) {
   return (point.prereq ?? []).map((id) => data.points.find((x) => x.id === id)).filter((x): x is GrammarPoint => !!x && !p.gram?.[x.id]);
 }
 
@@ -129,7 +188,7 @@ export const EXAM_GRAMMAR_PRIORITY = [
 const EXAM_RANK = new Map<string, number>(EXAM_GRAMMAR_PRIORITY.map((id, i) => [id, i]));
 
 /** The next point to learn: follows `startLevel`, prioritizing B1/B2 exam syllabus points when starting at B1+. */
-export function nextPoint(data: GrammarData, p: Progress, startLevel = store.get().settings.startLevel) {
+export function nextPoint(data: GrammarData, p: Pick<Progress, "gram">, startLevel = store.get().settings.startLevel) {
   const fresh = data.points.filter((g) => !p.gram?.[g.id]);
   if (!fresh.length) return undefined;
   const above = fresh.filter((g) => LEVEL_RANK[g.level] >= startLevel);
@@ -145,7 +204,13 @@ export function nextPoint(data: GrammarData, p: Progress, startLevel = store.get
 export const tagKey = (point: string, tag: string) => `${point}|${tag}`;
 
 /** Pick drills for a round: spread over the point's tags, weak tags more often, varied kinds. */
-export function pickDrills(point: GrammarPoint, p: Progress, n: number, seed = Date.now(), mine: FixDrill[] = []): Drill[] {
+export function pickDrills(
+  point: GrammarPoint,
+  p: Pick<Progress, "cards" | "gramSkip" | "gramTags">,
+  n: number,
+  seed = Date.now(),
+  mine: FixDrill[] = [],
+): Drill[] {
   let x = (seed ^ 0x9e3779b9) >>> 0;
   const rnd = () => {
     x = (Math.imul(x ^ (x >>> 15), 2246822519) + 0x6d2b79f5) >>> 0;
@@ -204,8 +269,8 @@ export function pickDrills(point: GrammarPoint, p: Progress, n: number, seed = D
   return out;
 }
 
-export function roundGrade(wrong: number, total: number): Grade {
-  if (wrong === 0) return Rating.Good;
+export function roundGrade(wrong: number, total: number, accentSlips = 0): Grade {
+  if (wrong === 0) return accentSlips > 0 ? Rating.Hard : Rating.Good;
   if (wrong <= Math.max(1, Math.floor(total / 5))) return Rating.Hard;
   return Rating.Again;
 }
@@ -219,12 +284,162 @@ export function skipDrill(point: string, d: Drill) {
   store.progress((p) => (p.gramSkip?.includes(id) ? p : { ...p, gramSkip: [...(p.gramSkip ?? []), id] }));
 }
 
+function bumpTagStat(gramTags: Record<string, { n: number; w: number }>, pointId: string, tag: string, ok: boolean) {
+  const k = tagKey(pointId, tag);
+  const s = gramTags[k] ?? { n: 0, w: 0 };
+  // a rolling count: old answers fade so that a tag the learner has since mastered calms down
+  const n = Math.min(s.n, 19);
+  const w = s.n ? (s.w * n) / s.n : 0;
+  gramTags[k] = { n: n + 1, w: Math.round((w + (ok ? 0 : 1)) * 100) / 100 };
+}
+
+export const DISCOURSE_DONE_KEY = "fb2.gram.discourse.done.v1";
+
+/** Read practiced discourse passage IDs from localStorage (safe no-op in non-browser tests). */
+export function readDoneDiscourseIds(): Set<string> {
+  try {
+    if (typeof localStorage === "undefined") return new Set();
+    const raw = localStorage.getItem(DISCOURSE_DONE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? new Set(arr.filter((x): x is string => typeof x === "string" && x.length > 0)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+/** Persist a completed discourse passage ID into localStorage. */
+export function markDiscourseDone(exerciseId: string): void {
+  if (!exerciseId) return;
+  try {
+    if (typeof localStorage === "undefined") return;
+    const set = readDoneDiscourseIds();
+    set.add(exerciseId);
+    localStorage.setItem(DISCOURSE_DONE_KEY, JSON.stringify([...set].slice(-200)));
+  } catch {
+    /* ignore storage quota or SSR */
+  }
+}
+
+/** Pure state update for submitting a discourse passage: updates gram FSRS cards, gramDays, and sub-rule + discourse tag mastery. */
+export function applyDiscourseResult(
+  p: Progress,
+  slots: { point: string; tag?: string; ok: boolean; accent?: boolean }[],
+  now = Date.now(),
+  retention = 0.9,
+): Progress {
+  if (!slots.length) return p;
+  const day = dayKey(new Date(now));
+  const d = p.gramDays?.[day] ?? { n: 0, r: 0, c: 0 };
+  const gram = { ...(p.gram ?? {}) };
+  const gramTags = { ...(p.gramTags ?? {}) };
+  const byPoint = new Map<string, { ok: boolean; accent?: boolean }[]>();
+  let newPoints = 0;
+
+  for (const s of slots) {
+    if (!s.point) continue;
+    const list = byPoint.get(s.point) ?? [];
+    list.push({ ok: s.ok, accent: s.accent });
+    byPoint.set(s.point, list);
+    bumpTagStat(gramTags, s.point, "discourse", s.ok);
+    if (s.tag && /^[rt]\d{1,2}$/.test(s.tag)) {
+      bumpTagStat(gramTags, s.point, s.tag, s.ok);
+    }
+  }
+
+  for (const [pt, outcomes] of byPoint) {
+    if (!gram[pt]) newPoints++;
+    const wrong = outcomes.filter((o) => !o.ok).length;
+    const accentSlips = outcomes.filter((o) => o.ok && o.accent).length;
+    const total = outcomes.length;
+    const grade = total <= 2 && wrong === total ? Rating.Again : roundGrade(wrong, total, accentSlips);
+    gram[pt] = review(gram[pt], grade, now, retention);
+  }
+
+  const totalRight = slots.filter((s) => s.ok).length;
+  return {
+    ...p,
+    gram,
+    gramDays: {
+      ...(p.gramDays ?? {}),
+      [day]: { n: d.n + newPoints, r: d.r + slots.length, c: d.c + totalRight },
+    },
+    gramTags,
+  };
+}
+
+/** Record a submitted discourse passage into Progress using current user retention. */
+export function recordDiscourseResult(
+  slots: { point: string; tag?: string; ok: boolean; accent?: boolean }[],
+  exerciseId?: string,
+) {
+  if (exerciseId) markDiscourseDone(exerciseId);
+  if (!slots.length) return;
+  const { settings } = store.get();
+  store.progress((p) => applyDiscourseResult(p, slots, Date.now(), settings.retention));
+}
+
+/**
+ * Pure state update for a timed TCF/TEF Structure sprint:
+ * every missed question schedules its target `point` with `Rating.Again` for immediate FSRS reflow,
+ * while error-free points advance with `Rating.Good`, updating `gramDays` and sub-rule `gramTags`.
+ */
+export function applySprintResult(
+  p: Progress,
+  items: { point: string; tag?: string; ok: boolean }[],
+  now = Date.now(),
+  retention = 0.9,
+): Progress {
+  const valid = items.filter((it) => Boolean(it.point));
+  if (!valid.length) return p;
+  const day = dayKey(new Date(now));
+  const d = p.gramDays?.[day] ?? { n: 0, r: 0, c: 0 };
+  const gram = { ...(p.gram ?? {}) };
+  const gramTags = { ...(p.gramTags ?? {}) };
+  const byPoint = new Map<string, boolean[]>();
+  let newPoints = 0;
+
+  for (const it of valid) {
+    const list = byPoint.get(it.point) ?? [];
+    list.push(it.ok);
+    byPoint.set(it.point, list);
+    if (it.tag && /^[rt]\d{1,2}$/.test(it.tag)) {
+      bumpTagStat(gramTags, it.point, it.tag, it.ok);
+    }
+  }
+
+  for (const [pt, outcomes] of byPoint) {
+    if (!gram[pt]) newPoints++;
+    const hasMiss = outcomes.some((ok) => !ok);
+    gram[pt] = review(gram[pt], hasMiss ? Rating.Again : Rating.Good, now, retention);
+  }
+
+  const totalRight = valid.filter((it) => it.ok).length;
+  return {
+    ...p,
+    gram,
+    gramDays: {
+      ...(p.gramDays ?? {}),
+      [day]: { n: d.n + newPoints, r: d.r + valid.length, c: d.c + totalRight },
+    },
+    gramTags,
+  };
+}
+
+/** Record a submitted TCF/TEF timed grammar sprint into Progress for automatic FSRS reflow. */
+export function recordSprintResult(items: { point: string; tag?: string; ok: boolean }[]) {
+  if (!items.length) return;
+  const { settings } = store.get();
+  store.progress((p) => applySprintResult(p, items, Date.now(), settings.retention));
+}
+
 /** Record a finished round of a point: its card, the day's numbers, and how each tag went. */
-export function gradePoint(pointId: string, answers: { g?: string; ok: boolean }[]) {
+export function gradePoint(pointId: string, answers: { g?: string; ok: boolean; accent?: boolean }[]) {
   const { settings } = store.get();
   const total = answers.length;
   const wrong = answers.filter((a) => !a.ok).length;
-  const grade = roundGrade(wrong, total);
+  const accentSlips = answers.filter((a) => a.ok && a.accent).length;
+  const grade = roundGrade(wrong, total, accentSlips);
   store.progress((p) => {
     const day = dayKey();
     const d = p.gramDays?.[day] ?? { n: 0, r: 0, c: 0 };
@@ -232,12 +447,7 @@ export function gradePoint(pointId: string, answers: { g?: string; ok: boolean }
     const gramTags = { ...(p.gramTags ?? {}) };
     for (const a of answers) {
       if (!a.g || a.g === ESSAY_TAG) continue;
-      const k = tagKey(pointId, a.g);
-      const s = gramTags[k] ?? { n: 0, w: 0 };
-      // a rolling count: old answers fade so that a tag the learner has since mastered calms down
-      const n = Math.min(s.n, 19);
-      const w = s.n ? (s.w * n) / s.n : 0;
-      gramTags[k] = { n: n + 1, w: Math.round((w + (a.ok ? 0 : 1)) * 100) / 100 };
+      bumpTagStat(gramTags, pointId, a.g, a.ok);
     }
     return {
       ...p,

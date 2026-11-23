@@ -11,7 +11,9 @@ import {
   needsBackupReminder,
   resetProgress,
   sanitizeProgress,
+  sanitizeSession,
   sanitizeSettings,
+  shallowEqual,
   store,
 } from "./store";
 import { DRAFT_PREFIX, getHeavy, putHeavy, resetVaultConnection } from "./vault";
@@ -402,4 +404,88 @@ test("SYS-5: importBackupAsync clears stale examBank and essayDrafts when omitte
   assert.equal(idb.getStoreMap("fb2-exam-bank", "attempts").size, 0);
   const heavy = await getHeavy(ds);
   assert.deepEqual(heavy?.essays?.map((x) => x.id), ["new-e"]);
+});
+
+test("sanitizeSession validates steps, grades, pending, and index strictly", () => {
+  assert.equal(sanitizeSession(null), null);
+  assert.equal(sanitizeSession({ id: "s1", started: 100, steps: [{ id: "bonjour", kind: "bogus" }], index: 0, graded: {} }), null);
+  assert.equal(sanitizeSession({ id: "s1", started: 100, steps: [{ id: "bonjour", kind: "meaning" }], index: -1, graded: {} }), null);
+  assert.equal(sanitizeSession({ id: "s1", started: 100, steps: [{ id: "bonjour", kind: "meaning" }], index: 0.5, graded: {} }), null);
+
+  const sanitized = sanitizeSession({
+    id: "s-valid",
+    started: 1234,
+    steps: [
+      { id: "bonjour", kind: "intro", sense: 0 },
+      { id: "bad word", kind: "meaning" },
+      { id: "merci", kind: "pairing", ids: ["only-one"] },
+      { id: "salut", kind: "pairing", ids: ["salut", "merci", "bonjour"] },
+      { id: "bonjour", kind: "collocation", options: ["bonjour", "salut"] },
+    ],
+    index: 99,
+    graded: { bonjour: 3, merci: 99, "bad word": 2 },
+    newIds: ["bonjour", "bad word"],
+    reviewIds: ["merci"],
+    pending: { correct: true, value: "bonjour", grade: 3, accentOnly: true, articleWrong: "nope" },
+    finished: 5000,
+  });
+  assert.ok(sanitized);
+  assert.equal(sanitized.steps.length, 3);
+  assert.equal(sanitized.index, 3);
+  assert.deepEqual(sanitized.graded, { bonjour: 3 });
+  assert.deepEqual(sanitized.newIds, ["bonjour"]);
+  assert.deepEqual(sanitized.pending, { correct: true, value: "bonjour", grade: 3, accentOnly: true });
+  assert.equal(sanitized.finished, 5000);
+
+  // Corrupt pending is stripped without crashing the whole session
+  const withBadPending = sanitizeSession({
+    id: "s-p",
+    started: 10,
+    steps: [{ id: "bonjour", kind: "listen" }],
+    index: 0,
+    graded: {},
+    pending: { correct: "yes", value: 123 },
+  });
+  assert.ok(withBadPending);
+  assert.equal(withBadPending.pending, undefined);
+});
+
+test("shallowEqual compares objects and arrays accurately", () => {
+  const obj = { a: 1 };
+  assert.equal(shallowEqual({ a: obj, b: 2 }, { a: obj, b: 2 }), true);
+  assert.equal(shallowEqual({ a: obj, b: 2 }, { a: obj, b: 3 }), false);
+  assert.equal(shallowEqual({ a: 1 }, { a: 1, b: undefined }), false);
+  assert.equal(shallowEqual([1, "x"], [1, "x"]), true);
+  assert.equal(shallowEqual([1, "x"], [1, "y"]), false);
+});
+
+test("settings-only updates flush settings without re-serializing full progress", () => {
+  const base = makeMemoryStorage();
+  let progressWrites = 0;
+  let settingsWrites = 0;
+  (globalThis as Record<string, unknown>).localStorage = {
+    ...base,
+    getItem: (k: string) => base.getItem(k),
+    setItem: (k: string, v: string) => {
+      if (k.startsWith("word-atlas:v2:")) progressWrites++;
+      if (k === "word-atlas:settings") settingsWrites++;
+      base.setItem(k, v);
+    },
+    removeItem: (k: string) => base.removeItem(k),
+  };
+  (globalThis as Record<string, unknown>).window = {
+    setTimeout: globalThis.setTimeout.bind(globalThis),
+    clearTimeout: globalThis.clearTimeout.bind(globalThis),
+    addEventListener: () => undefined,
+  };
+
+  store.useDataset("settings-only-ds");
+  resetProgress();
+  const pBefore = progressWrites;
+  const sBefore = settingsWrites;
+
+  store.settings({ dailyNew: 25 });
+  flush();
+  assert.equal(settingsWrites, sBefore + 1);
+  assert.equal(progressWrites, pBefore);
 });

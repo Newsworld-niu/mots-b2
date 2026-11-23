@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import { applyEssayGridCaps, applyEssayLengthCaps, applySpeakingCaps, B2_GENRES, buildTask, CONNECTORS, countWords, CRITERIA, detectB1ProfileFallback, ESSAY_PLANS, essayLevelOf, ESSAY_TASKS, FORMAL_GENRES, GENRE_LABEL, genresFor, hasFormalRegisterViolation, hasInformalEssayRegisterViolation, LETTER_FORMULAS, LETTER_TEMPLATE, levelLabel, MAX_ESSAY_LENGTH, MAX_SPEAKING_MONOLOGUE_LENGTH, maxScore, needsModelLengthRetry, pickAiTaskOptions, pickBetterModel, sanitizeAiTasks, sanitizeEssayFeedback, sanitizeEssays, sanitizeNotes, speakingPasteStats, splitEssaysByLevel, tooShort, toLevel, totalScore, wordsFor } from "./essay";
+import { B1_ESSAY_IDS, ESSAY_TASK_IDS } from "./essay-schema";
 import { ESSAY_MODELS } from "./essay-models";
 
 test("countWords counts elided and hyphenated words once", () => {
@@ -19,6 +20,8 @@ test("every task has a plan, points, phrases and a sane word range", () => {
     assert.ok(t.points.length >= 2 && t.plan.length >= 3 && t.phrases.length >= 3, t.id);
     assert.ok(t.words[0] >= 80 && t.words[1] > t.words[0] && t.words[1] <= 400, t.id);
   }
+  assert.deepEqual(ids, ESSAY_TASK_IDS);
+  assert.deepEqual(new Set(ESSAY_TASKS.filter((t) => t.level === "B1").map((t) => t.id)), B1_ESSAY_IDS);
   assert.ok(CONNECTORS.every((g) => g.zh && g.fr.length >= 2));
 });
 
@@ -38,8 +41,8 @@ test("sanitizeEssayFeedback snaps scores to the grid's levels and keeps only kno
     },
     new Set(["accord-pp"]),
   );
-  assert.deepEqual(fb.scores, { task: 5, coherence: 3, socio: 1, lexique: 0, morpho: 0 });
-  assert.equal(totalScore(fb), 9);
+  assert.deepEqual(fb.scores, { task: 5, coherence: 3.5, socio: 2, lexique: 0, morpho: 0 });
+  assert.equal(totalScore(fb), 10.5);
   assert.equal(maxScore(fb), 25);
   assert.equal(fb.comment, "不错");
   assert.deepEqual(fb.strengths, ["结构清楚"]);
@@ -49,10 +52,10 @@ test("sanitizeEssayFeedback snaps scores to the grid's levels and keeps only kno
   assert.deepEqual([fb.corrections[1].type, fb.corrections[1].point], ["other", ""]);
   const empty = sanitizeEssayFeedback(null, new Set());
   assert.ok(CRITERIA.every((c) => empty.scores[c] === 0) && empty.corrections.length === 0);
-  // markings saved before the official grid
+  // 0.5-point official FEI grid preserves half-points cleanly
   const old = sanitizeEssayFeedback({ scores: { task: 4, structure: 3.5, grammar: 5, vocabulary: 1 } }, new Set());
-  assert.deepEqual(old.scores, { task: 3, coherence: 3, socio: 0, lexique: 1, morpho: 5 });
-  assert.deepEqual([0, 0.9, 1, 2.9, 3, 4.9, 5, 7].map(toLevel), [0, 0, 1, 1, 3, 3, 5, 5]);
+  assert.deepEqual(old.scores, { task: 4, coherence: 3.5, socio: 0, lexique: 1, morpho: 5 });
+  assert.deepEqual([0, 0.3, 0.9, 1, 1.4, 2, 2.6, 2.9, 3, 3.3, 4, 4.7, 4.9, 5, 7].map(toLevel), [0, 0.5, 1, 1, 1.5, 2, 2.5, 3, 3, 3.5, 4, 4.5, 5, 5, 5]);
   assert.equal(tooShort("un deux trois", 250), true);
   assert.equal(tooShort(new Array(125).fill("mot").join(" "), 250), false);
 });
@@ -130,7 +133,7 @@ test("kept mistakes are cleaned and bounded", () => {
   assert.equal(out![1].point, "");
 });
 
-test("applyEssayLengthCaps enforces DELF tolerance thresholds (<125 zero, <175 task/coh<=1 & max<=3, <225 task<=1)", () => {
+test("applyEssayLengthCaps enforces FEI 2022 DELF tolerance thresholds (<125 zero, <175 severe cap, 175-224 smooth task deduction)", () => {
   const full = sanitizeEssayFeedback({ scores: { task: 5, coherence: 5, socio: 5, lexique: 5, morpho: 5 }, comment: "好。" }, new Set());
   const words = (n: number) => new Array(n).fill("mot").join(" ");
   const s124 = applyEssayLengthCaps(full, words(124), 250);
@@ -140,9 +143,12 @@ test("applyEssayLengthCaps enforces DELF tolerance thresholds (<125 zero, <175 t
   assert.equal(s145.scores.coherence, 1);
   assert.ok(totalScore(s145) <= 11);
   const s180 = applyEssayLengthCaps(full, words(180), 250);
-  assert.equal(s180.scores.task, 1);
+  assert.equal(s180.scores.task, 4);
   assert.equal(s180.scores.coherence, 5);
-  assert.equal(totalScore(s180), 21);
+  assert.equal(totalScore(s180), 24);
+  const s210 = applyEssayLengthCaps(full, words(210), 250);
+  assert.equal(s210.scores.task, 4.5);
+  assert.equal(totalScore(s210), 24.5);
   const s225 = applyEssayLengthCaps(full, words(225), 250);
   assert.equal(totalScore(s225), 25);
   const s360 = applyEssayLengthCaps(full, words(360), 250);
@@ -243,14 +249,21 @@ test("PE-2 flags and formal register rules enforce FEI 2022 caps", () => {
     { genre: "forum", level: "B1", text: filler, minWords: 160 },
   );
   assert.equal(b1TaskCapped.scores.morpho, 3);
+  assert.ok(capped.caps?.some((c) => c.criterion === "socio" && c.before === 5 && c.after <= 1));
+  const sanitizedCapRoundTrip = sanitizeEssayFeedback(profFb, new Set(), CRITERIA, "B2");
+  assert.ok(sanitizedCapRoundTrip.caps && sanitizedCapRoundTrip.caps.length > 0);
 });
 
 test("PE-4 isolates B1 and B2 level labels and trend partitions", () => {
   assert.equal(levelLabel(1, "B1"), "低于 B1");
-  assert.equal(levelLabel(3, "B1"), "B1");
-  assert.equal(levelLabel(5, "B1"), "B1+");
-  assert.equal(levelLabel(3, "B2"), "B2");
-  assert.equal(levelLabel(5, "B2"), "B2+");
+  assert.equal(levelLabel(2, "B1"), "A2+（接近 B1）");
+  assert.equal(levelLabel(3, "B1"), "稳健 B1");
+  assert.equal(levelLabel(4, "B1"), "强 B1");
+  assert.equal(levelLabel(5, "B1"), "B1+/B2");
+  assert.equal(levelLabel(2, "B2"), "B1+（接近 B2）");
+  assert.equal(levelLabel(3, "B2"), "稳健 B2");
+  assert.equal(levelLabel(4, "B2"), "强 B2");
+  assert.equal(levelLabel(5, "B2"), "B2+/C1");
 
   const fb = sanitizeEssayFeedback({ scores: { task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 } }, new Set());
   const aiB1 = buildTask(
@@ -299,7 +312,7 @@ test("PO-1 applySpeakingCaps enforces monologue words/duration, paste risk, repe
   assert.ok(shortDur.comment.includes("独白时长不足"));
 
   const typedZeroSec = applySpeakingCaps(highSpeak, { transcript: words(280), doc: "autre sujet", turns: turns5, monologueWords: 280, monologueSec: 0, typed: true });
-  assert.equal(typedZeroSec.scores.monologue, 3);
+  assert.equal(typedZeroSec.scores.monologue, 3.5);
   assert.ok(!typedZeroSec.comment.includes("独白时长不足"));
   assert.ok(typedZeroSec.comment.includes("打字替代"));
 
@@ -315,10 +328,16 @@ test("PO-1 applySpeakingCaps enforces monologue words/duration, paste risk, repe
   assert.equal(pasted.flags?.pastedFromDoc, true);
   assert.ok(speakingPasteStats(`${doc} ${doc}`, doc).copyRatio >= 0.9);
 
-  // Cursory 2-turn or <80w debate caps interaction <= 1; empty debate sets 0
-  const emptyDebate = applySpeakingCaps(highSpeak, { transcript: words(300), doc: "autre", turns: [] });
+  // Cursory 2-turn or <80w debate caps interaction <= 1; empty debate sets 0; >8m ramble, readAloud & informal tu trigger caps
+  const emptyDebate = applySpeakingCaps(highSpeak, { transcript: words(300), doc: "autre", turns: [], monologueSec: 320 });
   assert.equal(emptyDebate.scores.interaction, 0);
-  assert.equal(emptyDebate.scores.monologue, 3); // <450 words cannot be 5
+  assert.equal(emptyDebate.scores.monologue, 5); // concise 5m20s spoken monologue is no longer penalized by blunt <450w cliff
+  const rambleTalk = applySpeakingCaps(highSpeak, { transcript: words(500), doc: "autre", turns: turns5, monologueSec: 560 });
+  assert.equal(rambleTalk.scores.monologue, 3);
+  const readAloudTalk = applySpeakingCaps(highSpeak, { transcript: words(400), doc: "autre", turns: turns5, monologueSec: 260, acoustics: { likelyReadAloud: true } });
+  assert.equal(readAloudTalk.scores.monologue, 2);
+  const tuDebate = applySpeakingCaps(highSpeak, { transcript: words(320), doc: "autre", turns: [{ q: "Q1", a: `Tu sais, je pense que ${words(25)}` }, ...turns5.slice(1)], monologueSec: 310 });
+  assert.equal(tuDebate.scores.interaction, 2);
   const shortDebate = applySpeakingCaps(highSpeak, { transcript: words(300), doc: "autre", turns: [{ q: "Q1", a: "oui je suis d'accord" }, { q: "Q2", a: "c'est vrai" }] });
   assert.equal(shortDebate.scores.interaction, 1);
 });
@@ -544,8 +563,10 @@ test("G2: detectB1ProfileFallback catches elementary B1 errors from plain text e
 
 test("G3: Speaking monologue input cap aligns with grading slice and Turn 1 failure renders retry and skip actions", () => {
   assert.equal(MAX_SPEAKING_MONOLOGUE_LENGTH, MAX_ESSAY_LENGTH + 2000);
-  const speakingSrc = readFileSync(new URL("../pages/Speaking.tsx", import.meta.url), "utf8");
-  const tasksSrc = readFileSync(new URL("../ai/tasks.ts", import.meta.url), "utf8");
+  const speakingSrc = ["../pages/Speaking.tsx", "../pages/speaking/SpeakingWork.tsx"]
+    .map((p) => readFileSync(new URL(p, import.meta.url), "utf8"))
+    .join("\n");
+  const tasksSrc = readFileSync(new URL("../ai/tasks/exam.ts", import.meta.url), "utf8");
   assert.ok(speakingSrc.includes("maxLength={MAX_SPEAKING_MONOLOGUE_LENGTH}"));
   assert.ok(speakingSrc.includes("slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH)"));
   assert.ok(tasksSrc.includes("input.transcript.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH)"));
@@ -553,4 +574,31 @@ test("G3: Speaking monologue input cap aligns with grading slice and Turn 1 fail
   assert.ok(speakingSrc.includes("turns.length === 0"));
   assert.ok(speakingSrc.includes("重试提问"));
   assert.ok(speakingSrc.includes("跳过辩论，直接批改独白"));
+});
+
+test("Phase 2: density-based B1 fallback spares ordinary 300w B2 slips and emits transparent cap notes when triggered", () => {
+  const fillers = new Array(270).fill("argument").join(" ");
+  const essay300 = `Madame, Monsieur,\n\nEn premier lieu, beaucoup de citoyens et les gens s'interrogent sur cette réforme très importante. ${fillers}\n\nJe vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées.`;
+  const fiveSlips = [
+    { wrong: "le question", right: "la question", type: "gender" as const, why: "阴阳性", point: "" },
+    { wrong: "sont convaincu", right: "sont convaincus", type: "agreement" as const, why: "配合", point: "" },
+    { wrong: "pendant deux ans", right: "depuis deux ans", type: "preposition" as const, why: "介词", point: "" },
+    { wrong: "avoir fait", right: "avoir faite", type: "agreement" as const, why: "直宾提前", point: "" },
+    { wrong: "avait décidé", right: "a décidé", type: "tense" as const, why: "时态", point: "" },
+  ];
+  assert.deepEqual(detectB1ProfileFallback(essay300, fiveSlips), {});
+
+  const b2WithSlips = applyEssayGridCaps(
+    sanitizeEssayFeedback({ scores: { task: 4, coherence: 3, socio: 4, lexique: 3, morpho: 2 }, corrections: fiveSlips, comment: "总体扎实。" }, new Set(), CRITERIA, "B2"),
+    { genre: "courrier", text: essay300, minWords: 250, level: "B2" },
+  );
+  assert.equal(totalScore(b2WithSlips), 16);
+  assert.ok(!b2WithSlips.comment.includes("【检测到系统性 B1"));
+
+  const capped = applyEssayGridCaps(
+    sanitizeEssayFeedback({ scores: { task: 5, coherence: 5, socio: 5, lexique: 5, morpho: 5 }, comment: "原评语。" }, new Set(), CRITERIA, "B2"),
+    { genre: "essai", text: `${fillers} beaucoup des choses à la place de les autres plus bon.`, minWords: 250, level: "B2" },
+  );
+  assert.equal(capped.flags?.hasSystematicB1Errors, true);
+  assert.ok(capped.comment.includes("【检测到系统性 B1 基础语法错误"));
 });

@@ -1,21 +1,33 @@
 /**
  * Pictures the learner adds to a word (their own words or atlas words), shown instead of the text plate
- * and used by the picture question. Stored in IndexedDB (localStorage is too small), one small JPEG data URL
- * per word id and dataset, all read into memory at start so the atlas can answer img() synchronously.
- * Backups carry them (exportBackup / importBackup).
+ * and used by the picture question. Persisted in IndexedDB (`word-atlas-images`) while keeping an
+ * LRU-bounded in-memory cache (`MAX_MEM_IMAGES`) so large collections never bloat RAM.
+ * Backups read all dataset images directly from IndexedDB (`readAllImagesIdb()`).
  */
 import { useSyncExternalStore } from "react";
+import { createIdb } from "../lib/idb";
+import { LruCache } from "../lib/lru";
 
 const DB = "word-atlas-images";
 const STORE = "images";
 /** Longest side of a stored picture, in pixels; the app shows pictures at most about this size. */
 export const IMAGE_SIDE = 480;
+/** Maximum number of image data URLs kept hot in RAM at once per active session. */
+export const MAX_MEM_IMAGES = 120;
 
+const memCache = new LruCache<string, string>(MAX_MEM_IMAGES);
+const knownIds = new Set<string>();
 let images: Record<string, string> = {};
 let dataset = "";
 let loadPromise: Promise<void> | null = null;
 const subs = new Set<() => void>();
 const emit = () => subs.forEach((f) => f());
+
+function syncSnapshot() {
+  const next: Record<string, string> = {};
+  for (const [k, v] of memCache.entries()) next[k] = v;
+  images = next;
+}
 
 export function subscribeImages(f: () => void): () => void {
   subs.add(f);
@@ -28,46 +40,90 @@ export function waitImagesLoaded(): Promise<void> {
   return loadPromise ?? Promise.resolve();
 }
 
-function open(): Promise<IDBDatabase | null> {
-  if (typeof indexedDB === "undefined") return Promise.resolve(null);
-  return new Promise((resolve) => {
-    const req = indexedDB.open(DB, 1);
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => resolve(null);
-  });
-}
+const imgIdb = createIdb(DB, 1, (d) => {
+  if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE);
+});
 
-async function tx<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T | null> {
-  const db = await open();
-  if (!db) return null;
-  return new Promise((resolve) => {
-    const req = fn(db.transaction(STORE, mode).objectStore(STORE));
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => resolve(null);
-  });
-}
+const tx = <T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>) =>
+  imgIdb.tx(STORE, mode, fn);
 
 const dbKey = (id: string) => `${dataset}:${id}`;
 
-/** Read every picture of a dataset into memory (called when the dataset is chosen). */
+/** Read dataset images from IndexedDB into the bounded LRU cache. */
 export async function loadImages(datasetId: string) {
   dataset = datasetId;
   const task = (async () => {
     const keys = ((await tx("readonly", (s) => s.getAllKeys())) ?? []) as string[];
     const values = ((await tx("readonly", (s) => s.getAll())) ?? []) as string[];
-    const next: Record<string, string> = {};
-    keys.forEach((k, i) => {
-      if (k.startsWith(`${datasetId}:`) && typeof values[i] === "string") next[k.slice(datasetId.length + 1)] = values[i];
-    });
-    images = next;
+    memCache.clear();
+    knownIds.clear();
+    const entries: Array<[string, string]> = [];
+    const prefix = `${datasetId}:`;
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i];
+      const v = values[i];
+      if (typeof k === "string" && k.startsWith(prefix) && typeof v === "string") {
+        const id = k.slice(prefix.length);
+        knownIds.add(id);
+        entries.push([id, v]);
+      }
+    }
+    const start = Math.max(0, entries.length - MAX_MEM_IMAGES);
+    for (let i = start; i < entries.length; i++) {
+      memCache.set(entries[i][0], entries[i][1]);
+    }
+    syncSnapshot();
     emit();
   })();
   loadPromise = task;
   return task;
 }
 
+/** Snapshot of hot images in RAM (LRU-bounded to MAX_MEM_IMAGES). */
 export const getImages = () => images;
+
+/** Read a single hot image and refresh its LRU position. */
+export function getImage(id: string): string | undefined {
+  return memCache.get(id);
+}
+
+/** True when this word id has a picture in memory or IndexedDB. */
+export function hasImage(id: string): boolean {
+  return memCache.has(id) || knownIds.has(id);
+}
+
+/** Load an LRU-evicted image back into RAM from IndexedDB on demand. */
+export async function ensureImageLoaded(id: string): Promise<string | null> {
+  const hot = memCache.get(id);
+  if (hot) return hot;
+  if (!dataset || typeof indexedDB === "undefined") return null;
+  const val = await tx("readonly", (s) => s.get(dbKey(id)));
+  if (typeof val !== "string") return null;
+  knownIds.add(id);
+  memCache.set(id, val);
+  syncSnapshot();
+  emit();
+  return val;
+}
+
+/** Read EVERY picture for the active dataset from IndexedDB (for full backup/sync). */
+export async function readAllImagesIdb(): Promise<Record<string, string>> {
+  await waitImagesLoaded();
+  if (!dataset || typeof indexedDB === "undefined") return { ...images };
+  const keys = ((await tx("readonly", (s) => s.getAllKeys())) ?? []) as string[];
+  const values = ((await tx("readonly", (s) => s.getAll())) ?? []) as string[];
+  if (!keys.length && Object.keys(images).length) return { ...images };
+  const out: Record<string, string> = {};
+  const prefix = `${dataset}:`;
+  for (let i = 0; i < keys.length; i++) {
+    const k = keys[i];
+    const v = values[i];
+    if (typeof k === "string" && k.startsWith(prefix) && typeof v === "string") {
+      out[k.slice(prefix.length)] = v;
+    }
+  }
+  return out;
+}
 
 export function useImages() {
   return useSyncExternalStore(
@@ -78,21 +134,53 @@ export function useImages() {
 }
 
 export async function setImage(id: string, dataUrl: string | null) {
-  if (dataUrl) await tx("readwrite", (s) => s.put(dataUrl, dbKey(id)));
-  else await tx("readwrite", (s) => s.delete(dbKey(id)));
-  const next = { ...images };
-  if (dataUrl) next[id] = dataUrl;
-  else delete next[id];
-  images = next;
+  if (dataUrl) {
+    await tx("readwrite", (s) => s.put(dataUrl, dbKey(id)));
+    knownIds.add(id);
+    memCache.set(id, dataUrl);
+  } else {
+    await tx("readwrite", (s) => s.delete(dbKey(id)));
+    knownIds.delete(id);
+    memCache.delete(id);
+  }
+  syncSnapshot();
   emit();
 }
 
 /** Replace all pictures (restoring a backup). */
 export async function replaceImages(all: Record<string, string>) {
-  for (const id of Object.keys(images)) await tx("readwrite", (s) => s.delete(dbKey(id)));
-  for (const [id, url] of Object.entries(all)) await tx("readwrite", (s) => s.put(url, dbKey(id)));
-  images = { ...all };
+  const toDelete = new Set<string>([...knownIds, ...Object.keys(images)]);
+  if (dataset && typeof indexedDB !== "undefined") {
+    const keys = ((await tx("readonly", (s) => s.getAllKeys())) ?? []) as string[];
+    const prefix = `${dataset}:`;
+    for (const k of keys) {
+      if (typeof k === "string" && k.startsWith(prefix)) toDelete.add(k.slice(prefix.length));
+    }
+  }
+  for (const id of toDelete) await tx("readwrite", (s) => s.delete(dbKey(id)));
+  memCache.clear();
+  knownIds.clear();
+  const entries = Object.entries(all);
+  for (const [id, url] of entries) {
+    await tx("readwrite", (s) => s.put(url, dbKey(id)));
+    knownIds.add(id);
+  }
+  const start = Math.max(0, entries.length - MAX_MEM_IMAGES);
+  for (let i = start; i < entries.length; i++) {
+    memCache.set(entries[i][0], entries[i][1]);
+  }
+  syncSnapshot();
   emit();
+}
+
+/** Reset IndexedDB connection & in-memory cache (for isolated tests). */
+export function resetImagesForTest(): void {
+  imgIdb.reset();
+  memCache.clear();
+  knownIds.clear();
+  images = {};
+  dataset = "";
+  loadPromise = null;
 }
 
 /** Only small JPEG / PNG / WebP data URLs are accepted from a backup. */

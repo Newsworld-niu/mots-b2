@@ -2,7 +2,7 @@ import { deckWords, deckIndex, inRange, studyRange } from "../store/decks";
 import { useStore } from "../store/store";
 import { useMemo, useState } from "react";
 import { Check, Search, X, GitBranch } from "lucide-react";
-import { familiesFor, familyWords, searchFamilies, scopeFamilies } from "../lib/families";
+import { familiesFor, familyWords, searchFamilies, scopeFamilies, useFamilies } from "../lib/families";
 import { useAtlas } from "../atlas/context";
 import { Sheet } from "./Sheet";
 
@@ -12,10 +12,11 @@ function readRecent(): string[] {
 export function FamilyPicker({ value, onChange, study = false, deckId = "all" }: { value?: string[] | null; onChange: (ids: string[], deckId?: string) => void; study?: boolean; deckId?: string }) {
   const atlas = useAtlas();
   const progress = useStore(s=>s.progress);
-  const families = useMemo(()=>familiesFor(atlas,progress),[atlas,progress]);
+  const [open, setOpen] = useState(false);
+  const baseFamilies = useFamilies(open || Boolean(value?.length));
+  const families = useMemo(()=>familiesFor(atlas,progress,baseFamilies),[atlas,progress,baseFamilies]);
   const studyDecks = useStore(s=>s.settings.studyDecks);
   const [scope, setScope] = useState(study ? "study" : deckId);
-  const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<string[]>([]);
   const [q, setQ] = useState("");
   const [tab, setTab] = useState("recommended");

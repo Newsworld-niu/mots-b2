@@ -1,0 +1,201 @@
+[
+  {
+    "id": "daudet-moulin",
+    "title": "Lettres de mon moulin & Contes",
+    "titleZh": "磨坊书简与都德短篇精选",
+    "author": "Alphonse Daudet (1840–1897)",
+    "year": 1869,
+    "level": "B1",
+    "energy": 2,
+    "moodTags": [
+      "南法阳光",
+      "治愈散文",
+      "经典必读"
+    ],
+    "summaryZh": "在普罗旺斯松林与旧风车的微风里，读倔强向往高山自由的小白羊、星空下牧羊人的静谧守夜，以及阿尔萨斯小镇动人心魄的最后一堂法语课。",
+    "licenseNote": "Domaine public (FR & US, ≤1873) · 中文译注 CC BY 4.0",
+    "librivoxUrl": "https://librivox.org/lettres-de-mon-moulin-by-alphonse-daudet/",
+    "chapters": [
+      {
+        "id": "ch-01",
+        "title": "La Chèvre de M. Seguin",
+        "titleZh": "瑟甘先生的小山羊",
+        "words": 999,
+        "path": "materials/books/daudet-moulin/ch-01.json"
+      },
+      {
+        "id": "ch-02",
+        "title": "Les Étoiles",
+        "titleZh": "繁星",
+        "words": 925,
+        "path": "materials/books/daudet-moulin/ch-02.json"
+      },
+      {
+        "id": "ch-03",
+        "title": "La Dernière Classe",
+        "titleZh": "最后一课",
+        "words": 1072,
+        "path": "materials/books/daudet-moulin/ch-03.json"
+      }
+    ]
+  },
+  {
+    "id": "renard-perrault",
+    "title": "Histoires naturelles & Contes de Perrault",
+    "titleZh": "自然史动物微速写 & 鹅妈妈童话",
+    "author": "Jules Renard (1896) · Charles Perrault (1697)",
+    "year": 1896,
+    "level": "A2",
+    "energy": 1,
+    "moodTags": [
+      "睡前零负担",
+      "法式冷幽默",
+      "经典童话"
+    ],
+    "summaryZh": "用最轻盈的篇幅给大脑做一场法式按摩：既有儒勒·勒纳尔寥寥数笔勾勒猫狗天鹅的诗意冷幽默，也有佩罗原汁原味的《小红帽》与《穿靴子的猫》。",
+    "licenseNote": "Domaine public (FR & US, 1697 / 1896) · 中文译注 CC BY 4.0",
+    "librivoxUrl": "https://librivox.org/histoires-naturelles-by-jules-renard/",
+    "chapters": [
+      {
+        "id": "ch-01",
+        "title": "Histoires naturelles — Portraits de bêtes",
+        "titleZh": "自然史：动物速写集（猫、狗、天鹅、蝴蝶、松鼠与家鼠）",
+        "words": 626,
+        "path": "materials/books/renard-perrault/ch-01.json"
+      },
+      {
+        "id": "ch-02",
+        "title": "Le Petit Chaperon rouge",
+        "titleZh": "小红帽（佩罗原版）",
+        "words": 644,
+        "path": "materials/books/renard-perrault/ch-02.json"
+      },
+      {
+        "id": "ch-03",
+        "title": "Le Maître Chat ou le Chat botté",
+        "titleZh": "穿靴子的猫",
+        "words": 785,
+        "path": "materials/books/renard-perrault/ch-03.json"
+      }
+    ]
+  },
+  {
+    "id": "lupin",
+    "title": "Arsène Lupin, gentleman-cambrioleur",
+    "titleZh": "绅士怪盗亚森·罗宾",
+    "author": "Maurice Leblanc (1864–1941)",
+    "year": 1907,
+    "level": "B1",
+    "energy": 2,
+    "moodTags": [
+      "悬疑爽文",
+      "机智反转",
+      "Netflix原著"
+    ],
+    "summaryZh": "跨大西洋邮轮上传来一封神秘无线电报：「亚森·罗宾就在您的头等舱里！」猜忌、易容与越狱诡计环环相扣，最适合学累时一口气追完的法语侦探名作。",
+    "licenseNote": "Domaine public (FR & US, 1907) · 中文译注 CC BY 4.0",
+    "librivoxUrl": "https://librivox.org/arsene-lupin-gentleman-cambrioleur-by-maurice-leblanc/",
+    "chapters": [
+      {
+        "id": "ch-01",
+        "title": "L'Arrestation d'Arsène Lupin — La traversée",
+        "titleZh": "亚森·罗宾被捕记（上）：大洋疑云",
+        "words": 829,
+        "path": "materials/books/lupin/ch-01.json"
+      },
+      {
+        "id": "ch-02",
+        "title": "L'Arrestation d'Arsène Lupin — Le dénouement",
+        "titleZh": "亚森·罗宾被捕记（下）：舷梯真相",
+        "words": 690,
+        "path": "materials/books/lupin/ch-02.json"
+      },
+      {
+        "id": "ch-03",
+        "title": "Arsène Lupin en prison",
+        "titleZh": "狱中亚森·罗宾",
+        "words": 729,
+        "path": "materials/books/lupin/ch-03.json"
+      }
+    ]
+  },
+  {
+    "id": "maupassant",
+    "title": "Contes choisis — La Parure & Deux Amis",
+    "titleZh": "莫泊桑反转短篇精选",
+    "author": "Guy de Maupassant (1850–1893)",
+    "year": 1884,
+    "level": "B2",
+    "energy": 3,
+    "moodTags": [
+      "文学微雕",
+      "神级反转",
+      "B2精读典范"
+    ],
+    "summaryZh": "一串借来的钻石项链如何改写十年的青春，塞纳河畔垂钓的两位巴黎市民又如何在炮火前守住尊严——精准冷峻的十九世纪法语叙事巅峰。",
+    "licenseNote": "Domaine public (FR & US, 1883–1884) · 中文译注 CC BY 4.0",
+    "librivoxUrl": "https://librivox.org/contes-choisis-by-guy-de-maupassant/",
+    "chapters": [
+      {
+        "id": "ch-01",
+        "title": "La Parure (I — L'invitation et le bal)",
+        "titleZh": "项链（上）：请柬与舞会",
+        "words": 796,
+        "path": "materials/books/maupassant/ch-01.json"
+      },
+      {
+        "id": "ch-02",
+        "title": "La Parure (II — Dix ans de labeur)",
+        "titleZh": "项链（下）：十年辛劳",
+        "words": 712,
+        "path": "materials/books/maupassant/ch-02.json"
+      },
+      {
+        "id": "ch-03",
+        "title": "Deux Amis",
+        "titleZh": "两个朋友",
+        "words": 758,
+        "path": "materials/books/maupassant/ch-03.json"
+      }
+    ]
+  },
+  {
+    "id": "colette-betes",
+    "title": "Dialogues de bêtes",
+    "titleZh": "动物对话录：猫狗拌嘴日常",
+    "author": "Colette (1873–1954)",
+    "year": 1904,
+    "level": "B2",
+    "energy": 2,
+    "moodTags": [
+      "2025新晋公版",
+      "猫狗日常",
+      "鲜活口语"
+    ],
+    "summaryZh": "憨厚忠诚的法国斗牛犬 Toby-Chien 与高傲机敏的安哥拉猫 Kiki-la-Doucette 围坐在壁炉边、火车车厢与餐桌旁互怼哲学与人类——对白灵动俏皮，感官词汇极美。",
+    "licenseNote": "Domaine public (1904 · 2025新入法国公版 & 美国公版) · 中文译注 CC BY 4.0",
+    "chapters": [
+      {
+        "id": "ch-01",
+        "title": "Sentimentalités",
+        "titleZh": "多愁善感",
+        "words": 733,
+        "path": "materials/books/colette-betes/ch-01.json"
+      },
+      {
+        "id": "ch-02",
+        "title": "Le Voyage",
+        "titleZh": "旅途",
+        "words": 749,
+        "path": "materials/books/colette-betes/ch-02.json"
+      },
+      {
+        "id": "ch-03",
+        "title": "Le Dîner est en retard",
+        "titleZh": "晚饭迟到了",
+        "words": 801,
+        "path": "materials/books/colette-betes/ch-03.json"
+      }
+    ]
+  }
+]

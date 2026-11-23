@@ -1,10 +1,11 @@
 /* Browser checks for the French edition against a running server (FR_URL, default http://127.0.0.1:5190/).
- * Uses the installed Google Chrome. Writes screenshots and a JSON log to output/. */
+ * Uses CHROME_PATH if set, macOS Chrome if present, or Playwright's bundled Chromium. Writes screenshots and a JSON log to output/. */
 import { chromium } from "playwright";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 
-const BASE = process.env.FR_URL ?? "http://127.0.0.1:5190/";
-const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const BASE = (process.env.FR_URL ?? "http://127.0.0.1:5190/").replace(/\/?$/, "/");
+const MAC_CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const CHROME = process.env.CHROME_PATH || (existsSync(MAC_CHROME) ? MAC_CHROME : undefined);
 mkdirSync("output/e2e", { recursive: true });
 const checks = [];
 const check = (name, ok, detail = "") => {
@@ -14,7 +15,7 @@ const check = (name, ok, detail = "") => {
 const SETTINGS = JSON.stringify({ onboarded: true, splash: false, theme: "dark", sfx: false, autoplay: false });
 const settle = (p, ms = 900) => p.waitForTimeout(ms);
 
-const browser = await chromium.launch({ executablePath: CHROME, headless: true });
+const browser = await chromium.launch({ ...(CHROME ? { executablePath: CHROME } : {}), headless: true });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "zh-CN" });
 await ctx.addInitScript((s) => {
   if (!sessionStorage.getItem("seeded")) {
@@ -33,7 +34,7 @@ await page.waitForSelector(".tile");
 const expectCount = JSON.parse(await (await fetch(BASE + "atlas/index.json")).text()).count;
 await settle(page, 400);
 check("atlas lists every lexicon entry", (await page.getByText(`${expectCount.toLocaleString("en-US")} 个结果`).count()) === 1, `expected ${expectCount}`);
-const idx = await page.evaluate(async () => (await fetch("/atlas/index.json")).json());
+const idx = await page.evaluate(async (u) => (await fetch(u)).json(), BASE + "atlas/index.json");
 check("index.json carries the French dataset id", idx.id === "francais-b2-lexicon", idx.id);
 
 // 2) Level filter exposes 等级待核实
@@ -100,7 +101,7 @@ check("progress stored under word-atlas:v2:francais-b2-lexicon", stored?.dataset
 // 5) Practice: typing a French sentence is scored with accents respected
 await page.goto(BASE + "#/practice");
 await settle(page, 700);
-check("practice page renders its own heading", (await page.getByText("让手，也记住它们").count()) === 1);
+check("practice page renders its own heading", (await page.getByText("听、读、写、说，分科击破。").count()) === 1);
 await page.screenshot({ path: "output/e2e/practice.png" });
 
 // 6) Migration: a prototype payload (mots-b2:v1) is carried over on first load
@@ -149,7 +150,7 @@ check("noun sheet shows its indefinite article (une maison)", (await page.locato
 await page.keyboard.press("Escape");
 await page.goto(BASE + "#/practice");
 await settle(page, 500);
-await page.getByRole("button", { name: /冠词/ }).click();
+await page.locator(".mode-cards .mode-card", { hasText: /名词性数/ }).click();
 await page.getByRole("button", { name: "学习路线" }).click();
 await page.getByRole("button", { name: "开始一轮" }).click();
 await settle(page, 400);
@@ -174,32 +175,43 @@ const LETTER = [
   "Je t'embrasse très fort,",
   "Claire",
 ].join("\n\n");
-const openStudio = async (p, card, enter) => {
-  // through another page: going to the same hash would leave the open studio in place
-  await p.goto(BASE + "#/about");
-  // let the about page render, or both hash changes land in one render and the studio stays mounted
-  await p.waitForSelector("main .about, main h1", { timeout: 5000 }).catch(() => {});
-  await settle(p, 200);
+const openStudio = async (p, card) => {
   await p.goto(BASE + "#/practice");
-  if (!(await p.locator(".mode-card").first().waitFor({ timeout: 5000 }).then(() => true, () => false))) {
-    await p.screenshot({ path: "output/e2e/debug-practice.png" });
-    console.log("DEBUG url", p.url(), (await p.locator("main").innerText().catch(() => "")).slice(0, 600));
-  }
-  // anchored: "口语" is also in "一分钟口语"
-  await p.locator(".mode-card").filter({ hasText: new RegExp(`^\\s*${card}`) }).click();
-  await p.getByRole("button", { name: enter }).click();
-  await settle(p, 400);
+  await p.locator(".practice-exam-grid .mode-card").first().waitFor({ timeout: 5000 });
+  await p.locator(".practice-exam-grid .mode-card").filter({ hasText: card }).first().click();
+  await settle(p, 500);
 };
-const progressOf = (p) => p.evaluate(() => JSON.parse(localStorage.getItem("word-atlas:v2:francais-b2-lexicon") || "null"));
+const progressOf = (p) =>
+  p.evaluate(async () => {
+    const raw = JSON.parse(localStorage.getItem("word-atlas:v2:francais-b2-lexicon") || "null");
+    if (!raw || typeof indexedDB === "undefined") return raw;
+    try {
+      const heavy = await new Promise((resolve) => {
+        const req = indexedDB.open("fb2-vault", 1);
+        req.onupgradeneeded = () => resolve(null);
+        req.onsuccess = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains("heavy")) { db.close(); return resolve(null); }
+          const r = db.transaction("heavy", "readonly").objectStore("heavy").get("francais-b2-lexicon");
+          r.onsuccess = () => { db.close(); resolve(r.result ?? null); };
+          r.onerror = () => { db.close(); resolve(null); };
+        };
+        req.onerror = () => resolve(null);
+      });
+      if (heavy?.essays && !raw.essays?.length) raw.essays = heavy.essays;
+      if (heavy?.texts && !raw.texts?.length) raw.texts = heavy.texts;
+    } catch {}
+    return raw;
+  });
 
-await openStudio(page, "篇章", "选题目");
+await openStudio(page, "篇章写作");
 check("篇章 studio opens on its task list", (await page.getByText("把句子，连成一篇。").count()) === 1);
 check("篇章 without AI says marking needs an AI service", (await page.getByText(/还没有设置 AI 接口/).count()) > 0);
 const recTitle = (await page.locator(".essay-task.is-rec b").innerText()).trim();
 await page.locator(".essay-task.is-rec").click();
 await page.locator(".essay-input").fill(LETTER);
 await settle(page, 300);
-check("篇章 counts the words as you write", /^\d+ 词 · 要求/.test((await page.locator(".essay-count").innerText()).trim()), await page.locator(".essay-count").innerText());
+check("篇章 counts the words as you write", /^\d+ 词 · (?:要求|至少)/.test((await page.locator(".essay-count").innerText()).trim()), await page.locator(".essay-count").innerText());
 await page.getByRole("button", { name: /返回题目/ }).click();
 await settle(page, 300);
 check("篇章 keeps the draft and marks the task 有草稿", /有草稿/.test(await page.locator(".essay-task", { hasText: recTitle }).first().innerText()));
@@ -207,7 +219,7 @@ await page.locator(".essay-task", { hasText: recTitle }).first().click();
 check("篇章 reopens the draft", (await page.locator(".essay-input").inputValue()) === LETTER);
 await page.getByRole("button", { name: /保存并自己检查/ }).click();
 await settle(page, 400);
-check("篇章 without AI shows the five-part grid to check by yourself", (await page.getByText("对照官方评分表的五项自己检查").count()) === 1);
+check("篇章 without AI shows the five-part grid to check by yourself", (await page.getByText("离线对照官方评分表自评（0–5 分）").count()) === 1 && (await page.locator(".speak-rubric-row").count()) === 5);
 const p8 = await progressOf(page);
 check("篇章 saves the unmarked essay and clears the draft", p8?.essays?.length === 1 && !p8.essays[0].fb && !(await page.evaluate(() => Object.keys(localStorage).some((k) => k.startsWith("fb2.essay.draft.")))));
 
@@ -255,7 +267,7 @@ const MOCK = {
 };
 const answerAi = async (route) => {
   const req = route.request();
-  if (/\/ping$/.test(req.url())) return route.fulfill({ status: 404, body: "" });
+  if (/\/ping$/.test(req.url())) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: false }) });
   let body = {};
   try { body = JSON.parse(req.postData() || "{}"); } catch {}
   const name = body.response_format?.json_schema?.name ?? "?";
@@ -274,7 +286,7 @@ await ctx3.route(/\/ai-proxy\//, answerAi);
 for (const host of ["https://api.openai.com/**", "https://api.deepseek.com/**", "https://api.anthropic.com/**", "https://openrouter.ai/**"]) await ctx3.route(host, answerAi);
 
 // 9) 篇章写作 with AI: marked on the grid, a correction kept in the 错句本, a second draft compared, a model text, a new task
-await openStudio(p3, "篇章", "选题目");
+await openStudio(p3, "篇章写作");
 const aiTitle = (await p3.locator(".essay-task.is-rec b").innerText()).trim();
 await p3.locator(".essay-task.is-rec").click();
 await p3.locator(".essay-input").fill(LETTER);
@@ -309,7 +321,7 @@ check("篇章 opens a new AI task and keeps it", newTitle === "邀请同学参�
 check("篇章 asks for the new task away from the written titles", Array.isArray(sent("essay_task")?.avoid) && !!aiTitle);
 
 // 10) 听力理解: three short recordings, read aloud at the exam's rhythm, answered and scored
-await openStudio(p3, "听力理解", "进入");
+await openStudio(p3, "听力理解");
 await p3.getByRole("button", { name: /三段短录音/ }).click();
 await p3.getByRole("button", { name: /出一个练习/ }).click();
 await p3.waitForSelector(".exam-exercise", { timeout: 10000 }).catch(() => {});
@@ -332,7 +344,7 @@ check("听力 shows the transcripts after the answers", (await p3.locator(".exam
 check("听力 logs the score", (await progressOf(p3))?.examLog?.some((r) => r.part === "listen" && r.score === 7 && r.total === 7));
 
 // 应试阅读 (same studio, reading form): 三人观点, every answer wrong
-await openStudio(p3, "应试阅读", "进入");
+await openStudio(p3, "应试阅读");
 await p3.getByRole("button", { name: /三人观点/ }).click();
 await p3.getByRole("button", { name: "不限时" }).click();
 await p3.getByRole("button", { name: /出一个练习/ }).click();
@@ -345,8 +357,8 @@ await settle(p3, 300);
 check("阅读 scores every wrong answer (0/7) and marks them", (await p3.locator(".essay-total").innerText()).replace(/\s+/g, "") === "0/7" && (await p3.locator(".exam-option.is-wrong").count()) === 6);
 
 // 11) 口语: draw, prepare, talk (typed), debate with the AI examiner, marked on four criteria plus self-rated pronunciation
-await openStudio(p3, "口语", "进入");
-await p3.getByRole("button", { name: /抽两个题/ }).click();
+await openStudio(p3, "PO 口语独白与辩论");
+await p3.getByRole("button", { name: /抽内置题库|抽两个题/ }).click();
 check("口语 draws two subjects", (await p3.locator(".exam-draw .essay-task").count()) === 2);
 await p3.locator(".exam-draw .essay-task").first().click();
 check("口语 starts the 30-minute preparation", /准备 (30:00|29:5\d)/.test(await p3.locator(".exam-top").innerText()));
@@ -365,11 +377,12 @@ await p3.getByLabel("你的回答").fill("Je pense que l'école peut les utilise
 await p3.getByRole("button", { name: /结束辩论，批改/ }).click();
 await p3.waitForSelector(".essay-total", { timeout: 10000 }).catch(() => {});
 check("口语 sends the talk and both answers for marking", sent("speaking_assessment")?.talk === SAY && sent("speaking_assessment")?.debate?.length === 2);
-check("口语 shows the four AI criteria (3+3+3+1 = 10/20)", (await p3.locator(".essay-total").innerText().catch(() => "")).replace(/\s+/g, "") === "10/20");
+// Short typed monologue (<80w) + 2-turn debate (<3 turns) triggers real calibration caps (0+1+1+1 = 3/20, +3 pron = 6/25)
+check("口语 calibrates and shows the four AI criteria (0+1+1+1 = 3/20)", (await p3.locator(".essay-total").innerText().catch(() => "")).replace(/\s+/g, "") === "3/20");
 await p3.locator(".essay-box .segmented button", { hasText: /^3 ·/ }).click();
-check("口语 adds the self-rated pronunciation (13/25)", (await p3.locator(".essay-total").innerText()).replace(/\s+/g, "") === "13/25");
+check("口语 adds the self-rated pronunciation (6/25)", (await p3.locator(".essay-total").innerText()).replace(/\s+/g, "") === "6/25");
 await settle(p3, 400); // progress is saved 250 ms after a change
-check("口语 logs the score out of 20", (await progressOf(p3))?.examLog?.some((r) => r.part === "speak" && r.score === 10 && r.total === 20));
+check("口语 updates examLog score out of 25 with typed marker", (await progressOf(p3))?.examLog?.some((r) => r.part === "speak" && r.score === 6 && r.total === 25 && r.typed === true));
 await p3.screenshot({ path: "output/e2e/speaking-result.png", fullPage: true });
 check("AI studios never reached a real AI service", aiCalls.length > 0 && aiCalls.every((c) => MOCK[c.name]), aiCalls.map((c) => c.name).join(","));
 await ctx3.close();

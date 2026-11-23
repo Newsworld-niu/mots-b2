@@ -1,7 +1,7 @@
 import { hasAnyProgress, type Progress } from "../store/store";
 import type { BackupSummary } from "./state";
 
-export type PullDecision = "push-create" | "push" | "apply-remote" | "conflict" | "noop";
+export type PullDecision = "push-create" | "push" | "apply-remote" | "conflict" | "merged" | "noop";
 
 export type RemotePull =
   | null

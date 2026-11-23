@@ -4,20 +4,22 @@
  * and alias-migration snapshots. Also provides raw backup/restore helpers for
  * `fb2-exam-bank` and `fb2.essay.draft.*` drafts.
  */
-import { MAX_ESSAY_LENGTH, MAX_ESSAYS, sanitizeEssays, type SavedEssay } from "../lib/essay";
+import { MAX_ESSAY_LENGTH, MAX_ESSAYS, sanitizeEssays, type SavedEssay } from "../lib/essay-schema";
+import { createIdb } from "../lib/idb";
 import { MAX_TEXTS, sanitizeTexts, type SavedText } from "../lib/reader";
-import { sanitizePaper, type Attempt, type BankPaper } from "./exam-bank";
+import { openExamBank, resetExamBankConnection, sanitizePaper, type Attempt, type BankPaper } from "./exam-bank";
 import type { Progress } from "./store";
 
 const DB = "fb2-vault";
 const HEAVY = "heavy";
 const SNAPSHOTS = "snapshots";
+const SYNC_SAFETY_KEY = "__sync_safety__";
 
-const BANK_DB = "fb2-exam-bank";
 const BANK_PAPERS = "papers";
 const BANK_ATTEMPTS = "attempts";
 
 export const DRAFT_PREFIX = "fb2.essay.draft.";
+export const DRAFT_AT_PREFIX = "fb2.essay.draftAt.";
 
 export interface HeavyData {
   texts?: SavedText[];
@@ -42,60 +44,22 @@ export interface PutHeavyOptions {
   clearEssays?: boolean;
 }
 
-let vaultDb: Promise<IDBDatabase | null> | null = null;
+const vaultIdb = createIdb(DB, 1, (d) => {
+  if (!d.objectStoreNames.contains(HEAVY)) d.createObjectStore(HEAVY);
+  if (!d.objectStoreNames.contains(SNAPSHOTS)) d.createObjectStore(SNAPSHOTS, { keyPath: "key" });
+});
+
 export function openVault(): Promise<IDBDatabase | null> {
-  if (typeof indexedDB === "undefined") return Promise.resolve(null);
-  if (!vaultDb) {
-    vaultDb = new Promise<IDBDatabase | null>((resolve) => {
-      try {
-        const req = indexedDB.open(DB, 1);
-        req.onupgradeneeded = () => {
-          const d = req.result;
-          if (!d.objectStoreNames.contains(HEAVY)) d.createObjectStore(HEAVY);
-          if (!d.objectStoreNames.contains(SNAPSHOTS)) d.createObjectStore(SNAPSHOTS, { keyPath: "key" });
-        };
-        req.onsuccess = () => {
-          const d = req.result;
-          d.onclose = () => {
-            vaultDb = null;
-          };
-          d.onversionchange = () => {
-            d.close();
-            vaultDb = null;
-          };
-          resolve(d);
-        };
-        req.onerror = () => {
-          vaultDb = null;
-          resolve(null);
-        };
-      } catch {
-        vaultDb = null;
-        resolve(null);
-      }
-    });
-  }
-  return vaultDb;
+  return vaultIdb.open();
 }
 
 export function resetVaultConnection(): void {
-  vaultDb = null;
+  vaultIdb.reset();
+  resetExamBankConnection();
 }
 
 function vtx<T>(store: string, mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T | null> {
-  return openVault().then(
-    (d) =>
-      new Promise((resolve) => {
-        if (!d) return resolve(null);
-        try {
-          const req = fn(d.transaction(store, mode).objectStore(store));
-          req.onsuccess = () => resolve(req.result);
-          req.onerror = () => resolve(null);
-        } catch {
-          resolve(null);
-        }
-      }),
-  );
+  return vaultIdb.tx(store, mode, fn);
 }
 
 export async function getHeavy(datasetId: string): Promise<HeavyData | null> {
@@ -207,6 +171,20 @@ export async function getSnapshotIdb(key: string): Promise<Progress | null> {
   return rec?.progress ?? null;
 }
 
+export async function putSafetyCopyIdb(payload: string): Promise<boolean> {
+  const rec = { key: SYNC_SAFETY_KEY, datasetId: "__safety__", created: Date.now(), payload };
+  return (await vtx(SNAPSHOTS, "readwrite", (s) => s.put(rec))) !== null;
+}
+
+export async function getSafetyCopyIdb(): Promise<string | null> {
+  const rec = await vtx<{ payload?: unknown }>(SNAPSHOTS, "readonly", (s) => s.get(SYNC_SAFETY_KEY));
+  return rec && typeof rec.payload === "string" ? rec.payload : null;
+}
+
+export async function clearSafetyCopyIdb(): Promise<boolean> {
+  return (await vtx(SNAPSHOTS, "readwrite", (s) => s.delete(SYNC_SAFETY_KEY))) !== null;
+}
+
 /** Merge two id-keyed lists (memory + IndexedDB) without losing items on either side. */
 export function mergeHeavy<T extends { id: string }>(primary: T[] | undefined, secondary: T[] | undefined, max: number): T[] | undefined {
   const map = new Map<string, T>();
@@ -234,16 +212,35 @@ export function collectEssayDrafts(storage: Pick<Storage, "length" | "key" | "ge
   return out;
 }
 
+export function collectEssayDraftsAt(storage: Pick<Storage, "length" | "key" | "getItem"> | null = typeof localStorage !== "undefined" ? localStorage : null): Record<string, number> {
+  if (!storage) return {};
+  const out: Record<string, number> = {};
+  try {
+    for (let i = 0; i < storage.length; i++) {
+      const k = storage.key(i);
+      if (!k || !k.startsWith(DRAFT_AT_PREFIX)) continue;
+      const task = k.slice(DRAFT_AT_PREFIX.length);
+      if (!task || task.length > 84) continue;
+      const ts = Number(storage.getItem(k));
+      if (Number.isFinite(ts) && ts > 0) out[`${DRAFT_PREFIX}${task}`] = ts;
+    }
+  } catch {
+    /* storage unavailable */
+  }
+  return out;
+}
+
 export function restoreEssayDrafts(
   drafts: unknown,
   storage: Pick<Storage, "length" | "key" | "setItem" | "removeItem"> | null = typeof localStorage !== "undefined" ? localStorage : null,
+  draftsAt?: unknown,
 ): void {
   if (!storage || !drafts || typeof drafts !== "object" || Array.isArray(drafts)) return;
   try {
     const oldKeys: string[] = [];
     for (let i = 0; i < storage.length; i++) {
       const k = storage.key(i);
-      if (k && k.startsWith(DRAFT_PREFIX)) oldKeys.push(k);
+      if (k && (k.startsWith(DRAFT_PREFIX) || k.startsWith(DRAFT_AT_PREFIX))) oldKeys.push(k);
     }
     for (const k of oldKeys) storage.removeItem(k);
     for (const [k, v] of Object.entries(drafts as Record<string, unknown>)) {
@@ -251,30 +248,19 @@ export function restoreEssayDrafts(
         storage.setItem(k, v.slice(0, MAX_ESSAY_LENGTH));
       }
     }
+    if (draftsAt && typeof draftsAt === "object" && !Array.isArray(draftsAt)) {
+      for (const [k, rawTs] of Object.entries(draftsAt as Record<string, unknown>)) {
+        if (typeof k === "string" && k.startsWith(DRAFT_PREFIX) && k.length <= 100 && typeof rawTs === "number" && Number.isFinite(rawTs) && rawTs > 0) {
+          storage.setItem(`${DRAFT_AT_PREFIX}${k.slice(DRAFT_PREFIX.length)}`, String(rawTs));
+        }
+      }
+    }
   } catch {
     /* storage unavailable */
   }
 }
 
-/* ---------- Exam bank (IndexedDB fb2-exam-bank) ---------- */
-
-function openBankDb(): Promise<IDBDatabase | null> {
-  if (typeof indexedDB === "undefined") return Promise.resolve(null);
-  return new Promise((resolve) => {
-    try {
-      const req = indexedDB.open(BANK_DB, 1);
-      req.onupgradeneeded = () => {
-        const d = req.result;
-        if (!d.objectStoreNames.contains(BANK_PAPERS)) d.createObjectStore(BANK_PAPERS, { keyPath: "id" });
-        if (!d.objectStoreNames.contains(BANK_ATTEMPTS)) d.createObjectStore(BANK_ATTEMPTS);
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => resolve(null);
-    } catch {
-      resolve(null);
-    }
-  });
-}
+/* ---------- Exam bank (IndexedDB fb2-exam-bank, shared single connection) ---------- */
 
 function bankReq<T>(db: IDBDatabase, store: string, mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T | null> {
   return new Promise((resolve) => {
@@ -289,50 +275,42 @@ function bankReq<T>(db: IDBDatabase, store: string, mode: IDBTransactionMode, fn
 }
 
 export async function readExamBankBackup(): Promise<ExamBankBackup | null> {
-  const db = await openBankDb();
+  const db = await openExamBank();
   if (!db) return null;
-  try {
-    const rawPapers = (await bankReq<unknown[]>(db, BANK_PAPERS, "readonly", (s) => s.getAll())) ?? [];
-    const papers = rawPapers.map(sanitizePaper).filter((p): p is BankPaper => !!p);
-    const keys = ((await bankReq<IDBValidKey[]>(db, BANK_ATTEMPTS, "readonly", (s) => s.getAllKeys())) ?? []).filter((k): k is string => typeof k === "string");
-    const vals = (await bankReq<unknown[]>(db, BANK_ATTEMPTS, "readonly", (s) => s.getAll())) ?? [];
-    const attempts: Record<string, Attempt[]> = {};
-    keys.forEach((k, i) => {
-      if (Array.isArray(vals[i]) && vals[i].length) attempts[k] = vals[i] as Attempt[];
-    });
-    if (!papers.length && !Object.keys(attempts).length) return null;
-    return { papers, attempts };
-  } finally {
-    db.close();
-  }
+  const rawPapers = (await bankReq<unknown[]>(db, BANK_PAPERS, "readonly", (s) => s.getAll())) ?? [];
+  const papers = rawPapers.map(sanitizePaper).filter((p): p is BankPaper => !!p);
+  const keys = ((await bankReq<IDBValidKey[]>(db, BANK_ATTEMPTS, "readonly", (s) => s.getAllKeys())) ?? []).filter((k): k is string => typeof k === "string");
+  const vals = (await bankReq<unknown[]>(db, BANK_ATTEMPTS, "readonly", (s) => s.getAll())) ?? [];
+  const attempts: Record<string, Attempt[]> = {};
+  keys.forEach((k, i) => {
+    if (Array.isArray(vals[i]) && vals[i].length) attempts[k] = vals[i] as Attempt[];
+  });
+  if (!papers.length && !Object.keys(attempts).length) return null;
+  return { papers, attempts };
 }
 
 export async function restoreExamBankBackup(raw: unknown): Promise<boolean> {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return false;
-  const db = await openBankDb();
+  const db = await openExamBank();
   if (!db) return false;
   const r = raw as Record<string, unknown>;
   const papers = Array.isArray(r.papers) ? r.papers.map(sanitizePaper).filter((p): p is BankPaper => !!p) : [];
   const attempts = r.attempts && typeof r.attempts === "object" && !Array.isArray(r.attempts) ? (r.attempts as Record<string, unknown>) : {};
-  try {
-    return await new Promise<boolean>((resolve) => {
-      try {
-        const tx = db.transaction([BANK_PAPERS, BANK_ATTEMPTS], "readwrite");
-        const ps = tx.objectStore(BANK_PAPERS);
-        const as = tx.objectStore(BANK_ATTEMPTS);
-        ps.clear();
-        as.clear();
-        for (const p of papers) ps.put(p);
-        for (const [k, v] of Object.entries(attempts)) {
-          if (typeof k === "string" && Array.isArray(v)) as.put(v.slice(0, 20), k);
-        }
-        tx.oncomplete = () => resolve(true);
-        tx.onerror = () => resolve(false);
-      } catch {
-        resolve(false);
+  return await new Promise<boolean>((resolve) => {
+    try {
+      const tx = db.transaction([BANK_PAPERS, BANK_ATTEMPTS], "readwrite");
+      const ps = tx.objectStore(BANK_PAPERS);
+      const as = tx.objectStore(BANK_ATTEMPTS);
+      ps.clear();
+      as.clear();
+      for (const p of papers) ps.put(p);
+      for (const [k, v] of Object.entries(attempts)) {
+        if (typeof k === "string" && Array.isArray(v)) as.put(v.slice(0, 20), k);
       }
-    });
-  } finally {
-    db.close();
-  }
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => resolve(false);
+    } catch {
+      resolve(false);
+    }
+  });
 }

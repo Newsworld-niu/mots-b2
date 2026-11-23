@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import sqlite3
 import sys
@@ -20,16 +21,62 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT, VALID_LEVELS, VALID_SOURCES, lexdb_base_key, lexdb_fold, lexdb_key, zh_bucket, zh_tokens
+from common import (
+    ROOT,
+    VALID_LEVELS,
+    VALID_SOURCES,
+    lexdb_base_key,
+    lexdb_fold,
+    lexdb_key,
+    load_trad_simp,
+    to_simp,
+    zh_bucket,
+    zh_tokens,
+)
 
 DEFAULT_DB = ROOT / "data/lexdb/lexdb.sqlite"
 DEFAULT_OUT = ROOT / "public/lexdb"
+DEFAULT_LEXICON = ROOT / "data/lexicon.json"
 SPOT_CHECK_PATH = ROOT / "data/lexdb/spot-check.md"
 MAX_SHARD_BYTES = 409_600  # 400 KB
+META_PREFIX_RE = re.compile(r"^带有重音符的[^；;]+[；;]\s*")
+DIALECT_PREFIX_RE = re.compile(r"^[（(](?:卡津法语|方言|古语?|旧)[）)]")
 
 
 def compact_json(obj) -> bytes:
     return json.dumps(obj, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+
+
+def load_atlas_pos_map(path: Path = DEFAULT_LEXICON) -> dict[str, str]:
+    if not path.exists():
+        return {}
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    entries = raw.get("entries") if isinstance(raw, dict) else raw
+    out: dict[str, str] = {}
+    if isinstance(entries, list):
+        for e in entries:
+            if isinstance(e, dict) and isinstance(e.get("id"), str) and isinstance(e.get("pos"), str):
+                pos = e["pos"].strip()
+                if pos and pos != "待核实":
+                    out[e["id"]] = pos
+    return out
+
+
+def pos_matches_atlas(pb_pos: str, atlas_pos: str) -> bool:
+    if not atlas_pos:
+        return False
+    if pb_pos == atlas_pos:
+        return True
+    if atlas_pos.startswith("n.") and pb_pos.startswith("n."):
+        return True
+    if atlas_pos == "loc. adv." and pb_pos in ("loc.", "adv."):
+        return True
+    return False
+
+
+def clean_zh_gloss(zh_str: str) -> str:
+    stripped = META_PREFIX_RE.sub("", zh_str, count=1).strip()
+    return stripped if stripped else zh_str
 
 
 def main():
@@ -131,6 +178,8 @@ def main():
     pilot_ids = json.loads(pilot_row["value"]) if pilot_row else []
 
     # 9) Assemble LexEntry objects & collect counts + zh index + suggest + spot-check
+    trad_map, _ = load_trad_simp()
+    atlas_pos_by_id = load_atlas_pos_map()
     entries: dict[str, dict] = {}
     conf_counts = {"0": 0, "1": 0, "2": 0, "3": 0}
     with_zh = 0
@@ -144,44 +193,45 @@ def main():
     for lid, lrec in lemmas.items():
         rank = lrec["rank"] or 999999
         used_sources = set(json.loads(lrec["sources_json"]))
-        pos_list = []
-        first_zh_global = ""
-        entry_ex_count = 0
-        has_any_sense_zh = False
-        first_sense_attached_fallback = False
+        atlas_primary_pos = atlas_pos_by_id.get(lrec["atlas_id"] or "", "")
 
-        non_empty_pos = []
+        # Check whether this lemma has at least one non-OMW gloss so OMW-only noise can be filtered cleanly
+        lemma_pbs = pos_blocks_by_lemma.get(lid, [])
+        has_non_omw_lemma = any(
+            any(x != "omw" for x in json.loads(s["src_json"]))
+            for pb in lemma_pbs
+            for s in senses_by_pb.get(pb["id"], [])
+            if (s["zh_merged"] or "").strip()
+        )
+
+        ranked_pbs = []
         fallback_pos = None
-        for pb in pos_blocks_by_lemma.get(lid, []):
-            senses_out = []
-            for s in senses_by_pb.get(pb["id"], []):
-                zh_str = (s["zh_merged"] or "").strip()
-                if not zh_str:
+        for pb in lemma_pbs:
+            sense_candidates = []
+            for s_idx, s in enumerate(senses_by_pb.get(pb["id"], [])):
+                raw_zh = (s["zh_merged"] or "").strip()
+                if not raw_zh:
                     continue
-                has_any_sense_zh = True
-                if not first_zh_global:
-                    first_zh_global = zh_str
                 src_list = [x for x in json.loads(s["src_json"]) if x in VALID_SOURCES]
                 if not src_list:
                     src_list = ["wikt-zh"]
-                used_sources.update(src_list)
-                conf = int(s["conf"]) if s["conf"] in (0, 1, 2, 3) else 1
-                conf_counts[str(conf)] += 1
+                is_omw_only = all(x == "omw" for x in src_list)
+                if has_non_omw_lemma and is_omw_only:
+                    continue
 
-                ex_rows = list(examples_by_sense.get(s["id"], []))
-                if not first_sense_attached_fallback and examples_by_lemma_fallback.get(lid):
-                    ex_rows.extend(examples_by_lemma_fallback[lid])
-                    first_sense_attached_fallback = True
+                zh_str = to_simp(clean_zh_gloss(raw_zh), trad_map)
+                conf = int(s["conf"]) if s["conf"] in (0, 1, 2, 3) else 1
+                is_dialect_only = bool(DIALECT_PREFIX_RE.match(zh_str))
+
                 ex_out = []
                 seen_ex_fr = set()
-                for ex in ex_rows:
+                for ex in examples_by_sense.get(s["id"], []):
                     efr = ex["fr"].strip()
                     if efr in seen_ex_fr:
                         continue
                     seen_ex_fr.add(efr)
                     esrc = ex["src"] if ex["src"] in VALID_SOURCES else "tatoeba"
-                    used_sources.add(esrc)
-                    ex_item: dict = {"fr": efr, "zh": ex["zh"].strip(), "src": esrc}
+                    ex_item: dict = {"fr": efr, "zh": to_simp(ex["zh"].strip(), trad_map), "src": esrc}
                     if ex["hl_start"] is not None and ex["hl_end"] is not None:
                         ex_item["hl"] = [int(ex["hl_start"]), int(ex["hl_end"])]
                     if ex["ref"]:
@@ -189,7 +239,6 @@ def main():
                     ex_out.append(ex_item)
                     if len(ex_out) >= 3:
                         break
-                entry_ex_count += len(ex_out)
 
                 sense_obj: dict = {"zh": zh_str}
                 if s["fr"]:
@@ -200,27 +249,94 @@ def main():
                     sense_obj["ex"] = ex_out
                 sense_obj["src"] = src_list
                 sense_obj["conf"] = conf
-                senses_out.append(sense_obj)
 
-                # Index zh terms
-                for term in zh_tokens(zh_str):
+                sort_key = (
+                    1 if is_dialect_only else 0,
+                    1 if is_omw_only else 0,
+                    0 if "atlas" in src_list else 1,
+                    -conf,
+                    s_idx,
+                )
+                sense_candidates.append((sort_key, sense_obj))
+
+            if sense_candidates:
+                sense_candidates.sort(key=lambda item: item[0])
+                senses_out = [item[1] for item in sense_candidates]
+                pb_obj: dict = {"p": pb["p"]}
+                if pb["g"] in ("m", "f", "mf"):
+                    pb_obj["g"] = pb["g"]
+                pb_obj["senses"] = senses_out
+
+                pb_has_atlas = any("atlas" in s["src"] for s in senses_out)
+                pb_has_std_non_omw = any(not all(x == "omw" for x in s["src"]) and not DIALECT_PREFIX_RE.match(s["zh"]) for s in senses_out)
+                pb_max_conf = max(s["conf"] for s in senses_out)
+                pb_sort_key = (
+                    0 if pos_matches_atlas(pb["p"], atlas_primary_pos) else 1,
+                    0 if (lrec["conj"] == 1 and pb["p"].startswith("v.")) else 1,
+                    0 if pb_has_atlas else 1,
+                    0 if pb_has_std_non_omw else 1,
+                    -pb_max_conf,
+                    -len(senses_out),
+                    pb["sort_order"],
+                )
+                ranked_pbs.append((pb_sort_key, pb_obj))
+            elif fallback_pos is None:
+                fb_obj: dict = {"p": pb["p"]}
+                if pb["g"] in ("m", "f", "mf"):
+                    fb_obj["g"] = pb["g"]
+                fb_obj["senses"] = []
+                fallback_pos = fb_obj
+
+        if ranked_pbs:
+            ranked_pbs.sort(key=lambda item: item[0])
+            non_empty_pos = [item[1] for item in ranked_pbs]
+        else:
+            non_empty_pos = []
+
+        # Attach lemma-level fallback examples to the top-ranked primary sense
+        if non_empty_pos and examples_by_lemma_fallback.get(lid):
+            top_sense = non_empty_pos[0]["senses"][0]
+            cur_ex = top_sense.get("ex") or []
+            seen_fr = {x["fr"] for x in cur_ex}
+            for ex in examples_by_lemma_fallback[lid]:
+                if len(cur_ex) >= 3:
+                    break
+                efr = ex["fr"].strip()
+                if efr in seen_fr:
+                    continue
+                seen_fr.add(efr)
+                esrc = ex["src"] if ex["src"] in VALID_SOURCES else "tatoeba"
+                ex_item = {"fr": efr, "zh": to_simp(ex["zh"].strip(), trad_map), "src": esrc}
+                if ex["hl_start"] is not None and ex["hl_end"] is not None:
+                    ex_item["hl"] = [int(ex["hl_start"]), int(ex["hl_end"])]
+                if ex["ref"]:
+                    ex_item["ref"] = ex["ref"]
+                cur_ex.append(ex_item)
+            if cur_ex:
+                top_sense["ex"] = cur_ex
+
+        # Recompute global primary gloss, counts, and reverse index from finalized ordered senses
+        first_zh_global = ""
+        entry_ex_count = 0
+        has_any_sense_zh = bool(non_empty_pos)
+        for pb_obj in non_empty_pos:
+            for s in pb_obj["senses"]:
+                if not first_zh_global:
+                    first_zh_global = s["zh"]
+                conf = s["conf"]
+                conf_counts[str(conf)] += 1
+                used_sources.update(s["src"])
+                for ex_item in s.get("ex") or []:
+                    used_sources.add(ex_item["src"])
+                    entry_ex_count += 1
+                for term in zh_tokens(s["zh"], trad_map):
                     prev_r = zh_index_raw[term].get(lid)
                     if prev_r is None or rank < prev_r:
                         zh_index_raw[term][lid] = rank
-
                 if lrec["atlas_id"] and conf <= 1:
                     spot_check_rows.append(
-                        (rank, lid, lrec["w"], lrec["atlas_id"], lrec["level"] or "", conf, ",".join(src_list), zh_str)
+                        (rank, lid, lrec["w"], lrec["atlas_id"], lrec["level"] or "", conf, ",".join(s["src"]), s["zh"])
                     )
-
-            pb_obj: dict = {"p": pb["p"]}
-            if pb["g"] in ("m", "f", "mf"):
-                pb_obj["g"] = pb["g"]
-            pb_obj["senses"] = senses_out
-            if senses_out:
-                non_empty_pos.append(pb_obj)
-            elif fallback_pos is None:
-                fallback_pos = pb_obj
 
         pos_list = non_empty_pos if non_empty_pos else ([fallback_pos] if fallback_pos else [{"p": "n.", "senses": []}])
 
@@ -230,15 +346,16 @@ def main():
             psrc = ph["src"] if ph["src"] in VALID_SOURCES else "wikt-zh"
             pconf = int(ph["conf"]) if ph["conf"] in (0, 1, 2, 3) else 1
             used_sources.add(psrc)
-            phr_out.append({"fr": ph["fr"], "zh": ph["zh"], "src": psrc, "conf": pconf})
+            ph_zh = to_simp(ph["zh"].strip(), trad_map)
+            phr_out.append({"fr": ph["fr"], "zh": ph_zh, "src": psrc, "conf": pconf})
             total_phrases += 1
-            for term in zh_tokens(ph["zh"]):
+            for term in zh_tokens(ph_zh, trad_map):
                 prev_r = zh_index_raw[term].get(lid)
                 if prev_r is None or rank < prev_r:
                     zh_index_raw[term][lid] = rank
             if lrec["atlas_id"] and pconf <= 1:
                 spot_check_rows.append(
-                    (rank, lid, lrec["w"], lrec["atlas_id"], lrec["level"] or "", pconf, psrc, f"[phrase] {ph['fr']} = {ph['zh']}")
+                    (rank, lid, lrec["w"], lrec["atlas_id"], lrec["level"] or "", pconf, psrc, f"[phrase] {ph['fr']} = {ph_zh}")
                 )
 
         # frDefs (rank-tiered caps keep every e/<key>.json <= 400 KB even after full AI enrichment)
@@ -253,6 +370,9 @@ def main():
         elif rank <= 15000:
             for fd in raw_frdefs[:1]:
                 fr_defs_out.append({"p": fd["p"], "gloss": fd["gloss"][:100]})
+        elif rank <= 25000:
+            for fd in raw_frdefs[:1]:
+                fr_defs_out.append({"p": fd["p"], "gloss": fd["gloss"][:90]})
         elif not has_any_sense_zh:
             for fd in raw_frdefs[:1]:
                 fr_defs_out.append({"p": fd["p"], "gloss": fd["gloss"][:85]})
@@ -335,26 +455,28 @@ def main():
 
     conn.close()
 
-    # 10) Determine 3-letter prefix splits keeping BOTH e/<key>.json and forms/<key>.json <= 400 KB
-    e_base: dict[str, dict[str, dict]] = defaultdict(dict)
-    for lid, entry in entries.items():
-        bk = lexdb_base_key(lexdb_fold(lid))
-        e_base[bk][lid] = entry
-
-    f_base: dict[str, dict[str, list[str]]] = defaultdict(dict)
-    for ff, targets in forms_map.items():
-        bk = lexdb_base_key(ff)
-        f_base[bk][ff] = targets
-
+    # 10) Determine 2->3->4-letter prefix splits keeping BOTH e/<key>.json and forms/<key>.json <= 400 KB
     splits_set: set[str] = set()
-    all_base_keys = sorted(set(e_base.keys()) | set(f_base.keys()))
-    for bk in all_base_keys:
-        if bk == "__":
-            continue
-        e_sz = len(compact_json(e_base[bk])) if bk in e_base else 0
-        f_sz = len(compact_json(f_base[bk])) if bk in f_base else 0
-        if e_sz > MAX_SHARD_BYTES or f_sz > MAX_SHARD_BYTES:
-            splits_set.add(bk)
+    for target_len in (2, 3):
+        e_cur: dict[str, dict[str, dict]] = defaultdict(dict)
+        for lid, entry in entries.items():
+            k = lexdb_key(lexdb_fold(lid), splits_set)
+            e_cur[k][lid] = entry
+        f_cur: dict[str, dict[str, list[str]]] = defaultdict(dict)
+        for ff, targets in forms_map.items():
+            k = lexdb_key(ff, splits_set)
+            f_cur[k][ff] = targets
+        added = False
+        for k in sorted(set(e_cur.keys()) | set(f_cur.keys())):
+            if k == "__" or len(k) != target_len or "_" in k:
+                continue
+            e_sz = len(compact_json(e_cur[k])) if k in e_cur else 0
+            f_sz = len(compact_json(f_cur[k])) if k in f_cur else 0
+            if e_sz > MAX_SHARD_BYTES or f_sz > MAX_SHARD_BYTES:
+                splits_set.add(k)
+                added = True
+        if not added:
+            break
     splits = sorted(splits_set)
 
     # Re-partition e/ and forms/ using splits
@@ -390,9 +512,38 @@ def main():
     for b in range(64):
         (out_dir / "zh" / f"{b}.json").write_bytes(compact_json(zh_buckets[b]))
 
-    # 13) Write suggest.json sorted by rank asc
+    # 13) Write sharded suggest/<bucket>.json (<= 400 KB each, plus top.json) sorted by rank asc
     suggest_rows.sort(key=lambda x: (x[2], x[0], x[1]))
-    (out_dir / "suggest.json").write_bytes(compact_json([list(r) for r in suggest_rows]))
+    legacy_sug = out_dir / "suggest.json"
+    if legacy_sug.exists():
+        legacy_sug.unlink()
+    sug_dir = out_dir / "suggest"
+    if sug_dir.exists():
+        shutil.rmtree(sug_dir)
+    sug_dir.mkdir(parents=True, exist_ok=True)
+    suggest_buckets: dict[str, list[list]] = defaultdict(list)
+    for r in suggest_rows:
+        f0 = r[0][0] if r[0] else ""
+        b = f0 if "a" <= f0 <= "z" else "_"
+        suggest_buckets[b].append(list(r))
+    suggest_splits: list[str] = []
+    for target_len in (1, 2):
+        for b in sorted(list(suggest_buckets.keys())):
+            if b == "_" or len(b) != target_len or "_" in b:
+                continue
+            b_rows = suggest_buckets[b]
+            if len(compact_json(b_rows)) > MAX_SHARD_BYTES:
+                suggest_splits.append(b)
+                del suggest_buckets[b]
+                for r in b_rows:
+                    ch = r[0][target_len] if len(r[0]) > target_len else ""
+                    nxt = ch if "a" <= ch <= "z" else "_"
+                    suggest_buckets[f"{b}{nxt}"].append(r)
+    suggest_splits.sort()
+    for b, b_rows in suggest_buckets.items():
+        (sug_dir / f"{b}.json").write_bytes(compact_json(b_rows))
+    top_rows = [list(r) for r in suggest_rows[:3000]]
+    (sug_dir / "top.json").write_bytes(compact_json(top_rows))
 
     # 14) Write meta.json
     meta = {
@@ -411,6 +562,8 @@ def main():
         },
         "licenses": ["CC BY-SA 4.0", "CC BY 2.0 FR", "CC BY-SA 3.0", "CeCILL-C V1", "WordNet License"],
         "splits": splits,
+        "suggestShards": True,
+        "suggestSplits": suggest_splits,
         "counts": {
             "lemmas": len(entries),
             "withZh": with_zh,

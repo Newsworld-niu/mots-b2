@@ -1,4 +1,4 @@
-import { Crosshair, Minus, Plus, RotateCcw, Share2 } from "lucide-react";
+import { Crosshair, Minus, Plus, RotateCcw, Share2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import type { WordRef } from "../atlas/types";
@@ -66,9 +66,13 @@ export function Galaxy({
   const engine = useRef<GalaxyEngine | null>(null);
   const labels = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<{ ref: WordRef; x: number; y: number } | null>(null);
+  const [selected, setSelected] = useState<{ ref: WordRef; idx: number } | null>(null);
   const [fallback, setFallback] = useState(false);
   const highlightSet = useMemo(() => new Set(highlight ?? []), [highlight]);
-  useEffect(() => setHover(null), [layout]);
+  useEffect(() => {
+    setHover(null);
+    setSelected(null);
+  }, [layout]);
 
   useEffect(() => {
     const cv = canvas.current;
@@ -149,11 +153,14 @@ export function Galaxy({
   useEffect(() => {
     if (!focus) return;
     const i = layout.index.get(focus);
-    if (i !== undefined) {
-      engine.current?.flyTo(i);
+    if (i !== undefined && engine.current) {
+      engine.current.flyTo(i);
+      engine.current.hover = i;
+      const ref = atlas.byId.get(layout.ids[i]);
+      if (ref) setSelected({ ref, idx: i });
       if (store.get().settings.sfx) void cue("fly");
     }
-  }, [focus, layout]);
+  }, [focus, layout, atlas]);
 
   // First visit to the full galaxy: one quiet sentence explaining what it is.
   useEffect(() => {
@@ -208,13 +215,14 @@ export function Galaxy({
     // Only reveal a star once the cursor rests on it, so sweeping across the
     // galaxy doesn't flicker through dozens of cards (and sounds).
     const i = eng.pick(p.x, p.y);
-    eng.hover = i;
+    eng.hover = i >= 0 ? i : (selected?.idx ?? -1);
     window.clearTimeout(dwell.current);
     if (i < 0) {
       dwell.current = window.setTimeout(() => setHover(null), 260);
       return;
     }
-    const ref = atlas.words[i];
+    const ref = atlas.byId.get(layout.ids[i]) ?? atlas.words[i];
+    if (!ref) return;
     if (hover?.ref.id === ref.id) return;
     dwell.current = window.setTimeout(() => {
       setHover({ ref, x: p.x, y: p.y });
@@ -289,7 +297,7 @@ export function Galaxy({
         onPointerUp={onUp}
         onPointerCancel={onUp}
         onPointerLeave={() => {
-          if (engine.current) engine.current.hover = -1;
+          if (engine.current) engine.current.hover = selected?.idx ?? -1;
           setHover(null);
         }}
         onWheel={onWheel}
@@ -327,6 +335,37 @@ export function Galaxy({
           </span>
         </button>
       )}
+      {selected && (
+        <aside className="galaxy-focus" aria-label={`目标星预览：${selected.ref.word}`}>
+          <Illustration src={atlas.img(selected.ref, "thumb")} word={selected.ref.word} topic={selected.ref.topic} />
+          <div className="galaxy-focus-body">
+            <div className="galaxy-focus-head">
+              <b lang="fr">{selected.ref.word}</b>
+              <span className={`chip chip-level lv-${selected.ref.custom ? "mine" : atlas.cefr[selected.ref.cefr]}`}>
+                {selected.ref.custom ? "自建" : atlas.cefr[selected.ref.cefr]}
+              </span>
+            </div>
+            {selected.ref.ipa && <small className="ipa">{selected.ref.ipa}</small>}
+            <p className="galaxy-focus-zh">{selected.ref.zh}</p>
+            <div className="galaxy-focus-actions">
+              <button type="button" className="btn btn-primary btn-sm" onClick={() => openWord(selected.ref.id)}>
+                打开词条
+              </button>
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={() => {
+                  setSelected(null);
+                  if (engine.current) engine.current.hover = -1;
+                }}
+                aria-label="关闭定位预览"
+              >
+                <X size={15} />
+              </button>
+            </div>
+          </div>
+        </aside>
+      )}
       <div className="galaxy-hud">
         <p>
           <b>{lit.toLocaleString()}</b> / {layout.n.toLocaleString()} 颗星已点亮
@@ -356,6 +395,8 @@ export function Galaxy({
         <button
           className="icon-btn"
           onClick={() => {
+            setSelected(null);
+            if (engine.current) engine.current.hover = -1;
             engine.current?.reset();
             engine.current?.replayIntro();
             if (store.get().settings.sfx) void cue("fly");
@@ -370,8 +411,11 @@ export function Galaxy({
             const ids = layout.ids.filter((id) => cards[id]);
             const pick = ids[Math.floor(Math.random() * ids.length)] ?? layout.ids[0];
             const i = layout.index.get(pick);
-            if (i !== undefined) {
-              engine.current?.flyTo(i);
+            if (i !== undefined && engine.current) {
+              engine.current.flyTo(i);
+              engine.current.hover = i;
+              const ref = atlas.byId.get(pick);
+              if (ref) setSelected({ ref, idx: i });
               if (store.get().settings.sfx) void cue("fly");
             }
           }}

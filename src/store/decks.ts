@@ -9,7 +9,7 @@ import { cleanWikiSources } from "../lib/wiktionary";
 import type { Atlas, Entry, WordRef } from "../atlas/types";
 import { foldAccents } from "../lib/accent";
 import { setImage } from "./images";
-import { FAVORITES_DECK, CORE_DECK, MAX_COLLOCATIONS, MAX_EXAMPLES, MAX_OWN_SENSES, MAX_RELATED, MAX_TIP, store, type CardExtras, type CustomWord, type OwnSense, type Deck, type Progress, type Settings, type Step, type UserExample, type WordEdit } from "./store";
+import { clearTombstone, CORE_DECK, FAVORITES_DECK, markTombstone, MAX_COLLOCATIONS, MAX_EXAMPLES, MAX_OWN_SENSES, MAX_RELATED, MAX_TIP, store, type CardExtras, type CustomWord, type Deck, type OwnSense, type Progress, type Settings, type Step, type UserExample, type WordEdit } from "./store";
 
 export const CORE_NAME = "初始词本";
 
@@ -80,7 +80,7 @@ export function deckWords(atlas: Atlas, p: Pick<Progress, "decks" | "hidden" | "
 }
 
 /** Records kept for words that are in no deck (paused). */
-export function pausedIds(atlas: Atlas, p: Progress) {
+export function pausedIds(atlas: Atlas, p: Pick<Progress, "cards" | "decks" | "hidden" | "coreMigrated">) {
   const idx = deckIndex(atlas, p);
   return Object.keys(p.cards).filter((id) => atlas.byId.has(id) && !idx.isActive(id));
 }
@@ -104,14 +104,14 @@ export function findSame(atlas: Atlas, w: string): WordRef[] {
 
 /* ---------- mutations ---------- */
 
-const decksOf = (p: Progress) => p.decks ?? [];
+const decksOf = (p: Pick<Progress, "decks">) => p.decks ?? [];
 const withDecks = (p: Progress, decks: Deck[]): Progress => ({ ...p, decks });
 const mapDeck = (p: Progress, id: string, fn: (d: Deck) => Deck) => withDecks(p, decksOf(p).map((d) => (d.id === id ? fn(d) : d)));
 
 export function createDeck(name: string): string {
   const id = newDeckId();
   const clean = name.trim().slice(0, 40) || "新卡组";
-  store.progress((p) => withDecks(p, [...decksOf(p), { id, name: clean, created: Date.now(), words: [] }]));
+  store.progress((p) => clearTombstone(withDecks(p, [...decksOf(p), { id, name: clean, created: Date.now(), words: [] }]), `deck:${id}`));
   return id;
 }
 
@@ -132,7 +132,7 @@ export function deleteDeck(id: string, dropOrphans = false) {
   if (!deck) return;
   const others = new Set(decksOf(p0).filter((d) => d.id !== id).flatMap((d) => d.words));
   const orphans = dropOrphans ? deck.words.filter((w) => isCustomId(w) && !others.has(w)) : [];
-  store.progress((p) => withDecks(p, decksOf(p).filter((d) => d.id !== id)));
+  store.progress((p) => markTombstone(withDecks(p, decksOf(p).filter((d) => d.id !== id)), `deck:${id}`));
   store.settings({ studyDecks: dropStudyDeck(store.get().settings.studyDecks, id) });
   orphans.forEach((w) => deleteCustomWord(w));
 }
@@ -143,7 +143,7 @@ const dropStudyDeck = (list: string[] | null, id: string) => {
 };
 
 /** Custom words that are only in this deck (asked about before the deck is deleted). */
-export function orphanCustomWords(p: Progress, deckId: string) {
+export function orphanCustomWords(p: Pick<Progress, "decks">, deckId: string) {
   const deck = decksOf(p).find((d) => d.id === deckId);
   if (!deck) return [];
   const others = new Set(decksOf(p).filter((d) => d.id !== deckId).flatMap((d) => d.words));
@@ -152,7 +152,7 @@ export function orphanCustomWords(p: Progress, deckId: string) {
 
 export function addToDeck(deckId: string, wordId: string, sense?: number) {
   if (deckId === FAVORITES_DECK) {
-    store.progress(p => ({...p, bookmarks: p.bookmarks.includes(wordId) ? p.bookmarks : [wordId,...p.bookmarks]}));
+    store.progress((p) => clearTombstone({ ...p, bookmarks: p.bookmarks.includes(wordId) ? p.bookmarks : [wordId, ...p.bookmarks] }, `bookmark:${wordId}`));
     if (sense !== undefined) setDeckSense(deckId, wordId, sense);
     return;
   }
@@ -200,7 +200,7 @@ export function transferDeckWords(p: Progress, sourceId: string, targetId: strin
 /** Take a word out of a deck. Its record is kept; if it is in no deck now, it is paused. */
 export function removeFromDeck(deckId: string, wordId: string) {
   if (deckId === FAVORITES_DECK) {
-    store.progress(p => ({...p, bookmarks: p.bookmarks.filter(id => id !== wordId)}));
+    store.progress((p) => markTombstone({ ...p, bookmarks: p.bookmarks.filter((id) => id !== wordId) }, `bookmark:${wordId}`));
     return;
   }
   if (deckId === CORE_DECK && !store.get().progress.coreMigrated) return setHidden(wordId, true);
@@ -310,7 +310,7 @@ export function createCustomWord(input: Omit<CustomWord, "created">, deckId?: st
   const col = cleanCollocations(input.col);
   if (col) word.col = col;
   Object.assign(word, cleanExtras(input));
-  store.progress((p) => ({ ...p, custom: { ...p.custom, [id]: word } }));
+  store.progress((p) => clearTombstone({ ...p, custom: { ...p.custom, [id]: word } }, `custom:${id}`));
   if (deckId) addToDeck(deckId, id);
   return id;
 }
@@ -348,7 +348,7 @@ export function deleteCustomWord(id: string) {
       session = { ...session, steps, index: Math.max(0, session.index - before), newIds: session.newIds.filter((x) => x !== id), reviewIds: session.reviewIds.filter((x) => x !== id) };
       if (session.pending && p.session!.steps[p.session!.index]?.id === id) session = { ...session, pending: undefined };
     }
-    return {
+    return markTombstone({
       ...p,
       cards,
       custom: without(p.custom, id),
@@ -356,7 +356,7 @@ export function deleteCustomWord(id: string) {
       bookmarks: p.bookmarks.filter((x) => x !== id),
       mistakes: p.mistakes.filter((x) => x !== id),
       session,
-    };
+    }, `custom:${id}`);
   });
 }
 

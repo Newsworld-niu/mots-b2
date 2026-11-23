@@ -11,9 +11,11 @@ import {
   loadFormsShard,
   loadMeta,
   loadSuggest,
+  loadSuggestShard,
   loadZhShard,
   setLexdbFetcher,
   setLexdbFixtures,
+  suggestBucket,
 } from "./load.ts";
 import type { LexEntry, LexMeta, LexSuggestRow } from "./types.ts";
 
@@ -148,4 +150,120 @@ test("getEntryById respects meta.splits, falls back gracefully when meta is abse
   // setLexdbFetcher clears injected fixtures too
   setLexdbFetcher(async () => null);
   assert.equal(await getEntryById("beau"), null);
+});
+
+test("getEntryById supports 4-letter prefix splits when a 3-letter shard exceeds 400 KB", async () => {
+  const construire: LexEntry = {
+    id: "construire",
+    w: "construire",
+    rank: 520,
+    pos: [{ p: "v.", senses: [{ zh: "建造；构建", src: ["atlas"], conf: 3 }] }],
+    sources: ["atlas"],
+  };
+  const files: Record<string, unknown> = {
+    "/lexdb/meta.json": {
+      version: 1,
+      generated: "2026-11-22",
+      sources: {},
+      licenses: [],
+      splits: ["co", "con"],
+      counts: { lemmas: 1, withZh: 1 },
+    },
+    "/lexdb/e/cons.json": { construire },
+  };
+  setLexdbFetcher(async (url) => files[url] ?? null);
+  assert.equal((await getEntryById("construire"))?.w, "construire");
+});
+
+test("suggestBucket and loadSuggestShard respect suggestSplits and cache per bucket", async () => {
+  assert.equal(suggestBucket("accueil", ["c"]), "a");
+  assert.equal(suggestBucket("commencer", ["c"]), "co");
+  assert.equal(suggestBucket("c", ["c"]), "c_");
+  assert.equal(suggestBucket("une fois", ["u", "un"]), "une");
+  assert.equal(suggestBucket("un peu", ["u", "un"]), "un_");
+  assert.equal(suggestBucket("1er"), "_");
+
+  const asked: string[] = [];
+  const files: Record<string, unknown> = {
+    "/lexdb/suggest/top.json": [["accueil", "accueil", 1650, "接待"]],
+    "/lexdb/suggest/co.json": [["commencer", "commencer", 120, "开始"]],
+  };
+  setLexdbFetcher(async (url) => {
+    asked.push(url);
+    return files[url] ?? null;
+  });
+  assert.equal((await loadSuggestShard("top"))?.[0][0], "accueil");
+  assert.equal((await loadSuggestShard("top"))?.[0][0], "accueil");
+  assert.equal((await loadSuggestShard("co"))?.[0][0], "commencer");
+  assert.equal(await loadSuggestShard("../bad"), null);
+  assert.equal(asked.filter((u) => u === "/lexdb/suggest/top.json").length, 1);
+});
+
+test("runtime validators reject corrupt lexdb payloads and drop malformed shard entries cleanly", async () => {
+  const { validateLexMeta, validateSuggestRows, validateLexShard, validateFormsShard, validateZhShard } = await import("./validate.ts");
+  assert.equal(validateLexMeta({ version: "1" }), null);
+  assert.equal(validateLexMeta({ version: 1, generated: "", sources: {}, licenses: [], splits: [], counts: { lemmas: 1, withZh: 1 } }), null);
+  assert.ok(validateLexMeta(JSON.parse(readFileSync(join(dir, "..", "..", "..", "public", "lexdb", "meta.json"), "utf8"))));
+
+  // Real shard validation sanity check
+  const realShard = JSON.parse(readFileSync(join(dir, "..", "..", "..", "public", "lexdb", "e", "ac.json"), "utf8"));
+  const validatedReal = validateLexShard(realShard);
+  assert.ok(validatedReal && Object.keys(validatedReal).length === Object.keys(realShard).length);
+
+  assert.equal(validateSuggestRows("not-array"), null);
+  assert.equal(validateSuggestRows([["", "x", 1], ["a", "a", Number.NaN]]), null);
+  assert.deepEqual(validateSuggestRows([["bad"], ["bon", "bon", 12, "好的"]]), [["bon", "bon", 12, "好的"]]);
+
+  assert.equal(validateLexShard({ bad: { w: "no-id", pos: [] } }), null);
+  const partialShard = validateLexShard({ bad: { id: "", w: "x" }, accueil });
+  assert.deepEqual(Object.keys(partialShard ?? {}), ["accueil"]);
+
+  assert.equal(validateFormsShard({ bad: "not-array" }), null);
+  assert.deepEqual(validateFormsShard({ bad: [123], bon: ["bon"] }), { bon: ["bon"] });
+
+  assert.equal(validateZhShard({ bad: [["id", "NaN"]] }), null);
+  assert.deepEqual(validateZhShard({ bad: [["x"]], 好: [["bon", 12]] }), { 好: [["bon", 12]] });
+
+  // Corrupt fetcher answers are rejected and not cached as poison
+  const asked: string[] = [];
+  let badMeta = true;
+  setLexdbFetcher(async (url) => {
+    asked.push(url);
+    if (url.endsWith("/meta.json")) {
+      return badMeta ? { version: "oops" } : { version: 1, generated: "2026", sources: {}, licenses: [], splits: [], counts: { lemmas: 1, withZh: 1 } };
+    }
+    if (url.endsWith("/e/ab.json")) return { corrupt: { w: "missing" } };
+    return null;
+  });
+  assert.equal(await loadMeta(), null);
+  badMeta = false;
+  assert.equal((await loadMeta())?.version, 1);
+  assert.equal(await loadEntryShard("ab"), null);
+});
+
+test("entryShards LRU evicts oldest shards past LEXDB_ENTRY_CACHE_MAX and refetches on demand", async () => {
+  const { LEXDB_ENTRY_CACHE_MAX } = await import("./load.ts");
+  const fetched: string[] = [];
+  setLexdbFetcher(async (url) => {
+    fetched.push(url);
+    const m = url.match(/\/e\/([a-z]{2})\.json$/);
+    if (!m) return null;
+    const k = m[1];
+    return { [k]: { id: k, w: k, pos: [], sources: ["lexique"] } };
+  });
+
+  const keys: string[] = [];
+  for (let i = 0; i < LEXDB_ENTRY_CACHE_MAX + 2; i++) {
+    const k = String.fromCharCode(97 + Math.floor(i / 26)) + String.fromCharCode(97 + (i % 26));
+    keys.push(k);
+    await loadEntryShard(k);
+  }
+  const beforeRefetch = fetched.length;
+  // Most recent key is still cached (no new fetch)
+  await loadEntryShard(keys[keys.length - 1]);
+  assert.equal(fetched.length, beforeRefetch);
+  // Oldest key ("aa") was evicted and is refetched cleanly
+  const first = await loadEntryShard(keys[0]);
+  assert.equal(first?.[keys[0]]?.w, keys[0]);
+  assert.equal(fetched.length, beforeRefetch + 1);
 });

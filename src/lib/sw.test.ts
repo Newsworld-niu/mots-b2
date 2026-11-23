@@ -138,16 +138,20 @@ test("sw install precaches basic app shell without 28MB materials and activate c
     <link rel="stylesheet" href="/assets/index-def456.css">
   </head><body><div id="root"></div></body></html>`;
   const fetched: string[] = [];
+  const manifest = { assets: ["assets/MockExam-abc.js", "assets/Recording-def.css"] };
   const sw = loadSw({
     initialCaches: {
-      "atlas-v2-shell": makeMemCache(),
-      "atlas-v2-media": makeMemCache(),
+      "atlas-v5-shell": makeMemCache(),
+      "atlas-v5-media": makeMemCache(),
       "atlas-offline-media": makeMemCache(),
     },
     fetchImpl: async (input) => {
       const u = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
       fetched.push(u);
       if (u === "https://app.test/") return new Response(html, { status: 200, headers: { "Content-Type": "text/html" } });
+      if (u === "https://app.test/precache-manifest.json") {
+        return new Response(JSON.stringify(manifest), { status: 200, headers: { "Content-Type": "application/json" } });
+      }
       if (u.endsWith(".js")) return new Response("console.log(1)", { status: 200, headers: { "Content-Type": "application/javascript" } });
       if (u.endsWith(".css")) return new Response("body{}", { status: 200, headers: { "Content-Type": "text/css" } });
       return new Response("{}", { status: 200, headers: { "Content-Type": "application/json" } });
@@ -158,18 +162,20 @@ test("sw install precaches basic app shell without 28MB materials and activate c
   assert.equal(sw.wasSkipWaitingCalled(), true);
   assert.ok(fetched.every((u) => !u.includes("/materials/")));
 
-  const shell = sw.stores.get("atlas-v3-shell")!;
+  const shell = sw.stores.get("atlas-v6-shell")!;
   assert.ok(shell.map.has("https://app.test/"));
   assert.ok(shell.map.has("https://app.test/index.html"));
   assert.ok(shell.map.has("https://app.test/assets/index-abc123.js"));
   assert.ok(shell.map.has("https://app.test/assets/index-def456.css"));
+  assert.ok(shell.map.has("https://app.test/assets/MockExam-abc.js"));
+  assert.ok(shell.map.has("https://app.test/assets/Recording-def.css"));
   assert.ok(shell.map.has("https://app.test/atlas/index.json"));
 
   await sw.dispatchLifecycle("activate");
   assert.equal(sw.wasClaimCalled(), true);
-  assert.equal(sw.stores.has("atlas-v2-shell"), false);
-  assert.equal(sw.stores.has("atlas-v2-media"), false);
-  assert.equal(sw.stores.has("atlas-v3-shell"), true);
+  assert.equal(sw.stores.has("atlas-v5-shell"), false);
+  assert.equal(sw.stores.has("atlas-v5-media"), false);
+  assert.equal(sw.stores.has("atlas-v6-shell"), true);
   assert.equal(sw.stores.has("atlas-offline-media"), true);
 });
 
@@ -190,20 +196,20 @@ test("sw clones shell response synchronously before returning and survives cache
   assert.equal(await r1.response!.text(), "<html>shell</html>");
   await Promise.all(r1.waitTasks);
 
-  const cachedShell = await sw.stores.get("atlas-v3-shell")!.match("https://app.test/");
+  const cachedShell = await sw.stores.get("atlas-v6-shell")!.match("https://app.test/");
   assert.ok(cachedShell);
   assert.equal(await cachedShell!.text(), "<html>shell</html>");
 
   // 2. Cache put throws -> does not throw unhandled error
-  const origPut = sw.stores.get("atlas-v3-shell")!.put;
-  sw.stores.get("atlas-v3-shell")!.put = async () => {
+  const origPut = sw.stores.get("atlas-v6-shell")!.put;
+  sw.stores.get("atlas-v6-shell")!.put = async () => {
     throw new Error("QuotaExceededError");
   };
   const r2 = await sw.dispatchFetch(new Request("https://app.test/atlas/index.json"));
   assert.equal(r2.intercepted, true);
   assert.equal(r2.response!.status, 200);
   await Promise.all(r2.waitTasks);
-  sw.stores.get("atlas-v3-shell")!.put = origPut;
+  sw.stores.get("atlas-v6-shell")!.put = origPut;
 
   // 3. Offline navigate to root or another sub-path falls back cleanly to cached shell
   online = false;
@@ -302,5 +308,83 @@ test("sw synthesizes 206 Partial Content for cached RFI audio Range requests and
   assert.equal(uncached.response!.status, 206);
   assert.equal(networkRequests.length, 1);
   assert.equal(networkRequests[0].range, "bytes=0-100");
-  assert.equal(sw.stores.get("atlas-v3-shell")?.map.has("https://app.test/materials/rfi/rfi-jff-20261112.mp3"), undefined);
+  assert.equal(sw.stores.get("atlas-v6-shell")?.map.has("https://app.test/materials/rfi/rfi-jff-20261112.mp3"), undefined);
+});
+
+test("sw uses network-first for grammar.json and lexdb/, and bypasses dictionary-proxy & ai-proxy", async () => {
+  let online = true;
+  let version = 1;
+  const sw = loadSw({
+    fetchImpl: async (input) => {
+      if (!online) throw new Error("offline");
+      const u = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      return new Response(JSON.stringify({ url: u, v: version }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+  });
+
+  // Proxies must never be intercepted
+  const proxyRes = await sw.dispatchFetch(new Request("https://app.test/dictionary-proxy?q=bonjour"));
+  assert.equal(proxyRes.intercepted, false);
+  const aiProxyRes = await sw.dispatchFetch(new Request("https://app.test/ai-proxy/openai"));
+  assert.equal(aiProxyRes.intercepted, false);
+
+  // grammar.json network-first -> updates cache on version 2 -> offline falls back to version 2
+  const g1 = await sw.dispatchFetch(new Request("https://app.test/atlas/grammar.json"));
+  assert.equal(JSON.parse(await g1.response!.text()).v, 1);
+  await Promise.all(g1.waitTasks);
+
+  version = 2;
+  const g2 = await sw.dispatchFetch(new Request("https://app.test/atlas/grammar.json"));
+  assert.equal(JSON.parse(await g2.response!.text()).v, 2);
+  await Promise.all(g2.waitTasks);
+
+  online = false;
+  const gOff = await sw.dispatchFetch(new Request("https://app.test/atlas/grammar.json"));
+  assert.equal(JSON.parse(await gOff.response!.text()).v, 2);
+
+  // lexdb/ network-first -> caches into atlas-v6-lexdb -> offline falls back
+  online = true;
+  const l1 = await sw.dispatchFetch(new Request("https://app.test/lexdb/e/al.json"));
+  assert.equal(JSON.parse(await l1.response!.text()).v, 2);
+  await Promise.all(l1.waitTasks);
+  assert.ok(sw.stores.get("atlas-v6-lexdb")?.map.has("https://app.test/lexdb/e/al.json"));
+
+  online = false;
+  const lOff = await sw.dispatchFetch(new Request("https://app.test/lexdb/e/al.json"));
+  assert.equal(JSON.parse(await lOff.response!.text()).v, 2);
+});
+
+test("sw intercepts cached Azure Blob media URLs (including 206 Range) while ignoring unrelated cross-origin URLs", async () => {
+  const audioBytes = new Uint8Array([72, 69, 76, 76, 79, 33]); // "HELLO!"
+  const blobUrl = "https://motsb2mediae12d4e.blob.core.windows.net/media/materials/rfi/rfi-jff-20261120.mp3";
+  const offlineCache = makeMemCache();
+  await offlineCache.put(
+    blobUrl,
+    new Response(audioBytes, { status: 200, headers: { "Content-Type": "audio/mpeg", "Content-Length": "6" } }),
+  );
+
+  const sw = loadSw({
+    initialCaches: { "atlas-offline-media": offlineCache },
+    fetchImpl: async () => new Response("net", { status: 200 }),
+  });
+
+  const partial = await sw.dispatchFetch(new Request(blobUrl, { headers: { Range: "bytes=1-3" } }));
+  assert.equal(partial.intercepted, true);
+  assert.equal(partial.response!.status, 206);
+  assert.equal(partial.response!.headers.get("content-range"), "bytes 1-3/6");
+  assert.equal(await partial.response!.text(), "ELL");
+
+  const full = await sw.dispatchFetch(new Request(blobUrl));
+  assert.equal(full.intercepted, true);
+  assert.equal(full.response!.status, 200);
+  assert.equal(await full.response!.text(), "HELLO!");
+
+  const externalRes = await sw.dispatchFetch(new Request("https://cdn.example.com/materials/rfi/ep.mp3"));
+  assert.equal(externalRes.intercepted, false);
+
+  const unrelatedBlob = await sw.dispatchFetch(new Request("https://motsb2mediae12d4e.blob.core.windows.net/other/file.json"));
+  assert.equal(unrelatedBlob.intercepted, false);
 });

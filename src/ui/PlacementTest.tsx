@@ -1,17 +1,22 @@
-import { ArrowLeft, ArrowRight, Check, Headphones, Play, RotateCcw, Square } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, Headphones, PenLine, Play, RotateCcw, Square } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { play, stopAudio } from "../lib/audio";
+import { countWords } from "../lib/essay-schema";
 import { clock } from "../lib/exam";
 import {
   PLACEMENT_AUDIO,
   PLACEMENT_ESTIMATE,
   PLACEMENT_PASSAGE,
+  PLACEMENT_PRODUCTION_PROMPT,
   PLACEMENT_QUESTIONS,
   SECTION_META,
+  placementToExamResults,
   scorePlacement,
   type PlacementResult,
   type PlacementSection,
 } from "../lib/placement";
+import { logExam } from "../store/essays";
+import { AccentKeys } from "./AccentKeys";
 import { useStore } from "../store/store";
 
 const SECTIONS: PlacementSection[] = ["vocab", "grammar", "read", "listen"];
@@ -32,13 +37,20 @@ export function PlacementTest({ initial, onApply, onCancel }: PlacementTestProps
   const [plays, setPlays] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [writeStep, setWriteStep] = useState(false);
+  const [prodText, setProdText] = useState("");
+  const [prodSec, setProdSec] = useState(0);
   const [result, setResult] = useState<PlacementResult | null>(null);
+  const prodRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (step >= SECTIONS.length) return;
-    const id = window.setInterval(() => setElapsed((t) => t + 1), 1000);
+    if (step >= SECTIONS.length && !writeStep) return;
+    const id = window.setInterval(() => {
+      setElapsed((t) => t + 1);
+      if (writeStep) setProdSec((t) => Math.min(180, t + 1));
+    }, 1000);
     return () => window.clearInterval(id);
-  }, [step]);
+  }, [step, writeStep]);
 
   useEffect(() => () => stopAudio(), []);
 
@@ -64,11 +76,12 @@ export function PlacementTest({ initial, onApply, onCancel }: PlacementTestProps
     }
   };
 
-  const finish = (skipped = false) => {
+  const finish = (skipped = false, withWriting = false) => {
     stopAudio();
     setPlaying(false);
     setSkipListen(skipped);
-    const res = scorePlacement(answers, skipped);
+    setWriteStep(false);
+    const res = scorePlacement(answers, skipped, Date.now(), withWriting ? prodText : undefined);
     setResult(res);
     setStep(SECTIONS.length);
   };
@@ -78,11 +91,60 @@ export function PlacementTest({ initial, onApply, onCancel }: PlacementTestProps
     setPlaying(false);
     setAnswers({});
     setSkipListen(false);
+    setWriteStep(false);
+    setProdText("");
+    setProdSec(0);
     setPlays(0);
     setElapsed(0);
     setResult(null);
     setStep(0);
   };
+
+  if (writeStep) {
+    const wc = countWords(prodText);
+    const remain = Math.max(0, 180 - prodSec);
+    return (
+      <div className="placement">
+        <div className="placement-top">
+          <button type="button" className="link" onClick={() => setWriteStep(false)}>
+            <ArrowLeft size={16} /> 返回听力题
+          </button>
+          <span className={`exam-clock ${remain === 0 ? "is-over" : ""}`}>
+            建议剩余 {clock(remain)} · 当前 {wc} 词
+          </span>
+        </div>
+        <div className="placement-prod-box">
+          <p className="eyebrow">
+            <PenLine size={14} /> {PLACEMENT_PRODUCTION_PROMPT.title}
+          </p>
+          <p className="essay-consigne" lang="fr">
+            {PLACEMENT_PRODUCTION_PROMPT.questionFr}
+          </p>
+          <p className="muted small">{PLACEMENT_PRODUCTION_PROMPT.tipZh}</p>
+          <textarea
+            ref={prodRef}
+            className="writing-input"
+            lang="fr"
+            rows={5}
+            value={prodText}
+            onChange={(e) => setProdText(e.target.value.slice(0, 1200))}
+            placeholder="在这里写 60–90 词法语观点（选做）…"
+            spellCheck={false}
+            aria-label="3 分钟微写作诊断输入框"
+          />
+          <AccentKeys input={prodRef} value={prodText} onChange={setProdText} />
+        </div>
+        <div className="placement-nav">
+          <button type="button" className="btn btn-ghost" onClick={() => finish(false, false)}>
+            跳过微写作，直接生成报告
+          </button>
+          <button type="button" className="btn btn-primary" disabled={wc < 5} onClick={() => finish(false, true)}>
+            提交微写作并生成报告（{wc} 词） <Check size={16} />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (step === SECTIONS.length && result) {
     const breakdown: { key: PlacementSection; label: string; score: number | null }[] = [
@@ -97,7 +159,7 @@ export function PlacementTest({ initial, onApply, onCancel }: PlacementTestProps
       <div className="placement">
         <div className="placement-head">
           <div>
-            <p className="eyebrow">摸底定级报告</p>
+            <p className="eyebrow">摸底定级报告 · 未核验初评估算</p>
             <h3>
               推荐起点：<span className={`chip chip-level lv-${LEVEL_CODES[result.level]}`}>{LEVEL_NAMES[result.level]}</span>
             </h3>
@@ -107,6 +169,10 @@ export function PlacementTest({ initial, onApply, onCancel }: PlacementTestProps
             <small>/ 100 · 用时 {clock(elapsed)}</small>
           </span>
         </div>
+
+        <p className="muted small">
+          说明：定级小测属于离线快速摸底估算（标记为未核验参考），不会混入正式 DELF B2 四科实测总分。
+        </p>
 
         <p className="muted">
           {result.weak.length
@@ -127,6 +193,15 @@ export function PlacementTest({ initial, onApply, onCancel }: PlacementTestProps
             </li>
           ))}
         </ul>
+
+        {result.production && (
+          <div className="placement-prod-report">
+            <p className="eyebrow">
+              选做微写作诊断 · 表达参考等级 <span className={`chip chip-level lv-${result.production.band}`}>{result.production.band}</span>（{result.production.score}/100 · {result.production.words} 词 · {result.production.connectors} 处连接词）
+            </p>
+            <p className="muted small">{result.production.notes.join(" ")}</p>
+          </div>
+        )}
 
         {missed.length > 0 && (
           <details className="placement-review">
@@ -155,7 +230,15 @@ export function PlacementTest({ initial, onApply, onCancel }: PlacementTestProps
         )}
 
         <div className="placement-actions">
-          <button className="btn btn-primary btn-xl" onClick={() => onApply(result)}>
+          <button
+            className="btn btn-primary btn-xl"
+            onClick={() => {
+              for (const entry of placementToExamResults(result)) {
+                logExam(entry);
+              }
+              onApply(result);
+            }}
+          >
             <Check size={18} /> 采纳推荐起点（{LEVEL_CODES[result.level]}）并保存
           </button>
           <div className="placement-sub-actions">
@@ -193,6 +276,8 @@ export function PlacementTest({ initial, onApply, onCancel }: PlacementTestProps
           <button
             key={s}
             type="button"
+            role="tab"
+            aria-selected={idx === step}
             className={`placement-tab ${idx === step ? "is-on" : idx < step ? "is-done" : ""}`}
             onClick={() => {
               stopAudio();
@@ -282,9 +367,14 @@ export function PlacementTest({ initial, onApply, onCancel }: PlacementTestProps
             下一部分（{answeredInSection}/{sectionQuestions.length}） <ArrowRight size={16} />
           </button>
         ) : (
-          <button type="button" className="btn btn-primary" onClick={() => finish(false)}>
-            交卷生成定级报告（{answeredInSection}/{sectionQuestions.length}） <Check size={16} />
-          </button>
+          <div className="writing-actions">
+            <button type="button" className="btn btn-ghost" onClick={() => finish(false, false)}>
+              直接生成定级报告（{answeredInSection}/{sectionQuestions.length}）
+            </button>
+            <button type="button" className="btn btn-primary" onClick={() => { stopAudio(); setPlaying(false); setWriteStep(true); }}>
+              下一步：3 分钟微写作诊断（选做） <ArrowRight size={16} />
+            </button>
+          </div>
         )}
       </div>
     </div>

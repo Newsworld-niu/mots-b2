@@ -21,9 +21,10 @@ export function useTimer() {
     const id = window.setInterval(tick, 500);
     return () => window.clearInterval(id);
   }, [running]);
-  const start = useCallback((from?: number) => {
-    base.current = { t0: Date.now(), from: from ?? 0, down: from !== undefined };
-    setSec(from ?? 0);
+  const start = useCallback((from?: number, elapsed = 0) => {
+    const safeElapsed = Math.max(0, Math.floor(elapsed));
+    base.current = { t0: Date.now() - safeElapsed * 1000, from: from ?? 0, down: from !== undefined };
+    setSec(from !== undefined ? Math.max(0, from - safeElapsed) : safeElapsed);
     setRunning(true);
   }, []);
   const stop = useCallback(() => setRunning(false), []);

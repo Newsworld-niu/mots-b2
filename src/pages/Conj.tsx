@@ -2,19 +2,22 @@ import { ArrowRight, Check, RotateCcw, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import { useConj, type ConjData } from "../atlas/conj";
-import { checkAnswer, distractorsFor, isCompoundTense, promptFor, PRONOUNS, TENSE_FR, TENSE_ZH, TENSES, tensesForLevel, type ConjTense, type ConjVerb } from "../lib/conjugation";
+import { B2_HIGH_FREQ_TENSES, checkAnswer, distractorsFor, isCompoundTense, promptFor, PRONOUNS, TENSE_FR, TENSE_ZH, TENSES, tensesForLevel, type ConjTense, type ConjVerb } from "../lib/conjugation";
+import { checkContextConjugation, CONTEXT_CONJ_ITEMS, type ContextConjItem } from "../lib/conj-context";
 import { cue } from "../lib/sound";
 import { hashSeed, shuffle } from "../lib/text";
-import { answerConj, buildConjSession, conjGrade, conjPlan, repeatConj, startedConjVerbs, splitKey, type ConjStep } from "../store/conj";
+import { answerConj, B2_CORE_IRREGULAR_VERBS, buildConjSession, conjGrade, conjPlan, recordContextConjAttempt, repeatConj, startedConjVerbs, splitKey, type ConjStep } from "../store/conj";
 import { Rating } from "../store/srs";
-import { MAX_DAILY_NEW, store, useStore } from "../store/store";
-import { useKeys } from "./Learn";
+import { MAX_DAILY_NEW, store, useStore, useStoreShallow } from "../store/store";
+import { useKeys } from "../lib/keys";
+import { useNavGuard } from "../lib/nav-guard";
+import { AccentKeys } from "../ui/AccentKeys";
+import { confirmAction } from "../ui/ConfirmSheet";
 import { ConjTable } from "../ui/ConjTable";
 import { GrammarTabs } from "./Grammar";
 import { PRACTICE_SOURCES, sourceWordIds, type PracticeSource } from "../lib/practice-source";
 import { PracticeSourcePicker } from "../ui/PracticeSource";
 
-const ACCENTS = ["é", "è", "ê", "à", "â", "ç", "î", "ï", "ô", "û", "ù", "ë", "œ"];
 const PREF = "word-atlas:conj:";
 function readPref(key: string): string | null {
   try { return localStorage.getItem(PREF + key); } catch { return null; }
@@ -26,16 +29,37 @@ function writePref(key: string, value: string) {
 export function Conj() {
   const { data, error } = useConj();
   const [run, setRun] = useState<{ steps: ConjStep[]; key: number } | null>(null);
+  const [ctxRun, setCtxRun] = useState<{ items: ContextConjItem[]; key: number } | null>(null);
   if (error) return <div className="page"><p className="muted">{error}</p></div>;
   if (!data) return <div className="page learn-loading"><span className="spinner" /></div>;
+  if (ctxRun) return <ContextConjSession key={ctxRun.key} data={data} initial={ctxRun.items} onExit={() => setCtxRun(null)} />;
   if (run) return <ConjSession key={run.key} data={data} initial={run.steps} onExit={() => setRun(null)} />;
-  return <Overview data={data} onStart={(steps) => setRun({ steps, key: Date.now() })} />;
+  return <Overview data={data} onStart={(steps) => setRun({ steps, key: Date.now() })} onStartContext={(items) => setCtxRun({ items, key: Date.now() })} />;
 }
 
-function Overview({ data, onStart }: { data: ConjData; onStart: (s: ConjStep[]) => void }) {
+function Overview({
+  data,
+  onStart,
+  onStartContext,
+}: {
+  data: ConjData;
+  onStart: (s: ConjStep[]) => void;
+  onStartContext: (items: ContextConjItem[]) => void;
+}) {
   const atlas = useAtlas();
-  const progress = useStore((s) => s.progress);
+  const progress = useStoreShallow((s) => ({
+    cards: s.progress.cards,
+    decks: s.progress.decks,
+    hidden: s.progress.hidden,
+    coreMigrated: s.progress.coreMigrated,
+    mistakes: s.progress.mistakes,
+    bookmarks: s.progress.bookmarks,
+    conj: s.progress.conj,
+    conjDays: s.progress.conjDays,
+  }));
   const settings = useStore((s) => s.settings);
+  const [mode, setMode] = useState<"drill" | "context">("drill");
+  const [ctxScope, setCtxScope] = useState<"all" | "b2">("all");
   const [newLimit, setNewLimit] = useState(String(settings.conjNew));
   useEffect(() => setNewLimit(String(settings.conjNew)), [settings.conjNew]);
   const saveNewLimit = () => {
@@ -62,7 +86,25 @@ function Overview({ data, onStart }: { data: ConjData; onStart: (s: ConjStep[]) 
     const next = chosenDecks.includes(id) ? chosenDecks.filter(x => x !== id) : [...chosenDecks, id];
     setDeckSel(next); writePref("decks", JSON.stringify(next));
   };
-  const verbs = useMemo(() => sourceWordIds(atlas, progress, source, settings.startLevel, chosenDecks).filter(id => data.verbs[id]), [atlas, progress, source, settings.startLevel, chosenDecks, data]);
+  const b2CoreIds = useMemo(
+    () =>
+      settings.startLevel >= 3
+        ? atlas.words
+            .filter((w) => {
+              const v = data.verbs[w.id];
+              return Boolean(v && B2_CORE_IRREGULAR_VERBS.has(v.i));
+            })
+            .map((w) => w.id)
+        : [],
+    [atlas, data, settings.startLevel],
+  );
+  const verbs = useMemo(() => {
+    const base = sourceWordIds(atlas, progress, source, settings.startLevel, chosenDecks).filter((id) => data.verbs[id]);
+    if (settings.startLevel >= 3 && (source === "recent" || source === "path")) {
+      return [...new Set([...base, ...b2CoreIds])];
+    }
+    return base;
+  }, [atlas, progress, source, settings.startLevel, chosenDecks, data, b2CoreIds]);
   const plan = useMemo(() => conjPlan(atlas, progress, settings, data, verbs), [atlas, progress, settings, data, verbs]);
   const levelTenses = tensesForLevel(settings.startLevel);
   const toggle = (t: ConjTense) => {
@@ -82,8 +124,48 @@ function Overview({ data, onStart }: { data: ConjData; onStart: (s: ConjStep[]) 
       </header>
       <div className="practice-grid">
         <section className="panel">
+          <div className="segmented conj-mode-switch" role="tablist" aria-label="变位训练模式">
+            <button type="button" role="tab" aria-selected={mode === "drill"} className={mode === "drill" ? "is-on" : ""} onClick={() => setMode("drill")}>
+              单词变位刷题
+            </button>
+            <button type="button" role="tab" aria-selected={mode === "context"} className={mode === "context" ? "is-on" : ""} onClick={() => setMode("context")}>
+              语境判时态+变位（{CONTEXT_CONJ_ITEMS.length} 题）
+            </button>
+          </div>
+          {mode === "context" ? (
+            <div className="conj-ctx-launch">
+              <p className="muted">
+                不提前告诉你用什么时态：先根据句子时间标志、si 条件或虚拟式触发词选出正确时态，再手写出准确变位（完整覆盖 12 种时态）。
+              </p>
+              <div className="segmented segmented-wide" role="group" aria-label="语境题目范围">
+                <button type="button" className={ctxScope === "all" ? "is-on" : ""} onClick={() => setCtxScope("all")}>
+                  全部 {CONTEXT_CONJ_ITEMS.length} 题（覆盖全部 12 时态与配合）
+                </button>
+                <button type="button" className={ctxScope === "b2" ? "is-on" : ""} onClick={() => setCtxScope("b2")}>
+                  仅 B2 核心难点（{CONTEXT_CONJ_ITEMS.filter((x) => x.level === "B2").length} 题）
+                </button>
+              </div>
+              <button
+                type="button"
+                className="btn btn-primary btn-xl"
+                onClick={() =>
+                  onStartContext(
+                    ctxScope === "b2"
+                      ? CONTEXT_CONJ_ITEMS.filter((x) => x.level === "B2")
+                      : [...CONTEXT_CONJ_ITEMS],
+                  )
+                }
+              >
+                开始语境判时态 + 变位（{ctxScope === "b2" ? CONTEXT_CONJ_ITEMS.filter((x) => x.level === "B2").length : CONTEXT_CONJ_ITEMS.length} 题） <ArrowRight size={18} />
+              </button>
+            </div>
+          ) : (
+            <>
           <PracticeSourcePicker source={source} onSource={setSource} decks={deckList} chosenDecks={chosenDecks} onDeck={toggleDeck} />
           <p className="muted">{source === "decks" ? "所选卡组" : source === "path" ? "起点等级起的前 400 个词" : "当前来源"}里有 {plan.verbs} 个带已核对变位表的动词。</p>
+          {settings.startLevel >= 3 && b2CoreIds.length > 0 && (source === "recent" || source === "path") && (
+            <p className="muted small">B2 起点已自动预解锁 {b2CoreIds.length} 个核心不规则动词（含命令式），可直接开练。</p>
+          )}
           <dl className="mini-stats conj-stats">
             <div>
               <dt>可练动词</dt>
@@ -98,35 +180,64 @@ function Overview({ data, onStart }: { data: ConjData; onStart: (s: ConjStep[]) 
               <dd>{plan.newVerbs}</dd>
             </div>
           </dl>
-          <h3 className="eyebrow">练哪些时态</h3>
+          <button className="btn btn-primary btn-xl" disabled={!total} onClick={() => onStart(buildConjSession(atlas, progress, settings, data, verbs))}>
+            {total ? `开始 · ${plan.sessionVerbs} 张动词卡 / ${total} 题` : plan.verbs ? "今天的变位练完了" : "还没有可练的动词"}
+          </button>
+          {!plan.verbs && <p className="muted">{source === "decks" && !chosenDecks.length ? "请先选择至少一个卡组。" : "这个来源还没有带已核对变位表的动词，换个来源或卡组试试。"}</p>}
+          {!!plan.verbs && !total && <p className="muted">当前来源暂无待复习卡；每日新动词卡上限在所有来源间共用，可以调整右侧上限或稍后再练。</p>}
+
+          <div className="panel-head conj-tense-head">
+            <h2 className="eyebrow">练哪些时态</h2>
+            <div className="data-actions">
+              <button type="button" className="link small" onClick={() => store.settings({ conjTenses: null })}>
+                高频 B2（{levelTenses.length} 个）
+              </button>
+              <button type="button" className="link small" onClick={() => store.settings({ conjTenses: [...TENSES] })}>
+                全选 12 时态
+              </button>
+            </div>
+          </div>
           <div className="tense-chips">
-            {TENSES.map((t) => (
+            {B2_HIGH_FREQ_TENSES.map((t) => (
               <button key={t} className={`chip-btn ${plan.tenses.includes(t) ? "is-on" : ""}`} onClick={() => toggle(t)} aria-pressed={plan.tenses.includes(t)}>
                 <b lang="fr">{TENSE_FR[t]}</b>
                 <small>{TENSE_ZH[t]}</small>
               </button>
             ))}
           </div>
+          <details
+            className="conj-more-tenses"
+            open={TENSES.some((t) => !B2_HIGH_FREQ_TENSES.includes(t) && plan.tenses.includes(t))}
+          >
+            <summary className="conj-more-summary">
+              <span>展开进阶 / 复合时态与命令式（{TENSES.length - B2_HIGH_FREQ_TENSES.length} 个）</span>
+            </summary>
+            <div className="tense-chips">
+              {TENSES.filter((t) => !B2_HIGH_FREQ_TENSES.includes(t)).map((t) => (
+                <button key={t} className={`chip-btn ${plan.tenses.includes(t) ? "is-on" : ""}`} onClick={() => toggle(t)} aria-pressed={plan.tenses.includes(t)}>
+                  <b lang="fr">{TENSE_FR[t]}</b>
+                  <small>{TENSE_ZH[t]}</small>
+                </button>
+              ))}
+            </div>
+          </details>
           <p className="muted">
             {settings.conjTenses ? (
               <>
-                已手动选择。{" "}
+                已手动选择 {plan.tenses.length} 个时态。{" "}
                 <button className="link" onClick={() => store.settings({ conjTenses: null })}>
-                  恢复按等级（{levelTenses.map((t) => TENSE_ZH[t]).join("、")}）
+                  恢复默认（{levelTenses.map((t) => TENSE_ZH[t]).join("、")}）
                 </button>
               </>
             ) : (
-              "按你的起点等级自动选择；点上面的时态可以自己调整。"
+              "默认聚焦当前等级高频核心时态，题量约 40 题，上方按钮可直接开练。"
             )}
           </p>
-          <button className="btn btn-primary btn-xl" disabled={!total} onClick={() => onStart(buildConjSession(atlas, progress, settings, data, verbs))}>
-            {total ? `开始 · ${plan.sessionVerbs} 张动词卡 / ${total} 题` : plan.verbs ? "今天的变位练完了" : "还没有可练的动词"}
-          </button>
-          {!plan.verbs && <p className="muted">{source === "decks" && !chosenDecks.length ? "请先选择至少一个卡组。" : "这个来源还没有带已核对变位表的动词，换个来源或卡组试试。"}</p>}
-          {!!plan.verbs && !total && <p className="muted">当前来源暂无待复习卡；每日新动词卡上限在所有来源间共用，可以调整右侧上限或稍后再练。</p>}
+            </>
+          )}
         </section>
         <section className="panel practice-side">
-          <h3 className="eyebrow">怎么练</h3>
+          <h2 className="eyebrow">怎么练</h2>
           <ul className="conj-how">
             <li>按动词卡数量选词，每个新动词覆盖勾选的所有时态和人称；各形式独立记录进度。</li>
             <li>可以先看表或用选择题辅助；之后仍需填空验证。错题隔几题再次填空，直到答对。</li>
@@ -165,6 +276,8 @@ function ConjSession({ data, initial, onExit }: { data: ConjData; initial: ConjS
 
   const step = steps[i];
   const done = i >= steps.length;
+  const active = !done && (i > 0 || log.length > 0 || !!pending);
+  useNavGuard(active, "本轮动词变位练习尚未结束，确定提前离开？");
 
   const submit = useCallback(
     (value: string, accepted: string[]) => {
@@ -193,13 +306,28 @@ function ConjSession({ data, initial, onExit }: { data: ConjData; initial: ConjS
     setI((n) => n + 1);
   }, []);
 
+  const exitSession = async () => {
+    if (
+      active &&
+      !(await confirmAction({
+        title: "结束本轮变位练习？",
+        message: "当前一轮还有未完成的题（已答人称已保存），确定提前退出？",
+        confirmLabel: "确定退出",
+        danger: true,
+      }))
+    ) {
+      return;
+    }
+    onExit();
+  };
+
   if (done) return <ConjSummary log={log} data={data} onExit={onExit} />;
   const v = data.verbs[step.verbId];
   const ref = atlas.byId.get(step.verbId);
   return (
     <div className="page practice typing conj-run">
       <header className="typing-top">
-        <button className="btn btn-ghost" onClick={onExit}>
+        <button className="btn btn-ghost" onClick={() => void exitSession()}>
           结束
         </button>
         <div className="learn-progress">
@@ -235,17 +363,6 @@ function ConjQuestion({ step, verb, zh, pending, onAssist, onSubmit, onNext }: {
   } else if (step.kind === "choice") options.forEach((o, k) => (keys[String(k + 1)] = () => onSubmit(o === prompt.shown ? prompt.accepted[0] : o, prompt.accepted)));
   useKeys(keys);
 
-  const insert = (ch: string) => {
-    const el = input.current;
-    if (!el) return setValue((x) => x + ch);
-    const [a, b] = [el.selectionStart ?? value.length, el.selectionEnd ?? value.length];
-    const next = value.slice(0, a) + ch + value.slice(b);
-    setValue(next);
-    requestAnimationFrame(() => {
-      el.focus({ preventScroll: true });
-      el.setSelectionRange(a + ch.length, a + ch.length);
-    });
-  };
   const joiner = !prompt.before || prompt.before.endsWith("'") ? "" : " ";
   const inf = verb.p ? (/^[aeiouyhéèêâîôû]/.test(verb.i) ? `s'${verb.i}` : `se ${verb.i}`) : verb.i;
 
@@ -317,13 +434,7 @@ function ConjQuestion({ step, verb, zh, pending, onAssist, onSubmit, onNext }: {
           />
           {!pending && (
             <>
-              <div className="accent-keys" aria-label="法语字母">
-                {ACCENTS.map((ch) => (
-                  <button key={ch} type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => insert(ch)} lang="fr">
-                    {ch}
-                  </button>
-                ))}
-              </div>
+              <AccentKeys input={input} value={value} onChange={setValue} />
               <button type="submit" className="btn btn-primary" disabled={!value.trim()}>
                 确认 <kbd>Enter</kbd>
               </button>
@@ -379,6 +490,270 @@ function ConjSummary({ log, data, onExit }: { log: { step: ConjStep; ok: boolean
             <RotateCcw size={18} /> 返回变位
           </button>
         </div>
+      </section>
+    </div>
+  );
+}
+
+function ContextConjSession({ data, initial, onExit }: { data: ConjData; initial: ContextConjItem[]; onExit: () => void }) {
+  const atlas = useAtlas();
+  const sfx = useStore((s) => s.settings.sfx);
+  const [items, setItems] = useState(initial);
+  const [idx, setIdx] = useState(0);
+  const [pickedTense, setPickedTense] = useState<ConjTense | null>(null);
+  const [typedForm, setTypedForm] = useState("");
+  const [verdict, setVerdict] = useState<ReturnType<typeof checkContextConjugation> | null>(null);
+  const [accentRetry, setAccentRetry] = useState("");
+  const [accentRetriedOk, setAccentRetriedOk] = useState(false);
+  const [missed, setMissed] = useState<ContextConjItem[]>([]);
+  const [score, setScore] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const retryRef = useRef<HTMLInputElement>(null);
+
+  const item = items[idx];
+  const finished = idx >= items.length;
+  useNavGuard(!finished && (idx > 0 || pickedTense !== null || typedForm.trim().length > 0), "语境时态判断练习尚未结束，确定离开？");
+
+  useEffect(() => {
+    setPickedTense(null);
+    setTypedForm("");
+    setVerdict(null);
+    setAccentRetry("");
+    setAccentRetriedOk(false);
+    inputRef.current?.focus({ preventScroll: true });
+  }, [idx, items]);
+
+  const needsAccentRetype = Boolean(verdict && verdict.tenseOk && verdict.accentOnly && !accentRetriedOk);
+  const advanceNext = useCallback(() => {
+    if (verdict && !needsAccentRetype) setIdx((n) => n + 1);
+  }, [verdict, needsAccentRetype]);
+  useKeys(verdict && !needsAccentRetype ? { Enter: advanceNext } : {});
+
+  if (finished) {
+    return (
+      <div className="page practice">
+        <section className="panel typing-done">
+          <p className="eyebrow">语境判时态 + 变位完成</p>
+          <h1 className="display">
+            {score}/{items.length} <small>时态与变位双对</small>
+          </h1>
+          <p className="muted small">匹配的动词变位已同步更新至 FSRS 动词复习计划与今日变位统计。</p>
+          {missed.length > 0 && (
+            <ul className="gender-wrong">
+              {missed.map((m) => (
+                <li key={m.id}>
+                  <span lang="fr">
+                    {m.verb} → <b>{m.answers[0]}</b>
+                  </span>{" "}
+                  <small>
+                    （{TENSE_FR[m.tense]} · {TENSE_ZH[m.tense]}）
+                  </small>
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="summary-actions">
+            {missed.length > 0 && (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  setItems(missed);
+                  setMissed([]);
+                  setScore(0);
+                  setIdx(0);
+                }}
+              >
+                <RotateCcw size={16} /> 重练错题（{missed.length}）
+              </button>
+            )}
+            <button type="button" className="btn btn-ghost" onClick={onExit}>
+              返回变位总览
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (verdict || !pickedTense || !typedForm.trim()) return;
+    const res = checkContextConjugation(item, pickedTense, typedForm);
+    setVerdict(res);
+    const fullOk = res.tenseOk && res.formOk;
+    const isAccentHard = res.tenseOk && res.accentOnly;
+    recordContextConjAttempt(
+      data,
+      {
+        verb: item.verb,
+        tense: item.tense,
+        person: item.person,
+        tenseOk: res.tenseOk,
+        formOk: res.formOk,
+        accentOnly: res.accentOnly,
+      },
+      atlas,
+    );
+    if (fullOk) setScore((n) => n + 1);
+    else if (!isAccentHard) setMissed((prev) => (prev.some((x) => x.id === item.id) ? prev : [...prev, item]));
+    if (sfx) void cue(fullOk || isAccentHard ? "correct" : "wrong");
+  };
+
+  const blankTone = verdict
+    ? verdict.tenseOk && verdict.formOk
+      ? "is-right"
+      : verdict.tenseOk && verdict.accentOnly
+        ? "is-accent"
+        : "is-wrong"
+    : "";
+
+  return (
+    <div className="page practice typing conj-run">
+      <header className="typing-top">
+        <button className="btn btn-ghost" type="button" onClick={onExit}>
+          结束
+        </button>
+        <div className="learn-progress">
+          <span style={{ width: `${(idx / items.length) * 100}%` }} />
+        </div>
+        <span className="typing-meter">
+          <b>{idx + 1}</b> / {items.length}
+        </span>
+      </header>
+
+      <section className="typing-stage conj-stage conj-ctx-card">
+        <p className="stage-label">
+          <span className="chip">{item.level}</span> 第 {idx + 1} 题 · 先选时态再填动词形式
+        </p>
+        <div className="conj-prompt">
+          <p className="conj-inf" lang="fr">
+            {item.verb} <small className="muted" lang="zh">({item.hintZh})</small>
+          </p>
+          <p className="conj-line" lang="fr">
+            {item.before}
+            <span className={`conj-blank ${blankTone}`}>
+              {verdict ? (needsAccentRetype ? typedForm : verdict.canonical) : typedForm || "\u00a0"}
+            </span>
+            {item.after}
+          </p>
+        </div>
+
+        <form className="conj-ctx-form" onSubmit={submit}>
+          <div>
+            <p className="eyebrow">第一步：根据语境选择时态 / 语式</p>
+            <div className="tense-chips">
+              {item.tenseChoices.map((t) => {
+                const chosen = pickedTense === t;
+                const cls = verdict
+                  ? t === item.tense
+                    ? "is-answer"
+                    : chosen
+                      ? "is-chosen"
+                      : ""
+                  : chosen
+                    ? "is-on"
+                    : "";
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    disabled={!!verdict}
+                    className={`chip-btn ${cls}`}
+                    aria-pressed={chosen}
+                    onClick={() => setPickedTense(t)}
+                  >
+                    <b lang="fr">{TENSE_FR[t]}</b>
+                    <small>{TENSE_ZH[t]}</small>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="conj-type">
+            <p className="eyebrow">第二步：写出动词准确变位（含助动词/配合，如 sont nées）</p>
+            <input
+              ref={inputRef}
+              className="conj-input"
+              value={verdict ? typedForm : typedForm}
+              onChange={(e) => !verdict && setTypedForm(e.target.value)}
+              readOnly={!!verdict}
+              lang="fr"
+              autoCapitalize="off"
+              autoCorrect="off"
+              autoComplete="off"
+              spellCheck={false}
+              placeholder={item.pronoun ? `匹配 ${item.pronoun}` : "写出变位形式"}
+              aria-label={`写出 ${item.verb} 的变位`}
+            />
+            {!verdict && (
+              <>
+                <AccentKeys input={inputRef} value={typedForm} onChange={setTypedForm} />
+                <button type="submit" className="btn btn-primary" disabled={!pickedTense || !typedForm.trim()}>
+                  确认提交 <ArrowRight size={16} />
+                </button>
+              </>
+            )}
+          </div>
+        </form>
+
+        {verdict && (() => {
+          const needsAccentRetype = verdict.tenseOk && verdict.accentOnly && !accentRetriedOk;
+          return (
+            <div className={`conj-feedback is-${verdict.tenseOk && verdict.formOk ? "right" : verdict.tenseOk && verdict.accentOnly ? "accent" : "wrong"}`} role="status">
+              <p className="feedback-verdict">
+                {verdict.tenseOk && verdict.formOk
+                  ? "时态判断与变位完全正确！"
+                  : verdict.tenseOk && verdict.accentOnly
+                    ? `重音微瑕，请按正确重音「${verdict.canonical}」重敲一遍再继续！`
+                    : `时态${verdict.tenseOk ? "选对了" : `应为 ${TENSE_FR[item.tense]}（${TENSE_ZH[item.tense]}）`} · 变位应为 ${verdict.canonical}`}
+              </p>
+              {verdict.orthographyHint && <p className="warn small">{verdict.orthographyHint}</p>}
+              <p className="muted small">{item.why}</p>
+              {verdict.tenseOk && verdict.accentOnly && (
+                accentRetriedOk ? (
+                  <p className="muted small">已按正确重音重输巩固 ✓（按困难档记入 FSRS）</p>
+                ) : (
+                  <form
+                    className="gram-almost-retry"
+                    onSubmit={(ev) => {
+                      ev.preventDefault();
+                      if (checkAnswer(accentRetry, [...item.answers]) === "right") {
+                        setAccentRetriedOk(true);
+                        setScore((n) => n + 1);
+                      }
+                    }}
+                  >
+                    <input
+                      ref={retryRef}
+                      className="conj-input"
+                      value={accentRetry}
+                      onChange={(ev) => setAccentRetry(ev.target.value)}
+                      placeholder={`重敲一遍：${verdict.canonical}`}
+                      aria-label="按正确重音重输变位"
+                      lang="fr"
+                      autoFocus
+                    />
+                    <AccentKeys input={retryRef} value={accentRetry} onChange={setAccentRetry} />
+                    <button type="submit" className="btn btn-ghost btn-sm" disabled={!accentRetry.trim()}>
+                      核对重输
+                    </button>
+                  </form>
+                )
+              )}
+              <button
+                type="button"
+                className="btn btn-primary btn-xl"
+                disabled={needsAccentRetype}
+                onClick={() => setIdx((n) => n + 1)}
+                autoFocus={!needsAccentRetype}
+              >
+                {idx + 1 >= items.length ? "查看本轮结果" : "下一题"} <ArrowRight size={18} />
+              </button>
+            </div>
+          );
+        })()}
       </section>
     </div>
   );

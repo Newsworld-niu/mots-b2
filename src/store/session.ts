@@ -4,18 +4,73 @@ import { matchesStudyPos } from "../lib/pos";
 import type { Atlas, WordRef } from "../atlas/types";
 import { MEDIA } from "../atlas/types";
 import { hashSeed, normalize, shuffle } from "../lib/text";
-import { isMastered, review, Rating, type Grade } from "./srs";
-import { bumpDay, CORE_DECK, dayKey, store, type ActiveSession, type Progress, type QuizKind, type Settings, type Step } from "./store";
+import { isSpellableHeadword } from "../lib/gender";
+import { isMastered, retrievability, review, Rating, type CardState, type Grade } from "./srs";
+import { bumpDay, CORE_DECK, dayKey, store, type ActiveSession, type DayStat, type Progress, type QuizKind, type Settings, type Step } from "./store";
 import { deckIndex, inRange, senseFor, studyRange, type DeckIndex, type StudyRange } from "./decks";
 
-export function dueIds(p: Progress, now = Date.now()) {
+export const LEECH_DEFAULT_THRESHOLD = 6;
+
+export function dueIds(p: Pick<Progress, "cards" | "suspendedLeeches">, now = Date.now()) {
+  const suspended = new Set(p.suspendedLeeches ?? []);
   return Object.entries(p.cards)
-    .filter(([, c]) => c.due <= now)
+    .filter(([id, c]) => !suspended.has(id) && c.due <= now)
     .sort((a, b) => a[1].due - b[1].due)
     .map(([id]) => id);
 }
 
-export function newToday(p: Progress) {
+/** Word IDs with repeated lapses (`>= threshold`), sorted worst-first for leech review or suspension. */
+export function leechIds(p: Pick<Progress, "cards">, threshold = LEECH_DEFAULT_THRESHOLD): string[] {
+  return Object.entries(p.cards)
+    .filter(([, c]) => c.lapses >= threshold)
+    .sort((a, b) => b[1].lapses - a[1].lapses || b[1].d - a[1].d)
+    .map(([id]) => id);
+}
+
+export function applySuspendLeech(p: Progress, id: string, suspend: boolean): Progress {
+  const cur = p.suspendedLeeches ?? [];
+  const next = suspend ? (cur.includes(id) ? cur : [id, ...cur]) : cur.filter((x) => x !== id);
+  if (next.length) return { ...p, suspendedLeeches: next };
+  if (!p.suspendedLeeches) return p;
+  const { suspendedLeeches: _drop, ...rest } = p;
+  void _drop;
+  return rest;
+}
+
+export function suspendLeech(id: string) {
+  store.progress((p) => applySuspendLeech(p, id, true));
+}
+
+export function unsuspendLeech(id: string) {
+  store.progress((p) => applySuspendLeech(p, id, false));
+}
+
+/** Active non-suspended cards whose FSRS retrievability dropped below `0.78`, lowest retention first. */
+export function forgettingRiskCards(
+  atlas: Atlas,
+  p: Pick<Progress, "cards" | "decks" | "hidden" | "coreMigrated" | "suspendedLeeches">,
+  retention: number,
+  limit = 12,
+  now = Date.now(),
+): { id: string; word: string; zh: string; retrievabilityPct: number; lapses: number }[] {
+  const ctx = deckIndex(atlas, p);
+  const suspended = new Set(p.suspendedLeeches ?? []);
+  const out: { id: string; word: string; zh: string; retrievability: number; retrievabilityPct: number; lapses: number }[] = [];
+  for (const [id, c] of Object.entries(p.cards)) {
+    if (suspended.has(id) || c.reps <= 0 || c.st === 0 || !ctx.isActive(id)) continue;
+    const w = atlas.byId.get(id);
+    if (!w || !isTaughtReady(w)) continue;
+    const r = retrievability(c, now, retention);
+    if (r >= 0.78) continue;
+    out.push({ id, word: w.word, zh: w.zh, retrievability: r, retrievabilityPct: Math.round(r * 100), lapses: c.lapses });
+  }
+  return out
+    .sort((a, b) => a.retrievability - b.retrievability || b.lapses - a.lapses)
+    .slice(0, limit)
+    .map(({ retrievability: _r, ...item }) => item);
+}
+
+export function newToday(p: Pick<Progress, "days">) {
   return p.days[dayKey()]?.n ?? 0;
 }
 
@@ -34,7 +89,13 @@ const NOUN_SLOTS = new Set([1, 3]);
  * when one is chosen. Along the path, order is kept within nouns and within other words; the two are
  * interleaved so two of every five are nouns while both last.
  */
-export function nextNew(atlas: Atlas, p: Progress, settings: Settings, count: number, ctx = rangeOf(atlas, p, settings)) {
+export function nextNew(
+  atlas: Atlas,
+  p: Pick<Progress, "cards" | "decks" | "hidden" | "coreMigrated" | "custom" | "edits">,
+  settings: Settings,
+  count: number,
+  ctx = rangeOf(atlas, p, settings),
+) {
   if (count <= 0) return [];
   const { idx, range } = ctx;
   const family = familyWords(settings.studyFamilies, settings.studyFamilies?.length ? familiesFor(atlas, p) : []);
@@ -86,25 +147,36 @@ export function nextNew(atlas: Atlas, p: Progress, settings: Settings, count: nu
   return out;
 }
 
-export const rangeOf = (atlas: Atlas, p: Progress, s: Settings): { idx: DeckIndex; range: StudyRange } => ({ idx: deckIndex(atlas, p), range: studyRange(p, s) });
+export const rangeOf = (
+  atlas: Pick<Atlas, "byId">,
+  p: Pick<Progress, "decks" | "hidden" | "coreMigrated">,
+  s: Pick<Settings, "studyDecks">,
+): { idx: DeckIndex; range: StudyRange } => ({ idx: deckIndex(atlas, p), range: studyRange(p, s) });
 
 /**
  * Today's reviews and new words, from the decks in range. Words in no deck (paused) are never due;
  * `otherDue` counts due words in decks outside the range, so they are not forgotten.
  */
-export function todayPlan(atlas: Atlas, p: Progress, s: Settings) {
+export function todayPlan(
+  atlas: Atlas,
+  p: Pick<Progress, "cards" | "days" | "decks" | "hidden" | "coreMigrated" | "custom" | "edits" | "suspendedLeeches">,
+  s: Settings,
+) {
   const ctx = rangeOf(atlas, p, s);
-  const due: string[] = [];
+  const allDue: string[] = [];
   const family = familyWords(s.studyFamilies, s.studyFamilies?.length ? familiesFor(atlas,p) : []);
   let otherDue = 0;
   for (const id of dueIds(p)) {
     if (!atlas.byId.has(id) || !ctx.idx.isActive(id)) continue;
-    if ((!family || family.has(id)) && inRange(ctx.idx, ctx.range, id) && matchesStudyPos(atlas.byId.get(id)?.pos, s.studyPos)) due.push(id);
+    if ((!family || family.has(id)) && inRange(ctx.idx, ctx.range, id) && matchesStudyPos(atlas.byId.get(id)?.pos, s.studyPos)) allDue.push(id);
     else otherDue++;
   }
+  const cap = typeof s.dailyReviewCap === "number" && s.dailyReviewCap >= 10 ? Math.round(s.dailyReviewCap) : null;
+  const due = cap !== null ? allDue.slice(0, cap) : allDue;
+  const overflowDue = cap !== null ? Math.max(0, allDue.length - cap) : 0;
   const newLeft = Math.max(0, s.dailyNew - newToday(p));
   const fresh = nextNew(atlas, p, s, newLeft, ctx);
-  return { due, fresh, otherDue, range: ctx.range, minutes: Math.max(1, Math.round(due.length * 0.25 + fresh.length * 0.9)) };
+  return { due, overflowDue, fresh, otherDue, range: ctx.range, minutes: Math.max(1, Math.round(due.length * 0.25 + fresh.length * 0.9)) };
 }
 
 /**
@@ -122,13 +194,19 @@ export function stagePlan(noun: boolean, spell: boolean, inContext: QuizKind): {
     : { first: ["meaning", inContext, recall, ear], cycle: [recall, ear, inContext, "listen"] };
 }
 
-export function quizKind(ref: WordRef, p: Progress, s: Settings): QuizKind {
+export function quizKind(ref: WordRef, p: Pick<Progress, "cards">, s: Settings): QuizKind {
   const c = p.cards[ref.id];
   const inContext: QuizKind = ref.media & MEDIA.img ? "picture" : "cloze";
   if (c && c.st === 3) return "meaning"; // relearning: back to recognition, like DuoCards after a miss
-  const { first, cycle } = stagePlan(!!ref.g, s.spell, inContext);
+  const allowSpell = s.spell && isSpellableHeadword(ref.word);
+  const { first, cycle } = stagePlan(!!ref.g, allowSpell, inContext);
   const r = c?.reps ?? 0;
-  return r < first.length ? first[r] : laterKind(ref.id, r, first, cycle);
+  if (r < first.length) return first[r];
+  if (ref.cefr >= 3 && r >= 5) {
+    const b2Cycle: QuizKind[] = [...cycle, "collocation", "register"];
+    return laterKind(ref.id, r, first, cycle, 5, b2Cycle);
+  }
+  return laterKind(ref.id, r, first, cycle);
 }
 
 /**
@@ -136,13 +214,14 @@ export function quizKind(ref: WordRef, p: Progress, s: Settings): QuizKind {
  * and recall (typing the word, or picking it in context when spelling is off) at least once in any three, so the
  * harder direction is not left out by chance. Random per word and review, the same on every device.
  */
-export function laterKind(id: string, r: number, first: QuizKind[], cycle: QuizKind[]): QuizKind {
-  const kinds = [...new Set(cycle)];
+export function laterKind(id: string, r: number, first: QuizKind[], cycle: QuizKind[], switchAt?: number, altCycle?: QuizKind[]): QuizKind {
   const recall = cycle[0];
   let prev2 = first[first.length - 2];
   let prev = first[first.length - 1];
   let k = prev;
   for (let i = first.length; i <= r; i++) {
+    const active = switchAt !== undefined && i >= switchAt && altCycle ? altCycle : cycle;
+    const kinds = [...new Set(active)];
     const open = kinds.filter((x) => x !== prev);
     k = prev !== recall && prev2 !== recall ? recall : open[hashSeed(`${id}:${i}`) % open.length];
     prev2 = prev;
@@ -202,11 +281,16 @@ export function distractors(atlas: Atlas, ref: WordRef, kind: QuizKind, seed: nu
   return shuffle([ref.id, ...picks], seed);
 }
 
-export function buildSession(atlas: Atlas, p: Progress, s: Settings, opts?: { ids?: string[]; reviewOnly?: boolean }): ActiveSession {
+export function buildSession(
+  atlas: Atlas,
+  p: Pick<Progress, "cards" | "days" | "decks" | "hidden" | "coreMigrated" | "custom" | "edits" | "suspendedLeeches">,
+  s: Settings,
+  opts?: { ids?: string[]; reviewOnly?: boolean },
+): ActiveSession {
   const seed = Date.now();
   const plan = todayPlan(atlas, p, s);
   const ids = opts?.ids?.filter((id) => atlas.byId.has(id));
-  const reviewIds = ids ? ids.filter((id) => p.cards[id]) : plan.due.slice(0, 120);
+  const reviewIds = ids ? ids.filter((id) => p.cards[id]) : plan.due.slice(0, s.dailyReviewCap ?? 120);
   const newIds = ids ? ids.filter((id) => !p.cards[id]) : opts?.reviewOnly ? [] : plan.fresh;
   const steps: Step[] = [];
   const range = studyRange(p, s);
@@ -219,7 +303,13 @@ export function buildSession(atlas: Atlas, p: Progress, s: Settings, opts?: { id
     // a masculine/feminine pair (ami / amie) gets meaning questions only: no cloze, listening or spelling that could need an article
     const pair = atlas.pairs?.has(id) ?? false;
     const kind: QuizKind = pair ? "meaning" : quizKind(ref, p, s);
-    return { id, kind, options: isTyped(kind) || kind === "gender" ? undefined : distractors(atlas, ref, kind, seed + salt), ...(pair ? { pair: true } : {}), ...sense(id) };
+    return {
+      id,
+      kind,
+      options: isTyped(kind) || kind === "gender" ? undefined : distractors(atlas, ref, kind === "register" ? "meaning" : kind, seed + salt),
+      ...(pair ? { pair: true } : {}),
+      ...sense(id),
+    };
   };
   // Reviews first while attention is fresh, then new words in small groups:
   // meet five, then recall those five in a different order.
@@ -241,7 +331,7 @@ const PAIR_SIZE = 5;
  * Like DuoCards' pairing it prefers words still early in learning and those missed most (REPORT.md §5),
  * and it is extra practice only: it never changes a card's schedule.
  */
-export function withPairing(atlas: Atlas, p: Progress, steps: Step[], seed: number): Step[] {
+export function withPairing(atlas: Atlas, p: Pick<Progress, "cards">, steps: Step[], seed: number): Step[] {
   const out: Step[] = [];
   const asked: string[] = [];
   let since = 0;
@@ -260,7 +350,7 @@ export function withPairing(atlas: Atlas, p: Progress, steps: Step[], seed: numb
 }
 
 /** Five words to pair: fewest reviews and most lapses first, no two sharing a meaning (both would fit one gloss). */
-export function pickPairing(atlas: Atlas, p: Progress, pool: string[], seed: number): string[] | null {
+export function pickPairing(atlas: Atlas, p: Pick<Progress, "cards">, pool: string[], seed: number): string[] | null {
   const rank = (id: string) => {
     const c = p.cards[id];
     return (c?.reps ?? 0) * 10 - (c?.lapses ?? 0) * 25 + (hashSeed(id + seed) % 10);
@@ -294,20 +384,94 @@ export function recordMistake(id: string) {
   store.progress((p) => (p.mistakes[0] === id ? p : { ...p, mistakes: withMistake(p.mistakes, id) }));
 }
 
+interface UndoSnapshot {
+  sessionId: string;
+  wordId: string;
+  stepIndex: number;
+  kind: "quiz" | "intro";
+  prevCard: CardState | undefined;
+  prevMistakes: string[];
+  prevDayKey: string;
+  prevDay: DayStat | undefined;
+  prevSession: ActiveSession;
+  wasFirst: boolean;
+  at: number;
+}
+
+let lastUndo: UndoSnapshot | null = null;
+
+export function resetSessionUndo() {
+  lastUndo = null;
+}
+
+export function canUndoStep(sessionId: string): boolean {
+  return Boolean(lastUndo && lastUndo.sessionId === sessionId);
+}
+
+export function canRegradePending(sessionId: string, stepIndex: number): boolean {
+  return Boolean(lastUndo && lastUndo.sessionId === sessionId && lastUndo.stepIndex === stepIndex && lastUndo.kind === "quiz" && lastUndo.wasFirst);
+}
+
+export function getPendingPrevCard(sessionId: string, stepIndex: number): CardState | undefined {
+  return canRegradePending(sessionId, stepIndex) ? lastUndo?.prevCard : undefined;
+}
+
+function buildRetrySteps(atlas: Atlas | undefined, prevSteps: Step[], step: Step & { kind: QuizKind }, stepIndex: number): Step[] {
+  if (!atlas) return prevSteps;
+  const ref = atlas.byId.get(step.id);
+  if (!ref) return prevSteps;
+  const retries = prevSteps.filter((x) => x.id === step.id && "retry" in x && x.retry).length;
+  if (retries >= 2) return prevSteps;
+  const steps = [...prevSteps];
+  const kind: QuizKind = step.pair ? "meaning" : step.kind === "gender" ? "gender" : step.kind === "meaning" ? (ref.media & MEDIA.img ? "picture" : "cloze") : "meaning";
+  const at = Math.min(steps.length, stepIndex + 4);
+  steps.splice(at, 0, {
+    id: step.id,
+    kind,
+    retry: true,
+    options: kind === "gender" ? undefined : distractors(atlas, ref, kind, Date.now()),
+    ...(step.pair ? { pair: true } : {}),
+    ...(step.sense ? { sense: step.sense } : {}),
+  });
+  return steps;
+}
+
 /** Apply an answer. Only the first attempt for a word in a session updates memory and stats. */
 export function answer(atlas: Atlas, step: Step & { kind: QuizKind }, correct: boolean, grade: Grade, value: string, accentOnly = false, articleWrong = false) {
   const { settings } = store.get();
+  const now = Date.now();
+  const dk = dayKey(new Date(now));
   store.progress((p) => {
     const sess = p.session;
     if (!sess) return p;
-    let next: Progress = { ...p, session: { ...sess, pending: { correct, value, ...(accentOnly ? { accentOnly } : {}), ...(articleWrong ? { articleWrong } : {}) } } };
     const first = !(step.id in sess.graded) && !step.retry;
+    lastUndo = {
+      sessionId: sess.id,
+      wordId: step.id,
+      stepIndex: sess.index,
+      kind: "quiz",
+      prevCard: p.cards[step.id],
+      prevMistakes: p.mistakes,
+      prevDayKey: dk,
+      prevDay: p.days[dk],
+      prevSession: sess,
+      wasFirst: first,
+      at: now,
+    };
+    const effectiveGrade: Grade = first && sess.unknown?.includes(step.id) ? Rating.Again : grade;
+    let next: Progress = {
+      ...p,
+      session: {
+        ...sess,
+        pending: { correct, value, grade: effectiveGrade, ...(accentOnly ? { accentOnly } : {}), ...(articleWrong ? { articleWrong } : {}) },
+      },
+    };
     if (first) {
       next = {
         ...next,
-        // a word met as 不认识: whatever the answer, memory is left at the very start (it comes back soonest)
-        cards: { ...next.cards, [step.id]: review(p.cards[step.id], sess.unknown?.includes(step.id) ? Rating.Again : grade, Date.now(), settings.retention) },
-        session: { ...next.session!, graded: { ...sess.graded, [step.id]: grade } },
+        // a word met as 不认识: whatever the answer, initial memory is left at the very start (learner can still override manually in Feedback)
+        cards: { ...next.cards, [step.id]: review(p.cards[step.id], effectiveGrade, now, settings.retention) },
+        session: { ...next.session!, graded: { ...sess.graded, [step.id]: effectiveGrade } },
         mistakes: correct ? next.mistakes : withMistake(next.mistakes, step.id),
       };
       next = bumpDay(next, { r: 1, c: correct ? 1 : 0, n: sess.newIds.includes(step.id) ? 1 : 0 });
@@ -321,12 +485,81 @@ export function answer(atlas: Atlas, step: Step & { kind: QuizKind }, correct: b
         // A wrong article (asked, or typed in a spelling) is practised again as an article; other mistakes switch format.
         const kind: QuizKind = step.pair ? "meaning" : step.kind === "gender" || (articleWrong && ref.g) ? "gender" : step.kind === "meaning" ? (ref.media & MEDIA.img ? "picture" : "cloze") : "meaning";
         const at = Math.min(steps.length, sess.index + 4);
-        steps.splice(at, 0, { id: step.id, kind, retry: true, options: kind === "gender" ? undefined : distractors(atlas, ref, kind, Date.now()), ...(step.pair ? { pair: true } : {}), ...(step.sense ? { sense: step.sense } : {}) });
+        steps.splice(at, 0, { id: step.id, kind, retry: true, options: kind === "gender" ? undefined : distractors(atlas, ref, kind, now), ...(step.pair ? { pair: true } : {}), ...(step.sense ? { sense: step.sense } : {}) });
         next = { ...next, session: { ...next.session!, steps } };
       }
     }
     return next;
   });
+}
+
+/** Override FSRS grade of the currently displayed first-attempt answer while Feedback is open. */
+export function regradePending(nextGrade: Grade, atlas?: Atlas): boolean {
+  const snap = lastUndo;
+  if (!snap || snap.kind !== "quiz" || !snap.wasFirst) return false;
+  let updated = false;
+  const { settings } = store.get();
+  store.progress((p) => {
+    const sess = p.session;
+    if (!sess?.pending || sess.id !== snap.sessionId || sess.index !== snap.stepIndex) return p;
+    const prevGrade = sess.graded[snap.wordId];
+    const nextCard = review(snap.prevCard, nextGrade, snap.at, settings.retention);
+    const step = snap.prevSession.steps[snap.stepIndex];
+    const nextSteps =
+      nextGrade === Rating.Again && step && step.kind !== "intro" && step.kind !== "pairing"
+        ? buildRetrySteps(atlas, snap.prevSession.steps, step, snap.stepIndex)
+        : snap.prevSession.steps;
+    const prevPass = prevGrade !== undefined && prevGrade !== Rating.Again ? 1 : 0;
+    const nextPass = nextGrade !== Rating.Again ? 1 : 0;
+    const deltaC = nextPass - prevPass;
+    const dayEntry = p.days[snap.prevDayKey];
+    const nextDays =
+      dayEntry && deltaC !== 0
+        ? { ...p.days, [snap.prevDayKey]: { ...dayEntry, c: Math.max(0, dayEntry.c + deltaC) } }
+        : p.days;
+    const nextCorrect = nextGrade !== Rating.Again;
+    updated = true;
+    return {
+      ...p,
+      cards: { ...p.cards, [snap.wordId]: nextCard },
+      days: nextDays,
+      mistakes: nextGrade === Rating.Again ? withMistake(snap.prevMistakes, snap.wordId) : snap.prevMistakes,
+      session: {
+        ...sess,
+        steps: nextSteps,
+        graded: { ...sess.graded, [snap.wordId]: nextGrade },
+        pending: { ...sess.pending, grade: nextGrade, correct: nextCorrect },
+      },
+    };
+  });
+  return updated;
+}
+
+/** Roll back the most recent graded step (quiz or intro), restoring FSRS card, mistakes, daily count, and step index. */
+export function undoLastStep(): boolean {
+  const snap = lastUndo;
+  if (!snap) return false;
+  let restored = false;
+  store.progress((p) => {
+    const sess = p.session;
+    if (!sess || sess.id !== snap.sessionId) return p;
+    const cards = { ...p.cards };
+    if (snap.prevCard) cards[snap.wordId] = snap.prevCard;
+    else delete cards[snap.wordId];
+    const days = { ...p.days };
+    if (snap.prevDay) days[snap.prevDayKey] = snap.prevDay;
+    else delete days[snap.prevDayKey];
+    restored = true;
+    return {
+      ...p,
+      cards,
+      days,
+      mistakes: snap.prevMistakes,
+      session: { ...snap.prevSession, pending: undefined },
+    };
+  });
+  if (restored) lastUndo = null;
+  return restored;
 }
 
 /** What the learner says on first meeting a word. */
@@ -355,7 +588,26 @@ export function applyIntro(p: Progress, id: string, verdict: IntroVerdict, reten
 /** Record the verdict on a new word's card and move on. */
 export function introduce(id: string, verdict: IntroVerdict, seconds: number) {
   const { settings } = store.get();
-  store.progress((p) => applyIntro(p, id, verdict, settings.retention));
+  const now = Date.now();
+  const dk = dayKey(new Date(now));
+  store.progress((p) => {
+    const sess = p.session;
+    if (!sess) return p;
+    lastUndo = {
+      sessionId: sess.id,
+      wordId: id,
+      stepIndex: sess.index,
+      kind: "intro",
+      prevCard: p.cards[id],
+      prevMistakes: p.mistakes,
+      prevDayKey: dk,
+      prevDay: p.days[dk],
+      prevSession: sess,
+      wasFirst: !(id in sess.graded),
+      at: now,
+    };
+    return applyIntro(p, id, verdict, settings.retention, now);
+  });
   advance(seconds);
 }
 
@@ -377,4 +629,4 @@ export function sessionStats(s: ActiveSession) {
   return { total: graded.length, correct, accuracy: graded.length ? Math.round((correct / graded.length) * 100) : 0 };
 }
 
-export const masteredCount = (p: Progress) => Object.values(p.cards).filter(isMastered).length;
+export const masteredCount = (p: Pick<Progress, "cards">) => Object.values(p.cards).filter(isMastered).length;

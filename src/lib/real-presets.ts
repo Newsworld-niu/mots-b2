@@ -5,6 +5,8 @@ export interface RealPreset extends RealSource {
   subtitle: string;
   tags: string[];
   words: number;
+  pace?: "slow" | "native170";
+  license?: string;
 }
 
 export const FEI_OFFICIAL_SAMPLES: { id: string; title: string; zh: string; url: string }[] = [
@@ -164,7 +166,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 2,
         "why": "节目中明确说法国要求联合国安理会紧急开会，其他选项没有提到。",
         "skill": "detail",
-        "pts": 1
+        "pts": 0.5
       },
       {
         "doc": 0,
@@ -177,7 +179,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 1,
         "why": "节目提到英欧签署新协议，其他选项未被报道。",
         "skill": "detail",
-        "pts": 1.5
+        "pts": 0.5
       },
       {
         "doc": 0,
@@ -189,8 +191,8 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         ],
         "answer": 0,
         "why": "节目中非洲国家批评富国努力不够，其他选项与内容不符。",
-        "skill": "detail",
-        "pts": 1.5
+        "skill": "paraphrase",
+        "pts": 2
       },
       {
         "doc": 0,
@@ -203,7 +205,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 2,
         "why": "节目中他批评种族主义被视为正常，其他选项未提及或与事实不符。",
         "skill": "opinion",
-        "pts": 1
+        "pts": 2.5
       },
       {
         "doc": 0,
@@ -229,7 +231,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 0,
         "why": "节目中提到导弹落在波兰，引发欧洲国家谴责，其他选项未被报道。",
         "skill": "detail",
-        "pts": 1.5
+        "pts": 1
       }
     ]
   },
@@ -249,7 +251,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 2,
         "why": "新闻中明确提到黄仁勋因涉嫌间谍丑闻被迫离职，其他选项未被提及。",
         "skill": "detail",
-        "pts": 1
+        "pts": 0.5
       },
       {
         "doc": 0,
@@ -275,7 +277,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 0,
         "why": "她批评领导人脱离现实，强调生态损失不可逆，其他选项与她的发言不符。",
         "skill": "detail",
-        "pts": 1.5
+        "pts": 1
       },
       {
         "doc": 0,
@@ -288,7 +290,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 2,
         "why": "她提到法语带来机会和国家自豪感，其他选项未被她强调或与事实不符。",
         "skill": "inference",
-        "pts": 1.5
+        "pts": 2.5
       },
       {
         "doc": 0,
@@ -301,7 +303,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 1,
         "why": "她明确说是父母为她选择的，其他选项与她的经历不符。",
         "skill": "detail",
-        "pts": 1
+        "pts": 0.5
       },
       {
         "doc": 0,
@@ -327,7 +329,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 2,
         "why": "她希望峰会带来实际成果并提升国家形象，其他选项未被提及或过于极端。",
         "skill": "opinion",
-        "pts": 1.5
+        "pts": 2
       }
     ]
   },
@@ -347,7 +349,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 1,
         "why": "家属希望总统特本能赦免克里斯托夫·格莱兹，使其获释。其他选项（转监、去法国治病）在报道中未被提及。",
         "skill": "gist",
-        "pts": 1
+        "pts": 0.5
       },
       {
         "doc": 0,
@@ -373,7 +375,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 2,
         "why": "家人担心他牙齿疼痛且需要手术，但在狱中很难安排。没有提及严重疾病或缺药。",
         "skill": "detail",
-        "pts": 1.5
+        "pts": 1
       },
       {
         "doc": 0,
@@ -385,8 +387,8 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         ],
         "answer": 1,
         "why": "报告指出以色列国家机构直接主导驱逐，非仅由定居者组织。拆迁数量实际上大幅增加，而不是减少。",
-        "skill": "detail",
-        "pts": 1.5
+        "skill": "paraphrase",
+        "pts": 2
       },
       {
         "doc": 0,
@@ -399,7 +401,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 0,
         "why": "尽管经济表现良好，西班牙人普遍感到公共服务恶化。其他选项（信任、乐观）与报道内容不符。",
         "skill": "inference",
-        "pts": 1
+        "pts": 2.5
       },
       {
         "doc": 0,
@@ -425,7 +427,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 1,
         "why": "每年有民族主义者参加的活动是独立游行，其他两个选项未在报道中出现。",
         "skill": "detail",
-        "pts": 1.5
+        "pts": 0.5
       }
     ]
   },
@@ -445,7 +447,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 1,
         "why": "节目明确指出民主党在中期选举中获胜并掌控国会。特朗普连任和新党成立都未被提及。",
         "skill": "gist",
-        "pts": 1
+        "pts": 0.5
       },
       {
         "doc": 0,
@@ -458,7 +460,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 0,
         "why": "节目强调这位女性是美国首位非裔女性州长。其他选项与事实不符。",
         "skill": "detail",
-        "pts": 1
+        "pts": 0.5
       },
       {
         "doc": 0,
@@ -471,7 +473,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 2,
         "why": "记者提到通货膨胀和油价上涨是主要原因，其他选项未被提及。",
         "skill": "detail",
-        "pts": 1.5
+        "pts": 1
       },
       {
         "doc": 0,
@@ -484,7 +486,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 1,
         "why": "节目提到伊朗民众庆祝特朗普失败，其他选项未被报道。",
         "skill": "detail",
-        "pts": 1.5
+        "pts": 1
       },
       {
         "doc": 0,
@@ -497,7 +499,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 0,
         "why": "节目描述冷藏系统被攻击，血液保存受到威胁，但没有数据泄露或全部血液被毁的情况。",
         "skill": "detail",
-        "pts": 1
+        "pts": 1.5
       },
       {
         "doc": 0,
@@ -510,7 +512,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 2,
         "why": "作者想表达教师真实经历，反对刻板印象。其他选项未被提及。",
         "skill": "inference",
-        "pts": 1.5
+        "pts": 2.5
       },
       {
         "doc": 0,
@@ -523,7 +525,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 1,
         "why": "节目指出多国冷藏系统被远程激活除霜，其他选项与事实不符。",
         "skill": "gist",
-        "pts": 1.5
+        "pts": 2
       }
     ]
   },
@@ -543,7 +545,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 0,
         "why": "节目中明确指出中期选举的主要目的是衡量美国民众对现任总统的支持度。其他选项（选总统、修改宪法）都不是本次选举的核心内容。",
         "skill": "gist",
-        "pts": 1
+        "pts": 0.5
       },
       {
         "doc": 0,
@@ -568,8 +570,8 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         ],
         "answer": 1,
         "why": "节目中指出民主党要在参议院获胜，必须赢得一些传统上属于共和党的席位。其他选项（候选人不足、参议院不选举）都不正确。",
-        "skill": "detail",
-        "pts": 1.5
+        "skill": "paraphrase",
+        "pts": 2
       },
       {
         "doc": 0,
@@ -595,7 +597,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 2,
         "why": "节目中查尔斯三世称奴隶制为“可怕的不公正”。其他选项（光荣、误会）与节目内容不符。",
         "skill": "detail",
-        "pts": 1
+        "pts": 0.5
       },
       {
         "doc": 0,
@@ -608,7 +610,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 1,
         "why": "节目描述黑客攻击导致冷冻柜温度异常，造成货物损失。其他选项（支付中断、永久关闭）节目未提及。",
         "skill": "detail",
-        "pts": 1.5
+        "pts": 1
       },
       {
         "doc": 0,
@@ -620,8 +622,8 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         ],
         "answer": 0,
         "why": "节目强调该小说以真实悬案为基础，风格幽默。其他选项（科幻、英国国王）与内容无关。",
-        "skill": "gist",
-        "pts": 1.5
+        "skill": "inference",
+        "pts": 2.5
       }
     ]
   },
@@ -632,16 +634,22 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
     "questions": [
       {
         "doc": 0,
-        "q": "Quelle est la principale inquiétude soulevée après le grave accident de train en Espagne ?",
+        "q": "Selon le spécialiste Arnaud Aymé, qu'est-ce qui pourrait expliquer de façon systémique la série d'accidents ferroviaires en Espagne ?",
         "options": [
-          "Le manque d'investissement dans la sécurité ferroviaire",
-          "La vétusté des trains eux-mêmes",
-          "L'absence de formation des conducteurs"
+          "Un sous-investissement financier qui réduit directement la sécurité des voies",
+          "Une défaillance liée à la culture et au respect des procédures de sécurité",
+          "L'absence totale de formation technique chez les nouveaux conducteurs"
         ],
-        "answer": 0,
-        "why": "节目中多次提到西班牙铁路投资不足，尤其是安全基础设施，而不是列车老旧或司机培训不足。",
-        "skill": "gist",
-        "pts": 1
+        "answer": 1,
+        "evidence": "le sous-investissement ne peut pas expliquer des problèmes de sécurité ni en Espagne ni ailleurs [...] ça peut être lié, aussi, à un problème de culture de sécurité dans ces entreprises-là.",
+        "trapTypes": [
+          "导语表象陷阱（专家明确反驳）",
+          "同义改写（正确项）",
+          "无中生有"
+        ],
+        "why": "运输专家 Arnaud Aymé 明确反驳了导语中“投入不足导致不安全”的表象推论（指出投资不足只会导致故障和晚点，绝不能解释安全事故），强调更深层的系统性问题可能出在铁路企业的安全文化与安全规程执行上。",
+        "skill": "opinion",
+        "pts": 2.5
       },
       {
         "doc": 0,
@@ -667,7 +675,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 1,
         "why": "受访村民表示无论谁执政，对黎巴嫩的政策都不会变；不是因为无法投票，也不是因为战争即将结束。",
         "skill": "opinion",
-        "pts": 1.5
+        "pts": 2
       },
       {
         "doc": 0,
@@ -680,7 +688,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 0,
         "why": "西班牙全国哀悼三天是因为两列火车相撞造成大量死亡，而不是恐怖袭击或工厂火灾。",
         "skill": "detail",
-        "pts": 1.5
+        "pts": 0.5
       },
       {
         "doc": 0,
@@ -693,7 +701,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 2,
         "why": "南韩议员主要批评游戏暴露了国家军事准备不足，而不是只关注暴力或北韩形象。",
         "skill": "gist",
-        "pts": 1
+        "pts": 1.5
       },
       {
         "doc": 0,
@@ -706,7 +714,7 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 1,
         "why": "两起事件都造成多人死亡，但不是恐怖袭击，也不是发生在城市。",
         "skill": "inference",
-        "pts": 1.5
+        "pts": 1
       },
       {
         "doc": 0,
@@ -719,15 +727,551 @@ const QUIZZES: Record<string, { intro: string; title: string; zh: string; questi
         "answer": 0,
         "why": "以色列总统呼吁不要质疑阿拉伯选票的合法性，没有祝贺胜者或宣布新联盟。",
         "skill": "detail",
-        "pts": 1.5
+        "pts": 0.5
       }
     ]
   }
 };
 
-/** Offline 7-question DELF B2 quiz for a bundled RFI preset (9 pts, no AI key needed). */
+/** Four original ~170 WPM (~3 min, 480–540 words) native-speed French broadcast chronicles under CC BY 4.0. */
+export const PREBUILT_FAST_CHRONICLES: RealPreset[] = [
+  {
+    id: "s-chron-semaine4j",
+    presetId: "chron-semaine-4j",
+    title: "常速专题 01 · 四天工作制与真实生产率｜Semaine de quatre jours : miracle ou mirage ?",
+    subtitle: "Chronique éco ~170 WPM（约 3 分钟 · 513 词 · 三人电台辩论 · CC BY 4.0）",
+    url: "tts-chronicle:semaine-4j",
+    start: 0,
+    end: 180,
+    created: 1796000100000,
+    pace: "native170",
+    license: "CC BY 4.0",
+    transcript:
+      "Claire Dumas : Sept heures quarante-huit sur Radio Méridien, bienvenue dans Le Décryptage. Travailler trente-deux heures payées trente-cinq sur quatre jours sans perdre un euro de salaire ni un point de compétitivité : depuis deux ans, plus de quatre cents PME françaises ont franchi le pas, inspirées par les essais pilotes menés au Royaume-Uni et en Belgique. Miracle social pour réconcilier enfin vie familiale et emploi industriel, ou mirage réservé aux cadres urbains du conseil et de l'informatique ? J'accueille ce matin Marc Bellanger, dirigeant d'une fonderie industrielle de cent dix salariés dans l'Ain, et Nadia Khelifi, sociologue du travail au CNRS.\n\nMarc Bellanger : Bonjour Claire. Chez nous, à Oyonnax, on n'est pas dans un cabinet de conseil parisien : on fait tourner des fours et des presses à haute température, avec des carnets clients très exigeants. Quand j'ai proposé la semaine de quatre jours pour endiguer la fuite de nos techniciens qualifiés, les syndicats craignaient une intensification brutale des cadences. On a donc supprimé les réunions intermédiaires inutiles et réorganisé la maintenance par roulement du lundi au vendredi. Nos chefs d'atelier ont également simplifié les procédures administratives internes qui faisaient perdre près de quarante minutes par équipe chaque matin. Résultat après dix-huit mois : l'absentéisme de courte durée a chuté de trente-huit pour cent, les rebuts sur chaîne ont baissé de douze pour cent et notre chiffre d'affaires est resté stable. Mieux encore, nous recevons désormais des candidatures spontanées d'outilleurs expérimentés venus de toute la région.\n\nNadia Khelifi : L'exemple de monsieur Bellanger est éclairant, mais attention à ne pas généraliser trop vite ce succès à l'ensemble du tissu économique français. Dans notre enquête longitudinale menée auprès de vingt-six entreprises pionnières, tout dépend d'un paramètre décisif : réduit-on réellement le volume horaire hebdomadaire, ou compresse-t-on trente-cinq voire trente-neuf heures sur quatre journées marathon de neuf heures quarante-cinq ? Dans ce second cas, que choisissent hélas la moitié des employeurs, la fatigue cognitive explose le jeudi soir et pénalise durement les parents isolés pour la garde d'enfants. Nous avons même relevé une augmentation sensible des erreurs d'inattention en fin de journée dans plusieurs plateformes administratives.\n\nClaire Dumas : Et qu'en est-il des secteurs déjà en forte tension de recrutement comme l'hôpital public, la logistique frigorifique, les crèches municipales ou la restauration, Nadia Khelifi ?\n\nNadia Khelifi : C'est précisément tout l'angle mort du débat médiatique. Là où la présence physique continue au guichet ou au chevet du patient est indispensable, passer à trente-deux heures sans embauches compensatoires revient mathématiquement à dégrader le service rendu ou à alourdir la charge des équipes restantes. Sans aide transitoire sur les cotisations des bas salaires, on risque de creuser une fracture nette entre les salariés autonomes et les métiers de première ligne.\n\nMarc Bellanger : Je vous rejoins sur un point : la compression sèche sur quatre longues journées est un piège, nous l'avons écartée au bout de six semaines d'essai. En revanche, n'attendons surtout pas une obligation législative uniforme imposée d'en haut à toutes les branches. Ce dispositif ne fonctionne que s'il est négocié atelier par atelier, avec un droit de réversibilité annuel si le carnet de commandes s'effondre.",
+    tags: ["~170 WPM 常速", "职场与生产率", "CC BY 4.0"],
+    words: 513,
+  },
+  {
+    id: "s-chron-surtourisme",
+    presetId: "chron-surtourisme-quotas",
+    title: "常速专题 02 · 国家公园限流与过度旅游｜Sur-tourisme : faut-il imposer des quotas ?",
+    subtitle: "Chronique société ~170 WPM（约 3 分钟 · 499 词 · 现场连线辩论 · CC BY 4.0）",
+    url: "tts-chronicle:surtourisme-quotas",
+    start: 0,
+    end: 180,
+    created: 1796000200000,
+    pace: "native170",
+    license: "CC BY 4.0",
+    transcript:
+      "Julien Vasseur : Huit heures douze, Grand Angle sur France Horizon. Réserver gratuitement un créneau horaire avec code barre sur son téléphone portable pour descendre dans une calanque marseillaise, accoster sur une île bretonne ou gravir un sentier alpin : autrefois impensable en France au nom du libre accès républicain aux espaces naturels, le quota journalier s'étend cet été à douze sites classés particulièrement fragiles. Mesure de sauvegarde écologique vitale face à l'érosion accélérée, ou sélection sociale déguisée du paysage ? Avec nous en direct, Élodie Garrel, directrice adjointe d'un parc national méditerranéen, et Bastien Maurin, président d'une fédération régionale de randonneurs.\n\nÉlodie Garrel : Bonjour Julien. Il ne s'agit aucunement de mettre la Méditerranée sous cloche, mais d'empêcher l'effondrement irréversible d'un milieu vivant très étroit. Les chiffres scientifiques parlent d'eux-mêmes : sur le seul promontoire de Sugiton, nous recevions jusqu'à deux mille huit cents visiteurs par jour en juillet, contre un seuil de régénération écologique estimé à quatre cents personnes. Les racines des pins d'Alep centenaires étaient mises à nu par le piétinement incessant, les murets de pierre sèche cédaient et le risque d'incendie devenait ingérable pour les colonnes de pompiers. Depuis l'instauration du permis journalier gratuit plafonné, la couverture végétale reprend dix-neuf pour cent de terrain dès la deuxième saison, sans que les commerçants du port aient subi la moindre baisse de fréquentation globale. Même les pêcheurs côtiers constatent un recul net des déchets plastiques dérivants.\n\nBastien Maurin : Personne de sérieux ne conteste la dégradation des sols calcaires, madame Garrel, et nos propres bénévoles balisent ces chemins toute l'année. Mais regardons lucidement l'effet pervers de vos jauges numériques sur la sociologie du public. D'abord, elles favorisent les touristes hyperconnectés capables de réserver trois semaines à l'avance, au détriment des familles locales qui décident d'une sortie le dimanche matin selon la météo. Pour beaucoup de ménages modestes des quartiers périphériques, la baignade en crique demeure l'unique respiration estivale gratuite. Ensuite, nous observons un report massif de fréquentation vers les vallons voisins non réglementés, qui ne disposent ni de gardes forestiers ni de sanitaires et se dégradent deux fois plus vite.\n\nJulien Vasseur : Élodie Garrel, comment éviter simultanément cet effet domino sur les communes limitrophes et cette barrière technologique qui heurte les habitants ?\n\nÉlodie Garrel : Nous avons entendu cette alerte légitime et ajusté le dispositif dès le mois d'avril : trente pour cent des places sont désormais débloquées seulement quarante-huit heures avant la visite, et un quota téléphonique sans internet est réservé aux offices de tourisme locaux. Nous mutualisons aussi des brigades d'accueil avec les municipalités voisines et des navettes électriques depuis la gare. Quant au report sauvage, nous coordonnons avec la région la suppression des campagnes publicitaires estivales au profit de séjours d'automne et de printemps.\n\nBastien Maurin : C'est une avancée notable sur l'équité d'accès, certes, mais ne nous trompons pas d'échelle : tant que les algorithmes des réseaux sociaux géolocaliseront les mêmes criques secrètes auprès de millions d'abonnés, plafonner trois sentiers sans réguler les navettes maritimes privées ne suffira pas à sauver le littoral.",
+    tags: ["~170 WPM 常速", "生态与旅游配额", "CC BY 4.0"],
+    words: 499,
+  },
+  {
+    id: "s-chron-ia-univ",
+    presetId: "chron-ia-universite",
+    title: "常速专题 03 · 高校生成式 AI 与学术诚信｜IA générative à l'université : repenser l'examen",
+    subtitle: "Chronique campus ~170 WPM（约 3 分钟 · 485 词 · 教务改革专访 · CC BY 4.0）",
+    url: "tts-chronicle:ia-universite",
+    start: 0,
+    end: 180,
+    created: 1796000300000,
+    pace: "native170",
+    license: "CC BY 4.0",
+    transcript:
+      "Sophie Marchand : Midi quatorze dans Campus Actu, votre magazine quotidien consacré aux mutations de l'enseignement supérieur francophone. Trois étudiants de licence sur quatre déclarent désormais utiliser chaque semaine un agent conversationnel génératif pour résumer leur bibliographie, traduire des articles scientifiques anglophones ou bâtir le plan détaillé de leurs dissertations à domicile. Face à l'échec manifeste des logiciels de détection automatique et à la multiplication des contentieux disciplinaires devant les commissions universitaires, plusieurs universités françaises réforment en profondeur leurs modalités de contrôle continu. Pour en débattre ce midi, nous recevons le professeur Henri Delmas, vice-président chargé de la pédagogie à l'université de Nantes, et Camille Rivière, représentante élue des étudiants en master d'histoire contemporaine.\n\nHenri Delmas : Bonjour Sophie. Notre commission pédagogique a pris une décision lucide dès la rentrée de septembre dernier : abandonner totalement les détecteurs algorithmiques de texte généré, dont le taux de faux positifs frôlait dix-huit pour cent, en particulier chez nos étudiants internationaux dont la syntaxe académique est plus standardisée. Accuser à tort un étudiant scrupuleux de fraude sur la foi d'une boîte noire statistique invérifiable est moralement injuste et juridiquement intenable devant un juge administratif. En contrepartie, les devoirs rédigés à domicile ne comptent plus seuls : chacun d'eux donne lieu à une soutenance orale éclair de huit minutes sans notes, durant laquelle l'enseignant interroge les choix méthodologiques du candidat et lui demande de définir ses concepts clés.\n\nCamille Rivière : Sur le principe, l'oral de vérification rétablit l'équité bien mieux qu'une interdiction hypocrite que tout le monde contourne. Les étudiants qui travaillent honnêtement en bibliothèque étaient les premiers exaspérés de voir des dossiers intégralement générés en dix secondes décrocher quatorze sur vingt sans le moindre effort de lecture personnelle. Néanmoins, dans la réalité budgétaire très tendue des facultés publiques françaises, cette réforme rapide provoque deux difficultés concrètes majeures. D'une part, dans les amphithéâtres de quatre cents inscrits en première année, les chargés de travaux dirigés n'ont matériellement pas les heures nécessaires pour interroger chaque étudiant sérieusement. Beaucoup d'enseignants vacataires précaires ne sont même pas rémunérés pour cette surcharge hebdomadaire d'auditions individuelles. D'autre part, faute de charte explicite, un même usage d'aide à la reformulation est encouragé par un enseignant de sociologie et sanctionné d'un zéro par son collègue de droit.\n\nSophie Marchand : Professeur Delmas, au-delà de ce flou disciplinaire entre départements, ne voit-on pas émerger une fracture sociale préoccupante entre les étudiants abonnés à des outils payants très performants et ceux cantonnés aux versions gratuites limitées ?\n\nHenri Delmas : Absolument, cette inégalité financière nous préoccupe directement, et c'est pourquoi notre établissement déploie désormais un portail souverain gratuit et hébergé localement pour tous les inscrits, assorti d'un barème transparent commun à toutes les facultés du campus. Nous formons aussi les étudiants à fournir en annexe leur journal de requêtes et à critiquer les sources inventées par le modèle : ce qu'on évalue désormais, ce n'est plus la compilation mécanique, mais la vérification documentaire et l'esprit critique.",
+    tags: ["~170 WPM 常速", "高等教育与 AI", "CC BY 4.0"],
+    words: 485,
+  },
+  {
+    id: "s-chron-consigne",
+    presetId: "chron-consigne-verre",
+    title: "常速专题 04 · 玻璃瓶押金制与循环经济｜Le retour de la consigne du verre divise les communes",
+    subtitle: "Chronique transition ~170 WPM（约 3 分钟 · 482 词 · 地方政策交锋 · CC BY 4.0）",
+    url: "tts-chronicle:consigne-verre",
+    start: 0,
+    end: 180,
+    created: 1796000400000,
+    pace: "native170",
+    license: "CC BY 4.0",
+    transcript:
+      "Antoine Mercier : Dix-huit heures vingt-deux sur Radio Hexagone, bienvenue dans Planète Concrète, votre chronique quotidienne de l'écologie territoriale. Laver à haute pression et réemployer une bouteille en verre jusqu'à trente fois de suite au lieu de la broyer au camion-benne et de la refondre dans un four industriel à mille cinq cents degrés : tombée dans l'oubli en France à la fin des années quatre-vingt avec l'essor du jetable, puis expérimentée depuis mai dans quatre régions de l'Ouest et du Nord, la consigne pour réemploi économise jusqu'à soixante-quinze pour cent d'énergie par emballage et réduit d'un tiers la consommation d'eau potable. Pourtant, plusieurs associations d'élus des communes rurales montent vigoureusement au créneau contre sa généralisation précipitée. Débat ce soir entre Hélène Courtois, coordinatrice d'une coopérative régionale de lavage industriel, et Gilles Aubert, maire d'une intercommunalité rurale de Moselle.\n\nHélène Courtois : Bonsoir Antoine. Il faut d'abord lever un malentendu très répandu entre le recyclage par destruction de matière et le véritable réemploi circulaire. Même si les ménages français trient honorablement leurs emballages en verre depuis trente ans, les refondre exige d'immenses volumes de gaz fossile et émet quatre cent cinquante mille tonnes de dioxyde de carbone chaque année dans l'Hexagone. Dans notre réseau pilote, l'acheteur avance vingt centimes d'euro par bouteille et les récupère aussitôt en déposant son contenant intact, sans bouchon, auprès de l'un des six cents commerces affiliés. En dix mois, le taux de retour atteint déjà soixante-huit pour cent sur les jus, bières et soupes locales, grâce à l'adoption de quatre formats standardisés adaptés à l'ensemble des embouteilleurs régionaux.\n\nGilles Aubert : Sur le bilan carbone théorique, madame Courtois, aucun maire responsable ne conteste l'intérêt écologique du lavage industriel. Mais regardez de près l'équation financière quotidienne de nos syndicats intercommunaux en milieu rural ! Aujourd'hui, la revente du calcin, c'est-à-dire le verre collecté dans nos bornes municipales, rapporte près de quarante euros la tonne à notre syndicat de traitement et permet de contenir la taxe d'enlèvement des ordures ménagères acquittée par nos administrés. Si les bouteilles les plus propres partent vers les automates des hypermarchés périphériques, nos recettes chutent tandis que nos camions continuent de tourner pour le verre cassé restant et les pots de confiture non consignés.\n\nAntoine Mercier : Sans oublier la crainte légitime exprimée par les commerçants indépendants des centres-bourgs face aux grandes surfaces, monsieur le maire ?\n\nGilles Aubert : Tout à fait, ce mécanisme risque d'aspirer encore davantage la clientèle motorisée vers les zones commerciales routières : une épicerie de village de soixante mètres carrés n'a ni la place de stocker trente caisses de bouteilles sales, ni quinze mille euros pour installer un automate de déconsignation.\n\nHélène Courtois : C'est une inquiétude légitime, et nous la traitons dans la phase deux : une compensation financière à la tonne est désormais versée aux collectivités partenaires, et des points de collecte mutualisés sur la voie publique évitent aux petits épiciers de gérer seuls la logistique retour.",
+    tags: ["~170 WPM 常速", "循环经济与地方财政", "CC BY 4.0"],
+    words: 482,
+  },
+];
+
+const CHRONICLE_QUIZZES: Record<string, { intro: string; title: string; topic: string; zh: string; questions: CompQuestion[] }> = {
+  "chron-semaine-4j": {
+    intro: "Vous écoutez une chronique économique à débit natif (~170 mots/min) sur l'expérimentation de la semaine de quatre jours en France (CC BY 4.0).",
+    title: "Semaine de quatre jours : miracle ou mirage ?",
+    topic: "travail",
+    zh: "母语常速广播专题（~170 WPM · CC BY 4.0）：探讨法国中小企业试行四天工作制的真实生产率、工时压缩陷阱与一线岗位公平性。",
+    questions: [
+      {
+        doc: 0,
+        q: "Quelle motivation initiale a poussé Marc Bellanger à tester la semaine de quatre jours dans son usine ?",
+        options: [
+          "Répondre à une obligation légale imposée aux fonderies",
+          "Freiner le départ de ses ouvriers et techniciens expérimentés",
+          "Compenser une chute brutale des commandes à l'exportation",
+        ],
+        answer: 1,
+        evidence: "Quand j'ai proposé la semaine de quatre jours pour endiguer la fuite de nos techniciens qualifiés, les syndicats craignaient une intensification brutale des cadences.",
+        trapTypes: ["与末段反对统一立法相悖", "同义改写（正确项）", "无中生有"],
+        why: "Marc Bellanger 明确表示提出四天工作制是为了遏制熟练技术人员流失（endiguer la fuite de nos techniciens qualifiés）。",
+        skill: "detail",
+        pts: 1,
+      },
+      {
+        doc: 0,
+        q: "Comment la fonderie d'Oyonnax a-t-elle maintenu son activité sans augmenter les cadences ?",
+        options: [
+          "En automatisant entièrement l'atelier de pressage la nuit",
+          "En embauchant une équipe intérimaire dédiée au vendredi",
+          "En élaguant certaines réunions et en étalant l'entretien sur cinq jours",
+        ],
+        answer: 2,
+        evidence: "On a donc supprimé les réunions intermédiaires inutiles et réorganisé la maintenance par roulement du lundi au vendredi.",
+        trapTypes: ["无中生有", "无中生有", "同义改写（正确项）"],
+        why: "工厂砍掉了无用的中间会议，并将设备维护改为周一至周五轮班运行。",
+        skill: "paraphrase",
+        pts: 1,
+      },
+      {
+        doc: 0,
+        q: "Après un an et demi d'essai dans cette fonderie, quel bilan chiffré est constaté ?",
+        options: [
+          "Une hausse de douze pour cent du chiffre d'affaires annuel",
+          "Un net recul des arrêts courts et des pièces défectueuses",
+          "Une disparition complète des heures supplémentaires payées",
+        ],
+        answer: 1,
+        evidence: "Résultat après dix-huit mois : l'absentéisme de courte durée a chuté de trente-huit pour cent, les rebuts sur chaîne ont baissé de douze pour cent et notre chiffre d'affaires est resté stable.",
+        trapTypes: ["偷换指标（12%是废品率下降，营业额持平）", "同义改写（正确项）", "无中生有"],
+        why: "短期缺勤率下降38%，产线废品率下降12%，营业额保持稳定。",
+        skill: "detail",
+        pts: 0.5,
+      },
+      {
+        doc: 0,
+        q: "Selon Nadia Khelifi, quelle pratique adoptée par la moitié des entreprises s'avère néfaste ?",
+        options: [
+          "Imposer le télétravail intégral sans indemnité d'équipement",
+          "Concentrer la même durée de travail sur quatre journées très longues",
+          "Diminuer les salaires proportionnellement au temps libéré",
+        ],
+        answer: 1,
+        evidence: "Dans ce second cas, que choisissent hélas la moitié des employeurs, la fatigue cognitive explose le jeudi soir et pénalise durement les parents isolés pour la garde d'enfants.",
+        trapTypes: ["无中生有", "核心论点同义改写（正确项）", "与同工同酬前提相反"],
+        why: "半数雇主把35甚至39小时硬塞进四天近10小时的超长工作日，导致周四晚认知疲劳激增并冲击单亲家长育儿。",
+        skill: "opinion",
+        pts: 1.5,
+      },
+      {
+        doc: 0,
+        q: "Quel risque social majeur la sociologue pointe-t-elle pour les métiers de première ligne ?",
+        options: [
+          "Un fossé grandissant face aux postes autonomes faute de recrutements",
+          "Un remplacement accéléré du personnel hospitalier par des sous-traitants",
+          "Un refus massif des usagers d'accepter des horaires administratifs réduits",
+        ],
+        answer: 0,
+        evidence: "Sans aide transitoire sur les cotisations des bas salaires, on risque de creuser une fracture nette entre les salariés autonomes et les métiers de première ligne.",
+        trapTypes: ["同义改写（正确项）", "无中生有", "无中生有"],
+        why: "医院、物流、餐饮等需持续在岗的行业若不补充招人或减免低薪社保，将加剧自主白领与一线岗位之间的裂痕。",
+        skill: "inference",
+        pts: 2,
+      },
+      {
+        doc: 0,
+        q: "Sur quel point précis l'industriel rejoint-il l'analyse de la sociologue ?",
+        options: [
+          "L'urgence de voter une obligation nationale identique pour tous",
+          "Le danger de condenser les heures sans réduire la durée hebdomadaire",
+          "La nécessité de subventionner durablement les cabinets de conseil",
+        ],
+        answer: 1,
+        evidence: "Je vous rejoins sur un point : la compression sèche sur quatre longues journées est un piège, nous l'avons écartée au bout de six semaines d'essai.",
+        trapTypes: ["与他反对统一立法的立场相反", "同义改写（正确项）", "无中生有"],
+        why: "Marc Bellanger 明确赞同：单纯压缩成四个超长工作日的做法是个陷阱，他厂里试了六周就否决了。",
+        skill: "opinion",
+        pts: 0.5,
+      },
+      {
+        doc: 0,
+        q: "À quelle condition Marc Bellanger juge-t-il ce modèle viable dans l'industrie ?",
+        options: [
+          "Qu'il soit négocié localement et puisse être revu en cas de crise d'activité",
+          "Qu'il soit réservé uniquement aux salariés ayant dix ans d'ancienneté",
+          "Qu'il s'accompagne d'un gel pluriannuel des négociations salariales",
+        ],
+        answer: 0,
+        evidence: "Ce dispositif ne fonctionne que s'il est négocié atelier par atelier, avec un droit de réversibilité annuel si le carnet de commandes s'effondre.",
+        trapTypes: ["否定限定 ne… que 同义改写（正确项）", "无中生有", "无中生有"],
+        why: "ne fonctionne que s'il est négocié atelier par atelier, avec un droit de réversibilité annuel：必须逐车间协商，并在订单骤降时保留年度可逆调整权。",
+        skill: "negation",
+        pts: 2.5,
+      },
+    ],
+  },
+  "chron-surtourisme-quotas": {
+    intro: "Vous écoutez un débat radiophonique à débit natif (~170 mots/min) sur les quotas de fréquentation dans les parcs nationaux (CC BY 4.0).",
+    title: "Sur-tourisme : faut-il imposer des quotas ?",
+    topic: "environnement",
+    zh: "母语常速广播专题（~170 WPM · CC BY 4.0）：聚焦法国自然保护区预约限流制度的生态修复成效、数字门槛与周边溢出效应。",
+    questions: [
+      {
+        doc: 0,
+        q: "Quel constat écologique a motivé le plafonnement des entrées à Sugiton ?",
+        options: [
+          "Une pollution marine causée par les bateaux de croisière géants",
+          "Une affluence estivale sept fois supérieure à la capacité du milieu",
+          "L'effondrement d'une falaise ayant blessé plusieurs promeneurs",
+        ],
+        answer: 1,
+        evidence: "sur le seul promontoire de Sugiton, nous recevions jusqu'à deux mille huit cents visiteurs par jour en juillet, contre un seuil de régénération écologique estimé à quatre cents personnes.",
+        trapTypes: ["偷换原因", "数值比值同义归纳（2800 vs 400）（正确项）", "无中生有"],
+        why: "7月单日游客高达2800人，是生态再生承载阈值（400人）的7倍，导致阿勒颇松树根裸露且火灾救援风险失控。",
+        skill: "detail",
+        pts: 1,
+      },
+      {
+        doc: 0,
+        q: "Quel résultat Élodie Garrel met-elle en avant depuis la mise en place du permis gratuit ?",
+        options: [
+          "Une repousse notable de la flore sans pénaliser le commerce local",
+          "Une augmentation des recettes fiscales grâce aux amendes dressées",
+          "Une division par deux du budget consacré aux secours incendie",
+        ],
+        answer: 0,
+        evidence: "Depuis l'instauration du permis journalier gratuit plafonné, la couverture végétale reprend dix-neuf pour cent de terrain dès la deuxième saison, sans que les commerçants du port aient subi la moindre baisse de fréquentation globale.",
+        trapTypes: ["同义改写（正确项）", "无中生有（许可免费，未提罚款增收）", "无中生有"],
+        why: "第二季植被覆盖率已回升19%，同时港口商户整体客流并未下降。",
+        skill: "paraphrase",
+        pts: 1,
+      },
+      {
+        doc: 0,
+        q: "Pourquoi Bastien Maurin estime-t-il que la réservation numérique désavantage les habitants ?",
+        options: [
+          "Parce que le site internet facture des frais de dossier aux résidents",
+          "Parce qu'elle écarte les sorties spontanées décidées au dernier moment",
+          "Parce que le réseau mobile est coupé à l'entrée des massifs",
+        ],
+        answer: 1,
+        evidence: "elles favorisent les touristes hyperconnectés capables de réserver trois semaines à l'avance, au détriment des familles locales qui décident d'une sortie le dimanche matin selon la météo.",
+        trapTypes: ["与免费预约相悖", "同义改写（正确项）", "无中生有"],
+        why: "线上配额偏向提前三周抢票的游客，损害了周日早上看天气临时决定出行的本地家庭。",
+        skill: "opinion",
+        pts: 1.5,
+      },
+      {
+        doc: 0,
+        q: "Quel effet secondaire géographique le représentant des randonneurs dénonce-t-il ?",
+        options: [
+          "L'abandon complet des sentiers balisés de haute montagne",
+          "Un déplacement massif des visiteurs vers des sites voisins non équipés",
+          "La construction illégale de parkings privés aux portes du parc",
+        ],
+        answer: 1,
+        evidence: "Ensuite, nous observons un report massif de fréquentation vers les vallons voisins non réglementés, qui ne disposent ni de gardes forestiers ni de sanitaires et se dégradent deux fois plus vite.",
+        trapTypes: ["无中生有", "同义改写（正确项）", "无中生有"],
+        why: "大量游客转而涌向周边未限流、缺乏护林员与卫生设施的山谷，导致那些地方退化速度翻倍。",
+        skill: "detail",
+        pts: 0.5,
+      },
+      {
+        doc: 0,
+        q: "Quel ajustement concret le parc a-t-il introduit cette année pour corriger la fracture numérique ?",
+        options: [
+          "L'ouverture d'un contingent de dernière minute et d'un accès par téléphone",
+          "La suppression totale des réservations pour les habitants du département",
+          "L'envoi postal d'une carte annuelle gratuite à chaque foyer riverain",
+        ],
+        answer: 0,
+        evidence: "trente pour cent des places sont désormais débloquées seulement quarante-huit heures avant la visite, et un quota téléphonique sans internet est réservé aux offices de tourisme locaux.",
+        trapTypes: ["同义改写（正确项）", "夸大（未完全取消预约）", "无中生有"],
+        why: "今年将30%名额留到行前48小时才放票，并为当地旅游局预留免上网电话预约配额。",
+        skill: "detail",
+        pts: 0.5,
+      },
+      {
+        doc: 0,
+        q: "Quelle stratégie de communication régionale accompagne désormais ces quotas ?",
+        options: [
+          "Taxer la publicité des compagnies aériennes à bas coût",
+          "Arrêter la promotion d'été pour encourager le tourisme hors saison",
+          "Diffuser des messages d'alerte sur les autoroutes du Sud",
+        ],
+        answer: 1,
+        evidence: "nous coordonnons avec la région la suppression des campagnes publicitaires estivales au profit de séjours d'automne et de printemps.",
+        trapTypes: ["无中生有", "同义改写（正确项）", "无中生有"],
+        why: "与大区协同取消夏季旅游广告宣传，转而引导春秋错峰出行。",
+        skill: "paraphrase",
+        pts: 2,
+      },
+      {
+        doc: 0,
+        q: "En conclusion, quelle limite persistante Bastien Maurin souligne-t-il ?",
+        options: [
+          "Le manque d'effectifs policiers pour verbaliser les campeurs nocturnes",
+          "La viralité des réseaux sociaux combinée à l'absence d'encadrement des bateaux privés",
+          "Le refus des municipalités côtières de financer l'entretien des chemins",
+        ],
+        answer: 1,
+        evidence: "tant que les algorithmes des réseaux sociaux géolocaliseront les mêmes criques secrètes auprès de millions d'abonnés, plafonner trois sentiers sans réguler les navettes maritimes privées ne suffira pas à sauver le littoral.",
+        trapTypes: ["无中生有", "让步与条件限定精准改写（正确项）", "无中生有"],
+        why: "只要社交媒体算法仍在向数百万粉丝精准推送隐秘海湾，且私人海上摆渡船不受监管，仅限制三条陆上步道不足以保护海岸。",
+        skill: "negation",
+        pts: 2.5,
+      },
+    ],
+  },
+  "chron-ia-universite": {
+    intro: "Vous écoutez une émission universitaire à débit natif (~170 mots/min) consacrée à l'IA générative et aux examens (CC BY 4.0).",
+    title: "IA générative à l'université : repenser l'examen",
+    topic: "education",
+    zh: "母语常速广播专题（~170 WPM · CC BY 4.0）：探讨法国高校弃用 AI 文本检测器、引入 8 分钟无稿口头答辩与校内主权算力平台的改革争议。",
+    questions: [
+      {
+        doc: 0,
+        q: "Pourquoi l'université de Nantes a-t-elle renoncé aux logiciels détectant les textes générés par IA ?",
+        options: [
+          "Leur coût de licence annuel dépassait le budget informatique",
+          "Ils accusaient injustement trop d'étudiants, surtout non francophones natifs",
+          "La Commission européenne en a formellement interdit l'usage",
+        ],
+        answer: 1,
+        evidence: "abandonner totalement les détecteurs algorithmiques de texte généré, dont le taux de faux positifs frôlait dix-huit pour cent, en particulier chez nos étudiants internationaux dont la syntaxe académique est plus standardisée.",
+        trapTypes: ["无中生有", "同义改写（正确项）", "无中生有"],
+        why: "算法检测器误判率接近18%，尤其容易误伤句式较规范的国际学生，法律上站不住脚。",
+        skill: "detail",
+        pts: 1.5,
+      },
+      {
+        doc: 0,
+        q: "Par quel dispositif les devoirs faits à la maison sont-ils désormais complétés à Nantes ?",
+        options: [
+          "Par un examen final manuscrit de quatre heures en loge fermée",
+          "Par un bref entretien oral de vérification sans support écrit",
+          "Par une évaluation croisée anonyme entre camarades de promotion",
+        ],
+        answer: 1,
+        evidence: "En contrepartie, les devoirs rédigés à domicile ne comptent plus seuls : chacun d'eux donne lieu à une soutenance orale éclair de huit minutes sans notes, durant laquelle l'enseignant interroge les choix méthodologiques du candidat et lui demande de définir ses concepts clés.",
+        trapTypes: ["无中生有", "同义改写（正确项）", "无中生有"],
+        why: "每份课后作业都不再单独计分，必须配合8分钟脱稿快闪口头答辩（soutenance orale éclair de huit minutes sans notes）。",
+        skill: "paraphrase",
+        pts: 1,
+      },
+      {
+        doc: 0,
+        q: "Quelle est la position de départ de Camille Rivière sur cet oral de vérification ?",
+        options: [
+          "Elle le juge plus juste sur le principe qu'une interdiction inapplicable",
+          "Elle demande son annulation immédiate au nom du syndicat étudiant",
+          "Elle préférerait le maintien des détecteurs automatiques de plagiat",
+        ],
+        answer: 0,
+        evidence: "Sur le principe, l'oral de vérification rétablit l'équité bien mieux qu'une interdiction hypocrite que tout le monde contourne.",
+        trapTypes: ["同义改写（正确项）", "忽视让步结构（她原则上认可）", "与原文相反"],
+        why: "Camille Rivière 首先肯定：原则上口头核查比人人绕过的虚伪禁令更能恢复公平。",
+        skill: "opinion",
+        pts: 1,
+      },
+      {
+        doc: 0,
+        q: "Quel obstacle matériel la représentante étudiante soulève-t-elle en première année ?",
+        options: [
+          "Le manque de salles équipées d'ordinateurs sécurisés",
+          "L'impossibilité horaire de faire passer des oraux sérieux à des promotions géantes",
+          "L'absence de connexion haut débit dans les résidences universitaires",
+        ],
+        answer: 1,
+        evidence: "dans les amphithéâtres de quatre cents inscrits en première année, les chargés de travaux dirigés n'ont matériellement pas les heures nécessaires pour interroger chaque étudiant sérieusement.",
+        trapTypes: ["无中生有", "同义改写（正确项）", "无中生有"],
+        why: "大一400人的大课中，习题课教师根本没有足够工时逐一认真口试每位学生。",
+        skill: "detail",
+        pts: 0.5,
+      },
+      {
+        doc: 0,
+        q: "Quel second problème découle de l'absence de règles communes entre départements ?",
+        options: [
+          "Une disparité arbitraire des sanctions d'un professeur à l'autre",
+          "Un retard de trois mois dans la publication des relevés de notes",
+          "Une fuite massive d'étudiants vers les écoles de commerce privées",
+        ],
+        answer: 0,
+        evidence: "faute de charte explicite, un même usage d'aide à la reformulation est encouragé par un enseignant de sociologie et sanctionné d'un zéro par son collègue de droit.",
+        trapTypes: ["同义归纳（正确项）", "无中生有", "无中生有"],
+        why: "由于缺乏明确章程，同样的辅助改写用法在社会学老师那里受鼓励，在法学同事那里却被判零分。",
+        skill: "inference",
+        pts: 2,
+      },
+      {
+        doc: 0,
+        q: "Comment l'université répond-elle à l'écart entre outils payants et versions gratuites ?",
+        options: [
+          "En remboursant la moitié des abonnements privés aux boursiers",
+          "En mettant à disposition de tous un outil interne gratuit hébergé sur place",
+          "En bloquant le réseau sans fil dans toutes les bibliothèques",
+        ],
+        answer: 1,
+        evidence: "c'est pourquoi notre établissement déploie désormais un portail souverain gratuit et hébergé localement pour tous les inscrits, assorti d'un barème transparent commun à toutes les facultés du campus.",
+        trapTypes: ["无中生有", "同义改写（正确项）", "无中生有"],
+        why: "学校为全体注册学生免费部署了本地托管的主权算力门户。",
+        skill: "detail",
+        pts: 0.5,
+      },
+      {
+        doc: 0,
+        q: "Quelle compétence académique nouvelle est désormais au cœur de la notation ?",
+        options: [
+          "La mémorisation par cœur des dates et bibliographies complètes",
+          "La capacité à tracer ses requêtes et à débusquer les références fictives",
+          "La programmation informatique d'algorithmes linguistiques",
+        ],
+        answer: 1,
+        evidence: "Nous formons aussi les étudiants à fournir en annexe leur journal de requêtes et à critiquer les sources inventées par le modèle : ce qu'on évalue désormais, ce n'est plus la compilation mécanique, mais la vérification documentaire et l'esprit critique.",
+        trapTypes: ["与不再考机械汇编相反", "ne… plus… mais 结构精准改写（正确项）", "无中生有"],
+        why: "评分核心已从机械资料汇编转向附交提示词日志、核查模型杜撰文献与批判性思维。",
+        skill: "negation",
+        pts: 2.5,
+      },
+    ],
+  },
+  "chron-consigne-verre": {
+    intro: "Vous écoutez un magazine environnemental à débit natif (~170 mots/min) sur le retour de la consigne du verre (CC BY 4.0).",
+    title: "Le retour de la consigne du verre divise les communes",
+    topic: "consommation",
+    zh: "母语常速广播专题（~170 WPM · CC BY 4.0）：剖析玻璃瓶押金重用制在节能减排成效之外，与基层市政回收财政及乡村小店空间成本的现实博弈。",
+    questions: [
+      {
+        doc: 0,
+        q: "Quel avantage énergétique distingue le réemploi par lavage de la refonte du verre ?",
+        options: [
+          "Il réduit des trois quarts l'énergie consommée par bouteille",
+          "Il supprime totalement le transport routier des boissons",
+          "Il permet de fabriquer du verre incassable dès le premier cycle",
+        ],
+        answer: 0,
+        evidence: "expérimentée depuis mai dans quatre régions de l'Ouest et du Nord, la consigne pour réemploi économise jusqu'à soixante-quinze pour cent d'énergie par emballage et réduit d'un tiers la consommation d'eau potable.",
+        trapTypes: ["75% = les trois quarts 数值同义改写（正确项）", "无中生有", "无中生有"],
+        why: "清洗重用比1500度高温回炉重熔每个包装最高节省75%（四分之三）的能源。",
+        skill: "paraphrase",
+        pts: 1,
+      },
+      {
+        doc: 0,
+        q: "Qu'est-ce qui a facilité un taux de retour de 68 % dans le réseau pilote d'Hélène Courtois ?",
+        options: [
+          "Une consigne fixée à deux euros par bouteille achetée",
+          "L'harmonisation des contenants autour de quatre modèles communs",
+          "La livraison gratuite des casiers vides par la poste",
+        ],
+        answer: 1,
+        evidence: "En dix mois, le taux de retour atteint déjà soixante-huit pour cent sur les jus, bières et soupes locales, grâce à l'adoption de quatre formats standardisés adaptés à l'ensemble des embouteilleurs régionaux.",
+        trapTypes: ["偷换数字（押金为20欧分而非2欧元）", "同义改写（正确项）", "无中生有"],
+        why: "十个月内回收率达68%，得益于采用了四种标准化通用瓶型（quatre formats standardisés）。",
+        skill: "detail",
+        pts: 0.5,
+      },
+      {
+        doc: 0,
+        q: "Pourquoi le maire Gilles Aubert redoute-t-il un déséquilibre financier pour son syndicat ?",
+        options: [
+          "Les communes devront payer l'électricité des usines de lavage",
+          "La perte du verre entier prive la collectivité d'une recette de revente tout en laissant les tournées",
+          "L'État menace de supprimer toutes les dotations rurales dès l'hiver",
+        ],
+        answer: 1,
+        evidence: "Si les bouteilles les plus propres partent vers les automates des hypermarchés périphériques, nos recettes chutent tandis que nos camions continuent de tourner pour le verre cassé restant et les pots de confiture non consignés.",
+        trapTypes: ["无中生有", "同义改写（正确项）", "无中生有"],
+        why: "市政回收箱里的碎玻璃（calcin）转售每吨可创收近40欧元以平抑垃圾税；若整瓶流向郊区大超回收机，市政收入骤降而收运碎玻璃的卡车成本仍在。",
+        skill: "inference",
+        pts: 2,
+      },
+      {
+        doc: 0,
+        q: "À quoi sert actuellement l'argent tiré de la revente du verre collecté dans les bornes municipales ?",
+        options: [
+          "À financer la rénovation des écoles primaires du canton",
+          "À limiter la hausse de la fiscalité locale sur les déchets ménagers",
+          "À subventionner l'ouverture de brasseries artisanales",
+        ],
+        answer: 1,
+        evidence: "la revente du calcin, c'est-à-dire le verre collecté dans nos bornes municipales, rapporte près de quarante euros la tonne à notre syndicat de traitement et permet de contenir la taxe d'enlèvement des ordures ménagères acquittée par nos administrés.",
+        trapTypes: ["无中生有", "同义改写（正确项）", "无中生有"],
+        why: "每吨近40欧元的碎玻璃转售收入用于抑制居民生活垃圾清运税（contenir la taxe d'enlèvement des ordures ménagères）。",
+        skill: "detail",
+        pts: 1,
+      },
+      {
+        doc: 0,
+        q: "Quelle double contrainte pèse sur les petites épiceries de village selon l'élu ?",
+        options: [
+          "Le manque de surface d'entreposage et le prix élevé des machines de reprise",
+          "L'interdiction sanitaire de manipuler des bouteilles ayant contenu du lait",
+          "La grève des transporteurs régionaux chaque fin de semaine",
+        ],
+        answer: 0,
+        evidence: "une épicerie de village de soixante mètres carrés n'a ni la place de stocker trente caisses de bouteilles sales, ni quinze mille euros pour installer un automate de déconsignation.",
+        trapTypes: ["ni… ni 双重否定同义改写（正确项）", "无中生有", "无中生有"],
+        why: "60平米的乡村小店既没有空间堆放30箱脏空瓶，也掏不出1.5万欧元购置自动退瓶机。",
+        skill: "negation",
+        pts: 2.5,
+      },
+      {
+        doc: 0,
+        q: "Quel ton Hélène Courtois adopte-t-elle face aux objections du maire ?",
+        options: [
+          "Un ton méprisant qui rejette toute responsabilité sur les élus",
+          "Un ton constructif reconnaissant le problème et présentant des correctifs",
+          "Un ton fataliste annonçant l'arrêt prochain de l'expérimentation",
+        ],
+        answer: 1,
+        evidence: "C'est une inquiétude légitime, et nous la traitons dans la phase deux : une compensation financière à la tonne est désormais versée aux collectivités partenaires, et des points de collecte mutualisés sur la voie publique évitent aux petits épiciers de gérer seuls la logistique retour.",
+        trapTypes: ["与原文礼貌认可相反", "态度归纳（正确项）", "与推进二期相反"],
+        why: "她首先认可市长的顾虑合理（inquiétude légitime），并介绍二期按吨财政补偿与公共共享回收点两项改进措施。",
+        skill: "opinion",
+        pts: 1.5,
+      },
+      {
+        doc: 0,
+        q: "Comment la phase deux soulage-t-elle concrètement les petits commerçants de bourg ?",
+        options: [
+          "En les dispensant de vendre toute boisson consignée",
+          "En installant des bornes de retour partagées dans l'espace public",
+          "En obligeant les clients à laver eux-mêmes les bouteilles à l'eau bouillante",
+        ],
+        answer: 1,
+        evidence: "des points de collecte mutualisés sur la voie publique évitent aux petits épiciers de gérer seuls la logistique retour.",
+        trapTypes: ["无中生有", "同义改写（正确项）", "无中生有"],
+        why: "在公共道路设立共享回收点（points de collecte mutualisés sur la voie publique），免去小杂货店独自承担逆向物流。",
+        skill: "detail",
+        pts: 0.5,
+      },
+    ],
+  },
+};
+
+/** Offline 7-question DELF B2 quiz for a bundled RFI preset or ~170 WPM chronicle (9 pts, no AI key needed). */
 export function realPresetQuiz(presetId?: string): CompExercise | null {
   if (!presetId) return null;
+  const cq = CHRONICLE_QUIZZES[presetId];
+  if (cq) {
+    const cSrc = PREBUILT_FAST_CHRONICLES.find((s) => s.presetId === presetId);
+    if (!cSrc?.transcript) return null;
+    return {
+      intro: cq.intro,
+      title: cq.title,
+      topic: cq.topic,
+      form: "long",
+      docs: [{ text: cSrc.transcript, zh: cq.zh }],
+      questions: cq.questions,
+    };
+  }
   const q = QUIZZES[presetId];
   const src = PREBUILT_REAL_SOURCES.find((s) => s.presetId === presetId);
   if (!q || !src?.transcript) return null;

@@ -4,7 +4,8 @@ import { test } from "node:test";
 import type { Atlas, WordRef } from "../atlas/types";
 import type { ConjData } from "../atlas/conj";
 import type { ConjVerb } from "../lib/conjugation";
-import { answerConj, activeTenses, buildConjSession, conjGrade, conjNewToday, conjKey, conjPlan, repeatConj, newConj, splitKey, stepFor, unlockedVerbs } from "./conj.ts";
+import { answerConj, activeTenses, applyContextConjAttempt, buildConjSession, conjGrade, conjNewToday, conjKey, conjPlan, repeatConj, newConj, resolveConjVerbId, splitKey, stepFor, unlockedVerbs } from "./conj.ts";
+import { checkContextConjugation, CONTEXT_CONJ_ITEMS } from "../lib/conj-context.ts";
 import { sourceWordIds } from "../lib/practice-source.ts";
 import { review, Rating } from "./srs.ts";
 import { dayKey, defaultSettings, emptyProgress, sanitizeProgress, sanitizeSettings, store } from "./store.ts";
@@ -243,4 +244,110 @@ test("PE-7: B1 default tenses include subj; compound B2 tenses and ppres schedul
   const p = sanitizeProgress({ ...emptyProgress("t"), conj: Object.fromEntries(keys.map((k) => [k, card])) }, "t");
   assert.equal(Object.keys(p.conj ?? {}).length, 25);
   assert.deepEqual(sanitizeSettings({ conjTenses: ["pqp", "ppres", "bogus"] }).conjTenses, ["pqp", "ppres"]);
+});
+
+test("Phase3: B2 startLevel pre-unlocks core irregular verbs and impératif schedules & sanitizes cleanly", () => {
+  const b2Atlas = {
+    words: [
+      { id: "etre", word: "etre", zh: "是", ipa: "", cefr: 0, topic: 0, media: 0, order: 0 },
+      { id: "parler", word: "parler", zh: "说", ipa: "", cefr: 0, topic: 0, media: 0, order: 1 },
+      { id: "prendre", word: "prendre", zh: "拿", ipa: "", cefr: 0, topic: 0, media: 0, order: 2 },
+    ],
+    byId: new Map(),
+  } as unknown as Atlas;
+  for (const w of b2Atlas.words) b2Atlas.byId.set(w.id, w);
+  const d: ConjData = { v: 1, verbs: { etre: verb("être"), parler: verb("parler"), prendre: verb("prendre") } };
+  const p = emptyProgress("t");
+  // Nobody learned yet: A1 returns [], B2 (startLevel=3) pre-unlocks etre & prendre (core irregular) without parler (regular)
+  assert.deepEqual(unlockedVerbs(b2Atlas, p, d, 0), []);
+  assert.deepEqual(unlockedVerbs(b2Atlas, p, d, 3), ["etre", "prendre"]);
+
+  const impSettings = { ...defaultSettings, conjTenses: ["imper"] };
+  const keys = newConj(atlas, p, impSettings, data, 1, ["parler"]);
+  assert.equal(keys.length, 3);
+  assert.deepEqual(keys, ["parler|imper|1", "parler|imper|3", "parler|imper|4"]);
+  const card = review(undefined, Rating.Good, Date.now());
+  const clean = sanitizeProgress({ ...p, conj: Object.fromEntries(keys.map((k) => [k, card])) }, "t");
+  assert.equal(Object.keys(clean.conj ?? {}).length, 3);
+  assert.deepEqual(sanitizeSettings({ conjTenses: ["imper"] }).conjTenses, ["imper"]);
+});
+
+test("M23-C: CONTEXT_CONJ_ITEMS has >= 48 items including B2 compound tenses & agreements, and advances FSRS conj cards", () => {
+  assert.ok(CONTEXT_CONJ_ITEMS.length >= 48, `expected >= 48 context conj items, got ${CONTEXT_CONJ_ITEMS.length}`);
+  const agreementItems = CONTEXT_CONJ_ITEMS.filter((it) =>
+    ["cc-b2-subjp-cod-prises", "cc-b2-pqp-cod-ecrites", "cc-b2-pc-cod-soumises", "cc-b2-subjp-refl-disputer"].includes(it.id),
+  );
+  assert.equal(agreementItems.length, 4);
+  for (const it of agreementItems) {
+    const check = checkContextConjugation(it, it.tense, it.answers[0]);
+    assert.equal(check.tenseOk && check.formOk, true, `${it.id} canonical answer should pass`);
+  }
+
+  const reflVerb: ConjVerb = { ...verb("disputer"), p: 1 };
+  const prendreVerb: ConjVerb = { ...verb("prendre"), pp: "pris" };
+  const ctxData: ConjData = {
+    v: 1,
+    verbs: {
+      "se-disputer": reflVerb,
+      prendre: prendreVerb,
+    },
+  };
+  const ctxWords: WordRef[] = ["se-disputer", "prendre"].map((id, order) => ({
+    id,
+    word: id,
+    zh: id,
+    ipa: "",
+    cefr: 3,
+    topic: 0,
+    media: 0,
+    order,
+  }));
+  const ctxAtlas = { words: ctxWords, byId: new Map(ctxWords.map((w) => [w.id, w])) } as unknown as Atlas;
+
+  assert.equal(resolveConjVerbId(ctxData, "se disputer", ctxAtlas), "se-disputer");
+  assert.equal(resolveConjVerbId(ctxData, "prendre", ctxAtlas), "prendre");
+  assert.equal(resolveConjVerbId(ctxData, "verbe-inconnu", ctxAtlas), null);
+
+  const now = 1_730_800_000_000;
+  const day = dayKey(new Date(now));
+  let p = emptyProgress("t");
+
+  // 1. Exact tense + form -> Rating.Good
+  p = applyContextConjAttempt(
+    p,
+    ctxData,
+    { verb: "prendre", tense: "subjp", person: 2, tenseOk: true, formOk: true, accentOnly: false },
+    now,
+    0.9,
+    ctxAtlas,
+  );
+  assert.ok(p.conj?.["prendre|subjp|2"]);
+  assert.deepEqual(p.conjDays?.[day], { verbs: ["prendre"], n: 1, r: 1, c: 1 });
+
+  // 2. Right tense + pure lexical accent slip -> Rating.Hard (still counts as correct review, shorter interval than Good)
+  p = applyContextConjAttempt(
+    p,
+    ctxData,
+    { verb: "se disputer", tense: "subjp", person: 5, tenseOk: true, formOk: false, accentOnly: true },
+    now,
+    0.9,
+    ctxAtlas,
+  );
+  assert.ok(p.conj?.["se-disputer|subjp|5"]);
+  assert.ok(p.conj["prendre|subjp|2"].due > p.conj["se-disputer|subjp|5"].due, "Good schedules further than Hard");
+  assert.deepEqual(p.conjDays?.[day], { verbs: ["prendre", "se-disputer"], n: 2, r: 2, c: 2 });
+
+  // 3. Wrong tense -> Rating.Again
+  const prevGoodDue = p.conj["prendre|subjp|2"].due;
+  p = applyContextConjAttempt(
+    p,
+    ctxData,
+    { verb: "prendre", tense: "subjp", person: 2, tenseOk: false, formOk: true, accentOnly: false },
+    now + 60_000,
+    0.9,
+    ctxAtlas,
+  );
+  assert.ok(p.conj!["prendre|subjp|2"].due < prevGoodDue, "wrong tense schedules Rating.Again sooner");
+  assert.equal(p.conjDays?.[day].r, 3);
+  assert.equal(p.conjDays?.[day].c, 2);
 });

@@ -4,6 +4,7 @@
  * Custom words are reachable by id and by search, but are not part of the learning path (atlas.words).
  */
 import { locateWord } from "../lib/text";
+import { LruCache } from "../lib/lru";
 import type { CardExtras, CustomWord, UserExample, WordEdit } from "../store/store";
 import type { Atlas, Entry, Example, WordRef } from "./types";
 import { MEDIA } from "./types";
@@ -125,7 +126,7 @@ export function withUserData(base: Atlas, custom: Record<string, CustomWord> | u
     for (const w of words) byId.set(w.id, w);
   }
   for (const r of customRefs) byId.set(r.id, r);
-  const cache = new Map<string, { src: Entry; out: Entry }>();
+  const cache = new LruCache<string, { src: Entry; out: Entry }>(300);
   const withPic = (e: Entry): Entry =>
     noImg.has(e.id) ? { ...e, m: e.m & ~MEDIA.img, noImg: true } : images[e.id] && !(e.m & MEDIA.img) ? { ...e, m: e.m | MEDIA.img } : e;
   const view = (e0: Entry) => {

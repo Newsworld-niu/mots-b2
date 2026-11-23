@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
+import { isSpellableHeadword } from "../lib/gender.ts";
 import { isTaughtReady, sharesSense } from "./session.ts";
 
 test("untranslated words are not taught (no gloss, no question, no distractor)", () => {
@@ -10,8 +11,8 @@ test("untranslated words are not taught (no gloss, no question, no distractor)",
 });
 
 import type { Atlas, WordRef } from "../atlas/types";
-import { buildSession, quizKind } from "./session.ts";
-import { emptyProgress, type Progress, type Settings } from "./store.ts";
+import { applySuspendLeech, answer, advance, buildSession, canRegradePending, canUndoStep, dueIds, forgettingRiskCards, introduce, leechIds, quizKind, regradePending, resetSessionUndo, todayPlan, undoLastStep } from "./session.ts";
+import { emptyProgress, store, type Progress, type QuizKind, type Settings, type Step } from "./store.ts";
 import { review, Rating } from "./srs.ts";
 
 const ref = (id: string, word: string, order: number, g?: "m" | "f"): WordRef => ({ id, word, zh: `释义${order}`, ipa: "", cefr: 0, topic: 0, media: 0, order, ...(g ? { g } : {}) });
@@ -119,7 +120,6 @@ test("a French option never contains the answer or sits inside it", () => {
 });
 
 import { pickPairing, withPairing, PAIR_EVERY } from "./session.ts";
-import type { Step } from "./store.ts";
 
 const pairAtlas = (n: number) => {
   const words = Array.from({ length: n }, (_, i) => ({ ...ref(`w${i}`, `mot${i}`, i), zh: `义${i}` }));
@@ -273,4 +273,130 @@ test("SYS-1: after migrateCoreDeck (coreMigrated: true), nextNew honours startLe
   // Deleting CORE_DECK yields no core words
   const deletedCore: Progress = { ...emptyProgress("t"), coreMigrated: true, decks: [] };
   assert.deepEqual(nextNew(atlas, deletedCore, { ...settings, startLevel: 2 }, 5), []);
+});
+
+test("Phase3: regradePending overrides FSRS grade & mistakes/days.c accurately and undoLastStep restores pre-step state", () => {
+  const words: WordRef[] = [ref("w1", "etre", 0), ref("w2", "avoir", 1)];
+  const a = { words, byId: new Map(words.map((w) => [w.id, w])) } as unknown as Atlas;
+  resetSessionUndo();
+  store.settings(settings);
+  const s = buildSession(a, emptyProgress("t"), settings, { ids: ["w1", "w2"] });
+  store.progress(() => ({ ...emptyProgress("t"), session: s }));
+  const step0 = s.steps.find((x): x is Extract<Step, { kind: QuizKind }> => x.kind !== "intro" && x.kind !== "pairing")!;
+  const quizIdx = s.steps.indexOf(step0);
+  store.progress((p) => (p.session ? { ...p, session: { ...p.session, index: quizIdx } } : p));
+
+  answer(a, step0, false, Rating.Again, "wrong-opt");
+  assert.equal(canRegradePending(s.id, quizIdx), true);
+  assert.equal(canUndoStep(s.id), true);
+  assert.ok(store.get().progress.mistakes.includes(step0.id));
+
+  assert.equal(regradePending(Rating.Easy, a), true);
+  let cur = store.get().progress;
+  assert.equal(cur.session?.graded[step0.id], Rating.Easy);
+  assert.equal(cur.session?.pending?.grade, Rating.Easy);
+  assert.equal(cur.session?.pending?.correct, true);
+  assert.ok(!cur.mistakes.includes(step0.id), "switching away from Again removes newly added mistake");
+
+  advance(5);
+  assert.equal(store.get().progress.session?.index, quizIdx + 1);
+  assert.equal(undoLastStep(), true);
+  cur = store.get().progress;
+  assert.equal(cur.session?.index, quizIdx);
+  assert.equal(cur.session?.pending, undefined);
+  assert.equal(cur.cards[step0.id], undefined);
+  assert.equal(canUndoStep(s.id), false);
+
+  const introIdx = s.steps.findIndex((x) => x.kind === "intro");
+  const introStep = s.steps[introIdx] as Extract<(typeof s.steps)[number], { kind: "intro" }>;
+  store.progress((p) => (p.session ? { ...p, session: { ...p.session, index: introIdx } } : p));
+  introduce(introStep.id, "mastered", 3);
+  assert.equal(store.get().progress.session?.graded[introStep.id], Rating.Easy);
+  assert.equal(undoLastStep(), true);
+  assert.equal(store.get().progress.session?.index, introIdx);
+  assert.equal(store.get().progress.cards[introStep.id], undefined);
+});
+
+test("isSpellableHeadword and quizKind exclude >4-word phrases and slashed variants from spelling", () => {
+  assert.equal(isSpellableHeadword("entretien"), true);
+  assert.equal(isSpellableHeadword("mise en œuvre"), true);
+  assert.equal(isSpellableHeadword("avoir du mal à s'endormir"), false);
+  assert.equal(isSpellableHeadword("généraliste / spécialiste"), false);
+  assert.equal(isSpellableHeadword("économiser pour + inf"), false);
+
+  const longPhrase = ref("avoir-du-mal-a-s-endormir", "avoir du mal à s'endormir", 0);
+  const slashVariant = ref("generaliste-specialiste", "généraliste / spécialiste", 1);
+  for (let reps = 0; reps < 10; reps++) {
+    const pLong = emptyProgress("t");
+    const pSlash = emptyProgress("t");
+    if (reps > 0) {
+      pLong.cards[longPhrase.id] = { ...review(undefined, Rating.Good, Date.now()), reps, st: 2 };
+      pSlash.cards[slashVariant.id] = { ...review(undefined, Rating.Good, Date.now()), reps, st: 2 };
+    }
+    const kLong = quizKind(longPhrase, pLong, settings);
+    const kSlash = quizKind(slashVariant, pSlash, settings);
+    assert.ok(kLong !== "spell" && kLong !== "dictation", `unexpected ${kLong} at reps=${reps}`);
+    assert.ok(kSlash !== "spell" && kSlash !== "dictation", `unexpected ${kSlash} at reps=${reps}`);
+  }
+});
+
+test("Wave7.2: dailyReviewCap caps due & reports overflowDue; leech suspension excludes from dueIds; forgettingRiskCards sorts lowest first", () => {
+  const words: WordRef[] = Array.from({ length: 16 }, (_, i) => ref(`w${i}`, `mot${i}`, i));
+  const atlas = { words, byId: new Map(words.map((w) => [w.id, w])), pairs: new Set<string>() } as unknown as Atlas;
+  const now = Date.now();
+  let p = emptyProgress("t");
+  for (const [idx, w] of words.entries()) {
+    const c = review(undefined, Rating.Good, now - 10 * 86_400_000);
+    p.cards[w.id] = {
+      ...c,
+      due: now - (idx + 1) * 60_000,
+      s: idx === 0 ? 1 : 5,
+      last: now - 10 * 86_400_000,
+      lapses: idx === 15 ? 7 : 0,
+    };
+  }
+
+  const capped = todayPlan(atlas, p, { ...settings, dailyReviewCap: 10 });
+  assert.equal(capped.due.length, 10);
+  assert.equal(capped.overflowDue, 6);
+
+  assert.deepEqual(leechIds(p), ["w15"]);
+  assert.ok(dueIds(p, now).includes("w15"));
+  p = applySuspendLeech(p, "w15", true);
+  assert.ok(!dueIds(p, now).includes("w15"));
+  p = applySuspendLeech(p, "w15", false);
+  assert.ok(dueIds(p, now).includes("w15"));
+
+  const risks = forgettingRiskCards(atlas, p, 0.9, 5, now);
+  assert.ok(risks.length >= 1);
+  assert.equal(risks[0].id, "w0", "lowest stability with 10d elapsed is ranked first at highest forgetting risk");
+
+  // Legacy cards missing `last` timestamp must not crash ts-fsrs get_retrievability
+  p.cards.w1 = { due: now - 1000, s: 0.5, d: 6, el: 0, sd: 0, ls: 2, reps: 1, lapses: 1, st: 1, seen: now - 3 * 86_400_000 };
+  const legacyRisks = forgettingRiskCards(atlas, p, 0.9, 16, now);
+  assert.ok(legacyRisks.some((r) => r.id === "w1"));
+});
+
+test("Wave7.3: B2+ words unlock collocation and register quiz kinds from reps >= 5 while preserving A1-B1 first pass and relearning", () => {
+  const b2Nouns: WordRef[] = Array.from({ length: 14 }, (_, i) => ({
+    ...ref(`b2-${i}`, `concept${i}`, i, i % 2 ? "f" : undefined),
+    cefr: 3,
+  }));
+  const at = (r: WordRef, reps: number, st = 2) => {
+    const p = emptyProgress("t");
+    if (reps > 0) p.cards[r.id] = { ...review(undefined, Rating.Good, Date.now()), reps, st: st as 0 | 1 | 2 | 3 };
+    return quizKind(r, p, settings);
+  };
+  assert.deepEqual([0, 1, 2, 3, 4].map((n) => at(b2Nouns[1], n)), ["meaning", "gender", "cloze", "spell", "dictation"]);
+  assert.deepEqual([0, 1, 2, 3].map((n) => at(b2Nouns[0], n)), ["meaning", "cloze", "spell", "dictation"]);
+  assert.equal(at(b2Nouns[0], 10, 3), "meaning");
+
+  const runs = b2Nouns.map((w) => Array.from({ length: 30 }, (_, n) => at(w, 5 + n)));
+  const flat = runs.flat();
+  assert.ok(flat.includes("collocation"), "B2+ cards unlock collocation questions");
+  assert.ok(flat.includes("register"), "B2+ cards unlock register questions");
+  for (const run of runs) {
+    run.forEach((k, n) => n > 0 && assert.notEqual(k, run[n - 1], "never repeats twice in a row"));
+    for (let n = 2; n < run.length; n++) assert.ok(run.slice(n - 2, n + 1).includes("spell"), "keeps recall cadence");
+  }
 });

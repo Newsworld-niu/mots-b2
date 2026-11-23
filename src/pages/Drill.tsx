@@ -1,13 +1,16 @@
 import { ArrowLeft, ArrowRight, Check, Mic, Shuffle, Sparkles, Square } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { transcribeAudio } from "../ai/clients";
 import { ready, useAiConfig } from "../ai/config";
 import { canAssess as canAssessNow } from "../ai/pronunciation";
-import { drillFeedback, type DrillFeedback } from "../ai/speaking-drill";
+import { canCompleteDrill, drillFeedback, MIN_DRILL_WORDS, type DrillFeedback } from "../ai/speaking-drill";
 import { stopAudio } from "../lib/audio";
 import { DRILL_PLAN, DRILL_TIMES, drawQuestion, type DrillQuestion } from "../lib/drill";
+import { countWords } from "../lib/essay";
 import { topicOf } from "../lib/exam";
-import { href } from "../lib/router";
+import { useNavGuard } from "../lib/nav-guard";
 import type { Take } from "../lib/recorder";
+import { href } from "../lib/router";
 import { canDictate, dictate } from "../lib/speech";
 import { useTimer } from "../lib/timer";
 import { logDrill, useDrillsToday } from "../store/drill";
@@ -19,7 +22,8 @@ type Phase = "pick" | "think" | "speak" | "done";
 
 /**
  * 每日一分钟口语: draw a question, 15 seconds to think, one minute to give an opinion and two reasons. The minute is
- * recorded (played back, assessed by Azure when it is set up) and, with a text AI, commented on.
+ * recorded (kept in the dedicated `"drill"` bucket so it never evicts PO exam monologues), assessed by Azure / Whisper,
+ * and logged as completed only when at least 5 spoken words are captured.
  */
 export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: () => void; exitLabel?: string }) {
   const ai = useAiConfig();
@@ -28,6 +32,10 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
   const [q, setQ] = useState<DrillQuestion>(() => drawQuestion());
   const [phase, setPhase] = useState<Phase>("pick");
   const [said, setSaid] = useState("");
+  const saidRef = useRef("");
+  const [drillLogged, setDrillLogged] = useState(false);
+  const drillLoggedRef = useRef(false);
+  const [transcribing, setTranscribing] = useState(false);
   const [interim, setInterim] = useState("");
   const [take, setTake] = useState<Take | null>(null);
   const [fb, setFb] = useState<DrillFeedback | null>(null);
@@ -35,18 +43,20 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
   const [kept, setKept] = useState<{ rec: KeptRecording; url: string }[]>([]);
   const stopDictation = useRef<(() => void) | null>(null);
   const ctrl = useRef<AbortController | null>(null);
+  const drillAudioRef = useRef<HTMLAudioElement | null>(null);
   const think = useTimer();
   const speak = useTimer();
   const recorder = useRecorder();
   const assess = useAssess();
   const dictation = canDictate();
   const hasAi = ready.text(ai);
+  useNavGuard(phase === "think" || phase === "speak", "每日一分钟口语正在进行中，确定放弃本次作答？");
 
-  // recordings kept from earlier visits, as object URLs revoked when replaced or on leaving
+  // drill recordings kept from earlier visits (isolated in bucket="drill"), as object URLs revoked when replaced or on leaving
   const keptUrls = useRef<string[]>([]);
   const alive = useRef(true);
   const loadKept = () =>
-    void listRecordings().then((all) => {
+    void listRecordings("drill").then((all) => {
       if (!alive.current) return;
       keptUrls.current.forEach((u) => URL.revokeObjectURL(u));
       const next = all.map((rec) => ({ rec, url: URL.createObjectURL(rec.blob) }));
@@ -68,6 +78,14 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
   /** True while the minute is being spoken (the recogniser must not start after it ended). */
   const speaking = useRef(false);
 
+  const tryLogDrill = (transcript: string): boolean => {
+    if (drillLoggedRef.current || !canCompleteDrill(transcript)) return false;
+    drillLoggedRef.current = true;
+    setDrillLogged(true);
+    logDrill();
+    return true;
+  };
+
   const redraw = () => {
     const next = drawQuestion([...asked, q.id]);
     setAsked((a) => [...a, q.id].slice(-12));
@@ -75,7 +93,10 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
   };
 
   const begin = () => {
+    saidRef.current = "";
     setSaid("");
+    drillLoggedRef.current = false;
+    setDrillLogged(false);
     setInterim("");
     setTake(null);
     setFb(null);
@@ -90,11 +111,11 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
     setPhase("speak");
     speaking.current = true;
     speak.start(DRILL_TIMES.speak);
-    // the recording first: it asks for the microphone; the recogniser then listens alongside
     if (recorder.supported) await recorder.start();
     if (dictation && speaking.current)
       stopDictation.current = dictate(
         (final, guess) => {
+          saidRef.current = final;
           setSaid(final);
           setInterim(guess);
         },
@@ -112,15 +133,38 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
     stopDictation.current = null;
     setInterim("");
     setPhase("done");
-    logDrill();
+    tryLogDrill(saidRef.current);
+
     const t = await recorder.stop();
     setTake(t);
     if (!t) return;
-    void keepRecording({ label: q.fr, seconds: t.seconds, blob: t.blob }).then(loadKept);
+    void keepRecording({ label: q.fr, seconds: t.seconds, blob: t.blob, bucket: "drill" }).then(loadKept);
+
+    let gotNeural = false;
     if (assess.available) {
       const r = await assess.run(t.blob);
-      // no recogniser in this browser (Safari on iOS, the app): Azure's transcript stands in
-      if (r?.text) setSaid((s) => (s.trim() ? s : r.text));
+      const neural = (r?.lexicalText || r?.text || "").trim();
+      if (neural) {
+        gotNeural = true;
+        saidRef.current = neural;
+        setSaid(neural);
+        tryLogDrill(neural);
+      }
+    }
+    if (!gotNeural && !saidRef.current.trim() && ready.stt()) {
+      setTranscribing(true);
+      try {
+        const txt = await transcribeAudio(t.blob);
+        if (txt.trim()) {
+          saidRef.current = txt.trim();
+          setSaid(txt.trim());
+          tryLogDrill(txt.trim());
+        }
+      } catch (err) {
+        toast((err as Error).message || "Whisper 转写失败，可回放录音手动补充", "warn");
+      } finally {
+        setTranscribing(false);
+      }
     }
   };
 
@@ -135,6 +179,10 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
   }, [phase, speak.running, speak.sec]);
 
   const coach = async () => {
+    if (!canCompleteDrill(said)) {
+      toast(`请至少说出 ${MIN_DRILL_WORDS} 个法语词后再请求点评`, "warn");
+      return;
+    }
     const c = new AbortController();
     ctrl.current = c;
     setCoaching(true);
@@ -149,6 +197,7 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
   };
 
   const topic = topicOf(q.topic);
+  const spokenWords = countWords(said);
 
   return (
     <div className="page practice">
@@ -163,8 +212,8 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
             <p className="lede">抽一个问题，想 15 秒，然后用 60 秒说出你的看法和两个理由。每天一次，练的是开口的速度和连贯。</p>
             <p className="muted">
               {doneToday ? `今天已经说了 ${doneToday} 次。` : "今天还没说。"}
-              {recorder.supported ? "会录下你说的话，可以回放。" : "这个浏览器不能录音，只能计时说。"}
-              {dictation ? "说的同时浏览器会转成文字。" : ""}
+              {recorder.supported ? "会录下你说的话（独立保存最近 8 条，不会挤占口语模考录音）。" : "这个浏览器不能录音，只能计时说。"}
+              {dictation ? "说的同时浏览器会显示实时字幕。" : ""}
             </p>
             {!assess.available && <AssessHint />}
           </>
@@ -239,16 +288,48 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
 
         {phase === "done" && (
           <>
-            <p className="muted">
-              <Check size={14} /> 今天的一分钟口语已记下。
-            </p>
-            <TakePlayer take={take} />
+            {drillLogged ? (
+              <p className="muted">
+                <Check size={14} /> 今天的一分钟口语已记下（{spokenWords} 词）。
+              </p>
+            ) : (
+              <p className="muted small">
+                {assess.state === "busy" || transcribing
+                  ? "正在识别口语字数，满 5 词后自动记入今日完成…"
+                  : `当前识别字数不足 ${MIN_DRILL_WORDS} 词（${spokenWords} 词），未计入今日完成次数；请至少说出一句完整法语观点。`}
+              </p>
+            )}
+            <TakePlayer take={take} audioRef={drillAudioRef} />
+            {transcribing && <p className="muted small">正在调用 Whisper 语音转写…</p>}
             {take && (assess.available ? <AssessStatus a={assess} /> : <AssessHint />)}
-            {assess.state === "done" && assess.result && <PronReport result={assess.result} />}
-            <textarea className="writing-input essay-notes" lang="fr" rows={4} value={said} onChange={(e) => setSaid(e.target.value)} placeholder={dictation || assess.available ? "你说的内容（识别有错可以改回来）" : "把你说的内容打出来，AI 可以点评"} spellCheck={false} aria-label="你说的内容" />
+            {assess.state === "done" && assess.result && (
+              <PronReport result={assess.result} audioRef={take ? drillAudioRef : undefined} />
+            )}
+            <textarea
+              className="writing-input essay-notes"
+              lang="fr"
+              rows={4}
+              value={said}
+              onChange={(e) => {
+                saidRef.current = e.target.value;
+                setSaid(e.target.value);
+                if (take && !dictation && !assess.available) tryLogDrill(e.target.value);
+              }}
+              placeholder={
+                dictation || assess.available || ready.stt(ai)
+                  ? "你说的内容（识别有错可以改回来）"
+                  : "把你说的内容打出来（满 5 词后可点评）"
+              }
+              spellCheck={false}
+              aria-label="你说的内容"
+            />
             {hasAi ? (
               <div className="writing-actions">
-                <button className="btn btn-ghost" onClick={() => void coach()} disabled={coaching || !said.trim()}>
+                <button
+                  className="btn btn-ghost"
+                  onClick={() => void coach()}
+                  disabled={coaching || transcribing || !canCompleteDrill(said)}
+                >
                   <Sparkles size={16} /> {coaching ? "AI 点评中…" : "AI 点评"}
                 </button>
               </div>
@@ -304,7 +385,7 @@ export function DrillStudio({ onExit, exitLabel = "返回练习" }: { onExit: ()
 
         {phase === "pick" && kept.length > 0 && (
           <section className="essay-level">
-            <h3 className="eyebrow">最近的录音（只存在这台设备上）</h3>
+            <h3 className="eyebrow">最近的一分钟录音（只存在这台设备上）</h3>
             <ul className="essay-history">
               {kept.map(({ rec, url }) => (
                 <li key={rec.id}>
@@ -328,7 +409,7 @@ export function DrillTeaser({ onOpen }: { onOpen: () => void }) {
     <section className={`panel drill-teaser ${done ? "is-done" : ""}`} onClick={onOpen} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && onOpen()} aria-label="今日一分钟口语">
       <p className="eyebrow">今日一分钟口语</p>
       <h3>想 15 秒，说 60 秒：一个观点，两个理由。</h3>
-      <p>录下来回放{canAssessNow(ai) ? "，Azure 给发音打分" : ""}。每天开口一次，比一周练一次长的更管用。</p>
+      <p>录下来回放{canAssessNow(ai) ? "，Azure 给发音打分" : ready.stt(ai) ? "，Whisper 转写与语速分析" : ""}。每天开口一次，比一周练一次长的更管用。</p>
       <span className="drill-teaser-go">{done ? <><Check size={16} /> 今天已完成{done > 1 ? ` ${done} 次` : ""} · 再来一次</> : <>开始 <ArrowRight size={16} /></>}</span>
     </section>
   );

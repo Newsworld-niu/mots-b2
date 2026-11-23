@@ -29,10 +29,10 @@ export function EssayTrend({ essays, tasks }: { essays: SavedEssay[]; tasks?: Es
     <>
       <div className="writing-actions">
         <div className="segmented" role="tablist" aria-label="作文难度曲线切换">
-          <button type="button" className={level === "B2" ? "is-on" : ""} aria-pressed={level === "B2"} onClick={() => setLevel("B2")}>
+          <button type="button" role="tab" aria-selected={level === "B2"} className={level === "B2" ? "is-on" : ""} onClick={() => setLevel("B2")}>
             B2 备考（{b2.length}）
           </button>
-          <button type="button" className={level === "B1" ? "is-on" : ""} aria-pressed={level === "B1"} onClick={() => setLevel("B1")}>
+          <button type="button" role="tab" aria-selected={level === "B1"} className={level === "B1" ? "is-on" : ""} onClick={() => setLevel("B1")}>
             B1 热身（{b1.length}）
           </button>
         </div>

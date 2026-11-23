@@ -1,5 +1,5 @@
-import { ArrowLeftRight, ArrowRight, Award, BookOpenCheck, Check, Ear, FileText, Headphones, Keyboard, Languages, MessageSquareQuote, Mic, PenLine, RotateCcw, Sparkles, Timer, Type, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeftRight, ArrowRight, Award, BookMarked, BookOpenCheck, BookOpenText, Check, Ear, FileText, Headphones, Keyboard, Languages, MessageSquareQuote, Mic, PenLine, Radio, RotateCcw, Sparkles, Target, Timer, Type, X } from "lucide-react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { prefetch, useAtlas } from "../atlas/context";
 import { MEDIA, type Accent, type Entry, type WordRef } from "../atlas/types";
 import { makeSentences } from "../ai/tasks";
@@ -9,54 +9,101 @@ import { cue } from "../lib/sound";
 import { hashSeed, shuffle } from "../lib/text";
 import { translatable } from "../lib/writing";
 import { ready, useAiConfig } from "../ai/config";
-import { href } from "../lib/router";
+import { go, href, type Route } from "../lib/router";
 import { clean, correctCharacterCount, same, typingDelta, typingMetrics } from "../lib/typing";
-import { ARTICLE, ARTICLE_CHOICES, articleTone, isArticleCorrect } from "../lib/gender";
+import { ARTICLE, ARTICLE_CHOICES, articleTone, isArticleCorrect, isSpellableHeadword } from "../lib/gender";
+import { useKeys } from "../lib/keys";
+import { useNavGuard } from "../lib/nav-guard";
+import { reflowSummary } from "../store/note-review";
 import { isTaughtReady } from "../store/session";
-import { useKeys } from "./Learn";
-import { store, useStore } from "../store/store";
+import { store, useStore, useStoreShallow } from "../store/store";
 import { AmbiencePicker } from "../ui/Ambience";
 import { AccentKeys } from "../ui/AccentKeys";
+import { confirmAction } from "../ui/ConfirmSheet";
 import { Illustration } from "../ui/Illustration";
 import { VoicePick } from "../ui/EntryView";
 import { toast } from "../ui/Toast";
-import { ComprehensionStudio } from "./Comprehension";
-import { EssayStudio } from "./Essay";
-import { SpeakingStudio } from "./Speaking";
-import { MockExam } from "./MockExam";
-import { DrillStudio } from "./Drill";
-import { ExprStudio } from "./Expressions";
-import { ExamDashboard } from "../ui/ExamDashboard";
+import { EXAM_TRACKS, TRACK_META, type ExamTrack } from "../lib/exam-tracks";
 import { EXPRESSIONS } from "../lib/expressions";
 import { coreSet, CORE_LABEL, isCore } from "../lib/core-words";
 import { DRILL_QUESTIONS } from "../lib/drill";
-import { SPEAKING_SUBJECTS, TOPICS } from "../lib/exam";
+import { TOPICS } from "../lib/exam";
 import { ESSAY_TASKS } from "../lib/essay";
+import { PREBUILT_REAL_SOURCES } from "../lib/real-presets";
 import { WritingRound, type WritingMode } from "./Writing";
 import { PRACTICE_SOURCES as SOURCES, type PracticeSource as Source } from "../lib/practice-source";
+import { MICRO_SKILL_SUMMARY } from "../lib/micro-skills";
+import { ExamDashboard } from "../ui/ExamDashboard";
 import { PracticeSourcePicker } from "../ui/PracticeSource";
 
-/** Modes that open a page of their own instead of a round on the learner's words. */
-type Studio = "essay" | "listen" | "examread" | "speak" | "mock" | "drill" | "expr";
-type Mode = "word" | "sentence" | "dictation" | "gender" | Studio | WritingMode;
-type TypingMode = Exclude<Mode, "gender" | Studio | WritingMode>;
-const isStudio = (m: Mode): m is Studio => m === "essay" || m === "listen" || m === "examread" || m === "speak" || m === "mock" || m === "drill" || m === "expr";
-const isWriting = (m: Mode): m is WritingMode => m === "translate" || m === "compose";
+const MicroSkillDrill = lazy(() => import("../ui/MicroSkillDrill").then((m) => ({ default: m.MicroSkillDrill })));
 
-const MODES: [Mode, string, string, typeof Type][] = [
-  ["word", "单词", "看图写出单词", Type],
-  ["sentence", "例句", "照着抄写，练出手感", Keyboard],
-  ["dictation", "听写", "只听声音，写下整句", Headphones],
-  ["gender", "冠词", "un 还是 une，快速判断", ArrowLeftRight],
+type DrillMode = "word" | "sentence" | "dictation" | "gender" | WritingMode;
+type TypingMode = Exclude<DrillMode, "gender" | WritingMode>;
+const isWriting = (m: DrillMode): m is WritingMode => m === "translate" || m === "compose";
+
+interface StudioCardSpec {
+  key: string;
+  route: Route;
+  title: string;
+  desc: string;
+  tag: string;
+  icon: typeof Type;
+  featured?: boolean;
+}
+
+function studiosForTrack(track: ExamTrack): StudioCardSpec[] {
+  if (track === "tcf") {
+    return [
+      { key: "mock", route: { page: "mock" }, title: "全真模考", desc: "连贯笔试 + 口语计时实测（附 DELF / TCF 分项对照）", tag: "全科模考", icon: Award, featured: true },
+      { key: "listen", route: { page: "listen" }, title: "CO 听力理解", desc: "单遍四选一 · 阶梯难度赋分与 NCLC 换算", tag: "单遍四选一 · 100–699", icon: Ear },
+      { key: "struct-tcf", route: { page: "grammar", sprint: "tcf" }, title: "语言结构 Structure", desc: "18 题 / 15 分钟限时四选一 · 语法与词汇结构辨析", tag: "18题/15m · 100–699", icon: Sparkles, featured: true },
+      { key: "examread", route: { page: "examread" }, title: "CE 应试阅读", desc: "阶梯四选一 · A2→C1 渐进文本与原文寻证", tag: "阶梯四选一 · 100–699", icon: BookOpenCheck },
+      { key: "essay", route: { page: "essay" }, title: "PE 书面表达", desc: "T1 留言 + T2 经验文章 + T3 双文献观点合成 · 0–20 分", tag: "3任务递进 · /20", icon: FileText },
+      { key: "speak", route: { page: "speak" }, title: "PO 口语表达", desc: "T1 问答 + T2 信息搜集连问 + T3 零准备观点独白", tag: "T1问答 + T2连问 + T3零准备 · /20", icon: Mic },
+      { key: "real", route: { page: "real" }, title: "真实电台与常速广播", desc: `${PREBUILT_REAL_SOURCES.length} 期 RFI + 4 篇 ~170 WPM 母语常速广播切片`, tag: "真题脱敏", icon: Radio, featured: true },
+      { key: "read", route: { page: "read" }, title: "报刊精读", desc: "10 篇免 AI B2 精选报刊 · 点词查义与逐句听读", tag: "双模式阅读", icon: BookOpenText },
+      { key: "drill", route: { page: "drill" }, title: "一分钟口语", desc: `内置 ${DRILL_QUESTIONS.length} 题 · 想 15s 说 60s · 练 T3 零准备开口`, tag: "每日开口", icon: Timer },
+      { key: "expr", route: { page: "expr" }, title: "高频论证表达", desc: `${EXPRESSIONS.length} 张连接词与信函套话 · FSRS 填空`, tag: "输出底座", icon: MessageSquareQuote },
+      { key: "reflow", route: { page: "reflow" }, title: "统一错题中心", desc: "错词 · 语法 · 写作口语错句 · 听读四选一干扰陷阱", tag: "查漏补缺", icon: BookMarked },
+    ];
+  }
+  if (track === "tef") {
+    return [
+      { key: "mock", route: { page: "mock" }, title: "全真模考", desc: "连贯笔试 + 口语计时实测（附 0–699 / NCLC 对照）", tag: "全科模考", icon: Award, featured: true },
+      { key: "listen", route: { page: "listen" }, title: "CO 听力理解", desc: "电话留言 · 公共广播 · 街头微访谈 · 深度访谈四选一", tag: "40题单遍 · 0–699", icon: Ear },
+      { key: "examread", route: { page: "examread" }, title: "CE 应试阅读", desc: "日常应用文 · 篇章填句 · 快速寻读 · 报刊长文 · 同义句改写", tag: "2023新政五节 · 0–699", icon: BookOpenCheck },
+      { key: "struct-tef", route: { page: "grammar", sprint: "tef" }, title: "词汇与结构", desc: "40 题 / 30 分钟限时四选一 · 近义词辨析与句法填空", tag: "40题/30m · 0–699", icon: Sparkles, featured: true },
+      { key: "essay", route: { page: "essay" }, title: "PE 书面表达", desc: "Sec A 新闻续写（≥80词）+ Sec B 议论信辩驳（≥200词）", tag: "Sec A 新闻续写 + Sec B 议论信 · NCLC", icon: FileText },
+      { key: "speak", route: { page: "speak" }, title: "PO 口语表达", desc: "Sec A 正式 vous 咨询提问（5m）+ Sec B 朋友 tu 劝说反驳（10m）", tag: "Sec A vous 提问 + Sec B tu 劝说 · NCLC", icon: Mic },
+      { key: "real", route: { page: "real" }, title: "真实电台与常速广播", desc: `${PREBUILT_REAL_SOURCES.length} 期 RFI + 4 篇 ~170 WPM 母语常速广播切片`, tag: "真题脱敏", icon: Radio, featured: true },
+      { key: "read", route: { page: "read" }, title: "报刊精读", desc: "10 篇免 AI B2 精选报刊 · 点词查义与逐句听读", tag: "双模式阅读", icon: BookOpenText },
+      { key: "drill", route: { page: "drill" }, title: "一分钟口语", desc: `内置 ${DRILL_QUESTIONS.length} 题 · 想 15s 说 60s · 录音回放`, tag: "每日开口", icon: Timer },
+      { key: "expr", route: { page: "expr" }, title: "高频论证表达", desc: `${EXPRESSIONS.length} 张连接词与信函套话 · FSRS 填空`, tag: "输出底座", icon: MessageSquareQuote },
+      { key: "reflow", route: { page: "reflow" }, title: "统一错题中心", desc: "错词 · 语法 · 写作口语错句 · 听读四选一干扰陷阱", tag: "查漏补缺", icon: BookMarked },
+    ];
+  }
+  return [
+    { key: "mock", route: { page: "mock" }, title: "全真模考", desc: "2h30 笔试连考 + PO 口语（/100 成绩单）", tag: "4 科", icon: Award, featured: true },
+    { key: "listen", route: { page: "listen" }, title: "CO 听力理解", desc: `2 长 + 3 短套卷 · ${TOPICS.length} 话题真题节奏`, tag: "25 分", icon: Ear },
+    { key: "real", route: { page: "real" }, title: "真实电台 RFI", desc: `${PREBUILT_REAL_SOURCES.length} 期原声新闻 · 倍速 / A-B 复读 / 盲听`, tag: "真题脱敏", icon: Radio, featured: true },
+    { key: "examread", route: { page: "examread" }, title: "CE 应试阅读", desc: "2 报刊 + 观点匹配（支持划词高光与排除）", tag: "25 分", icon: BookOpenCheck },
+    { key: "read", route: { page: "read" }, title: "报刊精读", desc: "10 篇免 AI B2 精选报刊 · 点词查义与逐句听读", tag: "双模式阅读", icon: BookOpenText },
+    { key: "essay", route: { page: "essay" }, title: "PE 篇章写作", desc: `${ESSAY_TASKS.length} 道书信/议论文 · 官方五项量表批改`, tag: "25 分", icon: FileText },
+    { key: "speak", route: { page: "speak" }, title: "PO 口语独白与辩论", desc: "30m 准备 + 5–7m 陈述 + 考官追问", tag: "25 分", icon: Mic },
+    { key: "drill", route: { page: "drill" }, title: "一分钟口语", desc: `内置 ${DRILL_QUESTIONS.length} 题 · 想 15s 说 60s · 录音回放`, tag: "每日开口", icon: Timer },
+    { key: "expr", route: { page: "expr" }, title: "高频论证表达", desc: `${EXPRESSIONS.length} 张连接词与信函套话 · FSRS 填空`, tag: "输出底座", icon: MessageSquareQuote },
+    { key: "reflow", route: { page: "reflow" }, title: "统一错题中心", desc: "错词 · 语法 · 写作口语错句 · 听读真题陷阱", tag: "查漏补缺", icon: BookMarked },
+  ];
+}
+
+const DRILL_MODES: [DrillMode, string, string, typeof Type][] = [
+  ["word", "单词拼写", "看图写出单词", Type],
+  ["sentence", "例句抄写", "照着抄写，练出手感", Keyboard],
+  ["dictation", "句子听写", "只听声音，写下整句", Headphones],
+  ["gender", "名词性数", "un 还是 une，快速判断", ArrowLeftRight],
   ["translate", "中译法", "看中文，自己写出法语句子", Languages],
-  ["compose", "造句", "用这个词写一句话，AI 批改", PenLine],
-  ["expr", "表达", "连接词、论证句型、信函套话，填空复习", MessageSquareQuote],
-  ["essay", "篇章", "按题目写一封信或一篇短文", FileText],
-  ["listen", "听力理解", "按真题题型：三个练习一套", Ear],
-  ["examread", "应试阅读", "按真题题型：三篇一套，限时", BookOpenCheck],
-  ["speak", "口语", "抽题、准备、独白、辩论", Mic],
-  ["mock", "全真模考", "2h30 笔试连考 + 口语（100 分制）", Award],
-  ["drill", "一分钟口语", "想 15 秒，说 60 秒，录音回放", Timer],
+  ["compose", "情境造句", "用这个词写一句话，AI 批改", PenLine],
 ];
 
 /** Choices remembered on this device: the decks to practise from and whether 听写 / 中译法 use AI sentences. */
@@ -76,16 +123,34 @@ const writePref = (k: string, v: string) => {
   }
 };
 /** Modes that are about a whole sentence: the card's own, or a new one the AI writes. */
-const usesSentences = (m: Mode) => m === "dictation" || m === "translate";
+const usesSentences = (m: DrillMode) => m === "dictation" || m === "translate";
 /** Modes where the learner produces the word: by default only core words (会用), see lib/core-words. */
-const isProductive = (m: Mode) => m === "word" || isWriting(m);
+const isProductive = (m: DrillMode) => m === "word" || isWriting(m);
 const NO_EX_AUDIO = ~(MEDIA.ex | MEDIA.exM | MEDIA.ex2 | MEDIA.ex2M);
 
 export function Practice() {
   const atlas = useAtlas();
-  const progress = useStore((s) => s.progress);
+  const progress = useStoreShallow((s) => ({
+    cards: s.progress.cards,
+    decks: s.progress.decks,
+    hidden: s.progress.hidden,
+    coreMigrated: s.progress.coreMigrated,
+    bookmarks: s.progress.bookmarks,
+    mistakes: s.progress.mistakes,
+    examLog: s.progress.examLog,
+    essayNotes: s.progress.essayNotes,
+    speakCorrections: s.progress.speakCorrections,
+    compMisses: s.progress.compMisses,
+    noteCards: s.progress.noteCards,
+    gram: s.progress.gram,
+    essays: s.progress.essays,
+    typing: s.progress.typing,
+  }));
   const startLevel = useStore((s) => s.settings.startLevel);
-  const [mode, setMode] = useState<Mode>("word");
+  const examTrack: ExamTrack = useStore((s) => s.settings.examTrack) ?? "delf";
+  const trackMeta = TRACK_META[examTrack];
+  const examStudios = useMemo(() => studiosForTrack(examTrack), [examTrack]);
+  const [mode, setMode] = useState<DrillMode>("word");
   const [source, setSourceState] = useState<Source>(() => {
     const kept = readPref("source") as Source | null;
     if (kept && SOURCES.some(([k]) => k === kept)) return kept;
@@ -127,7 +192,8 @@ export function Practice() {
   const [round, setRound] = useState<{ entries: Entry[]; key: number } | null>(null);
   const [drill, setDrill] = useState<{ refs: WordRef[]; key: number } | null>(null);
   const [writing, setWriting] = useState<{ mode: WritingMode; entries: Entry[]; key: number } | null>(null);
-  const [studio, setStudio] = useState<Studio | null>(null);
+  const [microTrackId, setMicroTrackId] = useState<{ id: string; key: number } | null>(null);
+  const reflow = useMemo(() => reflowSummary(progress), [progress]);
   const ai = useAiConfig();
   // 造句 has no book sentence to compare with: it needs the AI
   const needsAi = mode === "compose" && !ready.text(ai);
@@ -147,8 +213,11 @@ export function Practice() {
             : source === "decks"
               ? [...new Set(chosenDecks.flatMap((d) => deckWords(atlas, progress, d)))].filter((id) => mode !== "gender" || isTaughtReady(atlas.byId.get(id)!))
               : atlas.words.filter((w) => w.cefr >= startLevel && (mode !== "gender" || (w.g && isTaughtReady(w))) && (!coreFilter || isCore(atlas, w.id))).slice(0, 400).map((w) => w.id);
-    // the article drill only uses nouns with a quizzable gender
-    return ids.filter((id) => atlas.byId.has(id) && (mode !== "gender" || !!atlas.byId.get(id)!.g) && (!coreFilter || isCore(atlas, id)));
+    // the article drill only uses nouns with a quizzable gender; word spelling skips long/slashed phrases
+    return ids.filter((id) => {
+      const w = atlas.byId.get(id);
+      return !!w && (mode !== "gender" || !!w.g) && (mode !== "word" || isSpellableHeadword(w.word)) && (!coreFilter || isCore(atlas, id));
+    });
   }, [atlas, progress, source, startLevel, mode, chosenDecks, coreFilter]);
 
   /** A round's draw: from the whole of the chosen decks, otherwise from the first words of the source. */
@@ -210,34 +279,106 @@ export function Practice() {
     if (entries.length) setRound({ entries, key: Date.now() });
   };
 
+  if (microTrackId) {
+    return (
+      <Suspense fallback={<div className="page learn-loading"><span className="spinner" /></div>}>
+        <MicroSkillDrill key={microTrackId.key} trackId={microTrackId.id} onExit={() => setMicroTrackId(null)} />
+      </Suspense>
+    );
+  }
   if (drill) return <GenderDrill key={drill.key} refs={drill.refs} onExit={() => setDrill(null)} onAgain={start} />;
-  if (studio === "essay") return <EssayStudio onExit={() => setStudio(null)} />;
-  if (studio === "listen") return <ComprehensionStudio key="listen" kind="listen" onExit={() => setStudio(null)} />;
-  if (studio === "examread") return <ComprehensionStudio key="read" kind="read" onExit={() => setStudio(null)} />;
-  if (studio === "speak") return <SpeakingStudio onExit={() => setStudio(null)} />;
-  if (studio === "mock") return <MockExam onExit={() => setStudio(null)} />;
-  if (studio === "drill") return <DrillStudio onExit={() => setStudio(null)} />;
-  if (studio === "expr") return <ExprStudio onExit={() => setStudio(null)} />;
   if (writing) return <WritingRound key={writing.key} mode={writing.mode} entries={writing.entries} onExit={() => setWriting(null)} onAgain={start} />;
-  if (round && !isWriting(mode) && mode !== "gender" && !isStudio(mode)) return <TypingRound key={round.key} mode={mode} entries={round.entries} onExit={() => setRound(null)} onAgain={start} />;
+  if (round && !isWriting(mode) && mode !== "gender") return <TypingRound key={round.key} mode={mode} entries={round.entries} onExit={() => setRound(null)} onAgain={start} />;
 
   const best = progress.typing.filter((t) => t.mode === mode).reduce((m, t) => Math.max(m, t.wpm), 0);
   return (
     <div className="page practice">
       <header className="page-head">
-        <p className="eyebrow">练习 · Typing Studio</p>
-        <h1 className="display">让手，也记住它们。</h1>
-        <p className="lede">打字练拼写和手感，成句练把词用出来；都不会改动记忆进度。</p>
+        <p className="eyebrow">练习 · {trackMeta.name} Studio</p>
+        <h1 className="display">听、读、写、说，分科击破。</h1>
+        <p className="lede">顶层一键切换 DELF B2、TCF 全科与 TEF 2023.12 新政赛道，下层随时热身词汇拼写与成句；基础训练不改动 FSRS 记忆进度。</p>
         <a className="btn btn-ghost practice-compare" href="#/compare">
           易混词辨析：ou / où、voir / regarder …… <ArrowRight size={16} />
         </a>
       </header>
-      <ExamDashboard onStartMock={() => setStudio("mock")} />
+
+      <section className="panel" aria-label="考试体系切换">
+        <div className="panel-head">
+          <div>
+            <span className="eyebrow">当前目标考试赛道</span>
+            <p className="muted small">{trackMeta.scaleSummary}</p>
+          </div>
+          <span className="chip">{trackMeta.b2TargetLabel}</span>
+        </div>
+        <div className="segmented segmented-wide" role="tablist" aria-label="目标法语考试">
+          {EXAM_TRACKS.map((t) => (
+            <button
+              key={t}
+              type="button"
+              role="tab"
+              aria-selected={examTrack === t}
+              className={examTrack === t ? "is-on" : ""}
+              onClick={() => store.settings({ examTrack: t })}
+            >
+              {TRACK_META[t].shortName}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <ExamDashboard compact onStartMock={() => go({ page: "mock" })} />
+
+      <section className="panel practice-exam-tier" aria-label={`${trackMeta.shortName} 真题考场与模考`}>
+        <div className="panel-head">
+          <h2 className="eyebrow">{trackMeta.shortName} 分科考场与模考</h2>
+          <span className="muted small">支持完整离线预置套卷 · 离开考场前自动防误退保护</span>
+        </div>
+        <div className="practice-exam-grid">
+          {examStudios.map(({ key, route, title, desc, tag, icon: Icon, featured }) => {
+            const badge = route.page === "reflow" ? (reflow.due > 0 ? `${reflow.due} 待复习` : tag) : tag;
+            return (
+              <button key={key} type="button" className={`mode-card practice-exam-card ${featured ? "is-featured" : ""}`} onClick={() => go(route)}>
+                <div className="practice-exam-top">
+                  <Icon size={20} strokeWidth={1.7} />
+                  <span className="chip">{badge}</span>
+                </div>
+                <b>{title}</b>
+                <small>{desc}</small>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="panel practice-micro-tier" aria-label="5 分钟高频微技能专训">
+        <div className="panel-head">
+          <h2 className="eyebrow">5 分钟高频微技能专训 · CO / CE 提分靶向</h2>
+          <span className="muted small">每组 3 题直击丢分点，做错即同步至错题中心第 4 页签重练</span>
+        </div>
+        <div className="micro-skill-grid">
+          {MICRO_SKILL_SUMMARY.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className="mode-card micro-skill-card"
+              onClick={() => setMicroTrackId({ id: t.id, key: Date.now() })}
+            >
+              <div className="practice-exam-top">
+                <Target size={18} strokeWidth={1.7} />
+                <span className="chip">{t.badge} · {t.minutes} 分钟</span>
+              </div>
+              <b>{t.title}</b>
+              <small>{t.desc}</small>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <div className="practice-grid">
         <section className="panel">
-          <h3 className="eyebrow">模式</h3>
+          <h2 className="eyebrow">基础词汇与拼写训练</h2>
           <div className="mode-cards">
-            {MODES.map(([k, name, desc, Icon]) => (
+            {DRILL_MODES.map(([k, name, desc, Icon]) => (
               <button key={k} className={`mode-card ${mode === k ? "is-on" : ""}`} onClick={() => setMode(k)} aria-pressed={mode === k}>
                 <Icon size={22} strokeWidth={1.7} />
                 <b>{name}</b>
@@ -245,7 +386,7 @@ export function Practice() {
               </button>
             ))}
           </div>
-          {!isStudio(mode) && <PracticeSourcePicker source={source} onSource={setSource} decks={deckList} chosenDecks={chosenDecks} onDeck={toggleDeck} />}
+          <PracticeSourcePicker source={source} onSource={setSource} decks={deckList} chosenDecks={chosenDecks} onDeck={toggleDeck} />
           {isProductive(mode) && (
             <>
               <h3 className="eyebrow">练哪些词</h3>
@@ -261,28 +402,16 @@ export function Practice() {
             </>
           )}
           <p className="muted">
-            {mode === "essay"
-              ? `${ESSAY_TASKS.length} 个题目：邮件、叙事、论坛发帖、正式信件、求职信、读者来信、议论文，其中 3 个是先读材料再写。`
-              : mode === "speak"
-                ? `抽两个题选一个（内置 ${SPEAKING_SUBJECTS.length} 个，也可以让 AI 出新题）。`
-                : mode === "expr"
-                  ? `${EXPRESSIONS.length} 张表达卡：连接词、论证句型、话题搭配、语域、正式信函。看中文，在例句的空里写出法语，按记忆曲线复习。`
-                : mode === "drill"
-                  ? `抽一个问题（内置 ${DRILL_QUESTIONS.length} 个），说出观点和两个理由；录音可以回放，设置了 Azure 语音还能给发音打分。`
-                  : mode === "mock"
-                    ? "四项全真模考：CO 30m → CE 60m → PE 60m 连续 2h30 笔试，加 PO 口语 50 分钟，汇总 /100 总分与 <5/25 淘汰底线预警（有或无 AI 均可完整考完）。"
-                    : mode === "listen" || mode === "examread"
-                      ? `${TOPICS.length} 个考试常见话题，内置完整 25 分离线套卷；有 AI 时也可按真题题型新出整套。`
-                  : pool.length
+            {pool.length
               ? mode === "gender"
                 ? `可练 ${pool.length} 个名词，每轮随机 20 个。只练冠词，不改动记忆进度。`
                 : isWriting(mode)
                   ? `可练 ${pool.length} 个词，每轮随机 5 句。`
-                : source === "path"
-                  ? "从学习路线的前 400 个词里随机抽 10 个。"
-                : source === "decks"
-                  ? `所选卡组里有 ${pool.length} 个词，每轮随机 10 个。`
-                  : `可练 ${pool.length} 个词，每轮随机 10 个。`
+                  : source === "path"
+                    ? "从学习路线的前 400 个词里随机抽 10 个。"
+                    : source === "decks"
+                      ? `所选卡组里有 ${pool.length} 个词，每轮随机 10 个。`
+                      : `可练 ${pool.length} 个词，每轮随机 10 个。`
               : "这里还没有词，先去学几个，或换个来源。"}
           </p>
           {usesSentences(mode) && (
@@ -298,55 +427,19 @@ export function Practice() {
               </div>
               {!ready.text(ai) && (
                 <p className="muted small">
-                  AI 现写新句子需要先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务。
+                  AI 现写新句子需要先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置AI 文本服务。
                 </p>
               )}
               {aiOn && <p className="muted small">每轮开始时 AI 用这些词各写一个新句子（一次请求，约 10–30 秒），句子没有录音，{ready.tts(ai) ? "由朗读服务读出，可以选女声或男声。" : "只能用设备自带的声音读，没有女/男声可选；到「我的 → AI 接口」开启朗读服务后才能选。"}</p>}
             </>
           )}
-          <button className="btn btn-primary btn-xl" onClick={isStudio(mode) ? () => setStudio(mode) : start} disabled={busy || (!isStudio(mode) && (!pool.length || needsAi))}>
-            {busy ? "AI 出题中…" : mode === "essay" ? "选题目" : isStudio(mode) ? "进入" : "开始一轮"}
+          <button className="btn btn-primary btn-xl" onClick={start} disabled={busy || !pool.length || needsAi}>
+            {busy ? "AI 出题中…" : "开始一轮"}
           </button>
         </section>
         <section className="panel practice-side">
           <img src={`${import.meta.env.BASE_URL}brand/${mode === "dictation" ? "listen" : "typing"}.webp`} alt="" />
-          {mode === "listen" || mode === "examread" || mode === "speak" || mode === "mock" ? (
-            <>
-              <p className="muted">
-                {mode === "listen"
-                  ? "对应考试的听力部分：两段长录音各听两遍、三段短录音各听一遍，按考试的读题和作答时间进行；交卷后看原文和译文。"
-                  : mode === "examread"
-                    ? "对应考试的阅读部分：两篇报刊文章加一组「这是谁的观点」，整套限时 1 小时。"
-                    : mode === "mock"
-                      ? "完整四项模考：按考场顺序连续完成 CO 听力 → CE 阅读 → PE 写作（共 2h30，CE/PE 到时自动锁卷），随后完成 PO 口语并汇总 /100 总成绩单。"
-                      : "对应考试的口语部分：准备 30 分钟，独白 5–7 分钟，再由 AI 扮考官辩论；按官方评分表批改，发音一项自评。"}
-              </p>
-              <p className="muted">
-                {mode === "mock" ? (
-                  "内置完整 25 分套卷、B2+ 静态范文与预设考官追问：有无 AI 接口均可完整走完模考。"
-                ) : ready.text(ai) ? (
-                  mode === "speak" ? "辩论每个问题一次请求，批改一次请求。" : "每个练习一次请求（整套三次），每次约 20–60 秒。"
-                ) : (
-                  <>
-                    无需 AI 也可做题库里的完整 25 分预置卷；若需 AI 出新题，到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置。
-                  </>
-                )}
-              </p>
-            </>
-          ) : mode === "essay" ? (
-            <>
-              <p className="muted">写的时候旁边有提纲、可以套用的句子和衔接语。批改用官方评分表的五项，每项 0／1／3／5 分，满分 25；逐处指出错误，并链接到对应的语法点。</p>
-              <p className="muted">
-                {ready.text(ai) ? (
-                  "批改用「我的 → AI 接口」里的生成卡片服务，每篇一次请求，比批改单句慢，也更费额度。"
-                ) : (
-                  <>
-                    还没有设置 AI 接口：可以写和保存，对照评分表自己检查。到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置后由 AI 批改。
-                  </>
-                )}
-              </p>
-            </>
-          ) : isWriting(mode) ? (
+          {isWriting(mode) ? (
             <>
               <p className="muted">
                 {mode === "translate"
@@ -355,40 +448,38 @@ export function Practice() {
               </p>
               <p className="muted">
                 {ready.text(ai) ? (
-                  "批改用「我的 → AI 接口」里的生成卡片服务，每句一次请求。"
+                  "批改用「我的 → AI 接口」里的AI 文本服务，每句一次请求。"
                 ) : mode === "translate" ? (
                   <>
                     还没有设置 AI 接口：现在只能对照书里的句子自己判断。到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置后由 AI 批改。
                   </>
                 ) : (
                   <>
-                    造句需要 AI 批改：先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务。
+                    造句需要 AI 批改：先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置AI 文本服务。
                   </>
                 )}
               </p>
             </>
-          ) : mode === "drill" ? (
-            <p className="muted">每天开口一次：抽题后先想 15 秒，再对着 60 秒倒计时说。说的内容可以让 AI 点评结构和用词；发音、流利度和语调由 Azure 语音评测。</p>
           ) : mode === "gender" ? (
             <p className="muted">
-              冠词颜色：<span className="art art-m">un</span> 阳性 · <span className="art art-f">une</span> 阴性。用不定冠词判断，因为 l' 会遮住阴阳性。
+              冠词颜色：<span className="art art-m">un</span> 阳性 · <span className="art art-f">une</span> 阴性。用不定冠词判断，因为 l&apos; 会遮住阴阳性。
             </p>
           ) : (
             <>
-          <dl className="mini-stats">
-            <div>
-              <dt>最佳速度</dt>
-              <dd>
-                {best}
-                <small>WPM</small>
-              </dd>
-            </div>
-            <div>
-              <dt>完成轮次</dt>
-              <dd>{progress.typing.length}</dd>
-            </div>
-          </dl>
-          <p className="muted">WPM 按标准每 5 个字符计 1 词，只统计正确输入。</p>
+              <dl className="mini-stats">
+                <div>
+                  <dt>最佳速度</dt>
+                  <dd>
+                    {best}
+                    <small>WPM</small>
+                  </dd>
+                </div>
+                <div>
+                  <dt>完成轮次</dt>
+                  <dd>{progress.typing.length}</dd>
+                </div>
+              </dl>
+              <p className="muted">WPM 按标准每 5 个字符计 1 词，只统计正确输入。</p>
             </>
           )}
         </section>
@@ -417,6 +508,23 @@ function TypingRound({ mode, entries, onExit, onAgain }: { mode: TypingMode; ent
   // dictation: the sentence's voice, 女/男 next to 再听一遍, kept for the rest of the round
   const [exVoice, setExVoice] = useState<Accent>(settings.accent);
   const playSentence = (v: Accent = exVoice) => play(atlas.audio(e, "ex", v), e.ex[0].en, v);
+  const roundActive = !done && (i > 0 || value.length > 0 || revealed || totals.typed > 0);
+  useNavGuard(roundActive, "本轮拼写/听写练习尚未完成（成绩尚未计入），确定离开？");
+  const exitRound = async () => {
+    if (
+      roundActive &&
+      !(await confirmAction({
+        title: "结束本轮拼写练习？",
+        message: "本轮尚未完成，速度与准确率尚未保存，确定提前退出？",
+        confirmLabel: "确定退出",
+        danger: true,
+      }))
+    ) {
+      return;
+    }
+    stopAudio();
+    onExit();
+  };
 
   useEffect(() => {
     setValue("");
@@ -520,7 +628,7 @@ function TypingRound({ mode, entries, onExit, onAgain }: { mode: TypingMode; ent
   return (
     <div className="page practice typing">
       <header className="typing-top">
-        <button className="btn btn-ghost" onClick={onExit}>
+        <button className="btn btn-ghost" onClick={() => void exitRound()}>
           结束
         </button>
         <AmbiencePicker />
@@ -630,6 +738,23 @@ function GenderDrill({ refs, onExit, onAgain }: { refs: WordRef[]; onExit: () =>
   }, []);
   const r = refs[i];
   const done = i >= refs.length;
+  const drillActive = !done && answers.length > 0;
+  useNavGuard(drillActive, "本轮阴阳性冠词练习尚未完成，确定离开？");
+  const exitDrill = async () => {
+    if (
+      drillActive &&
+      !(await confirmAction({
+        title: "结束本轮阴阳性练习？",
+        message: "本轮尚未完成，确定提前退出？",
+        confirmLabel: "确定退出",
+        danger: true,
+      }))
+    ) {
+      return;
+    }
+    window.clearTimeout(timer.current);
+    onExit();
+  };
 
   const choose = (a: string) => {
     if (shown || done) return;
@@ -688,7 +813,7 @@ function GenderDrill({ refs, onExit, onAgain }: { refs: WordRef[]; onExit: () =>
   return (
     <div className="page practice typing">
       <header className="typing-top">
-        <button className="btn btn-ghost" onClick={onExit}>
+        <button className="btn btn-ghost" onClick={() => void exitDrill()}>
           结束
         </button>
         <div className="learn-progress">

@@ -74,8 +74,14 @@ export function preview(prev: CardState | undefined, now: number, retention = 0.
   } as Record<Grade, number>;
 }
 
-export function retrievability(c: CardState, now: number, retention = 0.9) {
-  return scheduler(retention).get_retrievability(toCard(c), new Date(now), false) as number;
+export function retrievability(c: CardState, now: number, retention = 0.9): number {
+  const last = c.last && Number.isFinite(c.last) ? c.last : c.seen && Number.isFinite(c.seen) ? c.seen : undefined;
+  if (!last || c.s <= 0 || !Number.isFinite(now)) return c.due <= now ? 0 : 1;
+  try {
+    return scheduler(retention).get_retrievability(toCard({ ...c, last }), new Date(now), false) as number;
+  } catch {
+    return c.due <= now ? 0 : 1;
+  }
 }
 
 /** Long-term memory: the card would still be recalled with 90% odds three weeks after review. */

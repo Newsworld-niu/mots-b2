@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
@@ -86,11 +86,79 @@ function localMedia(
     res.end();
   }
 }
+function precacheManifest(): Plugin {
+  return {
+    name: "precache-manifest",
+    generateBundle(_options, bundle) {
+      const assets = Object.keys(bundle)
+        .filter((fileName) => /^assets\/.*\.(?:js|css)$/i.test(fileName))
+        .sort();
+      this.emitFile({
+        type: "asset",
+        fileName: "precache-manifest.json",
+        source: JSON.stringify({ assets }),
+      });
+    },
+  };
+}
+
+function robotsHtml(): Plugin {
+  const robots =
+    process.env.VITE_ROBOTS ||
+    (process.env.VITE_PUBLIC_SITE === "1" ? "index, follow" : "noindex, nofollow");
+  return {
+    name: "robots-meta",
+    transformIndexHtml(html) {
+      return html.replace("__VITE_ROBOTS__", robots);
+    },
+  };
+}
+
+function stripOffloadedMedia(): Plugin {
+  let outDirAbs = path.resolve("dist");
+  return {
+    name: "strip-offloaded-media",
+    configResolved(config) {
+      outDirAbs = path.resolve(config.root, config.build.outDir);
+    },
+    closeBundle() {
+      const mediaBase = process.env.VITE_MEDIA_BASE_URL?.trim();
+      if (!mediaBase) return;
+      let removedFiles = 0;
+      let removedBytes = 0;
+      const walkRemove = (dir: string, filter: (full: string) => boolean) => {
+        if (!fs.existsSync(dir)) return;
+        for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+          const full = path.join(dir, ent.name);
+          if (ent.isDirectory()) walkRemove(full, filter);
+          else if (filter(full)) {
+            removedFiles++;
+            removedBytes += fs.statSync(full).size;
+            fs.rmSync(full, { force: true });
+          }
+        }
+      };
+      const audioDir = path.join(outDirAbs, "atlas", "audio");
+      walkRemove(audioDir, () => true);
+      fs.rmSync(audioDir, { recursive: true, force: true });
+      const matDir = path.join(outDirAbs, "materials");
+      walkRemove(matDir, (full) => /\.(?:mp3|m4a|aac|ogg|oga|wav|mp4|webm|m4v)$/i.test(full));
+      const mb = (removedBytes / (1024 * 1024)).toFixed(1);
+      console.log(
+        `[strip-offloaded-media] VITE_MEDIA_BASE_URL=${mediaBase} -> stripped ${removedFiles} media files (${mb} MB) from ${path.relative(process.cwd(), outDirAbs)}`,
+      );
+    },
+  };
+}
+
 export default defineConfig({
   // Deploy under a sub-path with ATLAS_BASE=/words/ npm run build
   base: process.env.ATLAS_BASE || "/",
   plugins: [
     react(),
+    precacheManifest(),
+    robotsHtml(),
+    stripOffloadedMedia(),
     {
       name: "private-local-library",
       configureServer(server) {
@@ -107,5 +175,20 @@ export default defineConfig({
   ],
   server: { port: 5188, strictPort: true },
   preview: { port: 5188, strictPort: true },
-  build: { chunkSizeWarningLimit: 600 },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (
+            id.includes("node_modules/react/") ||
+            id.includes("node_modules/react-dom/") ||
+            id.includes("node_modules/scheduler/")
+          ) {
+            return "react-vendor";
+          }
+        },
+      },
+    },
+  },
 });

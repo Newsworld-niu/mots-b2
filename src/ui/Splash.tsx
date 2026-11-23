@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { duck, playFile, preloadFiles } from "../lib/sound";
-import { dayKey, store } from "../store/store";
+import { store } from "../store/store";
 
 const SEEN_KEY = "word-atlas:splash";
 const PALETTE: [string, number][] = [
@@ -11,12 +11,13 @@ const PALETTE: [string, number][] = [
   ["143,178,204", 0.06],
 ];
 
+/** Show animated door splash on first visit only (unless disabled or deep-linked). */
 export function shouldShowSplash() {
   if (!store.get().settings.splash) return false;
   const h = location.hash.replace(/^#\/?/, "");
   if (h && !h.startsWith("?")) return false; // deep links go straight to content
   try {
-    return localStorage.getItem(SEEN_KEY) !== dayKey();
+    return !localStorage.getItem(SEEN_KEY);
   } catch {
     return true;
   }
@@ -229,7 +230,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
     if (opening.current) return;
     opening.current = true;
     try {
-      localStorage.setItem(SEEN_KEY, dayKey());
+      localStorage.setItem(SEEN_KEY, "seen");
     } catch {
       /* optional */
     }
@@ -256,7 +257,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
   }); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className={`splash is-${phase} ${reduce ? "is-reduced" : ""}`} onClick={() => open()} role="dialog" aria-label="欢迎打开法语大门，点击进入">
+    <div className={`splash is-${phase} ${reduce ? "is-reduced" : ""}`} onClick={() => open()} role="dialog" aria-label="欢迎打开法语词光，点击进入">
       <div className="door door-l" />
       <div className="door door-r" />
       <div className="splash-light" />
@@ -268,7 +269,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
         </div>
       )}
       <div className="splash-copy">
-        <p className="splash-tag">欢迎打开法语大门</p>
+        <p className="splash-tag">DELF B2 全科备考 · 法语词光</p>
         <p className="splash-hint">
           <span className="splash-key" />
           点击开启 · 按任意键

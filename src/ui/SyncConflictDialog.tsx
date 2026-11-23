@@ -66,9 +66,9 @@ export function SyncConflictDialog() {
     <Sheet open={!!conflict && !hidden} onClose={() => setHidden(true)} label="云端同步冲突">
       {conflict && (
         <div className="sync-conflict-dialog">
-          <h2 className="sheet-title">云端与本机数据冲突</h2>
+          <h2 className="sheet-title">云端与本机数据存在差异</h2>
           <p className="muted">
-            两台设备各自产生了新改动，请选择要保留哪一份作为最新进度：
+            两台设备各自保留了独立进度。推荐使用智能合并，保留两端的背词记录、作文与错题：
           </p>
 
           <div className="sync-compare">
@@ -77,7 +77,7 @@ export function SyncConflictDialog() {
           </div>
 
           <p className="sync-conflict-note">
-            提示：选择「用云端」前，系统会自动将本机版本另存为恢复副本（可在「我的 → 云同步」下载）；选择「用本机」后，原有云端版本仍会保留在「历史版本」中。
+            提示：合并或覆盖前，系统会自动把当前本机数据存为安全副本（可在「我的 → 云同步」下载）；覆盖云端时，旧云端版本仍会留在「历史版本」中。
           </p>
 
           <div className="sync-conflict-actions">
@@ -85,9 +85,17 @@ export function SyncConflictDialog() {
               type="button"
               className="btn btn-primary"
               disabled={busy}
+              onClick={() => void resolveConflict("merge")}
+            >
+              {busy ? "处理中…" : "智能合并两端（推荐）"}
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              disabled={busy}
               onClick={() => void resolveConflict("remote")}
             >
-              {busy ? "处理中…" : "用云端"}
+              {busy ? "处理中…" : "仅用云端"}
             </button>
             <button
               type="button"
@@ -95,7 +103,7 @@ export function SyncConflictDialog() {
               disabled={busy}
               onClick={() => void resolveConflict("local")}
             >
-              {busy ? "处理中…" : "用本机"}
+              {busy ? "处理中…" : "仅用本机"}
             </button>
             <button
               type="button"

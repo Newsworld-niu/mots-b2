@@ -3,7 +3,8 @@
  * what a generated comprehension exercise and a marked talk look like, and the log of results.
  * Topics, vocabulary and subjects are written for this site (待核对).
  */
-import { countWords, sanitizeEssayFeedback, type EssayFeedback } from "./essay";
+import { countWords, sanitizeEssayFeedback, type EssayFeedback } from "./essay-schema";
+export * from "./exam-schema";
 
 export interface Topic {
   id: string;
@@ -365,201 +366,7 @@ export const topicOf = (id: string | undefined) => TOPICS.find((t) => t.id === i
 
 /* ---------- 听力理解、应试阅读 ---------- */
 
-export type CompKind = "listen" | "read";
-export const COMP_LABEL: Record<CompKind, string> = { listen: "听力理解", read: "应试阅读" };
-
-/**
- * The exercise types of the exam (new format, 2020):
- * long — one radio programme heard twice (listening) or one press article (reading), 7 questions, 9 points;
- * short — three short recordings heard once, 2 questions each, 7 points (listening);
- * opinions — three people's opinions on a forum, "whose point of view is this?", 6 questions, 7 points (reading).
- */
-export type CompForm = "long" | "short" | "opinions";
-export const FORM_SPEC: Record<CompForm, { zh: string; questions: number; points: number; plays: number; read: number; answer: number }> = {
-  long: { zh: "长篇（7 题，9 分）", questions: 7, points: 9, plays: 2, read: 60, answer: 60 },
-  short: { zh: "三段短录音（各听一遍，7 分）", questions: 6, points: 7, plays: 1, read: 15, answer: 20 },
-  opinions: { zh: "三人观点（这是谁的看法，7 分）", questions: 6, points: 7, plays: 0, read: 0, answer: 0 },
-};
-/** Pause between the two hearings of a long document, in seconds. */
-export const BETWEEN_PLAYS = 30;
-/** The exercises of a whole paper, in order: 9 + 9 + 7 = 25 points. */
-export const PAPER: Record<CompKind, CompForm[]> = { listen: ["long", "long", "short"], read: ["long", "long", "opinions"] };
-export const READ_MINUTES = { paper: 60, long: 20, opinions: 15 } as const;
-
-export type CompQuestionType = "qcm" | "vf" | "short";
-
-export interface CompQuestion {
-  /** Question and options in French, as in the exam: 3 options ("qcm"), Vrai/Faux + citation ("vf"), or short written answer ("short"). */
-  q: string;
-  /** Question format; omitted for legacy 3-option QCM questions. */
-  qType?: CompQuestionType;
-  options: string[];
-  answer: number;
-  /** Exact French quote justifying a Vrai/Faux answer (justifier par une citation). */
-  quote?: string;
-  /** Accepted French short answers (sample answers / keyphrases) when qType === "short". */
-  accepted?: string[];
-  /** Why, in Chinese. */
-  why: string;
-  /** Points, from 0.5 to 2.5, set by `weigh`. */
-  pts: number;
-  /** Which document of the exercise the question is about (short recordings). */
-  doc: number;
-  /** What the question tests, as the AI saw it (older exercises have none). */
-  skill?: QSkill;
-}
-
-/** What a question tests: the main idea, an explicit detail, a reworded idea, someone's opinion, an inference, a negation or restriction. */
-export type QSkill = "gist" | "detail" | "paraphrase" | "opinion" | "inference" | "negation";
-export const QSKILLS: QSkill[] = ["gist", "detail", "paraphrase", "opinion", "inference", "negation"];
-export const QSKILL_LABEL: Record<QSkill, string> = { gist: "主旨", detail: "细节", paraphrase: "同义改写", opinion: "观点态度", inference: "推断", negation: "否定/限定" };
-
-export interface CompExercise {
-  form: CompForm;
-  topic: string;
-  /** The situation line of the exercise ("Vous écoutez une émission à la radio."). */
-  intro: string;
-  title: string;
-  /** One document, or three for short recordings. */
-  docs: { text: string; zh: string }[];
-  questions: CompQuestion[];
-}
-
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
-
-/**
- * The points of the questions of one exercise, as in the official sample paper: from 0.5 to 2.5, adding up
- * to 9 (seven questions) or 7 (six questions).
- */
-const POINT_SETS: Record<number, number[]> = { 9: [0.5, 0.5, 1, 1, 1.5, 2, 2.5], 7: [0.5, 0.5, 1, 1.5, 1.5, 2] };
-
-/**
- * Share the exercise's points among its questions by difficulty (1 easiest … 5 hardest): the hardest question
- * gets the most points; equal difficulties keep the order of the paper.
- */
-export function weigh(difficulty: number[], points: number): number[] {
-  const n = difficulty.length;
-  const set = POINT_SETS[points];
-  if (!set || set.length !== n) return new Array<number>(n).fill(1);
-  const order = [...difficulty.keys()].sort((a, b) => difficulty[a] - difficulty[b] || a - b);
-  const pts = new Array<number>(n).fill(1);
-  order.forEach((k, rank) => (pts[k] = set[rank]));
-  return pts;
-}
-
-/** The measured pace of the official recordings: words per minute over a whole document, pauses included. */
-export const REAL_WPM = 177;
-
-const normCite = (s: string) =>
-  s
-    .replace(/’/g, "'")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}']+/gu, " ")
-    .trim();
-
-const citeWords = (s: string) => normCite(s).split(/\s+/).filter((w) => w.length >= 3);
-
-/** Grade one comprehension question: 3-option QCM, Vrai/Faux + citation justification, or short written answer. */
-export function gradeCompQuestion(
-  q: CompQuestion,
-  picked?: number,
-  typed?: string,
-  docText?: string,
-): { correct: boolean; choiceOk?: boolean; quoteMatched?: boolean } {
-  const qt = q.qType ?? "qcm";
-  if (qt === "vf") {
-    const choiceOk = picked === q.answer;
-    const tNorm = normCite(typed ?? "");
-    const qNorm = normCite(q.quote ?? "");
-    const dNorm = docText ? normCite(docText) : "";
-    let quoteMatched = false;
-    if (tNorm.length >= 12 && qNorm) {
-      const targetWords = citeWords(q.quote ?? "");
-      const typedSet = new Set(normCite(typed ?? "").split(/\s+/).filter(Boolean));
-      const hits = targetWords.filter((w) => typedSet.has(w)).length;
-      const ratio = targetWords.length ? hits / targetWords.length : 0;
-      const inDoc = dNorm ? dNorm.includes(tNorm) : true;
-      quoteMatched = (inDoc && ratio >= 0.55) || ratio >= 0.75;
-    }
-    return { correct: choiceOk && quoteMatched, choiceOk, quoteMatched };
-  }
-  if (qt === "short") {
-    const tNorm = normCite(typed ?? "");
-    const candidates = (q.accepted ?? []).filter(Boolean);
-    if (!tNorm || !candidates.length) return { correct: false };
-    const tSet = new Set(tNorm.split(/\s+/).filter(Boolean));
-    const ok = candidates.some((cand) => {
-      const cNorm = normCite(cand);
-      if (!cNorm) return false;
-      if (tNorm.includes(cNorm) || (tNorm.length >= 4 && cNorm.includes(tNorm) && tNorm.length >= cNorm.length * 0.65)) return true;
-      const words = citeWords(cand);
-      const pool = words.length ? words : cNorm.split(/\s+/).filter(Boolean);
-      const hits = pool.filter((w) => tSet.has(w)).length;
-      return pool.length > 0 && hits / pool.length >= 0.65;
-    });
-    return { correct: ok };
-  }
-  return { correct: picked === q.answer };
-}
-
-/** Strict DELF B2 structural validation used to gate AI-generated exercises and presets. */
-export function isValidComprehension(ex: CompExercise, form: CompForm): boolean {
-  const spec = FORM_SPEC[form];
-  if (ex.docs.length !== (form === "short" ? 3 : 1)) return false;
-  if (!ex.docs.every((d) => d.text.length > 200)) return false;
-  if (ex.questions.length !== spec.questions) return false;
-  if (exercisePoints(ex) !== spec.points) return false;
-  if (form === "short" && ex.questions.map((q) => q.doc).join(",") !== "0,0,1,1,2,2") return false;
-  if (form === "opinions" && ![0, 1, 2].every((j) => ex.questions.filter((q) => q.answer === j).length === 2)) return false;
-  return true;
-}
-
-export function sanitizeExercise(raw: unknown, form: CompForm, topic: string): CompExercise {
-  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
-  const docs = (Array.isArray(r.docs) ? r.docs : [])
-    .filter((d): d is Record<string, unknown> => !!d && typeof d === "object")
-    .map((d) => ({ text: str(d.text, 6000), zh: str(d.zh, 6000) }))
-    .filter((d) => d.text)
-    .slice(0, form === "short" ? 3 : 1);
-  const rows: (Omit<CompQuestion, "pts"> & { level: number })[] = [];
-  for (const x of Array.isArray(r.questions) ? r.questions : []) {
-    if (!x || typeof x !== "object") continue;
-    const rec = x as Record<string, unknown>;
-    const q = str(rec.q, 400);
-    if (!q) continue;
-    const docRaw = typeof rec.doc === "number" ? Math.round(rec.doc) : 0;
-    const doc = docRaw >= 0 && docRaw < docs.length ? docRaw : 0;
-    const level = typeof rec.difficulty === "number" && Number.isFinite(rec.difficulty) ? Math.min(5, Math.max(1, Math.round(rec.difficulty))) : 3;
-    const skill = QSKILLS.includes(rec.skill as QSkill) ? (rec.skill as QSkill) : undefined;
-    const why = str(rec.why, 500);
-    const qtRaw = rec.qType;
-    const qType: CompQuestionType = qtRaw === "vf" || qtRaw === "short" ? qtRaw : "qcm";
-    if (qType === "vf") {
-      const answer = typeof rec.answer === "number" ? Math.round(rec.answer) : -1;
-      const quote = str(rec.quote, 360);
-      if ((answer !== 0 && answer !== 1) || !quote) continue;
-      rows.push({ q, qType: "vf", options: ["Vrai", "Faux"], answer, quote, why, level, doc, ...(skill ? { skill } : {}) });
-    } else if (qType === "short") {
-      const accepted = (Array.isArray(rec.accepted) ? rec.accepted : []).map((a) => str(a, 180)).filter(Boolean).slice(0, 4);
-      if (!accepted.length) continue;
-      rows.push({ q, qType: "short", options: [], answer: 0, accepted, why, level, doc, ...(skill ? { skill } : {}) });
-    } else {
-      const options = Array.isArray(rec.options) ? rec.options.map((o) => str(o, 240)).filter(Boolean).slice(0, 3) : [];
-      const answer = typeof rec.answer === "number" ? Math.round(rec.answer) : -1;
-      if (options.length !== 3 || new Set(options).size !== 3 || answer < 0 || answer >= 3) continue;
-      rows.push({ q, options, answer, why, level, doc, ...(skill ? { skill } : {}) });
-    }
-    if (rows.length >= FORM_SPEC[form].questions) break;
-  }
-  // points only add up to the exercise's total when every question came back
-  const pts = weigh(rows.map((x) => x.level), rows.length === FORM_SPEC[form].questions ? FORM_SPEC[form].points : rows.length);
-  const questions: CompQuestion[] = rows.map(({ level: _l, ...x }, k) => ({ ...x, pts: pts[k] })).sort((a, b) => a.doc - b.doc);
-  return { form, topic, intro: str(r.intro, 240), title: str(r.title, 120).replace(/^["«\s]+|["»\s]+$/g, ""), docs, questions };
-}
-
-export const exercisePoints = (ex: CompExercise) => ex.questions.reduce((n, q) => n + q.pts, 0);
 
 export interface SpeechChunk {
   t: string;
@@ -752,6 +559,62 @@ export const SPEAKING_SUBJECTS: SpeakingSubject[] = [
     doc: "Régulièrement relancée dans le débat politique, l'idée d'instaurer un engagement civique obligatoire de quelques mois pour tous les jeunes de dix-huit à vingt-cinq ans divise profondément la société. Ses promoteurs y voient un moyen irremplaçable de brasser des jeunes issus de milieux sociaux très différents tout en renforçant les associations, les hôpitaux ou les écoles publiques en manque de bras. « Passer six mois au service de l'intérêt général développe l'empathie et le sens des responsabilités », plaide Sophie Renard, présidente d'une fédération d'entraide. À l'opposé, de nombreux syndicats étudiants dénoncent une perte d'autonomie et un coût financier lourd pour l'État, craignant en outre que des bénévoles contraints ne remplacent de véritables emplois salariés. L'engagement citoyen peut-il encore garder son sens s'il cesse d'être volontaire ?",
     ask: "应该要求所有年轻人参加一段时间的强制社会/公民服务吗？社会凝聚力、公共服务需求与个人自由、替代正式岗位风险如何权衡？",
   },
+  {
+    id: "s-vote-obligatoire",
+    topic: "politique-justice",
+    title: "L'abstention augmente : faut-il instaurer le vote obligatoire en France ?",
+    source: "D'après La Revue civique, 18 janvier 2025",
+    doc: "Face à des taux d'abstention records lors des dernières élections locales et législatives, notamment chez les moins de trente ans, plusieurs élus relancent l'idée d'un vote obligatoire inspiré du modèle belge, assorti d'une faible amende. Selon eux, cet engagement minimal restaurerait la légitimité des assemblées et obligerait les responsables politiques à prendre en compte les quartiers les plus éloignés des urnes. « Lorsqu'un député est élu avec seulement trente pour cent des inscrits, le lien démocratique s'affaiblit durablement », soutient la sénatrice Claire Delacroix, favorable à cette réforme. À l'inverse, de nombreux juristes estiment que la liberté de ne pas voter fait partie du droit démocratique et qu'une contrainte administrative multiplierait simplement les votes blancs ou protestataires, sans résoudre la crise de confiance envers les partis. La loi peut-elle véritablement raviver l'intérêt civique ?",
+    ask: "强制投票是挽救选举高弃权率的有效出路，还是掩盖政治信任危机的形式主义？",
+  },
+  {
+    id: "s-biometrie",
+    topic: "sciences-ethique",
+    title: "Reconnaissance faciale dans l'espace public : sécurité renforcée ou dérive liberticide ?",
+    source: "D'après Cahiers Sciences & Société, 11 février 2025",
+    doc: "Plusieurs métropoles européennes testent des systèmes d'intelligence artificielle capables d'identifier des comportements suspects ou des personnes recherchées dans les gares et les stades. Les défenseurs de cette technologie soulignent sa rapidité pour retrouver un enfant disparu ou prévenir les attentats dans des lieux très fréquentés. « Nos agents gagnent un temps précieux sur le terrain lorsque chaque seconde compte », assure Marc Vasseur, directeur d'une régie municipale de sécurité. Pourtant, des chercheurs en informatique et la CNIL mettent en garde contre des erreurs d'identification plus fréquentes sur certaines populations, l'effet dissuasif sur les manifestations citoyennes et le risque de voir s'installer une surveillance généralisée irréversible, y compris à des fins commerciales. Comment tracer la frontière éthique entre innovation sécuritaire, efficacité publique et préservation des libertés individuelles ?",
+    ask: "车站与大型活动使用 AI 人脸识别能显著提升公共安全，还是会带来算法偏见与常态化监控的伦理滑坡？",
+  },
+  {
+    id: "s-desinformation",
+    topic: "medias-presse",
+    title: "Fausses nouvelles en ligne : faut-il sanctionner pénalement les internautes qui les relaient ?",
+    source: "D'après Chroniques Médias, 29 janvier 2025",
+    doc: "Lors de récentes crises sanitaires et climatiques, des vidéos manipulées par l'intelligence artificielle ont cumulé des millions de vues en quelques heures avant tout démenti journalistique. Pour endiguer cette viralité, un projet de loi envisage d'étendre la responsabilité financière non seulement aux grandes plateformes, mais aussi aux comptes influents qui relaient sciemment des rumeurs dangereuses sans vérification. « Partager un faux remède médical devant trois cent mille abonnés ne peut plus rester un geste anodin », plaide Olivier Garnier, juriste spécialisé dans les médias numériques. Si les rédactions saluent une prise de conscience face au discrédit qui frappe la presse, des défenseurs des droits civiques craignent qu'une qualification floue de « fausse information » ne décourage la satire, la critique politique ou l'expression légitime des lanceurs d'alerte.",
+    ask: "打击网传假消息该对大V转发追责处罚，还是应该靠推荐算法透明度与媒体教育解决？",
+  },
+  {
+    id: "s-encadrement-loyers",
+    topic: "logement-urbanisme",
+    title: "L'encadrement strict des loyers protège-t-il vraiment les locataires ?",
+    source: "D'après Villes & Territoires, 6 février 2025",
+    doc: "Appliqué à Paris, Lyon ou Lille afin d'endiguer la flambée immobilière, le plafonnement des loyers limite légalement le prix au mètre carré selon le quartier et l'ancienneté de l'immeuble. Pour les associations de locataires, cette mesure indispensable évite que les soignants, enseignants ou jeunes actifs ne soient chassés vers la grande banlieue. « Sans ce plafond, les loyers progresseraient trois fois plus vite que les salaires dans les zones tendues », affirme Nadia Benali, porte-parole d'un collectif urbain d'usagers. Les fédérations immobilières dénoncent au contraire un effet pervers : face à une rentabilité jugée insuffisante et à l'obligation de rénover les « passoires thermiques », de nombreux propriétaires retirent leurs biens du marché traditionnel pour les vendre ou les louer à la semaine aux touristes. Comment loger dignement tous les actifs ?",
+    ask: "大城市实行严格房租限价究竟保护了工薪租客，还是吓退了房东供给与旧房节能改造？",
+  },
+  {
+    id: "s-fiscalite-ecolo",
+    topic: "economie-finances",
+    title: "Financer la transition verte par de nouvelles taxes sur la consommation : juste ou inégalitaire ?",
+    source: "D'après L'Écho des Finances publiques, 22 janvier 2025",
+    doc: "Pour atteindre la neutralité carbone sans creuser davantage la dette publique, un rapport économique suggère de taxer davantage les billets d'avion, les voitures lourdes et les produits importés à forte empreinte carbone, tout en reversant une partie des recettes sous forme de prime aux ménages modestes. Les partisans de cette « écologie incitative » rappellent que le signal-prix reste l'outil le plus efficace pour orienter entreprises et acheteurs vers des choix sobres. « Chaque euro prélevé doit devenir un investissement visible dans les trains du quotidien et l'isolation des logements », défend Laurent Mercier, économiste universitaire. Mais plusieurs syndicats redoutent une baisse mécanique du pouvoir d'achat dans les zones rurales dépourvues de transports collectifs et exigent d'abord des investissements dans les alternatives abordables. Comment rendre la transition budgétairement juste ?",
+    ask: "通过碳税和消费税推动绿色转型与减债是否可行？怎样防止农村和中低收入家庭承担过重负担？",
+  },
+  {
+    id: "s-transports-gratuits",
+    topic: "transports-mobilite",
+    title: "Transports publics gratuits dans les grandes villes : mesure sociale modèle ou fausse bonne idée ?",
+    source: "D'après Mobilité & Cité, 14 février 2025",
+    doc: "Après Dunkerque, Montpellier est devenue fin 2023 la plus grande métropole française à offrir la gratuité des tramways et bus à tous ses habitants, enregistrant rapidement une hausse de fréquentation de près de 20 %. Les partisans saluent un double coup de pouce pour le pouvoir d'achat et pour le climat, en incitant les automobilistes à laisser leur voiture au garage. « Supprimer le ticket libère les familles de dépenses contraintes tout en apaisant la circulation urbaine », souligne Camille Robert, maire adjointe aux mobilités douces. Toutefois, la Cour des comptes et plusieurs experts en urbanisme objectent que la perte de recettes billetteries se chiffre en dizaines de millions d'euros, réduisant d'autant la capacité des villes à prolonger les lignes vers les banlieues mal desservies ou à augmenter la fréquence des rames.",
+    ask: "城市公交全免费是兼顾环保与民生的好办法，还是会掏空用于郊区延伸线路的建设资金？",
+  },
+  {
+    id: "s-francophonie",
+    topic: "arts-francophonie",
+    title: "À l'ère du streaming mondial, faut-il maintenir des quotas d'œuvres francophones à la radio et sur les écrans ?",
+    source: "D'après Regards Culturels, 3 février 2025",
+    doc: "Depuis près de trente ans, la France impose aux radios musicales et aux chaînes de télévision de diffuser une part minimale de chansons et de créations d'expression française ou européenne, une règle désormais étendue aux plateformes internationales de streaming vidéo. Pour les artistes et éditeurs indépendants, cette exception culturelle demeure indispensable afin d'éviter qu'un oligopole anglophone et des algorithmes mondiaux n'uniformisent les goûts des jeunes générations. « Sans mécanisme de soutien, le cinéma francophone et les auteurs locaux peineraient à financer des projets originaux », rappelle Agnès Lefebvre, productrice culturelle. À l'inverse, certains auditeurs et producteurs estiment que ces seuils figent la programmation sur les mêmes succès établis, alors que les jeunes artistes émergent aujourd'hui directement sur les réseaux sociaux sans passer par la régulation traditionnelle.",
+    ask: "在全球流媒体算法主导下，要求广播与视频平台保留法语/本土作品配额还有必要吗？会保护创作还是显得僵化？",
+  },
 ];
 
 /** How a talk on a subject is built (monologue suivi). */
@@ -877,115 +740,6 @@ export function sanitizeSubject(raw: unknown, topic: string): SpeakingSubject | 
   return { id: `ai-${topic}`, topic, title, ...(source ? { source } : {}), doc, ask: str(r.ask, 200) || "指出材料提出的问题，表明你的看法并论证。" };
 }
 
-/* ---------- 成绩记录 ---------- */
-
-export type ExamPart = CompKind | "essay" | "speak";
-export const EXAM_PARTS: ExamPart[] = ["listen", "read", "essay", "speak"];
-export const PART_LABEL: Record<ExamPart, string> = { listen: "听力", read: "阅读", essay: "写作", speak: "口语" };
-
-export interface ExamResult {
-  part: ExamPart;
-  /** Topic id (comprehension), task id (essay), or subject id (speaking). */
-  what: string;
-  score: number;
-  total: number;
-  at: number;
-  /** Speaking only: true when the candidate typed instead of speaking by voice (excluded from /25 curve). */
-  typed?: boolean;
-}
-
-export const MAX_EXAM_LOG = 60;
-
-export function sanitizeExamLog(v: unknown): ExamResult[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const out: ExamResult[] = [];
-  for (const x of v) {
-    if (!x || typeof x !== "object") continue;
-    const e = x as Record<string, unknown>;
-    if ((e.part !== "listen" && e.part !== "read" && e.part !== "essay" && e.part !== "speak") || typeof e.what !== "string" || typeof e.at !== "number") continue;
-    if (typeof e.score !== "number" || typeof e.total !== "number" || !(e.total > 0) || e.score < 0 || e.score > e.total) continue;
-    out.push({
-      part: e.part,
-      what: e.what.slice(0, 40),
-      score: e.score,
-      total: e.total,
-      at: e.at,
-      ...(e.part === "speak" && e.typed === true ? { typed: true } : {}),
-    });
-  }
-  return out.length ? out.slice(0, MAX_EXAM_LOG) : undefined;
-}
-
-/** A result as the exam counts it: out of 25. */
-export const outOf25 = (r: { score: number; total: number }) => Math.round((r.score / r.total) * 250) / 10;
-
-/**
- * Real /25 exam score for curves and dashboards.
- * Speaking sessions without a 5th pronunciation criterion (total !== 25) or typed sessions are never linearly
- * scaled from /20 to /25 and return null.
- */
-export function realScore25(r: Pick<ExamResult, "part" | "score" | "total" | "typed">): number | null {
-  if (r.part === "speak" && (r.total !== 25 || r.typed === true)) return null;
-  return outOf25(r);
-}
-
-export interface PartReadiness {
-  part: ExamPart;
-  label: string;
-  score25: number | null;
-  at: number | null;
-  eliminatory: boolean;
-  /** Latest speaking log was /20 (no pronunciation) or typed, so not counted into /25. */
-  incompleteSpeak?: boolean;
-  latestRaw?: ExamResult;
-}
-
-export interface ExamReadiness {
-  parts: PartReadiness[];
-  completed: number;
-  /** Exact sum /100 when all 4 parts have a valid /25 score. */
-  exact100: number | null;
-  /** Estimated /100 across whatever parts have been scored so far. */
-  estimated100: number | null;
-  target: number;
-  gapToTarget: number | null;
-  eliminated: PartReadiness[];
-  passed: boolean | null;
-  weakest: PartReadiness | null;
-}
-
-const round1 = (n: number) => Math.round(n * 10) / 10;
-
-/** Summarise DELF B2 readiness across CO/CE/PE/PO: /100 estimate, target gap, and <5/25 elimination guard. */
-export function examReadiness(log: ExamResult[] | undefined, target = 75): ExamReadiness {
-  const rows = [...(log ?? [])].sort((a, b) => b.at - a.at);
-  const parts: PartReadiness[] = EXAM_PARTS.map((part) => {
-    const mine = rows.filter((r) => r.part === part);
-    const valid = mine.find((r) => realScore25(r) !== null);
-    const latest = mine[0];
-    const score25 = valid ? realScore25(valid) : null;
-    return {
-      part,
-      label: PART_LABEL[part],
-      score25,
-      at: valid?.at ?? null,
-      eliminatory: score25 !== null && score25 < 5,
-      incompleteSpeak: part === "speak" && !!latest && realScore25(latest) === null && !valid,
-      ...(latest ? { latestRaw: latest } : {}),
-    };
-  });
-  const scored = parts.filter((p) => p.score25 !== null);
-  const completed = scored.length;
-  const sum = scored.reduce((n, p) => n + (p.score25 ?? 0), 0);
-  const exact100 = completed === 4 ? round1(sum) : null;
-  const estimated100 = completed === 4 ? exact100 : completed > 0 ? round1((sum / completed) * 4) : null;
-  const gapToTarget = estimated100 !== null ? round1(Math.max(0, target - estimated100)) : null;
-  const eliminated = scored.filter((p) => p.eliminatory);
-  const passed = exact100 !== null ? exact100 >= 50 && eliminated.length === 0 : null;
-  const weakest = scored.length ? [...scored].sort((a, b) => (a.score25 ?? 0) - (b.score25 ?? 0))[0] : null;
-  return { parts, completed, exact100, estimated100, target, gapToTarget, eliminated, passed, weakest };
-}
-
 /** Determine whether a speaking submission relied on keyboard typing instead of speech recognition / Azure STT. */
 export function isSpeakingTyped(opts: {
   monologueVoice: boolean;
@@ -994,10 +748,10 @@ export function isSpeakingTyped(opts: {
   answeredTurns: number;
   debateVoice: boolean;
 }): boolean {
-  if (!opts.monologueVoice) return true;
+  if (!opts.monologueVoice || opts.voiceMonologueWords <= 0) return true;
   if (opts.answeredTurns > 0 && !opts.debateVoice) return true;
-  const allowedEdits = Math.max(40, Math.round(opts.voiceMonologueWords * 0.4));
-  return opts.totalMonologueWords > opts.voiceMonologueWords + allowedEdits;
+  const allowedEdits = Math.min(15, Math.round(opts.voiceMonologueWords * 0.1));
+  return Math.abs(opts.totalMonologueWords - opts.voiceMonologueWords) > allowedEdits;
 }
 
 const OUTLINE_STOPWORDS = new Set([

@@ -80,7 +80,7 @@ export function docxText(xml: string): string {
     // a table row: the cells' paragraph breaks fold into the tabs
     .replace(/\n\t/g, "\t")
     .replace(/\t+\n/g, "\n")
-    .replace(/[  ]+/g, " ")
+    .replace(/[ \u00a0]+/g, " ")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }

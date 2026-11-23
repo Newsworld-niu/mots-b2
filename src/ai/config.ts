@@ -11,8 +11,22 @@ export const VISION_PROVIDERS: VisionProvider[] = ["openai", "anthropic", "openr
 export type ImageProvider = "openai" | "openrouter";
 export const IMAGE_PROVIDERS: ImageProvider[] = ["openai", "openrouter"];
 
+export type SttProvider = "none" | "openai" | "custom";
+export const STT_PROVIDERS: SttProvider[] = ["none", "openai", "custom"];
+
+export interface SttConfig {
+  provider: SttProvider;
+  baseUrl: string;
+  apiKey: string;
+  model: string;
+}
+
 export interface AiConfig {
   keys: { openai: string; deepseek: string; anthropic: string; openrouter: string; azure: string };
+  /** Optional custom OpenAI-compatible base URL (relay, Groq, local Ollama, etc.). */
+  openaiBaseUrl: string;
+  /** Optional Whisper-compatible Speech-to-Text fallback configuration. */
+  stt: SttConfig;
   azureRegion: string;
   /** Azure neural voice name, e.g. fr-FR-DeniseNeural. */
   azureVoice: string;
@@ -41,8 +55,26 @@ export const GRADING_RECOMMENDED_MODELS = {
 } as const;
 export const DEFAULT_IMAGE_MODELS: Record<ImageProvider, string> = { openai: "gpt-image-1", openrouter: "openai/gpt-image-1-mini" };
 
+/** Accept only HTTPS endpoints or localhost/127.0.0.1 HTTP for local models; strip trailing slashes. */
+export function sanitizeBaseUrl(v: unknown): string {
+  const s = typeof v === "string" ? v.trim().slice(0, 240).replace(/\/+$/, "") : "";
+  if (!s) return "";
+  try {
+    const u = new URL(s);
+    if (u.protocol === "https:") return `${u.origin}${u.pathname === "/" ? "" : u.pathname}`.replace(/\/+$/, "");
+    if (u.protocol === "http:" && (u.hostname === "localhost" || u.hostname === "127.0.0.1")) {
+      return `${u.origin}${u.pathname === "/" ? "" : u.pathname}`.replace(/\/+$/, "");
+    }
+    return "";
+  } catch {
+    return "";
+  }
+}
+
 export const defaultAiConfig = (): AiConfig => ({
   keys: { openai: "", deepseek: "", anthropic: "", openrouter: "", azure: "" },
+  openaiBaseUrl: "",
+  stt: { provider: "none", baseUrl: "", apiKey: "", model: "whisper-1" },
   azureRegion: "",
   azureVoice: "fr-FR-DeniseNeural",
   azureVoiceMale: "fr-FR-HenriNeural",
@@ -63,8 +95,17 @@ export function sanitizeAiConfig(v: unknown): AiConfig {
   const vp: VisionProvider = VISION_PROVIDERS.includes(o.vision?.provider) ? o.vision.provider : d.vision.provider;
   const tp: TextProvider = TEXT_PROVIDERS.includes(o.text?.provider) ? o.text.provider : d.text.provider;
   const ip: ImageProvider = IMAGE_PROVIDERS.includes(o.image?.provider) ? o.image.provider : d.image.provider;
+  const sttRaw = o.stt && typeof o.stt === "object" ? o.stt : {};
+  const sp: SttProvider = STT_PROVIDERS.includes(sttRaw.provider) ? sttRaw.provider : d.stt.provider;
   return {
     keys: { openai: str(keys.openai), deepseek: str(keys.deepseek), anthropic: str(keys.anthropic), openrouter: str(keys.openrouter), azure: str(keys.azure) },
+    openaiBaseUrl: sanitizeBaseUrl(o.openaiBaseUrl),
+    stt: {
+      provider: sp,
+      baseUrl: sanitizeBaseUrl(sttRaw.baseUrl),
+      apiKey: str(sttRaw.apiKey),
+      model: str(sttRaw.model, 80) || d.stt.model,
+    },
     azureRegion: str(o.azureRegion, 40).toLowerCase().replace(/[^a-z0-9]/g, ""),
     azureVoice: str(o.azureVoice, 80) || d.azureVoice,
     azureVoiceMale: str(o.azureVoiceMale, 80) || d.azureVoiceMale,
@@ -115,4 +156,5 @@ export const ready = {
   text: (c = config) => !!c.keys[c.text.provider],
   image: (c = config) => !!c.keys[c.image.provider],
   tts: (c = config) => c.tts && !!c.keys.azure && !!c.azureRegion,
+  stt: (c = config) => (c.stt.provider === "openai" && !!c.keys.openai) || (c.stt.provider === "custom" && !!c.stt.apiKey && !!c.stt.baseUrl),
 };

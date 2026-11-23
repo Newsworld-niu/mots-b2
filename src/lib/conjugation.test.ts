@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { agree, checkAnswer, distractorsFor, participePresentForm, personsFor, promptFor, tableFor, TENSES, tensesForLevel, type ConjVerb } from "./conjugation.ts";
+import { agree, B2_HIGH_FREQ_TENSES, checkAnswer, distractorsFor, imperatifForm, participePresentForm, personsFor, promptFor, tableFor, tensesForLevel, type ConjVerb } from "./conjugation.ts";
 
 const parler: ConjVerb = { i: "parler", a: "a", pp: "parlé", m: "er", f: { pres: ["parle", "parles", "parle", "parlons", "parlez", "parlent"], imp: ["parlais", "parlais", "parlait", "parlions", "parliez", "parlaient"], fut: ["parlerai", "parleras", "parlera", "parlerons", "parlerez", "parleront"], cond: ["parlerais", "parlerais", "parlerait", "parlerions", "parleriez", "parleraient"], subj: ["parle", "parles", "parle", "parlions", "parliez", "parlent"] } };
 const aimer: ConjVerb = { ...parler, i: "aimer", pp: "aimé", f: { pres: ["aime", "aimes", "aime", "aimons", "aimez", "aiment"], imp: ["aimais", "aimais", "aimait", "aimions", "aimiez", "aimaient"], fut: ["aimerai", "aimeras", "aimera", "aimerons", "aimerez", "aimeront"], cond: ["aimerais", "aimerais", "aimerait", "aimerions", "aimeriez", "aimeraient"], subj: ["aime", "aimes", "aime", "aimions", "aimiez", "aiment"] } };
@@ -57,7 +57,10 @@ test("tables and level unlocking", () => {
   assert.deepEqual(tableFor(aller, "pres").map((r) => `${r.before} ${r.form}`), ["je vais", "tu vas", "il va", "nous allons", "vous allez", "ils vont"]);
   assert.deepEqual(tensesForLevel(0), ["pres", "pc"]);
   assert.ok(tensesForLevel(2).includes("subj"), "B1 start level enables subj by default");
-  assert.equal(tensesForLevel(3).length, TENSES.length);
+  assert.deepEqual(tensesForLevel(3), B2_HIGH_FREQ_TENSES);
+  assert.ok(["subjp", "condp", "fa", "ppres"].every((t) => tensesForLevel(3).includes(t as never)), "B2 unlocks compound/non-finite tenses");
+  assert.equal(checkAnswer("ai parle", ["ai parlé"]), "wrong", "present-vs-participle -e/-é is wrong");
+  assert.equal(checkAnswer("commenca", ["commença"]), "wrong", "missing cedilla before a/o/u is wrong");
   const falloir: ConjVerb = { ...parler, i: "falloir", imp: 1, f: { ...parler.f, pres: ["", "", "faut", "", "", ""] } };
   assert.deepEqual(tableFor(falloir, "pres").map((r) => r.form), ["faut"]);
   assert.deepEqual(personsFor(falloir, "ppres"), []);
@@ -88,4 +91,27 @@ test("PE-7: compound B2 tenses and participe présent compute auxiliaries, que/q
   assert.equal(promptFor(parler, "ppres", 0).shown, "parlant");
   assert.equal(promptFor(lever, "ppres", 0).before, "se");
   assert.ok(promptFor(lever, "ppres", 0).accepted.includes("se levant"));
+});
+
+test("Phase3: impératif présent derives regular drop-s, irregulars, reflexives, defective exclusions & traps", () => {
+  const falloir: ConjVerb = { ...parler, i: "falloir", imp: 1, f: { ...parler.f, pres: ["", "", "faut", "", "", ""] } };
+  const avoir: ConjVerb = { ...parler, i: "avoir", a: "a", pp: "eu", f: { ...parler.f, pres: ["ai", "as", "a", "avons", "avez", "ont"] } };
+  const etre: ConjVerb = { ...parler, i: "être", a: "e", pp: "été", f: { ...parler.f, pres: ["suis", "es", "est", "sommes", "êtes", "sont"] } };
+  const savoir: ConjVerb = { ...parler, i: "savoir", a: "a", pp: "su", f: { ...parler.f, pres: ["sais", "sais", "sait", "savons", "savez", "savent"] } };
+  const vouloir: ConjVerb = { ...parler, i: "vouloir", a: "a", pp: "voulu", f: { ...parler.f, pres: ["veux", "veux", "veut", "voulons", "voulez", "veuillent"] } };
+
+  assert.deepEqual(personsFor(parler, "imper"), [1, 3, 4]);
+  assert.equal(imperatifForm(parler, 1), "parle");
+  assert.equal(imperatifForm(aller, 1), "va");
+  assert.equal(imperatifForm(etre, 4), "soyez");
+  assert.equal(imperatifForm(avoir, 1), "aie");
+  assert.equal(imperatifForm(savoir, 3), "sachons");
+  assert.equal(imperatifForm(vouloir, 4), "veuillez");
+  assert.equal(imperatifForm(lever, 1), "lève-toi");
+  assert.equal(imperatifForm(lever, 3), "levons-nous");
+  assert.deepEqual(personsFor(falloir, "imper"), []);
+  assert.equal(promptFor(parler, "imper", 1).before, "(tu)");
+  assert.equal(promptFor(lever, "imper", 1).shown, "lève-toi");
+  assert.ok(distractorsFor(parler, "imper", 1, 7).includes("parles"));
+  assert.ok(tensesForLevel(1).includes("imper"));
 });

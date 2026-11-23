@@ -169,6 +169,7 @@ const toEntry = (e: LexEntry) => ({
   syn: e.syn,
   ant: e.ant,
   tip: e.tip,
+  ...(e.register ? { register: e.register } : {}),
   cefr: estimateOf(e),
   levelStatus: "estimated",
   forms: e.forms,

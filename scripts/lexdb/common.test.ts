@@ -22,8 +22,10 @@ test("Python common.py folding, shard key, and zhBucket match src/lib/lexdb/type
     "age#2",
     "comprendre",
     "co",
+    "construire",
+    "con",
   ];
-  const splits = ["co", "de", "pr"];
+  const splits = ["co", "con", "de", "pr"];
   const zhTerms = ["接待", "迎接", "（口）拿", "计算机科学", "A"];
 
   const pyCode = `

@@ -18,7 +18,7 @@ const inGroup = (id: string, group?: ExprGroup | null) => {
 };
 
 /** Started cards that are due, most overdue first. Cards no longer in the data are left out. */
-export function dueExpr(p: Progress, now = Date.now(), group?: ExprGroup | null) {
+export function dueExpr(p: Pick<Progress, "expr">, now = Date.now(), group?: ExprGroup | null) {
   return Object.entries(p.expr ?? {})
     .filter(([id, c]) => c.due <= now && inGroup(id, group))
     .sort((a, b) => a[1].due - b[1].due)
@@ -26,18 +26,18 @@ export function dueExpr(p: Progress, now = Date.now(), group?: ExprGroup | null)
 }
 
 /** Cards not started yet, in teaching order. */
-export function freshExpr(p: Progress, n: number, group?: ExprGroup | null) {
+export function freshExpr(p: Pick<Progress, "expr">, n: number, group?: ExprGroup | null) {
   return EXPRESSIONS.filter((e) => !p.expr?.[e.id] && (!group || e.group === group))
     .slice(0, Math.max(0, n))
     .map((e) => e.id);
 }
 
-export function exprRound(p: Progress, group?: ExprGroup | null, now = Date.now(), fresh = EXPR_NEW) {
+export function exprRound(p: Pick<Progress, "expr">, group?: ExprGroup | null, now = Date.now(), fresh = EXPR_NEW) {
   return [...dueExpr(p, now, group).slice(0, EXPR_DUE_MAX), ...freshExpr(p, fresh, group)];
 }
 
 /** Started and total cards, per group or all. */
-export function exprCounts(p: Progress, group?: ExprGroup | null) {
+export function exprCounts(p: Pick<Progress, "expr">, group?: ExprGroup | null) {
   const all = EXPRESSIONS.filter((e) => !group || e.group === group);
   return { total: all.length, started: all.filter((e) => p.expr?.[e.id]).length };
 }

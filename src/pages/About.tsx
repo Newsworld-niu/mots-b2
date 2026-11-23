@@ -12,7 +12,7 @@ export function About() {
         <img src={`${BASE}brand/og.webp`} alt="" />
         <div>
           <p className="eyebrow">关于法语词光</p>
-          <h1 className="display">基础到 B2，一词一个来历。</h1>
+          <h1 className="display">DELF B2 全科备考，一词一个来历。</h1>
           <p className="lede">
             这是一份法语词图：界面与交互沿用 word-atlas，词条来自可追溯的教材索引与 DELF 词表。目前收录 {atlas.count.toLocaleString()} 个可见词条，每个词条标注来源文件与页码。没有来源的释义与例句单独标为「补充」，词条等级是按所在教材和词频推定的（显示为「推定」），没有逐词核实。释义与译文多为补充翻译，状态为「待核对」，整库尚未逐条人工核实。
           </p>
@@ -27,7 +27,7 @@ export function About() {
 
       <div className="about-grid">
         <section className="panel">
-          <h3 className="eyebrow">为什么记得住</h3>
+          <h2 className="eyebrow">为什么记得住</h2>
           <ul className="feature-list">
             <li>
               <b>先看见。</b>每个词条都标明来源文件与页码，释义和例句分别注明是否来自原书。
@@ -48,7 +48,7 @@ export function About() {
         </section>
 
         <section className="panel">
-          <h3 className="eyebrow">快捷键</h3>
+          <h2 className="eyebrow">快捷键</h2>
           <dl className="keys">
             <div>
               <dt>
@@ -85,7 +85,7 @@ export function About() {
         </section>
 
         <section className="panel">
-          <h3 className="eyebrow">内容从哪里来</h3>
+          <h2 className="eyebrow">内容从哪里来</h2>
           <p className="muted">
             词源文件：Claire Miquel《Vocabulaire progressif du français · avancé B2/C1.1》及其他三本词汇教材的索引与正文；Jean K. Mathieu《DELF B2 3000 mots pour réussir》（扫描件，经 OCR 识别）。中文释义参照 Larousse 法中词典，词性与阴阳性参照 fr.wiktionary；教材无例句时，部分例句为本站补充并明确标注。单词和例句的朗读由 Azure 神经语音合成（女声 fr-FR-DeniseNeural、男声 fr-FR-HenriNeural），词条卡片上可分别点「女」「男」收听；还没有录音的条目用浏览器的法语语音朗读。逐词插画不适用于法语词，显示为首字母牌。
           </p>
@@ -96,7 +96,7 @@ export function About() {
         </section>
 
         <section className="panel">
-          <h3 className="eyebrow">给开发者</h3>
+          <h2 className="eyebrow">给开发者</h2>
           <p className="muted">
             <code>data/word-atlas.json</code> 和 <code>.csv</code> 是完整词库；<code>public/atlas</code> 里是网页用的分块数据、插画和音频。拿去做 Anki 牌组、背词小程序、浏览器插件，或者 AI 应用的评测集，署名即可。
           </p>

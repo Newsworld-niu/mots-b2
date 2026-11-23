@@ -22,6 +22,7 @@ import csv
 import gzip
 import json
 import re
+import sqlite3
 import sys
 import unicodedata
 from collections import defaultdict
@@ -44,7 +45,27 @@ POS_MAP = {
     "prép.": ("PRE",), "conj.": ("CON",), "interj.": ("ONO",), "pron.": ("PRO",),
 }
 # Elided forms are not in Lexique as one word: j' = /ʒ/, qu' = /k/ ...
-ELIDED = {"l": "l", "d": "d", "j": "ʒ", "m": "m", "t": "t", "s": "s", "n": "n", "c": "s", "qu": "k", "jusqu": "ʒysk", "lorsqu": "lɔʁsk", "puisqu": "pɥisk", "quoiqu": "kwak"}
+ELIDED = {
+    "l": "l", "d": "d", "j": "ʒ", "m": "m", "t": "t", "s": "s", "n": "n", "c": "s",
+    "qu": "k", "jusqu": "ʒysk", "lorsqu": "lɔʁsk", "puisqu": "pɥisk", "quoiqu": "kwak",
+    "quelqu": "kɛlk", "aujourd": "oʒuʁd",
+}
+LETTER_IPA = {
+    "a": "a", "b": "be", "c": "se", "d": "de", "e": "ø", "f": "ɛf", "g": "ʒe",
+    "h": "aʃ", "i": "i", "j": "ʒi", "k": "ka", "l": "ɛl", "m": "ɛm", "n": "ɛn",
+    "o": "o", "p": "pe", "q": "ky", "r": "ɛʁ", "s": "ɛs", "t": "te", "u": "y",
+    "v": "ve", "w": "dubləve", "x": "iks", "y": "igʁɛk", "z": "zɛd",
+}
+SPECIAL_WORDS_IPA = {
+    "samu": "samy",
+    "smic": "smik",
+    "erasmus": "eʁasmys",
+    "co2": "se o dø",
+    "sciences-po": "sjɑ̃s po",
+    "normale sup": "nɔʁmal syp",
+    "wifi": "wifi",
+}
+OVERRIDES_FILE = ROOT / "data/ipa-overrides.json"
 
 
 def nfc(s):
@@ -99,32 +120,108 @@ class Lex:
         return max(pick, key=lambda r: r[2])[0]
 
     def folded_word(self, w):
-        if len(w) < 4:
+        if len(w) < 3:
             return None
         ps = self.folded.get(fold(w.replace("œ", "oe")))
         return next(iter(ps)) if ps and len(ps) == 1 else None
 
 
-def transcribe(lex, lemma, pos):
-    text = re.sub(r"\([^)]*\)", "", nfc(lemma)).lower().replace("’", "'").strip()
-    if not text or re.search(r"[^a-zàâäçéèêëîïôöùûüÿœæ' \-]", text):
+def load_lexdb_ipa(db_path):
+    if not db_path.exists():
+        return {}
+    out = {}
+    conn = sqlite3.connect(str(db_path))
+    try:
+        for w, p in conn.execute("SELECT lower(w), ipa FROM lemma WHERE ipa IS NOT NULL AND ipa != ''"):
+            clean = str(p).strip().strip("/")
+            if clean:
+                out.setdefault(nfc(w), clean)
+    finally:
+        conn.close()
+    return out
+
+
+def spell_acronym(tok):
+    letters = re.sub(r"[^a-z]", "", tok.lower())
+    if not letters or len(letters) > 6:
         return None
+    if not all(ch in LETTER_IPA for ch in letters):
+        return None
+    return " ".join(LETTER_IPA[ch] for ch in letters)
+
+
+def normalize_for_ipa(lemma):
+    raw = re.sub(r"\([^)]*\)", "", nfc(lemma)).replace("’", "'").strip()
+    if not raw:
+        return "", ""
+    # Strip editorial template markers ("... €", "+ inf", punctuation) before token lookup
+    cleaned = raw.replace("...", " ").replace("€", " ").replace("+ inf", " ")
+    cleaned = re.sub(r"[,;?!]+", " ", cleaned)
+    # Collapse feminine slash suffix variants like "curieux/euse", "cyberdépendant/e" to the base masculine form
+    cleaned = re.sub(r"/[a-zàâäçéèêëîïôöùûüÿœæ]+\b", "", cleaned, flags=re.IGNORECASE)
+    # Replace pedagogical placeholders qe/qo/qc/qqch/qn with natural French pronouns
+    cleaned = re.sub(r"\b(?:qqch|qc|qe|qo)\b", "quelque chose", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\b(?:qqn|qn)\b", "quelqu'un", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return raw.lower(), cleaned
+
+
+def transcribe(lex, lemma, pos, lexdb_ipa=None, overrides=None, entry_id=None, _depth=0):
+    if _depth == 0 and overrides and entry_id and entry_id in overrides:
+        return overrides[entry_id], "override"
+    orig_lower, text_cased = normalize_for_ipa(lemma)
+    if not text_cased:
+        return None
+    text = text_cased.lower()
+    if orig_lower in SPECIAL_WORDS_IPA:
+        return SPECIAL_WORDS_IPA[orig_lower], "override"
+    if _depth == 0 and " / " in orig_lower or (_depth == 0 and "=" in orig_lower):
+        for sep in ("/", "="):
+            if sep in orig_lower:
+                sides = [s.strip() for s in orig_lower.split(sep) if s.strip()]
+                if len(sides) >= 2:
+                    res = [transcribe(lex, s, pos, lexdb_ipa, None, None, 1) for s in sides]
+                    if all(res):
+                        return f" {sep} ".join(r[0] for r in res), "compound"
+                return None
+    if re.search(r"[^a-zàâäçéèêëîïôöùûüÿœæ0-9.' \-]", text):
+        return None
+    # Dotted or pure uppercase acronyms (B.U., P. V., D.A.B., ADN, CDD, PME...)
+    if re.fullmatch(r"[A-ZÉÀÈ.](?:[.\-\s]?[A-ZÉÀÈ]){0,7}\.?", text_cased) and len(re.sub(r"[^A-Z]", "", text_cased)) >= 1:
+        if text in SPECIAL_WORDS_IPA:
+            return SPECIAL_WORDS_IPA[text], "override"
+        spelled = spell_acronym(text)
+        if spelled:
+            return spelled, "acronym"
+    text_nodots = re.sub(r"\.", "", text)
+    if text_nodots in SPECIAL_WORDS_IPA:
+        return SPECIAL_WORDS_IPA[text_nodots], "override"
     tags = POS_MAP.get(pos, ())
-    whole = lex.word(text, tags)
-    if whole and " " not in text and "'" not in text:
+    whole = lex.word(text_nodots, tags)
+    if whole and " " not in text_nodots:
         return whole, "word"
+    if lexdb_ipa and text_nodots in lexdb_ipa:
+        return lexdb_ipa[text_nodots], "lexdb"
     parts = []
-    for tok in re.findall(r"[^ ']+'?|'", text.replace("-", " ")):
-        tok = tok.strip()
-        if not tok or tok == "'":
+    for raw_tok in re.findall(r"[^ ']+'?|'", text_cased.replace("-", " ")):
+        tok_low = re.sub(r"\.", "", raw_tok.lower()).strip()
+        if not tok_low or tok_low == "'":
             continue
-        if tok.endswith("'"):
-            p = ELIDED.get(tok[:-1])
+        if tok_low in SPECIAL_WORDS_IPA:
+            parts.append(("word", SPECIAL_WORDS_IPA[tok_low]))
+            continue
+        if raw_tok.isupper() and len(tok_low) <= 6:
+            sp = spell_acronym(tok_low)
+            if sp:
+                parts.append(("word", sp))
+                continue
+        if tok_low.endswith("'"):
+            p = ELIDED.get(tok_low[:-1])
             if p is None:
                 return None
             parts.append(("elide", p))
             continue
-        p = lex.word(tok) or lex.folded_word(tok)
+        p = lex.word(tok_low) or (lexdb_ipa.get(tok_low) if lexdb_ipa else None) or lex.folded_word(tok_low)
         if p is None:
             return None
         parts.append(("word", p))
@@ -140,14 +237,25 @@ def transcribe(lex, lemma, pos):
     return out, "compound"
 
 
+def load_overrides():
+    if not OVERRIDES_FILE.exists():
+        return {}
+    raw = json.loads(OVERRIDES_FILE.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        return {}
+    return {str(k): str(v).strip().strip("/") for k, v in raw.items() if str(v).strip()}
+
+
 def main():
     lex = Lex(LEXIQUE)
+    lexdb_ipa = load_lexdb_ipa(ROOT / "data/lexdb/lexdb.sqlite")
+    overrides = load_overrides()
     lexicon = json.load(open(ROOT / "data/lexicon.json", encoding="utf-8"))["entries"]
     entries, missing, counts = {}, [], defaultdict(int)
     for e in lexicon:
         if e.get("aliasOf"):
             continue
-        r = transcribe(lex, e["lemma"], e["pos"])
+        r = transcribe(lex, e["lemma"], e["pos"], lexdb_ipa, overrides, e["id"])
         method = r[1] if r else None
         if r is None:
             single = " " not in e["lemma"] and "'" not in e["lemma"] and "-" not in e["lemma"]

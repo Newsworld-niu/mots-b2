@@ -1,5 +1,3 @@
-import { CapacitorHttp } from "@capacitor/core";
-import { isNative } from "./native";
 export interface WikiItem {
   kind: "sense" | "example" | "family";
   fr: string;
@@ -127,32 +125,22 @@ export async function loadWiki(
   });
   const url = `https://fr.wiktionary.org/w/api.php?${params}`;
   let data;
-  if (isNative()) {
-    const r = await CapacitorHttp.get({
-      url,
-      connectTimeout: 15000,
-      readTimeout: 20000,
-    });
-    if (r.status !== 200) throw new Error(`词典请求失败（${r.status}）`);
-    data = typeof r.data === "string" ? JSON.parse(r.data) : r.data;
-  } else {
-    const timeout = new AbortController();
-    const abort = () => timeout.abort();
-    signal.addEventListener("abort", abort, { once: true });
-    if (signal.aborted) abort();
-    const timer = setTimeout(abort, 20000);
-    try {
-      const r = await fetch(url, { signal: timeout.signal });
-      if (!r.ok) throw new Error(`词典请求失败（${r.status}）`);
-      data = await r.json();
-    } catch (e) {
-      if (timeout.signal.aborted && !signal.aborted)
-        throw new Error("词典请求超时，请稍后重试。");
-      throw e;
-    } finally {
-      clearTimeout(timer);
-      signal.removeEventListener("abort", abort);
-    }
+  const timeout = new AbortController();
+  const abort = () => timeout.abort();
+  signal.addEventListener("abort", abort, { once: true });
+  if (signal.aborted) abort();
+  const timer = setTimeout(abort, 20000);
+  try {
+    const r = await fetch(url, { signal: timeout.signal });
+    if (!r.ok) throw new Error(`词典请求失败（${r.status}）`);
+    data = await r.json();
+  } catch (e) {
+    if (timeout.signal.aborted && !signal.aborted)
+      throw new Error("词典请求超时，请稍后重试。", { cause: e });
+    throw e;
+  } finally {
+    clearTimeout(timer);
+    signal.removeEventListener("abort", abort);
   }
   if (signal.aborted) throw new DOMException("Aborted", "AbortError");
   if (

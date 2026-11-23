@@ -7,7 +7,9 @@ import { cue } from "../lib/sound";
 import { answerExpr, dueExpr, exprCounts, exprGrade, exprRound, freshExpr, EXPR_NEW } from "../store/expr";
 import { Rating, type Grade } from "../store/srs";
 import { store, useStore } from "../store/store";
+import { useNavGuard } from "../lib/nav-guard";
 import { AccentKeys } from "../ui/AccentKeys";
+import { confirmAction } from "../ui/ConfirmSheet";
 import { Speak } from "../ui/Speak";
 import "../styles/expressions.css";
 
@@ -33,7 +35,7 @@ const groupName = (g: ExprGroup) => EXPR_GROUPS.find(([k]) => k === g)?.[1] ?? g
 
 /** 表达: review of connectors, argument frames, collocations, register and letter formulas, and the reference sheet. */
 export function ExprStudio({ onExit, exitLabel = "返回练习" }: { onExit: () => void; exitLabel?: string }) {
-  const progress = useStore((s) => s.progress);
+  const expr = useStore((s) => s.progress.expr);
   const [group, setGroupState] = useState<ExprGroup | null>(readGroup);
   const setGroup = (g: ExprGroup | null) => {
     setGroupState(g);
@@ -48,11 +50,11 @@ export function ExprStudio({ onExit, exitLabel = "返回练习" }: { onExit: () 
     writePureFr(nextVal);
   };
 
-  const due = dueExpr(progress, Date.now(), group).length;
-  const fresh = freshExpr(progress, EXPR_NEW, group).length;
-  const counts = exprCounts(progress, group);
+  const due = dueExpr({ expr }, Date.now(), group).length;
+  const fresh = freshExpr({ expr }, EXPR_NEW, group).length;
+  const counts = exprCounts({ expr }, group);
   const start = () => {
-    const ids = exprRound(progress, group);
+    const ids = exprRound({ expr: store.get().progress.expr }, group);
     if (ids.length) setRound({ ids, key: Date.now() });
   };
 
@@ -147,6 +149,23 @@ function ExprRound({ ids, onExit, onAgain }: { ids: string[]; onExit: () => void
 
   const step = steps[i];
   const e = step ? EXPR_BY_ID.get(step.id) : undefined;
+  const roundActive = Boolean(step && e && (answers.length > 0 || !!shown || value.trim().length > 0));
+  useNavGuard(roundActive, "本轮表达练习尚未完成，确定提前离开？");
+  const exitRound = async () => {
+    if (
+      roundActive &&
+      !(await confirmAction({
+        title: "结束本轮表达练习？",
+        message: "当前一轮表达练习尚未完成，确定提前退出？",
+        confirmLabel: "确定退出",
+        danger: true,
+      }))
+    ) {
+      return;
+    }
+    stopAudio();
+    onExit();
+  };
   if (!step || !e) {
     const right = answers.filter((a) => a.ok).length;
     const missed = answers.filter((a) => !a.ok);
@@ -235,7 +254,7 @@ function ExprRound({ ids, onExit, onAgain }: { ids: string[]; onExit: () => void
   return (
     <div className="page practice typing">
       <header className="typing-top">
-        <button className="btn btn-ghost" onClick={onExit}>
+        <button className="btn btn-ghost" onClick={() => void exitRound()}>
           结束
         </button>
         <div className="learn-progress">
@@ -265,7 +284,7 @@ function ExprRound({ ids, onExit, onAgain }: { ids: string[]; onExit: () => void
                 </p>
               )}
               {e.frDef && (
-                <p className="writing-zh" lang="fr" style={{ fontSize: "1.05rem", fontWeight: 500 }}>
+                <p className="writing-zh expr-prompt-fr" lang="fr">
                   {e.frDef}
                 </p>
               )}
@@ -466,9 +485,9 @@ function ExprSheet({ group, onExit }: { group: ExprGroup | null; onExit: () => v
 
 /** Today's card: due expression reviews, or an invitation to start. */
 export function ExprTeaser({ onOpen }: { onOpen: () => void }) {
-  const progress = useStore((s) => s.progress);
-  const due = dueExpr(progress).length;
-  const started = exprCounts(progress).started;
+  const expr = useStore((s) => s.progress.expr);
+  const due = dueExpr({ expr }).length;
+  const started = exprCounts({ expr }).started;
   return (
     <section className={`panel expr-teaser ${started && !due ? "is-done" : ""}`} onClick={onOpen} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && onOpen()} aria-label="表达复习">
       <p className="eyebrow">表达 · 会用</p>

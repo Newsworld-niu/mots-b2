@@ -29,12 +29,12 @@ for e in entries:
  if len(ids)<2:continue
  out.append(dict(id=e['id'],name=e['lemma'],zh=next((s['zh'] for s in e['senses'] if s.get('zh')),''),words=ids,examples=sorted(related),source='Wiktionnaire · dérivés'))
 # Preserve explicitly curated existing relations, merging duplicate IDs.
-existing=json.loads((root/'src/data/families.json').read_text())
+existing=json.loads((root/'public/atlas/families.json').read_text())
 merged={g['id']:g for g in out}
 for g in existing:
  if g['id'] in merged:
   n=merged[g['id']];n['words']=list(dict.fromkeys(n['words']+g['words']));n['examples']=list(dict.fromkeys(n['examples']+g['examples']))
  else:merged[g['id']]=g
 out=list(merged.values())
-(root/'src/data/families.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
+(root/'public/atlas/families.json').write_text(json.dumps(out,ensure_ascii=False,indent=2)+'\n')
 print(f'{len(out)} groups; {len(set(i for g in out for i in g["words"]))} words covered; matched entire lexicon against available local dictionary records')

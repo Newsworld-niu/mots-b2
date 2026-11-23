@@ -11,10 +11,10 @@ import { FUNCTION_WORDS, headwordIndex, splitSentences, tokenize } from "./extra
 /* ---------- saved texts ---------- */
 
 export interface QuizItem {
-  /** Question and options in Chinese: they check understanding, not the reading of the question. */
+  /** Question and 3 B2 options written in French; `why` gives the Chinese explanation. */
   q: string;
   options: string[];
-  /** Index of the right option. */
+  /** Index of the right option (0–2). */
   answer: number;
   why: string;
 }
@@ -47,8 +47,18 @@ export function sanitizeQuiz(v: unknown): QuizItem[] {
   return v
     .filter(isObj)
     .map((x) => {
-      const options = Array.isArray(x.options) ? x.options.map((o) => str(o, 200)).filter(Boolean).slice(0, 4) : [];
-      return { q: str(x.q, 300), options, answer: typeof x.answer === "number" ? Math.round(x.answer) : -1, why: str(x.why, 400) };
+      const rawOpts = Array.isArray(x.options) ? x.options.map((o) => str(o, 200)).filter(Boolean).slice(0, 4) : [];
+      let answer = typeof x.answer === "number" ? Math.round(x.answer) : -1;
+      let options: string[];
+      if (rawOpts.length === 4 && answer >= 0 && answer < 4) {
+        // Normalize legacy 4-option items to post-2020 3-option DELF B2 QCM while preserving the right answer.
+        const dropIdx = answer === 3 ? 2 : 3;
+        options = rawOpts.filter((_, idx) => idx !== dropIdx);
+        if (answer > dropIdx) answer -= 1;
+      } else {
+        options = rawOpts.slice(0, 3);
+      }
+      return { q: str(x.q, 300), options, answer, why: str(x.why, 400) };
     })
     .filter((x) => x.q && x.options.length >= 2 && new Set(x.options).size === x.options.length && x.answer >= 0 && x.answer < x.options.length)
     .slice(0, 5);

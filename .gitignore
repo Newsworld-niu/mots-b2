@@ -3,6 +3,8 @@ dist/
 output/
 *.tsbuildinfo
 .DS_Store
+__pycache__/
+*.py[cod]
 
 # source textbooks (copyrighted) and text extracted from them; Lexique 3.83 (CC BY-SA) stays
 references/books/

@@ -4,7 +4,8 @@
  * The papers that come with the app (预置题) are not stored; only their attempts are.
  */
 import { useSyncExternalStore } from "react";
-import { gradeCompQuestion, sanitizeExercise, type CompExercise, type CompKind } from "../lib/exam";
+import { gradeCompQuestion, sanitizeExercise, type CompExercise, type CompKind } from "../lib/exam-schema";
+import { createIdb } from "../lib/idb";
 
 export interface Attempt {
   at: number;
@@ -37,32 +38,16 @@ const DB = "fb2-exam-bank";
 const PAPERS = "papers";
 const ATTEMPTS = "attempts";
 
-let db: Promise<IDBDatabase | null> | null = null;
-function open() {
-  if (typeof indexedDB === "undefined") return Promise.resolve(null);
-  db ??= new Promise((resolve) => {
-    const req = indexedDB.open(DB, 1);
-    req.onupgradeneeded = () => {
-      req.result.createObjectStore(PAPERS, { keyPath: "id" });
-      req.result.createObjectStore(ATTEMPTS);
-    };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => resolve(null);
-  });
-  return db;
-}
+const bankIdb = createIdb(DB, 1, (d) => {
+  if (!d.objectStoreNames.contains(PAPERS)) d.createObjectStore(PAPERS, { keyPath: "id" });
+  if (!d.objectStoreNames.contains(ATTEMPTS)) d.createObjectStore(ATTEMPTS);
+});
 
-function tx<T>(store: string, mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T | null> {
-  return open().then(
-    (d) =>
-      new Promise((resolve) => {
-        if (!d) return resolve(null);
-        const req = fn(d.transaction(store, mode).objectStore(store));
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => resolve(null);
-      }),
-  );
-}
+export const openExamBank = () => bankIdb.open();
+export const resetExamBankConnection = () => bankIdb.reset();
+
+const tx = <T>(store: string, mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>) =>
+  bankIdb.tx(store, mode, fn);
 
 /** A stored paper, checked again (IndexedDB data is not trusted any more than a backup). */
 export function sanitizePaper(v: unknown): BankPaper | null {
@@ -95,7 +80,7 @@ export function sanitizePaper(v: unknown): BankPaper | null {
   };
 }
 
-function sanitizeAttempts(v: unknown): Attempt[] {
+export function sanitizeAttempts(v: unknown): Attempt[] {
   if (!Array.isArray(v)) return [];
   return v
     .filter((a): a is Record<string, unknown> => !!a && typeof a === "object" && typeof a.at === "number" && typeof a.score === "number" && typeof a.total === "number")
@@ -126,11 +111,20 @@ interface BankState {
 }
 let state: BankState = { loaded: false, papers: [], attempts: {} };
 const subs = new Set<() => void>();
+const changeSubs = new Set<() => void>();
 const emit = () => subs.forEach((f) => f());
+const emitChange = () => changeSubs.forEach((f) => f());
 const set = (next: Partial<BankState>) => {
   state = { ...state, ...next };
   emit();
 };
+
+export function subscribeExamBankChanges(f: () => void): () => void {
+  changeSubs.add(f);
+  return () => {
+    changeSubs.delete(f);
+  };
+}
 
 let loading: Promise<void> | null = null;
 export function loadBank() {
@@ -172,6 +166,7 @@ export async function savePaper(p: Omit<BankPaper, "id" | "created" | "src">): P
   set({ papers: papers.filter((x) => !drop.includes(x)) });
   await tx(PAPERS, "readwrite", (s) => s.put(paper));
   for (const d of drop) await deletePaper(d.id);
+  emitChange();
   return paper.id;
 }
 
@@ -180,6 +175,7 @@ export async function deletePaper(id: string) {
   set({ papers: state.papers.filter((p) => p.id !== id), attempts });
   await tx(PAPERS, "readwrite", (s) => s.delete(id));
   await tx(ATTEMPTS, "readwrite", (s) => s.delete(id));
+  emitChange();
 }
 
 export async function starPaper(id: string, starred: boolean) {
@@ -188,6 +184,7 @@ export async function starPaper(id: string, starred: boolean) {
   const next = { ...p, starred: starred || undefined };
   set({ papers: state.papers.map((x) => (x.id === id ? next : x)) });
   await tx(PAPERS, "readwrite", (s) => s.put(next));
+  emitChange();
 }
 
 export async function addAttempt(id: string, a: Attempt) {
@@ -195,6 +192,7 @@ export async function addAttempt(id: string, a: Attempt) {
   const list = [a, ...(state.attempts[id] ?? [])].slice(0, 20);
   set({ attempts: { ...state.attempts, [id]: list } });
   await tx(ATTEMPTS, "readwrite", (s) => s.put(list, id));
+  emitChange();
 }
 
 /** The question keys answered wrong (or left blank) in an attempt, among the questions it asked. */

@@ -4,9 +4,9 @@ import { test } from "node:test";
 import type { GrammarData } from "../lib/grammar.ts";
 import { DISCOURSE_EXERCISES } from "../lib/grammar-discourse.ts";
 import { recordSpeakingCorrections } from "./essays.ts";
-import { duePoints, essayErrors, mineDrills, nextPoint, roundGrade, shouldAmendRewrite, untouchedWithErrors } from "./grammar.ts";
+import { applyDiscourseResult, duePoints, essayErrors, mineDrills, nextPoint, roundGrade, shouldAmendRewrite, tagKey, untouchedWithErrors } from "./grammar.ts";
 import { review, Rating } from "./srs.ts";
-import { emptyProgress, sanitizeProgress } from "./store.ts";
+import { dayKey, emptyProgress, sanitizeProgress } from "./store.ts";
 
 const grammar = JSON.parse(fs.readFileSync("public/atlas/grammar.json", "utf8")) as GrammarData;
 
@@ -28,18 +28,43 @@ test("PE-7: nextPoint follows startLevel and prioritizes B1/B2 exam syllabus poi
   assert.equal(nextPoint(grammar, allB1B2Done, 2)?.id, "art-gender");
 });
 
-test("PE-7: discourse exercises cover B1/B2 multi-clause grammar with valid point links", () => {
+test("PE-7 & M3B: 40 discourse exercises cover B1/B2 multi-clause grammar with valid grammar-meta point links and sync mastery", () => {
   const ids = new Set(grammar.points.map((p) => p.id));
-  assert.ok(DISCOURSE_EXERCISES.length >= 6);
+  const meta = JSON.parse(fs.readFileSync("public/atlas/grammar-meta.json", "utf8")) as { points: { id: string }[] };
+  const metaIds = new Set(meta.points.map((m) => m.id));
+  assert.equal(DISCOURSE_EXERCISES.length, 40);
+  const seenIds = new Set<string>();
   for (const ex of DISCOURSE_EXERCISES) {
+    assert.ok(!seenIds.has(ex.id), `duplicate discourse id: ${ex.id}`);
+    seenIds.add(ex.id);
     assert.ok(ex.slots.length >= 4);
     for (let i = 0; i < ex.slots.length; i++) {
       assert.ok(ex.text.includes(`{{${i}}}`), `${ex.id} must include {{${i}}}`);
       const slot = ex.slots[i];
       assert.ok(ids.has(slot.point), `${slot.point} must exist in grammar.json`);
-      assert.ok(slot.options.includes(slot.answer[0]));
+      assert.ok(metaIds.has(slot.point), `${slot.point} must exist in grammar-meta.json`);
+      assert.ok(slot.options.includes(slot.answer[0]), `${ex.id} slot ${slot.id} options missing canonical answer`);
     }
   }
+
+  const now = 1_710_000_000_000;
+  const p0 = emptyProgress("t");
+  const p1 = applyDiscourseResult(
+    p0,
+    [
+      { point: "subjonctif", ok: true },
+      { point: "relatifs-composes", ok: false },
+      { point: "subjonctif", ok: true },
+    ],
+    now,
+    0.9,
+  );
+  assert.ok(p1.gram?.subjonctif);
+  assert.ok(p1.gram?.["relatifs-composes"]);
+  assert.ok(p1.gram.subjonctif.due > p1.gram["relatifs-composes"].due);
+  assert.deepEqual(p1.gramDays?.[dayKey(new Date(now))], { n: 2, r: 3, c: 2 });
+  assert.deepEqual(p1.gramTags?.[tagKey("relatifs-composes", "discourse")], { n: 1, w: 1 });
+  assert.deepEqual(p1.gramTags?.[tagKey("subjonctif", "discourse")], { n: 2, w: 0 });
 });
 
 test("PE-8: only exact 'correct' rewrite verdict amends answer; 'almost' retains error weight for SRS", () => {
@@ -101,7 +126,8 @@ test("SYS-7: speaking corrections survive sanitization and feed into essayErrors
 
   const drills = mineDrills(errs.get("subjonctif"));
   assert.equal(drills[0]?.h, "你在口语里说过");
-  assert.deepEqual(drills[0]?.r, ["Il faut que tu fasses"]);
+  assert.equal(drills[0]?.s.slice(drills[0].b[0], drills[0].b[1]), "fais");
+  assert.deepEqual(drills[0]?.r, ["fasses"]);
 
   assert.ok(duePoints(grammar, roundtrip, now).includes("subjonctif"), "newer speaking error brings grammar point back for review");
   assert.ok(untouchedWithErrors(grammar, roundtrip).some((x) => x.point.id === "opposition-concession"));

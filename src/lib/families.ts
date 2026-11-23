@@ -1,10 +1,69 @@
-import data from "../data/families.json";
+import { useEffect, useSyncExternalStore } from "react";
 import { foldAccents } from "./accent";
 import type { Atlas } from "../atlas/types";
 import type { Progress } from "../store/store";
-export const FAMILIES = data;
-export const familyIds = new Set(data.map((f) => f.id));
+
 export type Family = { id: string; name: string; zh: string; words: string[]; examples: string[] };
+
+let baseFamilies: Family[] = [];
+let loadPromise: Promise<Family[]> | null = null;
+const subs = new Set<() => void>();
+const emit = () => subs.forEach((fn) => fn());
+
+export const FAMILIES: Family[] = [];
+export const familyIds = new Set<string>();
+
+export function getBaseFamilies(): Family[] {
+  return baseFamilies;
+}
+
+export function setBaseFamiliesForTest(rows: Family[]): void {
+  baseFamilies = rows;
+  loadPromise = Promise.resolve(rows);
+  FAMILIES.splice(0, FAMILIES.length, ...rows);
+  familyIds.clear();
+  for (const f of rows) familyIds.add(f.id);
+  emit();
+}
+
+export function loadFamilies(): Promise<Family[]> {
+  if (baseFamilies.length) return Promise.resolve(baseFamilies);
+  if (!loadPromise) {
+    const base = typeof import.meta !== "undefined" && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : "/";
+    loadPromise = fetch(`${base}atlas/families.json`)
+      .then((r) => {
+        if (!r.ok) throw new Error(`词族数据加载失败（${r.status}）`);
+        return r.json() as Promise<Family[]>;
+      })
+      .then((rows) => {
+        setBaseFamiliesForTest(rows);
+        return baseFamilies;
+      })
+      .catch((err) => {
+        loadPromise = null;
+        throw err;
+      });
+  }
+  return loadPromise;
+}
+
+export function useFamilies(enabled = true): Family[] {
+  const data = useSyncExternalStore(
+    (f) => {
+      subs.add(f);
+      return () => subs.delete(f);
+    },
+    getBaseFamilies,
+    getBaseFamilies,
+  );
+  useEffect(() => {
+    if (enabled && !baseFamilies.length && typeof fetch === "function") {
+      void loadFamilies().catch(() => undefined);
+    }
+  }, [enabled]);
+  return data;
+}
+
 export const familyHead = (s: string) => s.split("｜")[0].replace(/\s*\([^)]*\)\s*$/, "").trim().toLowerCase().normalize("NFC");
 export function familyPair(value: string): { fr: string; zh: string } {
   const [fr, ...zh] = value.split("｜");
@@ -23,10 +82,10 @@ export function cleanFamily(v: unknown): string[] {
   return [...pairs].slice(0,12).map(([fr,zh])=>zh ? `${fr}｜${zh}` : fr);
 }
 /** Resolve explicit links against all current cards; absent words stay suggestions, never become cards. */
-export function familiesFor(atlas: Atlas, p: Pick<Progress,"custom"|"edits">): Family[] {
+export function familiesFor(atlas: Atlas, p: Pick<Progress,"custom"|"edits">, base: Family[] = baseFamilies): Family[] {
   const byName = new Map<string,string[]>();
   for(const w of atlas.byId.values()) { const k=familyHead(w.word); byName.set(k,[...(byName.get(k)??[]),w.id]); }
-  const groups: Family[] = data.map(f => ({...f, words:[...new Set([...f.words.filter(id=>atlas.byId.has(id)), ...[f.name,...f.examples].flatMap(n=>byName.get(familyHead(n))??[])])]}));
+  const groups: Family[] = base.map(f => ({...f, words:[...new Set([...f.words.filter(id=>atlas.byId.has(id)), ...[f.name,...f.examples].flatMap(n=>byName.get(familyHead(n))??[])])]}));
   for(const [id,record] of [...Object.entries(p.custom??{}),...Object.entries(p.edits??{})]) {
     const w=atlas.byId.get(id); if(!w || record.fam===undefined) continue;
     const related=cleanFamily(record.fam);
@@ -45,11 +104,11 @@ export function familiesFor(atlas: Atlas, p: Pick<Progress,"custom"|"edits">): F
   }
   return groups.filter(f=>f.words.length>0);
 }
-export function familyWords(ids?: string[] | null, groups: Family[] = data): Set<string> | null {
+export function familyWords(ids?: string[] | null, groups: Family[] = baseFamilies): Set<string> | null {
   if (!ids?.length) return null;
   return new Set(groups.filter((f) => ids.includes(f.id)).flatMap((f) => f.words));
 }
-export function searchFamilies(q: string, groups: Family[] = data) {
+export function searchFamilies(q: string, groups: Family[] = baseFamilies) {
   const key = foldAccents(q.trim().toLowerCase());
   return groups.filter((f) => foldAccents([f.name, f.zh, ...f.examples].join(" ").toLowerCase()).includes(key));
 }

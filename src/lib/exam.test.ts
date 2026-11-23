@@ -10,7 +10,7 @@ test("topics, subjects and essay tasks refer to topics that exist", () => {
   assert.ok(TOPICS.length >= 14 && TOPICS.length <= 16, `TOPICS.length=${TOPICS.length}`);
   assert.ok(TOPICS.every((t) => t.vocab.length >= 15 && t.vocab.every(([fr, zh]) => fr && zh)));
   assert.equal(new Set(SPEAKING_SUBJECTS.map((s) => s.id)).size, SPEAKING_SUBJECTS.length);
-  assert.equal(SPEAKING_SUBJECTS.length, 12);
+  assert.equal(SPEAKING_SUBJECTS.length, 19);
   assert.ok(
     SPEAKING_SUBJECTS.every((s) => {
       const wc = countWords(s.doc);
@@ -78,9 +78,9 @@ test("sanitizeExercise keeps three-option questions and weighs them", () => {
   assert.deepEqual(sanitizeExercise(null, "long", "x").questions, []);
 });
 
-test("sanitizeSpeakingFeedback uses the four criteria an AI can mark, at the grid's levels", () => {
+test("sanitizeSpeakingFeedback uses the four criteria an AI can mark, on the 0–5 (0.5-pt) grid", () => {
   const fb = sanitizeSpeakingFeedback({ scores: { monologue: 4, interaction: 2, lexique: 5, morpho: 0.4, phono: 5 } }, new Set());
-  assert.deepEqual(fb.scores, { monologue: 3, interaction: 1, lexique: 5, morpho: 0 });
+  assert.deepEqual(fb.scores, { monologue: 4, interaction: 2, lexique: 5, morpho: 0.5 });
   assert.equal(sanitizeSubject({ title: "T ?", doc: "x".repeat(320), ask: "" }, "travail")?.topic, "travail");
   assert.equal(sanitizeSubject({ title: "T ?", doc: "court" }, "travail"), null);
 });
@@ -101,7 +101,8 @@ test("sanitizeExamLog, outOf25, realScore25, examReadiness, isSpeakingTyped and 
   assert.equal(isSpeakingTyped({ monologueVoice: false, voiceMonologueWords: 0, totalMonologueWords: 300, answeredTurns: 0, debateVoice: false }), true);
   assert.equal(isSpeakingTyped({ monologueVoice: true, voiceMonologueWords: 280, totalMonologueWords: 300, answeredTurns: 3, debateVoice: false }), true);
   assert.equal(isSpeakingTyped({ monologueVoice: true, voiceMonologueWords: 50, totalMonologueWords: 300, answeredTurns: 0, debateVoice: false }), true);
-  assert.equal(isSpeakingTyped({ monologueVoice: true, voiceMonologueWords: 280, totalMonologueWords: 300, answeredTurns: 3, debateVoice: true }), false);
+  assert.equal(isSpeakingTyped({ monologueVoice: true, voiceMonologueWords: 280, totalMonologueWords: 292, answeredTurns: 3, debateVoice: true }), false);
+  assert.equal(isSpeakingTyped({ monologueVoice: true, voiceMonologueWords: 280, totalMonologueWords: 300, answeredTurns: 3, debateVoice: true }), true);
 
   // Full 4-part readiness: total /100, gap to 75, and <5/25 elimination guard
   const r1 = examReadiness([
@@ -126,6 +127,28 @@ test("sanitizeExamLog, outOf25, realScore25, examReadiness, isSpeakingTyped and 
   assert.equal(r2.gapToTarget, 0);
   assert.equal(r2.passed, true);
   assert.equal(r2.eliminated.length, 0);
+
+  // Single-part B2 run must NOT extrapolate 25/25 to 100/100
+  const partial = examReadiness([{ part: "read", what: "mock-r1", score: 25, total: 25, level: "B2", scope: "full", at: 20 }]);
+  assert.equal(partial.completed, 1);
+  assert.equal(partial.exact100, null);
+  assert.equal(partial.estimated100, null);
+  assert.equal(partial.scoredSum, 25);
+  assert.equal(partial.scoredMax, 25);
+  assert.equal(partial.gapToTarget, null);
+  assert.equal(partial.passed, null);
+
+  // B1 warmup, drill, RFI real-audio, and legacy <20pt papers are excluded from B2 readiness
+  const polluted = examReadiness([
+    { part: "listen", what: "real:r1", score: 24, total: 25, scope: "real", at: 30 },
+    { part: "read", what: "drill-1", score: 5, total: 5, scope: "drill", at: 31 },
+    { part: "essay", what: "mail-invitation", score: 22, total: 25, level: "B1", scope: "full", at: 32 },
+    { part: "listen", what: "legacy-short", score: 6, total: 6, at: 33 },
+  ]);
+  assert.equal(polluted.completed, 0);
+  assert.equal(polluted.scoredSum, 0);
+  assert.equal(polluted.scoredMax, 0);
+
   assert.equal(clock(245), "4:05");
   assert.equal(clock(-3), "0:00");
 });
@@ -154,9 +177,9 @@ test("assessDebateEscalation detects short, evasive, unjustified, repetitive rep
   assert.equal(rep.level, 3);
 });
 
-test("SYS-4: all built-in B2 essay models (>=250 words) and 12 speaking preset follow-ups exist", () => {
+test("SYS-4: all built-in B2 essay models (>=250 words) and 19 speaking preset follow-ups exist", () => {
   const b2Ids = ESSAY_TASKS.filter((t) => t.level === "B2").map((t) => t.id);
-  assert.equal(b2Ids.length, 9);
+  assert.equal(b2Ids.length, 17);
   for (const id of b2Ids) {
     const m = modelEssayFor(id);
     assert.ok(m, id);
@@ -228,7 +251,7 @@ test("resolveLockedTranscripts locks raw voice transcripts in noAuxMode against 
 
 test("CE-1: sanitizeExercise, gradeCompQuestion (Vrai/Faux + citation, short), and strict isValidComprehension", () => {
   const docText = "Depuis trois ans, le télétravail progresse rapidement dans les administrations publiques françaises. Toutefois, plusieurs syndicats s'inquiètent d'un isolement croissant des jeunes agents.";
-  const longText = `${docText} ${"Cette évolution transforme durablement les méthodes d'organisation interne des services. ".repeat(6)}`;
+  const longText = `${docText} ${"Cette évolution transforme durablement les méthodes d'organisation interne des services. ".repeat(32)}`;
   const mkQ = (k: number, extra: Record<string, unknown> = {}) => ({
     doc: 0,
     q: `Question ${k} ?`,

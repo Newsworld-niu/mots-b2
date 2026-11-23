@@ -3,11 +3,7 @@
  *  - In a browser under npm run dev / preview: through the local forwarder (ai-proxy.ts).
  *  - In a browser on a static deployment (GitHub Pages), where no forwarder exists: straight to the service.
  *    All of them accept cross-origin requests from a browser.
- *  - In the Android app: straight to the service through the system's HTTP stack (CapacitorHttp), which has no
- *    such restriction. Keys still live on the device only and go out in the request headers.
  */
-import { CapacitorHttp } from "@capacitor/core";
-import { isNative } from "../lib/native";
 
 const BASE = (typeof import.meta !== "undefined" && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : "/").replace(/\/$/, "");
 
@@ -47,7 +43,23 @@ let direct = false;
  * Where a request for a service goes: the local forwarder in a browser that has one, otherwise the service itself.
  * Await proxyAvailable() first, so that the forwarder has been looked for.
  */
-export const proxyUrl = (service: string, path = "") => (isNative() || direct ? directUrl(service, path) : forwarderUrl(service, path));
+export const proxyUrl = (service: string, path = "") => (direct ? directUrl(service, path) : forwarderUrl(service, path));
+
+/**
+ * Resolve an OpenAI-compatible endpoint URL: uses a custom `baseUrl` directly (supporting bare origins
+ * as well as `/v1` or `/compatible-mode/v1` prefixes without doubling `/v1`), or falls back to OpenAI proxy/direct.
+ */
+export function resolveOpenAiEndpoint(baseUrl: string, endpoint: "/chat/completions" | "/models" | "/images/generations" | "/audio/transcriptions"): string {
+  const clean = baseUrl.trim().replace(/\/+$/, "");
+  if (!clean) return proxyUrl("openai", `/v1${endpoint}`);
+  try {
+    const u = new URL(clean);
+    const hasPath = u.pathname && u.pathname !== "/";
+    return `${clean}${hasPath ? "" : "/v1"}${endpoint}`;
+  } catch {
+    return proxyUrl("openai", `/v1${endpoint}`);
+  }
+}
 
 let ping: Promise<boolean> | null = null;
 /**
@@ -55,7 +67,6 @@ let ping: Promise<boolean> | null = null;
  * Without it requests go straight to the services.
  */
 export function proxyAvailable() {
-  if (isNative()) return Promise.resolve(false);
   ping ??= fetch(forwarderUrl("ping"))
     // a static host may answer any path with a page: only the forwarder's own JSON counts
     .then((r) => (r.ok ? r.json() : null))
@@ -87,14 +98,12 @@ export interface NativeResponse {
 }
 
 /**
- * A CapacitorHttp answer as a fetch Response. With responseType "arraybuffer" the body comes back as: JSON already
- * parsed, an error body as text, anything else as base64.
+ * Convert a buffered response structure into a standard Fetch API Response (retained for test compatibility).
  */
 export function toResponse(res: NativeResponse): Response {
   const out = new Headers();
   let type = "";
   for (const [k, v] of Object.entries(res.headers ?? {})) {
-    // Android reports the status line under a null key
     if (!k || k === "null" || DROP_RES.has(k.toLowerCase())) continue;
     if (k.toLowerCase() === "content-type") type = String(v);
     try {
@@ -112,35 +121,39 @@ export function toResponse(res: NativeResponse): Response {
   return new Response(payload, { status: res.status, headers: out });
 }
 
-/**
- * fetch() over the system's HTTP stack. The whole answer arrives at once (no streaming), and a request cannot be
- * cancelled on the wire: an abort only stops waiting for it.
- */
-async function nativeFetch(url: string, init?: RequestInit): Promise<Response> {
-  const signal = init?.signal ?? undefined;
-  if (signal?.aborted) throw aborted();
-  const body = init?.body;
-  if (body != null && typeof body !== "string") throw new AiError("应用里的请求只支持文本内容");
-  const headers: Record<string, string> = {};
-  // CapacitorHttp decides how to write the body from the "Content-Type" header, spelled this way
-  new Headers(init?.headers).forEach((v, k) => (headers[k === "content-type" ? "Content-Type" : k] = v));
-  const request = CapacitorHttp.request({
-    url,
-    method: init?.method ?? "GET",
-    headers,
-    data: body ?? undefined,
-    responseType: "arraybuffer",
-    connectTimeout: 30_000,
-    readTimeout: 600_000,
-  });
-  const res = await (signal
-    ? Promise.race([request, new Promise<never>((_, reject) => signal.addEventListener("abort", () => reject(aborted()), { once: true }))])
-    : request);
-  return toResponse(res);
-}
+/** fetch for the AI services via the browser's native Fetch API. */
+export const aiFetch: typeof fetch = (input, init) => fetch(input, init);
 
-/** fetch for the AI services: the browser's own in a browser, the system's in the app. */
-export const aiFetch: typeof fetch = (input, init) => (isNative() ? nativeFetch(input instanceof Request ? input.url : String(input), init) : fetch(input, init));
+/** Execute `fetcher` with an explicit timeout composed with any caller AbortSignal. */
+export async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit | undefined,
+  timeoutMs: number,
+  serviceLabel = "AI 服务",
+  fetcher: typeof fetch = aiFetch,
+): Promise<Response> {
+  const caller = init?.signal;
+  if (caller?.aborted) throw aborted();
+  const ctrl = new AbortController();
+  let timedOut = false;
+  const onAbort = () => ctrl.abort();
+  caller?.addEventListener("abort", onAbort, { once: true });
+  const timer = setTimeout(() => {
+    timedOut = true;
+    ctrl.abort();
+  }, timeoutMs);
+  try {
+    return await fetcher(input, { ...init, signal: ctrl.signal });
+  } catch (err) {
+    if (timedOut) {
+      throw new AiError(`${serviceLabel} 请求超时（超过 ${Math.round(timeoutMs / 1000)} 秒未响应），请检查网络或切换接口`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+    caller?.removeEventListener("abort", onAbort);
+  }
+}
 
 /** A readable message from an error response of any of the services. */
 export async function errorFrom(r: Response, service: string) {

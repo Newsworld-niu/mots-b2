@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { diffWords, sameSentence, sanitizeFeedback, translatable, verdictCue } from "./writing.ts";
+import { checkTransferSentence, diffWords, sameSentence, sanitizeFeedback, translatable, verdictCue } from "./writing.ts";
 
 test("the same sentence, give or take capitals, final punctuation and French spacing", () => {
   assert.ok(sameSentence("il habite à Paris", "Il habite à Paris."));
@@ -67,4 +67,20 @@ test("PE-9 sanitizeFeedback keeps verdict consistent with error counts and verdi
   assert.equal(verdictCue("correct"), "correct");
   assert.equal(verdictCue("almost"), "tap");
   assert.equal(verdictCue("wrong"), "wrong");
+});
+
+test("Wave7.2: checkTransferSentence verifies new-context sentence production without regression", () => {
+  const shortRes = checkTransferSentence("Je suis d'accord", "Il convient d'agir vite.", "Il faut faire vite");
+  assert.equal(shortRes.ok, false);
+
+  const copyRes = checkTransferSentence("Il convient d'agir vite.", "Il convient d'agir vite.", "Il faut faire vite");
+  assert.equal(copyRes.ok, false);
+
+  const regressRes = checkTransferSentence("Dans ce dossier, il faut faire vite dès aujourd'hui.", "Il convient d'agir vite.", "Il faut faire vite");
+  assert.equal(regressRes.ok, false);
+  assert.equal(regressRes.usedWrong, true);
+
+  const okRes = checkTransferSentence("Pour réduire les déchets, il convient d'agir dès l'école primaire.", "Il convient d'agir vite.", "Il faut faire vite");
+  assert.equal(okRes.ok, true);
+  assert.ok(okRes.matchedTokens.includes("convient"));
 });

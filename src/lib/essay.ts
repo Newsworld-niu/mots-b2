@@ -2,42 +2,24 @@
  * 篇章写作: the writing tasks (by genre), the scaffolding shown while writing (plan, connectors, letter formulas),
  * the fixed marking grid, and what a marked text looks like. The tasks and phrases are written for this site (待核对).
  */
-import { ERROR_TYPES, type ErrorType } from "./writing";
-
-export type Genre = "mail" | "recit" | "lettre" | "motivation" | "courrier" | "article" | "essai" | "forum";
-
-export const GENRE_LABEL: Record<Genre, string> = {
-  mail: "给朋友的邮件",
-  recit: "叙事",
-  lettre: "正式信件",
-  motivation: "求职信",
-  courrier: "读者来信",
-  article: "评论文章",
-  essai: "议论文",
-  forum: "论坛发帖",
-};
-
-export interface EssayTask {
-  id: string;
-  level: "B1" | "B2";
-  genre: Genre;
-  title: string;
-  /** The situation, in Chinese. */
-  situation: string;
-  /** The instruction as an exam would put it, in French. */
-  consigne: string;
-  words: [number, number];
-  /** A short French document the text reacts to, when the task has one. */
-  doc?: string;
-  /** Exam topic whose vocabulary helps here. */
-  topic?: string;
-  /** What the text must contain, in Chinese. */
-  points: string[];
-  /** A plan to follow: what each part does, with a French opening to borrow. */
-  plan: { zh: string; fr: string }[];
-  /** Phrases that fit this task, French | Chinese. */
-  phrases: [string, string][];
-}
+import type { ErrorType } from "./writing";
+import {
+  applyEssayLengthCaps,
+  capScoresByFlags,
+  countWords,
+  FORMAL_GENRES,
+  genresFor,
+  pushCap,
+  toLevel,
+  type EssayCorrection,
+  type EssayFeedback,
+  type EssayFlags,
+  type EssayTask,
+  type Genre,
+  type ModelEssay,
+  type SavedEssay,
+} from "./essay-schema";
+export * from "./essay-schema";
 
 export const ESSAY_TASKS: EssayTask[] = [
   {
@@ -109,6 +91,7 @@ export const ESSAY_TASKS: EssayTask[] = [
   },
   {
     id: "lettre-reclamation",
+    topic: "consommation",
     level: "B2",
     genre: "lettre",
     title: "投诉信",
@@ -132,6 +115,7 @@ export const ESSAY_TASKS: EssayTask[] = [
   },
   {
     id: "lettre-motivation",
+    topic: "travail",
     level: "B2",
     genre: "motivation",
     title: "求职信",
@@ -155,7 +139,7 @@ export const ESSAY_TASKS: EssayTask[] = [
   },
   {
     id: "courrier-voitures",
-    topic: "culture",
+    topic: "transports-mobilite",
     level: "B2",
     genre: "courrier",
     title: "市中心禁止汽车通行",
@@ -324,6 +308,197 @@ export const ESSAY_TASKS: EssayTask[] = [
       ["Il conviendrait plutôt d'envisager…", "不如考虑采取……"],
     ],
   },
+  {
+    id: "courrier-emballages",
+    topic: "environnement",
+    level: "B2",
+    genre: "courrier",
+    title: "材料题：超市全面推行散装零包装购物",
+    situation: "地区报纸刊登了一份关于强制大型超市设立 30% 散装无包装专区（rayon vrac）的草案，邀请市民来信讨论可行性与社会公平。",
+    doc: "Projet d'arrêté régional : Pour réduire les déchets ménagers, toutes les grandes surfaces devront consacrer d'ici deux ans au moins 30 % de leurs rayons alimentaires à la vente en vrac sans emballage plastique. Les associations écologistes saluent une avancée concrète, tandis que certaines fédérations de consommateurs redoutent une hausse des prix et une complication logistique pour les familles nombreuses.",
+    consigne: "Vous écrivez au courrier des lecteurs du journal pour exposer votre point de vue sur cette obligation de vente en vrac, en l'appuyant sur des arguments précis.",
+    words: [250, 350],
+    points: ["点明草案背景与自身立场", "说明减塑对环境与消费习惯的意义", "分析物流、卫生及低收入群体成本上的局限", "提出务实配套建议"],
+    plan: [
+      { zh: "引出话题与立场", fr: "Votre article consacré à l'obligation de vente en vrac appelle selon moi une analyse nuancée." },
+      { zh: "环境收益", fr: "D'une part, la suppression des emballages à usage unique permet de…" },
+      { zh: "现实障碍", fr: "Toutefois, imposer un seuil uniforme sans accompagnement risque de…" },
+      { zh: "建议收束", fr: "Pour que cette transition reste accessible à tous, il faudrait…" },
+    ],
+    phrases: [
+      ["La réduction des déchets à la source s'impose aujourd'hui comme une priorité.", "从源头减少垃圾如今已是当务之急。"],
+      ["Encore faut-il veiller à ce que cette mesure ne pénalise pas…", "还得留意这项举措不要伤及……"],
+      ["Plutôt que d'imposer brutalement…, mieux vaudrait…", "与其生硬强行规定……，不如……"],
+      ["C'est à cette condition que les citoyens adhéreront à…", "只有满足这一条件，市民才会认同……"],
+    ],
+  },
+  {
+    id: "essai-intergeneration",
+    topic: "societe",
+    level: "B2",
+    genre: "essai",
+    title: "青年与老人代际合租值得政府大规模资助吗？",
+    situation: "一项城市社会调查引发热议：市政部门是否应出资推广学生与独居老人的代际合租（cohabitation intergénérationnelle）？",
+    consigne: "« Les collectivités locales devraient financer et généraliser les logements partagés entre étudiants et seniors isolés. » Vous rédigez un essai argumenté pour exprimer votre avis.",
+    words: [250, 350],
+    points: ["指出高房租与老年人孤独的双重背景", "分析代际合租的社会价值", "思考隐私边界与机构监管风险", "提出平衡公共扶持的结论"],
+    plan: [
+      { zh: "引言破题", fr: "Face au double défi de la solitude des aînés et de la pénurie de logements étudiants, la cohabitation intergénérationnelle suscite un intérêt croissant." },
+      { zh: "社会互惠论据", fr: "D'un côté, ce modèle favorise la solidarité concrète et réduit le coût du loyer." },
+      { zh: "边界与条件限制", fr: "D'un autre côté, partager son quotidien exige un cadre clair afin d'éviter…" },
+      { zh: "综合结论", fr: "Il serait donc judicieux d'encourager ces initiatives par un encadrement associatif, sans remplacer…" },
+    ],
+    phrases: [
+      ["Ce dispositif présente un double avantage social et économique.", "这一机制兼备社会与经济双重益处。"],
+      ["Il ne saurait toutefois se substituer à une politique ambitieuse de…", "然而它并不能取代积极的……政策。"],
+      ["Afin de prévenir tout malentendu, il est essentiel que + 虚拟式", "为避免任何误解，……至关重要。"],
+      ["Au-delà de l'aspect financier, le lien humain reste…", "除经济层面外，人际联结依然是……"],
+    ],
+  },
+  {
+    id: "lettre-budget-participatif",
+    topic: "politique-justice",
+    level: "B2",
+    genre: "lettre",
+    title: "材料题：参与式预算透明度与投票率改善建议",
+    situation: "你所在城市连续两年推行「参与式预算」，但投票率不足 5% 且资金多流向市中心商圈，你代表街区委员会写信给市长。",
+    doc: "Bilan municipal du budget participatif : Sur les deux millions d'euros ouverts au vote citoyen cette année, seuls 4,2 % des habitants inscrits ont participé au scrutin en ligne. Huit projets retenus sur dix concernent des aménagements dans les quartiers centraux, suscitant la déception des secteurs périphériques.",
+    consigne: "Au nom de votre conseil de quartier, vous écrivez au maire pour analyser les causes de cette faible participation et proposer des réformes concrètes.",
+    words: [250, 350],
+    points: ["用正式信函格式说明去信事由与数据背景", "分析低投票率与地区失衡的原因（数字门槛、宣传不足）", "提出线下投票点与按街区分配配额的方案", "礼貌期待回函并致敬落款"],
+    plan: [
+      { zh: "信头与主题", fr: "Objet : Propositions pour améliorer l'équité et la participation au budget participatif" },
+      { zh: "肯定初衷与指出问题", fr: "Monsieur le Maire, si la création d'un budget participatif constitue une avancée démocratique, le bilan récent révèle…" },
+      { zh: "原因剖析", fr: "Cette abstention s'explique notamment par la dématérialisation exclusive du vote et…" },
+      { zh: "改进措施", fr: "C'est pourquoi nous vous proposons d'instaurer des urnes physiques et une répartition territoriale…" },
+      { zh: "正式落款", fr: "Dans l'attente de votre réponse, je vous prie d'agréer, Monsieur le Maire, l'expression de ma haute considération." },
+    ],
+    phrases: [
+      ["Force est de constater que la démocratie locale peine encore à mobiliser…", "不得不承认，基层民主在动员……方面仍步履维艰。"],
+      ["Ce déséquilibre nourrit un sentiment d'abandon chez les habitants de…", "这种失衡加剧了……居民的被忽视感。"],
+      ["Nous souhaiterions attirer votre bienveillante attention sur la nécessité de…", "我们谨提请您关注推行……的必要性。"],
+      ["Une telle réforme renforcerait la légitimité des projets retenus.", "此类改革将增强入选项目的公信力。"],
+    ],
+  },
+  {
+    id: "article-ia-recherche",
+    topic: "sciences-ethique",
+    level: "B2",
+    genre: "article",
+    title: "材料题：公共医疗与科研该用 AI 决策吗？",
+    situation: "一份面向公众的科技伦理月刊就医院试点 AI 辅助分诊与科研评审系统征集深度评论。",
+    doc: "Expérimentation hospitalière : Un hôpital universitaire teste un algorithme d'intelligence artificielle pour pré-trier les dossiers de patients et orienter l'attribution de bourses de recherche médicale. L'outil réduit de 40 % les délais administratifs, mais plusieurs chercheurs alertent sur l'opacité des critères de sélection et le risque de biais statistiques.",
+    consigne: "Vous rédigez un article d'opinion pour cette revue afin d'évaluer l'usage de l'IA dans les décisions scientifiques et médicales, en posant des garde-fous éthiques.",
+    words: [250, 350],
+    points: ["拟定吸睛小标题并用自己的话引出试点争议", "剖析算法提效与科学数据挖掘的优势", "指出黑箱偏见与人类责任弱化的隐忧", "总结提出可解释性与人类终审原则"],
+    plan: [
+      { zh: "标题与导语", fr: "[L'IA à l'hôpital : outil précieux ou arbitre opaque ?] — L'expérimentation récente d'un algorithme de tri relance…" },
+      { zh: "效率与科研增益", fr: "Certes, l'automatisation des tâches répétitives libère un temps précieux pour…" },
+      { zh: "伦理红线", fr: "Toutefois, déléguer un choix humain à une boîte noire pose deux problèmes majeurs :…" },
+      { zh: "结语准则", fr: "En somme, l'algorithme doit demeurer un assistant transparent sous responsabilité humaine." },
+    ],
+    phrases: [
+      ["Le gain d'efficacité ne doit jamais primer sur la transparence éthique.", "效率提升绝不能凌驾于伦理透明度之上。"],
+      ["Rien ne garantit que les données d'entraînement soient exemptes de biais.", "没有任何保障能说明训练数据完全不存在偏见。"],
+      ["Il importe que la décision finale relève toujours du jugement humain.", "最终裁决必须始终掌握在人类判断手中。"],
+      ["À défaut de contrôle indépendant, la confiance des patients s'éroderait rapidement.", "若缺少独立监督，患者的信任将迅速流失。"],
+    ],
+  },
+  {
+    id: "essai-infox-ecole",
+    topic: "medias-presse",
+    level: "B2",
+    genre: "essai",
+    title: "信息核查课应成为高中正式评估科目吗？",
+    situation: "教育部讨论是否将「媒体教育与虚假信息核查」设为高中统考评估模块，你撰文表达观点。",
+    consigne: "« L'éducation aux médias et la vérification de l'information devraient devenir une matière obligatoire et notée au lycée. » Qu'en pensez-vous ? Développez votre opinion de manière structurée.",
+    words: [250, 350],
+    points: ["点明青少年高频接触社交信息流却缺乏核查习惯的现状", "论证开设系统信息素养课的价值", "讨论「打分考试」是否会让批判性思维僵化", "得出融合跨学科实践与教师培训的结论"],
+    plan: [
+      { zh: "引入与立场", fr: "Alors que la majorité des lycéens s'informent via des vidéos courtes en ligne, faut-il enseigner l'esprit critique comme une discipline à part entière ?" },
+      { zh: "必修课价值", fr: "D'une part, savoir vérifier une source et repérer les biais algorithmiques constitue aujourd'hui…" },
+      { zh: "应试化风险与对策", fr: "D'autre part, réduire cette formation à une note chiffrée risquerait de…" },
+      { zh: "平衡结语", fr: "Plutôt qu'une épreuve académique classique, il conviendrait d'intégrer des ateliers pratiques dans…" },
+    ],
+    phrases: [
+      ["Confondre rapidité d'accès à l'information et compréhension critique constitue un piège fréquent.", "将获取信息的速度等同于批判性理解是常见误区。"],
+      ["L'école a pour mission de former des citoyens capables de recouper leurs sources.", "学校肩负着培养能够交叉核验信源的公民的职责。"],
+      ["Cependant, évaluer la réflexion civique par un simple examen soulève des réserves.", "然而，仅仅用一场考试来评判公民思辨能力令人有所保留。"],
+      ["Sans formation continue des enseignants, toute réforme resterait lettre morte.", "若缺少教师持续培训，任何改革都将沦为一纸空文。"],
+    ],
+  },
+  {
+    id: "lettre-loyers",
+    topic: "logement-urbanisme",
+    level: "B2",
+    genre: "lettre",
+    title: "材料题：致市区长要求规制核心区短租与空置房",
+    situation: "你所在历史街区短租房激增导致常住工薪与学生买不起房、租不到房，本地租赁学校协会委托你致信区长。",
+    doc: "Étude locale sur l'habitat : En cinq ans, le nombre de meublés touristiques de courte durée a triplé dans le centre historique, entraînant une hausse de 28 % des loyers résidentiels et la fermeture de deux classes à l'école du quartier faute de familles résidentes.",
+    consigne: "En tant que représentant(e) d'une association de riverains, vous écrivez au maire d'arrondissement pour alerter sur cette évolution et demander des mesures de régulation.",
+    words: [250, 350],
+    points: ["采用规范法语信函格式，简述本地调查中的学校减班与房租涨幅", "说明过度旅游短租对社区生活、商铺与学校的影响", "回应房东出租收益或旅游经济顾虑", "提出上限天数限制与空置税等可操作措施"],
+    plan: [
+      { zh: "事由与称呼", fr: "Objet : Demande de régulation des meublés touristiques dans le centre historique / Monsieur le Maire," },
+      { zh: "转述现状与冲击", fr: "L'étude récemment publiée sur notre quartier confirme une inquiétude grandissante :…" },
+      { zh: "回应另一方", fr: "Nous sommes conscients de l'apport économique du tourisme, néanmoins…" },
+      { zh: "提出具体诉求与落款", fr: "Nous demandons donc le plafonnement strict des nuits louées et un soutien à la location durable. Je vous prie d'agréer…" },
+    ],
+    phrases: [
+      ["Un quartier ne peut survivre sans ses habitants permanents ni ses commerces de proximité.", "没有常住居民和社区小店，一个街区就无法维系活力。"],
+      ["La fermeture annoncée de classes illustre concrètement la dévitalisation du centre.", "学校计划撤并班级具体印证了中心城区的空心化。"],
+      ["Il ne s'agit nullement de refuser les visiteurs, mais de préserver un équilibre.", "这绝不是拒绝游客，而是为了守住一种平衡。"],
+      ["Nous restons à votre disposition pour évoquer ces pistes lors d'une rencontre.", "我们随时愿意通过面谈进一步探讨这些方案。"],
+    ],
+  },
+  {
+    id: "courrier-pouvoir-achat",
+    topic: "economie-finances",
+    level: "B2",
+    genre: "courrier",
+    title: "材料题：环保征税该提高还是改用收入返还补贴？",
+    situation: "《经济周刊》探讨政府拟上调燃油与碳排税以弥补环保补贴缺口，请读者投书讨论购买力与财税公平。",
+    doc: "Note économique : Pour financer la rénovation thermique et les transports propres, un projet fiscal prévoit d'augmenter les taxes sur les carburants fossiles. Plusieurs économistes avertissent toutefois qu'une hausse uniforme frappe proportionnellement plus fort les ménages modestes, faute d'un mécanisme automatique de redistribution.",
+    consigne: "Vous écrivez au courrier des lecteurs pour donner votre opinion sur la fiscalité écologique et les moyens de concilier transition climatique et justice budgétaire.",
+    words: [250, 350],
+    points: ["简明点明材料里的两难（筹资转绿 vs 低收入群体压力）", "论证为何生态政策须有资金来源与价格信号", "指出均匀加税的累退性（injustice fiscale）弊端", "建议碳红利定向返还（chèque transition）并抑制浪费"],
+    plan: [
+      { zh: "破题", fr: "Le débat sur la fiscalité écologique touche à une question décisive : comment financer la transition sans fragiliser le pouvoir d'achat ?" },
+      { zh: "价格信号必要性", fr: "Certes, taxer les énergies carbonées envoie un signal économique nécessaire et…" },
+      { zh: "税负不公剖析", fr: "En revanche, sans redistribution ciblée, cette fiscalité devient socialement injuste car…" },
+      { zh: "折中结论", fr: "C'est pourquoi chaque euro prélevé devrait être reversé en priorité aux foyers vulnérables pour…" },
+    ],
+    phrases: [
+      ["Toute fiscalité environnementale privée d'accompagnement social est vouée à l'échec.", "缺少社会兜底配套的任何环境税都注定难以成功。"],
+      ["Les ménages modestes consacrent déjà une part plus élevée de leurs revenus à l'énergie.", "中低收入家庭本就将更高比例的收入用于日常能源支出。"],
+      ["Rendre la transition économiquement avantageuse constitue le levier le plus sûr.", "让绿色转型在经济上划算，才是最稳妥的激励杠杆。"],
+      ["La sobriété budgétaire impose par ailleurs d'évaluer l'efficacité réelle de chaque subvention.", "财政审慎也要求评估每一笔补贴的真实效益。"],
+    ],
+  },
+  {
+    id: "article-arts-vivants",
+    topic: "arts-francophonie",
+    level: "B2",
+    genre: "article",
+    title: "材料题：文化节补贴该削减还是向社区美育倾斜？",
+    situation: "一份地方文化杂志因市长拟削减 20% 国际戏剧艺术节与多语出版补贴引发争论，请你撰写评论文章。",
+    doc: "Débat culturel municipal : Confrontée à la hausse des coûts de l'énergie, la municipalité propose de réduire de 20 % ses subventions aux grands festivals et à l'édition francophone locale pour financer le fonctionnement courant des gymnases. Les compagnies artistiques craignent la disparition de dizaines d'ateliers gratuits dans les quartiers.",
+    consigne: "Vous rédigez un article argumenté pour cette revue afin d'analyser ce choix budgétaire et de défendre une politique culturelle équilibrée.",
+    words: [250, 350],
+    points: ["设计小标题并概述市府缩减文化补贴的理由", "辩护文化与多语文学节对社区教育及地方经济的意义", "提出优化大活动开支以保全基层美育的平衡方案", "有力结尾呼吁文化不是可删减的奢侈品"],
+    plan: [
+      { zh: "标题与引子", fr: "[La culture, variable d'ajustement ou ciment citoyen ?] — La décision de réduire de 20 % le budget culturel municipal interpelle…" },
+      { zh: "反驳纯粹实用主义", fr: "Opposer le sport et la culture revient à ignorer que les ateliers artistiques participent directement à…" },
+      { zh: "务实节流空间", fr: "Pour autant, une gestion rigoureuse impose parfois de mutualiser les moyens logistiques entre…" },
+      { zh: "结尾号召", fr: "Préserver les ateliers de proximité, c'est investir à long terme dans l'ouverture linguistique et le vivre-ensemble." },
+    ],
+    phrases: [
+      ["Réduire la culture à un simple poste de dépense superflu révèle une vision à court terme.", "将文化简化为可有可无的开支反映出短视视角。"],
+      ["Un festival ouvert sur la francophonie irrigue aussi le commerce, l'hôtellerie et la jeunesse locale.", "面向法语世界的多元艺术节同样滋养着地方商贸、旅业与青年群体。"],
+      ["Mutualiser les scènes et encourager le mécénat permettrait de limiter les coûts sans sacrifier l'accès.", "共享舞台资源与鼓励社会赞助可在不牺牲民众参与的前提下压减开支。"],
+      ["Loin d'être un luxe réservé aux élites, l'éveil artistique forge l'esprit critique.", "艺术启蒙绝非少数精英的奢侈品，它锤炼人的思辨精神。"],
+    ],
+  },
 ];
 
 /** Linking words by what they do in the text. */
@@ -411,26 +586,6 @@ export const LETTER_FORMULAS: { zh: string; fr: string[] }[] = [
   { zh: "禁忌警告", fr: ["勿用 Cordialement / Bien à vous（属日常或半正式邮件套语，DELF B2 正式信函会扣语域分）"] },
 ];
 
-export const FORMAL_GENRES: Genre[] = ["lettre", "motivation", "courrier"];
-
-/* ---------- marking: the official DELF B2 grids ---------- */
-
-/** The five criteria of the official writing grid (grille d'évaluation de la production écrite). */
-export const CRITERIA = ["task", "coherence", "socio", "lexique", "morpho"] as const;
-export type Criterion = (typeof CRITERIA)[number];
-
-/** Every criterion of the writing and speaking grids, by key. */
-export const CRITERION_LABEL: Record<string, string> = {
-  task: "完成任务",
-  coherence: "连贯和衔接",
-  socio: "语体得体",
-  lexique: "词汇",
-  morpho: "语法",
-  monologue: "独白：论证观点",
-  interaction: "互动：辩论",
-  phono: "发音和语调",
-};
-
 /** What the candidate checks, per criterion (after the official descriptors, in the site's own words). */
 export const CRITERION_CHECK: Record<string, string> = {
   task: "体裁和话题符合题目吗？至少 250 词了吗？有没有表明立场、展开论证、举出具体例子、说到利弊？",
@@ -442,108 +597,6 @@ export const CRITERION_CHECK: Record<string, string> = {
   interaction: "能确认、细化自己的观点吗？能让步（cependant、néanmoins）、表示同意或不同意、回答并反驳考官吗？",
   phono: "发音清楚吗？语速适中吗？语调有变化吗？说错了能自己纠正吗？",
 };
-
-/** The four levels of the official grids and their points. */
-export const LEVELS = [0, 1, 3, 5] as const;
-export const LEVEL_LABEL: Record<number, string> = { 0: "未作答或不足", 1: "低于 B2", 3: "B2", 5: "B2+" };
-export const LEVEL_LABELS: Record<"B1" | "B2", Record<number, string>> = {
-  B1: { 0: "未作答或不足", 1: "低于 B1", 3: "B1", 5: "B1+" },
-  B2: LEVEL_LABEL,
-};
-export const levelLabel = (score: number, level: "B1" | "B2" = "B2"): string => LEVEL_LABELS[level][score] ?? "";
-/** The nearest level of the grid: 2 counts as 1 (below the level), 4 as 3. */
-export const toLevel = (n: number) => (n >= 5 ? 5 : n >= 3 ? 3 : n >= 1 ? 1 : 0);
-
-export interface EssayCorrection {
-  wrong: string;
-  right: string;
-  type: ErrorType;
-  why: string;
-  /** Id of the grammar point to practise, or "". */
-  point: string;
-}
-
-export interface EssayFlags {
-  offTopic?: "none" | "partial" | "total";
-  wrongGenre?: boolean;
-  registerViolation?: boolean;
-  pastedFromDoc?: boolean;
-  cursoryDebate?: boolean;
-  hasSystematicB1Errors?: boolean;
-  repetitiveBasicLexis?: boolean;
-  mechanicalB1Structure?: boolean;
-}
-
-export interface EssayFeedback {
-  /** 0, 1, 3 or 5 per criterion of the grid used. */
-  scores: Record<string, number>;
-  comment: string;
-  strengths: string[];
-  todo: string[];
-  corrections: EssayCorrection[];
-  /** The learner's text with its errors fixed, keeping their ideas and wording where acceptable. */
-  rewrite: string;
-  /** Structured compliance flags from the grid check, when any anomaly is present. */
-  flags?: EssayFlags;
-}
-
-/** The learner's second draft after reading the marking, and how it was marked. */
-export interface Revision {
-  text: string;
-  at: number;
-  fb?: EssayFeedback;
-}
-
-/** A model text for the task, written after the marking, with the patterns worth borrowing from it. */
-export interface ModelEssay {
-  text: string;
-  /** Phrases or constructions of the model text, with what they do (Chinese). */
-  patterns: { fr: string; zh: string }[];
-}
-
-export interface SavedEssay {
-  id: string;
-  task: string;
-  text: string;
-  created: number;
-  fb?: EssayFeedback;
-  rev?: Revision;
-  model?: ModelEssay;
-}
-
-/** A mistake the learner kept from a marking, to look at again. */
-export interface SavedNote {
-  id: string;
-  wrong: string;
-  right: string;
-  type: ErrorType;
-  why: string;
-  /** Id of the grammar point to practise, or "". */
-  point: string;
-  at: number;
-  /** Title of the task it came from. */
-  from: string;
-}
-
-export const MAX_ESSAY_LENGTH = 4000;
-export const MAX_SPEAKING_MONOLOGUE_LENGTH = MAX_ESSAY_LENGTH + 2000;
-export const MAX_ESSAYS = 40;
-export const MAX_NOTES = 150;
-export const MAX_AI_TASKS = 24;
-
-/** A task the AI wrote has an id starting with this. */
-export const isAiTask = (id: string) => id.startsWith("ai-");
-
-/** How many words a task of this kind asks for, as on the exam. B2 has no upper penalty (250–350 recommended). */
-export const wordsFor = (level: "B1" | "B2", genre: Genre): [number, number] => (level === "B2" ? [250, 350] : genre === "mail" ? [120, 160] : [160, 200]);
-
-/** Genres the AI can write a task for. */
-export const GENRES = Object.keys(GENRE_LABEL) as Genre[];
-
-/** Authentic DELF B2 genres (excludes B1-only mail and récit). */
-export const B2_GENRES: Genre[] = GENRES.filter((g) => g !== "mail" && g !== "recit");
-
-export const genresFor = (level: "B1" | "B2"): Genre[] => (level === "B2" ? B2_GENRES : GENRES);
 
 export type DocMode = "random" | "doc" | "none";
 
@@ -561,9 +614,6 @@ export function pickAiTaskOptions(
   return { genre, withDocument };
 }
 
-export const totalScore = (fb: EssayFeedback) => Object.values(fb.scores).reduce((n, v) => n + v, 0);
-export const maxScore = (fb: EssayFeedback) => Object.keys(fb.scores).length * 5;
-
 /** Resolve the CEFR level ("B1" | "B2") of a saved essay from its task definition (defaulting to "B2"). */
 export function essayLevelOf(essay: SavedEssay, tasks: readonly EssayTask[] = ESSAY_TASKS): "B1" | "B2" {
   return tasks.find((t) => t.id === essay.task)?.level ?? "B2";
@@ -578,154 +628,11 @@ export function splitEssaysByLevel(essays: readonly SavedEssay[], tasks: readonl
   return { b1, b2 };
 }
 
-/** Words as an examiner counts them: runs of letters; l'ami and c'est-à-dire count once. */
-export function countWords(text: string): number {
-  return (text.match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) ?? []).length;
-}
-
-const str = (v: unknown, max = 600) => (typeof v === "string" ? v.trim().slice(0, max) : "");
-const list = (v: unknown, max: number) =>
-  (Array.isArray(v) ? v : [])
-    .map((x) => str(x, 300))
-    .filter(Boolean)
-    .slice(0, max);
-
-/** Scores stored before the official grid was used (four criteria out of 5 each). */
-const OLD_KEYS: Record<string, string> = { structure: "coherence", grammar: "morpho", vocabulary: "lexique" };
-
-function parseFlags(r: Record<string, unknown>): EssayFlags | undefined {
-  const f = (r.flags && typeof r.flags === "object" ? r.flags : r) as Record<string, unknown>;
-  const prof = (r.profile && typeof r.profile === "object" ? r.profile : f) as Record<string, unknown>;
-  const offTopic = f.offTopic === "partial" || f.offTopic === "total" ? f.offTopic : "none";
-  const wrongGenre = f.wrongGenre === true;
-  const registerViolation = f.registerViolation === true;
-  const pastedFromDoc = f.pastedFromDoc === true;
-  const cursoryDebate = f.cursoryDebate === true;
-  const hasSystematicB1Errors = prof.hasSystematicB1Errors === true;
-  const repetitiveBasicLexis = prof.repetitiveBasicLexis === true;
-  const mechanicalB1Structure = prof.mechanicalB1Structure === true;
-  if (offTopic === "none" && !wrongGenre && !registerViolation && !pastedFromDoc && !cursoryDebate && !hasSystematicB1Errors && !repetitiveBasicLexis && !mechanicalB1Structure) return undefined;
-  return {
-    ...(offTopic !== "none" ? { offTopic } : {}),
-    ...(wrongGenre ? { wrongGenre } : {}),
-    ...(registerViolation ? { registerViolation } : {}),
-    ...(pastedFromDoc ? { pastedFromDoc } : {}),
-    ...(cursoryDebate ? { cursoryDebate } : {}),
-    ...(hasSystematicB1Errors ? { hasSystematicB1Errors } : {}),
-    ...(repetitiveBasicLexis ? { repetitiveBasicLexis } : {}),
-    ...(mechanicalB1Structure ? { mechanicalB1Structure } : {}),
-  };
-}
-
-function capScoresByFlags(scores: Record<string, number>, flags?: EssayFlags, level: "B1" | "B2" = "B2"): Record<string, number> {
-  const s = { ...scores };
-  if (!flags) return s;
-  if (flags.offTopic === "partial") {
-    if ("task" in s) s.task = Math.min(s.task, 3);
-    if ("monologue" in s) s.monologue = Math.min(s.monologue, 3);
-    if ("lexique" in s) s.lexique = Math.min(s.lexique, 3);
-  } else if (flags.offTopic === "total") {
-    for (const k of Object.keys(s)) s[k] = 0;
-    return s;
-  }
-  if (flags.wrongGenre) {
-    if ("task" in s) s.task = Math.min(s.task, 1);
-    if ("coherence" in s) s.coherence = Math.min(s.coherence, 1);
-  }
-  if (flags.registerViolation && "socio" in s) {
-    s.socio = Math.min(s.socio, 1);
-  }
-  if (level === "B2") {
-    if (flags.hasSystematicB1Errors && "morpho" in s) {
-      s.morpho = Math.min(s.morpho, 1);
-    }
-    if (flags.repetitiveBasicLexis && "lexique" in s) {
-      s.lexique = Math.min(s.lexique, 1);
-    }
-    // Single-flag caps stay 1 criterion wide (2-pt max step) to prevent 4-pt single-flag swings
-    if (flags.mechanicalB1Structure) {
-      if ("coherence" in s) s.coherence = Math.min(s.coherence, 1);
-      if ("task" in s) s.task = Math.min(s.task, 3);
-    }
-    if (flags.hasSystematicB1Errors || flags.repetitiveBasicLexis) {
-      for (const k of ["task", "coherence", "socio"]) {
-        if (k in s) s[k] = Math.min(s[k], 3);
-      }
-    }
-  }
-  if (flags.pastedFromDoc) {
-    if ("monologue" in s) s.monologue = Math.min(s.monologue, 1);
-    if ("lexique" in s) s.lexique = Math.min(s.lexique, 1);
-  }
-  if (flags.cursoryDebate && "interaction" in s) {
-    s.interaction = Math.min(s.interaction, 1);
-  }
-  return s;
-}
-
-/** Make an AI marking safe to show. `points` are the grammar point ids that may be linked. */
-export function sanitizeEssayFeedback(raw: unknown, points: ReadonlySet<string>, criteria: readonly string[] = CRITERIA, level: "B1" | "B2" = "B2"): EssayFeedback {
-  const r = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
-  const given = (r.scores && typeof r.scores === "object" ? r.scores : {}) as Record<string, unknown>;
-  const s: Record<string, unknown> = { ...given };
-  for (const [old, now] of Object.entries(OLD_KEYS)) if (s[now] === undefined && given[old] !== undefined) s[now] = given[old];
-  const rawScores: Record<string, number> = {};
-  for (const c of criteria) rawScores[c] = toLevel(typeof s[c] === "number" && Number.isFinite(s[c]) ? (s[c] as number) : 0);
-  const flags = parseFlags(r);
-  const scores = capScoresByFlags(rawScores, flags, level);
-  const corrections: EssayCorrection[] = (Array.isArray(r.corrections) ? r.corrections : [])
-    .filter((e): e is Record<string, unknown> => !!e && typeof e === "object")
-    .map((e) => ({
-      wrong: str(e.wrong, 200),
-      right: str(e.right, 200),
-      type: (ERROR_TYPES as readonly string[]).includes(e.type as string) ? (e.type as ErrorType) : ("other" as ErrorType),
-      why: str(e.why, 300),
-      point: typeof e.point === "string" && points.has(e.point) ? e.point : "",
-    }))
-    .filter((e) => (e.wrong || e.right) && e.wrong !== e.right)
-    .slice(0, 25);
-  return {
-    scores,
-    comment: str(r.comment, 800),
-    strengths: list(r.strengths, 4),
-    todo: list(r.todo, 4),
-    corrections,
-    rewrite: str(r.rewrite, MAX_ESSAY_LENGTH + 1000),
-    ...(flags ? { flags } : {}),
-  };
-}
-
 /**
  * The grid's rule for a text with too little to assess: under half the expected words, every criterion is 0.
  */
 export function tooShort(text: string, minWords: number) {
   return countWords(text) < minWords / 2;
-}
-
-/**
- * Deterministic length caps matching DELF tolerance (-10% floor, i.e. 225 for B2 250w,
- * severe under-length <70% i.e. <175w, and half-length <50% i.e. <125w -> 0).
- */
-export function applyEssayLengthCaps(fb: EssayFeedback, text: string, minWords: number): EssayFeedback {
-  const wc = countWords(text);
-  const scores = { ...fb.scores };
-  let note = "";
-  if (wc < minWords / 2) {
-    for (const c of CRITERIA) scores[c] = 0;
-    note = `不到要求字数的一半（实测 ${wc} 词，要求至少 ${minWords} 词），按官方评分表各项记 0 分。`;
-  } else if (wc < Math.round(minWords * 0.7)) {
-    scores.task = Math.min(scores.task ?? 0, 1);
-    scores.coherence = Math.min(scores.coherence ?? 0, 1);
-    // Severely under-length text cannot demonstrate B2+ breadth across language or register either.
-    scores.socio = Math.min(scores.socio ?? 0, 3);
-    scores.lexique = Math.min(scores.lexique ?? 0, 3);
-    scores.morpho = Math.min(scores.morpho ?? 0, 3);
-    note = `字数严重不足（实测 ${wc} 词，要求至少 ${minWords} 词，低于 ${Math.round(minWords * 0.7)} 词），完成任务与连贯衔接封顶 1 分，其余项最高 3 分。`;
-  } else if (wc < Math.round(minWords * 0.9)) {
-    scores.task = Math.min(scores.task ?? 0, 1);
-    note = `字数低于容忍下限（实测 ${wc} 词，低于 ${Math.round(minWords * 0.9)} 词），完成任务封顶 1 分。`;
-  }
-  return note ? { ...fb, scores, comment: `${note}${fb.comment}` } : fb;
 }
 
 const stripQuotedText = (text: string): string => text.replace(/«[^»]*»|"[^"]*"|“[^”]*”/g, " ");
@@ -794,6 +701,7 @@ function hasQuantifierDesError(text: string): boolean {
 export function detectB1ProfileFallback(
   text: string,
   corrections: readonly EssayCorrection[],
+  opts?: { oral?: boolean },
 ): Pick<EssayFlags, "hasSystematicB1Errors" | "repetitiveBasicLexis" | "mechanicalB1Structure"> {
   const elementaryFixes = corrections.filter(isElementaryCorrection).length;
   const basicGrammarCount = corrections.filter((c) => BASIC_GRAMMAR_ERROR_TYPES.has(c.type)).length;
@@ -807,13 +715,15 @@ export function detectB1ProfileFallback(
       /\bil\s+faut\s+qu(?:e\s+(?:tout\s+le\s+monde|(?:(?:l'|d'|un|une|le|la|les|des|ces|ce|cet|cette|mon|ma|mes|ton|ta|tes|son|sa|ses|notre|nos|votre|vos|leur|leurs|chaque|quelques|plusieurs)\s+)?(?!(?:qui|que|dont|où|ne|se|me|te|le|la|les|lui|leur|y|en)\b)[a-zàâäéèêëïîôùûüç-]+)|'(?:on|il|elle|ils|elles))(?:\s+y)?\s+(?:fait|font|va|vont|peut|peuvent|doit|est|sont|a|ont|sait|savent|veut|veulent|prend|vient|dit|met)\b/i,
     ].filter((re) => re.test(text)).length + (hasQuantifierDesError(text) ? 1 : 0);
 
-  const hasSystematicB1Errors = Math.max(elementaryFixes, textCalques) >= 2 || elementaryFixes + textCalques >= 3 || basicGrammarCount >= 5;
+  const wc = Math.max(1, countWords(text));
+  const grammarDensityLimit = Math.max(6, Math.ceil(wc / 45));
+  const hasSystematicB1Errors = Math.max(elementaryFixes, textCalques) >= 2 || elementaryFixes + textCalques >= 3 || basicGrammarCount >= grammarDensityLimit;
 
   const tresHits = (text.match(/\btrès\s+[a-zàâäéèêëïîôùûüç]+/gi) ?? []).length;
   const beaucoupHits = (text.match(/\bbeaucoup\b/gi) ?? []).length;
   const gensHits = (text.match(/\bles\s+gens\b/gi) ?? []).length;
   const chosesHits = (text.match(/\b(?:des?|les)\s+choses?\b|\bquelque\s+chose\b/gi) ?? []).length;
-  const spokenHits = (text.match(/\b(?:ça|moi\s+je)\b/gi) ?? []).length;
+  const spokenHits = (text.match(opts?.oral ? /\bmoi\s+je\b/gi : /\b(?:ça|moi\s+je)\b/gi) ?? []).length;
   const simpleAdjHits = [...text.matchAll(/\b(?:c'est|est|sont)\s+(?:très\s+)?(?:bon|bonne|bons|bonnes|bien|mauvais|mauvaise|joli|jolie|facile|difficile|utile|intéressant)\b/gi)]
     .filter((m) => !/\bil\s+$/i.test(text.slice(Math.max(0, (m.index ?? 0) - 6), m.index ?? 0)))
     .length;
@@ -827,7 +737,7 @@ export function detectB1ProfileFallback(
     tresHits >= 5 ||
     (tresHits >= 4 && totalBasicLex >= 6) ||
     (buckets >= 4 && totalBasicLex >= 9) ||
-    (hasSystematicB1Errors && (hasLexicalCalque || totalBasicLex >= 3));
+    (hasSystematicB1Errors && (hasLexicalCalque || (buckets >= 3 && totalBasicLex >= 6)));
 
   const mechCount = (text.match(/(?:^|[.!?\n]\s*)(?:D'abord|Ensuite|Et\s+puis|Mais|Pour\s+finir)\b/g) ?? []).length;
   const b2ConnectorCount = [
@@ -852,11 +762,11 @@ export function detectB1ProfileFallback(
   ].filter((re) => re.test(text)).length;
   const mechanicalB1Structure = (mechCount >= 3 && b2ConnectorCount === 0) || (mechCount >= 4 && b2ConnectorCount < 2);
 
-  return {
-    ...(hasSystematicB1Errors ? { hasSystematicB1Errors: true } : {}),
-    ...(repetitiveBasicLexis ? { repetitiveBasicLexis: true } : {}),
-    ...(mechanicalB1Structure ? { mechanicalB1Structure: true } : {}),
-  };
+  const out: Pick<EssayFlags, "hasSystematicB1Errors" | "repetitiveBasicLexis" | "mechanicalB1Structure"> = {};
+  if (hasSystematicB1Errors) out.hasSystematicB1Errors = true;
+  if (repetitiveBasicLexis) out.repetitiveBasicLexis = true;
+  if (mechanicalB1Structure) out.mechanicalB1Structure = true;
+  return out;
 }
 
 /** Apply FEI 2022 essay grid caps (off-topic, wrong genre, register/format, and word count). */
@@ -874,16 +784,22 @@ export function applyEssayGridCaps(fb: EssayFeedback, opts: { genre: Genre; text
       flags = { ...flags, ...b1Fallback };
     }
   }
-  const cappedScores = capScoresByFlags(fb.scores, flags, level);
+  const { scores: cappedScores, caps } = capScoresByFlags(fb.scores, flags, level, fb.caps);
   const notes: string[] = [];
   if (flags?.offTopic === "total") notes.push("【严重偏题：按规则全卷记 0 分】");
   else if (flags?.offTopic === "partial") notes.push("【部分偏题：完成任务与词汇封顶 3 分】");
   if (flags?.wrongGenre) notes.push("【文体错位：完成任务与连贯衔接封顶 1 分】");
   if (flags?.registerViolation) notes.push("【语域/格式不符：语体得体封顶 1 分】");
+  if (level === "B2") {
+    if (flags?.hasSystematicB1Errors) notes.push("【检测到系统性 B1 基础语法错误：语法准确封顶 1 分，任务/连贯/语体最高 3 分】");
+    if (flags?.repetitiveBasicLexis) notes.push("【基础词重复或直译偏多：词汇丰富度封顶 1 分，任务/连贯/语体最高 3 分】");
+    if (flags?.mechanicalB1Structure) notes.push("【机械 B1 串联结构：连贯衔接封顶 1 分，完成任务最高 3 分】");
+  }
   const withGridCaps: EssayFeedback = {
     ...fb,
     scores: cappedScores,
     ...(flags ? { flags } : {}),
+    ...(caps.length ? { caps } : {}),
     comment: notes.length ? `${notes.join("")}${fb.comment}` : fb.comment,
   };
   return applyEssayLengthCaps(withGridCaps, opts.text, opts.minWords);
@@ -921,7 +837,116 @@ export function speakingPasteStats(transcript: string, doc: string): { copyRatio
   };
 }
 
-/** Deterministic DELF B2 speaking caps (length, duration, copy-paste/padding, cursory debate). */
+export interface SpeakingAcoustics {
+  speechRateWpm?: number;
+  articulationRateWpm?: number;
+  pauseRatio?: number;
+  longFreezeCount?: number;
+  midConstituentBreaks?: number;
+  likelyReadAloud?: boolean;
+  obligatoryLiaisonsMissed?: number;
+  forbiddenLiaisonsMade?: number;
+  phonemeAlerts?: string[];
+}
+
+function normClauseText(s: string): string {
+  return s.normalize("NFC").toLowerCase().replace(/[’‘`\u02bc]/g, "'").replace(/\s+/g, " ").trim();
+}
+
+function splitEssayClauses(text: string): string[] {
+  return text
+    .split(/(?:[.!?;:\n]+|,\s+)/g)
+    .map((c) => normClauseText(c))
+    .filter(Boolean);
+}
+
+function countPhraseOccurrences(haystack: string, needle: string): number {
+  if (!needle) return 0;
+  const escaped = needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const startBoundary = /^[\p{L}\p{N}]/u.test(needle) ? "(?<![\\p{L}\\p{N}_'])" : "";
+  const endBoundary = /[\p{L}\p{N}]$/u.test(needle) ? "(?![\\p{L}\\p{N}_])" : "";
+  const re = new RegExp(`${startBoundary}${escaped}${endBoundary}`, "gu");
+  return (haystack.match(re) ?? []).length;
+}
+
+function clauseSimilarity(a: string, b: string): number {
+  const ta = wordTokens(a);
+  const tb = wordTokens(b);
+  if (!ta.length || !tb.length) return 0;
+  const counts = new Map<string, number>();
+  for (const w of tb) counts.set(w, (counts.get(w) ?? 0) + 1);
+  let inter = 0;
+  for (const w of ta) {
+    const c = counts.get(w) ?? 0;
+    if (c > 0) {
+      inter++;
+      counts.set(w, c - 1);
+    }
+  }
+  return (2 * inter) / (ta.length + tb.length);
+}
+
+/**
+ * Clause-level 2nd-draft diff: determines which first-draft corrections were genuinely fixed
+ * in `revText` without being fooled by identical short words surviving in unrelated clauses.
+ */
+export function diffSecondDraftCorrections(
+  firstText: string,
+  revText: string,
+  corrections: readonly EssayCorrection[],
+): { fixed: EssayCorrection[]; still: EssayCorrection[] } {
+  const firstNorm = normClauseText(firstText);
+  const revNorm = normClauseText(revText);
+  const firstClauses = splitEssayClauses(firstText);
+  const revClauses = splitEssayClauses(revText);
+  const fixed: EssayCorrection[] = [];
+  const still: EssayCorrection[] = [];
+
+  for (const c of corrections) {
+    const w = normClauseText(c.wrong);
+    if (!w) continue;
+    const r = normClauseText(c.right);
+    const srcMatches = firstClauses.filter((cl) => countPhraseOccurrences(cl, w) > 0);
+
+    let isFixed: boolean;
+    if (srcMatches.length > 0 && revClauses.length > 0) {
+      let resolvedCount = 0;
+      for (const src of srcMatches) {
+        let bestClause = "";
+        let bestSim = -1;
+        for (const cand of revClauses) {
+          const sim = clauseSimilarity(src, cand);
+          if (sim > bestSim) {
+            bestSim = sim;
+            bestClause = cand;
+          }
+        }
+        if (bestSim >= 0.35) {
+          const beforeCount = countPhraseOccurrences(src, w);
+          const afterCount = countPhraseOccurrences(bestClause, w);
+          const rightAdded = !!r && countPhraseOccurrences(bestClause, r) > countPhraseOccurrences(src, r);
+          if (afterCount < beforeCount || (afterCount === 0 && beforeCount > 0) || rightAdded) {
+            resolvedCount++;
+          }
+        } else if (countPhraseOccurrences(revNorm, w) < countPhraseOccurrences(firstNorm, w)) {
+          resolvedCount++;
+        }
+      }
+      isFixed = resolvedCount >= srcMatches.length;
+    } else {
+      const beforeTotal = countPhraseOccurrences(firstNorm, w);
+      const afterTotal = countPhraseOccurrences(revNorm, w);
+      isFixed = beforeTotal > 0 ? afterTotal < beforeTotal : !revNorm.includes(w);
+    }
+
+    if (isFixed) fixed.push(c);
+    else still.push(c);
+  }
+
+  return { fixed, still };
+}
+
+/** Deterministic DELF B2 speaking caps (0.5-pt scale, speech-rate/duration, >8m ramble, B1 fallback, informal tu, read-aloud, copy-paste, cursory debate). */
 export function applySpeakingCaps(
   fb: EssayFeedback,
   opts: {
@@ -932,6 +957,7 @@ export function applySpeakingCaps(
     monologueSec?: number;
     debateSec?: number;
     typed?: boolean;
+    acoustics?: SpeakingAcoustics;
   },
 ): EssayFeedback {
   const monologueWords = opts.monologueWords ?? countWords(opts.transcript);
@@ -940,44 +966,113 @@ export function applySpeakingCaps(
   const paste = speakingPasteStats(opts.transcript, opts.doc);
   const highCopyPaste = (monologueWords >= 40 && paste.copyRatio >= 0.35) || (monologueWords >= 120 && paste.originalWords < Math.min(120, monologueWords * 0.65));
   const highRepetition = paste.total4Grams >= 40 && paste.unique4GramRatio < 0.55;
+  const oralCombined = [opts.transcript, ...answered.map((t) => t.a)].filter(Boolean).join("\n");
+  const oralB1 = detectB1ProfileFallback(oralCombined, fb.corrections, { oral: true });
+  const informalTuInTalk = hasInformalPronoun(stripQuotedText(opts.transcript));
+  const informalTuInDebate = answered.some((t) => hasInformalPronoun(stripQuotedText(t.a)));
+  const hasInformalTu = informalTuInTalk || informalTuInDebate;
 
   let flags = fb.flags ? { ...fb.flags } : undefined;
   if (highCopyPaste || highRepetition) flags = { ...flags, pastedFromDoc: true };
   const shortDebate = answered.length > 0 && (answered.length <= 2 || debateWords < 80 || debateWords / answered.length < 12 || (opts.debateSec !== undefined && opts.debateSec < 90 && debateWords < 120));
   if (shortDebate) flags = { ...flags, cursoryDebate: true };
-
-  const scores = capScoresByFlags(fb.scores, flags);
-  const notes: string[] = [];
-
-  const tooShortSec = !opts.typed && opts.monologueSec !== undefined && opts.monologueSec < 150;
-  if (monologueWords < 80) {
-    scores.monologue = 0;
-    scores.lexique = Math.min(scores.lexique ?? 0, 1);
-    scores.morpho = Math.min(scores.morpho ?? 0, 1);
-    notes.push(`【独白过短（${monologueWords} 词），独白记 0 分且语言封顶 1 分】`);
-  } else if (monologueWords < 250 || tooShortSec) {
-    scores.monologue = Math.min(scores.monologue ?? 0, 1);
-    notes.push(
-      tooShortSec && monologueWords >= 250
-        ? `【独白时长不足（${opts.monologueSec} 秒，远短于 5–7 分钟），独白封顶 1 分】`
-        : `【独白不足 250 词（实测 ${monologueWords} 词），独白封顶 1 分】`,
-    );
-  } else if (monologueWords < 450) {
-    scores.monologue = Math.min(scores.monologue ?? 0, 3);
+  if (oralB1.hasSystematicB1Errors || oralB1.repetitiveBasicLexis || oralB1.mechanicalB1Structure) {
+    flags = { ...flags, ...oralB1 };
+  }
+  if (hasInformalTu) flags = { ...flags, informalTu: true };
+  if (opts.acoustics?.likelyReadAloud) flags = { ...flags, readAloud: true };
+  if (!opts.typed && opts.monologueSec !== undefined && opts.monologueSec > 480) {
+    flags = { ...flags, rambleOvertime: true };
   }
 
+  const { scores, caps } = capScoresByFlags(fb.scores, flags, "B2", fb.caps);
+  const cap = (k: string, maxVal: number, reason: string) => {
+    if (!(k in scores) || scores[k] <= maxVal) return;
+    pushCap(caps, k, scores[k], maxVal, reason);
+    scores[k] = maxVal;
+  };
+  const notes: string[] = [];
+
+  const sec = !opts.typed ? opts.monologueSec : undefined;
+  const tooShortSecHard = sec !== undefined && sec < 120;
+  const tooShortSecMid = sec !== undefined && sec < 150;
+  const slightlyShortSec = sec !== undefined && sec < 200;
+
+  if (monologueWords < 80) {
+    const why = `独白过短（${monologueWords} 词）`;
+    cap("monologue", 0, why);
+    cap("lexique", 1, why);
+    cap("morpho", 1, why);
+    notes.push(`【独白过短（${monologueWords} 词），独白记 0 分且语言封顶 1 分】`);
+  } else if (monologueWords < 200 || tooShortSecHard) {
+    cap("monologue", 1, tooShortSecHard && monologueWords >= 200 ? `独白时长不足（${sec}s）` : `独白不足 250 词（${monologueWords} 词）`);
+    notes.push(
+      tooShortSecHard && monologueWords >= 200
+        ? `【独白时长不足（${sec} 秒，远短于 5–7 分钟），独白封顶 1 分】`
+        : `【独白不足 250 词（实测 ${monologueWords} 词），独白封顶 1 分】`,
+    );
+  } else if (monologueWords < 250 || tooShortSecMid) {
+    cap("monologue", 1.5, tooShortSecMid && monologueWords >= 250 ? `独白时长偏短（${sec}s）` : `独白不足 250 词（${monologueWords} 词）`);
+    notes.push(
+      tooShortSecMid && monologueWords >= 250
+        ? `【独白时长不足（${sec} 秒，短于 5–7 分钟要求），独白封顶 1.5 分】`
+        : `【独白不足 250 词（实测 ${monologueWords} 词），独白封顶 1.5 分】`,
+    );
+  } else if (slightlyShortSec) {
+    cap("monologue", 2.5, `独白时长未满 3 分半（${sec}s）`);
+    notes.push(`【独白时长偏短（${sec} 秒，建议 5–7 分钟），独白封顶 2.5 分】`);
+  } else if (opts.typed && monologueWords < 350) {
+    cap("monologue", 3.5, `打字独白篇幅偏短（${monologueWords} 词）`);
+  } else if (sec !== undefined && sec > 480) {
+    const deduct = sec > 540 ? 1 : 0.5;
+    const maxRamble = sec > 540 ? 3 : 3.5;
+    if ("monologue" in scores && scores.monologue > 0) {
+      const target = Math.min(maxRamble, toLevel(Math.max(0, scores.monologue - deduct)));
+      if (target < scores.monologue) {
+        pushCap(caps, "monologue", scores.monologue, target, `独白超时冗长（${sec}s > 8 分钟）`);
+        scores.monologue = target;
+      }
+    }
+    notes.push(`【独白超时冗长（${Math.round((sec / 60) * 10) / 10} 分钟，超出考场 5–7 分钟上限），独白扣 ${deduct} 分】`);
+  }
+
+  if (opts.acoustics?.likelyReadAloud) {
+    cap("monologue", 2, "疑似照念逐字稿");
+    notes.push("【声学韵律检测疑似照念逐字稿（违反 DELF 口语脱稿陈述要求），独白封顶 2 分】");
+  }
+
+  if (!opts.typed && opts.acoustics) {
+    const wpm = opts.acoustics.speechRateWpm ?? (sec && sec >= 30 ? (monologueWords / sec) * 60 : undefined);
+    if ((wpm !== undefined && wpm < 75) || (opts.acoustics.pauseRatio !== undefined && opts.acoustics.pauseRatio >= 0.45) || (opts.acoustics.longFreezeCount ?? 0) >= 4) {
+      cap("monologue", 2.5, "语速过慢或长卡顿频繁");
+      notes.push("【语速偏慢或长停顿过多，独白流利度封顶 2.5 分】");
+    } else if ((opts.acoustics.midConstituentBreaks ?? 0) >= 5) {
+      cap("monologue", 3.5, "意群内部频繁断裂");
+    }
+  }
+
+  if (hasInformalTu) {
+    if (informalTuInTalk) cap("monologue", 2.5, "正式考场误用非正式称呼 tu");
+    if (answered.length > 0) cap("interaction", 2, "正式考场对考官误用 tu");
+    notes.push("【口语正式考场误用非正式称呼 tu（应全程用 vous），互动与语体受限】");
+  }
+
+  if (oralB1.hasSystematicB1Errors) notes.push("【检测到系统性 B1 基础语法错误：语法封顶 1 分，独白/互动最高 3 分】");
+  if (oralB1.repetitiveBasicLexis) notes.push("【口语基础词重复或中式直译偏多：词汇封顶 1 分，独白/互动最高 3 分】");
+
   if (flags?.pastedFromDoc) {
-    scores.monologue = Math.min(scores.monologue ?? 0, 1);
-    scores.lexique = Math.min(scores.lexique ?? 0, 1);
-    if (highRepetition) scores.morpho = Math.min(scores.morpho ?? 0, 1);
+    cap("monologue", 1, "照抄材料/高频重复");
+    cap("lexique", 1, "照抄材料/高频重复");
+    if (highRepetition) cap("morpho", 1, "高频重复凑字");
     notes.push("【检测到高比例照抄材料或重复凑字，独白与词汇封顶 1 分】");
   }
 
   if (answered.length === 0) {
-    scores.interaction = 0;
+    cap("interaction", 0, "未完成辩论");
   } else if (flags?.cursoryDebate) {
-    scores.interaction = Math.min(scores.interaction ?? 0, 1);
-    notes.push("【辩论轮次或有效作答偏少/偏敷衍，互动封顶 1 分】");
+    const debateCap = answered.length === 1 || debateWords < 45 ? 1 : 1.5;
+    cap("interaction", debateCap, "辩论内容/轮次偏少");
+    notes.push(`【辩论轮次或有效作答偏少/偏敷衍，互动封顶 ${debateCap} 分】`);
   }
 
   if (flags?.offTopic === "total") notes.push("【严重偏题：按规则记 0 分】");
@@ -988,43 +1083,9 @@ export function applySpeakingCaps(
     ...fb,
     scores,
     ...(flags ? { flags } : {}),
+    ...(caps.length ? { caps } : {}),
     comment: notes.length ? `${notes.join("")}${fb.comment}` : fb.comment,
   };
-}
-
-/** Saved essays read back from storage or a backup. */
-const anyPoint = { has: (id: string) => /^[a-z0-9-]{2,40}$/.test(id) } as ReadonlySet<string>;
-
-export function sanitizeEssays(v: unknown): SavedEssay[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const known = new Set(ESSAY_TASKS.map((t) => t.id));
-  const out: SavedEssay[] = [];
-  for (const x of v) {
-    if (!x || typeof x !== "object") continue;
-    const e = x as Record<string, unknown>;
-    if (typeof e.id !== "string" || typeof e.task !== "string" || !(known.has(e.task) || (isAiTask(e.task) && e.task.length <= 40)) || typeof e.text !== "string" || !e.text.trim() || typeof e.created !== "number") continue;
-    const essay: SavedEssay = { id: e.id.slice(0, 40), task: e.task, text: e.text.slice(0, MAX_ESSAY_LENGTH), created: e.created };
-    // any grammar id is kept here: the page only links the ones that exist
-    const lv = ESSAY_TASKS.find((t) => t.id === e.task)?.level ?? "B2";
-    if (e.fb && typeof e.fb === "object") essay.fb = sanitizeEssayFeedback(e.fb, anyPoint, CRITERIA, lv);
-    const r = e.rev as Record<string, unknown> | undefined;
-    if (r && typeof r === "object" && typeof r.text === "string" && r.text.trim() && typeof r.at === "number") {
-      essay.rev = { text: r.text.slice(0, MAX_ESSAY_LENGTH), at: r.at, ...(r.fb && typeof r.fb === "object" ? { fb: sanitizeEssayFeedback(r.fb, anyPoint, CRITERIA, lv) } : {}) };
-    }
-    const m = e.model as Record<string, unknown> | undefined;
-    if (m && typeof m === "object" && typeof m.text === "string" && m.text.trim()) essay.model = sanitizeModel(m);
-    out.push(essay);
-  }
-  return out.length ? out.slice(0, MAX_ESSAYS) : undefined;
-}
-
-export function sanitizeModel(m: Record<string, unknown>): ModelEssay {
-  const patterns = (Array.isArray(m.patterns) ? m.patterns : [])
-    .filter((p): p is Record<string, unknown> => !!p && typeof p === "object")
-    .map((p) => ({ fr: str(p.fr, 200), zh: str(p.zh, 200) }))
-    .filter((p) => p.fr)
-    .slice(0, 10);
-  return { text: str(m.text, MAX_ESSAY_LENGTH + 1000), patterns };
 }
 
 /** Whether a generated model answer fell below the task minimum word floor and warrants a retry. */
@@ -1038,69 +1099,4 @@ export function pickBetterModel(first: ModelEssay, retry: ModelEssay, minWords: 
   const w2 = countWords(retry.text);
   if (w2 >= minWords && w1 < minWords) return retry;
   return w2 > w1 ? retry : first;
-}
-
-/** Kept mistakes read back from storage or a backup. */
-export function sanitizeNotes(v: unknown): SavedNote[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const out: SavedNote[] = [];
-  for (const x of v) {
-    if (!x || typeof x !== "object") continue;
-    const n = x as Record<string, unknown>;
-    if (typeof n.id !== "string" || typeof n.at !== "number") continue;
-    const wrong = str(n.wrong, 200);
-    const right = str(n.right, 200);
-    if (!(wrong || right) || wrong === right) continue;
-    out.push({
-      id: n.id.slice(0, 40),
-      wrong,
-      right,
-      type: (ERROR_TYPES as readonly string[]).includes(n.type as string) ? (n.type as ErrorType) : "other",
-      why: str(n.why, 300),
-      point: typeof n.point === "string" && /^[a-z0-9-]{2,40}$/.test(n.point) ? n.point : "",
-      at: n.at,
-      from: str(n.from, 80),
-    });
-  }
-  return out.length ? out.slice(0, MAX_NOTES) : undefined;
-}
-
-/** Tasks the AI wrote, read back from storage or a backup. */
-export function sanitizeAiTasks(v: unknown): EssayTask[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const out: EssayTask[] = [];
-  for (const x of v) {
-    const t = buildTask(x, typeof (x as Record<string, unknown>)?.id === "string" ? ((x as Record<string, unknown>).id as string) : "");
-    if (t && isAiTask(t.id)) out.push(t);
-  }
-  return out.length ? out.slice(0, MAX_AI_TASKS) : undefined;
-}
-
-/**
- * A task from what the AI wrote (or from storage): the text fields are trimmed and bounded; `level` and `genre`
- * must be ones we know. Null when the task is unusable (no instruction, no points or no plan).
- */
-export function buildTask(raw: unknown, id: string): EssayTask | null {
-  if (!raw || typeof raw !== "object") return null;
-  const r = raw as Record<string, unknown>;
-  const level = r.level === "B1" || r.level === "B2" ? r.level : null;
-  const genre = (GENRES as readonly string[]).includes(r.genre as string) ? (r.genre as Genre) : null;
-  if (!level || !genre || !id) return null;
-  const pairs = (v: unknown, a: string, b: string, n: number) =>
-    (Array.isArray(v) ? v : [])
-      .filter((p): p is Record<string, unknown> => !!p && typeof p === "object")
-      .map((p) => [str(p[a], 300), str(p[b], 300)] as [string, string])
-      .filter(([x, y]) => x && y)
-      .slice(0, n);
-  const plan = pairs(r.plan, "zh", "fr", 6).map(([zh, fr]) => ({ zh, fr }));
-  // phrases arrive from the AI as {fr, zh} and from storage as [fr, zh]
-  const phrases = pairs((Array.isArray(r.phrases) ? r.phrases : []).map((p) => (Array.isArray(p) ? { fr: p[0], zh: p[1] } : p)), "fr", "zh", 10);
-  const points = list(r.points, 6);
-  const title = str(r.title, 60);
-  const situation = str(r.situation, 300);
-  const consigne = str(r.consigne, 500);
-  if (!title || !situation || !consigne || points.length < 2 || plan.length < 3) return null;
-  const doc = str(r.doc, 1200);
-  const topic = typeof r.topic === "string" && r.topic ? r.topic.slice(0, 30) : undefined;
-  return { id: id.slice(0, 40), level, genre, title, situation, consigne, words: wordsFor(level, genre), points, plan, phrases, ...(doc ? { doc } : {}), ...(topic ? { topic } : {}) };
 }

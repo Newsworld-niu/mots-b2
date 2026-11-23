@@ -1,6 +1,6 @@
 import { migrateCoreDeck } from "./store/decks";
-import { BookA, BookOpen, BookOpenText, ChevronLeft, ChevronRight, Compass, Github, Keyboard, Layers, Moon, Search, Sun, User } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { BookA, ChevronLeft, ChevronRight, Compass, Github, Keyboard, Layers, Moon, Search, Sun, User } from "lucide-react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { AtlasContext, useAtlas, useEntry } from "./atlas/context";
 import { loadOpenAtlas } from "./atlas/data";
 import { withUserData } from "./atlas/merge";
@@ -8,45 +8,63 @@ import { loadImages, useImages } from "./store/images";
 import type { Atlas } from "./atlas/types";
 import { REPO_URL } from "./config";
 import { closeWord, currentLocation, go, openWord, useLocation, type Route } from "./lib/router";
-import { AtlasPage } from "./pages/Atlas";
-import { About } from "./pages/About";
-import { Learn } from "./pages/Learn";
-import { Me } from "./pages/Me";
-import { Onboarding } from "./pages/Onboarding";
-import { Practice } from "./pages/Practice";
-import { Read } from "./pages/Read";
-import { Conj } from "./pages/Conj";
-import { Grammar } from "./pages/Grammar";
-import { Compare } from "./pages/Compare";
-import { Decks } from "./pages/Decks";
-import { Dict } from "./pages/Dict";
 import { Today } from "./pages/Today";
 import { cue } from "./lib/sound";
 import { downloadBackupFile } from "./lib/backup";
 import { store, useStore } from "./store/store";
-import { startSync } from "./sync/engine";
-import { EntryView } from "./ui/EntryView";
+import { useSyncState } from "./sync/state";
 import { AmbienceController, AmbiencePicker } from "./ui/Ambience";
+
+const Onboarding = lazy(() => import("./pages/Onboarding").then((m) => ({ default: m.Onboarding })));
+const EntryView = lazy(() => import("./ui/EntryView").then((m) => ({ default: m.EntryView })));
+const Palette = lazy(() => import("./ui/Palette").then((m) => ({ default: m.Palette })));
+const SyncConflictDialog = lazy(() => import("./ui/SyncConflictDialog").then((m) => ({ default: m.SyncConflictDialog })));
+import { ConfirmSheetHost } from "./ui/ConfirmSheet";
 import { Logo } from "./ui/Logo";
-import { Palette } from "./ui/Palette";
 import { Sheet } from "./ui/Sheet";
 import { shouldShowSplash, Splash } from "./ui/Splash";
-import { SyncConflictDialog } from "./ui/SyncConflictDialog";
 import { Toasts } from "./ui/Toast";
 import { UpdateNote } from "./ui/UpdateNote";
 
-const NAV: { page: Route["page"]; label: string; icon: typeof Compass }[] = [
+const AtlasPage = lazy(() => import("./pages/Atlas").then((m) => ({ default: m.AtlasPage })));
+const About = lazy(() => import("./pages/About").then((m) => ({ default: m.About })));
+const Learn = lazy(() => import("./pages/Learn").then((m) => ({ default: m.Learn })));
+const Me = lazy(() => import("./pages/Me").then((m) => ({ default: m.Me })));
+const Practice = lazy(() => import("./pages/Practice").then((m) => ({ default: m.Practice })));
+const Read = lazy(() => import("./pages/Read").then((m) => ({ default: m.Read })));
+const Conj = lazy(() => import("./pages/Conj").then((m) => ({ default: m.Conj })));
+const Grammar = lazy(() => import("./pages/Grammar").then((m) => ({ default: m.Grammar })));
+const Compare = lazy(() => import("./pages/Compare").then((m) => ({ default: m.Compare })));
+const Decks = lazy(() => import("./pages/Decks").then((m) => ({ default: m.Decks })));
+const Dict = lazy(() => import("./pages/Dict").then((m) => ({ default: m.Dict })));
+const MockExam = lazy(() => import("./pages/MockExam").then((m) => ({ default: m.MockExam })));
+const SpeakingStudio = lazy(() => import("./pages/Speaking").then((m) => ({ default: m.SpeakingStudio })));
+const ComprehensionStudio = lazy(() => import("./pages/Comprehension").then((m) => ({ default: m.ComprehensionStudio })));
+const EssayStudio = lazy(() => import("./pages/Essay").then((m) => ({ default: m.EssayStudio })));
+const RealListening = lazy(() => import("./pages/RealListening").then((m) => ({ default: m.RealListening })));
+const DrillStudio = lazy(() => import("./pages/Drill").then((m) => ({ default: m.DrillStudio })));
+const ExprStudio = lazy(() => import("./pages/Expressions").then((m) => ({ default: m.ExprStudio })));
+const MistakeReflow = lazy(() => import("./pages/MistakeReflow").then((m) => ({ default: m.MistakeReflow })));
+const Lounge = lazy(() => import("./pages/Lounge").then((m) => ({ default: m.Lounge })));
+
+const MAIN_NAV: { page: Route["page"]; label: string; icon: typeof Compass }[] = [
   { page: "today", label: "今日", icon: Compass },
-  { page: "atlas", label: "图鉴", icon: BookOpen },
-  { page: "dict", label: "词典", icon: BookA },
-  { page: "practice", label: "练习", icon: Keyboard },
-  { page: "read", label: "阅读", icon: BookOpenText },
+  { page: "practice", label: "应试", icon: Keyboard },
+  { page: "dict", label: "词库", icon: BookA },
   { page: "grammar", label: "语法", icon: Layers },
   { page: "me", label: "我的", icon: User },
 ];
 
-/** 卡组 lives under 图鉴 in the navigation. */
-const navOn = (current: Route["page"], tab: Route["page"]) => current === tab || (tab === "atlas" && current === "decks") || (tab === "grammar" && current === "conj");
+const STUDIO_ROUTES = new Set<Route["page"]>(["mock", "speak", "listen", "examread", "essay", "real", "drill", "expr", "reflow", "read"]);
+
+/** Five unified pillars across desktop & mobile: 今日 / 应试 / 词库 / 语法 / 我的. */
+const navOn = (current: Route["page"], tab: Route["page"]) =>
+  current === tab ||
+  (tab === "today" && (current === "learn" || current === "lounge")) ||
+  (tab === "practice" && STUDIO_ROUTES.has(current)) ||
+  (tab === "dict" && (current === "atlas" || current === "decks" || current === "compare")) ||
+  (tab === "grammar" && current === "conj") ||
+  (tab === "me" && current === "about");
 
 function useTheme() {
   const theme = useStore((s) => s.settings.theme);
@@ -142,7 +160,9 @@ function Shell() {
   const saveError = useStore((s) => s.saveError);
   const [palette, setPalette] = useState(false);
   const [splash, setSplash] = useState(shouldShowSplash);
+  const syncConflict = useSyncState().conflict;
   const focus = route.page === "learn";
+  const immersiveLounge = route.page === "lounge" && Boolean(route.item);
 
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
@@ -161,7 +181,7 @@ function Shell() {
   }, [focus]);
 
   useEffect(() => {
-    startSync();
+    void import("./sync/engine").then((m) => m.startSync());
   }, []);
 
   useEffect(() => {
@@ -171,14 +191,14 @@ function Shell() {
   const dark = theme === "dark" || (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
 
   return (
-    <div className={`app ${focus ? "is-focus" : ""}`}>
+    <div className={`app ${focus ? "is-focus" : ""} ${immersiveLounge ? "is-lounge-item" : ""}`}>
       {!focus && (
         <header className="topbar">
           <a className="topbar-logo" href="#/" aria-label="法语词光首页">
             <Logo />
           </a>
           <nav className="topnav" aria-label="主导航">
-            {NAV.map(({ page, label }) => (
+            {MAIN_NAV.map(({ page, label }) => (
               <a key={page} href={page === "today" ? "#/" : `#/${page}`} className={navOn(route.page, page) ? "is-on" : ""} aria-current={navOn(route.page, page) ? "page" : undefined}>
                 {label}
               </a>
@@ -210,25 +230,43 @@ function Shell() {
             </button>
           </div>
         )}
-        {route.page === "today" && <Today />}
-        {route.page === "atlas" && <AtlasPage route={route} />}
-        {route.page === "dict" && <Dict word={route.w} query={route.q} />}
-        {route.page === "learn" && <Learn />}
-        {route.page === "practice" && <Practice />}
-        {route.page === "read" && <Read textId={route.t} />}
-        {route.page === "conj" && <Conj />}
-        {route.page === "grammar" && <Grammar pointId={route.p} sheet={!!route.sheet} />}
-        {route.page === "compare" && <Compare focusId={route.g} />}
-        {route.page === "me" && <Me />}
-        {route.page === "about" && <About />}
-        {route.page === "decks" && <Decks deckId={route.d} />}
+        <Suspense fallback={
+          <div className="page skeleton-page" aria-busy="true" aria-label="页面加载中">
+            <span className="skeleton-line is-sm" />
+            <span className="skeleton-line is-lg" />
+            <span className="skeleton-line is-md" />
+          </div>
+        }>
+          {route.page === "today" && <Today />}
+          {route.page === "atlas" && <AtlasPage route={route} />}
+          {route.page === "dict" && <Dict word={route.w} query={route.q} />}
+          {route.page === "learn" && <Learn />}
+          {route.page === "practice" && <Practice />}
+          {route.page === "mock" && <MockExam onExit={() => go({ page: "practice" })} />}
+          {route.page === "speak" && <SpeakingStudio onExit={() => go({ page: "practice" })} />}
+          {route.page === "listen" && <ComprehensionStudio key="listen" kind="listen" onExit={() => go({ page: "practice" })} />}
+          {route.page === "examread" && <ComprehensionStudio key="read" kind="read" onExit={() => go({ page: "practice" })} />}
+          {route.page === "essay" && <EssayStudio onExit={() => go({ page: "practice" })} />}
+          {route.page === "real" && <RealListening onExit={() => go({ page: "practice" })} />}
+          {route.page === "drill" && <DrillStudio onExit={() => go({ page: "practice" })} />}
+          {route.page === "expr" && <ExprStudio onExit={() => go({ page: "practice" })} />}
+          {route.page === "reflow" && <MistakeReflow onExit={() => go({ page: "practice" })} />}
+          {route.page === "read" && <Read textId={route.t} />}
+          {route.page === "conj" && <Conj />}
+          {route.page === "grammar" && <Grammar pointId={route.p} sheet={!!route.sheet} sprint={route.sprint} />}
+          {route.page === "compare" && <Compare focusId={route.g} />}
+          {route.page === "me" && <Me />}
+          {route.page === "about" && <About />}
+          {route.page === "decks" && <Decks deckId={route.d} />}
+          {route.page === "lounge" && <Lounge route={route} />}
+        </Suspense>
       </main>
 
-      {!focus && (
+      {!focus && !immersiveLounge && (
         <footer className="footer">
           <Logo compact />
           <p>
-            基础到 B2 的法语词图 · 免费开源 ·{" "}
+            DELF B2 全科备考与法语词典 · 免费开源 ·{" "}
             <a href={REPO_URL} target="_blank" rel="noreferrer">
               GitHub
             </a>{" "}
@@ -237,9 +275,9 @@ function Shell() {
         </footer>
       )}
 
-      {!focus && (
-        <nav className="tabbar" aria-label="主导航">
-          {NAV.map(({ page, label, icon: Icon }) => (
+      {!focus && !immersiveLounge && (
+        <nav className="tabbar" aria-label="底部主导航">
+          {MAIN_NAV.map(({ page, label, icon: Icon }) => (
             <a key={page} href={page === "today" ? "#/" : `#/${page}`} className={navOn(route.page, page) ? "is-on" : ""} aria-current={navOn(route.page, page) ? "page" : undefined}>
               <Icon size={22} strokeWidth={navOn(route.page, page) ? 2.1 : 1.7} />
               <span>{label}</span>
@@ -249,11 +287,12 @@ function Shell() {
       )}
 
       <WordSheet id={target} />
-      <Palette open={palette} onClose={() => setPalette(false)} />
-      {!onboarded && route.page !== "about" && !splash && <Onboarding />}
+      <ConfirmSheetHost />
+      {palette && <Suspense fallback={null}><Palette open={palette} onClose={() => setPalette(false)} /></Suspense>}
+      {!onboarded && route.page !== "about" && !splash && <Suspense fallback={null}><Onboarding /></Suspense>}
       {splash && <Splash onDone={() => setSplash(false)} />}
       <Toasts />
-      <SyncConflictDialog />
+      {syncConflict && <Suspense fallback={null}><SyncConflictDialog /></Suspense>}
       <UpdateNote />
       <AmbienceController />
     </div>
@@ -279,7 +318,8 @@ function WordSheet({ id }: { id: string | null }) {
   useEffect(() => {
     if (!id) return;
     const on = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).tagName === "INPUT") return;
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable)) return;
       if (e.key === "ArrowLeft") neighbor(-1);
       if (e.key === "ArrowRight") neighbor(1);
     };
@@ -289,7 +329,9 @@ function WordSheet({ id }: { id: string | null }) {
   return (
     <Sheet open={!!id} onClose={closeWord} label={ref ? `${ref.word} 词条` : "词条"} wide>
       {entry ? (
-        <EntryView key={entry.id} entry={entry} />
+        <Suspense fallback={<div className="sheet-loading"><span className="spinner" /></div>}>
+          <EntryView key={entry.id} entry={entry} />
+        </Suspense>
       ) : error ? (
         <p className="sheet-error">{error}</p>
       ) : (

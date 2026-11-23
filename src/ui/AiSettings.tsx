@@ -1,10 +1,13 @@
-import { Check, ChevronDown, Eye, EyeOff, Volume2 } from "lucide-react";
+import { Check, ChevronDown, Eye, EyeOff, Sparkles, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { azureSpeak, azureVoices, listImageModels, listModels, type AzureVoice } from "../ai/clients";
-import { DEFAULT_IMAGE_MODELS, DEFAULT_MODELS, GRADING_RECOMMENDED_MODELS, IMAGE_PROVIDERS, TEXT_PROVIDERS, VISION_PROVIDERS, getAiConfig, setAiConfig, useAiConfig, type AiConfig, type TextProvider } from "../ai/config";
+import { azureSpeak, azureVoices, listImageModels, listModels, testTextProvider, type AzureVoice } from "../ai/clients";
+import { DEFAULT_IMAGE_MODELS, DEFAULT_MODELS, GRADING_RECOMMENDED_MODELS, IMAGE_PROVIDERS, sanitizeBaseUrl, STT_PROVIDERS, TEXT_PROVIDERS, VISION_PROVIDERS, getAiConfig, setAiConfig, useAiConfig, type AiConfig, type SttProvider, type TextProvider } from "../ai/config";
 import { proxyAvailable } from "../ai/proxy";
 import { clearTtsCache, ttsCacheSize } from "../ai/tts";
+import { resetAiUsage, useAiUsage } from "../ai/usage";
 import { toast } from "./Toast";
+
+const STT_LABEL: Record<SttProvider, string> = { none: "关闭", openai: "复用 OpenAI", custom: "自定义 Whisper 接口" };
 
 const LABEL: Record<TextProvider, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic", openrouter: "OpenRouter" };
 
@@ -67,13 +70,21 @@ function useModels() {
     [load],
   );
 
-  const test = async (p: TextProvider) => {
+  const test = async (p: TextProvider): Promise<boolean> => {
     setTesting(p);
     try {
-      const list = await load(p);
-      toast(`${LABEL[p]} 连接成功，有 ${list.length} 个模型可选`, "ok");
+      const res = await testTextProvider(p);
+      if (res.models.length) {
+        known.models = { ...known.models, [p]: res.models };
+        setModels(known.models);
+      }
+      const modeHint = res.compatMode && res.compatMode !== "strict" ? ` · 已自动适配 ${res.compatMode} 兼容协议` : "";
+      const listNote = res.models.length ? `读取 ${res.models.length} 个模型` : "结构化 JSON 探活通过";
+      toast(`${LABEL[p]} 连接成功（${listNote}${modeHint}）`, "ok");
+      return true;
     } catch (e) {
       toast((e as Error).message, "warn");
+      return false;
     } finally {
       setTesting(null);
     }
@@ -219,6 +230,7 @@ function ModelField({
 /** 我的 → AI 接口: keys, which service does which job, the Azure voice. */
 export function AiSettings() {
   const c = useAiConfig();
+  const usage = useAiUsage();
   const set = (patch: Partial<AiConfig>) => setAiConfig(patch);
   const setKey = (k: keyof AiConfig["keys"], v: string) => setAiConfig((x) => ({ ...x, keys: { ...x.keys, [k]: v } }));
   const { models, imageModels, testing, loading, test, ensure } = useModels();
@@ -226,19 +238,80 @@ export function AiSettings() {
   const [voices, setVoices] = useState<AzureVoice[] | null>(null);
   const [azBusy, setAzBusy] = useState(false);
   const [cached, setCached] = useState<number | null>(null);
+  const [openAiBaseDraft, setOpenAiBaseDraft] = useState(c.openaiBaseUrl);
+  const [sttBaseDraft, setSttBaseDraft] = useState(c.stt.baseUrl);
+  useEffect(() => {
+    setOpenAiBaseDraft(c.openaiBaseUrl);
+  }, [c.openaiBaseUrl]);
+  useEffect(() => {
+    setSttBaseDraft(c.stt.baseUrl);
+  }, [c.stt.baseUrl]);
   useEffect(() => {
     void proxyAvailable().then(setProxy);
     void ttsCacheSize().then(setCached);
   }, []);
   // The services in use get their model lists read on their own; after a key is typed, once the typing has paused.
   const inUse = [...new Set<TextProvider>([c.vision.provider, c.text.provider, c.image.provider])];
-  const inUseKeys = inUse.map((p) => `${p}:${c.keys[p]}`).join("|");
+  const inUseKeys = inUse.map((p) => `${p}:${c.keys[p]}`).join("|") + `|${c.openaiBaseUrl}`;
   useEffect(() => {
     const t = setTimeout(() => inUse.forEach(ensure), 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inUseKeys, ensure]);
   const field = (p: TextProvider) => ({ provider: p, busy: loading.includes(p), hasKey: !!c.keys[p] });
+
+  const WIZARD_PRESETS: { provider: TextProvider; badge: string; title: string; placeholder: string; hint: string }[] = [
+    { provider: "openrouter", badge: "一站全能 · 推荐", title: "OpenRouter", placeholder: "sk-or-…", hint: "1 个 Key 同时配齐 B2 批改、拍照识图与配图" },
+    { provider: "deepseek", badge: "极低费率", title: "DeepSeek", placeholder: "sk-…", hint: "直连高性价比文本批改与出题" },
+    { provider: "openai", badge: "官方 / 中转", title: "OpenAI / 兼容", placeholder: "sk-…", hint: "全功能支持 + 自定义 Base URL 中转 / Whisper" },
+    { provider: "anthropic", badge: "长文精细", title: "Anthropic Claude", placeholder: "sk-ant-…", hint: "深度语法批改 + 拍照识图" },
+  ];
+  const [wizProvider, setWizProvider] = useState<TextProvider>(() => TEXT_PROVIDERS.find((p) => c.keys[p]) ?? "openrouter");
+  const [wizKey, setWizKey] = useState(() => c.keys[TEXT_PROVIDERS.find((p) => c.keys[p]) ?? "openrouter"] ?? "");
+  const [wizBase, setWizBase] = useState(() => c.openaiBaseUrl);
+  const [wizStatus, setWizStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  const hasMultipleKeys = Object.values(c.keys).filter(Boolean).length > 1 || Boolean(c.keys.azure);
+
+  const pickWizProvider = (p: TextProvider) => {
+    setWizProvider(p);
+    setWizKey(c.keys[p] ?? "");
+    setWizStatus(null);
+  };
+
+  const applyWizard = async () => {
+    const trimmed = wizKey.trim();
+    if (!trimmed) {
+      toast("请先粘贴 API Key", "warn");
+      return;
+    }
+    const cleanBase = wizProvider === "openai" ? sanitizeBaseUrl(wizBase) : c.openaiBaseUrl;
+    if (wizProvider === "openai" && wizBase.trim() && !cleanBase) {
+      toast("兼容接口地址须以 https:// 或本机 http://localhost 开头", "warn");
+      return;
+    }
+    const patch: Partial<AiConfig> = {
+      keys: { ...c.keys, [wizProvider]: trimmed },
+      ...(wizProvider === "openai" ? { openaiBaseUrl: cleanBase } : {}),
+      text: {
+        provider: wizProvider,
+        model: wizProvider === "openrouter" ? GRADING_RECOMMENDED_MODELS.openrouter[0] : DEFAULT_MODELS[wizProvider],
+      },
+    };
+    if (wizProvider === "openrouter") {
+      patch.vision = { provider: "openrouter", model: DEFAULT_MODELS.openrouter };
+      patch.image = { provider: "openrouter", model: DEFAULT_IMAGE_MODELS.openrouter };
+    } else if (wizProvider === "openai") {
+      patch.vision = { provider: "openai", model: DEFAULT_MODELS.openai };
+      patch.image = { provider: "openai", model: DEFAULT_IMAGE_MODELS.openai };
+      if (!cleanBase) patch.stt = { ...c.stt, provider: "openai" };
+    } else if (wizProvider === "anthropic") {
+      patch.vision = { provider: "anthropic", model: DEFAULT_MODELS.anthropic };
+    }
+    set(patch);
+    setWizStatus(null);
+    const ok = await test(wizProvider);
+    setWizStatus({ ok, text: ok ? `连接成功 · 已自动配齐 ${LABEL[wizProvider]} 默认模型` : "连接失败，请检查 Key 或网络地址" });
+  };
 
   const loadVoices = async () => {
     setAzBusy(true);
@@ -254,10 +327,15 @@ export function AiSettings() {
   };
   const listen = async (voice: string) => {
     setAzBusy(true);
+    let url = "";
     try {
-      const a = new Audio(URL.createObjectURL(await azureSpeak("Bonjour ! Je m'appelle Claire, et j'habite à Lyon.", voice)));
+      url = URL.createObjectURL(await azureSpeak("Bonjour ! Je m'appelle Claire, et j'habite à Lyon.", voice));
+      const a = new Audio(url);
+      a.onended = () => URL.revokeObjectURL(url);
+      a.onerror = () => URL.revokeObjectURL(url);
       await a.play();
     } catch (e) {
+      if (url) URL.revokeObjectURL(url);
       toast((e as Error).message, "warn");
     } finally {
       setAzBusy(false);
@@ -274,11 +352,101 @@ export function AiSettings() {
     <div className="ai-settings">
       <p className="wf-hint">Key 只保存在这台设备上，不会写进备份。{proxy ? "请求经本机的开发服务转发到各家接口。" : "请求由这台设备直接发给各家接口。"}</p>
 
-      <h3 className="eyebrow">接口 Key</h3>
+      <section className="ai-wizard" aria-label="1 步快速开通 AI">
+        <div className="ai-wizard-head">
+          <h3 className="eyebrow">
+            <Sparkles size={14} /> 1 步快速开通（推荐）
+          </h3>
+          <span className="muted small">选一家服务并贴入 1 个 Key，自动分配文本批改 / 识图 / 默认推荐模型并探活</span>
+        </div>
+        <div className="ai-wizard-presets" role="group" aria-label="选择 AI 服务商">
+          {WIZARD_PRESETS.map((item) => {
+            const on = wizProvider === item.provider;
+            const configured = Boolean(c.keys[item.provider]);
+            return (
+              <button
+                key={item.provider}
+                type="button"
+                className={`ai-wizard-card ${on ? "is-on" : ""}`}
+                aria-pressed={on}
+                onClick={() => pickWizProvider(item.provider)}
+              >
+                <div className="ai-wizard-card-top">
+                  <b>{item.title}</b>
+                  <span className="chip">{configured ? "已填 Key" : item.badge}</span>
+                </div>
+                <small>{item.hint}</small>
+              </button>
+            );
+          })}
+        </div>
+        <div className="ai-wizard-inputs">
+          <KeyField
+            label={`${LABEL[wizProvider]} API Key`}
+            value={wizKey}
+            onChange={setWizKey}
+            placeholder={WIZARD_PRESETS.find((x) => x.provider === wizProvider)?.placeholder ?? "sk-…"}
+          />
+          {wizProvider === "openai" && (
+            <label className="wf-field">
+              <span>兼容 Base URL（选填，官网直连留空）</span>
+              <input
+                value={wizBase}
+                onChange={(e) => setWizBase(e.target.value)}
+                placeholder="https://your-relay.com/v1"
+                spellCheck={false}
+              />
+            </label>
+          )}
+        </div>
+        <div className="writing-actions">
+          <button type="button" className="btn btn-primary" onClick={() => void applyWizard()} disabled={testing !== null}>
+            {testing === wizProvider ? "探活测试中…" : "保存并自动配齐 · 测试连接"}
+          </button>
+          {wizStatus && (
+            <span className={`small ${wizStatus.ok ? "is-ok" : "warn-text"}`} role="status">
+              {wizStatus.text}
+            </span>
+          )}
+        </div>
+      </section>
+
+      <details className="ai-advanced" open={hasMultipleKeys}>
+        <summary className="ai-advanced-summary">
+          <span>高级配置：多接口 Key 分工、自定义模型、Azure 语音与 Whisper 兜底</span>
+          <ChevronDown size={16} />
+        </summary>
+        <div className="ai-advanced-body">
+          <h3 className="eyebrow">接口 Key</h3>
       <div className="ai-row">
         <KeyField label="OpenAI" value={c.keys.openai} onChange={(v) => setKey("openai", v)} placeholder="sk-…" />
         {testBtn("openai")}
       </div>
+      <label className="wf-field">
+        <span>OpenAI 兼容接口地址 Base URL（选填，直连国内中转 / Groq / 本地 Ollama 时填）</span>
+        <input
+          value={openAiBaseDraft}
+          onChange={(e) => {
+            const v = e.target.value;
+            setOpenAiBaseDraft(v);
+            if (!v.trim()) set({ openaiBaseUrl: "" });
+            else {
+              const clean = sanitizeBaseUrl(v);
+              if (clean && !v.trim().endsWith("/")) set({ openaiBaseUrl: clean });
+            }
+          }}
+          onBlur={() => {
+            const clean = sanitizeBaseUrl(openAiBaseDraft);
+            set({ openaiBaseUrl: clean });
+            setOpenAiBaseDraft(clean);
+          }}
+          placeholder="留空走官方 api.openai.com；支持如 https://your-relay.com/v1"
+          spellCheck={false}
+        />
+        {openAiBaseDraft.trim() && !sanitizeBaseUrl(openAiBaseDraft) && (
+          <small className="warn-text">仅支持以 https:// 开头的域名或本机 http://localhost / 127.0.0.1 地址</small>
+        )}
+      </label>
       <div className="ai-row">
         <KeyField label="DeepSeek" value={c.keys.deepseek} onChange={(v) => setKey("deepseek", v)} placeholder="sk-…" />
         {testBtn("deepseek")}
@@ -411,6 +579,74 @@ export function AiSettings() {
           <Check size={13} /> 已开启
         </p>
       )}
+
+      <h3 className="eyebrow">口语语音转写 · Whisper 兜底</h3>
+      <div className="ai-job">
+        <b>浏览器识别失败时自动转写（支持 Whisper / Groq）</b>
+        <small>若浏览器自带法语识别不可用且未配 Azure，停止录音后可自动调用兼容 <code>/audio/transcriptions</code> 的接口转写。</small>
+        <div className="segmented">
+          {STT_PROVIDERS.map((p) => (
+            <button key={p} type="button" className={c.stt.provider === p ? "is-on" : ""} onClick={() => set({ stt: { ...c.stt, provider: p } })}>
+              {STT_LABEL[p]}
+            </button>
+          ))}
+        </div>
+        {c.stt.provider !== "none" && (
+          <>
+            {c.stt.provider === "custom" && (
+              <>
+                <label className="wf-field">
+                  <span>Whisper 接口地址（如 https://api.groq.com/openai/v1）</span>
+                  <input
+                    value={sttBaseDraft}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setSttBaseDraft(v);
+                      if (!v.trim()) set({ stt: { ...c.stt, baseUrl: "" } });
+                      else {
+                        const clean = sanitizeBaseUrl(v);
+                        if (clean && !v.trim().endsWith("/")) set({ stt: { ...c.stt, baseUrl: clean } });
+                      }
+                    }}
+                    onBlur={() => {
+                      const clean = sanitizeBaseUrl(sttBaseDraft);
+                      set({ stt: { ...c.stt, baseUrl: clean } });
+                      setSttBaseDraft(clean);
+                    }}
+                    placeholder="https://api.groq.com/openai/v1"
+                    spellCheck={false}
+                  />
+                  {sttBaseDraft.trim() && !sanitizeBaseUrl(sttBaseDraft) && (
+                    <small className="warn-text">仅支持 https:// 或本机 http://localhost / 127.0.0.1 地址</small>
+                  )}
+                </label>
+                <KeyField label="Whisper 接口 Key" value={c.stt.apiKey} onChange={(v) => set({ stt: { ...c.stt, apiKey: v } })} placeholder="gsk_… 或 sk-…" />
+              </>
+            )}
+            <label className="wf-field">
+              <span>转写模型名</span>
+              <input value={c.stt.model} onChange={(e) => set({ stt: { ...c.stt, model: e.target.value } })} placeholder="whisper-1 或 whisper-large-v3-turbo" spellCheck={false} />
+            </label>
+          </>
+        )}
+      </div>
+
+      <h3 className="eyebrow">本地 AI 用量估算</h3>
+      <div className="ai-job">
+        <b>本浏览器累计调用：{usage.calls} 次</b>
+        <small>
+          输入约 {usage.promptTokens.toLocaleString("en-US")} tokens · 输出约 {usage.completionTokens.toLocaleString("en-US")} tokens · 估算费用约 ${usage.estimatedUsd.toFixed(4)}（仅供参考，按官方费率粗算）
+        </small>
+            {usage.calls > 0 && (
+              <div>
+                <button type="button" className="link" onClick={resetAiUsage}>
+                  清零统计
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </details>
     </div>
   );
 }

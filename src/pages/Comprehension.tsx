@@ -1,76 +1,46 @@
-import { ArrowLeft, ArrowRight, Check, FastForward, Headphones, ListPlus, Play, RotateCcw, Square, Star, Trash2, X } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ready, useAiConfig } from "../ai/config";
 import { buildDialogueSsmlBatches } from "../ai/ssml";
-import { makeComprehension } from "../ai/tasks";
+import { explainDistractor, makeComprehension, type DistractorExplanation } from "../ai/tasks";
+import { generateTrackComprehension } from "../ai/tasks/exam";
 import { speakerVoices, ttsOn, ttsSsmlUrl, ttsUrl } from "../ai/tts";
+import { isAcousticEnv, startAcousticBed, stopAcousticBed, type AcousticEnv } from "../lib/audio-env";
 import { play, stopAudio } from "../lib/audio";
 import { countWords } from "../lib/essay";
-import { BETWEEN_PLAYS, clock, COMP_LABEL, exercisePoints, FORM_SPEC, gradeCompQuestion, outOf25, PAPER, QSKILL_LABEL, READ_MINUTES, REAL_WPM, speakerIndex, speechChunks, speechTurns, TOPICS, topicOf, type CompExercise, type CompForm, type CompKind } from "../lib/exam";
-import { accentNames, sentencesOf, CAUSE_LABEL, CAUSE_TIP, causeFromSkill, MISS_CAUSES, missStats, pickVoices, skillStats, type CompMiss, type DocVoices, type MissCause, type VoiceMode } from "../lib/listening";
-import { PRESET_PAPERS } from "../lib/exam-presets";
-import { LISTENING_NOISE, startListeningNoise, stopListeningNoise, type ListeningNoiseId } from "../lib/sound";
-import { addAttempt, deletePaper, savePaper, starPaper, useBank, wrongKeys, type BankPaper } from "../store/exam-bank";
-import { addMisses, setMissCause } from "../store/misses";
-import { TranscriptWords } from "../ui/TranscriptWords";
-import { IntensiveDoc } from "./Intensive";
-import { RealListening } from "./RealListening";
-import "../styles/listening.css";
-import { missLinksFor } from "../lib/miss-links";
-import { href } from "../lib/router";
+import { BETWEEN_PLAYS, clock, COMP_LABEL, exercisePoints, FORM_SPEC, gradeCompQuestion, outOf25, PAPER, READ_MINUTES, speakerIndex, speechChunks, speechTurns, TOPICS, topicOf, type CompExercise, type CompKind } from "../lib/exam";
+import { scoreTcfReceptive, scoreTefItems699, TRACK_META, type ExamTrack } from "../lib/exam-tracks";
+import { buildCompMissSnapshot, pickVoices, resolveMaterialUrl, sentencesOf, type CompMiss, type DocVoices, type MissCause, type VoiceMode } from "../lib/listening";
+import { useNavGuard } from "../lib/nav-guard";
+import { go } from "../lib/router";
+import { startListeningNoise, stopListeningNoise, type ListeningNoiseId } from "../lib/sound";
 import { useTimer } from "../lib/timer";
+import type { TrackPaper } from "../lib/tcf-tef-presets";
 import { logExam } from "../store/essays";
-import { useStore } from "../store/store";
+import { addAttempt, savePaper, useBank, wrongKeys, type BankPaper } from "../store/exam-bank";
+import { addMisses, setMissCause } from "../store/misses";
+import { store, useStore } from "../store/store";
+import "../styles/listening.css";
 import { toast } from "../ui/Toast";
 import { WordPopup } from "../ui/WordPopup";
-import { defaultCompFormat, effectiveCompFormat, normalizeCompQuestionForKind, shouldShowCitationInput, shouldShowCompFormatPicker, type CompQFormat } from "./comprehension-helpers";
-
-const day = (ms: number) => new Date(ms).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" });
-const num = (n: number) => String(n).replace(".", ",");
-
-/** The voice's own pace (words per minute at normal speed), measured while it reads and kept on this device. */
-const PACE_KEY = "fb2.listen.wpm";
-const readPace = () => {
-  try {
-    const n = Number(localStorage.getItem(PACE_KEY));
-    return n > 80 && n < 320 ? n : 0;
-  } catch {
-    return 0;
-  }
-};
-/** How much to speed the voice up or slow it down to reach the pace of the official recordings. */
-const rateFor = (wpm: number, slow: boolean) => Math.min(1.4, Math.max(0.8, wpm ? REAL_WPM / wpm : 1)) * (slow ? 0.85 : 1);
-
-/** Listening choices kept on this device: which voices read, how the people speak, and ambient noise bed. */
-const VOICE_KEY = "fb2.listen.voices";
-const STYLE_KEY = "fb2.listen.style";
-const NOISE_KEY = "fb2.listen.noise";
-const CONTINUOUS_KEY = "fb2.listen.continuous";
-const NOISE_IDS = LISTENING_NOISE.map((n) => n.id) as readonly ListeningNoiseId[];
-const readKey = <T extends string>(key: string, ok: readonly T[], d: T): T => {
-  try {
-    const v = localStorage.getItem(key) as T | null;
-    return v && ok.includes(v) ? v : d;
-  } catch {
-    return d;
-  }
-};
-const writeKey = (key: string, v: string) => {
-  try {
-    localStorage.setItem(key, v);
-  } catch {
-    /* not remembered */
-  }
-};
-const VOICE_MODES: [VoiceMode, string][] = [
-  ["mixed", "多口音（法、加、比、瑞）"],
-  ["france", "法国口音，多换几个声音"],
-  ["fixed", "只用我设置的两个声音"],
-];
-const paperTopics = (p: Pick<BankPaper, "exs">) => [...new Set(p.exs.map((x) => topicOf(x.topic)?.zh ?? x.title))].join("、");
-
-type Phase = "setup" | "making" | "work" | "done";
-type What = CompForm | "paper";
+import { defaultCompFormat, effectiveCompFormat, normalizeCompQuestionForKind, projectQuestionForMissSnapshot, type CompQFormat } from "./comprehension-helpers";
+import { CompExerciseBody } from "./comprehension/CompExerciseBody";
+import { CompSetupView } from "./comprehension/CompSetupView";
+import {
+  CONTINUOUS_KEY,
+  NOISE_IDS,
+  NOISE_KEY,
+  num,
+  PACE_KEY,
+  type Phase,
+  rateFor,
+  readKey,
+  readPace,
+  STYLE_KEY,
+  VOICE_KEY,
+  type What,
+  writeKey,
+} from "./comprehension/helpers";
 
 /**
  * 听力理解 / 应试阅读, in the form of the exam (new format): a whole paper is three exercises worth 9 + 9 + 7 points,
@@ -78,18 +48,52 @@ type What = CompForm | "paper";
  * read the questions, the recording (twice for a long one, once for the short ones), time to answer.
  */
 export function ComprehensionStudio({ kind, onExit }: { kind: CompKind; onExit: () => void }) {
-  const [real, setReal] = useState(false);
-  if (real) return <RealListening onExit={() => setReal(false)} />;
   return (
     <WordPopup>
-      <ComprehensionStudioBody kind={kind} onExit={onExit} onOpenReal={() => setReal(true)} />
+      <ComprehensionStudioBody kind={kind} onExit={onExit} onOpenReal={() => go({ page: "real" })} />
     </WordPopup>
   );
 }
 
+const ACOUSTIC_ENV_KEY = "fb2.comp.acousticEnv";
+const TRACK_AI_PAPERS_KEY = "fb2.track.aiPapers";
+
+function readStoredTrackAiPapers(): TrackPaper[] {
+  try {
+    const raw = localStorage.getItem(TRACK_AI_PAPERS_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? (parsed as TrackPaper[]).slice(0, 16) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveStoredTrackAiPaper(paper: TrackPaper): TrackPaper[] {
+  const next = [paper, ...readStoredTrackAiPapers().filter((p) => p.id !== paper.id)].slice(0, 16);
+  try {
+    localStorage.setItem(TRACK_AI_PAPERS_KEY, JSON.stringify(next));
+  } catch {
+    /* ignore storage quota */
+  }
+  return next;
+}
+
+function deleteStoredTrackAiPaper(id: string): TrackPaper[] {
+  const next = readStoredTrackAiPapers().filter((p) => p.id !== id);
+  try {
+    localStorage.setItem(TRACK_AI_PAPERS_KEY, JSON.stringify(next));
+  } catch {
+    /* ignore */
+  }
+  return next;
+}
+
 function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind; onExit: () => void; onOpenReal: () => void }) {
   const ai = useAiConfig();
-  const log = (useStore((s) => s.progress.examLog) ?? []).filter((r) => r.part === kind);
+  const examTrack: ExamTrack = useStore((s) => s.settings.examTrack) ?? "delf";
+  const allKindLog = (useStore((s) => s.progress.examLog) ?? []).filter((r) => r.part === kind);
+  const log = allKindLog.filter((r) => (examTrack === "delf" ? r.track !== "tcf" && r.track !== "tef" : r.track === examTrack));
   const misses = useStore((s) => s.progress.compMisses) ?? [];
   const bank = useBank();
   const listen = kind === "listen";
@@ -97,9 +101,23 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
   const [voiceMode, setVoiceMode] = useState<VoiceMode>(() => readKey(VOICE_KEY, ["mixed", "france", "fixed"], "mixed"));
   const [style, setStyle] = useState<"radio" | "natural">(() => readKey(STYLE_KEY, ["radio", "natural"], "natural"));
   const [noise, setNoise] = useState<ListeningNoiseId>(() => readKey(NOISE_KEY, NOISE_IDS, "off"));
+  const [acousticEnv, setAcousticEnvState] = useState<AcousticEnv>(() => {
+    try {
+      const v = localStorage.getItem(ACOUSTIC_ENV_KEY);
+      return isAcousticEnv(v) ? v : "clean";
+    } catch {
+      return "clean";
+    }
+  });
+  const setAcousticEnv = (next: AcousticEnv) => {
+    setAcousticEnvState(next);
+    writeKey(ACOUSTIC_ENV_KEY, next);
+  };
   const [continuousMock, setContinuousMock] = useState<boolean>(() => readKey(CONTINUOUS_KEY, ["0", "1"], "0") === "1");
+  const [trackPresets, setTrackPresets] = useState<TrackPaper[]>([]);
+  const [trackAiPapers, setTrackAiPapers] = useState<TrackPaper[]>(() => readStoredTrackAiPapers());
   /** The paper being done: its id in the bank, and the question keys asked when only the missed ones are. */
-  const [paper, setPaper] = useState<{ id: string; level: "B1" | "B2"; asked?: string[] } | null>(null);
+  const [paper, setPaper] = useState<{ id: string; level: "B1" | "B2"; track: ExamTrack; durationMinutes?: number; asked?: string[] } | null>(null);
   const [voices, setVoices] = useState<DocVoices[][]>([]);
   const [finishedAt, setFinishedAt] = useState(0);
   const [causes, setCauses] = useState<Record<string, MissCause>>({});
@@ -120,19 +138,29 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
   const [exs, setExs] = useState<CompExercise[]>([]);
   const [picked, setPicked] = useState<Record<string, number>>({});
   const [typed, setTyped] = useState<Record<string, string>>({});
+  const [struck, setStruck] = useState<Record<string, boolean>>({});
+  const [ceHl, setCeHl] = useState<Record<string, boolean>>({});
+  const [expls, setExpls] = useState<Record<string, DistractorExplanation>>({});
+  const [explBusy, setExplBusy] = useState<string | null>(null);
   const [heard, setHeard] = useState<Record<number, boolean>>({});
   const [pace, setPace] = useState<{ e: number; label: string; left: number | null } | null>(null);
   const [showZh, setShowZh] = useState(false);
+  const [activeCeKey, setActiveCeKey] = useState<string | null>(null);
+  const ceInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const activeCeRef = useRef<HTMLInputElement | null>(null);
   const ctrl = useRef<AbortController | null>(null);
   const run = useRef(0);
   const skip = useRef<(() => void) | null>(null);
   const timer = useTimer();
   const autoLocked = useRef(false);
 
+  useNavGuard(phase === "work", "套卷尚未交卷，离开将中断当前计时与作答，确定离开？");
+
   const halt = () => {
     run.current++;
     skip.current?.();
     stopAudio();
+    stopAcousticBed();
     setPace(null);
   };
 
@@ -141,9 +169,20 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
       ctrl.current?.abort();
       run.current++;
       stopAudio();
+      stopAcousticBed();
     },
     [],
   );
+  useEffect(() => {
+    if (examTrack === "delf") return;
+    let alive = true;
+    void import("../lib/tcf-tef-presets").then((m) => {
+      if (alive) setTrackPresets([...m.TCF_TEF_PRESET_PAPERS]);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [examTrack]);
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, [phase]);
@@ -151,49 +190,103 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
     setQFormat(defaultCompFormat(kind));
   }, [kind]);
 
+  const activeTrack: ExamTrack = phase === "setup" || phase === "making" ? examTrack : (paper?.track ?? examTrack);
+
   /** Start a paper: voices for every document, answers cleared, the reading clock started. */
-  const begin = (list: CompExercise[], p: { id: string; level: "B1" | "B2"; asked?: string[] }) => {
+  const begin = (list: CompExercise[], p: { id: string; level: "B1" | "B2"; track?: ExamTrack; durationMinutes?: number; asked?: string[] }) => {
+    const resolvedTrack = p.track ?? examTrack;
     const mode = azure && voiceMode !== "fixed" ? voiceMode : null;
     setVoices(list.map((ex) => ex.docs.map(() => (mode ? pickVoices(mode) : { voices: speakerVoices(), accents: [] }))));
     setExs(list);
-    setPaper(p);
+    setPaper({ ...p, track: resolvedTrack });
     setPicked({});
     setTyped({});
+    setStruck({});
+    setCeHl({});
+    setExpls({});
+    setExplBusy(null);
     setHeard({});
     setCauses({});
     setPanel(null);
     setShowZh(false);
     autoLocked.current = false;
     setPhase("work");
-    const minutes = list.length > 1 ? READ_MINUTES.paper : list[0].form === "opinions" ? READ_MINUTES.opinions : READ_MINUTES.long;
-    if (!listen && timed) timer.start(Math.round(minutes * (p.asked ? Math.max(0.25, p.asked.length / list.reduce((n, x) => n + x.questions.length, 0)) : 1) * 60));
+    const defaultMinutes =
+      p.durationMinutes ??
+      (resolvedTrack === "tcf"
+        ? 25
+        : resolvedTrack === "tef"
+          ? 30
+          : list.length > 1
+            ? READ_MINUTES.paper
+            : list[0].form === "opinions"
+              ? READ_MINUTES.opinions
+              : READ_MINUTES.long);
+    if (!listen && timed) {
+      timer.start(Math.round(defaultMinutes * (p.asked ? Math.max(0.25, p.asked.length / list.reduce((n, x) => n + x.questions.length, 0)) : 1) * 60));
+    }
   };
 
-  const redo = (p: BankPaper, wrongOnly: boolean) => {
-    const asked = wrongOnly ? wrongKeys(p, bank.attempts[p.id]?.[0]) : undefined;
+  const redo = (p: BankPaper | TrackPaper, wrongOnly: boolean) => {
+    const asBank = p as BankPaper;
+    const asked = wrongOnly ? wrongKeys(asBank, bank.attempts[p.id]?.[0]) : undefined;
     if (wrongOnly && !asked?.length) return toast("上次这套题没有错题", "info");
     setLevel(p.level);
-    begin(p.exs, { id: p.id, level: p.level, asked });
+    const tp = "track" in p ? p : null;
+    begin(p.exs, {
+      id: p.id,
+      level: p.level,
+      track: tp ? tp.track : "delf",
+      durationMinutes: tp?.durationMinutes,
+      asked,
+    });
   };
 
   const make = async () => {
-    const list = what === "paper" ? PAPER[kind] : [what];
     const pool = [...TOPICS].sort(() => Math.random() - 0.5);
     const c = new AbortController();
     ctrl.current = c;
     setPhase("making");
     setMade(0);
     try {
+      if (examTrack === "tcf" || examTrack === "tef") {
+        const chosenTopic = topic === "random" ? pool[0] : topicOf(topic) ?? pool[0];
+        const ex = await generateTrackComprehension(examTrack, kind, `${chosenTopic.fr} (${chosenTopic.zh})`, c.signal);
+        if (c.signal.aborted) return;
+        setMade(1);
+        const createdPaper: TrackPaper = {
+          id: `${examTrack}-ai-${kind}-${Date.now().toString(36)}`,
+          track: examTrack,
+          section: listen ? "co" : "ce",
+          kind,
+          level: "B2",
+          created: Date.now(),
+          src: "ai",
+          titleZh: `${TRACK_META[examTrack].shortName} AI 四选一（${chosenTopic.zh}）`,
+          badge: TRACK_META[examTrack].badge,
+          durationMinutes: examTrack === "tcf" ? 20 : 25,
+          exs: [{ ...ex, topic: chosenTopic.id }],
+        };
+        setTrackAiPapers(saveStoredTrackAiPaper(createdPaper));
+        begin(createdPaper.exs, {
+          id: createdPaper.id,
+          level: "B2",
+          track: examTrack,
+          durationMinutes: createdPaper.durationMinutes,
+        });
+        return;
+      }
+      const list = what === "paper" ? PAPER[kind] : [what];
       const out: CompExercise[] = [];
       for (const [k, form] of list.entries()) {
         const t = topic === "random" || k > 0 ? pool[k % pool.length] : topicOf(topic)!;
-        out.push(await makeComprehension({ kind, form, topic: t, level, style, format: activeFormat }, c.signal));
+        out.push(await makeComprehension({ kind, form, topic: t, level, style, format: activeFormat, exerciseIndex: k }, c.signal));
         if (c.signal.aborted) return;
         setMade(k + 1);
       }
       // kept in the 题库 on this device, to be done again later without asking the AI
       const id = await savePaper({ kind, level, ...(listen ? { style } : {}), exs: out });
-      begin(out, { id, level });
+      begin(out, { id, level, track: "delf" });
     } catch (err) {
       if (c.signal.aborted) return;
       toast((err as Error).message || "出题失败", "warn");
@@ -207,7 +300,7 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
    * no mid-sentence gaps; otherwise falls back to chunked device speech. Optionally mixes in an
    * ultra-low ambient noise bed from public/sfx/. False when stopped.
    */
-  const say = async (text: string, mine: number, dv?: DocVoices) => {
+  const say = async (text: string, mine: number, dv?: DocVoices, audioUrl?: string) => {
     const voicePool = dv && dv.voices.length >= 3 ? dv.voices : speakerVoices();
     const voiceOf = (who: number) => voicePool[who % voicePool.length];
     const recordPace = (words: number, sec: number) => {
@@ -227,7 +320,16 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
     };
     const keepNoise = noise !== "off";
     if (keepNoise) void startListeningNoise(noise);
+    const stopBed = acousticEnv !== "clean" ? startAcousticBed(acousticEnv) : null;
     try {
+      if (audioUrl) {
+        const base = (import.meta.env?.BASE_URL ?? "/").replace(/\/?$/, "/");
+        const resolved = resolveMaterialUrl(audioUrl.replace(/^\//, ""), base);
+        const rate = slow ? 0.85 : 1;
+        const r = await play(resolved, "", "uk", rate);
+        if (run.current !== mine || r === "stopped") return false;
+        if (r === "recorded") return true;
+      }
       if (ttsOn()) {
         const turns = speechTurns(text);
         const batches = buildDialogueSsmlBatches(turns, voicePool, { style });
@@ -267,6 +369,7 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
       }
       return true;
     } finally {
+      stopBed?.();
       if (keepNoise) stopListeningNoise();
     }
   };
@@ -288,25 +391,29 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
       setPace({ e, label, left });
     });
 
-  /** Run one listening exercise at the exam's rhythm; returns false if interrupted. */
+  /** Run one listening exercise at the exam's rhythm; enforces strict single-play (1 遍播音 + 20s preview) on TCF/TEF. */
   const performExercise = async (e: number, mine: number): Promise<boolean> => {
     const ex = exs[e];
     const spec = FORM_SPEC[ex.form];
+    const singlePlayTrack = activeTrack !== "delf";
+    const readSec = singlePlayTrack ? 20 : spec.read;
+    const playsCount = singlePlayTrack ? 1 : spec.plays;
+    const answerSec = singlePlayTrack ? 15 : spec.answer;
     const alive = () => run.current === mine;
     for (const [d, doc] of ex.docs.entries()) {
       const name = ex.docs.length > 1 ? `录音 ${d + 1}：` : "";
-      await pause(e, `${name}读题`, spec.read, mine);
+      await pause(e, `${name}读题`, readSec, mine);
       if (!alive()) return false;
-      for (let n = 1; n <= spec.plays && alive(); n++) {
-        setPace({ e, label: `${name}${spec.plays > 1 ? `第 ${n} 遍` : "只放一遍"}`, left: null });
-        if (!(await say(doc.text, mine, voices[e]?.[d]))) return false;
-        if (n < spec.plays) {
+      for (let n = 1; n <= playsCount && alive(); n++) {
+        setPace({ e, label: `${name}${playsCount > 1 ? `第 ${n} 遍` : "1 遍播音（只放一遍）"}`, left: null });
+        if (!(await say(doc.text, mine, voices[e]?.[d], doc.audioUrl))) return false;
+        if (n < playsCount) {
           await pause(e, `${name}两遍之间`, BETWEEN_PLAYS, mine);
           if (!alive()) return false;
         }
       }
       if (!alive()) return false;
-      await pause(e, `${name}作答`, spec.answer, mine);
+      await pause(e, `${name}作答`, answerSec, mine);
       if (!alive()) return false;
     }
     setHeard((h) => ({ ...h, [e]: true }));
@@ -335,7 +442,7 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
   const replay = async (e: number, d: number) => {
     const mine = ++run.current;
     setPace({ e, label: "重听", left: null });
-    await say(exs[e].docs[d].text, mine, voices[e]?.[d]);
+    await say(exs[e].docs[d].text, mine, voices[e]?.[d], exs[e].docs[d].audioUrl);
     if (run.current === mine) setPace(null);
   };
 
@@ -353,19 +460,58 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
   const askedSet = paper?.asked ? new Set(paper.asked) : null;
   const isAsked = (key: string) => !askedSet || askedSet.has(key);
   const all = exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ q, ex, key: `${e}-${k}` }))).filter(({ key }) => isAsked(key));
+  const gradedItems = all.map(({ q, ex, key }) => {
+    const nq = normalizeCompQuestionForKind(q, kind);
+    const correct = gradeCompQuestion(nq, picked[key], typed[key], ex.docs[nq.doc]?.text).correct;
+    const difficulty = typeof (q as { difficulty?: number }).difficulty === "number" ? (q as { difficulty?: number }).difficulty! : 3;
+    return { q, nq, ex, key, correct, difficulty };
+  });
   const total = askedSet ? all.reduce((n, { q }) => n + q.pts, 0) : exs.reduce((n, ex) => n + exercisePoints(ex), 0);
-  const score = all.reduce((n, { q, ex, key }) => n + (gradeCompQuestion(normalizeCompQuestionForKind(q, kind), picked[key], typed[key], ex.docs[q.doc]?.text).correct ? q.pts : 0), 0);
+  const score = gradedItems.reduce((n, it) => n + (it.correct ? it.q.pts : 0), 0);
   const answered = all.filter(({ q, key }) => (normalizeCompQuestionForKind(q, kind).qType === "short" ? Boolean(typed[key]?.trim()) : picked[key] !== undefined)).length;
+  const trackSection = listen ? "co" : "ce";
+  const tcfScale = activeTrack === "tcf" ? scoreTcfReceptive(gradedItems, trackSection) : null;
+  const tefScale = activeTrack === "tef" ? scoreTefItems699(gradedItems, trackSection) : null;
 
   const finish = () => {
     halt();
     timer.stop();
     const at = Date.now();
     // a redo of the missed questions only is not a score of the paper
-    if (!askedSet) logExam({ part: kind, what: exs.length > 1 ? "paper" : exs[0].topic, score, total });
-    const missed: CompMiss[] = all
-      .filter(({ q, ex, key }) => !gradeCompQuestion(normalizeCompQuestionForKind(q, kind), picked[key], typed[key], ex.docs[q.doc]?.text).correct)
-      .map(({ q, key }) => ({ at, part: kind, q: key, cause: causeFromSkill(q.skill) ?? (listen ? "heard" : "paraphrase"), ...(q.skill ? { skill: q.skill } : {}) }));
+    if (!askedSet) {
+      if (activeTrack === "tcf" && tcfScale) {
+        logExam({
+          part: kind,
+          what: paper?.id ?? `tcf-${trackSection}`,
+          score: tcfScale.correctCount,
+          total: tcfScale.totalCount,
+          level: "B2",
+          scope: "full",
+          track: "tcf",
+          trackSection,
+          scaledScore: tcfScale.score699,
+          nclc: tcfScale.nclc,
+        });
+      } else if (activeTrack === "tef" && tefScale) {
+        logExam({
+          part: kind,
+          what: paper?.id ?? `tef-${trackSection}`,
+          score: tefScale.correctCount,
+          total: tefScale.totalCount,
+          level: "B2",
+          scope: "full",
+          track: "tef",
+          trackSection,
+          scaledScore: tefScale.score699,
+          nclc: tefScale.nclc,
+        });
+      } else {
+        logExam({ part: kind, what: exs.length > 1 ? "paper" : exs[0].topic, score, total, level: paper?.level ?? level, scope: total >= 20 ? "full" : "drill" });
+      }
+    }
+    const missed: CompMiss[] = gradedItems
+      .filter((it) => !it.correct)
+      .map((it) => buildCompMissSnapshot(projectQuestionForMissSnapshot(it.nq, picked[it.key]), it.ex, kind, it.key, at));
     addMisses(missed);
     setCauses(Object.fromEntries(missed.map((m) => [m.q!, m.cause])));
     if (paper) void addAttempt(paper.id, { at, picked, ...(Object.keys(typed).length ? { typed } : {}), score, total, ...(paper.asked ? { asked: paper.asked } : {}) });
@@ -388,332 +534,90 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
     setMissCause(finishedAt, key, cause);
   };
 
+  const toggleStrike = (optKey: string) => setStruck((s) => ({ ...s, [optKey]: !s[optKey] }));
+
+  const explainWrong = async (key: string, q: CompExercise["questions"][number], pickedIdx: number, docText: string) => {
+    setExplBusy(key);
+    try {
+      const res = await explainDistractor({
+        kind,
+        question: q.q,
+        options: q.options,
+        pickedIdx,
+        answerIdx: q.answer,
+        docText,
+        why: q.why,
+      });
+      setExpls((prev) => ({ ...prev, [key]: res }));
+    } catch (err) {
+      toast((err as Error).message || "干扰项解析失败，请稍后重试", "warn");
+    } finally {
+      setExplBusy((cur) => (cur === key ? null : cur));
+    }
+  };
+
   if (phase === "setup" || phase === "making") {
-    const making = phase === "making";
-    const papers = [...PRESET_PAPERS, ...bank.papers].filter((p) => p.kind === kind);
-    const stats = missStats(misses, kind);
-    // right / asked by kind of question, over the last attempt at every paper of the bank
-    const bySkill = skillStats(
-      papers.flatMap((p) => {
-        const a = bank.attempts[p.id]?.find((x) => !x.asked);
-        return a ? p.exs.flatMap((ex, e) => ex.questions.map((q, k) => ({ skill: q.skill, right: gradeCompQuestion(normalizeCompQuestionForKind(q, kind), a.picked[`${e}-${k}`], a.typed?.[`${e}-${k}`], ex.docs[q.doc]?.text).correct }))) : [];
-      }),
-    );
-    const count = what === "paper" ? PAPER[kind].length : 1;
+    const activeTrackPapers =
+      examTrack === "delf"
+        ? []
+        : [...trackPresets, ...trackAiPapers].filter((p) => p.track === examTrack && p.kind === kind);
     return (
-      <div className="page practice">
-        <header className="page-head">
-          <button className="link deck-back" onClick={onExit}>
-            <ArrowLeft size={16} /> 返回练习
-          </button>
-          <p className="eyebrow">
-            {COMP_LABEL[kind]} · {listen ? "Compréhension de l'oral" : "Compréhension des écrits"}
-          </p>
-          <h1 className="display">{listen ? "只听，不看。" : "读得快，也读得准。"}</h1>
-          <p className="lede">
-            {listen
-              ? "和考试一样：一套三个练习共 25 分。两段长录音各听两遍，三段短录音各听一遍；每题三个选项，按难度占 0.5 至 2.5 分不等。先读题，再听，按考试的停顿时间作答。"
-              : "和考试一样：一套三个练习共 25 分，限时 1 小时。两篇报刊文章各 7 题，再加一组「这是谁的观点」；每题三个选项，按难度占 0.5 至 2.5 分不等。"}
-          </p>
-          {listen && (
-            <div className="exam-notice" role="note">
-              <p>
-                <b>TTS 音频仅用于熟悉题型，考前须搭配真实电台脱敏。</b>
-                <span className="muted small">真实 DELF B2 录音来自法国电台（带现场底噪、语流吞连与多人抢话）。考前请务必结合「真实材料精听」（RFI / TV5Monde / France Culture）及官方样题脱敏。</span>
-              </p>
-              <button className="btn btn-ghost" onClick={onOpenReal}>
-                <Headphones size={15} /> 去听真实电台
-              </button>
-            </div>
-          )}
-        </header>
-        <section className="panel exam-setup">
-          <h3 className="eyebrow">练什么</h3>
-          <div className="segmented segmented-wide">
-            {forms.map((f) => (
-              <button key={f} className={what === f ? "is-on" : ""} onClick={() => setWhat(f)} aria-pressed={what === f}>
-                {f === "paper" ? "整套（25 分）" : FORM_SPEC[f].zh}
-              </button>
-            ))}
-          </div>
-          <h3 className="eyebrow">话题</h3>
-          <div className="exam-chips">
-            <button className={topic === "random" ? "is-on" : ""} onClick={() => setTopic("random")} aria-pressed={topic === "random"}>
-              随机
-            </button>
-            {TOPICS.map((t) => (
-              <button key={t.id} className={topic === t.id ? "is-on" : ""} onClick={() => setTopic(t.id)} aria-pressed={topic === t.id}>
-                {t.zh}
-              </button>
-            ))}
-          </div>
-          {what === "paper" && topic !== "random" && <p className="muted small">整套题的第一个练习用所选话题，后两个换别的话题。</p>}
-          {shouldShowCompFormatPicker(kind, what) && (
-            <>
-              <h3 className="eyebrow">题目格式</h3>
-              <div className="segmented">
-                <button className={qFormat === "parallel" ? "is-on" : ""} onClick={() => setQFormat("parallel")} aria-pressed={qFormat === "parallel"}>
-                  官方并行题型（含 Vrai/Faux 引证与简答）
-                </button>
-                <button className={qFormat === "qcm" ? "is-on" : ""} onClick={() => setQFormat("qcm")} aria-pressed={qFormat === "qcm"}>
-                  纯三选一 QCM
-                </button>
-              </div>
-            </>
-          )}
-          <h3 className="eyebrow">难度</h3>
-          <div className="segmented">
-            {(["B1", "B2"] as const).map((l) => (
-              <button key={l} className={level === l ? "is-on" : ""} onClick={() => setLevel(l)} aria-pressed={level === l}>
-                {l}
-              </button>
-            ))}
-          </div>
-          {listen && (
-            <>
-              <h3 className="eyebrow">说话方式</h3>
-              <div className="segmented">
-                <button className={style === "natural" ? "is-on" : ""} onClick={() => (setStyle("natural"), writeKey(STYLE_KEY, "natural"))} aria-pressed={style === "natural"}>
-                  接近真人口语
-                </button>
-                <button className={style === "radio" ? "is-on" : ""} onClick={() => (setStyle("radio"), writeKey(STYLE_KEY, "radio"))} aria-pressed={style === "radio"}>
-                  播音稿
-                </button>
-              </div>
-              <p className="muted small">{style === "natural" ? "AI 写稿时加入 euh、ben、省略 ne（c'est pas）、du coup、自我纠正和插话，更像真题里的嘉宾。" : "句子完整、没有停顿词，适合刚开始练。"}</p>
-              <h3 className="eyebrow">声音</h3>
-              {azure ? (
-                <>
-                  <div className="segmented segmented-wide">
-                    {VOICE_MODES.map(([m, zh]) => (
-                      <button key={m} className={voiceMode === m ? "is-on" : ""} onClick={() => (setVoiceMode(m), writeKey(VOICE_KEY, m))} aria-pressed={voiceMode === m}>
-                        {zh}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="muted small">{voiceMode === "mixed" ? "每段录音随机换声音（支持 3 人以上对话不同音色），约一半用加拿大、比利时或瑞士口音；真题里也会出现非法国口音。" : voiceMode === "france" ? "每段录音随机换一组法国声音（支持 3 人以上不同音色），不总是同几个人。" : "用「我的 → AI 接口」里设置的 Azure 语音作为主声，其余说话人自动分配不同音色。"}</p>
-                </>
-              ) : (
-                <p className="muted">没有设置 Azure 语音，会用这台设备自带的法语语音朗读，音质和语速可能不理想，也换不了口音。</p>
-              )}
-              <h3 className="eyebrow">环境底噪（可选）</h3>
-              <div className="segmented segmented-wide">
-                {LISTENING_NOISE.map((n) => (
-                  <button key={n.id} className={noise === n.id ? "is-on" : ""} onClick={() => (setNoise(n.id), writeKey(NOISE_KEY, n.id))} aria-pressed={noise === n.id}>
-                    {n.label}
-                  </button>
-                ))}
-              </div>
-              <p className="muted small">仅在播放录音时以极低音量混入环境底噪（复用系统环境音），帮助适应电台现场或考场扬声器的声场背景。</p>
-            </>
-          )}
-          {listen ? (
-            <>
-              <h3 className="eyebrow">语速</h3>
-              <div className="segmented">
-                <button className={!slow ? "is-on" : ""} onClick={() => setSlow(false)} aria-pressed={!slow}>
-                  真题语速
-                </button>
-                <button className={slow ? "is-on" : ""} onClick={() => setSlow(true)} aria-pressed={slow}>
-                  慢 15%
-                </button>
-              </div>
-              <p className="muted small">
-                {wpm ? `这个声音实测约每分钟 ${wpm} 词，播放速度自动调成 ×${rateFor(wpm, slow).toFixed(2)}。` : "第一次朗读时会测出这个声音的语速，然后自动调到真题的速度。"}
-              </p>
-              <h3 className="eyebrow">整卷播放模式</h3>
-              <div className="segmented">
-                <button
-                  className={continuousMock ? "is-on" : ""}
-                  onClick={() => {
-                    setContinuousMock(true);
-                    writeKey(CONTINUOUS_KEY, "1");
-                  }}
-                  aria-pressed={continuousMock}
-                >
-                  连续不可中断（模考真实节奏）
-                </button>
-                <button
-                  className={!continuousMock ? "is-on" : ""}
-                  onClick={() => {
-                    setContinuousMock(false);
-                    writeKey(CONTINUOUS_KEY, "0");
-                  }}
-                  aria-pressed={!continuousMock}
-                >
-                  逐题手动触发（可暂停/跳过）
-                </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <h3 className="eyebrow">限时</h3>
-              <div className="segmented">
-                <button className={timed ? "is-on" : ""} onClick={() => setTimed(true)} aria-pressed={timed}>
-                  {what === "paper" ? READ_MINUTES.paper : what === "opinions" ? READ_MINUTES.opinions : READ_MINUTES.long} 分钟
-                </button>
-                <button className={!timed ? "is-on" : ""} onClick={() => setTimed(false)} aria-pressed={!timed}>
-                  不限时
-                </button>
-              </div>
-              {timed && (
-                <div className="segmented" style={{ marginTop: 8 }}>
-                  <button className={strictLock ? "is-on" : ""} onClick={() => setStrictLock(true)} aria-pressed={strictLock}>
-                    模考严格到时锁卷交卷
-                  </button>
-                  <button className={!strictLock ? "is-on" : ""} onClick={() => setStrictLock(false)} aria-pressed={!strictLock}>
-                    仅计时提醒
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-          {ready.text(ai) ? (
-            <div className="writing-actions">
-              {making && (
-                <p className="muted">
-                  AI 出题中：第 {Math.min(made + 1, count)}/{count} 个练习（每个约 20–60 秒）…
-                </p>
-              )}
-              {making ? (
-                <button
-                  className="btn btn-ghost"
-                  onClick={() => {
-                    ctrl.current?.abort();
-                    setPhase("setup");
-                  }}
-                >
-                  取消
-                </button>
-              ) : (
-                <button className="btn btn-primary btn-xl" onClick={() => void make()}>
-                  {what === "paper" ? "出一整套" : "出一个练习"} <ArrowRight size={18} />
-                </button>
-              )}
-            </div>
-          ) : (
-            <p className="muted">
-              出新题需要 AI：先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务。没有 AI 也可以做下面题库里的预置题。
-            </p>
-          )}
-        </section>
-        {listen && (
-          <section className="panel">
-            <h3 className="eyebrow">真实材料精听</h3>
-            <p className="muted">用 RFI、TV5Monde、France Culture 的真人节目：盲听 → 答题 → 逐句听写 → 跟读。应用里只存链接和时间点。</p>
-            <button className="btn btn-ghost" onClick={onOpenReal}>
-              <Headphones size={16} /> 打开真实材料精听
-            </button>
-          </section>
-        )}
-        {papers.length > 0 && (
-          <section className="essay-level">
-            <h3 className="eyebrow">题库（{papers.length} 套，存在这台设备上）</h3>
-            <p className="muted small">
-              AI 出过的题都会留下来，可以整套重做，或只重做上次做错的题；不再消耗 AI 额度。「预置」题包含完整 25 分套卷（每套均达 B2 官方篇幅），不用 AI 也能完整模考，内容还未经老师核对。考前建议同步对照{" "}
-              <a className="link" href="https://www.france-education-international.fr/diplome/delf-tout-public/niveau-b2/exemples-sujets" target="_blank" rel="noreferrer">
-                FEI 官方免费 DELF B2 样题
-              </a>{" "}
-              校准难度。
-            </p>
-            <ul className="bank-list">
-              {papers.slice(0, 30).map((p) => {
-                const last = bank.attempts[p.id]?.[0];
-                const wrong = wrongKeys(p, last).length;
-                return (
-                  <li key={p.id}>
-                    <span>
-                      {p.src === "preset" ? <span className="chip">预置</span> : day(p.created)} {p.exs.length > 1 ? "整套" : FORM_SPEC[p.exs[0].form].zh} · {paperTopics(p)} · {p.level}
-                      {p.style === "natural" ? " · 口语化" : ""}
-                      <span className="muted small">{last ? ` · 上次 ${num(last.score)}/${num(last.total)}` : " · 没做过"}</span>
-                    </span>
-                    <span className="exam-doc-actions">
-                      <button className="link" onClick={() => redo(p, false)} disabled={making}>
-                        <RotateCcw size={14} /> {last ? "重做" : "做题"}
-                      </button>
-                      {wrong > 0 && (
-                        <button className="link" onClick={() => redo(p, true)} disabled={making}>
-                          错题重做（{wrong}）
-                        </button>
-                      )}
-                      {p.src === "ai" && (
-                        <>
-                          <button className="link" onClick={() => void starPaper(p.id, !p.starred)} aria-pressed={!!p.starred} title={p.starred ? "取消收藏" : "收藏：不会被自动清理"}>
-                            <Star size={14} fill={p.starred ? "currentColor" : "none"} />
-                          </button>
-                          <button className="link" onClick={() => confirm("删除这套题和它的做题记录？") && void deletePaper(p.id)} title="删除">
-                            <Trash2 size={14} />
-                          </button>
-                        </>
-                      )}
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        )}
-        {stats.length > 0 && (
-          <section className="essay-level miss-stats">
-            <h3 className="eyebrow">错因统计（最近 {misses.filter((m) => m.part === kind).length} 道错题）</h3>
-            {stats.map((x) => (
-              <div key={x.cause} className="miss-bar">
-                <span>{CAUSE_LABEL[x.cause]}</span>
-                <i style={{ width: `${Math.max(4, x.share)}%` }} />
-                <span className="muted small">
-                  {x.n} 次 · {x.share}%
-                </span>
-              </div>
-            ))}
-            <p className="muted small">最常见：{CAUSE_LABEL[stats[0].cause]}。{CAUSE_TIP[stats[0].cause]}</p>
-            <div className="miss-actions-list">
-              {stats.slice(0, 3).map((x) => (
-                <div key={x.cause} className="miss-actions">
-                  <span className="muted small">{CAUSE_LABEL[x.cause]} →</span>
-                  {missLinksFor(x.cause, kind).map((item) =>
-                    item.action === "real" ? (
-                      <button key={item.label} type="button" className="chip" onClick={onOpenReal}>
-                        {item.label}
-                      </button>
-                    ) : item.route ? (
-                      <a key={item.label} className="chip" href={href(item.route)}>
-                        {item.label}
-                      </a>
-                    ) : null,
-                  )}
-                </div>
-              ))}
-            </div>
-            {bySkill.size > 0 && (
-              <p className="muted small">
-                按题型的正确率：
-                {[...bySkill.entries()].map(([k, v]) => `${QSKILL_LABEL[k]} ${Math.round((v.right / v.n) * 100)}%（${v.n} 题）`).join("，")}
-              </p>
-            )}
-          </section>
-        )}
-        {log.length > 0 && (
-          <section className="essay-level">
-            <h3 className="eyebrow">最近的成绩（折合 25 分制）</h3>
-            <ul className="essay-history">
-              {log.slice(0, 8).map((r, k) => (
-                <li key={k}>
-                  <span>
-                    {day(r.at)} · {r.what === "paper" ? "整套" : (topicOf(r.what)?.zh ?? r.what)}
-                  </span>
-                  <span className="muted">
-                    {num(r.score)}/{num(r.total)} 分{r.total === 25 ? "" : ` · 折合 ${num(outOf25(r))}/25`}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-      </div>
+      <CompSetupView
+        kind={kind}
+        examTrack={examTrack}
+        onSelectTrack={(next) => store.settings({ examTrack: next })}
+        listen={listen}
+        azure={azure}
+        canAiText={ready.text(ai)}
+        making={phase === "making"}
+        made={made}
+        count={examTrack === "delf" ? (what === "paper" ? PAPER[kind].length : 1) : 1}
+        forms={forms}
+        what={what}
+        setWhat={setWhat}
+        topic={topic}
+        setTopic={setTopic}
+        qFormat={qFormat}
+        setQFormat={setQFormat}
+        level={level}
+        setLevel={setLevel}
+        style={style}
+        setStyle={setStyle}
+        voiceMode={voiceMode}
+        setVoiceMode={setVoiceMode}
+        noise={noise}
+        setNoise={setNoise}
+        acousticEnv={acousticEnv}
+        setAcousticEnv={setAcousticEnv}
+        slow={slow}
+        setSlow={setSlow}
+        wpm={wpm}
+        continuousMock={continuousMock}
+        setContinuousMock={setContinuousMock}
+        timed={timed}
+        setTimed={setTimed}
+        strictLock={strictLock}
+        setStrictLock={setStrictLock}
+        bankPapers={bank.papers}
+        trackPapers={activeTrackPapers}
+        onDeleteTrackPaper={(id) => setTrackAiPapers(deleteStoredTrackAiPaper(id))}
+        bankAttempts={bank.attempts}
+        misses={misses}
+        log={log}
+        onExit={onExit}
+        onOpenReal={onOpenReal}
+        onCancelMake={() => {
+          ctrl.current?.abort();
+          setPhase("setup");
+        }}
+        onMake={() => void make()}
+        onRedo={redo}
+      />
     );
   }
 
   const done = phase === "done";
+  const scaledReport = tcfScale ?? tefScale;
 
   return (
     <div className="page practice">
@@ -730,7 +634,7 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
             {done ? "再来一套" : "放弃"}
           </button>
           <span className="eyebrow">
-            {COMP_LABEL[kind]} · {level} · {exs.length > 1 ? "整套" : topicOf(exs[0]?.topic)?.zh}
+            {TRACK_META[activeTrack].shortName} · {COMP_LABEL[kind]} · {activeTrack === "delf" ? level : "四选一"} · {exs.length > 1 ? "整套" : topicOf(exs[0]?.topic)?.zh}
             {askedSet ? " · 错题重做" : ""}
           </span>
           {!listen && !done && timed && <span className={`exam-clock ${timer.sec === 0 ? "is-over" : ""}`}>{timer.sec === 0 ? "时间到" : clock(timer.sec)}</span>}
@@ -738,12 +642,16 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
 
         {listen && !done && (
           <div className="real-flow">
-            <p className="muted small">提示：TTS 音频仅用于熟悉题型，考前须搭配真实电台脱敏。</p>
+            <p className="muted small">
+              {activeTrack !== "delf"
+                ? `考规提醒：${TRACK_META[activeTrack].shortName} 听力实行「严格 1 遍播音（只放一遍）」：先 20 秒读题预览 → 播放 1 遍录音 → 15 秒作答。`
+                : "提示：TTS 音频仅用于熟悉题型，考前须搭配真实电台脱敏。"}
+            </p>
             {exs.length > 1 && (
               <div className="panel exam-player">
                 {continuousMock ? (
                   <>
-                    <span className="muted small">整卷「连续不可中断」模式：将依次按官方停顿连续播放 Exercice 1 → 2 → 3，期间不可跳过或暂停。</span>
+                    <span className="muted small">整卷「连续不可中断」模式：将依次按官方停顿连续播放 Exercice 1 → {exs.length}，期间不可跳过或暂停。</span>
                     {!pace && exs.some((_, i) => !heard[i]) && (
                       <button className="btn btn-primary" onClick={() => void performPaper()}>
                         <Play size={16} /> 开始整卷连续播放（Exercice 1 → {exs.length}）
@@ -781,211 +689,90 @@ function ComprehensionStudioBody({ kind, onExit, onOpenReal }: { kind: CompKind;
 
         {done && (
           <div className="essay-marks">
-            <p className="essay-total">
-              {num(score)}
-              <small>/{num(total)}</small>
-            </p>
-            <p className="muted">
-              {total === 25 ? "这就是考试的 25 分制。" : `折合考试的 25 分制约 ${num(outOf25({ score, total }))} 分。`}
-              及格线是四个部分合计 50/100，每部分不低于 5 分。
-            </p>
+            {scaledReport ? (
+              <>
+                <p className="essay-total">
+                  {scaledReport.score699}
+                  <small>/699</small>
+                </p>
+                <div className="exam-dash-badges">
+                  <span className={`chip ${scaledReport.score699 >= 400 ? "is-pass" : ""}`}>
+                    CEFR {scaledReport.cefr}
+                  </span>
+                  <span className={`chip ${scaledReport.nclc >= 7 ? "is-pass" : ""}`}>
+                    NCLC {scaledReport.nclc}{scaledReport.nclc >= 7 ? "+（加拿大移民达标）" : ""}
+                  </span>
+                  <span className="chip">
+                    答对 {scaledReport.correctCount}/{scaledReport.totalCount} 题
+                  </span>
+                </div>
+                <p className="muted">
+                  {activeTrack === "tcf"
+                    ? "按 FEI TCF 100–699 阶梯难度赋分（B2 线 400 分；TCF Canada NCLC 7 线：听力 458 / 阅读 453）。"
+                    : "按 CCI Paris TEF 新政 0–699 分与 IRCC 等值曲线换算（B2 线 400 分；TEF Canada 听读 NCLC 7 线 434 分）。"}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="essay-total">
+                  {num(score)}
+                  <small>/{num(total)}</small>
+                </p>
+                <p className="muted">
+                  {total === 25 ? "这就是考试的 25 分制。" : `折合考试的 25 分制约 ${num(outOf25({ score, total }))} 分。`}
+                  及格线是四个部分合计 50/100，每部分不低于 5 分。
+                </p>
+              </>
+            )}
           </div>
         )}
 
         {exs.map((ex, e) => {
           if (askedSet && !ex.questions.some((_, k) => askedSet.has(`${e}-${k}`))) return null;
-          const spec = FORM_SPEC[ex.form];
-          const busy = pace?.e === e;
-          const showText = !listen || done;
           return (
-            <section key={e} className="exam-exercise">
-              <header className="exam-ex-head">
-                <h3>
-                  {exs.length > 1 ? `EXERCICE ${e + 1}` : "EXERCICE"} <small>{num(exercisePoints(ex))} points</small>
-                </h3>
-                {ex.intro && (
-                  <p className="muted" lang="fr">
-                    {ex.intro}
-                  </p>
-                )}
-              </header>
-
-              {listen && !done && (
-                <div className="exam-player">
-                  {busy ? (
-                    <>
-                      <span className="exam-clock">
-                        {pace.label}
-                        {pace.left !== null ? ` ${clock(pace.left)}` : "…"}
-                      </span>
-                      {!continuousMock && pace.left !== null && (
-                        <button className="btn btn-ghost" onClick={() => skip.current?.()}>
-                          <FastForward size={16} /> 跳过等待
-                        </button>
-                      )}
-                      {!continuousMock && (
-                        <button className="btn btn-ghost" onClick={halt}>
-                          <Square size={16} /> 停止
-                        </button>
-                      )}
-                    </>
-                  ) : heard[e] ? (
-                    <span className="muted">这个练习的录音已经放完，凭记忆作答。</span>
-                  ) : continuousMock && exs.length > 1 ? (
-                    <span className="muted small">
-                      {pace ? "等待整卷连续播音轮到本练习…" : "请在上方点击「开始整卷连续播放」，将按考场节奏连续播放全卷。"}
-                    </span>
-                  ) : (
-                    <>
-                      <button className="btn btn-primary" onClick={() => void perform(e)} disabled={!!pace}>
-                        <Play size={16} /> 开始这个练习
-                      </button>
-                      <span className="muted">
-                        {ex.form === "short" ? `三段录音，各读题 ${spec.read} 秒、听一遍、作答 ${spec.answer} 秒。` : `读题 ${spec.read} 秒，听两遍（中间停 ${BETWEEN_PLAYS} 秒），再给 ${spec.answer} 秒作答。`}
-                      </span>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {showText &&
-                ex.docs.map((d, k) => (
-                  <article key={k} className="exam-doc">
-                    <h4 className="exam-doc-title" lang="fr">
-                      {ex.docs.length > 1 ? `Document ${k + 1}` : ex.title}
-                    </h4>
-                    <p className="essay-text" lang="fr">
-                      {d.text}
-                    </p>
-                    {done && listen && voices[e]?.[k]?.accents.length ? <p className="muted small">口音：{accentNames(voices[e][k].accents)}</p> : null}
-                    {done && (
-                      <div className="exam-doc-actions">
-                        {listen && (
-                          <button className="link" onClick={() => setPanel(panel === `i${e}-${k}` ? null : `i${e}-${k}`)}>
-                            <Headphones size={14} /> 精听：听写 / 跟读
-                          </button>
-                        )}
-                        <button className="link" onClick={() => setPanel(panel === `w${e}-${k}` ? null : `w${e}-${k}`)}>
-                          <ListPlus size={14} /> 原文生词入库
-                        </button>
-                        {listen &&
-                          (busy ? (
-                            <button className="link" onClick={halt}>
-                              停止
-                            </button>
-                          ) : (
-                            <button className="link" onClick={() => void replay(e, k)}>
-                              重听
-                            </button>
-                          ))}
-                        {d.zh && (
-                          <button className="link" onClick={() => setShowZh((v) => !v)}>
-                            {showZh ? "收起译文" : "看中文译文"}
-                          </button>
-                        )}
-                      </div>
-                    )}
-                    {done && showZh && d.zh && <p className="essay-text exam-zh">{d.zh}</p>}
-                    {done && panel === `w${e}-${k}` && <TranscriptWords text={d.text} deckName={listen ? "听力生词" : "阅读生词"} onClose={() => setPanel(null)} />}
-                    {done && panel === `i${e}-${k}` && <IntensiveDoc text={d.text} speak={(t, rate, who) => speakPiece(t, rate, d.text, voices[e]?.[k], who)} />}
-                  </article>
-                ))}
-
-              {ex.form === "opinions" && (
-                <p className="exam-q" lang="fr">
-                  À quelle personne associez-vous chaque point de vue ?
-                </p>
-              )}
-              <ol className="exam-questions">
-                {ex.questions.map((q, k) => {
-                  const key = `${e}-${k}`;
-                  if (!isAsked(key)) return null;
-                  const nq = normalizeCompQuestionForKind(q, kind);
-                  const docText = ex.docs[nq.doc]?.text;
-                  const verdict = done ? gradeCompQuestion(nq, picked[key], typed[key], docText) : null;
-                  const miss = done && !verdict?.correct;
-                  const qt = nq.qType ?? "qcm";
-                  const showCite = shouldShowCitationInput(nq, kind);
-                  const optionLetters = qt === "vf" || (nq.options.length === 2 && nq.options[0] === "Vrai") ? "VF" : "ABC";
-                  const first = ex.docs.length > 1 && (k === 0 || ex.questions[k - 1].doc !== nq.doc);
-                  return (
-                    <li key={k}>
-                      {first && <p className="eyebrow">Document {nq.doc + 1}</p>}
-                      <p className="exam-q" lang="fr">
-                        {showCite && <span className="exam-q-badge">Vrai / Faux · 须原文引证</span>}
-                        {qt === "short" && <span className="exam-q-badge">简答题 · 写核心要点</span>}
-                        {nq.q} <small>{num(nq.pts)} pt</small>
-                      </p>
-                      {qt !== "short" && (
-                        <div className="exam-options" role="radiogroup" aria-label={`第 ${k + 1} 题`}>
-                          {nq.options.map((o, j) => {
-                            const on = picked[key] === j;
-                            const state = done ? (j === nq.answer ? "is-right" : on ? "is-wrong" : "") : on ? "is-on" : "";
-                            return (
-                              <button key={j} role="radio" aria-checked={on} className={`exam-option ${state}`} disabled={done} lang="fr" onClick={() => setPicked((p) => ({ ...p, [key]: j }))}>
-                                <span>{optionLetters[j]}</span>
-                                {o}
-                                {done && j === nq.answer && <Check size={16} />}
-                                {done && on && j !== nq.answer && <X size={16} />}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                      {showCite && (
-                        <div className="exam-cite-box">
-                          <input
-                            type="text"
-                            className="exam-cite-input"
-                            lang="fr"
-                            disabled={done}
-                            value={typed[key] ?? ""}
-                            onChange={(ev) => setTyped((t) => ({ ...t, [key]: ev.target.value }))}
-                            placeholder="Justifiez votre réponse en recopiant une phrase ou un extrait exact du document…"
-                            aria-label={`第 ${k + 1} 题原文引证`}
-                          />
-                          {done && (
-                            <p className={`exam-cite-status ${verdict?.quoteMatched ? "is-ok" : "is-miss"}`}>
-                              {verdict?.quoteMatched ? "✓ 原文引证核对通过。" : `✗ 未匹配原文引证（官方规则：判断对但无正确引证不得分）。参考引证：「${nq.quote}」`}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                      {qt === "short" && (
-                        <div className="exam-cite-box">
-                          <input
-                            type="text"
-                            className="exam-cite-input"
-                            lang="fr"
-                            disabled={done}
-                            value={typed[key] ?? ""}
-                            onChange={(ev) => setTyped((t) => ({ ...t, [key]: ev.target.value }))}
-                            placeholder="Réponse courte en français (mots-clés ou expression du texte)…"
-                            aria-label={`第 ${k + 1} 题简答`}
-                          />
-                          {done && (
-                            <p className={`exam-cite-status ${verdict?.correct ? "is-ok" : "is-miss"}`}>
-                              {verdict?.correct ? "✓ 简答核心要点命中。" : "✗ 未命中核心采分点。"} 参考答案：<span lang="fr">{q.accepted?.join(" / ")}</span>
-                            </p>
-                          )}
-                        </div>
-                      )}
-                      {done && q.why && <p className="exam-why">{q.why}</p>}
-                      {miss && (
-                        <div className="miss-cause" role="group" aria-label="错因">
-                          <span className="muted">错因{q.skill ? `（${QSKILL_LABEL[q.skill]}题）` : ""}：</span>
-                          {MISS_CAUSES.map((c) => (
-                            <button key={c} className={causes[key] === c ? "is-on" : ""} onClick={() => blame(key, c)} aria-pressed={causes[key] === c}>
-                              {CAUSE_LABEL[c]}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
+            <CompExerciseBody
+              key={e}
+              kind={kind}
+              examTrack={activeTrack}
+              listen={listen}
+              done={done}
+              ex={ex}
+              exIdx={e}
+              exCount={exs.length}
+              voicesDoc={voices[e]}
+              isAsked={isAsked}
+              pace={pace}
+              heard={!!heard[e]}
+              continuousMock={continuousMock}
+              panel={panel}
+              setPanel={setPanel}
+              showZh={showZh}
+              setShowZh={setShowZh}
+              ceHl={ceHl}
+              setCeHl={setCeHl}
+              picked={picked}
+              setPicked={setPicked}
+              typed={typed}
+              setTyped={setTyped}
+              struck={struck}
+              setStruck={setStruck}
+              expls={expls}
+              explBusy={explBusy}
+              causes={causes}
+              canExplainWrong={ready.text(ai)}
+              activeCeKey={activeCeKey}
+              setActiveCeKey={setActiveCeKey}
+              ceInputRefs={ceInputRefs}
+              activeCeRef={activeCeRef}
+              onPerform={(idx) => void perform(idx)}
+              onSkipWait={() => skip.current?.()}
+              onHalt={halt}
+              onReplay={(exIdx, docIdx) => void replay(exIdx, docIdx)}
+              onSpeakPiece={speakPiece}
+              onToggleStrike={toggleStrike}
+              onExplainWrong={explainWrong}
+              onBlame={blame}
+            />
           );
         })}
 

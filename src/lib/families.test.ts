@@ -1,10 +1,14 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { FAMILIES, familyWords, searchFamilies } from "./families.ts";
+import { FAMILIES, familyWords, searchFamilies, setBaseFamiliesForTest } from "./families.ts";
 import { todayPlan } from "../store/session.ts";
 import { defaultSettings, emptyProgress, sanitizeSettings } from "../store/store.ts";
 import type { Atlas, WordRef } from "../atlas/types.ts";
 import { review, Rating } from "../store/srs.ts";
+
+setBaseFamiliesForTest(JSON.parse(readFileSync(resolve("public/atlas/families.json"), "utf8")));
 
 test("family search finds a group through a member; selection forms a deduplicated union", () => {
   const a = FAMILIES[0], b = FAMILIES[1];

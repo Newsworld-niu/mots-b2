@@ -10,6 +10,7 @@ import { hashSeed } from "../lib/text";
 import { recordMistake } from "../store/session";
 import { useStore } from "../store/store";
 import { Speak } from "../ui/Speak";
+import { LexiconTabs } from "../ui/LexiconTabs";
 
 type Kind = "all" | CfGroup["kind"];
 const KINDS: [Kind, string][] = [
@@ -35,11 +36,16 @@ export function Compare({ focusId }: { focusId?: string }) {
     if (picked.length) setQuiz(picked);
   };
 
+  const [expandAll, setExpandAll] = useState(true);
+  const homophones = useMemo(() => groups.filter((g) => g.kind === "homophone"), [groups]);
+  const meanings = useMemo(() => groups.filter((g) => g.kind === "meaning"), [groups]);
+
   if (quiz && data) return <CompareQuiz questions={quiz} onExit={() => setQuiz(null)} onAgain={() => start(quiz.every((x) => x.group.id === quiz[0].group.id) ? [quiz[0].group] : data.groups, quiz.length)} />;
 
   return (
     <div className="page compare">
       <header className="page-head">
+        <LexiconTabs on="compare" />
         <p className="eyebrow">辨析 · Mots qu'on confond</p>
         <h1 className="display">它们长得像，意思不一样。</h1>
         <p className="lede">{data ? `${data.groups.length} 组容易混的词：读音相同的，和意思容易搞混的。先看区别，再用例句填空检验自己。` : "正在加载……"}</p>
@@ -63,12 +69,55 @@ export function Compare({ focusId }: { focusId?: string }) {
               随机测验 10 题
             </button>
           </div>
+          {groups.length > 0 && (
+            <nav className="compare-toc" aria-label="易混词组快捷目录">
+              {groups.map((g) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  className="chip-btn compare-toc-chip"
+                  onClick={() => document.getElementById(`cf-${g.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                >
+                  {g.title}
+                </button>
+              ))}
+            </nav>
+          )}
           {groups.length === 0 && <p className="muted compare-empty">没有找到匹配的词组。</p>}
-          <div className="compare-grid">
-            {groups.map((g) => (
-              <GroupCard key={g.id} group={g} focus={g.id === focusId} onQuiz={() => start([g], Math.min(6, g.items.length * 2))} />
-            ))}
-          </div>
+          {kind === "all" && !q.trim() ? (
+            <div className="compare-sections">
+              <div className="compare-section-controls">
+                <button type="button" className="link small" onClick={() => setExpandAll((v) => !v)}>
+                  {expandAll ? "折叠全部分组" : "展开全部分组"}
+                </button>
+              </div>
+              {([
+                ["同音词", homophones],
+                ["词义辨析", meanings],
+              ] as const).map(
+                ([secTitle, secGroups]) =>
+                  secGroups.length > 0 && (
+                    <details key={secTitle} className="cf-section" open={expandAll}>
+                      <summary className="cf-section-head">
+                        <span>{secTitle}</span>
+                        <small className="muted">{secGroups.length} 组</small>
+                      </summary>
+                      <div className="compare-grid">
+                        {secGroups.map((g) => (
+                          <GroupCard key={g.id} group={g} focus={g.id === focusId} onQuiz={() => start([g], Math.min(6, g.items.length * 2))} />
+                        ))}
+                      </div>
+                    </details>
+                  ),
+              )}
+            </div>
+          ) : (
+            <div className="compare-grid">
+              {groups.map((g) => (
+                <GroupCard key={g.id} group={g} focus={g.id === focusId} onQuiz={() => start([g], Math.min(6, g.items.length * 2))} />
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>

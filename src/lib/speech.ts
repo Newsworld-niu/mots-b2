@@ -47,6 +47,16 @@ export function pickBrowserFrenchVoice<T extends { lang: string; name: string }>
   return { voice, pitch };
 }
 
+/** Decide whether a recorded clip should automatically fall back to server/Azure STT transcription. */
+export function shouldFallbackToStt(opts: {
+  dictationSupported: boolean;
+  speechFailed: boolean;
+  transcript: string;
+  sttAvailable: boolean;
+}): boolean {
+  return opts.sttAvailable && (!opts.dictationSupported || opts.speechFailed || !opts.transcript.trim());
+}
+
 /** Decide whether a recorded debate clip should automatically fall back to Azure STT transcription. */
 export function shouldFallbackToAzureStt(opts: {
   dictationSupported: boolean;
@@ -54,7 +64,7 @@ export function shouldFallbackToAzureStt(opts: {
   transcript: string;
   azureAvailable: boolean;
 }): boolean {
-  return opts.azureAvailable && (!opts.dictationSupported || opts.speechFailed || !opts.transcript.trim());
+  return shouldFallbackToStt({ ...opts, sttAvailable: opts.azureAvailable });
 }
 
 interface Recognizer {
@@ -85,6 +95,31 @@ const ERRORS: Record<string, string> = {
   "language-not-supported": "这个浏览器不支持法语识别。",
 };
 
+/** Append a newly finalised recognition phrase, stripping duplicate tail/head overlap across restarts. */
+export function mergeDictationSegment(existing: string, incoming: string, afterRestart = false): string {
+  const clean = incoming.trim();
+  if (!clean) return existing;
+  if (!existing.trim()) return `${clean} `;
+  const prevWords = existing.trim().split(/\s+/);
+  const nextWords = clean.split(/\s+/);
+  const maxOverlap = Math.min(8, prevWords.length, nextWords.length);
+  const minOverlap = afterRestart ? 1 : 3;
+  for (let len = maxOverlap; len >= minOverlap; len--) {
+    let same = true;
+    for (let i = 0; i < len; i++) {
+      if (prevWords[prevWords.length - len + i].toLowerCase() !== nextWords[i].toLowerCase()) {
+        same = false;
+        break;
+      }
+    }
+    if (same) {
+      const rest = nextWords.slice(len).join(" ");
+      return rest ? `${existing.trim()} ${rest} ` : `${existing.trim()} `;
+    }
+  }
+  return `${existing.trim()} ${clean} `;
+}
+
 /**
  * Listen in French until stopped. `onText(final, interim)` gets everything recognised so far and the words
  * still being guessed. The recogniser ends by itself after a silence: it is started again until `stop()`.
@@ -99,16 +134,30 @@ export function dictate(onText: (final: string, interim: string) => void, onStop
   let final = "";
   let wanted = true;
   let failed: string | undefined;
+  let restartTimer: ReturnType<typeof setTimeout> | null = null;
+  let afterRestart = false;
+  let emptyRestarts = 0;
+  let hadResultSinceStart = false;
   const rec = new C();
   rec.lang = "fr-FR";
   rec.continuous = true;
   rec.interimResults = true;
   rec.onresult = (e) => {
     let interim = "";
+    let changed = false;
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const r = e.results[i];
-      if (r.isFinal) final += `${r[0].transcript.trim()} `;
-      else interim += r[0].transcript;
+      if (r.isFinal) {
+        final = mergeDictationSegment(final, r[0].transcript, afterRestart);
+        afterRestart = false;
+        changed = true;
+      } else {
+        interim += r[0].transcript;
+      }
+    }
+    if (changed || interim.trim()) {
+      hadResultSinceStart = true;
+      emptyRestarts = 0;
     }
     onText(final, interim);
   };
@@ -120,12 +169,27 @@ export function dictate(onText: (final: string, interim: string) => void, onStop
   };
   rec.onend = () => {
     if (wanted) {
-      try {
-        rec.start();
+      if (!hadResultSinceStart) emptyRestarts++;
+      if (emptyRestarts > 5) {
+        failed = "语音识别连续中断，请改用录音转写或手动输入。";
+        wanted = false;
+        onStop(failed);
         return;
-      } catch {
-        failed = "语音识别中断了。";
       }
+      restartTimer = setTimeout(() => {
+        restartTimer = null;
+        if (!wanted) return;
+        afterRestart = true;
+        hadResultSinceStart = false;
+        try {
+          rec.start();
+        } catch {
+          failed = "语音识别中断了。";
+          wanted = false;
+          onStop(failed);
+        }
+      }, 120);
+      return;
     }
     onStop(failed);
   };
@@ -136,6 +200,10 @@ export function dictate(onText: (final: string, interim: string) => void, onStop
   }
   return () => {
     wanted = false;
+    if (restartTimer !== null) {
+      clearTimeout(restartTimer);
+      restartTimer = null;
+    }
     try {
       rec.stop();
     } catch {

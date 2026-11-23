@@ -14,6 +14,7 @@
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { startsWithFrenchVowel } from "../src/lib/conjugation.ts";
 import type { Drill, GrammarData, GrammarPoint, OrderDrill } from "../src/lib/grammar.ts";
 import { parseWritten, type Problem } from "./grammar/written.ts";
 
@@ -108,9 +109,9 @@ function add(point: string, d: Drill, ...keys: string[]) {
 
 const uniq = <T,>(xs: T[]) => [...new Set(xs)];
 
-/** je before a consonant, j' before a vowel or mute h: "j'ai raté", "je suis parti". */
+/** je before a consonant or aspirated h, j' before a vowel or mute h: "j'ai raté", "je hurle". */
 const withJe = (form: string, like: string) => {
-  const je = /^[aeiouyéèêâîôûh]/i.test(form) ? "j'" : "je ";
+  const je = startsWithFrenchVowel(form) ? "j'" : "je ";
   return (/^J/.test(like) ? je.toUpperCase().slice(0, 1) + je.slice(1) : je) + form;
 };
 /**
@@ -214,7 +215,7 @@ for (const sen of sentences) {
     if (vs.length !== 1 || ts.length !== 1) return;
     const { v, t, p } = fit[0];
     const verb = verbs[v];
-    const inf = (verb.p ? (/^[aeiouéèêh]/.test(verb.i) ? "s'" : "se ") : "") + verb.i;
+    const inf = (verb.p ? (startsWithFrenchVowel(verb.i, verb.i) ? "s'" : "se ") : "") + verb.i;
     // each wrong form with what it is: analogical traps and other tenses of the same person first
     const why = new Map<string, string>();
     for (const f of verb.tr?.[`${t}:${p}`] ?? []) {
@@ -236,8 +237,8 @@ for (const sen of sentences) {
     // the présent keeps the subject outside the blank: its options are other persons (je … vais / allons / vont)
     const je = t === "pres" ? null : blankWithSubject(toks, i, sen.fr);
     if (!je && toks[i - 1]?.low.endsWith("'") && toks[i - 1].e === tok.s && !["s'", "m'", "t'", "n'", "l'", "c'"].includes(toks[i - 1].low)) return;
-    // after an elided pronoun (s', m', n', l') every option must start with a vowel too
-    if (!je && toks[i - 1]?.e === tok.s && forms4.some((f) => !/^[aeiouyéèêâîôûh]/.test(f))) return;
+    // after an elided pronoun (s', m', n', l') every option must start with a vowel or mute h too
+    if (!je && toks[i - 1]?.e === tok.s && forms4.some((f) => !startsWithFrenchVowel(f, verb.i))) return;
     const shown = (f: string) => (je ? withJe(f, je.t) : capital(f, tok.t));
     const options = forms4.map(shown);
     const e = Object.fromEntries(forms4.slice(1).map((f) => [shown(f), why.get(f)!]));
@@ -270,7 +271,7 @@ for (const sen of sentences) {
     if (verb.p && !(i > 0 && ["me", "m'", "te", "t'", "se", "s'", "nous", "vous"].includes(toks[i - 1].low))) return;
     if (!verb.p && aux.aux === "e" && i > 0 && ["se", "s'"].includes(toks[i - 1].low)) return;
     const p = aux.p;
-    const inf = (verb.p ? "se " : "") + verb.i;
+    const inf = (verb.p ? (startsWithFrenchVowel(verb.i, verb.i) ? "s'" : "se ") : "") + verb.i;
     const answer = `${tok.low} ${next.low}`;
     const other = aux.aux === "a" ? verbs.etre.f.pres[p] : verbs.avoir.f.pres[p];
     const agree = aux.aux === "e" ? uniq([verb.pp, verb.pp + "e", verb.pp.endsWith("s") ? verb.pp : verb.pp + "s", verb.pp + "es"]).filter((f) => f !== next.low) : [];
@@ -365,7 +366,7 @@ for (const sen of sentences) {
     }
     const c = CONTRACT[key];
     const after = toks[key.includes(" ") ? i + 2 : i + 1];
-    if (!c || !after || /^[aeiouéèêâîôûh]/i.test(after.low)) return;
+    if (!c || !after || startsWithFrenchVowel(after.low)) return;
     // the noun's gender must agree with the contraction when the noun is known
     const g = nounGender.get(after.low);
     if ((key === "au" || key === "du") && g === "f") return;
@@ -444,7 +445,7 @@ const PLACES: [string, string, "city" | "f" | "m" | "mv" | "pl"][] = [
   ["Iran", "伊朗", "mv"], ["Irak", "伊拉克", "mv"],
   ["États-Unis", "美国", "pl"], ["Pays-Bas", "荷兰", "pl"], ["Philippines", "菲律宾", "pl"],
 ];
-const vowel = (s: string) => /^[AEIOUÉÈÊ]/.test(s);
+const vowel = (s: string) => startsWithFrenchVowel(s);
 const PLACE_WHY: Record<string, string> = {
   à: "à 用在城市前",
   en: "en 用在阴性国家、元音开头的阳性国家前",
@@ -486,7 +487,7 @@ PLACES.forEach(([x, z, kind], n) => {
 /* ---------- subjonctif and conditionnel (templates) ---------- */
 
 const SUBJECTS_T: [string, string, number][] = [["tu", "你", 1], ["vous", "您", 4], ["il", "他", 2], ["nous", "我们", 3], ["elles", "她们", 5]];
-const que = (s: string) => (/^[aeiouéh]/.test(s) ? "qu'" : "que ");
+const que = (s: string) => (startsWithFrenchVowel(s) ? "qu'" : "que ");
 const ACTIONS: [string, string, string][] = [
   ["etre", "à l'heure", "准时"],
   ["avoir", "de la patience", "有耐心"],
@@ -590,4 +591,11 @@ const out: GrammarData = {
 };
 mkdirSync(resolve(ROOT, "public/atlas"), { recursive: true });
 writeFileSync(resolve(ROOT, "public/atlas/grammar.json"), JSON.stringify(out));
+writeFileSync(
+  resolve(ROOT, "public/atlas/grammar-meta.json"),
+  JSON.stringify({
+    v: out.v,
+    points: out.points.map(({ id, title, level, fr }) => ({ id, title, level, fr })),
+  }),
+);
 for (const p of out.points) console.log(`${p.id.padEnd(22)} ${String(writtenBy.get(p.id)?.length ?? 0).padStart(4)} written, ${String(collected.get(p.id)!.drills.length).padStart(5)} found, ${p.drills.length} kept`);

@@ -14,7 +14,8 @@ import {
   unpairLocal,
   wipeCloudAccount,
 } from "../sync/engine";
-import { getLocalSafetyCopy, useSyncState, type SyncState } from "../sync/state";
+import { getLocalSafetyCopy, loadLocalSafetyCopy, useSyncState, type SyncState } from "../sync/state";
+import { confirmAction } from "./ConfirmSheet";
 import { toast } from "./Toast";
 
 const SYNC_CODE_WARNING = "请保存好同步码，丢失将无法找回云端数据";
@@ -53,7 +54,16 @@ function formatDateTime(at: string | number): string {
 
 function LocalSafetyCopyButton() {
   const sync = useSyncState();
-  const safetyJson = useMemo(() => getLocalSafetyCopy(), [sync.lastOkAt, sync.lastError, sync.code, sync.busy]);
+  const [safetyJson, setSafetyJson] = useState<string | null>(() => getLocalSafetyCopy());
+  useEffect(() => {
+    let live = true;
+    void loadLocalSafetyCopy().then((v) => {
+      if (live) setSafetyJson(v);
+    });
+    return () => {
+      live = false;
+    };
+  }, [sync.lastOkAt, sync.lastError, sync.code, sync.busy]);
   const summary = useMemo(() => (safetyJson ? summarizeBackup(safetyJson) : null), [safetyJson]);
   if (!safetyJson || !summary) return null;
   const labelTime = summary.exported ? formatDateTime(summary.exported) : "";
@@ -200,9 +210,11 @@ export function CloudSync() {
 
   const onRestoreHistory = async (item: SyncHistoryItem) => {
     if (
-      !confirm(
-        `确定将学习数据恢复到 ${formatDateTime(item.at)} 的版本？恢复前会自动在本地保留一份当前数据的安全副本，并把云端同步更新为此版本。`,
-      )
+      !(await confirmAction({
+        title: "恢复云端历史版本？",
+        message: `确定将学习数据恢复到 ${formatDateTime(item.at)} 的版本？恢复前会自动在本地保留一份当前数据的安全副本，并把云端同步更新为此版本。`,
+        confirmLabel: "确认恢复",
+      }))
     ) {
       return;
     }
@@ -218,8 +230,15 @@ export function CloudSync() {
     }
   };
 
-  const onUnpair = () => {
-    if (!confirm("确定在本机退出云同步？本机与云端数据都会保留，之后可随时使用同步码重新配对。")) return;
+  const onUnpair = async () => {
+    if (
+      !(await confirmAction({
+        title: "退出本机云同步？",
+        message: "本机与云端数据都会保留，之后可随时使用同步码重新配对。",
+        confirmLabel: "退出同步",
+      }))
+    )
+      return;
     unpairLocal();
     setJustCreated(false);
     setShowCode(false);
@@ -229,7 +248,15 @@ export function CloudSync() {
   };
 
   const onWipeCloud = async () => {
-    if (!confirm("最后确认：将永久删除云端全部同步数据与历史版本，同步码将失效且无法恢复！确定继续？")) return;
+    if (
+      !(await confirmAction({
+        title: "永久删除云端数据？",
+        message: "最后确认：将永久删除云端全部同步数据与历史版本，同步码将失效且无法恢复！确定继续？",
+        confirmLabel: "永久删除",
+        danger: true,
+      }))
+    )
+      return;
     setWiping(true);
     try {
       await wipeCloudAccount();
@@ -357,6 +384,7 @@ export function CloudSync() {
           <Cloud size={14} /> {status.text}
         </span>
       </div>
+      <p className="muted small">已启用端到端加密（E2EE）与字段级智能合并，AI Key 永不上传。</p>
 
       {sync.conflict && (
         <div className="sync-conflict-banner" role="alert">
@@ -462,7 +490,7 @@ export function CloudSync() {
       <LocalSafetyCopyButton />
 
       <div className="sync-danger-row">
-        <button type="button" className="btn btn-ghost btn-sm" onClick={onUnpair} disabled={sync.busy || wiping}>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={() => void onUnpair()} disabled={sync.busy || wiping}>
           <LogOut size={15} /> 退出同步（仅本机）
         </button>
         {!confirmWipe && (

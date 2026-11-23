@@ -1,9 +1,9 @@
-/* Word Atlas offline cache: app shell network-first, everything else cache-first, plus Range 206 support for cached media. */
-// dict/: the offline dictionary for adding words, network-first like the entry chunks.
-// v3: precaches basic app shell on install, clones responses synchronously before return, and synthesizes 206 Partial Content for cached offline audio.
-const VERSION = "atlas-v3";
+/* Word Atlas offline cache: app shell / grammar / lexdb network-first, static media cache-first, plus Range 206 support for cached media. */
+// v6: adds precache-manifest.json precaching so React.lazy route JS/CSS chunks work offline without hitting ErrorBoundary.
+const VERSION = "atlas-v6";
 const SHELL = `${VERSION}-shell`;
 const MEDIA = `${VERSION}-media`;
+const LEXDB = `${VERSION}-lexdb`;
 const OFFLINE_MEDIA = "atlas-offline-media";
 
 function extractShellUrls(html, scope) {
@@ -104,8 +104,10 @@ async function matchOfflineMedia(url) {
 self.addEventListener("install", (event) => {
   const task = (async () => {
     const scope = (self.registration && self.registration.scope) || self.location.href;
-    const rootUrl = new URL("./", scope).href;
-    const indexUrl = new URL("index.html", scope).href;
+    const base = new URL("./", scope);
+    const rootUrl = base.href;
+    const indexUrl = new URL("index.html", base).href;
+    const manifestUrl = new URL("precache-manifest.json", base).href;
     const cache = await caches.open(SHELL);
     let html = "";
     try {
@@ -120,13 +122,34 @@ self.addEventListener("install", (event) => {
     } catch {
       /* offline during install */
     }
-    const urls = extractShellUrls(html, scope).filter((u) => u !== rootUrl && u !== indexUrl);
-    await Promise.allSettled(
-      urls.map(async (u) => {
-        const r = await fetch(u, { cache: "no-cache" });
-        if (r.ok) await cache.put(u, r);
-      }),
-    );
+    const urlSet = new Set(extractShellUrls(html, scope));
+    try {
+      const mRes = await fetch(manifestUrl, { cache: "no-cache" });
+      if (mRes.ok) {
+        const data = await mRes.json();
+        const assets = data && Array.isArray(data.assets) ? data.assets : [];
+        for (const rel of assets) {
+          if (typeof rel !== "string" || !rel || rel.includes("/materials/")) continue;
+          try {
+            const resolved = new URL(rel.replace(/^\//, ""), base);
+            if (resolved.origin === self.location.origin) urlSet.add(resolved.href);
+          } catch {
+            /* ignore malformed asset path */
+          }
+        }
+      }
+    } catch {
+      /* no precache-manifest in dev or offline */
+    }
+    const urls = [...urlSet].filter((u) => u !== rootUrl && u !== indexUrl);
+    for (let i = 0; i < urls.length; i += 12) {
+      await Promise.allSettled(
+        urls.slice(i, i + 12).map(async (u) => {
+          const r = await fetch(u, { cache: "no-cache" });
+          if (r.ok) await cache.put(u, r);
+        }),
+      );
+    }
   })()
     .catch(() => {})
     .then(() => self.skipWaiting());
@@ -153,9 +176,14 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return;
-  // a request that asks for the server's current copy (the new-version check) is not answered from a cache
+  const isBlobMedia =
+    url.origin !== self.location.origin &&
+    /\.blob\.core\.windows\.net$/i.test(url.hostname) &&
+    (url.pathname.includes("/materials/") || url.pathname.includes("/atlas/audio/"));
+  if (url.origin !== self.location.origin && !isBlobMedia) return;
+  // a request that asks for the server's current copy (the new-version check) or hits local proxies is not answered from a cache
   if (req.cache === "no-store") return;
+  if (url.pathname.includes("/dictionary-proxy") || url.pathname.includes("/ai-proxy")) return;
 
   if (req.headers.has("range")) {
     event.respondWith(
@@ -168,7 +196,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (url.pathname.includes("/materials/") && /\.(?:mp3|m4a|aac|ogg|oga|wav|mp4|webm|m4v)$/i.test(url.pathname)) {
+  if (url.pathname.includes("/materials/") && /\.(?:mp3|m4a|aac|ogg|oga|wav|mp4|webm|m4v|json|vtt)$/i.test(url.pathname)) {
     event.respondWith(
       (async () => {
         const hit = await matchOfflineMedia(req.url);
@@ -183,9 +211,9 @@ self.addEventListener("fetch", (event) => {
     req.mode === "navigate" ||
     url.pathname.endsWith("/index.json") ||
     url.pathname.includes("/atlas/entries/") ||
+    url.pathname.endsWith("/atlas/grammar.json") ||
     url.pathname.endsWith("/atlas/conj.json") ||
-    url.pathname.endsWith("/atlas/confusables.json") ||
-    url.pathname.includes("/dict/");
+    url.pathname.endsWith("/atlas/confusables.json");
 
   if (isShell) {
     event.respondWith(
@@ -218,12 +246,36 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  if (url.pathname.includes("/lexdb/")) {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok && (res.type === "basic" || res.type === "default")) {
+            const copy = res.clone();
+            const putTask = caches
+              .open(LEXDB)
+              .then((c) => c.put(req, copy))
+              .then(() => trim(LEXDB, 400))
+              .catch(() => {});
+            if (typeof event.waitUntil === "function") event.waitUntil(putTask);
+          }
+          return res;
+        })
+        .catch(async () => {
+          const c = await caches.open(LEXDB);
+          const hit = await c.match(req, { ignoreVary: true });
+          return hit || Response.error();
+        }),
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(req, { ignoreVary: true }).then(
       (hit) =>
         hit ||
         fetch(req).then((res) => {
-          if (res.ok && res.type === "basic") {
+          if (res.ok && (res.type === "basic" || res.type === "default" || (isBlobMedia && res.type === "cors"))) {
             const copy = res.clone();
             const name = /\/atlas\/(img|thumb|audio)\//.test(url.pathname) ? MEDIA : SHELL;
             const putTask = caches

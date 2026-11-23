@@ -1,0 +1,578 @@
+{
+  "id": "rfi-jff-20261111",
+  "audio": "materials/rfi/rfi-jff-20261111.mp3",
+  "duration": 600.11,
+  "method": "ffmpeg-silence-align",
+  "segments": [
+    {
+      "idx": 0,
+      "start": 0.59,
+      "end": 2.01,
+      "text": "Vous écoutez bien RFI."
+    },
+    {
+      "idx": 1,
+      "start": 2.01,
+      "end": 4.35,
+      "text": "Nous sommes le mercredi 11 novembre."
+    },
+    {
+      "idx": 2,
+      "start": 4.35,
+      "end": 8.63,
+      "text": "Il est 16 heures en temps universel, 17 heures à Paris et à Alger."
+    },
+    {
+      "idx": 3,
+      "start": 8.63,
+      "end": 10.58,
+      "text": "Le Journal en français facile."
+    },
+    {
+      "idx": 4,
+      "start": 10.58,
+      "end": 18.77,
+      "text": "Diane Berger."
+    },
+    {
+      "idx": 5,
+      "start": 18.77,
+      "end": 19.79,
+      "text": "500 jours qu'il est détenu, le journaliste sportif Christophe Gleizes, arrêté en Algérie et condamné pour apologie du terrorisme."
+    },
+    {
+      "idx": 6,
+      "start": 19.79,
+      "end": 26.92,
+      "text": "Ses proches espèrent toujours que le président Tebboune acceptera de le gracier, d'annuler sa peine de prison."
+    },
+    {
+      "idx": 7,
+      "start": 26.92,
+      "end": 30.88,
+      "text": "C'est du jamais-vu en Espagne : un appel à la grève générale."
+    },
+    {
+      "idx": 8,
+      "start": 30.88,
+      "end": 43.59,
+      "text": "Alors, il n'est pas suivi dans tous les secteurs avec la même intensité, mais il donne, en tout cas, la température sociale du pays à moins de trois semaines des prochaines élections législatives."
+    },
+    {
+      "idx": 9,
+      "start": 43.59,
+      "end": 52.67,
+      "text": "Enfin, direction Jérusalem-Est. Leur terre avait déjà été annexée par Israël ; beaucoup de Palestiniens en sont désormais expulsés, chassés."
+    },
+    {
+      "idx": 10,
+      "start": 52.67,
+      "end": 57.41,
+      "text": "Les démolitions de logements ont plus que triplé en l'espace de sept ans."
+    },
+    {
+      "idx": 11,
+      "start": 57.41,
+      "end": 70.83,
+      "text": "500 jours. 500 jours que notre confrère, le journaliste français Christophe Gleizes, est détenu en Algérie, arrêté en mai 2024, puis condamné un an plus tard à sept ans de prison pour apologie du terrorisme."
+    },
+    {
+      "idx": 12,
+      "start": 70.83,
+      "end": 77.32,
+      "text": "Il avait rencontré des militants kabyles pour un reportage sur le club de football de la JS Kabylie."
+    },
+    {
+      "idx": 13,
+      "start": 77.32,
+      "end": 83.29,
+      "text": "Certains de ses contacts étaient liés à une organisation classée comme terroriste par Alger."
+    },
+    {
+      "idx": 14,
+      "start": 83.29,
+      "end": 88.28,
+      "text": "Et, aujourd'hui, sa famille demande, à nouveau, un geste au pouvoir algérien."
+    },
+    {
+      "idx": 15,
+      "start": 88.28,
+      "end": 92.95,
+      "text": "Son frère, Maxime Gleizes, était l'invité de Nicolas Sur, dans RFI Midi."
+    },
+    {
+      "idx": 16,
+      "start": 92.95,
+      "end": 93.73,
+      "text": "On l'écoute."
+    },
+    {
+      "idx": 17,
+      "start": 93.73,
+      "end": 97.23,
+      "text": "« La dernière fois que j'y suis allé, c'était en juin."
+    },
+    {
+      "idx": 18,
+      "start": 97.23,
+      "end": 104.76,
+      "text": "Mais les nouvelles plus fraîches viennent du nouveau consul français, qui a pu lui rendre visite il y a trois jours."
+    },
+    {
+      "idx": 19,
+      "start": 104.76,
+      "end": 116.89,
+      "text": "Écoutez, dès qu'on le voit, je pense qu'il a peu de visites, donc il essaye de montrer tout son côté solaire et sa bonhomie."
+    },
+    {
+      "idx": 20,
+      "start": 116.89,
+      "end": 120.65,
+      "text": "Donc, il essaie de rassurer tout le monde parce que, vraiment, ce qui le peinerait le plus, c'est que la famille souffre."
+    },
+    {
+      "idx": 21,
+      "start": 120.65,
+      "end": 122.85,
+      "text": "Et, ça, il le veut absolument pas."
+    },
+    {
+      "idx": 22,
+      "start": 122.85,
+      "end": 135,
+      "text": "Et il a parlé pendant longtemps avec le consul de littérature, de géopolitique, de sport, d'échecs."
+    },
+    {
+      "idx": 23,
+      "start": 135,
+      "end": 136.99,
+      "text": "Et, en ce moment, il lit Marcel Proust, et il a retrouvé son codétenu bédouin avec qui il jouait énormément aux échecs."
+    },
+    {
+      "idx": 24,
+      "start": 136.99,
+      "end": 138.22,
+      "text": "Donc, tout va bien."
+    },
+    {
+      "idx": 25,
+      "start": 138.22,
+      "end": 146.46,
+      "text": "En tout cas, le seul petit bémol, c'est qu'il a très mal à une dent, il a perdu une couronne et, donc, il doit se faire opérer."
+    },
+    {
+      "idx": 26,
+      "start": 146.46,
+      "end": 149.32,
+      "text": "Et, en fait, c'est très difficile en prison."
+    },
+    {
+      "idx": 27,
+      "start": 149.32,
+      "end": 152.3,
+      "text": "Donc, je pense qu'il souffre un peu le martyr."
+    },
+    {
+      "idx": 28,
+      "start": 152.3,
+      "end": 158.59,
+      "text": "Mais, le problème, c'est qu'on n'est pas sur place pour gérer un peu tout ce problème-là. »"
+    },
+    {
+      "idx": 29,
+      "start": 158.59,
+      "end": 161.64,
+      "text": "Maxime Gleizes, le frère de Christophe Gleizes."
+    },
+    {
+      "idx": 30,
+      "start": 161.64,
+      "end": 173.19,
+      "text": "Avec d'autres membres de leur famille, ils ont été reçus, aujourd'hui, par le chef de la diplomatie française, Jean-Noël Barrot."
+    },
+    {
+      "idx": 31,
+      "start": 173.19,
+      "end": 186.81,
+      "text": "Et ils seront, dans un peu plus d'une heure, à un match de football solidaire, organisé par Reporters sans frontières avec la Ville de Paris, pour rendre hommage, justement, à Christophe Gleizes ; lui qui, dans son travail, couvrait l'actualité du ballon rond."
+    },
+    {
+      "idx": 32,
+      "start": 186.81,
+      "end": 192.84,
+      "text": "312 écoles évacuées après des alertes à la bombe, d'après le ministre de l'Éducation italien."
+    },
+    {
+      "idx": 33,
+      "start": 192.84,
+      "end": 199.39,
+      "text": "À ce stade, aucun « danger concret » n'a été identifié, d'après Giorgia Meloni, la Première ministre."
+    },
+    {
+      "idx": 34,
+      "start": 199.39,
+      "end": 203.61,
+      "text": "Les autorités demandent aux habitants du pays de ne pas paniquer."
+    },
+    {
+      "idx": 35,
+      "start": 203.61,
+      "end": 209.31,
+      "text": "Ce n'est pas le premier pays d'Europe touché par ce genre de menaces ces derniers jours."
+    },
+    {
+      "idx": 36,
+      "start": 209.31,
+      "end": 216.64,
+      "text": "Les écoles du Royaume-Uni et d'Irlande ont, également, reçu des alertes à la bombe de ce type ces derniers temps."
+    },
+    {
+      "idx": 37,
+      "start": 216.64,
+      "end": 219.04,
+      "text": "Journée de grève générale en Espagne."
+    },
+    {
+      "idx": 38,
+      "start": 219.04,
+      "end": 228.19,
+      "text": "Le quart des trains à grande vitesse de la compagnie nationale Renfe a été supprimé, 85 vols au départ ou à destination de Barcelone annulés."
+    },
+    {
+      "idx": 39,
+      "start": 228.19,
+      "end": 232.86,
+      "text": "Le mouvement est très suivi dans certains secteurs, selon les syndicats."
+    },
+    {
+      "idx": 40,
+      "start": 232.86,
+      "end": 236.56,
+      "text": "La mobilisation totale est faible, répondent les patrons."
+    },
+    {
+      "idx": 41,
+      "start": 236.56,
+      "end": 240.06,
+      "text": "Le mouvement, en tout cas, est inédit en quatorze ans."
+    },
+    {
+      "idx": 42,
+      "start": 240.06,
+      "end": 243.69,
+      "text": "C'est la première grève générale en Espagne depuis 2012."
+    },
+    {
+      "idx": 43,
+      "start": 243.69,
+      "end": 252.58,
+      "text": "Mot d'ordre : défendre l'accès au logement et le pouvoir d'achat, à moins de trois semaines des législatives anticipées, Agnieszka Kumor."
+    },
+    {
+      "idx": 44,
+      "start": 252.58,
+      "end": 260.44,
+      "text": "Si l'objectif principal des syndicats est de mobiliser les salariés espagnols autour de la question du logement, le mécontentement social se fait de plus en plus sentir."
+    },
+    {
+      "idx": 45,
+      "start": 260.44,
+      "end": 277.55,
+      "text": "Accidents ferroviaires à répétition, méga-panne d'électricité, gestion des incendies et des inondations meurtrières ; autant de signes qui montrent les failles de l'État, notamment dans les infrastructures publiques."
+    },
+    {
+      "idx": 46,
+      "start": 277.55,
+      "end": 287.21,
+      "text": "Cela alors que l'économie espagnole affiche l'une des plus belles performances en Europe : 2,7 % sur un an de croissance au troisième trimestre 2026."
+    },
+    {
+      "idx": 47,
+      "start": 287.21,
+      "end": 293.64,
+      "text": "La dette publique de l'Espagne est retombée sous le seuil symbolique des 100 % du PIB, cette année."
+    },
+    {
+      "idx": 48,
+      "start": 293.64,
+      "end": 298.37,
+      "text": "Les recettes de l'État ont augmenté de 150 milliards d'euros depuis 2019."
+    },
+    {
+      "idx": 49,
+      "start": 298.37,
+      "end": 301.03,
+      "text": "Mais l'investissement public ne suit pas."
+    },
+    {
+      "idx": 50,
+      "start": 301.03,
+      "end": 311.73,
+      "text": "D'où un sentiment grandissant dans la population espagnole de la dégradation des services publics en matière de transports, mais aussi de la santé ou de l'éducation."
+    },
+    {
+      "idx": 51,
+      "start": 311.73,
+      "end": 314.59,
+      "text": "Agnieszka Kumor, du service économie de RFI."
+    },
+    {
+      "idx": 52,
+      "start": 314.59,
+      "end": 324.24,
+      "text": "À Varsovie, maintenant, c'est pour un tout autre motif que des dizaines de milliers de personnes descendent dans la rue, aujourd'hui : elles participent à la traditionnelle Marche [de] l'Indépendance."
+    },
+    {
+      "idx": 53,
+      "start": 324.24,
+      "end": 332.36,
+      "text": "Un rendez-vous annuel des nationalistes et des militants d'extrême droite."
+    },
+    {
+      "idx": 54,
+      "start": 332.36,
+      "end": 344.42,
+      "text": "Sous une nuée de drapeaux aux couleurs de la Pologne, on peut y entendre des slogans xénophobes – contre les étrangers –, comme, je cite un exemple : « Garder la Pologne blanche. »"
+    },
+    {
+      "idx": 55,
+      "start": 344.42,
+      "end": 353.96,
+      "text": "Que va-t-il se passer, maintenant, après les négociations qui ont eu lieu à Abou Dabi, aux Émirats [arabes unis], concernant la guerre en Ukraine ?"
+    },
+    {
+      "idx": 56,
+      "start": 353.96,
+      "end": 358.43,
+      "text": "Des discussions qui ont été organisées sous médiation des États-Unis."
+    },
+    {
+      "idx": 57,
+      "start": 358.43,
+      "end": 367.12,
+      "text": "Le président ukrainien, Volodymyr Zelensky, annonce qu'il va rencontrer demain, jeudi, les émissaires américains à Dublin, en Irlande."
+    },
+    {
+      "idx": 58,
+      "start": 367.12,
+      "end": 376.53,
+      "text": "Avant cela, Jared Kushner et Steve Witkoff sont attendus à Moscou pour des discussions supplémentaires avec le président russe, Vladimir Poutine."
+    },
+    {
+      "idx": 59,
+      "start": 376.53,
+      "end": 379.58,
+      "text": "Eux n'ont plus le droit de se rendre en Russie."
+    },
+    {
+      "idx": 60,
+      "start": 379.58,
+      "end": 389.31,
+      "text": "Moscou interdit d'entrer sur son territoire deux députés français, Sacha Houlié et Arthur Delaporte, et deux journalistes, Ariane Chemin et Paul Gogo."
+    },
+    {
+      "idx": 61,
+      "start": 389.31,
+      "end": 396.64,
+      "text": "Les journaux Le Monde et Ouest-France dénoncent une entrave – c'est-à-dire un obstacle – à la liberté d'informer."
+    },
+    {
+      "idx": 62,
+      "start": 396.64,
+      "end": 416.45,
+      "text": "La diplomatie russe dit avoir agi en réponse à l'expulsion de France de Xenia Fedorova, la chroniqueuse russe pro-Kremlin, très présente dans plusieurs médias du milliardaire français Vincent Bolloré."
+    },
+    {
+      "idx": 63,
+      "start": 416.45,
+      "end": 416.9,
+      "text": "Le Journal en français facile."
+    },
+    {
+      "idx": 64,
+      "start": 416.9,
+      "end": 417.35,
+      "text": "Vous écoutez toujours bien RFI."
+    },
+    {
+      "idx": 65,
+      "start": 417.35,
+      "end": 417.8,
+      "text": "Il est 17 h 07 à Paris, 18 h 07 à Jérusalem."
+    },
+    {
+      "idx": 66,
+      "start": 417.8,
+      "end": 418.25,
+      "text": "La ville coupée en deux."
+    },
+    {
+      "idx": 67,
+      "start": 418.25,
+      "end": 423.3,
+      "text": "Le côté ouest est israélien, le côté est palestinien selon le droit international."
+    },
+    {
+      "idx": 68,
+      "start": 423.3,
+      "end": 433.93,
+      "text": "Mais ça, c'est en théorie, car Israël s'est emparé de ce morceau de territoire en juin 1967, pendant la guerre des Six jours, avant d'annexer Jérusalem-Est en 1980."
+    },
+    {
+      "idx": 69,
+      "start": 433.93,
+      "end": 445.41,
+      "text": "Et, aujourd'hui, une ONG israélienne, Ir Amim, alerte : l'État israélien s'implique de plus en plus, il agit pour expulser, chasser, les habitants palestiniens de Jérusalem-Est."
+    },
+    {
+      "idx": 70,
+      "start": 445.41,
+      "end": 449.95,
+      "text": "Selon l'ONG, six communautés palestiniennes sont aujourd'hui menacées."
+    },
+    {
+      "idx": 71,
+      "start": 449.95,
+      "end": 453.85,
+      "text": "Manon Chapelain, vous êtes notre correspondante à Jérusalem."
+    },
+    {
+      "idx": 72,
+      "start": 453.85,
+      "end": 458.77,
+      "text": "Les démolitions de logements palestiniens ont augmenté ces dernières années."
+    },
+    {
+      "idx": 73,
+      "start": 458.77,
+      "end": 460.79,
+      "text": "Oui, elles ont plus que triplé."
+    },
+    {
+      "idx": 74,
+      "start": 460.79,
+      "end": 472.2,
+      "text": "Une cinquantaine de logements palestiniens étaient démolis chaque année avant 2019, contre 181 pour la seule année 2024."
+    },
+    {
+      "idx": 75,
+      "start": 472.2,
+      "end": 476.55,
+      "text": "Le principal enseignement de ce rapport, c'est que ces expulsions ne sont plus seulement le fait d'organisations de colons."
+    },
+    {
+      "idx": 76,
+      "start": 476.55,
+      "end": 482.97,
+      "text": "Elles sont, selon l'organisation, directement orchestrées par les institutions de l'État israélien."
+    },
+    {
+      "idx": 77,
+      "start": 482.97,
+      "end": 486.41,
+      "text": "Le rapport identifie 19 organismes publics impliqués."
+    },
+    {
+      "idx": 78,
+      "start": 486.41,
+      "end": 501.71,
+      "text": "Parmi eux, le ministère de la Justice, qui facilite le transfert de propriété aux colons, celui des Finances, qui permet la saisie de biens palestiniens, ou encore la police, directement impliquée dans les expulsions et les démolitions."
+    },
+    {
+      "idx": 79,
+      "start": 501.71,
+      "end": 506.77,
+      "text": "Sur le terrain, six communautés palestiniennes sont particulièrement menacées."
+    },
+    {
+      "idx": 80,
+      "start": 506.77,
+      "end": 512.68,
+      "text": "À Al-Boustane, au sud de la vieille ville de Jérusalem, 115 maisons risquent d'être rasées."
+    },
+    {
+      "idx": 81,
+      "start": 512.68,
+      "end": 516.76,
+      "text": "Ce sont 45 à Numan, village palestinien du sud-est de la ville."
+    },
+    {
+      "idx": 82,
+      "start": 516.76,
+      "end": 527.33,
+      "text": "En parallèle, l'Autorité israélienne des terres a lancé des appels d'offres pour plus de 60 000 logements dans des colonies construites sur ces terres expropriées."
+    },
+    {
+      "idx": 83,
+      "start": 527.33,
+      "end": 529.47,
+      "text": "Manon Chapelain à Jérusalem, RFI."
+    },
+    {
+      "idx": 84,
+      "start": 529.47,
+      "end": 537.84,
+      "text": "Plus au nord, le Liban a subi deux guerres avec Israël en l'espace de quelques années."
+    },
+    {
+      "idx": 85,
+      "start": 537.84,
+      "end": 538.49,
+      "text": "Le pays fait aussi face à une grave crise économique."
+    },
+    {
+      "idx": 86,
+      "start": 538.49,
+      "end": 542.12,
+      "text": "Tout cela rend la vie très difficile pour les habitants."
+    },
+    {
+      "idx": 87,
+      "start": 542.12,
+      "end": 551.07,
+      "text": "D'après l'ONU, plus d'un million de personnes sont confrontées, au Liban, à une insécurité alimentaire aiguë – ils manquent de nourriture."
+    },
+    {
+      "idx": 88,
+      "start": 551.07,
+      "end": 556.91,
+      "text": "On termine ce Journal en français facile avec un mot du voyage du pape en Amérique du Sud."
+    },
+    {
+      "idx": 89,
+      "start": 556.91,
+      "end": 569.69,
+      "text": "Plus de deux millions de personnes se sont réunies pour la dernière messe de Léon XIV en Argentine, à Luján, dernière étape, donc, du chef des catholiques dans le pays, après l'Uruguay et le Pérou."
+    },
+    {
+      "idx": 90,
+      "start": 569.69,
+      "end": 573.39,
+      "text": "Et, ensuite direction... Oui, ensuite direction le Pérou."
+    },
+    {
+      "idx": 91,
+      "start": 573.39,
+      "end": 577.21,
+      "text": "Excusez-moi, je m'embrouille dans les déplacements du pape."
+    },
+    {
+      "idx": 92,
+      "start": 577.21,
+      "end": 580.78,
+      "text": "Il est maintenant quasiment 16 h 10 en temps universel."
+    },
+    {
+      "idx": 93,
+      "start": 580.78,
+      "end": 583.76,
+      "text": "C'est la fin de ce Journal en français facile."
+    },
+    {
+      "idx": 94,
+      "start": 583.76,
+      "end": 597.06,
+      "text": "Demain, vous retrouverez Adrien Delgrange, votre présentateur habituel, qui sera en direct de Phnom Penh, au Cambodge, car c'est là qu'a lieu le 20ᵉ sommet de la Francophonie, qui commence samedi prochain."
+    }
+  ]
+}

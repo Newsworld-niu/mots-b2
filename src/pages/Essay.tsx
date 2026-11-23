@@ -1,7 +1,8 @@
-import { ArrowLeft, ArrowRight, BookMarked, PenLine, RefreshCw, Sparkles, Trash2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookmarkPlus, BookMarked, Check, PenLine, RefreshCw, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ready, useAiConfig } from "../ai/config";
 import { gradeEssay, makeEssayTask, makeModelEssay } from "../ai/tasks";
+import type { TrackWritingGradeResult } from "../ai/tasks/writing-tracks";
 import { useGrammar } from "../atlas/grammar";
 import {
   B2_GENRES,
@@ -10,6 +11,7 @@ import {
   CRITERIA,
   CRITERION_CHECK,
   CRITERION_LABEL,
+  diffSecondDraftCorrections,
   ESSAY_PLANS,
   ESSAY_TASKS,
   FORMAL_GENRES,
@@ -19,6 +21,7 @@ import {
   isAiTask,
   LETTER_FORMULAS,
   LETTER_TEMPLATE,
+  LEVELS,
   MAX_ESSAY_LENGTH,
   maxScore,
   pickAiTaskOptions,
@@ -31,18 +34,26 @@ import {
   type SavedEssay,
 } from "../lib/essay";
 import { clock, topicOf } from "../lib/exam";
+import { scoreTcfProductive20, scoreTefSection699, TRACK_META, type ExamTrack } from "../lib/exam-tracks";
 import { ERROR_LABEL } from "../lib/writing";
-import { href } from "../lib/router";
+import type { TcfWritingSuite, TefWritingSuite } from "../lib/writing-tracks";
+import { useNavGuard } from "../lib/nav-guard";
+import { go, href } from "../lib/router";
 import { useTimer } from "../lib/timer";
-import { deleteAiTask, deleteEssay, deleteNote, patchEssay, saveAiTask, saveEssay } from "../store/essays";
-import { useStore } from "../store/store";
+import { deleteAiTask, deleteEssay, deleteNote, harvestNonGrammarNotes, logExam, patchEssay, saveAiTask, saveEssay, saveNote } from "../store/essays";
+import { clearTombstone, markTombstone, store, useStore } from "../store/store";
 import { AccentKeys } from "../ui/AccentKeys";
+import { confirmAction } from "../ui/ConfirmSheet";
 import { Marking } from "../ui/Marking";
+import { ParagraphUpgrader } from "../ui/ParagraphUpgrader";
+import { ArgumentsDrawer } from "../ui/ArgumentsDrawer";
 import { StaticEssayModel } from "../ui/StaticEssayModel";
+import { SAMPLE_ESSAY_PREVIEW } from "../lib/ai-samples";
 import { toast } from "../ui/Toast";
 import { WordPopup } from "../ui/WordPopup";
 
 const DRAFT = (task: string) => `fb2.essay.draft.${task}`;
+const DRAFT_AT = (task: string) => `fb2.essay.draftAt.${task}`;
 const readDraft = (task: string) => {
   try {
     return localStorage.getItem(DRAFT(task)) ?? "";
@@ -52,8 +63,20 @@ const readDraft = (task: string) => {
 };
 const writeDraft = (task: string, text: string) => {
   try {
-    if (text.trim()) localStorage.setItem(DRAFT(task), text);
-    else localStorage.removeItem(DRAFT(task));
+    const key = DRAFT(task);
+    const now = Date.now();
+    if (text.trim()) {
+      localStorage.setItem(key, text);
+      localStorage.setItem(DRAFT_AT(task), String(now));
+      if (store.get().progress.tombstones?.[`draft:${key}`]) {
+        store.progress((p) => clearTombstone(p, `draft:${key}`));
+      }
+    } else if (localStorage.getItem(key) !== null) {
+      localStorage.removeItem(key);
+      localStorage.setItem(DRAFT_AT(task), String(now));
+      store.progress((p) => markTombstone(p, `draft:${key}`, now));
+    }
+    if (typeof window !== "undefined") window.dispatchEvent(new Event("fb2:draft-changed"));
   } catch {
     /* a draft that cannot be kept is not worth an error */
   }
@@ -101,20 +124,788 @@ const reasonOf = (s: TaskStat) =>
 const countClass = (n: number, min: number) => (n < Math.round(min * 0.9) ? "is-short warn-text" : n < min ? "is-short" : "is-ok");
 const countLabel = (n: number, min: number, max: number) => `${n} 词 · 至少 ${min} 词（推荐 ${min}–${max}，${Math.round(min * 0.9)} 警戒 / ${Math.floor(min / 2)} 零分）`;
 
+const TRACK_DRAFT_KEY = (suiteId: string) => `fb2.trackEssay.draft.${suiteId}`;
+
+function readTrackDraft(suiteId: string, partsCount: number): string[] {
+  try {
+    const raw = localStorage.getItem(TRACK_DRAFT_KEY(suiteId));
+    if (!raw) return new Array<string>(partsCount).fill("");
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return Array.from({ length: partsCount }, (_, idx) => (typeof parsed[idx] === "string" ? parsed[idx] : ""));
+    }
+  } catch {
+    /* ignore malformed local draft */
+  }
+  return new Array<string>(partsCount).fill("");
+}
+
+function writeTrackDraft(suiteId: string, parts: readonly string[]) {
+  try {
+    if (parts.some((p) => p.trim().length > 0)) {
+      localStorage.setItem(TRACK_DRAFT_KEY(suiteId), JSON.stringify(parts));
+    } else {
+      localStorage.removeItem(TRACK_DRAFT_KEY(suiteId));
+    }
+  } catch {
+    /* ignore quota errors */
+  }
+}
+
+type TrackWritingModule = typeof import("../lib/writing-tracks");
+
+function TrackEssayStudioBody({
+  track,
+  onSwitchTrack,
+  onExit,
+}: {
+  track: "tcf" | "tef";
+  onSwitchTrack: (t: ExamTrack) => void;
+  onExit: () => void;
+}) {
+  const ai = useAiConfig();
+  const { data: grammar } = useGrammar();
+  const examLog = useStore((s) => s.progress.examLog);
+  const notes = useStore((s) => s.progress.essayNotes) ?? [];
+  const hasAi = ready.text(ai);
+  const timer = useTimer();
+
+  const [wtMod, setWtMod] = useState<TrackWritingModule | null>(null);
+  const [stage, setStage] = useState<"list" | "write" | "result">("list");
+  const [tcfSuite, setTcfSuite] = useState<TcfWritingSuite | null>(null);
+  const [tefSuite, setTefSuite] = useState<TefWritingSuite | null>(null);
+  const [parts, setParts] = useState<string[]>(["", "", ""]);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [examMode, setExamMode] = useState(false);
+  const [grading, setGrading] = useState(false);
+  const [gradeRes, setGradeRes] = useState<TrackWritingGradeResult | null>(null);
+  const [selfScores, setSelfScores] = useState<Record<string, number>>({});
+  const [selfSaved, setSelfSaved] = useState(false);
+
+  const boxRef0 = useRef<HTMLTextAreaElement | null>(null);
+  const boxRef1 = useRef<HTMLTextAreaElement | null>(null);
+  const boxRef2 = useRef<HTMLTextAreaElement | null>(null);
+  const activeBoxRef = activeIdx === 0 ? boxRef0 : activeIdx === 1 ? boxRef1 : boxRef2;
+  const ctrlRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    void import("../lib/writing-tracks").then((m) => {
+      if (mounted) setWtMod(m);
+    });
+    return () => {
+      mounted = false;
+      ctrlRef.current?.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    setStage("list");
+    timer.stop();
+    ctrlRef.current?.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [track]);
+
+  const hasContent = parts.some((p) => p.trim().length > 0);
+  useNavGuard(
+    stage === "write" && (hasContent || (examMode && timer.sec > 0)),
+    "多任务限时写作正在进行中（草稿已自动保存在本地），确定离开？",
+  );
+
+  const pointTitle = useMemo(() => new Map((grammar?.points ?? []).map((p) => [p.id, p.title])), [grammar]);
+  const trackLogs = useMemo(
+    () => (examLog ?? []).filter((r) => r.part === "essay" && r.track === track),
+    [examLog, track],
+  );
+
+  const renderTrackSwitcher = (disabled = false) => (
+    <div className="segmented" role="group" aria-label="切换写作考试体系">
+      {(["delf", "tcf", "tef"] as const).map((t) => (
+        <button
+          key={t}
+          type="button"
+          className={track === t ? "is-on" : ""}
+          aria-pressed={track === t}
+          disabled={disabled}
+          onClick={() => onSwitchTrack(t)}
+        >
+          {t === "delf" ? "DELF B2" : t === "tcf" ? "TCF EE（3篇 · /20）" : "TEF EE（A+B双篇 · /699）"}
+        </button>
+      ))}
+    </div>
+  );
+
+  if (!wtMod) {
+    return (
+      <div className="page practice">
+        <p className="muted">加载写作题库模块中…</p>
+      </div>
+    );
+  }
+
+  const openTcfSuite = (suite: TcfWritingSuite) => {
+    setTcfSuite(suite);
+    setTefSuite(null);
+    setParts(readTrackDraft(suite.id, 3));
+    setActiveIdx(0);
+    setGradeRes(null);
+    setSelfScores({});
+    setSelfSaved(false);
+    if (examMode) timer.start(suite.durationMinutes * 60);
+    else timer.stop();
+    setStage("write");
+  };
+
+  const openTefSuite = (suite: TefWritingSuite) => {
+    setTefSuite(suite);
+    setTcfSuite(null);
+    setParts(readTrackDraft(suite.id, 2));
+    setActiveIdx(0);
+    setGradeRes(null);
+    setSelfScores({});
+    setSelfSaved(false);
+    if (examMode) timer.start(suite.durationMinutes * 60);
+    else timer.stop();
+    setStage("write");
+  };
+
+  const activeSuiteId = track === "tcf" ? tcfSuite?.id ?? "" : tefSuite?.id ?? "";
+  const activeSuiteTitle = track === "tcf" ? tcfSuite?.title ?? "" : tefSuite?.title ?? "";
+
+  const updatePart = (idx: number, val: string) => {
+    const clipped = val.slice(0, MAX_ESSAY_LENGTH);
+    setParts((prev) => {
+      const next = [...prev];
+      next[idx] = clipped;
+      if (activeSuiteId) writeTrackDraft(activeSuiteId, next);
+      return next;
+    });
+  };
+
+  const submitMultiPart = async () => {
+    if (grading || !parts.some((p) => p.trim())) return;
+    timer.stop();
+    if (!hasAi) {
+      setStage("result");
+      return;
+    }
+    const c = new AbortController();
+    ctrlRef.current = c;
+    setGrading(true);
+    try {
+      const { gradeTrackWriting } = await import("../ai/tasks/writing-tracks");
+      const pts = (grammar?.points ?? []).map((p) => ({ id: p.id, title: p.title }));
+      let res: TrackWritingGradeResult;
+      if (track === "tcf" && tcfSuite) {
+        res = await gradeTrackWriting(
+          {
+            track: "tcf",
+            suite: tcfSuite,
+            texts: [parts[0] ?? "", parts[1] ?? "", parts[2] ?? ""],
+            points: pts,
+          },
+          c.signal,
+        );
+        if (c.signal.aborted) return;
+        store.progress((p) => harvestNonGrammarNotes(p, `TCF EE · ${tcfSuite.title}`, res.corrections));
+        logExam({
+          part: "essay",
+          what: tcfSuite.id,
+          score: res.scaledScore,
+          total: 20,
+          level: "B2",
+          scope: "full",
+          track: "tcf",
+          trackSection: "ee",
+          nclc: res.nclc,
+        });
+        writeTrackDraft(tcfSuite.id, ["", "", ""]);
+      } else if (track === "tef" && tefSuite) {
+        res = await gradeTrackWriting(
+          {
+            track: "tef",
+            suite: tefSuite,
+            secAText: parts[0] ?? "",
+            secBText: parts[1] ?? "",
+            points: pts,
+          },
+          c.signal,
+        );
+        if (c.signal.aborted) return;
+        store.progress((p) => harvestNonGrammarNotes(p, `TEF EE · ${tefSuite.title}`, res.corrections));
+        logExam({
+          part: "essay",
+          what: tefSuite.id,
+          score: res.scaledScore,
+          total: 699,
+          scaledScore: res.scaledScore,
+          level: "B2",
+          scope: "full",
+          track: "tef",
+          trackSection: "ee",
+          nclc: res.nclc,
+        });
+        writeTrackDraft(tefSuite.id, ["", ""]);
+      } else {
+        return;
+      }
+      setGradeRes(res);
+      setStage("result");
+    } catch (err) {
+      if (!c.signal.aborted) toast((err as Error).message || "多任务作文批改失败", "warn");
+    } finally {
+      setGrading(false);
+    }
+  };
+
+  if (stage === "list") {
+    return (
+      <div className="page practice">
+        <header className="page-head">
+          <button className="link deck-back" onClick={onExit}>
+            <ArrowLeft size={16} /> 返回练习
+          </button>
+          <div className="writing-actions">{renderTrackSwitcher()}</div>
+          <p className="eyebrow">
+            {TRACK_META[track].shortName} · Expression écrite · {TRACK_META[track].badge}
+          </p>
+          <h1 className="display">
+            {track === "tcf" ? "六十分钟三篇，字字卡准区间。" : "奇闻续写加读者来信，双文体同卷。"}
+          </h1>
+          <p className="lede">
+            {track === "tcf"
+              ? "严格对齐 TCF 全真三任务连考（共 60 分钟）：Tâche 1 实用短讯（60–120 词）+ Tâche 2 亲身经历博客文章（120–150 词）+ Tâche 3 双材料客观综述与个人观点（120–180 词），按 0–20 分（0.5 分档）及加拿大 NCLC 等级评分。"
+              : "严格对齐 2023.12 新政后 TEF / TEF Canada 双任务（共 60 分钟）：Section A 报刊奇闻续写 fait divers（新增 ≥80 词，考查过去时态群与被动语态）+ Section B 读者来信正式驳论（≥200 词，至少 3 个带例论点），直出 0–699 分与 NCLC 1–12。"}
+          </p>
+          <label className="essay-check-doc">
+            <input type="checkbox" checked={examMode} onChange={(e) => setExamMode(e.target.checked)} /> 模考模式（进入套卷自动开启 60 分钟共享倒计时，到时锁卷）
+          </label>
+        </header>
+
+        <section className="essay-level">
+          <h2 className="eyebrow">
+            {track === "tcf"
+              ? `内置全真 TCF 写作套卷（${wtMod.TCF_WRITING_SUITES.length} 套 · T1+T2+T3）`
+              : `内置全真 TEF 写作套卷（${wtMod.TEF_WRITING_SUITES.length} 套 · Sec A+B）`}
+          </h2>
+          <div className="essay-tasks">
+            {track === "tcf"
+              ? wtMod.TCF_WRITING_SUITES.map((s) => {
+                  const hasDraft = readTrackDraft(s.id, 3).some((x) => x.trim().length > 0);
+                  return (
+                    <button key={s.id} type="button" className="essay-task" onClick={() => openTcfSuite(s)}>
+                      <span className="essay-chips">
+                        <span className="chip">{s.topicZh}</span>
+                        {hasDraft && <span className="chip chip-mine">有未交草稿</span>}
+                      </span>
+                      <b lang="fr">{s.title}</b>
+                      <small>T1 (60–120w) · T2 (120–150w) · T3 双材料综述 (120–180w)</small>
+                      <small className="essay-task-meta">限时 60 分钟 · 0–20 分 & NCLC</small>
+                    </button>
+                  );
+                })
+              : wtMod.TEF_WRITING_SUITES.map((s) => {
+                  const hasDraft = readTrackDraft(s.id, 2).some((x) => x.trim().length > 0);
+                  return (
+                    <button key={s.id} type="button" className="essay-task" onClick={() => openTefSuite(s)}>
+                      <span className="essay-chips">
+                        <span className="chip">{s.topicZh}</span>
+                        {hasDraft && <span className="chip chip-mine">有未交草稿</span>}
+                      </span>
+                      <b lang="fr">{s.title}</b>
+                      <small lang="fr">Sec A: {s.sectionA.headlineFr}</small>
+                      <small className="essay-task-meta" lang="fr">
+                        Sec B (≥200w): {s.sectionB.claimFr}
+                      </small>
+                    </button>
+                  );
+                })}
+          </div>
+        </section>
+
+        {notes.length > 0 && (
+          <section className="essay-level">
+            <details className="essay-fold">
+              <summary>
+                <BookMarked size={15} /> 错句本（{notes.length}）
+              </summary>
+              <ul className="writing-errors essay-corrections essay-notes">
+                {notes.slice(0, 15).map((n) => (
+                  <li key={n.id}>
+                    <span className="chip">{ERROR_LABEL[n.type]}</span>
+                    <span lang="fr">
+                      {n.wrong && <del>{n.wrong}</del>} {n.right && <ins>{n.right}</ins>}
+                    </span>
+                    {n.why && <small>{n.why}</small>}
+                    <button className="own-rm essay-note-rm" aria-label="从错句本删除" onClick={() => deleteNote(n.id)}>
+                      <X size={13} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </section>
+        )}
+
+        {trackLogs.length > 0 && (
+          <section className="essay-level">
+            <h2 className="eyebrow">{TRACK_META[track].shortName} 写作历史记录</h2>
+            <ul className="essay-history">
+              {trackLogs.slice(0, 10).map((r, idx) => (
+                <li key={idx}>
+                  <span>
+                    {day(r.at)} ·{" "}
+                    {(track === "tcf"
+                      ? wtMod.TCF_WRITING_SUITES.find((x) => x.id === r.what)?.title
+                      : wtMod.TEF_WRITING_SUITES.find((x) => x.id === r.what)?.title) ?? r.what}
+                  </span>
+                  <span className="muted">
+                    {track === "tcf" ? `${r.score}/20` : `${r.scaledScore ?? r.score}/699`}
+                    {r.nclc ? ` · NCLC ${r.nclc}` : ""}
+                    {r.unverified ? " · 离线自评" : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+    );
+  }
+
+  if (stage === "result") {
+    const offlineKeys =
+      track === "tcf"
+        ? ([
+            ["p1", "T1–T2 实用信息与经验叙述"],
+            ["p2", "T3 双材料综述与辩证观点"],
+            ["lex", "多语体词汇与衔接"],
+            ["mor", "句法复杂度与拼写语法"],
+          ] as const)
+        : ([
+            ["p1", "Sec A 奇闻续写 (≥80词)"],
+            ["p2", "Sec B 读者来信驳论 (≥200词)"],
+            ["lex", "新闻与政论词汇搭配"],
+            ["mor", "过去时态/被动句与句法"],
+          ] as const);
+
+    return (
+      <div className="page practice">
+        <section className="essay-stage">
+          <button className="link deck-back" onClick={() => setStage("list")}>
+            <ArrowLeft size={16} /> 返回套卷列表
+          </button>
+          <p className="eyebrow">{TRACK_META[track].shortName} · 写作成绩单</p>
+          <h2 className="essay-title" lang="fr">
+            {activeSuiteTitle}
+          </h2>
+
+          {gradeRes ? (
+            <>
+              <div className="essay-marks">
+                <div>
+                  <p className="essay-total">
+                    {gradeRes.scaledScore}
+                    <small>/{gradeRes.scaleMax}</small>
+                  </p>
+                  <div className="essay-chips">
+                    <span className="chip">CECR {gradeRes.cefr}</span>
+                    <span className="chip">NCLC {gradeRes.nclc}</span>
+                    <span className={`chip ${gradeRes.nclc7Passed ? "" : "warn-text"}`}>
+                      {gradeRes.nclc7Passed ? "已达加拿大 NCLC 7+" : "冲刺 NCLC 7"}
+                    </span>
+                  </div>
+                </div>
+                <dl className="essay-scores">
+                  {gradeRes.subscores.map((sub) => (
+                    <div key={sub.key}>
+                      <dt>{sub.label}</dt>
+                      <dd>
+                        <span className="essay-bar">
+                          <span style={{ width: `${(sub.score / 5) * 100}%` }} />
+                        </span>
+                        {sub.score}/5
+                        {sub.note && <span className="muted small"> · {sub.note}</span>}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+
+              <div className="essay-chips">
+                {gradeRes.wordMeters.map((m, i) => (
+                  <span key={i} className={`chip ${m.status === "ok" ? "" : "warn-text"}`}>
+                    第 {i + 1} 篇：{m.label}
+                  </span>
+                ))}
+              </div>
+
+              {gradeRes.comment && <p className="essay-comment">{gradeRes.comment}</p>}
+
+              {gradeRes.todo.length > 0 && (
+                <div className="essay-box">
+                  <p className="eyebrow">优先改进项</p>
+                  <ol>
+                    {gradeRes.todo.map((t, k) => (
+                      <li key={k}>{t}</li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {gradeRes.taskNotes.length > 0 && (
+                <div className="essay-cols">
+                  {gradeRes.taskNotes.map((tn, k) => (
+                    <div key={k} className="essay-box">
+                      <p className="eyebrow">{tn.label}</p>
+                      <p className="small">{tn.feedbackZh}</p>
+                      {tn.modelUpgradeFr && (
+                        <p className="essay-text small" lang="fr">
+                          {tn.modelUpgradeFr}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {gradeRes.corrections.length > 0 && (
+                <details className="essay-fold" open>
+                  <summary>逐句语法与搭配批改（{gradeRes.corrections.length}）</summary>
+                  <ul className="writing-errors essay-corrections">
+                    {gradeRes.corrections.map((x, k) => {
+                      const have = notes.some((n) => n.wrong === x.wrong && n.right === x.right);
+                      return (
+                        <li key={k}>
+                          <span className="chip">{ERROR_LABEL[x.type]}</span>
+                          <span lang="fr">
+                            {x.wrong && <del>{x.wrong}</del>} {x.right && <ins>{x.right}</ins>}
+                          </span>
+                          {x.why && <small>{x.why}</small>}
+                          {x.point && pointTitle.has(x.point) && (
+                            <a className="link essay-point" href={`#/grammar?p=${x.point}`}>
+                              练这个语法点：{pointTitle.get(x.point)} <ArrowRight size={13} />
+                            </a>
+                          )}
+                          <button
+                            type="button"
+                            className="link essay-keep"
+                            disabled={have}
+                            onClick={() =>
+                              saveNote({
+                                wrong: x.wrong,
+                                right: x.right,
+                                type: x.type,
+                                why: x.why,
+                                point: x.point,
+                                from: `${TRACK_META[track].shortName} EE · ${activeSuiteTitle}`,
+                              })
+                            }
+                          >
+                            {have ? (
+                              <>
+                                <Check size={13} /> 已存进错句本
+                              </>
+                            ) : (
+                              <>
+                                <BookmarkPlus size={13} /> 存进错句本
+                              </>
+                            )}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </details>
+              )}
+            </>
+          ) : (
+            <div className="essay-box">
+              <p className="eyebrow">离线四维自评（配置 AI 接口可解锁逐句改错与高分改写）</p>
+              {offlineKeys.map(([key, label]) => (
+                <div key={key} className="speak-rubric-row">
+                  <b>{label}</b>
+                  <div className="speak-score-btns">
+                    {LEVELS.map((lv) => (
+                      <button
+                        key={lv}
+                        type="button"
+                        className={`chip-btn ${selfScores[key] === lv ? "is-on" : ""}`}
+                        onClick={() => setSelfScores((prev) => ({ ...prev, [key]: lv }))}
+                      >
+                        {lv}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className="writing-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={selfSaved || offlineKeys.some(([k]) => selfScores[k] === undefined)}
+                  onClick={() => {
+                    const sum20 = offlineKeys.reduce((acc, [k]) => acc + (selfScores[k] ?? 0), 0);
+                    if (track === "tcf") {
+                      const p = scoreTcfProductive20(sum20, "ee");
+                      logExam({
+                        part: "essay",
+                        what: activeSuiteId,
+                        score: p.score20,
+                        total: 20,
+                        unverified: true,
+                        level: "B2",
+                        scope: "full",
+                        track: "tcf",
+                        trackSection: "ee",
+                        nclc: p.nclc,
+                      });
+                      toast(`已保存 TCF 写作离线自评：${p.score20}/20（NCLC ${p.nclc}）`, "ok");
+                    } else {
+                      const p = scoreTefSection699("ee", sum20, 20);
+                      logExam({
+                        part: "essay",
+                        what: activeSuiteId,
+                        score: p.score699,
+                        total: 699,
+                        scaledScore: p.score699,
+                        unverified: true,
+                        level: "B2",
+                        scope: "full",
+                        track: "tef",
+                        trackSection: "ee",
+                        nclc: p.nclc,
+                      });
+                      toast(`已保存 TEF 写作离线自评：${p.score699}/699（NCLC ${p.nclc}）`, "ok");
+                    }
+                    setSelfSaved(true);
+                  }}
+                >
+                  {selfSaved ? "已保存自评成绩" : "保存自评成绩"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="writing-actions">
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => {
+                if (track === "tcf" && tcfSuite) openTcfSuite(tcfSuite);
+                else if (track === "tef" && tefSuite) openTefSuite(tefSuite);
+              }}
+            >
+              <RefreshCw size={15} /> 重新作答本套题
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  /* ---------- Stage: Multi-Part Timed Writing Workspace ---------- */
+  const locked = examMode && timer.down && timer.sec === 0;
+  const partSpecs =
+    track === "tcf" && tcfSuite
+      ? tcfSuite.tasks.map((t, idx) => ({
+          idx,
+          title: t.titleZh,
+          consigneFr: t.consigneFr,
+          hintZh: t.hintZh,
+          docBlocks: [t.docAFr, t.docBFr].filter((d): d is string => !!d),
+          meter: wtMod.evaluateTrackWordMeter(parts[idx] ?? "", { minWords: t.minWords, maxWords: t.maxWords }),
+          rows: idx === 0 ? 6 : 8,
+        }))
+      : tefSuite
+        ? [
+            {
+              idx: 0,
+              title: "Section A · 报刊奇闻续写 Fait divers（新增 ≥80 词）",
+              consigneFr: tefSuite.sectionA.consigneFr,
+              hintZh: tefSuite.sectionA.hintZh,
+              docBlocks: [`${tefSuite.sectionA.headlineFr}\n\n${tefSuite.sectionA.leadFr}`],
+              meter: wtMod.evaluateTrackWordMeter(parts[0] ?? "", {
+                minWords: tefSuite.sectionA.minWords,
+                recommendedMaxWords: tefSuite.sectionA.recommendedMaxWords,
+              }),
+              rows: 8,
+            },
+            {
+              idx: 1,
+              title: "Section B · 读者来信正式驳论 Courrier des lecteurs（≥200 词）",
+              consigneFr: tefSuite.sectionB.consigneFr,
+              hintZh: tefSuite.sectionB.hintZh,
+              docBlocks: [tefSuite.sectionB.claimFr],
+              meter: wtMod.evaluateTrackWordMeter(parts[1] ?? "", {
+                minWords: tefSuite.sectionB.minWords,
+                recommendedMaxWords: tefSuite.sectionB.recommendedMaxWords,
+              }),
+              rows: 12,
+            },
+          ]
+        : [];
+
+  return (
+    <div className="page practice">
+      <section className="essay-stage">
+        <header className="exam-top">
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={grading}
+            onClick={async () => {
+              if (examMode && timer.running) {
+                const ok = await confirmAction({
+                  title: "返回套题列表？",
+                  message: "60 分钟倒计时正在进行中（各题草稿已自动保存），确定退出本次计时？",
+                  confirmLabel: "返回列表",
+                  danger: true,
+                });
+                if (!ok) return;
+                timer.stop();
+              }
+              setStage("list");
+            }}
+          >
+            <ArrowLeft size={16} /> 返回套题（草稿自动保留）
+          </button>
+          <span className="eyebrow">{TRACK_META[track].shortName} · 60 分钟共享限时</span>
+          {examMode || timer.running || (timer.down && timer.sec === 0) ? (
+            <span className={`exam-clock ${timer.sec === 0 ? "is-over" : ""}`}>
+              {timer.sec === 0 ? "60:00 时间到" : `剩余 ${clock(timer.sec)}`}
+            </span>
+          ) : (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => timer.start(60 * 60)}>
+              启动 60 分钟计时
+            </button>
+          )}
+        </header>
+
+        <h2 className="essay-title" lang="fr">
+          {activeSuiteTitle}
+        </h2>
+
+        <label className="essay-check-doc">
+          <input
+            type="checkbox"
+            checked={examMode}
+            disabled={grading || locked}
+            onChange={(e) => {
+              const on = e.target.checked;
+              setExamMode(on);
+              if (on && !timer.running) timer.start(60 * 60);
+              if (!on) timer.stop();
+            }}
+          />{" "}
+          全真模考锁卷模式（60 分钟共享倒计时归零自动锁卷）
+        </label>
+
+        {partSpecs.map((sp) => {
+          const refForBox = sp.idx === 0 ? boxRef0 : sp.idx === 1 ? boxRef1 : boxRef2;
+          return (
+            <div key={sp.idx} className="essay-box">
+              <div className="panel-head">
+                <p className="eyebrow">{sp.title}</p>
+                <span className={`essay-count ${sp.meter.status === "ok" ? "is-ok" : "is-short warn-text"}`}>
+                  {sp.meter.label}
+                </span>
+              </div>
+              {sp.docBlocks.map((doc, di) => (
+                <blockquote key={di} className="essay-doc" lang="fr">
+                  {doc}
+                </blockquote>
+              ))}
+              <p className="essay-consigne" lang="fr">
+                {sp.consigneFr}
+              </p>
+              <p className="muted small">{sp.hintZh}</p>
+              <textarea
+                ref={refForBox}
+                className="writing-input essay-input"
+                lang="fr"
+                rows={sp.rows}
+                value={parts[sp.idx] ?? ""}
+                readOnly={grading || locked}
+                onFocus={() => setActiveIdx(sp.idx)}
+                onChange={(e) => updatePart(sp.idx, e.target.value)}
+                placeholder="在此输入本题法语正文…"
+                autoCapitalize="sentences"
+                autoCorrect="off"
+                autoComplete="off"
+                spellCheck={false}
+                aria-label={sp.title}
+              />
+            </div>
+          );
+        })}
+
+        {!grading && !locked && (
+          <AccentKeys
+            input={activeBoxRef}
+            value={parts[activeIdx] ?? ""}
+            onChange={(v) => updatePart(activeIdx, v)}
+          />
+        )}
+
+        {locked && <p className="warn-text">60 分钟共享倒计时已归零锁卷，请直接提交批改。</p>}
+
+        <div className="writing-actions">
+          <span className="muted small">当前法语重音键作用输入框：第 {activeIdx + 1} 题</span>
+          {grading ? (
+            <>
+              <p className="muted">AI 考官逐篇核分与提取错句中（约 25–50 秒）…</p>
+              <button type="button" className="btn btn-ghost" onClick={() => ctrlRef.current?.abort()}>
+                取消
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="btn btn-primary btn-xl"
+              disabled={!hasContent}
+              onClick={() => void submitMultiPart()}
+            >
+              {hasAi
+                ? track === "tcf"
+                  ? "提交三篇 · 核算 0–20 & NCLC"
+                  : "提交双篇 · 核算 0–699 & NCLC"
+                : "保存并进入离线自评"}{" "}
+              <ArrowRight size={18} />
+            </button>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 /**
- * 篇章写作: pick a task, write the whole text with a plan and linking words at hand, and have it marked on a fixed
- * four-part grid. Without an AI service the text is saved and checked against the grid by the learner.
- * Practice only: memory state is not touched.
+ * 篇章写作: supports DELF B2 (/25), TCF EE (3 tasks, 60m, /20 + NCLC), and TEF EE (Sec A+B, 60m, /699 + NCLC).
  */
 export function EssayStudio({ onExit }: { onExit: () => void }) {
+  const examTrack = useStore((s) => s.settings.examTrack);
+  const switchTrack = (next: ExamTrack) => store.settings({ examTrack: next });
   return (
     <WordPopup>
-      <EssayStudioBody onExit={onExit} />
+      {examTrack === "tcf" || examTrack === "tef" ? (
+        <TrackEssayStudioBody track={examTrack} onSwitchTrack={switchTrack} onExit={onExit} />
+      ) : (
+        <EssayStudioBody examTrack={examTrack} onSwitchTrack={switchTrack} onExit={onExit} />
+      )}
     </WordPopup>
   );
 }
 
-function EssayStudioBody({ onExit }: { onExit: () => void }) {
+function EssayStudioBody({
+  examTrack,
+  onSwitchTrack,
+  onExit,
+}: {
+  examTrack: ExamTrack;
+  onSwitchTrack: (t: ExamTrack) => void;
+  onExit: () => void;
+}) {
   const essaysRaw = useStore((s) => s.progress.essays);
   const essays = useMemo(() => essaysRaw ?? [], [essaysRaw]);
   const aiRaw = useStore((s) => s.progress.essayTasks);
@@ -124,8 +915,12 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
   const ai = useAiConfig();
   const { data: grammar } = useGrammar();
   const [view, setView] = useState<View>({ at: "list" });
+  const [selfScores, setSelfScores] = useState<Record<string, number>>({});
+  const resultEssayId = view.at === "result" ? view.id : "";
+  useEffect(() => setSelfScores({}), [resultEssayId]);
   const [text, setText] = useState("");
   const [grading, setGrading] = useState(false);
+  const [sampleOpen, setSampleOpen] = useState(false);
   // 让 AI 出新题（默认随机混入材料题；B2 默认排除 mail/recit）
   const [aiGenre, setAiGenre] = useState<Genre | "random">("random");
   const [aiLevel, setAiLevel] = useState<"B1" | "B2">("B2");
@@ -141,6 +936,7 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
   // 模考模式（开启后自动 60 分钟倒计时，到时自动锁卷）与考场无辅助模式（隐藏中文解析、提纲、句型和衔接语）
   const [examMode, setExamMode] = useState(false);
   const [noAid, setNoAid] = useState(false);
+  const [preChecks, setPreChecks] = useState<[boolean, boolean, boolean, boolean]>([false, false, false, false]);
   const input = useRef<HTMLTextAreaElement>(null);
   const ctrl = useRef<AbortController | null>(null);
   const timer = useTimer();
@@ -150,11 +946,19 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
     window.scrollTo({ top: 0 });
   }, [view.at]);
 
+  useNavGuard(
+    (view.at === "write" || view.at === "revise") && (text.trim().length > 0 || (examMode && timer.sec > 0)),
+    examMode && timer.sec > 0
+      ? "限时模考写作倒计时正在运行，离开将停止计时（草稿会自动保存在本地），确定离开？"
+      : "当前有正在编辑的作文（草稿已保存在本地），确定离开？",
+  );
+
   const pointTitle = useMemo(() => new Map((grammar?.points ?? []).map((p) => [p.id, p.title])), [grammar]);
 
   const open = (task: EssayTask, initial = readDraft(task.id)) => {
     setText(initial);
     setPlanKind("task");
+    setPreChecks([false, false, false, false]);
     if (examMode) timer.start(60 * 60);
     else timer.stop();
     setView({ at: "write", task });
@@ -168,7 +972,7 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
 
   const finish = (task: EssayTask, fb?: EssayFeedback) => {
     timer.stop();
-    const id = saveEssay({ task: task.id, text, fb });
+    const id = saveEssay({ task: task.id, text, fb, level: task.level });
     writeDraft(task.id, "");
     setView({ at: "result", task, id });
   };
@@ -276,7 +1080,23 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
           {extra && <small className="essay-rec-why">{extra}</small>}
         </button>
         {isAiTask(t.id) && (
-          <button className="own-rm essay-cell-rm" aria-label="删除这道题" title="删除这道 AI 出的题（写过的文章会保留）" onClick={() => deleteAiTask(t.id)}>
+          <button
+            className="own-rm essay-cell-rm"
+            aria-label="删除这道题"
+            title="删除这道 AI 出的题（写过的文章会保留）"
+            onClick={async () => {
+              if (
+                await confirmAction({
+                  title: "删除这道 AI 题目？",
+                  message: `确定删除「${t.title}」？用这道题写过的文章仍会保留。`,
+                  confirmLabel: "删除",
+                  danger: true,
+                })
+              ) {
+                deleteAiTask(t.id);
+              }
+            }}
+          >
             <X size={13} />
           </button>
         )}
@@ -288,25 +1108,72 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
           <button className="link deck-back" onClick={onExit}>
             <ArrowLeft size={16} /> 返回练习
           </button>
+          <div className="writing-actions">
+            <div className="segmented" role="group" aria-label="切换写作考试体系">
+              {(["delf", "tcf", "tef"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  className={examTrack === t ? "is-on" : ""}
+                  aria-pressed={examTrack === t}
+                  onClick={() => onSwitchTrack(t)}
+                >
+                  {t === "delf" ? "DELF B2" : t === "tcf" ? "TCF EE（3篇 · /20）" : "TEF EE（A+B双篇 · /699）"}
+                </button>
+              ))}
+            </div>
+          </div>
           <p className="eyebrow">篇章写作 · Production écrite</p>
           <h1 className="display">把句子，连成一篇。</h1>
-          <p className="lede">选一个题目，照着提纲写完整的一封信或一篇短文。批改用官方评分表的五项（完成任务、连贯和衔接、语体得体、词汇、语法），每项 0／1／3／5 分，满分 25，并指出每处错误对应的语法点。</p>
+          <p className="lede">选一个题目，照着提纲写完整的一封信或一篇短文。批改用官方评分表的五项（完成任务、连贯和衔接、语体得体、词汇、语法），每项 0–5 分，满分 25，并指出每处错误对应的语法点。</p>
           {!ready.text(ai) && (
-            <p className="muted">
-              还没有设置 AI 接口：可以写、可以保存，对照评分表自己检查。到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置后由 AI 批改，也可以让 AI 出新题。
-            </p>
+            <div className="ai-sample-banner">
+              <p className="muted">
+                还没有设置 AI 接口：可以写、可以保存并按 0–5 量表自评。到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 贴入 1 个 Key 即可开通 AI 批改与出题。
+              </p>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setSampleOpen((v) => !v)} aria-expanded={sampleOpen}>
+                <Sparkles size={15} /> {sampleOpen ? "收起高分批改样张" : "预览 B2 高分批改样张（免 Key）"}
+              </button>
+            </div>
           )}
         </header>
 
+        {!ready.text(ai) && sampleOpen && (
+          <section className="panel ai-sample-box" aria-label="DELF B2 作文批改样张">
+            <div className="panel-head">
+              <div>
+                <p className="eyebrow">免 Key 交互样张 · {SAMPLE_ESSAY_PREVIEW.title}</p>
+                <span className="muted small">正文字数 {SAMPLE_ESSAY_PREVIEW.wordCount} 词 · 展示官方五项评分表 + 逐句改错 + B1→B2 段落升格</span>
+              </div>
+              <button type="button" className="link small" onClick={() => setSampleOpen(false)}>
+                收起样张
+              </button>
+            </div>
+            <details className="essay-fold">
+              <summary>查看考生原稿（{SAMPLE_ESSAY_PREVIEW.wordCount} 词）</summary>
+              <p className="essay-text" lang="fr">
+                {SAMPLE_ESSAY_PREVIEW.text}
+              </p>
+            </details>
+            <Marking fb={SAMPLE_ESSAY_PREVIEW.fb} level="B2" pointTitle={pointTitle} from={SAMPLE_ESSAY_PREVIEW.title} />
+            <ParagraphUpgrader
+              essayText={SAMPLE_ESSAY_PREVIEW.text}
+              genre="courrier"
+              title={SAMPLE_ESSAY_PREVIEW.title}
+              level="B2"
+            />
+          </section>
+        )}
+
         {rec && (
           <section className="essay-level">
-            <h3 className="eyebrow">推荐下一题</h3>
+            <h2 className="eyebrow">推荐下一题</h2>
             <div className="essay-tasks essay-tasks-one">{card(rec, reasonOf(rec[1]))}</div>
           </section>
         )}
 
         <section className="panel essay-ai">
-          <h3 className="eyebrow">让 AI 出一道新题</h3>
+          <h2 className="eyebrow">让 AI 出一道新题</h2>
           <ul className="chips" role="group" aria-label="体裁">
             {(["random", ...genresFor(aiLevel)] as const).map((g) => (
               <li key={g}>
@@ -392,7 +1259,7 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
           if (!list.length) return null;
           return (
             <section key={lv} className="essay-level">
-              <h3 className="eyebrow">{lv}</h3>
+              <h2 className="eyebrow">{lv}</h2>
               <div className="essay-tasks">{list.map((x) => card(x))}</div>
             </section>
           );
@@ -405,6 +1272,13 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
               <summary>
                 <BookMarked size={15} /> 错句本（{notes.length}）
               </summary>
+              {notes.some((n) => !n.point) && (
+                <div className="writing-actions mb-sm">
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => go({ page: "reflow" })}>
+                    进入非语法错句 FSRS 回炉（{notes.filter((n) => !n.point).length}） <ArrowRight size={14} />
+                  </button>
+                </div>
+              )}
               <ul className="writing-errors essay-corrections essay-notes">
                 {notes.map((n) => (
                   <li key={n.id}>
@@ -433,7 +1307,7 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
 
         {essays.length > 0 && (
           <section className="essay-level">
-            <h3 className="eyebrow">写过的</h3>
+            <h2 className="eyebrow">写过的</h2>
             <ul className="essay-history">
               {essays.map((e) => {
                 const t = taskOf(e.task);
@@ -566,12 +1440,10 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
       );
     }
 
-    // how the first draft's corrections fared in the second draft: a wrong wording that is gone counts as fixed
+    // how the first draft's corrections fared in the second draft (clause-level diff)
     const rev = essay.rev;
-    const gone = (w: string) => !!w && !rev!.text.toLowerCase().includes(w.toLowerCase());
-    const fixed = rev && fb ? fb.corrections.filter((c) => c.wrong && gone(c.wrong)) : [];
-    const still = rev && fb ? fb.corrections.filter((c) => c.wrong && !gone(c.wrong)) : [];
-    const gain = rev?.fb && fb ? totalScore(rev.fb) - totalScore(fb) : null;
+    const { fixed, still } = rev && fb ? diffSecondDraftCorrections(essay.text, rev.text, fb.corrections) : { fixed: [], still: [] };
+    const gain = rev?.fb && fb ? Math.round((totalScore(rev.fb) - totalScore(fb)) * 10) / 10 : null;
     return (
       <div className="page practice">
         <section className="essay-stage">
@@ -587,15 +1459,60 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
             <Marking fb={fb} level={task.level} pointTitle={pointTitle} from={task.title} />
           ) : (
             <div className="essay-box">
-              <p className="eyebrow">对照官方评分表的五项自己检查</p>
-              <ul className="essay-check">
+              <p className="eyebrow">离线对照官方评分表自评（0–5 分）</p>
+              <div className="speak-rubric">
                 {CRITERIA.map((c) => (
-                  <li key={c}>
-                    <b>{CRITERION_LABEL[c]}</b> {CRITERION_CHECK[c]}
-                  </li>
+                  <div key={c} className="speak-rubric-row">
+                    <div>
+                      <b>{CRITERION_LABEL[c]}</b>
+                      <small>{CRITERION_CHECK[c]}</small>
+                    </div>
+                    <div className="speak-score-btns">
+                      {LEVELS.map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          className={`chip-btn ${selfScores[c] === n ? "is-on" : ""}`}
+                          aria-pressed={selfScores[c] === n}
+                          onClick={() => setSelfScores((prev) => ({ ...prev, [c]: n }))}
+                        >
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-              </ul>
-              <p className="muted small">这篇没有经过 AI 批改。设置 AI 接口后，点「用这个题目重写」可以重新提交。</p>
+              </div>
+              <div className="writing-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  disabled={CRITERIA.some((c) => selfScores[c] === undefined)}
+                  onClick={() => {
+                    const selfFb: EssayFeedback = {
+                      scores: { ...selfScores },
+                      comment: "离线按官方 0–5 分量表自评",
+                      strengths: [],
+                      todo: [],
+                      corrections: [],
+                      rewrite: "",
+                    };
+                    patchEssay(essay.id, { fb: selfFb, level: task.level });
+                    store.progress((p) => ({
+                      ...p,
+                      examLog: (p.examLog ?? []).map((item, idx) =>
+                        idx === 0 && item.part === "essay" && item.what === essay.task
+                          ? ({ ...item, unverified: true } as typeof item)
+                          : item,
+                      ),
+                    }));
+                    toast(`已保存作文离线自评（${totalScore(selfFb)}/25 · 未经 AI 核验）`, "ok");
+                  }}
+                >
+                  保存自评成绩（{CRITERIA.every((c) => selfScores[c] !== undefined) ? `${CRITERIA.reduce((n, c) => n + selfScores[c], 0)}/25` : "待选全"}）
+                </button>
+              </div>
+              <p className="muted small">无 AI 接口时也可先自评计入进步曲线，或直接修改第二稿；配置 AI 接口后可点「用这个题目重写」重新提交批改。</p>
             </div>
           )}
 
@@ -615,6 +1532,8 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
               </div>
             )}
           </div>
+
+          <ParagraphUpgrader essayText={rev?.text || essay.text} genre={task.genre} title={task.title} level={task.level} />
 
           {rev && (
             <div className="essay-box essay-rev">
@@ -682,9 +1601,18 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
           <div className="writing-actions">
             <button
               className="btn btn-ghost"
-              onClick={() => {
-                deleteEssay(essay.id);
-                setView({ at: "list" });
+              onClick={async () => {
+                if (
+                  await confirmAction({
+                    title: "删除这篇作文？",
+                    message: `确定删除「${task.title}」的这篇作文与批改记录？删除后无法恢复。`,
+                    confirmLabel: "删除",
+                    danger: true,
+                  })
+                ) {
+                  deleteEssay(essay.id);
+                  setView({ at: "list" });
+                }
               }}
             >
               <Trash2 size={16} /> 删除
@@ -697,18 +1625,16 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
                 <Sparkles size={16} /> {modeling ? "写范文中…" : "看范文"}
               </button>
             )}
-            {fb && (
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  setText(readDraft(`rev-${essay.id}`) || rev?.text || essay.text);
-                  timer.stop();
-                  setView({ at: "revise", task, id: essay.id });
-                }}
-              >
-                <PenLine size={16} /> {rev ? "再改一稿" : "照批改改一稿"}
-              </button>
-            )}
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setText(readDraft(`rev-${essay.id}`) || rev?.text || essay.text);
+                timer.stop();
+                setView({ at: "revise", task, id: essay.id });
+              }}
+            >
+              <PenLine size={16} /> {rev ? "再改一稿" : fb ? "照批改改一稿" : "修改第二稿"}
+            </button>
           </div>
           {fb && !rev && !essay.model && <p className="muted small">建议先改一稿再看范文：自己改过，再对照范文，才看得出差在哪里。</p>}
         </section>
@@ -730,7 +1656,23 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
   return (
     <div className="page practice">
       <section className="essay-stage">
-        <button className="link deck-back" onClick={() => setView({ at: "list" })} disabled={grading}>
+        <button
+          className="link deck-back"
+          onClick={async () => {
+            if (examMode && timer.running) {
+              const ok = await confirmAction({
+                title: "返回题目列表？",
+                message: "模考倒计时正在进行中（正文草稿已自动保留），返回将重置本次计时，确定离开？",
+                confirmLabel: "返回题目",
+                danger: true,
+              });
+              if (!ok) return;
+              timer.stop();
+            }
+            setView({ at: "list" });
+          }}
+          disabled={grading}
+        >
           <ArrowLeft size={16} /> 返回题目（草稿会保留）
         </button>
         <p className="eyebrow">
@@ -814,6 +1756,7 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
                   </ul>
                 </details>
               )}
+              {!examMode && <ArgumentsDrawer topic={task.topic} />}
               <details>
                 <summary>衔接语</summary>
                 <dl className="essay-links">
@@ -873,6 +1816,38 @@ function EssayStudioBody({ onExit }: { onExit: () => void }) {
           aria-label="在这里写法语作文"
         />
         {!grading && !locked && <AccentKeys input={input} value={text} onChange={(v) => change(task, v)} />}
+        {!noAid && (
+          <details open={!examMode} className="essay-box essay-precheck">
+            <summary>交卷前 4 项自检清单（已勾选 {preChecks.filter(Boolean).length}/4）</summary>
+            <ul className="essay-precheck-list">
+              {[
+                "立场明确：首段清楚表态并回应题干设定的全部要素",
+                "论据与实例：至少 2 组核心论点，并带具体事实或法国案例",
+                "让步与转折：至少包含 1 处让步反驳（如 Certes… mais… / Bien que + subj.）",
+                FORMAL_GENRES.includes(task.genre)
+                  ? "正式信函格式：事由 Objet、尊称 Madame/Monsieur 及致敬落款完整"
+                  : "结构与表达：段落过渡清晰，避免基础词重复与中式直译",
+              ].map((label, idx) => (
+                <li key={idx}>
+                  <label className="essay-check-doc">
+                    <input
+                      type="checkbox"
+                      checked={preChecks[idx]}
+                      onChange={(ev) =>
+                        setPreChecks((prev) => {
+                          const next: [boolean, boolean, boolean, boolean] = [...prev];
+                          next[idx] = ev.target.checked;
+                          return next;
+                        })
+                      }
+                    />
+                    <span>{label}</span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </details>
+        )}
         {locked && <p className="warn-text">模考 60 分钟时间到，已自动锁卷（不可继续修改），请直接提交。</p>}
         <div className="writing-actions">
           <span className={`essay-count ${countClass(words, min)}`}>{countLabel(words, min, max)}</span>

@@ -4,7 +4,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-SUB="0acc3715-9b32-445b-9fa4-00a2f8308470"
 RG="mots-b2-sync"
 LOCATION="japaneast"
 
@@ -15,13 +14,21 @@ if [ -f .deploy.env ]; then
   set +a
 fi
 
+SUB="${AZURE_SUBSCRIPTION_ID:-}"
+if [ -z "$SUB" ]; then
+  echo "错误：请先在环境变量或 server/.deploy.env 中设置 AZURE_SUBSCRIPTION_ID。" >&2
+  exit 1
+fi
+
 if [ -z "${SUFFIX:-}" ]; then
   SUFFIX="$(openssl rand -hex 3)"
   printf 'SUFFIX=%s\n' "$SUFFIX" > .deploy.env
 fi
 
 SA="motsb2sync${SUFFIX}"
+MEDIA_SA="${MEDIA_SA:-motsb2media${SUFFIX}}"
 APP="mots-b2-sync-${SUFFIX}"
+MEDIA_BASE_URL="https://${MEDIA_SA}.blob.core.windows.net/media"
 
 az account set --subscription "$SUB"
 az group create -n "$RG" -l "$LOCATION" -o none
@@ -40,6 +47,31 @@ fi
 
 CONN="$(az storage account show-connection-string -n "$SA" -g "$RG" --query connectionString -o tsv)"
 az storage container create -n sync --connection-string "$CONN" --public-access off -o none
+
+if ! az storage account show -n "$MEDIA_SA" -g "$RG" -o none 2>/dev/null; then
+  az storage account create \
+    -n "$MEDIA_SA" \
+    -g "$RG" \
+    -l "$LOCATION" \
+    --sku Standard_LRS \
+    --kind StorageV2 \
+    --allow-blob-public-access true \
+    --min-tls-version TLS1_2 \
+    -o none
+fi
+
+MEDIA_CONN="$(az storage account show-connection-string -n "$MEDIA_SA" -g "$RG" --query connectionString -o tsv)"
+az storage container create -n media --connection-string "$MEDIA_CONN" --public-access blob -o none
+az storage cors clear --services b --connection-string "$MEDIA_CONN" -o none 2>/dev/null || true
+az storage cors add \
+  --services b \
+  --methods GET HEAD OPTIONS \
+  --origins "https://newsworld-niu.github.io" "http://127.0.0.1:5190" "http://localhost:5190" "http://127.0.0.1:5188" "http://127.0.0.1:5191" \
+  --allowed-headers "*" \
+  --exposed-headers Content-Length Content-Range Accept-Ranges ETag \
+  --max-age 86400 \
+  --connection-string "$MEDIA_CONN" \
+  -o none
 
 if ! az functionapp show -n "$APP" -g "$RG" -o none 2>/dev/null; then
   CREATE_ARGS=(
@@ -101,11 +133,14 @@ SUFFIX=${SUFFIX}
 RG=${RG}
 LOCATION=${LOCATION}
 SA=${SA}
+MEDIA_SA=${MEDIA_SA}
 APP=${APP}
 SYNC_URL=${SYNC_URL}
+MEDIA_BASE_URL=${MEDIA_BASE_URL}
 EOF
 
 npm run build
 FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT=1 func azure functionapp publish "$APP" --build remote
 
 echo "SYNC_URL=${SYNC_URL}"
+echo "VITE_MEDIA_BASE_URL=${MEDIA_BASE_URL}"

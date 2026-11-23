@@ -200,9 +200,9 @@
   padding: 10px 12px;
   border-radius: var(--r);
   border: 1px solid var(--line);
-  background: var(--bg);
+  background: var(--paper-2);
 }
-@media (max-width: 520px) {
+@media (max-width: 559px) {
   .exam-four-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -251,7 +251,7 @@
   color: var(--ink-3);
 }
 .mock-steps li.is-now {
-  border-color: var(--accent, var(--ink));
+  border-color: var(--ochre);
   color: var(--ink);
   font-weight: 600;
 }
@@ -286,8 +286,8 @@
   font-size: 0.78rem;
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--bg-soft, rgba(120, 120, 120, 0.1));
-  color: var(--muted);
+  background: var(--paper-2);
+  color: var(--ink-3);
 }
 .real-upload-grid {
   display: grid;
@@ -307,7 +307,7 @@
   align-items: center;
   gap: 10px;
   font-size: 0.88rem;
-  color: var(--muted);
+  color: var(--ink-3);
 }
 .real-exam-bar .learn-progress {
   flex: 1;
@@ -330,7 +330,7 @@
   border-radius: 6px;
   font-size: 0.78rem;
   font-weight: 600;
-  background: var(--bg-soft, rgba(120, 120, 120, 0.12));
+  background: var(--paper-2);
   color: var(--ink);
 }
 .exam-cite-box {
@@ -343,7 +343,7 @@
   padding: 8px 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--bg);
+  background: var(--paper-2);
   color: var(--ink);
   font-size: 0.94rem;
 }
@@ -352,8 +352,145 @@
   font-size: 0.85rem;
 }
 .exam-cite-status.is-ok {
-  color: var(--sage-ink, #1f6f4a);
+  color: var(--sage-ink);
 }
 .exam-cite-status.is-miss {
-  color: var(--rose, #b83a3a);
+  color: var(--terra-ink);
+}
+.ce-doc-body.is-hunting .ce-sent {
+  cursor: crosshair;
+}
+.ce-doc-body.is-hunting .ce-sent:hover {
+  background: var(--ochre-soft);
+  border-radius: 4px;
+}
+.ce-sent.is-proof {
+  background: var(--sage-soft);
+  box-shadow: inset 0 -2px 0 var(--sage);
+  border-radius: 4px;
+}
+.ce-proof-coach {
+  display: grid;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  border: 1px dashed var(--line-strong);
+  background: var(--paper-2);
+}
+.ce-proof-coach .link.is-on {
+  color: var(--ochre);
+  font-weight: 600;
+}
+.ce-proof-hint,
+.ce-proof-quote {
+  margin: 0;
+}
+.exam-opt-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  flex: 1 1 auto;
+}
+.exam-trap-tag {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font: 500 12px / 1.4 var(--sans);
+  background: var(--paper-3);
+  color: var(--ink-2);
+}
+.exam-option.is-right .exam-trap-tag {
+  background: var(--sage-soft);
+  color: var(--sage-ink);
+}
+.exam-option.is-wrong .exam-trap-tag {
+  background: var(--terra-soft);
+  color: var(--terra-ink);
+}
+.rw-connector {
+  background: var(--ochre-soft);
+  box-shadow: inset 0 -2px 0 var(--ochre);
+  border-radius: 3px;
+}
+.dict-diag-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.dict-diag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font: 500 12px / 1.4 var(--sans);
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  color: var(--ink-2);
+}
+.dict-diag-chip.is-homophone_gram {
+  border-color: var(--sky);
+  background: var(--sky-soft);
+  color: var(--ink);
+}
+.dict-diag-chip.is-liaison_elision {
+  border-color: var(--ochre);
+  background: var(--ochre-soft);
+  color: var(--ink);
+}
+.dict-diag-chip.is-lexical {
+  border-color: var(--terra);
+  background: var(--terra-soft);
+  color: var(--terra-ink);
+}
+.real-excerpt-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  font-size: 13px;
+}
+.intensive-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.intensive-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-variant-numeric: tabular-nums;
+}
+.intensive-jump {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+.intensive-jump select {
+  flex: 1 1 220px;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+  color: var(--ink);
+  font-size: 13px;
+}
+.rfi-score-input {
+  width: 140px;
 }

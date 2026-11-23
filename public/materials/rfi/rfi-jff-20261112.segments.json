@@ -1,0 +1,596 @@
+{
+  "id": "rfi-jff-20261112",
+  "audio": "materials/rfi/rfi-jff-20261112.mp3",
+  "duration": 600.11,
+  "method": "ffmpeg-silence-align",
+  "segments": [
+    {
+      "idx": 0,
+      "start": 1.38,
+      "end": 3.29,
+      "text": "16 heures temps universel."
+    },
+    {
+      "idx": 1,
+      "start": 3.29,
+      "end": 12.55,
+      "text": "Le Journal en français facile."
+    },
+    {
+      "idx": 2,
+      "start": 12.55,
+      "end": 13,
+      "text": "Adrien Delgrange."
+    },
+    {
+      "idx": 3,
+      "start": 13,
+      "end": 13.45,
+      "text": "Bienvenue à toutes et à tous."
+    },
+    {
+      "idx": 4,
+      "start": 13.45,
+      "end": 16.74,
+      "text": "Nous avons installé nos micros dans la capitale cambodgienne à l'occasion du 20ᵉ sommet de la Francophonie."
+    },
+    {
+      "idx": 5,
+      "start": 16.74,
+      "end": 18.5,
+      "text": "Bonjour, Vichheka Khuon."
+    },
+    {
+      "idx": 6,
+      "start": 18.5,
+      "end": 20.93,
+      "text": "Bonjour et bienvenue au Cambodge."
+    },
+    {
+      "idx": 7,
+      "start": 20.93,
+      "end": 25.11,
+      "text": "Vous avez plusieurs responsabilités qui nous intéressent."
+    },
+    {
+      "idx": 8,
+      "start": 25.11,
+      "end": 32.02,
+      "text": "Nous vous retrouvons juste après ce tour du monde de l'actualité de ce jeudi 12 novembre 2026."
+    },
+    {
+      "idx": 9,
+      "start": 32.02,
+      "end": 37.83,
+      "text": "Jensen Huang n'est plus le directeur général de l'entreprise américaine Nvidia."
+    },
+    {
+      "idx": 10,
+      "start": 37.83,
+      "end": 40.84,
+      "text": "Jensen Huang a été poussé vers la sortie."
+    },
+    {
+      "idx": 11,
+      "start": 40.84,
+      "end": 52.08,
+      "text": "L'homme de 63 ans, qui avait créé cette entreprise spécialisée dans les puces électroniques, est englué, empêtré dans un scandale de possible espionnage."
+    },
+    {
+      "idx": 12,
+      "start": 52.08,
+      "end": 58.77,
+      "text": "L'une de ses conquêtes amoureuses est soupçonnée d'être une espionne au profit de la Chine."
+    },
+    {
+      "idx": 13,
+      "start": 58.77,
+      "end": 62.52,
+      "text": "La guerre en Ukraine se négocie ce soir en Irlande."
+    },
+    {
+      "idx": 14,
+      "start": 62.52,
+      "end": 74.35,
+      "text": "Après avoir entendu le point de vue à Moscou de Vladimir Poutine, des représentants de Donald Trump vont rencontrer dans la soirée, à Dublin, Volodymyr Zelensky."
+    },
+    {
+      "idx": 15,
+      "start": 74.35,
+      "end": 77.14,
+      "text": "Le président ukrainien est en Irlande."
+    },
+    {
+      "idx": 16,
+      "start": 77.14,
+      "end": 81.03,
+      "text": "Il participe, en ce moment, à une réunion européenne."
+    },
+    {
+      "idx": 17,
+      "start": 81.03,
+      "end": 84.56,
+      "text": "Le chancelier allemand est, lui aussi, à Dublin."
+    },
+    {
+      "idx": 18,
+      "start": 84.56,
+      "end": 91.69,
+      "text": "Pour Friedrich Merz, il est très important d'amener Vladimir Poutine à la table des négociations."
+    },
+    {
+      "idx": 19,
+      "start": 91.69,
+      "end": 102.34,
+      "text": "« Ce qui importe, ici, ce ne sont pas les personnes, mais le fait que Poutine soit prêt à engager des discussions."
+    },
+    {
+      "idx": 20,
+      "start": 102.34,
+      "end": 112.7,
+      "text": "Et je constate avec une certaine satisfaction qu'il semble y avoir, du côté russe, une volonté croissante de reconnaître qu'on ne peut pas parler de l'Europe sans l'Europe."
+    },
+    {
+      "idx": 21,
+      "start": 112.7,
+      "end": 115.57,
+      "text": "Et c'est avant tout une bonne nouvelle."
+    },
+    {
+      "idx": 22,
+      "start": 115.57,
+      "end": 117.63,
+      "text": "Reste à voir si cela durera."
+    },
+    {
+      "idx": 23,
+      "start": 117.63,
+      "end": 123.14,
+      "text": "Cela dépendra beaucoup des discussions qui auront lieu ces prochains jours."
+    },
+    {
+      "idx": 24,
+      "start": 123.14,
+      "end": 134.53,
+      "text": "Ce qui importe, c'est que la Russie vienne à la table et soit prête à s'engager dans des discussions."
+    },
+    {
+      "idx": 25,
+      "start": 134.53,
+      "end": 135.43,
+      "text": "Tout le reste suivra. »"
+    },
+    {
+      "idx": 26,
+      "start": 135.43,
+      "end": 141.88,
+      "text": "Pendant ce temps-là, Greta Thunberg est à la conférence internationale sur le climat, qui se déroule en ce moment en Turquie."
+    },
+    {
+      "idx": 27,
+      "start": 141.88,
+      "end": 146.95,
+      "text": "Greta Thunberg, une figure de l'engagement climatique de la jeunesse."
+    },
+    {
+      "idx": 28,
+      "start": 146.95,
+      "end": 158.48,
+      "text": "La militante suédoise est spécialement venue à Antalya rappeler aux dirigeants du monde entier le lien qui existe entre guerre et impact sur l'environnement."
+    },
+    {
+      "idx": 29,
+      "start": 158.48,
+      "end": 165.17,
+      "text": "« Les actions de ceux qui sont au pouvoir, ici, sont totalement déconnectées de la réalité."
+    },
+    {
+      "idx": 30,
+      "start": 165.17,
+      "end": 174.36,
+      "text": "Pendant que nous parlons, nous perdons des vies, des écosystèmes et des espèces inestimables que nous ne récupérerons jamais."
+    },
+    {
+      "idx": 31,
+      "start": 174.36,
+      "end": 176.34,
+      "text": "La planète ne se meurt pas."
+    },
+    {
+      "idx": 32,
+      "start": 176.34,
+      "end": 179.13,
+      "text": "Elle est en train d'être tuée. »"
+    },
+    {
+      "idx": 33,
+      "start": 179.13,
+      "end": 183.83,
+      "text": "Des propos recueillis par notre envoyée spéciale Jeanne Richard."
+    },
+    {
+      "idx": 34,
+      "start": 183.83,
+      "end": 192.14,
+      "text": "L'actualité internationale est aussi cambodgienne, avec le sommet de la Francophonie qui se prépare à Phnom Penh."
+    },
+    {
+      "idx": 35,
+      "start": 192.14,
+      "end": 205.36,
+      "text": "Nous suivrons, d'ailleurs, de près l'élection du ou de la secrétaire général.e de l'Organisation internationale de la Francophonie, où rien n'est joué à quatre jours de l'élection."
+    },
+    {
+      "idx": 36,
+      "start": 205.36,
+      "end": 213.23,
+      "text": "En attendant, les autorités locales ont mis les petits plats dans les grands pour accueillir cet événement."
+    },
+    {
+      "idx": 37,
+      "start": 213.23,
+      "end": 216.53,
+      "text": "Témoignage de cette étudiante, Chinh Er Seng."
+    },
+    {
+      "idx": 38,
+      "start": 216.53,
+      "end": 228,
+      "text": "Elle apprend le français à l'université royale de Phnom Penh et elle dit au micro de Nicolas Feldmann la fierté pour son pays d'accueillir un tel événement."
+    },
+    {
+      "idx": 39,
+      "start": 228,
+      "end": 240.05,
+      "text": "« Ce sommet, pour moi, ça représente une immense fierté pour le Cambodge, parce que ça fait déjà 30 ans depuis la dernière fois que le sommet a été tenu au Vietnam."
+    },
+    {
+      "idx": 40,
+      "start": 240.05,
+      "end": 243.43,
+      "text": "Donc, cette fois-ci, c'est une immense fierté."
+    },
+    {
+      "idx": 41,
+      "start": 243.43,
+      "end": 254.23,
+      "text": "Et, surtout, on a aussi notre père fondateur, Sa Majesté le roi Norodom Sihanouk, qui était notre défunt roi, qui a fait partie de la francophonie."
+    },
+    {
+      "idx": 42,
+      "start": 254.23,
+      "end": 261.51,
+      "text": "Au Cambodge, en fait, il y a beaucoup de langues étrangères que les jeunes sont en train d'étudier."
+    },
+    {
+      "idx": 43,
+      "start": 261.51,
+      "end": 263.71,
+      "text": "Mais le français, c'est une..."
+    },
+    {
+      "idx": 44,
+      "start": 263.71,
+      "end": 274.58,
+      "text": "pour moi, c'est une bonne langue et ça donne beaucoup d'opportunités, parce qu'on a une grande communauté francophone, qui contient plus de 80 pays."
+    },
+    {
+      "idx": 45,
+      "start": 274.58,
+      "end": 283.7,
+      "text": "Donc, bien sûr, notre opportunité de partir en Europe ou bien de partir en dehors de notre pays, voilà, c'est élevé. »"
+    },
+    {
+      "idx": 46,
+      "start": 283.7,
+      "end": 284.8,
+      "text": "« Francophonie."
+    },
+    {
+      "idx": 47,
+      "start": 284.8,
+      "end": 286.42,
+      "text": "— Yeah, francophonie »"
+    },
+    {
+      "idx": 48,
+      "start": 286.42,
+      "end": 294.86,
+      "text": "RFI. À Phnom Penh, 23 h 05."
+    },
+    {
+      "idx": 49,
+      "start": 294.86,
+      "end": 295.31,
+      "text": "— Retour avec vous, Vichheka Khuon."
+    },
+    {
+      "idx": 50,
+      "start": 295.31,
+      "end": 303.1,
+      "text": "Vous êtes la dynamique présidente de l'Association des professeurs de français au Cambodge, mais aussi la porte-parole du ministère de l'Éducation et de la Jeunesse."
+    },
+    {
+      "idx": 51,
+      "start": 303.1,
+      "end": 310.59,
+      "text": "Dites-nous, tout d'abord, pourquoi, quand vous étiez jeune, vous avez choisi d'apprendre le français ?"
+    },
+    {
+      "idx": 52,
+      "start": 310.59,
+      "end": 327.58,
+      "text": "— En fait, quand j'étais jeune, c'étaient mes parents qui a choisi la langue parce que, à l'école, on peut choisir entre anglais ou français."
+    },
+    {
+      "idx": 53,
+      "start": 327.58,
+      "end": 328.03,
+      "text": "En fait, c'étaient mes parents qui a choisi."
+    },
+    {
+      "idx": 54,
+      "start": 328.03,
+      "end": 328.59,
+      "text": "Dans les années 90, on a le choix entre anglais et français."
+    },
+    {
+      "idx": 55,
+      "start": 328.59,
+      "end": 338.05,
+      "text": "Mais, pour aller à l'université et étudier certains métiers spécifiques, il faut le français."
+    },
+    {
+      "idx": 56,
+      "start": 338.05,
+      "end": 339.98,
+      "text": "Par exemple, la faculté de médecine ou bien devenir ingénieur."
+    },
+    {
+      "idx": 57,
+      "start": 339.98,
+      "end": 347.85,
+      "text": "Il y a beaucoup, encore, beaucoup de métiers, il faut parler français pour faire des études à l'université."
+    },
+    {
+      "idx": 58,
+      "start": 347.85,
+      "end": 351.96,
+      "text": "— Êtes-vous allée en France pour apprendre le français ?"
+    },
+    {
+      "idx": 59,
+      "start": 351.96,
+      "end": 361.51,
+      "text": "— Oui. Après avoir terminé ma licence à l'université, j'ai obtenu la bourse du gouvernement français pour faire le master à Paris."
+    },
+    {
+      "idx": 60,
+      "start": 361.51,
+      "end": 369.38,
+      "text": "Et puis j'ai obtenu la bourse de l'Agence universitaire de la Francophonie pour faire mon doctorat à Paris."
+    },
+    {
+      "idx": 61,
+      "start": 369.38,
+      "end": 372.9,
+      "text": "— Pourquoi avez-vous voulu revenir au Cambodge ?"
+    },
+    {
+      "idx": 62,
+      "start": 372.9,
+      "end": 381.13,
+      "text": "— Le Cambodge est mon pays natal et j'ai bien rêvé parce que, quand j'étais petite, le Cambodge était en guerre."
+    },
+    {
+      "idx": 63,
+      "start": 381.13,
+      "end": 393.48,
+      "text": "Et ce que j'ai appris et ce que mes parents a dit, qu'il faut que je grandis avec des connaissances suffisantes pour développer le pays et pour contribuer à notre pays."
+    },
+    {
+      "idx": 64,
+      "start": 393.48,
+      "end": 405.16,
+      "text": "Parce que mes professeurs, aussi, ils m'ont dit tout le temps que le Cambodge était un pays très riche et, aussi, très civilisé pendant la période angkorienne."
+    },
+    {
+      "idx": 65,
+      "start": 405.16,
+      "end": 410.6,
+      "text": "Donc, il faut, on a besoin des jeunes générations pour développer le pays."
+    },
+    {
+      "idx": 66,
+      "start": 410.6,
+      "end": 416.41,
+      "text": "Et c'est pour ça j'ai décidé de retourner au Cambodge après terminé mes études."
+    },
+    {
+      "idx": 67,
+      "start": 416.41,
+      "end": 432.29,
+      "text": "— Le parcours que vous avez eu et que vous avez vécu, Vichheka Khuon, est-il aujourd'hui d'actualité pour les jeunes Cambodgiens qui voudraient apprendre le français ?"
+    },
+    {
+      "idx": 68,
+      "start": 432.29,
+      "end": 435.66,
+      "text": "— Bien sûr. Je crois que le français est toujours une langue qui donne opportunités aux jeunes."
+    },
+    {
+      "idx": 69,
+      "start": 435.66,
+      "end": 440.43,
+      "text": "Parce que, maintenant, il y a beaucoup d'universités au Cambodge."
+    },
+    {
+      "idx": 70,
+      "start": 440.43,
+      "end": 453.14,
+      "text": "Par exemple, l'université des sciences de la santé, Institut de technologie du Cambodge et, aussi, encore beaucoup d'universités donnent encore les cours en français ou bien donnent les cours de double diplôme."
+    },
+    {
+      "idx": 71,
+      "start": 453.14,
+      "end": 462.09,
+      "text": "Dans ce cas-là, pour moi, pour devenir chercheur ou bien succès dans l'avenir, le français est toujours un choix important."
+    },
+    {
+      "idx": 72,
+      "start": 462.09,
+      "end": 471.66,
+      "text": "— Le français reste à la mode, même si on voit qu'il n'est pas énormément parlé au Cambodge."
+    },
+    {
+      "idx": 73,
+      "start": 471.66,
+      "end": 472.69,
+      "text": "— Tout à fait."
+    },
+    {
+      "idx": 74,
+      "start": 472.69,
+      "end": 480.85,
+      "text": "Même maintenant, on trouve que beaucoup des dirigeants, les ministres du Cambodge, la plupart parlent français."
+    },
+    {
+      "idx": 75,
+      "start": 480.85,
+      "end": 485.18,
+      "text": "Et je crois que parler français appartient à notre culture."
+    },
+    {
+      "idx": 76,
+      "start": 485.18,
+      "end": 492.97,
+      "text": "Par exemple, il y a beaucoup de mots en khmer qui a emprunté beaucoup de mots de français en langue khmer."
+    },
+    {
+      "idx": 77,
+      "start": 492.97,
+      "end": 493.93,
+      "text": "Mais aussi..."
+    },
+    {
+      "idx": 78,
+      "start": 493.93,
+      "end": 495.47,
+      "text": "— Comme par exemple ?"
+    },
+    {
+      "idx": 79,
+      "start": 495.47,
+      "end": 503.19,
+      "text": "— Par exemple, si on va au restaurant, on dit « comment commander le plat », on dit « comment »."
+    },
+    {
+      "idx": 80,
+      "start": 503.19,
+      "end": 506.27,
+      "text": "Et le mot commander, ça devient un mot quotidienne."
+    },
+    {
+      "idx": 81,
+      "start": 506.27,
+      "end": 510.76,
+      "text": "Tout le monde pense que ce mot est un mot khmer, par exemple."
+    },
+    {
+      "idx": 82,
+      "start": 510.76,
+      "end": 518.1,
+      "text": "— Aujourd'hui, le Cambodge va accueillir le sommet de la Francophonie, un rendez-vous international."
+    },
+    {
+      "idx": 83,
+      "start": 518.1,
+      "end": 520.09,
+      "text": "Quelles sont vos attentes ?"
+    },
+    {
+      "idx": 84,
+      "start": 520.09,
+      "end": 527.8,
+      "text": "— J'espère que le sommet de la Francophonie produira des résultats concrets et durables pour le Cambodge."
+    },
+    {
+      "idx": 85,
+      "start": 527.8,
+      "end": 536.22,
+      "text": "Pas tout simplement cet événement est un événement attendu des Cambodgiens depuis des années."
+    },
+    {
+      "idx": 86,
+      "start": 536.22,
+      "end": 542.79,
+      "text": "Mais, aussi, ça peut montrer au monde un nouveau..."
+    },
+    {
+      "idx": 87,
+      "start": 542.79,
+      "end": 544.84,
+      "text": "un nouveau image du Cambodge."
+    },
+    {
+      "idx": 88,
+      "start": 544.84,
+      "end": 549.81,
+      "text": "Ce n'était plus un pays en guerre, mais un pays développé, avec la civilisation et culturel attractif, et intéressant à découvrir."
+    },
+    {
+      "idx": 89,
+      "start": 549.81,
+      "end": 558.59,
+      "text": "— Et, juste avant de se quitter, quel est votre mot ou quelle est votre expression préférée de la langue française ?"
+    },
+    {
+      "idx": 90,
+      "start": 558.59,
+      "end": 563.15,
+      "text": "— Je trouve que la langue française est une langue romantique."
+    },
+    {
+      "idx": 91,
+      "start": 563.15,
+      "end": 569.69,
+      "text": "Quand j'étais jeune, j'aimais bien collecter des mots « je t'aime » en plusieurs langues."
+    },
+    {
+      "idx": 92,
+      "start": 569.69,
+      "end": 574.39,
+      "text": "Et je trouve que « je t'aime » est un mot très joli et agréable."
+    },
+    {
+      "idx": 93,
+      "start": 574.39,
+      "end": 577.84,
+      "text": "Ainsi se referme ce Journal en français facile."
+    },
+    {
+      "idx": 94,
+      "start": 577.84,
+      "end": 582.33,
+      "text": "Enregistré en direct de Phnom Penh grâce à Bertrand Haeckler."
+    },
+    {
+      "idx": 95,
+      "start": 582.33,
+      "end": 584.83,
+      "text": "Merci, aussi, aux équipes à Paris."
+    },
+    {
+      "idx": 96,
+      "start": 584.83,
+      "end": 594.01,
+      "text": "Et puis, si le sujet de la francophonie vous intéresse, vous pouvez poursuivre la discussion, ce soir, avec Le Débat du jour."
+    },
+    {
+      "idx": 97,
+      "start": 594.01,
+      "end": 596.66,
+      "text": "À demain, pour une nouvelle édition."
+    }
+  ]
+}

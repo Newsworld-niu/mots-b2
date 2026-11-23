@@ -5,19 +5,96 @@ import { getAiConfig } from "../ai/config";
 import { isNative, speakNative, stopSpeakingNative } from "./native";
 
 let current: HTMLAudioElement | null = null;
+let sliceCache: { url: string; ctor: typeof Audio; audio: HTMLAudioElement } | null = null;
 let token = 0;
 
 function stopSpeechOnly() {
   token++;
   current?.pause();
   current = null;
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel();
   stopSpeakingNative();
 }
 
 export function stopAudio() {
   stopSpeechOnly();
   stopListeningNoise();
+}
+
+/** Play a slice `[startSec, endSec]` of a pre-recorded MP3/media URL with automatic pause at `endSec`. */
+export async function playSlice(
+  url: string,
+  startSec: number,
+  endSec: number,
+  rate = 1,
+): Promise<"recorded" | "stopped" | "unsupported"> {
+  if (!url || typeof Audio === "undefined") return "unsupported";
+  duck(true);
+  stopSpeechOnly();
+  const mine = ++token;
+  let timer: ReturnType<typeof setInterval> | null = null;
+  const reusing = sliceCache && sliceCache.ctor === Audio && sliceCache.url === url;
+  const a = reusing ? sliceCache!.audio : new Audio(url);
+  if (!reusing) sliceCache = { url, ctor: Audio, audio: a };
+  current = a;
+  try {
+    const startAt = Math.max(0, startSec - 0.12);
+    const stopAt = Math.max(startAt + 0.25, endSec + 0.15);
+    const ready = (a as unknown as { readyState?: number }).readyState;
+    if (typeof ready === "number" && ready < 1) {
+      await new Promise<void>((resolve) => {
+        const done = () => {
+          a.onloadedmetadata = null;
+          resolve();
+        };
+        a.onloadedmetadata = done;
+        setTimeout(done, 2500);
+      });
+      if (mine !== token) return "stopped";
+    }
+    a.playbackRate = rate;
+    try {
+      a.currentTime = startAt;
+    } catch {
+      /* ignore pre-seek errors on mock elements */
+    }
+    await a.play();
+    if (mine !== token) {
+      a.pause();
+      return "stopped";
+    }
+    return await new Promise<"recorded" | "stopped">((resolve) => {
+      let settled = false;
+      const finish = (res: "recorded" | "stopped") => {
+        if (settled) return;
+        settled = true;
+        if (timer !== null) clearInterval(timer);
+        a.ontimeupdate = null;
+        a.onended = null;
+        a.onpause = null;
+        a.onerror = null;
+        resolve(res);
+      };
+      const checkEnd = () => {
+        if (mine !== token) return finish("stopped");
+        if (Number.isFinite(a.currentTime) && a.currentTime >= stopAt) {
+          a.pause();
+          finish("recorded");
+        }
+      };
+      a.ontimeupdate = checkEnd;
+      a.onended = () => finish(mine === token ? "recorded" : "stopped");
+      a.onpause = () => finish(mine === token && Number.isFinite(a.currentTime) && a.currentTime >= stopAt - 0.1 ? "recorded" : "stopped");
+      a.onerror = () => finish("stopped");
+      timer = setInterval(checkEnd, 50);
+    });
+  } catch {
+    return mine !== token ? "stopped" : "unsupported";
+  } finally {
+    if (timer !== null) clearInterval(timer);
+    if (current === a) current = null;
+    duck(false);
+  }
 }
 
 /** Play a recording, falling back to the device voice. Resolves when playback ends. */
@@ -48,6 +125,7 @@ async function speak(url: string | null | undefined, text: string, accent: "uk" 
         a.onended = () => r();
         a.onpause = () => r();
       });
+      if (mine !== token) return "stopped" as const;
       return "recorded" as const;
     } catch {
       if (mine !== token) return "stopped" as const;
@@ -76,6 +154,7 @@ async function speak(url: string | null | undefined, text: string, accent: "uk" 
         a.onended = () => r();
         a.onpause = () => r();
       });
+      if (mine !== token) return "stopped" as const;
       return "recorded" as const;
     } catch {
       if (mine !== token) return "stopped" as const;
@@ -104,5 +183,6 @@ async function speak(url: string | null | undefined, text: string, accent: "uk" 
     u.onerror = () => r();
     speechSynthesis.speak(u);
   });
+  if (mine !== token) return "stopped" as const;
   return "device" as const;
 }

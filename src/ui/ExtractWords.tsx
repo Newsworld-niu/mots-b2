@@ -470,11 +470,11 @@ export function ExtractWords({ deckId, deckName, onDone }: { deckId: string; dec
           <button className="btn btn-ghost" onClick={() => analyse(false)} disabled={!hasInput || noAi || filterUnavailable} title="列出生词，自己挑">
             <ScanText size={17} /> 找出生词
           </button>
-          <button className="btn btn-primary" onClick={() => analyse(true)} disabled={!hasInput || noAi || !textReady || filterUnavailable} title={textReady ? "AI 补全所有新词的释义、词性和例句，并全部勾选" : "先在「我的 → AI 接口」设置生成卡片服务"}>
+          <button className="btn btn-primary" onClick={() => analyse(true)} disabled={!hasInput || noAi || !textReady || filterUnavailable} title={textReady ? "AI 补全所有新词的释义、词性和例句，并全部勾选" : "先在「我的 → AI 接口」设置AI 文本服务"}>
             <Sparkles size={17} /> 整套生成
           </button>
         </footer>
-        {!textReady && <p className="wf-hint">「整套生成」需要先在「我的 → AI 接口」设置生成卡片服务。</p>}
+        {!textReady && <p className="wf-hint">「整套生成」需要先在「我的 → AI 接口」设置AI 文本服务。</p>}
       </div>
     );
   }
@@ -524,7 +524,7 @@ export function ExtractWords({ deckId, deckName, onDone }: { deckId: string; dec
             </label>
           )}
           {fillable > 0 && (
-            <button className="btn btn-ghost btn-sm" onClick={fillNow} disabled={!textReady} title={textReady ? "" : "先在「我的 → AI 接口」设置生成卡片服务"}>
+            <button className="btn btn-ghost btn-sm" onClick={fillNow} disabled={!textReady} title={textReady ? "" : "先在「我的 → AI 接口」设置AI 文本服务"}>
               <Sparkles size={15} /> AI 补全（{fillable}）
             </button>
           )}

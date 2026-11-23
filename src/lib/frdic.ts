@@ -1,6 +1,3 @@
-import { CapacitorHttp } from "@capacitor/core";
-import { isNative } from "./native";
-
 export type DictionaryNode = string | { tag: string; children: DictionaryNode[]; src?: string; className?: string };
 /**
  * One thing a learner can pick from the page for a card. 法语助手 draws many Chinese characters as pictures, so
@@ -11,6 +8,10 @@ export interface FrdicItem { kind: FrdicKind; fr: string; zh: string; pos: strin
 export interface FrdicResult { word: string; source: string; sections: { title: string; nodes: DictionaryNode[] }[]; items: FrdicItem[] }
 export const GAP = "□";
 export const LOGIN_MESSAGE = "法语助手把这次查询转到了登录页：匿名查询有次数限制（短时间查得太多，或词条没有收录时都会这样）。稍等一会儿再试；查过的词会存在本机，不会再占次数。也可以打开原文登录后查看。";
+export function canAutoFetchFrdic(): boolean {
+  if (typeof window === "undefined") return false;
+  return /^(?:localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname);
+}
 export function frdicUrl(word: string) {
   return `https://www.frdic.com/dicts/fr/${encodeURIComponent(word.trim().normalize("NFC"))}`;
 }
@@ -42,7 +43,7 @@ function plainText(n: Node): string {
 const squash = (t: string) => t.replace(/\s+/g, " ").trim();
 const CJK = /[\u3400-\u9fff□]/;
 const LATIN = /[A-Za-zÀ-ÿŒœ]/;
-const OPEN = /[\[（(【〈《<]/;
+const OPEN = /[[（(【〈《<]/;
 /** French first, then Chinese: cut at the first Chinese character (or GAP), keeping an opening bracket with the Chinese. */
 export function splitFrZh(text: string): [string, string] {
   const at = text.search(CJK);
@@ -288,24 +289,19 @@ export async function loadFrdic(word: string, signal: AbortSignal): Promise<Frdi
   const timer = setTimeout(abort, 20000);
   try {
     let html: string;
-    if (isNative()) {
-      const r = await CapacitorHttp.get({ url: frdicUrl(term), connectTimeout: 15000, readTimeout: 20000, responseType: "text" });
-      if (r.status !== 200) throw new Error(`词典暂时无法访问（${r.status}），请稍后重试。`);
-      html = String(r.data);
+    const base = (typeof import.meta !== "undefined" && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : "/").replace(/\/?$/, "/");
+    const r = await fetch(`${base}dictionary-proxy?q=${encodeURIComponent(term)}`, { signal: controller.signal, credentials: "omit", cache: "no-store" });
+    if (r.status === 404 || (r.ok && r.headers.get("content-type")?.includes("text/html"))) {
+      // Static hosting has no local forwarder. Keep direct access as a best-effort fallback.
+      const direct = await fetch(frdicUrl(term), { signal: controller.signal, credentials: "omit", referrerPolicy: "no-referrer", redirect: "manual" });
+      if (direct.type === "opaqueredirect") throw new Error(LOGIN_MESSAGE);
+      if (!direct.ok) throw new Error(`法语助手拒绝了网页直连请求（${direct.status}）。请使用本地服务启动页面，或打开原文查看。`);
+      html = await direct.text();
     } else {
-      const r = await fetch(`/dictionary-proxy?q=${encodeURIComponent(term)}`, { signal: controller.signal, credentials: "omit" });
-      if (r.status === 404 || (r.ok && r.headers.get("content-type")?.includes("text/html"))) {
-        // Static hosting has no local forwarder. Keep direct access as a best-effort fallback.
-        const direct = await fetch(frdicUrl(term), { signal: controller.signal, credentials: "omit", referrerPolicy: "no-referrer", redirect: "manual" });
-        if (direct.type === "opaqueredirect") throw new Error(LOGIN_MESSAGE);
-        if (!direct.ok) throw new Error(`法语助手拒绝了网页直连请求（${direct.status}）。请使用本地服务启动页面，或打开原文查看。`);
-        html = await direct.text();
-      } else {
-        const data = await r.json().catch(() => null) as { html?: unknown; error?: unknown } | null;
-        if (!r.ok) throw new Error(typeof data?.error === "string" ? data.error : `词典查询服务暂时无法访问（${r.status}），可打开原文查看。`);
-        if (typeof data?.html !== "string") throw new Error("词典查询服务未返回有效内容，请打开原文查看。");
-        html = data.html;
-      }
+      const data = await r.json().catch(() => null) as { html?: unknown; error?: unknown } | null;
+      if (!r.ok) throw new Error(typeof data?.error === "string" ? data.error : `词典查询服务暂时无法访问（${r.status}），可打开原文查看。`);
+      if (typeof data?.html !== "string") throw new Error("词典查询服务未返回有效内容，请打开原文查看。");
+      html = data.html;
     }
     signal.throwIfAborted();
     controller.signal.throwIfAborted();
@@ -316,8 +312,8 @@ export async function loadFrdic(word: string, signal: AbortSignal): Promise<Frdi
     return data;
   } catch (error) {
     if (signal.aborted) throw error;
-    if (controller.signal.aborted) throw new Error("查询超时，请稍后重试。");
-    if (error instanceof TypeError) throw new Error("无法连接法语助手，请检查网络后重试，或打开原文查看。");
+    if (controller.signal.aborted) throw new Error("查询超时，请稍后重试。", { cause: error });
+    if (error instanceof TypeError) throw new Error("无法连接法语助手，请检查网络后重试，或打开原文查看。", { cause: error });
     throw error;
   } finally {
     clearTimeout(timer);

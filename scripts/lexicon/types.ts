@@ -56,6 +56,7 @@ export interface LexEntry {
   syn: string[];
   ant: string[];
   tip: string;
+  register?: "soutenu" | "courant" | "familier";
   note?: string;
   sources: Source[];
   /** "unreviewed": content not yet checked by a person against its source. */

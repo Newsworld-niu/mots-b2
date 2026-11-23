@@ -7,7 +7,9 @@ import { stopAudio } from "../lib/audio";
 import { cue } from "../lib/sound";
 import { diffWords, ERROR_LABEL, sameSentence, translatable, VERDICT_LABEL, verdictCue, type Feedback, type Verdict } from "../lib/writing";
 import { useStore } from "../store/store";
+import { useNavGuard } from "../lib/nav-guard";
 import { AccentKeys } from "../ui/AccentKeys";
+import { confirmAction } from "../ui/ConfirmSheet";
 import { Speak } from "../ui/Speak";
 import { toast } from "../ui/Toast";
 import { WordPopup } from "../ui/WordPopup";
@@ -69,6 +71,24 @@ function WritingRoundBody({ mode, entries, onExit, onAgain }: { mode: WritingMod
   const nextBtn = useRef<HTMLButtonElement>(null);
 
   const done = i >= entries.length;
+  const roundActive = !done && (results.length > 0 || value.trim().length > 0 || phase === "grading");
+  useNavGuard(roundActive, "本轮成句输出练习尚未完成，确定离开？");
+  const exitRound = async () => {
+    if (
+      roundActive &&
+      !(await confirmAction({
+        title: "退出本轮成句输出？",
+        message: "当前一轮尚未完成，确定提前退出？",
+        confirmLabel: "确定退出",
+        danger: true,
+      }))
+    ) {
+      return;
+    }
+    ctrl.current?.abort();
+    stopAudio();
+    onExit();
+  };
   const e = entries[Math.min(i, entries.length - 1)];
   const ex = mode === "translate" ? translatable(e.ex) : undefined;
   const reference = ex?.en ?? "";
@@ -194,7 +214,7 @@ function WritingRoundBody({ mode, entries, onExit, onAgain }: { mode: WritingMod
   return (
     <div className="page practice typing">
       <header className="typing-top">
-        <button className="btn btn-ghost" onClick={onExit}>
+        <button className="btn btn-ghost" onClick={() => void exitRound()}>
           结束
         </button>
         <div className="learn-progress">

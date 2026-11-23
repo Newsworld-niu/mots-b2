@@ -2,9 +2,9 @@ import { isNative } from "../lib/native";
 import { DictionaryLinks } from "./DictionaryLinks";
 import { Bookmark, BookmarkCheck, Check, Lightbulb, Pencil, Plus, Share2, X } from "lucide-react";
 import { useState } from "react";
-import { MEDIA, type Accent, type Entry, type WordRef } from "../atlas/types";
+import { MEDIA, type Accent, type Entry } from "../atlas/types";
 import { useAtlas } from "../atlas/context";
-import { splitHighlight, splitPair, type Span } from "../lib/text";
+import { REGISTER_LABELS, splitPair } from "../lib/text";
 import { useConfusables } from "../atlas/confusables";
 import { isMastered } from "../store/srs";
 import { store, toggleBookmark, useStore } from "../store/store";
@@ -18,7 +18,6 @@ import { AiExplain } from "./AiExplain";
 import { ready, useAiConfig } from "../ai/config";
 import { articleTone } from "../lib/gender";
 import { AUX_NOTE, VerbConjugation } from "./ConjTable";
-import { liaisonPoints } from "../lib/liaison";
 import { CORE_LABEL, isCore, PASSIVE_LABEL } from "../lib/core-words";
 import { useConj } from "../atlas/conj";
 
@@ -26,79 +25,8 @@ import { useConj } from "../atlas/conj";
 const TATOEBA = "Tatoeba";
 const ART_TITLE: Record<string, string> = { un: "阳性名词", une: "阴性名词", "un/une": "阴阳同形", des: "复数形式" };
 
-export function Highlight({ text, word, span }: { text: string; word: string; span?: Span | null }) {
-  const parts = splitHighlight(text, word, span);
-  const points = liaisonPoints(text);
-  if (!parts) return <>{withLiaison(text, 0, points)}</>;
-  return (
-    <>
-      {withLiaison(parts[0], 0, points)}
-      <mark>{withLiaison(parts[1], parts[0].length, points)}</mark>
-      {withLiaison(parts[2], parts[0].length + parts[1].length, points)}
-    </>
-  );
-}
-
-/** `piece` (which starts at `offset` in the sentence) with each liaison space drawn as a ‿ tie. */
-function withLiaison(piece: string, offset: number, points: number[]) {
-  const here = points.filter((p) => p >= offset && p < offset + piece.length).map((p) => p - offset);
-  if (!here.length) return piece;
-  const out: React.ReactNode[] = [];
-  let last = 0;
-  for (const p of here) {
-    out.push(piece.slice(last, p), <span key={p} className="liaison" title="连诵">
-        <span aria-hidden="true">‿</span>
-        <span className="sr-space"> </span>
-      </span>);
-    last = p + 1;
-  }
-  out.push(piece.slice(last));
-  return out;
-}
-
-/**
- * The headword's pronunciation. When both recordings exist the card offers 女 and 男 side by side, as the English
- * atlas offers 英 and 美.
- */
-export function Pronounce({ entry, refw }: { entry: Entry; refw: WordRef | Entry }) {
-  const atlas = useAtlas();
-  const ipa = entry.uk || entry.us;
-  const m = "media" in refw && typeof refw.media === "number" ? refw.media : (refw as Entry).m;
-  const voices = (["uk", "us"] as const).filter((v) => m & MEDIA[v]);
-  // no recording at all (an own word): both Azure voices when they are set up
-  if (!voices.length)
-    return (
-      <div className="pron">
-        <SpeakBoth text={entry.w} lead={ipa ? <span className="ipa">{ipa}</span> : undefined} />
-      </div>
-    );
-  if (voices.length < 2)
-    return (
-      <div className="pron">
-        <Speak url={atlas.audio(refw, "uk")} text={entry.w} size="sm" label={ipa ? <span className="ipa">{ipa}</span> : <em>朗读</em>} />
-      </div>
-    );
-  return (
-    <div className="pron">
-      {voices.map((v) => (
-        <Speak
-          key={v}
-          url={atlas.audio(refw, v)}
-          text={entry.w}
-          accent={v}
-          size="sm"
-          ariaLabel={`${VOICE_LABEL[v]}声朗读 ${entry.w}`}
-          label={
-            <>
-              <em>{VOICE_LABEL[v]}</em>
-              {v === "uk" && ipa && <span className="ipa">{ipa}</span>}
-            </>
-          }
-        />
-      ))}
-    </div>
-  );
-}
+import { Highlight, Pronounce } from "./WordText";
+export { Highlight, Pronounce };
 
 const VOICE_LABEL = { uk: "女", us: "男" } as const;
 
@@ -251,6 +179,11 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
             )}
             {!mine && (isCore(atlas, entry.id) ? <span className="chip" title="写作、口语要能用出来">{CORE_LABEL}</span> : <span className="chip" title="看懂就行">{PASSIVE_LABEL}</span>)}
             {topic && <span className="chip">{topic[1]}</span>}
+            {entry.register && (
+              <span className={`chip chip-reg reg-${entry.register}`} title="语域登记">
+                {REGISTER_LABELS[entry.register]}
+              </span>
+            )}
             {status && <span className={`chip chip-status ${status === "已掌握" ? "is-done" : ""}`}>{status}</span>}
           </div>
           {mode !== "detail" && (

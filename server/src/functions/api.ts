@@ -4,6 +4,7 @@ import {
   type HttpResponseInit,
   type InvocationContext,
 } from "@azure/functions";
+import { readBodyWithLimit } from "../lib/body-limit.js";
 import { buildBaseHeaders, handleRequest } from "../lib/handlers.js";
 import { BlobObjStore } from "../lib/store.js";
 
@@ -38,17 +39,14 @@ async function dispatch(
     ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
   };
 
-  let body: Buffer | undefined;
-  if (method === "PUT" || method === "POST") {
-    const ab = await request.arrayBuffer();
-    if (ab.byteLength > 0) {
-      body = Buffer.from(ab);
-    }
-  }
-
   try {
     const res = await handleRequest(
-      { method, path: urlPath, headers, body },
+      {
+        method,
+        path: urlPath,
+        headers,
+        readBody: (maxBytes) => readBodyWithLimit(request, maxBytes),
+      },
       getStore(),
       env,
     );
@@ -109,6 +107,13 @@ app.http("syncHistoryItem", {
 app.http("account", {
   route: "account",
   methods: ["DELETE", "OPTIONS"],
+  authLevel: "anonymous",
+  handler: dispatch,
+});
+
+app.http("authUpgrade", {
+  route: "auth/upgrade",
+  methods: ["POST", "OPTIONS"],
   authLevel: "anonymous",
   handler: dispatch,
 });

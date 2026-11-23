@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { clearSafetyCopyIdb, getSafetyCopyIdb, putSafetyCopyIdb } from "../store/vault";
 
 export const SYNC_STORAGE_KEY = "fb2.sync";
 export const LAST_LOCAL_KEY = "fb2.sync.lastLocal";
@@ -21,6 +22,7 @@ export interface SyncConflict {
 
 export interface PersistedSyncState {
   code: string | null;
+  authVersion?: 1 | 2;
   baseEtag: string | null;
   lastSyncedHash: string | null;
   lastOkAt: number | null;
@@ -44,7 +46,10 @@ function sanitizePersisted(raw: unknown): PersistedSyncState {
   const base = defaultPersistedSyncState();
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return base;
   const o = raw as Record<string, unknown>;
-  if (typeof o.code === "string" && o.code.trim()) base.code = o.code.trim();
+  if (typeof o.code === "string" && o.code.trim()) {
+    base.code = o.code.trim();
+    base.authVersion = o.authVersion === 2 ? 2 : 1;
+  }
   if (typeof o.baseEtag === "string" && o.baseEtag) base.baseEtag = o.baseEtag;
   if (typeof o.lastSyncedHash === "string" && o.lastSyncedHash) base.lastSyncedHash = o.lastSyncedHash;
   if (typeof o.lastOkAt === "number" && Number.isFinite(o.lastOkAt) && o.lastOkAt >= 0) base.lastOkAt = o.lastOkAt;
@@ -71,6 +76,7 @@ function writePersisted(s: PersistedSyncState): void {
     }
     const payload: PersistedSyncState = {
       code: s.code,
+      ...(s.code ? { authVersion: s.authVersion === 2 ? 2 : 1 } : {}),
       baseEtag: s.baseEtag,
       lastSyncedHash: s.lastSyncedHash,
       lastOkAt: s.lastOkAt,
@@ -106,6 +112,7 @@ export function setSyncState(patch: Partial<SyncState> | ((prev: SyncState) => S
   };
   const persistedChanged =
     prev.code !== next.code ||
+    prev.authVersion !== next.authVersion ||
     prev.baseEtag !== next.baseEtag ||
     prev.lastSyncedHash !== next.lastSyncedHash ||
     prev.lastOkAt !== next.lastOkAt ||
@@ -116,7 +123,18 @@ export function setSyncState(patch: Partial<SyncState> | ((prev: SyncState) => S
   return state;
 }
 
+let safetyCopyCache: string | null = null;
+
 export function resetSyncState(): SyncState {
+  safetyCopyCache = null;
+  void clearSafetyCopyIdb();
+  if (typeof localStorage !== "undefined") {
+    try {
+      localStorage.removeItem(LAST_LOCAL_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
   state = {
     ...defaultPersistedSyncState(),
     busy: false,
@@ -148,23 +166,56 @@ export function useSyncState(): SyncState {
   return useSyncExternalStore(subscribeSyncState, getSyncState, getSyncState);
 }
 
-export function saveLocalSafetyCopy(json: string): void {
-  if (typeof localStorage === "undefined") return;
-  try {
-    localStorage.setItem(LAST_LOCAL_KEY, json);
-  } catch {
-    /* ignore quota errors */
-  }
-}
-
-export function getLocalSafetyCopy(): string | null {
+function takeLegacySafetyCopy(): string | null {
   if (typeof localStorage === "undefined") return null;
   try {
     const raw = localStorage.getItem(LAST_LOCAL_KEY);
-    return raw && raw.trim() ? raw : null;
+    if (raw && raw.trim()) {
+      localStorage.removeItem(LAST_LOCAL_KEY);
+      return raw;
+    }
   } catch {
-    return null;
+    /* ignore storage errors */
   }
+  return null;
+}
+
+export function saveLocalSafetyCopy(json: string): void {
+  safetyCopyCache = json;
+  if (typeof localStorage !== "undefined") {
+    try {
+      localStorage.removeItem(LAST_LOCAL_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+  void putSafetyCopyIdb(json);
+}
+
+export function getLocalSafetyCopy(): string | null {
+  if (safetyCopyCache) return safetyCopyCache;
+  const legacy = takeLegacySafetyCopy();
+  if (legacy) {
+    safetyCopyCache = legacy;
+    void putSafetyCopyIdb(legacy);
+    return legacy;
+  }
+  return null;
+}
+
+export async function loadLocalSafetyCopy(): Promise<string | null> {
+  const fromIdb = await getSafetyCopyIdb();
+  if (fromIdb && fromIdb.trim()) {
+    safetyCopyCache = fromIdb;
+    return fromIdb;
+  }
+  const legacy = takeLegacySafetyCopy();
+  if (legacy) {
+    safetyCopyCache = legacy;
+    await putSafetyCopyIdb(legacy);
+    return legacy;
+  }
+  return safetyCopyCache;
 }
 
 if (typeof window !== "undefined") {

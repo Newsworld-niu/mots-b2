@@ -1,9 +1,16 @@
 /**
- * Offline dictionary for words the atlas does not have (public/dict, built by scripts/build-dict.py from
- * Lexique 3.83, French Wiktionary and Tatoeba). Files are split by the first two letters of the folded word and
- * fetched only when the learner adds a word.
+ * Unified offline dictionary adapter backed by LexDB (public/lexdb/).
+ * Preserves the legacy DictHit / DictEntry interface for Read, ExtractWords,
+ * TranscriptWords, HomeDictionary, WordForm, and Near spelling recovery.
  */
-import { foldAccents } from "./accent";
+import {
+  loadEntryShard,
+  loadMeta,
+  setLexdbFetcher,
+  type LexdbFetcher,
+} from "./lexdb/load";
+import { resolve } from "./lexdb/search";
+import { lexdbFold, lexdbKey, type LexEntry } from "./lexdb/types";
 
 /** [chinese, French label of the Wiktionary sense it translates]. */
 export type DictGloss = [string, string];
@@ -24,15 +31,8 @@ export interface DictHit extends DictEntry {
   form?: string;
 }
 
-interface DictFile {
-  f: Record<string, string[]>;
-  l: Record<string, DictEntry[]>;
-}
-
-const BASE = (typeof import.meta !== "undefined" && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : "/").replace(/\/$/, "");
-
-/** Folded spelling, as the build folds it. */
-export const dictFold = (s: string) => foldAccents(s.trim().replace(/[’‘]/g, "'").replace(/\s+/g, " "));
+/** Folded spelling matching LexDB shards. */
+export const dictFold = (s: string) => lexdbFold(s);
 
 /** File key: the first two a–z letters ("a_" for a one-letter word), "__" when the word does not start with a letter. */
 export function dictKey(folded: string) {
@@ -41,64 +41,113 @@ export function dictKey(folded: string) {
   return (letters + "_").slice(0, 2);
 }
 
-const files = new Map<string, Promise<DictFile | null>>();
-let fetcher: (url: string) => Promise<DictFile | null> = async (url) => {
-  const r = await fetch(url);
-  return r.ok ? ((await r.json()) as DictFile) : null;
-};
-/** Tests replace the network. */
-export const setDictFetcher = (f: typeof fetcher) => {
-  fetcher = f;
-  files.clear();
+/** Tests replace the LexDB fetcher and clear shard caches. */
+export const setDictFetcher = (f: ((url: string) => Promise<unknown>) | null) => {
+  setLexdbFetcher(f as LexdbFetcher | null);
 };
 
-function load(k: string) {
-  let p = files.get(k);
-  if (!p) {
-    p = fetcher(`${BASE}/dict/${k}.json`).catch(() => null);
-    p.then((x) => x === null && files.delete(k));
-    files.set(k, p);
+function findHighlightSpan(sentence: string, word: string): [number, number] {
+  if (!sentence || !word) return [0, 0];
+  try {
+    const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const m = new RegExp(`(?<!\\p{L})${escaped}(?!\\p{L})`, "iu").exec(sentence);
+    if (m) return [m.index, m.index + m[0].length];
+  } catch {
+    /* ignore regex errors on exotic headwords */
   }
-  return p;
+  const idx = sentence.toLowerCase().indexOf(word.toLowerCase());
+  return idx >= 0 ? [idx, idx + word.length] : [0, 0];
 }
 
-/** Entries for a typed word: the word itself as a lemma first, then the lemmas it is a form of. */
-export async function lookupDict(word: string): Promise<DictHit[]> {
-  const f = dictFold(word);
-  if (!f || f.length > 60) return [];
-  const file = await load(dictKey(f));
-  if (!file) return [];
-  const direct: DictHit[] = file.l[f] ?? [];
-  const viaForm: DictHit[] = [];
-  for (const lemma of file.f[f] ?? []) {
-    const other = lemma === f ? file : await load(dictKey(lemma));
-    for (const e of other?.l[lemma] ?? []) viaForm.push({ ...e, form: word.trim() });
+export function lexEntryToDictHits(entry: LexEntry, form?: string): DictHit[] {
+  const blocks = entry.pos.length ? entry.pos : [{ p: "", senses: [] }];
+  const hits: DictHit[] = [];
+  for (const pb of blocks) {
+    const zh: DictGloss[] = [];
+    const seenZh = new Set<string>();
+    const ex: DictExample[] = [];
+    const seenEx = new Set<string>();
+
+    for (const s of pb.senses) {
+      const gloss = s.zh?.trim();
+      if (gloss && !seenZh.has(gloss)) {
+        seenZh.add(gloss);
+        zh.push([gloss, s.fr ?? ""]);
+      }
+      for (const item of s.ex ?? []) {
+        if (!item.fr || seenEx.has(item.fr)) continue;
+        seenEx.add(item.fr);
+        const span =
+          item.hl && item.hl.length === 2 && item.hl[0] >= 0 && item.hl[1] >= item.hl[0]
+            ? item.hl
+            : findHighlightSpan(item.fr, entry.w);
+        ex.push([item.fr, item.zh ?? "", span[0], span[1]]);
+      }
+    }
+
+    hits.push({
+      w: entry.w,
+      p: pb.p,
+      ...(entry.ipa ? { ipa: entry.ipa } : {}),
+      ...(zh.length ? { zh } : {}),
+      ...(ex.length ? { ex } : {}),
+      ...(form ? { form } : {}),
+    });
   }
-  // the lemma spelled exactly as typed (accents included) first; a lemma that only matches without accents
-  // goes after the forms (bâille is a form of bâiller before it is the noun baille)
-  const typed = word.trim().toLowerCase();
-  const exact = direct.filter((e) => e.w.toLowerCase() === typed);
-  const loose = direct.filter((e) => e.w.toLowerCase() !== typed);
-  return [...exact, ...viaForm, ...loose];
+  return hits;
+}
+
+/** Entries for a typed word resolved via LexDB (exact match, inflected forms, or phrases). */
+export async function lookupDict(word: string): Promise<DictHit[]> {
+  const raw = word.trim();
+  const f = dictFold(raw);
+  if (!f || f.length > 80) return [];
+  const res = await resolve(raw);
+  if (!res.entries.length) return [];
+
+  const out: DictHit[] = [];
+  const seen = new Set<string>();
+  for (const entry of res.entries) {
+    const isFormMatch = dictFold(entry.w) !== f;
+    const form = isFormMatch ? raw : undefined;
+    for (const hit of lexEntryToDictHits(entry, form)) {
+      const sig = `${hit.w}\0${hit.p}\0${hit.form ?? ""}`;
+      if (seen.has(sig)) continue;
+      seen.add(sig);
+      out.push(hit);
+    }
+  }
+  return out;
 }
 
 /** The glosses joined as the form's Chinese field: "迎接；接待". */
-export const joinGlosses = (zh: DictGloss[], n = 3) => [...new Set(zh.map((g) => g[0]))].slice(0, n).join("；");
+export const joinGlosses = (zh: DictGloss[], n = 3) =>
+  [...new Set(zh.map((g) => g[0]))].slice(0, n).join("；");
 
 /**
- * Dictionary lemmas spelled close to `word` (for scanning errors): only the file of the word's first two
- * letters is searched, so a misread first letter is not found here (the atlas search covers that).
+ * Dictionary lemmas spelled close to `word` (for scanning errors): searches the LexDB shard
+ * corresponding to `word`'s prefix (first 2+ folded letters).
  */
-export async function nearDict(word: string, close: (a: string, b: string) => number, max = 1): Promise<{ entry: DictEntry; dist: number }[]> {
+export async function nearDict(
+  word: string,
+  close: (a: string, b: string) => number,
+  max = 1,
+): Promise<{ entry: DictEntry; dist: number }[]> {
   const f = dictFold(word);
   if (f.length < 3 || f.length > 40) return [];
-  const file = await load(dictKey(f));
-  if (!file) return [];
+  const meta = await loadMeta();
+  const shard = await loadEntryShard(lexdbKey(f, meta?.splits));
+  if (!shard) return [];
+
   const out: { entry: DictEntry; dist: number }[] = [];
-  for (const [k, list] of Object.entries(file.l)) {
-    if (Math.abs(k.length - f.length) > max) continue;
-    const d = close(f, k);
-    if (d > 0 && d <= max) for (const e of list) out.push({ entry: e, dist: d });
+  for (const e of Object.values(shard)) {
+    const lf = dictFold(e.w);
+    if (!lf || Math.abs(lf.length - f.length) > max) continue;
+    const d = close(f, lf);
+    if (d > 0 && d <= max) {
+      const hit = lexEntryToDictHits(e)[0];
+      if (hit) out.push({ entry: hit, dist: d });
+    }
   }
   return out.sort((a, b) => a.dist - b.dist).slice(0, 8);
 }

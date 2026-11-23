@@ -78,12 +78,10 @@ export interface LexEntry {
   2. `NFKC` -> `œ/Œ` 展开为 `oe`、`æ/Æ` 展开为 `ae` -> `NFD` 去除变音符号 `\p{M}` -> 转小写。
 - **基础分片键（`baseKey`）**：与 `src/lib/dict.ts` 的 `dictKey` 一致：
   - 提取 `folded` 中的 `[a-z]` 字符；若为空或首字符非字母则用 `"__"`；否则取 `(letters + "_").slice(0, 2)`。
-- **超长分片 3 字母切分（`splits`）**：
-  - 构建导出时，若某个 2 字母分片 `public/lexdb/e/<k2>.json` 的未压缩体积 **> 400 KB**，则将该前缀按前 3 个字母 `[a-z]`（不足补 `_`）切分，如 `co` -> `coa`, `cob`, `col`, `com`, `con`, ...，并将 `"co"` 加入 `meta.json` 的 `splits` 数组（排序去重）。
-  - 查询端（`src/lib/lexdb/load.ts`）先读取 `meta.json` 的 `splits`（首次查词时加载并缓存），计算 `baseKey = dictKey(folded)`：
-    - 若 `splits.includes(baseKey)`，则取 `(letters + "__").slice(0, 3)` 作为最终 `<key>`；
-    - 否则直接用 `baseKey`。
-  - `public/lexdb/forms/<key>.json` 使用**完全相同的** `splits` 与 `<key>` 规则（一个 `forms/<key>.json` 对应它自身字母前缀的变位/变形，不跨前缀）。注：若 `forms/<k2>.json` 自身或对应 `e/<k2>.json` 在 `splits` 中，则按同样 3 字母键切分，保证两边一致。
+- **超长分片多级前缀切分（`splits`）**：
+  - 构建导出时，若某个 2 字母分片 `public/lexdb/e/<k2>.json` 或 `forms/<k2>.json` 的未压缩体积 **> 400 KB**，则将该前缀按前 3 个字母 `[a-z]`（不足补 `_`）切分，如 `co` -> `coa`, `cob`, `col`, `com`, `con`, ...；若某个 3 字母分片仍 **> 400 KB**，则继续将该 3 字母前缀（如 `"con"`）加入 `splits`，进一步按前 4 个字母切分（`con_`、`cona`..`conz`）。所有需细分的 2/3 字母前缀均排序去重写入 `meta.json` 的 `splits` 数组。
+  - 查询端（`src/lib/lexdb/load.ts`）先读取 `meta.json` 的 `splits`（首次查词时加载并缓存），从 `baseKey` 起只要当前前缀在 `splits` 中且长度 `< 4` 就继续取下一位字母（不足补 `_`），作为最终 `<key>`。
+  - `public/lexdb/forms/<key>.json` 使用**完全相同的** `splits` 与 `<key>` 规则（一个 `forms/<key>.json` 对应它自身字母前缀的变位/变形，不跨前缀）。保证两边一致。
 
 ## 3. 导出目录与文件格式（`public/lexdb/`）
 

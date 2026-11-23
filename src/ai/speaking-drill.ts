@@ -1,5 +1,13 @@
 /** 每日一分钟口语: a quick AI comment on the minute (opinion, two reasons, what to say better). */
+import { countWords } from "../lib/essay-schema";
 import { aiJson } from "./clients";
+
+export const MIN_DRILL_WORDS = 5;
+
+/** A daily 1-minute drill counts as completed only when at least 5 spoken/transcribed words are present. */
+export function canCompleteDrill(transcript: string): boolean {
+  return countWords(transcript) >= MIN_DRILL_WORDS;
+}
 
 export interface DrillFeedback {
   /** Did the answer give an opinion and two reasons. */
@@ -45,6 +53,9 @@ export function sanitizeDrillFeedback(raw: unknown): DrillFeedback {
 }
 
 export async function drillFeedback(input: { question: string; transcript: string }, signal?: AbortSignal): Promise<DrillFeedback> {
+  if (!canCompleteDrill(input.transcript)) {
+    throw new Error(`回答内容不足 ${MIN_DRILL_WORDS} 个词，请至少说出一句完整看法后再请求点评`);
+  }
   const r = await aiJson<unknown>("text", {
     system: SYSTEM,
     text: JSON.stringify({ question: input.question, transcript: input.transcript.slice(0, 3000) }),

@@ -2,7 +2,7 @@
 import { MAX_SOURCES, MAX_TRANSCRIPT, SOURCE_ID, type RealSource } from "../lib/listening";
 import { appendExamLog } from "./essays";
 import { deleteRealMediaForSource } from "./real-media";
-import { store } from "./store";
+import { clearTombstone, markTombstone, store } from "./store";
 
 export const newSourceId = () => `s-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 
@@ -22,7 +22,7 @@ export function addSource(
     created: Date.now(),
     ...(transcript ? { transcript } : {}),
   };
-  store.progress((p) => ({ ...p, listenSources: [s, ...(p.listenSources ?? []).filter((x) => x.id !== id)].slice(0, MAX_SOURCES) }));
+  store.progress((p) => clearTombstone({ ...p, listenSources: [s, ...(p.listenSources ?? []).filter((x) => x.id !== id)].slice(0, MAX_SOURCES) }, `source:${id}`));
   return id;
 }
 
@@ -53,14 +53,14 @@ export function patchSource(id: string, patch: Partial<Pick<RealSource, "title" 
 
 export function recordRealListenScore(what: string, score: number, total: number) {
   if (total <= 0) return;
-  store.progress((p) => appendExamLog(p, { part: "listen", what, score, total }));
+  store.progress((p) => appendExamLog(p, { part: "listen", what, score, total, scope: "real" }));
 }
 
 export function deleteSource(id: string) {
   store.progress((p) => {
     const listenSources = (p.listenSources ?? []).filter((s) => s.id !== id);
     const { listenSources: _old, ...rest } = p;
-    return listenSources.length ? { ...rest, listenSources } : rest;
+    return markTombstone(listenSources.length ? { ...rest, listenSources } : rest, `source:${id}`);
   });
   void deleteRealMediaForSource(id);
 }

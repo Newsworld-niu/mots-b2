@@ -19,7 +19,7 @@ export function Logo({ compact = false }: { compact?: boolean }) {
       <Mark />
       <span className="logo-text">
         <b>法语词光</b>
-        {!compact && <small>Atlas du français</small>}
+        {!compact && <small aria-hidden="true">Atlas du français</small>}
       </span>
     </span>
   );

@@ -6,39 +6,51 @@ import { Sheet } from "../ui/Sheet";
 import { useAtlas } from "../atlas/context";
 import { downloadBackupFile, downloadRawBackupFile, isBackupSnoozedToday, snoozeBackupToday, cloudSyncHealthy } from "../lib/backup";
 import { exportDictReportsJson, useDictStore } from "../lib/lexdb/store";
+import { go } from "../lib/router";
 import { PLACEMENT_ESTIMATE, SECTION_META } from "../lib/placement";
 import { addMonthsDate, daysUntilExam } from "../lib/study-plan";
 import { isMastered } from "../store/srs";
-import { dayKey, importBackupAsync, MAX_DAILY_NEW, needsBackupReminder, resetProgress, store, useStore, type Settings } from "../store/store";
+import { dayKey, importBackupAsync, MAX_DAILY_NEW, needsBackupReminder, resetProgress, store, useStore, useStoreShallow, type Settings } from "../store/store";
 import { useSyncState } from "../sync/state";
 import { CloudSync } from "../ui/CloudSync";
+import { OfflinePacks } from "../ui/OfflinePacks";
+import { confirmAction } from "../ui/ConfirmSheet";
 import { CountPicker } from "../ui/CountPicker";
 import { EssayTrend } from "../ui/EssayTrend";
-import { ExamDashboard } from "../ui/ExamDashboard";
+import { examReadiness } from "../lib/exam-schema";
 import { PlacementTest } from "../ui/PlacementTest";
 import { toast } from "../ui/Toast";
-import { MockExam } from "./MockExam";
-import { streakOf } from "./Today";
+import { dailyActivityMap, unifiedMinutes, unifiedStreakOf } from "../lib/activity";
 
 export function Me() {
   const atlas = useAtlas();
-  const progress = useStore((s) => s.progress);
+  const progress = useStoreShallow((s) => ({
+    cards: s.progress.cards,
+    days: s.progress.days,
+    gramDays: s.progress.gramDays,
+    conjDays: s.progress.conjDays,
+    drillDays: s.progress.drillDays,
+    examLog: s.progress.examLog,
+    essays: s.progress.essays,
+    listenSources: s.progress.listenSources,
+    texts: s.progress.texts,
+    placement: s.progress.placement,
+  }));
   const settings = useStore((s) => s.settings);
   const saveError = useStore((s) => s.saveError);
   const file = useRef<HTMLInputElement>(null);
   const [aiOpen, setAiOpen] = useState(false);
   const [placeOpen, setPlaceOpen] = useState(false);
-  const [mock, setMock] = useState(false);
   const ai = useAiConfig();
   const { reports: dictReports } = useDictStore();
   const daysLeft = daysUntilExam(settings.examDate);
+  const readiness = useMemo(() => examReadiness(progress.examLog, settings.targetScore), [progress.examLog, settings.targetScore]);
 
   const stats = useMemo(() => {
     const cards = Object.values(progress.cards);
     const days = Object.values(progress.days);
     const r = days.reduce((n, d) => n + d.r, 0);
     const c = days.reduce((n, d) => n + d.c, 0);
-    const t = days.reduce((n, d) => n + d.t, 0);
     const now = Date.now();
     const forecast = Array.from({ length: 7 }, (_, i) => {
       const end = new Date();
@@ -49,13 +61,22 @@ export function Me() {
       return cards.filter((x) => (i === 0 ? x.due <= end.getTime() : x.due >= start.getTime() && x.due <= end.getTime())).length;
     });
     void now;
-    return { learned: cards.length, mastered: cards.filter(isMastered).length, reviews: r, accuracy: r ? Math.round((c / r) * 100) : 0, minutes: Math.round(t / 60), forecast };
+    return {
+      learned: cards.length,
+      mastered: cards.filter(isMastered).length,
+      reviews: r,
+      accuracy: r ? Math.round((c / r) * 100) : 0,
+      minutes: unifiedMinutes(progress),
+      streak: unifiedStreakOf(progress),
+      activityDays: dailyActivityMap(progress),
+      forecast,
+    };
   }, [progress]);
 
   const set = (patch: Partial<Settings>) => store.settings(patch);
   const sync = useSyncState();
   const [backupDismissed, setBackupDismissed] = useState(isBackupSnoozedToday);
-  const backupDue = useMemo(() => needsBackupReminder(progress, settings.lastBackupAt), [progress, settings.lastBackupAt]);
+  const backupDue = useStoreShallow((s) => needsBackupReminder(s.progress, s.settings.lastBackupAt));
   const download = () => void downloadBackupFile();
   const restore = async (f: File) => {
     if (f.size > 30 * 1024 * 1024) return toast("文件太大，不像是学习备份。", "warn");
@@ -63,8 +84,6 @@ export function Me() {
     toast(r.ok ? `已恢复 ${r.cards} 个词的记忆` : r.error, r.ok ? "ok" : "warn");
   };
   const maxF = Math.max(1, ...stats.forecast);
-
-  if (mock) return <MockExam onExit={() => setMock(false)} />;
 
   return (
     <div className="page me">
@@ -77,7 +96,7 @@ export function Me() {
         <div>
           <dt>连续学习</dt>
           <dd>
-            {streakOf(progress.days)}
+            {stats.streak}
             <small>天</small>
           </dd>
         </div>
@@ -107,13 +126,13 @@ export function Me() {
 
       <div className="me-grid">
         <section className="panel">
-          <h3 className="eyebrow">过去 20 周</h3>
-          <Heatmap days={progress.days} />
+          <h2 className="eyebrow">过去 20 周</h2>
+          <Heatmap days={stats.activityDays} />
           <p className="muted">一格是一天，颜色越深，那天答得越多。「长期记住」指记忆稳定度超过 21 天。</p>
         </section>
 
         <section className="panel">
-          <h3 className="eyebrow">未来 7 天的复习量</h3>
+          <h2 className="eyebrow">未来 7 天的复习量</h2>
           <ol className="forecast">
             {stats.forecast.map((n, i) => (
               <li key={i}>
@@ -125,15 +144,17 @@ export function Me() {
           </ol>
         </section>
 
-        <div className="me-wide">
-          <ExamDashboard onStartMock={() => setMock(true)} />
-        </div>
         <section className="panel me-wide prep-me-panel">
           <div className="panel-head">
-            <h3 className="eyebrow">DELF B2 备考档案</h3>
-            <button className="btn btn-ghost btn-sm" onClick={() => setPlaceOpen(true)}>
-              <Compass size={16} /> {progress.placement ? "重新摸底定级" : `摸底定级小测（${PLACEMENT_ESTIMATE}）`}
-            </button>
+            <h2 className="eyebrow">DELF B2 备考档案</h2>
+            <div className="data-actions">
+              <button className="btn btn-ghost btn-sm" onClick={() => go({ page: "mock" })}>
+                全真模考
+              </button>
+              <button className="btn btn-ghost btn-sm" onClick={() => setPlaceOpen(true)}>
+                <Compass size={16} /> {progress.placement ? "重新摸底定级" : `摸底定级小测（${PLACEMENT_ESTIMATE}）`}
+              </button>
+            </div>
           </div>
           <div className="prep-me-summary">
             <span>
@@ -152,6 +173,16 @@ export function Me() {
               目标总分：<b>{settings.targetScore} / 100</b>（每项均需约 {Math.round((settings.targetScore / 4) * 10) / 10}/25）
             </span>
             <span>
+              实测进度：
+              <b>
+                {readiness.exact100 !== null
+                  ? `${readiness.exact100}/100（四科实测）`
+                  : readiness.completed > 0
+                    ? `已测 ${readiness.completed}/4 科 · ${readiness.scoredSum}/${readiness.scoredMax}`
+                    : "尚未完成整科模考"}
+              </b>
+            </span>
+            <span>
               摸底定级：
               {progress.placement ? (
                 <b>
@@ -166,12 +197,12 @@ export function Me() {
         </section>
 
         <section className="panel me-wide">
-          <h3 className="eyebrow">写作进步</h3>
+          <h2 className="eyebrow">写作进步</h2>
           <EssayTrend essays={progress.essays ?? []} />
         </section>
 
         <section className="panel settings">
-          <h3 className="eyebrow">学习设置</h3>
+          <h2 className="eyebrow">学习设置</h2>
           <Field
             label="考试日期"
             hint={
@@ -205,15 +236,72 @@ export function Me() {
           <Field label="目标总分（/100）" hint="DELF B2 及格线为 50/100（且四项均须 ≥5/25）；默认冲刺目标 75 分。">
             <CountPicker label="目标总分" value={settings.targetScore} onChange={(n) => set({ targetScore: Math.max(50, Math.min(100, n)) })} presets={[60, 75, 85, 90]} max={100} unit=" 分" />
           </Field>
-          <Field label="每日新词" hint={`想学多少自己定，1–${MAX_DAILY_NEW} 都可以。复习不设上限，算法只安排快要遗忘的词；一天新学的越多，之后几天要复习的也越多（大约是新词数的 3–5 倍）。`}>
+          <Field label="每日备考时长" hint="用于计算首页四科时间配比；选「自动」时，6 个月内默认 60 分钟/天，其余 45 分钟/天。">
+            <div className="count-picker">
+              <div className="segmented" role="group" aria-label="每日备考时长">
+                <button type="button" className={settings.dailyMinutes === null ? "is-on" : ""} aria-pressed={settings.dailyMinutes === null} onClick={() => set({ dailyMinutes: null })}>
+                  自动
+                </button>
+                {[30, 45, 60, 90, 120].map((m) => (
+                  <button key={m} type="button" className={settings.dailyMinutes === m ? "is-on" : ""} aria-pressed={settings.dailyMinutes === m} onClick={() => set({ dailyMinutes: m })}>
+                    {m} 分
+                  </button>
+                ))}
+              </div>
+              {settings.dailyMinutes !== null && (
+                <label className="me-custom-min">
+                  <span className="muted small">自定义（20–180 分）：</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={20}
+                    max={180}
+                    step={5}
+                    value={settings.dailyMinutes}
+                    onChange={(e) => {
+                      const n = Math.round(Number(e.target.value));
+                      if (Number.isFinite(n) && n >= 20 && n <= 180) set({ dailyMinutes: n });
+                    }}
+                    aria-label="自定义每日备考分钟数"
+                  />
+                </label>
+              )}
+            </div>
+          </Field>
+          <Field label="每日新词" hint={`想学多少自己定，1–${MAX_DAILY_NEW} 都可以。`}>
             <CountPicker label="每日新词" value={settings.dailyNew} onChange={(n) => set({ dailyNew: n })} presets={[5, 10, 20, 30, 50, 100]} max={MAX_DAILY_NEW} />
           </Field>
+          <Field
+            label="每日复习上限"
+            hint="默认不限，按 FSRS 遗忘曲线全量安排。休假积压较多时可设单日上限，超出部分会自动顺延队列而不重置稳定度。"
+          >
+            <div className="segmented" role="group" aria-label="每日复习上限">
+              {[
+                [null, "不限"],
+                [30, "30"],
+                [50, "50"],
+                [80, "80"],
+                [120, "120"],
+                [150, "150"],
+              ].map(([val, lbl]) => (
+                <button
+                  key={String(val)}
+                  type="button"
+                  className={settings.dailyReviewCap === val ? "is-on" : ""}
+                  aria-pressed={settings.dailyReviewCap === val}
+                  onClick={() => set({ dailyReviewCap: val as number | null })}
+                >
+                  {lbl}
+                </button>
+              ))}
+            </div>
+          </Field>
           <Field label="从哪个难度开始" hint="跳过已经熟悉的低级别词。">
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="起始难度等级">
               {atlas.cefr.map((l, i) =>
                 // levels with no words (C1, C2) are not offered; the index stays the same so saved settings still match
                 atlas.words.some((w) => w.cefr === i) ? (
-                  <button key={l} className={settings.startLevel === i ? "is-on" : ""} onClick={() => set({ startLevel: i })}>
+                  <button key={l} type="button" className={settings.startLevel === i ? "is-on" : ""} aria-pressed={settings.startLevel === i} onClick={() => set({ startLevel: i })}>
                     {l}
                   </button>
                 ) : null,
@@ -221,16 +309,16 @@ export function Me() {
             </div>
           </Field>
           <Field label="目标记忆率" hint="越高复习越频繁。90% 是大多数人的甜点。">
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="目标记忆率">
               {[0.85, 0.9, 0.95].map((n) => (
-                <button key={n} className={settings.retention === n ? "is-on" : ""} onClick={() => set({ retention: n })}>
+                <button key={n} type="button" className={settings.retention === n ? "is-on" : ""} aria-pressed={settings.retention === n} onClick={() => set({ retention: n })}>
                   {Math.round(n * 100)}%
                 </button>
               ))}
             </div>
           </Field>
           <Field label="外观">
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="外观主题">
               {(
                 [
                   ["system", "跟随系统"],
@@ -238,7 +326,7 @@ export function Me() {
                   ["dark", "深色"],
                 ] as const
               ).map(([k, l]) => (
-                <button key={k} className={settings.theme === k ? "is-on" : ""} onClick={() => set({ theme: k })}>
+                <button key={k} type="button" className={settings.theme === k ? "is-on" : ""} aria-pressed={settings.theme === k} onClick={() => set({ theme: k })}>
                   {l}
                 </button>
               ))}
@@ -246,14 +334,14 @@ export function Me() {
           </Field>
           <Toggle label="自动播放发音" on={settings.autoplay} set={(v) => set({ autoplay: v })} />
           <Toggle label="界面音效" on={settings.sfx} set={(v) => set({ sfx: v })} />
-          <Toggle label="开屏动画（每天一次）" on={settings.splash} set={(v) => set({ splash: v })} />
+          <Toggle label="首次进入开屏动画" on={settings.splash} set={(v) => set({ splash: v })} />
           <Toggle label="复习时加入拼写题" on={settings.spell} set={(v) => set({ spell: v })} />
         </section>
 
         <section className="panel">
-          <h3 className="eyebrow">AI 接口</h3>
+          <h2 className="eyebrow">AI 接口</h2>
           <p className="muted">
-            拍照识别：{ready.vision(ai) ? "已设置" : "未设置"} · 生成卡片：{ready.text(ai) ? "已设置" : "未设置"} · 生成图片：{ready.image(ai) ? "已设置" : "未设置"} · Azure 朗读：{ready.tts(ai) ? "已开启" : "未开启"}
+            拍照识别：{ready.vision(ai) ? "已设置" : "未设置"} · AI 文本：{ready.text(ai) ? "已设置" : "未设置"} · 生成图片：{ready.image(ai) ? "已设置" : "未设置"} · Azure 朗读：{ready.tts(ai) ? "已开启" : "未开启"}
           </p>
           <div className="data-actions">
             <button className="btn btn-ghost" onClick={() => setAiOpen(true)}>
@@ -264,8 +352,10 @@ export function Me() {
 
         <CloudSync />
 
+        <OfflinePacks />
+
         <section className="panel">
-          <h3 className="eyebrow">数据</h3>
+          <h2 className="eyebrow">数据</h2>
           <p className="muted">进度默认只保存在这台设备的浏览器里；如需多设备同步，可在上方开启可选的「云同步」，或手动导出 / 导入 JSON 备份（含作文、阅读、模考题库与草稿）。</p>
           <p className="muted small">
             上次备份：{settings.lastBackupAt ? new Date(settings.lastBackupAt).toLocaleDateString("zh-CN") : "尚未导出过备份"}
@@ -308,14 +398,31 @@ export function Me() {
             <input ref={file} type="file" accept="application/json,.json" hidden onChange={(e) => e.target.files?.[0] && restore(e.target.files[0]).finally(() => (e.target.value = ""))} />
             <button
               className="btn btn-ghost btn-danger"
-              onClick={() => {
-                if (confirm("确定清空这个词库的全部学习记录？此操作无法撤销，建议先导出备份。")) {
+              onClick={async () => {
+                if (
+                  await confirmAction({
+                    title: "清空全部学习记录？",
+                    message: "确定清空这个词库的全部学习记录？此操作无法撤销，建议先导出备份。",
+                    confirmLabel: "确认清空",
+                    danger: true,
+                  })
+                ) {
                   resetProgress();
                   toast("学习记录已清空");
                 }
               }}
             >
               <RotateCcw size={18} /> 清空记录
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={() => {
+                set({ onboarded: false });
+                go({ page: "today" });
+              }}
+            >
+              <Compass size={18} /> 重新打开新手引导
             </button>
           </div>
         </section>

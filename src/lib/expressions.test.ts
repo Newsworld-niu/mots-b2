@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { answersOf, checkExpr, DEBATE_PHRASE_FNS, debatePhrases, EXPR_BY_ID, EXPR_GROUPS, EXPR_ID, EXPRESSIONS, filledEx, gapOf, maskOf, type Expression } from "./expressions.ts";
+import { EXPRESSIONS_COUNT } from "./expr-schema.ts";
 import { TOPICS } from "./exam.ts";
 import { COLLOCATIONS } from "./expressions-more.ts";
 import { CORE_FR_DEFS, frenchClueFor, readPureFr, writePureFr } from "./pure-fr.ts";
@@ -14,6 +15,7 @@ const card = (id: string) => {
 
 test("every card is well formed: unique valid id, one gap, Chinese, known group", () => {
   assert.equal(EXPR_BY_ID.size, EXPRESSIONS.length, "ids are unique");
+  assert.equal(EXPRESSIONS_COUNT, EXPRESSIONS.length, "schema count matches expressions");
   for (const e of EXPRESSIONS) {
     assert.match(e.id, EXPR_ID, e.id);
     assert.equal(e.ex.match(/\[[^\]]+\]/g)?.length, 1, `${e.id}: one gap`);

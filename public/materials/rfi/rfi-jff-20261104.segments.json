@@ -1,0 +1,638 @@
+{
+  "id": "rfi-jff-20261104",
+  "audio": "materials/rfi/rfi-jff-20261104.mp3",
+  "duration": 600.11,
+  "method": "ffmpeg-silence-align",
+  "segments": [
+    {
+      "idx": 0,
+      "start": 0.62,
+      "end": 2.4,
+      "text": "Bonjour à toutes et à tous."
+    },
+    {
+      "idx": 1,
+      "start": 2.4,
+      "end": 6.75,
+      "text": "Soyez les bienvenus à l'écoute de RFI Radio France Internationale."
+    },
+    {
+      "idx": 2,
+      "start": 6.75,
+      "end": 9.19,
+      "text": "En direct de Paris, il est 17 heures."
+    },
+    {
+      "idx": 3,
+      "start": 9.19,
+      "end": 11.17,
+      "text": "Le Journal en français facile."
+    },
+    {
+      "idx": 4,
+      "start": 11.17,
+      "end": 12.29,
+      "text": "Adrien Delgrange."
+    },
+    {
+      "idx": 5,
+      "start": 12.29,
+      "end": 14.01,
+      "text": "16 heures temps universel."
+    },
+    {
+      "idx": 6,
+      "start": 14.01,
+      "end": 16.64,
+      "text": "Nous sommes le mercredi 4 novembre 2026."
+    },
+    {
+      "idx": 7,
+      "start": 16.64,
+      "end": 21.19,
+      "text": "La défaite de Donald Trump aux élections de mi-mandat aux États-Unis."
+    },
+    {
+      "idx": 8,
+      "start": 21.19,
+      "end": 25.22,
+      "text": "Le président américain reconnaît qu'il a perdu les élections."
+    },
+    {
+      "idx": 9,
+      "start": 25.22,
+      "end": 28.78,
+      "text": "Côté démocrate, un résultat présenté comme historique."
+    },
+    {
+      "idx": 10,
+      "start": 28.78,
+      "end": 31.55,
+      "text": "C'est ce que nous verrons dans un instant."
+    },
+    {
+      "idx": 11,
+      "start": 31.55,
+      "end": 34.05,
+      "text": "Nous sommes en Géorgie et dans l'Ohio."
+    },
+    {
+      "idx": 12,
+      "start": 34.05,
+      "end": 35.63,
+      "text": "Ailleurs sur la planète."
+    },
+    {
+      "idx": 13,
+      "start": 35.63,
+      "end": 41.44,
+      "text": "Un mort au Liban, victime d'une frappe israélienne, cet après-midi, dans le sud du pays."
+    },
+    {
+      "idx": 14,
+      "start": 41.44,
+      "end": 46.78,
+      "text": "Une nouvelle cyberattaque, cette fois-ci contre l'Établissement français du sang."
+    },
+    {
+      "idx": 15,
+      "start": 46.78,
+      "end": 55.74,
+      "text": "L'attaque a déréglé les installations frigorifiques qui abritaient des flacons de sang, nous explique, dans un instant, Amélie Beaucour."
+    },
+    {
+      "idx": 16,
+      "start": 55.74,
+      "end": 58.25,
+      "text": "Et puis, enfin, littérature en France."
+    },
+    {
+      "idx": 17,
+      "start": 58.25,
+      "end": 62.27,
+      "text": "Vous entendrez Yannick Haenel parler du métier de professeur."
+    },
+    {
+      "idx": 18,
+      "start": 62.27,
+      "end": 71.77,
+      "text": "Ancien professeur et aujourd'hui romancier, il a remporté, avec son livre intitulé La solitude des professeurs est infinie, le prix Femina 2026."
+    },
+    {
+      "idx": 19,
+      "start": 71.77,
+      "end": 75.06,
+      "text": "La politique américaine pour commencer ce journal."
+    },
+    {
+      "idx": 20,
+      "start": 75.06,
+      "end": 79.68,
+      "text": "Les démocrates ont remporté les élections de mi-mandat aux États-Unis."
+    },
+    {
+      "idx": 21,
+      "start": 79.68,
+      "end": 86.93,
+      "text": "Les opposants à Donald Trump prennent le contrôle des deux chambres, des deux lieux de pouvoir aux États-Unis."
+    },
+    {
+      "idx": 22,
+      "start": 86.93,
+      "end": 95.57,
+      "text": "Ce scrutin marque un coup d'arrêt dans la politique menée par l'actuel président et change l'équilibre des pouvoirs aux États-Unis."
+    },
+    {
+      "idx": 23,
+      "start": 95.57,
+      "end": 98.6,
+      "text": "Cette large victoire des démocrates fera date."
+    },
+    {
+      "idx": 24,
+      "start": 98.6,
+      "end": 101.17,
+      "text": "Plusieurs élus entrent dans l'histoire."
+    },
+    {
+      "idx": 25,
+      "start": 101.17,
+      "end": 110.01,
+      "text": "Les États-Unis vont, notamment, avoir leur premier sénateur musulman ou encore leur première femme noire à être gouverneure d'un État."
+    },
+    {
+      "idx": 26,
+      "start": 110.01,
+      "end": 113.83,
+      "text": "Parmi ces victoires emblématiques, nous sommes en Géorgie."
+    },
+    {
+      "idx": 27,
+      "start": 113.83,
+      "end": 117.79,
+      "text": "Keisha Lance Bottoms a été élue hier gouverneure de Géorgie."
+    },
+    {
+      "idx": 28,
+      "start": 117.79,
+      "end": 123.59,
+      "text": "Elle devient, ainsi, la première Afro-Américaine à occuper ce poste à l'échelle du pays."
+    },
+    {
+      "idx": 29,
+      "start": 123.59,
+      "end": 128.4,
+      "text": "Une victoire porteuse d'espoir pour cette militante démocrate en Géorgie."
+    },
+    {
+      "idx": 30,
+      "start": 128.4,
+      "end": 132.23,
+      "text": "« Je suis vraiment très enthousiaste et, aussi, très émue."
+    },
+    {
+      "idx": 31,
+      "start": 132.23,
+      "end": 146.75,
+      "text": "Je me sens très concernée par ce qui se passe actuellement avec l'immigration, la police de l'immigration – l'ICE."
+    },
+    {
+      "idx": 32,
+      "start": 146.75,
+      "end": 151.88,
+      "text": "Brian Kemp était très hostile à l'immigration et le candidat républicain pour cette élection était, lui aussi, très anti-immigration, avec des discours que je considère comme racistes."
+    },
+    {
+      "idx": 33,
+      "start": 151.88,
+      "end": 157.68,
+      "text": "Alors, voir une femme noire devenir gouverneure et entrer dans l'histoire, c'est énorme."
+    },
+    {
+      "idx": 34,
+      "start": 157.68,
+      "end": 159.92,
+      "text": "Elle a déjoué tous les pronostics."
+    },
+    {
+      "idx": 35,
+      "start": 159.92,
+      "end": 162.43,
+      "text": "Nous avons déjoué tous les pronostics."
+    },
+    {
+      "idx": 36,
+      "start": 162.43,
+      "end": 165.53,
+      "text": "On a fait du porte-à-porte, on est allés voter."
+    },
+    {
+      "idx": 37,
+      "start": 165.53,
+      "end": 174.49,
+      "text": "Alors, oui, je suis enthousiaste, je suis émue et j'ai vraiment hâte de voir ce que nous réservent les quatre prochaines années. »"
+    },
+    {
+      "idx": 38,
+      "start": 174.49,
+      "end": 177.26,
+      "text": "Un témoignage recueilli par Edward Maille."
+    },
+    {
+      "idx": 39,
+      "start": 177.26,
+      "end": 180.82,
+      "text": "Parmi les États qui étaient les plus observés, l'Ohio."
+    },
+    {
+      "idx": 40,
+      "start": 180.82,
+      "end": 184.52,
+      "text": "Nous sommes, à présent, dans le nord-est des États-Unis."
+    },
+    {
+      "idx": 41,
+      "start": 184.52,
+      "end": 188.87,
+      "text": "C'est là que vous vous trouvez pour RFI, François-Damien Bourgery."
+    },
+    {
+      "idx": 42,
+      "start": 188.87,
+      "end": 194.87,
+      "text": "François-Damien, les démocrates ont remporté plusieurs victoires majeures très importantes."
+    },
+    {
+      "idx": 43,
+      "start": 194.87,
+      "end": 198.63,
+      "text": "Oui. Et, tout d'abord, celle pour le poste de gouverneur."
+    },
+    {
+      "idx": 44,
+      "start": 198.63,
+      "end": 203.97,
+      "text": "C'est Amy Acton qui l'a emporté face au milliardaire républicain Vivek Ramaswamy."
+    },
+    {
+      "idx": 45,
+      "start": 203.97,
+      "end": 211.85,
+      "text": "Amy Acton, elle est médecin."
+    },
+    {
+      "idx": 46,
+      "start": 211.85,
+      "end": 212.8,
+      "text": "Et, avec cette victoire, elle devient la première démocrate à devenir gouverneure de l'Ohio depuis 20 ans."
+    },
+    {
+      "idx": 47,
+      "start": 212.8,
+      "end": 217.42,
+      "text": "Elle est aussi la première femme à être élue à ce poste dans cet État."
+    },
+    {
+      "idx": 48,
+      "start": 217.42,
+      "end": 225.79,
+      "text": "Deux autres victoires majeures : celle de Sherrod Brown pour le Sénat et de Brian Poindexter pour la Chambre des représentants."
+    },
+    {
+      "idx": 49,
+      "start": 225.79,
+      "end": 231.26,
+      "text": "Ils ont tous les deux remporté des sièges qui étaient occupés par des Républicains."
+    },
+    {
+      "idx": 50,
+      "start": 231.26,
+      "end": 237.73,
+      "text": "Et ils ont donc, ainsi, permis au Parti démocrate d'obtenir la majorité au Congrès des États-Unis."
+    },
+    {
+      "idx": 51,
+      "start": 237.73,
+      "end": 243.4,
+      "text": "Par ailleurs, François-Damien, ce succès des démocrates, comment peut-on l'expliquer ?"
+    },
+    {
+      "idx": 52,
+      "start": 243.4,
+      "end": 253.45,
+      "text": "Eh bien, c'est en grande partie à cause de l'inflation."
+    },
+    {
+      "idx": 53,
+      "start": 253.45,
+      "end": 253.9,
+      "text": "Aux États-Unis, les prix ont énormément augmenté avec la guerre en Iran, l'essence surtout."
+    },
+    {
+      "idx": 54,
+      "start": 253.9,
+      "end": 260.56,
+      "text": "Et, les Américains, ils utilisent beaucoup leur voiture."
+    },
+    {
+      "idx": 55,
+      "start": 260.56,
+      "end": 261.01,
+      "text": "Il y a, aussi, la manière que Donald Trump a de gouverner."
+    },
+    {
+      "idx": 56,
+      "start": 261.01,
+      "end": 262.52,
+      "text": "Elle est brutale, autoritaire."
+    },
+    {
+      "idx": 57,
+      "start": 262.52,
+      "end": 273,
+      "text": "Autant de raisons qui ont poussé les électeurs démocrates à se mobiliser hier et, peut-être, aussi, certains républicains modérés à voter pour le camp adverse."
+    },
+    {
+      "idx": 58,
+      "start": 273,
+      "end": 278.34,
+      "text": "François-Damien Bourgery en direct de l'Ohio, dans le Journal en français facile."
+    },
+    {
+      "idx": 59,
+      "start": 278.34,
+      "end": 289.42,
+      "text": "« Une large victoire des démocrates est une excellente nouvelle pour la démocratie américaine », vient de déclarer le chef de la diplomatie française, Jean-Noël Barrot."
+    },
+    {
+      "idx": 60,
+      "start": 289.42,
+      "end": 301.95,
+      "text": "Et puis cette défaite de Donald Trump, célébrée jusqu'en Iran, où des milliers d'Iraniens se sont rassemblés, cet après-midi, à Téhéran, pour crier victoire après la défaite de Donald Trump."
+    },
+    {
+      "idx": 61,
+      "start": 301.95,
+      "end": 303.93,
+      "text": "Le Journal en français facile."
+    },
+    {
+      "idx": 62,
+      "start": 303.93,
+      "end": 305.05,
+      "text": "Un mort au Liban."
+    },
+    {
+      "idx": 63,
+      "start": 305.05,
+      "end": 310.26,
+      "text": "Une frappe israélienne a tué une personne, cet après-midi, dans le sud du pays."
+    },
+    {
+      "idx": 64,
+      "start": 310.26,
+      "end": 315.79,
+      "text": "Un drone a visé une personne qui circulait à deux-roues dans le village de Qabrikha."
+    },
+    {
+      "idx": 65,
+      "start": 315.79,
+      "end": 321.99,
+      "text": "C'est le premier décès annoncé dans une frappe de ce type depuis le mois de septembre dernier."
+    },
+    {
+      "idx": 66,
+      "start": 321.99,
+      "end": 323.71,
+      "text": "Sur le continent africain."
+    },
+    {
+      "idx": 67,
+      "start": 323.71,
+      "end": 329.9,
+      "text": "Nous connaissons la date de l'élection présidentielle, qui vient d'être confirmée, au Burundi."
+    },
+    {
+      "idx": 68,
+      "start": 329.9,
+      "end": 331.62,
+      "text": "Ce sera le 3 mai prochain."
+    },
+    {
+      "idx": 69,
+      "start": 331.62,
+      "end": 336.89,
+      "text": "Le chef de l'État a signé, cet après-midi, le décret qui annonce cette élection."
+    },
+    {
+      "idx": 70,
+      "start": 336.89,
+      "end": 339.93,
+      "text": "Un éventuel second tour est prévu le 1ᵉʳ juin."
+    },
+    {
+      "idx": 71,
+      "start": 339.93,
+      "end": 344.48,
+      "text": "Pour l'heure, seul le président sortant a été officiellement investi."
+    },
+    {
+      "idx": 72,
+      "start": 344.48,
+      "end": 352.26,
+      "text": "La date limite pour présenter sa candidature à l'élection présidentielle du Burundi est fixée au 22 novembre prochain."
+    },
+    {
+      "idx": 73,
+      "start": 352.26,
+      "end": 361.22,
+      "text": "L'actualité en France, ce sont ces établissements du don du sang qui ont été victimes d'une cyberattaque, cyberattaque la nuit dernière."
+    },
+    {
+      "idx": 74,
+      "start": 361.22,
+      "end": 362.87,
+      "text": "Amélie Beaucour, bonjour."
+    },
+    {
+      "idx": 75,
+      "start": 362.87,
+      "end": 363.93,
+      "text": "Bonjour, Adrien."
+    },
+    {
+      "idx": 76,
+      "start": 363.93,
+      "end": 372.37,
+      "text": "Ce sont les chambres froides dans lesquelles sont stockés les produits sanguins – ces flacons de sang – qui auraient été visées."
+    },
+    {
+      "idx": 77,
+      "start": 372.37,
+      "end": 379.29,
+      "text": "Oui. Ce sont trois sites régionaux de l'Établissement français du sang qui sont concernés, cette fois-ci."
+    },
+    {
+      "idx": 78,
+      "start": 379.29,
+      "end": 388.68,
+      "text": "C'est le système de gestion de température des chambres froides qui a été visé."
+    },
+    {
+      "idx": 79,
+      "start": 388.68,
+      "end": 391.55,
+      "text": "Une installation qui est gérée par une entreprise avec laquelle travaille l'Établissement français du sang."
+    },
+    {
+      "idx": 80,
+      "start": 391.55,
+      "end": 406.32,
+      "text": "Les températures se sont mises à augmenter brutalement là où étaient conservées des poches de plasma – c'est un composant du sang – et qui avaient pour objectifs d'être données à des malades ou [à] fabriquer des médicaments."
+    },
+    {
+      "idx": 81,
+      "start": 406.32,
+      "end": 419.45,
+      "text": "L'établissement assure que l'incident a pu être rapidement détecté et que les échantillons – les flacons – ont pu être transférés vers d'autres installations sans que leur qualité n'ait été modifiée."
+    },
+    {
+      "idx": 82,
+      "start": 419.45,
+      "end": 429.6,
+      "text": "L'Établissement français du sang rejoint, donc, la liste des victimes de cette série de cyberattaques présumées qui a frappé l'Europe en début de semaine."
+    },
+    {
+      "idx": 83,
+      "start": 429.6,
+      "end": 439.56,
+      "text": "Plusieurs supermarchés et acteurs de l'industrie alimentaire ont, eux aussi, été touchés en Belgique, en Allemagne, au Royaume-Uni ou encore en Italie."
+    },
+    {
+      "idx": 84,
+      "start": 439.56,
+      "end": 454.52,
+      "text": "Une douzaine de pays au total sont concernés, avec un scénario qui se répète : une activation à distance du dégivrage de certains réfrigérateurs – donc, on fait monter la température – et sans que l'on en connaisse les auteurs."
+    },
+    {
+      "idx": 85,
+      "start": 454.52,
+      "end": 458.94,
+      "text": "Merci, Amélie. Amélie Beaucour, dans le Journal en français facile."
+    },
+    {
+      "idx": 86,
+      "start": 458.94,
+      "end": 461.64,
+      "text": "La saison des prix littéraires en France."
+    },
+    {
+      "idx": 87,
+      "start": 461.64,
+      "end": 464.68,
+      "text": "Après le Goncourt hier, le Femina aujourd'hui."
+    },
+    {
+      "idx": 88,
+      "start": 464.68,
+      "end": 478.52,
+      "text": "Alors, pour information, ce prix a été créé par des femmes de lettres qui souhaitaient proposer une alternative, une chose un peu différente, au prix Goncourt, dont le jury était, alors, exclusivement masculin."
+    },
+    {
+      "idx": 89,
+      "start": 478.52,
+      "end": 489.47,
+      "text": "Aujourd'hui, le prix [féminin] Femina a été remis au romancier Yannick Haenel pour son livre intitulé La solitude des professeurs est infinie, aux éditions Gallimard."
+    },
+    {
+      "idx": 90,
+      "start": 489.47,
+      "end": 496.72,
+      "text": "Autrement dit, le récit de ces années d'enseignement dans des établissements scolaires de banlieue parisienne."
+    },
+    {
+      "idx": 91,
+      "start": 496.72,
+      "end": 501.93,
+      "text": "Yannick Haenel était récemment l'invité de l'émission De vive(s) voix, sur RFI."
+    },
+    {
+      "idx": 92,
+      "start": 501.93,
+      "end": 510.9,
+      "text": "Il explique, au micro de Pascal Paradou, pourquoi il a écrit ce livre."
+    },
+    {
+      "idx": 93,
+      "start": 510.9,
+      "end": 512.02,
+      "text": "« Il y avait, effectivement, les attaques contre les professeurs, de toutes sortes."
+    },
+    {
+      "idx": 94,
+      "start": 512.02,
+      "end": 519.14,
+      "text": "Il y a aussi tous les discours que la société tient sur les professeurs m'ont toujours paru insatisfaisants."
+    },
+    {
+      "idx": 95,
+      "start": 519.14,
+      "end": 524.61,
+      "text": "Cette manière de réduire les profs à une caricature, ça m'a toujours énervé, voilà."
+    },
+    {
+      "idx": 96,
+      "start": 524.61,
+      "end": 537.41,
+      "text": "Je trouvais ça injuste et je me disais que l'expérience que j'avais vécue, qui était une expérience à la fois passionnante, assez difficile, mais illuminante, aussi, je l'avais pas lue ailleurs."
+    },
+    {
+      "idx": 97,
+      "start": 537.41,
+      "end": 549.27,
+      "text": "Donc, voilà. Je me suis dit : il faut que j'écrive ce que je sais faire, c'est-à-dire pas des traités, pas des essais, mais des romans, enfin, des romans autobiographiques. »"
+    },
+    {
+      "idx": 98,
+      "start": 549.27,
+      "end": 554.22,
+      "text": "Yannick Haenel. Émission que vous pouvez réécouter sur notre site internet."
+    },
+    {
+      "idx": 99,
+      "start": 554.22,
+      "end": 557.32,
+      "text": "Il s'exprimait dans l'émission De vive(s) voix."
+    },
+    {
+      "idx": 100,
+      "start": 557.32,
+      "end": 569.58,
+      "text": "L'écrivain, qui était aujourd'hui à la remise du prix à Paris, a dédié son livre aux professeurs, aux lycéens et aux collégiens, en plein mouvement de protestation aujourd'hui en France."
+    },
+    {
+      "idx": 101,
+      "start": 569.58,
+      "end": 587.52,
+      "text": "Un mouvement, par ailleurs, qui fait tache d'huile en Europe, où nous apprenons que plusieurs milliers de lycéens et d'étudiants ont manifesté, aujourd'hui, dans les rues de Copenhague, au Danemark, contre le projet du gouvernement de réduire les aides pour les étudiants."
+    },
+    {
+      "idx": 102,
+      "start": 587.52,
+      "end": 590.62,
+      "text": "Ainsi se referme ce Journal en français facile."
+    },
+    {
+      "idx": 103,
+      "start": 590.62,
+      "end": 594.44,
+      "text": "Où que vous soyez sur la planète, merci de l'avoir écouté."
+    },
+    {
+      "idx": 104,
+      "start": 594.44,
+      "end": 597.01,
+      "text": "Radio Foot Internationale est à suivre."
+    }
+  ]
+}

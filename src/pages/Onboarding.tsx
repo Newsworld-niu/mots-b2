@@ -21,6 +21,7 @@ export function Onboarding() {
   const [goal, setGoal] = useState(10);
   const [examDate, setExamDate] = useState<string>("");
   const [targetScore, setTargetScore] = useState(75);
+  const [dailyMinutes, setDailyMinutes] = useState<number | null>(null);
   const [testing, setTesting] = useState(false);
   const [placement, setPlacement] = useState<PlacementResult | null>(null);
 
@@ -35,6 +36,7 @@ export function Onboarding() {
       dailyNew: goal,
       examDate: examDate || null,
       targetScore: Math.max(50, Math.min(100, Math.round(targetScore || 75))),
+      dailyMinutes,
     });
   };
 
@@ -121,8 +123,18 @@ export function Onboarding() {
                     </span>
                     <div className="segmented">
                       {[60, 75, 85].map((sc) => (
-                        <button key={sc} type="button" className={targetScore === sc ? "is-on" : ""} onClick={() => setTargetScore(sc)}>
+                        <button key={sc} type="button" className={targetScore === sc ? "is-on" : ""} onClick={() => setTargetScore(sc)} aria-pressed={targetScore === sc}>
                           {sc} 分
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="onboard-field" role="group" aria-label="每日备考预算时长">
+                    <span>每日备考时长</span>
+                    <div className="segmented">
+                      {([null, 30, 45, 60, 90] as const).map((m) => (
+                        <button key={m ?? "auto"} type="button" className={dailyMinutes === m ? "is-on" : ""} onClick={() => setDailyMinutes(m)} aria-pressed={dailyMinutes === m}>
+                          {m === null ? "自动" : `${m}分`}
                         </button>
                       ))}
                     </div>

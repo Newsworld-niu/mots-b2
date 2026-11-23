@@ -5,7 +5,7 @@ import { test } from "node:test";
 import { countWords } from "./essay";
 import { exercisePoints, FORM_SPEC, PAPER, sanitizeExercise, speechChunks, type CompExercise } from "./exam";
 import { PRESET_PAPERS } from "./exam-presets";
-import { ACCENTS, causeFromSkill, checkDictation, missStats, paragraphsOf, parseClock, pickVoices, playerFor, qualityIssues, resolveMaterialUrl, sanitizeMisses, sanitizeSources, sentencesOf, skillStats } from "./listening";
+import { ACCENTS, buildCompMissSnapshot, causeFromSkill, checkDictation, missStats, paragraphsOf, parseClock, pickVoices, playerFor, qualityIssues, resolveMaterialUrl, sanitizeMisses, sanitizeSources, sentencesOf, skillStats } from "./listening";
 import { PREBUILT_REAL_SOURCES, realPresetQuiz } from "./real-presets";
 import { newWordsOf } from "./transcript";
 import type { ReadSentence, ReadToken } from "./reader";
@@ -91,6 +91,27 @@ test("sanitizeMisses keeps valid entries only", () => {
     { at: 1, part: "listen", cause: "heard", skill: "detail", q: "0-3" },
     { at: 4, part: "read", cause: "vocab" },
   ]);
+  const snap = buildCompMissSnapshot(
+    {
+      q: "Pourquoi l'auteur critique-t-il cette mesure ?",
+      qType: "qcm",
+      options: ["Par manque de budget", "Pour des raisons écologiques", "Par inertie administrative"],
+      answer: 1,
+      why: "Il insiste sur l'impact environnemental.",
+      doc: 0,
+      skill: "inference",
+    },
+    { title: "Transport urbain", docs: [{ text: "Ce projet néglige totalement les conséquences écologiques à long terme." }] },
+    "read",
+    "0-2",
+    999,
+  );
+  assert.equal(snap.qType, "qcm");
+  assert.equal(snap.answer, 1);
+  assert.equal(snap.title, "Transport urbain");
+  assert.ok(snap.excerpt?.includes("conséquences écologiques"));
+  const round = sanitizeMisses([snap]);
+  assert.deepEqual(round, [snap]);
 });
 
 test("missStats and skillStats count and sort", () => {
@@ -121,15 +142,17 @@ test("qualityIssues flags copied answers and one answer position", () => {
   assert.equal(qualityIssues(ex([1, 1, 1, 1, 1, 1, 1], (k) => `réponse ${k}`)).length, 1);
 });
 
-test("preset papers are >=2 full 25-pt listening and >=3 full 25-pt reading papers (incl. parallel Vrai/Faux + short) meeting B2 word counts and quality gate", () => {
+test("preset papers are >=5 full 25-pt listening (with pre-rendered multi-accent MP3s) and >=5 full 25-pt post-2020 QCM reading papers meeting B2 quality gate", () => {
   const listen = PRESET_PAPERS.filter((p) => p.kind === "listen");
   const read = PRESET_PAPERS.filter((p) => p.kind === "read");
-  assert.ok(listen.length >= 2);
-  assert.ok(read.length >= 3);
-  const parallel = PRESET_PAPERS.find((p) => p.id === "preset-read-3");
-  assert.ok(parallel);
-  assert.ok(parallel.exs.some((ex) => ex.questions.some((q) => q.qType === "vf" && Boolean(q.quote))));
-  assert.ok(parallel.exs.some((ex) => ex.questions.some((q) => q.qType === "short" && Boolean(q.accepted?.length))));
+  assert.ok(listen.length >= 5, `expected >= 5 listen presets, got ${listen.length}`);
+  assert.ok(read.length >= 5, `expected >= 5 read presets, got ${read.length}`);
+  for (const rp of read) {
+    assert.ok(
+      rp.exs.every((ex) => ex.questions.every((q) => (q.qType ?? "qcm") === "qcm" && q.options.length === 3 && Boolean(q.evidence?.trim()))),
+      `${rp.id} must be 100% 3-option QCM with verbatim evidence spans`,
+    );
+  }
   assert.equal(new Set(PRESET_PAPERS.map((p) => p.id)).size, PRESET_PAPERS.length);
   for (const p of PRESET_PAPERS) {
     assert.equal(p.src, "preset");
@@ -152,7 +175,15 @@ test("preset papers are >=2 full 25-pt listening and >=3 full 25-pt reading pape
       if (e.form === "short") assert.deepEqual(e.questions.map((q) => q.doc), [0, 0, 1, 1, 2, 2]);
       if (e.form === "opinions") for (const j of [0, 1, 2]) assert.equal(e.questions.filter((q) => q.answer === j).length, 2, p.id);
     }
-    if (p.kind === "listen") assert.ok(p.exs.every((e) => e.docs.every((d) => speechChunks(d.text).length > 1)));
+    if (p.kind === "listen") {
+      assert.ok(p.exs.every((e) => e.docs.every((d) => speechChunks(d.text).length > 1)));
+      for (const e of p.exs) {
+        for (const d of e.docs) {
+          assert.ok(d.audioUrl, `missing audioUrl on ${p.id} ${e.title}`);
+          assert.ok(fs.existsSync(path.resolve("public", d.audioUrl)), `missing ${d.audioUrl} on disk`);
+        }
+      }
+    }
     assert.deepEqual(sanitizePaper(p)?.exs, p.exs);
   }
 });
@@ -175,13 +206,46 @@ test("sanitizePaper rejects junk and keeps stored points; wrongKeys follows the 
   assert.deepEqual(wrongKeys(p, { at: 1, picked, score: 0, total: 9 }), ["0-1", "0-3", "0-4", "0-5", "0-6"]);
   assert.deepEqual(wrongKeys(p, { at: 1, picked, score: 0, total: 9, asked: ["0-1", "0-2"] }), ["0-1"]);
   assert.deepEqual(wrongKeys(p, undefined), []);
-  // Parallel Vrai/Faux + citation wrongKeys check
-  const pVf = sanitizePaper(PRESET_PAPERS.find((x) => x.id === "preset-read-3"));
+  // Legacy stored Vrai/Faux + citation wrongKeys backward-compatibility check
+  const pVf = sanitizePaper({
+    id: "p-vf",
+    kind: "read",
+    level: "B2",
+    created: 1,
+    src: "ai",
+    exs: [
+      {
+        form: "long",
+        topic: "x",
+        intro: "",
+        title: "t",
+        docs: [{ text: "Le conseil municipal a adopté ce décret mardi soir après quatre heures de débat houleux.", zh: "" }],
+        questions: [
+          {
+            doc: 0,
+            q: "Le décret a été adopté mardi soir.",
+            qType: "vf",
+            options: ["Vrai", "Faux"],
+            answer: 0,
+            quote: "Le conseil municipal a adopté ce décret mardi soir",
+            why: "",
+            difficulty: 3,
+          },
+        ],
+      },
+    ],
+  });
   assert.ok(pVf);
-  const vfIdx = pVf.exs[0].questions.findIndex((q) => q.qType === "vf");
-  const vfQ = pVf.exs[0].questions[vfIdx];
-  assert.ok(wrongKeys(pVf, { at: 1, picked: { [`0-${vfIdx}`]: vfQ.answer }, typed: {}, score: 0, total: 25 }).includes(`0-${vfIdx}`));
-  assert.ok(!wrongKeys(pVf, { at: 1, picked: { [`0-${vfIdx}`]: vfQ.answer }, typed: { [`0-${vfIdx}`]: vfQ.quote ?? "" }, score: 0, total: 25 }).includes(`0-${vfIdx}`));
+  assert.ok(wrongKeys(pVf, { at: 1, picked: { "0-0": 0 }, typed: {}, score: 0, total: 9 }).includes("0-0"));
+  assert.ok(
+    !wrongKeys(pVf, {
+      at: 1,
+      picked: { "0-0": 0 },
+      typed: { "0-0": "Le conseil municipal a adopté ce décret mardi soir" },
+      score: 0,
+      total: 9,
+    }).includes("0-0"),
+  );
 });
 
 test("parseClock, sanitizeSources and playerFor", () => {
@@ -225,7 +289,13 @@ test("PREBUILT_REAL_SOURCES and realPresetQuiz ship 6 verified RFI episodes with
 });
 
 test("CO-3: Comprehension.tsx preserves prefetched urls[k], uses 0.5-2.5 pt POINT_SETS wording, and supports continuous uninterruptible mode", () => {
-  const compSrc = fs.readFileSync(path.resolve("src/pages/Comprehension.tsx"), "utf8");
+  const compSrc = [
+    "src/pages/Comprehension.tsx",
+    "src/pages/comprehension/CompSetupView.tsx",
+    "src/pages/comprehension/CompExerciseBody.tsx",
+  ]
+    .map((p) => fs.readFileSync(path.resolve(p), "utf8"))
+    .join("\n");
   assert.ok(!compSrc.includes("1 分或 1.5 分"));
   assert.ok(!compSrc.includes("1 or 1.5 points"));
   assert.ok(compSrc.includes("0.5 至 2.5 分不等"));

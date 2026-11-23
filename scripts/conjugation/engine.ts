@@ -265,12 +265,23 @@ function partirType(inf: string): Conjugation {
 
 const FIRST_GROUP_IRREGULAR = new Set(["aller", "envoyer", "renvoyer"]);
 const VALID = /^[a-zàâäçéèêëîïôöûùüÿœ-]+$/;
+const PREP_COMPLEMENT_RE = /\s+(?:(?:de|à|en|sur|dans|avec|par|pour|contre|vers|chez|entre|sous)(?:\s+.*)?|(?:d'|qu')[a-zà-ÿœ-]+.*)$/i;
 
-/** Infinitive without reflexive pronoun, and whether the headword is reflexive (se lever, s'asseoir). */
+/** Infinitive without reflexive pronoun or trailing prepositional government (se lever, s'asseoir, s'efforcer de). */
 export function splitReflexive(lemma: string): { inf: string; pron: boolean } {
-  const s = lemma.normalize("NFC").trim().toLowerCase().replace(/’/g, "'");
-  const m = s.match(/^(se\s+|s')(.+)$/);
-  return m ? { inf: m[2], pron: true } : { inf: s, pron: false };
+  const raw = lemma
+    .normalize("NFC")
+    .trim()
+    .toLowerCase()
+    .replace(/[’‘'`\u02bc]/g, "'")
+    .replace(/\s*\([^)]*\)\s*$/, "")
+    .trim();
+  const m = raw.match(/^(se\s+|s')(.+)$/);
+  const body = m ? m[2].trim() : raw;
+  const pron = Boolean(m);
+  const stripped = body.replace(PREP_COMPLEMENT_RE, "").trim();
+  const inf = stripped && VALID.test(stripped) ? stripped : body;
+  return { inf, pron };
 }
 
 /** Conjugate an infinitive, or return null when it is not a verb this engine can conjugate. */

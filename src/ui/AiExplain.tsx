@@ -131,7 +131,7 @@ export function AiExplain({ entry }: { entry: Entry }) {
           </button>
         ) : (
           <p className="muted small">
-            在 <a href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务后，可以让 AI 讲解这个词。
+            在 <a href={href({ page: "me" })}>我的 → AI 接口</a> 设置 AI 文本服务后，可以让 AI 讲解这个词。
           </p>
         )}
       </section>

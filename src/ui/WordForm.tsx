@@ -1,7 +1,7 @@
 import { isNative } from "../lib/native";
 import { WikiImport } from "./WikiImport";
 import { DictionaryLinks } from "./DictionaryLinks";
-import { cleanFamily, mergeFamily, familiesFor, familyPair, familyHead } from "../lib/families";
+import { cleanFamily, mergeFamily, familiesFor, familyPair, familyHead, useFamilies } from "../lib/families";
 import { BookOpen, ImageOff, ImagePlus, Palette, Plus, RefreshCw, Search, Sparkles, Trash2 } from "lucide-react";
 import { ready, useAiConfig } from "../ai/config";
 import { anotherExample, fillCard, suggestFamily, pictureFor, suggestExtras, type Extras } from "../ai/tasks";
@@ -14,6 +14,7 @@ import { joinGlosses, lookupDict, type DictHit } from "../lib/dict";
 import type { Seed } from "../lib/lookup";
 import { fileToImage, setImage, useImages } from "../store/images";
 import { pictureFromUrl, searchPictures, type PictureHit } from "../lib/picture";
+import { confirmAction } from "./ConfirmSheet";
 import { toast } from "./Toast";
 
 export const POS_CHOICES: [string, string][] = [
@@ -152,7 +153,18 @@ export function WordForm(props: Props) {
   });
   // further meanings, each shown on its own line of the card
   const progress = useStore(s=>s.progress);
-  const [fam, setFam] = useState<string[]>(() => (props.mode === "atlas" ? edit?.fam ?? familiesFor(atlas,progress).find(f=>f.id===props.id)?.examples : custom?.fam ?? seed?.fam) ?? []);
+  const baseFamilies = useFamilies();
+  const famTouchedRef = useRef(false);
+  const [fam, setFamRaw] = useState<string[]>(() => (props.mode === "atlas" ? edit?.fam ?? familiesFor(atlas,progress,baseFamilies).find(f=>f.id===props.id)?.examples : custom?.fam ?? seed?.fam) ?? []);
+  const setFam = (next: string[] | ((prev: string[]) => string[])) => {
+    famTouchedRef.current = true;
+    setFamRaw(next);
+  };
+  const atlasId = props.mode === "atlas" ? props.id : "";
+  useEffect(() => {
+    if (!atlasId || edit?.fam || famTouchedRef.current || !baseFamilies.length) return;
+    setFamRaw(familiesFor(atlas, progress, baseFamilies).find((f) => f.id === atlasId)?.examples ?? []);
+  }, [atlasId, edit?.fam, baseFamilies, atlas, progress]);
   const familyRows = fam.map((value) => {
     const pair = familyPair(value);
     const match = [...atlas.byId.values()].find((r) => familyHead(r.word) === familyHead(pair.fr));
@@ -487,8 +499,16 @@ export function WordForm(props: Props) {
           <button
             type="button"
             className="btn btn-ghost btn-danger"
-            onClick={() => {
-              if (!confirm(`删除「${custom!.w}」？它会从所有卡组里移除，学习记录也一起删除。`)) return;
+            onClick={async () => {
+              if (
+                !(await confirmAction({
+                  title: `删除「${custom!.w}」？`,
+                  message: "它会从所有卡组里移除，学习记录也一起删除。",
+                  confirmLabel: "删除",
+                  danger: true,
+                }))
+              )
+                return;
               deleteCustomWord(props.id);
               toast("已删除");
               props.onDone(null);
@@ -692,7 +712,7 @@ function ExtrasField({
       </label>
       {ready.text(ai) ? (
         <div className="wf-ideas">
-          <button type="button" className="btn btn-ghost btn-sm" onClick={suggest} disabled={busy || !word.trim()} style={{ justifySelf: "start" }}>
+          <button type="button" className="btn btn-ghost btn-sm self-start" onClick={suggest} disabled={busy || !word.trim()}>
             <Sparkles size={15} /> {busy ? "生成中…" : ideas ? "换一批" : "AI 推荐搭配和注意点"}
           </button>
           {ideas && (
@@ -717,7 +737,7 @@ function ExtrasField({
           )}
         </div>
       ) : (
-        <p className="wf-hint">在「我的 → AI 接口」设置生成卡片服务后，可以让 AI 推荐搭配和注意点。</p>
+        <p className="wf-hint">在「我的 → AI 接口」设置 AI 文本服务后，可以让 AI 推荐搭配和注意点。</p>
       )}
     </div>
   );
@@ -823,7 +843,7 @@ function AiPicture({ word, meaning, onPick }: { word: string; meaning: string; o
   return (
     <div className="wf-auto">
       <p className="wf-hint">按「{word.trim() || "这个词"}」{meaning.trim() ? `（${meaning.trim()}）` : ""}画一张没有文字的插图。每次生成会产生 OpenAI 的费用。</p>
-      <button type="button" className="btn btn-ghost btn-sm" onClick={run} disabled={busy || !word.trim()} style={{ justifySelf: "start" }}>
+      <button type="button" className="btn btn-ghost btn-sm self-start" onClick={run} disabled={busy || !word.trim()}>
         <Palette size={16} /> {busy ? "生成中（约 10–30 秒）…" : "生成一张"}
       </button>
     </div>

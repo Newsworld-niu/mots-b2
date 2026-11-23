@@ -1,5 +1,5 @@
 import { Bookmark, BookmarkCheck, ArrowLeft, Check, ChevronDown, GraduationCap, Pencil, Plus, ScanText, Search, Trash2, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import type { Atlas, WordRef } from "../atlas/types";
 import { go, openWord } from "../lib/router";
@@ -20,20 +20,25 @@ import {
   transferDeckWords,
 } from "../store/decks";
 import { buildSession, isTaughtReady } from "../store/session";
-import { isMastered } from "../store/srs";
-import { FAVORITES_DECK, toggleBookmark, store, useStore, type Progress } from "../store/store";
+import { isMastered, type CardState } from "../store/srs";
+import { FAVORITES_DECK, toggleBookmark, store, useStore, useStoreShallow, type Progress } from "../store/store";
+import { confirmAction } from "../ui/ConfirmSheet";
 import { Sheet } from "../ui/Sheet";
 import { toast } from "../ui/Toast";
 import { WordForm } from "../ui/WordForm";
 import { ExtractWords } from "../ui/ExtractWords";
+import { LexiconTabs } from "../ui/LexiconTabs";
+import { useWindowRange } from "../ui/useWindowRange";
 
 const PAUSED = "paused";
+const DECK_ROW_H = 60;
+const DECK_VIRTUAL_THRESHOLD = 80;
 
-function counts(p: Progress, ids: string[]) {
+function counts(cards: Record<string, CardState>, ids: string[]) {
   let learning = 0;
   let mastered = 0;
   for (const id of ids) {
-    const c = p.cards[id];
+    const c = cards[id];
     if (!c) continue;
     if (isMastered(c)) mastered++;
     else learning++;
@@ -54,16 +59,23 @@ function toggleStudy(all: string[], current: string[] | null, id: string) {
   store.settings({ studyDecks: next.length === all.length ? null : next });
 }
 
+type DeckProgressSlice = Pick<Progress, "cards" | "decks" | "hidden" | "coreMigrated">;
+
 export function Decks({ deckId }: { deckId?: string }) {
   const atlas = useAtlas();
-  const progress = useStore((s) => s.progress);
+  const progress = useStoreShallow((s) => ({
+    cards: s.progress.cards,
+    decks: s.progress.decks,
+    hidden: s.progress.hidden,
+    coreMigrated: s.progress.coreMigrated,
+  }));
   if (deckId === PAUSED) return <PausedWords />;
   const deck = deckId ? progress.decks?.find((d) => d.id === deckId) : undefined;
   if (deckId && deck) return <DeckDetail key={deck.id} id={deck.id} />;
   return <DeckList atlas={atlas} progress={progress} />;
 }
 
-function DeckList({ atlas, progress }: { atlas: Atlas; progress: Progress }) {
+function DeckList({ atlas, progress }: { atlas: Atlas; progress: DeckProgressSlice }) {
   const studyDecks = useStore((s) => s.settings.studyDecks);
   const [name, setName] = useState("");
   const decks = progress.decks ?? [];
@@ -72,7 +84,7 @@ function DeckList({ atlas, progress }: { atlas: Atlas; progress: Progress }) {
   const paused = useMemo(() => pausedIds(atlas, progress), [atlas, progress]);
   const rows = useMemo(
     () => [
-      ...decks.map((d) => ({ id: d.id, name: d.name, stats: counts(progress, deckWords(atlas, progress, d.id)), note: "" })),
+      ...decks.map((d) => ({ id: d.id, name: d.name, stats: counts(progress.cards, deckWords(atlas, progress, d.id)), note: "" })),
     ],
     [atlas, progress, decks],
   );
@@ -88,6 +100,7 @@ function DeckList({ atlas, progress }: { atlas: Atlas; progress: Progress }) {
   return (
     <div className="page decks">
       <header className="decks-head">
+        <LexiconTabs on="decks" />
         <p className="eyebrow">图鉴 · 卡组</p>
         <h1 className="display">我的卡组</h1>
         <p className="lede">同一个词可以放进几个卡组，学习进度只有一份：在一个卡组里学会了，到别的卡组里也算学过。</p>
@@ -95,7 +108,7 @@ function DeckList({ atlas, progress }: { atlas: Atlas; progress: Progress }) {
 
       <section className="panel study-range">
         <div className="panel-head">
-          <h3 className="eyebrow">今日学习范围</h3>
+          <h2 className="eyebrow">今日学习范围</h2>
           {!range.all && (
             <button className="link" onClick={() => store.settings({ studyDecks: null })}>
               全部卡组
@@ -179,15 +192,31 @@ function studyOnly(id: string) {
  * One session with every word of the deck that has not been learned yet (and the deck's words due today),
  * whatever the daily number of new words. It replaces a journey in progress only after asking.
  */
-function studyAll(atlas: Atlas, name: string, words: WordRef[]) {
+async function studyAll(atlas: Atlas, name: string, words: WordRef[]) {
   const { progress, settings } = store.get();
   const now = Date.now();
   const fresh = words.filter((w) => !progress.cards[w.id] && isTaughtReady(w)).map((w) => w.id);
   const due = words.filter((w) => progress.cards[w.id] && progress.cards[w.id].due <= now).map((w) => w.id);
   if (!fresh.length) return toast("这个卡组里没有还没学的词了", "ok");
   const active = progress.session && !progress.session.finished;
-  if (active && !confirm("有一段旅程还没走完。开始学这个卡组会放弃它（已经答过的题不受影响）。继续吗？")) return;
-  if (fresh.length >= 60 && !confirm(`「${name}」里还有 ${fresh.length} 个没学的词，一次学完大约要 ${Math.round(fresh.length * 0.9)} 分钟，接下来几天的复习也会多很多。\n可以中途停下，进度会保存。现在开始吗？`)) return;
+  if (
+    active &&
+    !(await confirmAction({
+      title: "开始卡组整组学习？",
+      message: "有一段旅程还没走完。开始学这个卡组会放弃它（已经答过的题不受影响）。继续吗？",
+      confirmLabel: "继续",
+    }))
+  )
+    return;
+  if (
+    fresh.length >= 60 &&
+    !(await confirmAction({
+      title: `开始学习「${name}」？`,
+      message: `「${name}」里还有 ${fresh.length} 个没学的词，一次学完大约要 ${Math.round(fresh.length * 0.9)} 分钟，接下来几天的复习也会多很多。\n可以中途停下，进度会保存。现在开始吗？`,
+      confirmLabel: "开始",
+    }))
+  )
+    return;
   const session = buildSession(atlas, progress, settings, { ids: [...due, ...fresh] });
   if (!session.steps.length) return;
   store.progress((p) => ({ ...p, session }));
@@ -196,18 +225,28 @@ function studyAll(atlas: Atlas, name: string, words: WordRef[]) {
 
 function DeckDetail({ id }: { id: string }) {
   const atlas = useAtlas();
-  const progress = useStore((s) => s.progress);
+  const progress = useStoreShallow((s) => ({
+    decks: s.progress.decks,
+    cards: s.progress.cards,
+    bookmarks: s.progress.bookmarks,
+  }));
   const deck = progress.decks!.find((d) => d.id === id)!;
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(deck.name);
   const [q, setQ] = useState("");
   const [creating, setCreating] = useState<string | null>(null);
-  const [limit, setLimit] = useState(300);
   const [extracting, setExtracting] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [target, setTarget] = useState("");
-  const words = deck.words.map((w) => atlas.byId.get(w)).filter((w): w is WordRef => !!w);
-  const stats = counts(progress, words.map((w) => w.id));
+  const listRef = useRef<HTMLUListElement>(null);
+  const words = useMemo(
+    () => deck.words.map((w) => atlas.byId.get(w)).filter((w): w is WordRef => !!w),
+    [atlas, deck.words],
+  );
+  const [startIdx, endIdx] = useWindowRange(listRef, DECK_ROW_H, words.length, 16);
+  const visibleWords = words.length > DECK_VIRTUAL_THRESHOLD ? words.slice(startIdx, endIdx) : words;
+  const stats = useMemo(() => counts(progress.cards, words.map((w) => w.id)), [progress.cards, words]);
+  const bookmarkSet = useMemo(() => new Set(progress.bookmarks), [progress.bookmarks]);
   const results = useMemo(() => (q.trim() ? searchAtlas(atlas, q, 8) : []), [atlas, q]);
   const inDeck = new Set(deck.words);
   const chosen = words.filter(w => selected.has(w.id)).map(w => w.id);
@@ -220,13 +259,35 @@ function DeckDetail({ id }: { id: string }) {
     toast(`已${move ? "移动" : "复制"} ${chosen.length} 个词到「${destinations.find(d => d.id === target)!.name}」`, "ok");
   };
 
-  const remove = () => {
+  const remove = async () => {
     const orphans = orphanCustomWords(progress, id);
     let drop = false;
     if (orphans.length) {
-      if (!confirm(`删除卡组「${deck.name}」？\n其中 ${orphans.length} 个自建词只在这个卡组里。\n确定后会再问一次是否一起删除它们。`)) return;
-      drop = confirm(`一起删除这 ${orphans.length} 个自建词和它们的学习记录吗？\n选「取消」则保留它们（暂停复习，以后可以加回卡组）。`);
-    } else if (!confirm(`删除卡组「${deck.name}」？卡组里的词和学习记录会保留。`)) return;
+      if (
+        !(await confirmAction({
+          title: `删除卡组「${deck.name}」？`,
+          message: `其中 ${orphans.length} 个自建词只在这个卡组里。\n确定后会再问一次是否一起删除它们。`,
+          confirmLabel: "继续",
+          danger: true,
+        }))
+      )
+        return;
+      drop = await confirmAction({
+        title: `一起删除这 ${orphans.length} 个自建词？`,
+        message: "删除自建词会同时清除它们的学习记录。\n选「仅保留自建词」则会暂停复习，之后可随时加回其他卡组。",
+        confirmLabel: "一起删除",
+        cancelLabel: "仅保留自建词",
+        danger: true,
+      });
+    } else if (
+      !(await confirmAction({
+        title: `删除卡组「${deck.name}」？`,
+        message: "卡组里的词和学习记录会保留。",
+        confirmLabel: "删除卡组",
+        danger: true,
+      }))
+    )
+      return;
     deleteDeck(id, drop);
     toast("卡组已删除");
     go({ page: "decks" }, null, true);
@@ -263,7 +324,7 @@ function DeckDetail({ id }: { id: string }) {
           {stats.total} 个词 · 已掌握 {stats.mastered} · 学习中 {stats.learning} · 未学 {stats.fresh}
         </p>
         <div className="deck-actions">
-          <button className="btn btn-primary" onClick={() => studyAll(atlas, deck.name, words)} disabled={!stats.fresh}>
+          <button className="btn btn-primary" onClick={() => void studyAll(atlas, deck.name, words)} disabled={!stats.fresh}>
             <GraduationCap size={17} /> {stats.fresh ? `现在学完未学的 ${stats.fresh} 个词` : "全部学过了"}
           </button>
           <button className="btn btn-ghost" onClick={() => studyOnly(id)} disabled={!words.length}>
@@ -272,7 +333,7 @@ function DeckDetail({ id }: { id: string }) {
           <button className="btn btn-ghost" onClick={() => go({ page: "atlas", d: id })}>
             在图鉴里浏览
           </button>
-          {id !== FAVORITES_DECK && <button className="btn btn-ghost btn-danger" onClick={remove}>
+          {id !== FAVORITES_DECK && <button className="btn btn-ghost btn-danger" onClick={() => void remove()}>
             <Trash2 size={16} /> 删除卡组
           </button>}
         </div>
@@ -341,17 +402,38 @@ function DeckDetail({ id }: { id: string }) {
       {words.length === 0 ? (
         <p className="deck-empty">卡组还是空的。在上面搜索一个词加进来，或者在任何词条页面点「卡组」把它加进来。</p>
       ) : (
-        <ul className="deck-words">
-          {words.slice(0, limit).map((w) => (
-            <DeckWordRow key={w.id} deckId={id} w={w} sense={deck.sense?.[w.id] ?? 0} note={deck.note?.[w.id] ?? ""} progress={progress} selected={selected.has(w.id)} onSelect={() => setSelected(prev => { const next = new Set(prev); if (next.has(w.id)) next.delete(w.id); else next.add(w.id); return next; })} />
+        <ul
+          ref={listRef}
+          className="deck-words"
+          style={
+            words.length > DECK_VIRTUAL_THRESHOLD
+              ? {
+                  paddingTop: startIdx * DECK_ROW_H,
+                  paddingBottom: Math.max(0, words.length - endIdx) * DECK_ROW_H,
+                }
+              : undefined
+          }
+        >
+          {visibleWords.map((w) => (
+            <DeckWordRow
+              key={w.id}
+              deckId={id}
+              w={w}
+              sense={deck.sense?.[w.id] ?? 0}
+              note={deck.note?.[w.id] ?? ""}
+              card={progress.cards[w.id]}
+              bookmarked={bookmarkSet.has(w.id)}
+              selected={selected.has(w.id)}
+              onSelect={() =>
+                setSelected((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(w.id)) next.delete(w.id);
+                  else next.add(w.id);
+                  return next;
+                })
+              }
+            />
           ))}
-          {words.length > limit && (
-            <li className="deck-more">
-              <button className="btn btn-ghost" onClick={() => setLimit((l) => l + 300)}>
-                再显示 300 个（共 {words.length}）
-              </button>
-            </li>
-          )}
         </ul>
       )}
 
@@ -378,26 +460,45 @@ function DeckDetail({ id }: { id: string }) {
   );
 }
 
-function stateOf(p: Progress, id: string) {
-  const c = p.cards[id];
+function stateOf(cards: Record<string, CardState>, id: string) {
+  const c = cards[id];
   return c ? (isMastered(c) ? "is-mastered" : "is-learning") : "";
 }
 
-function DeckWordRow({ deckId, w, sense, note, progress, selected, onSelect }: { deckId: string; w: WordRef; sense: number; note: string; progress: Progress; selected: boolean; onSelect: () => void }) {
+function DeckWordRow({
+  deckId,
+  w,
+  sense,
+  note,
+  card,
+  bookmarked,
+  selected,
+  onSelect,
+}: {
+  deckId: string;
+  w: WordRef;
+  sense: number;
+  note: string;
+  card?: CardState;
+  bookmarked: boolean;
+  selected: boolean;
+  onSelect: () => void;
+}) {
   const glosses = senseGlosses(w);
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(note);
+  const stClass = card ? (isMastered(card) ? "is-mastered" : "is-learning") : "";
   return (
     <li className="deck-word">
       <input className="deck-word-select" type="checkbox" checked={selected} onChange={onSelect} aria-label={`选择 ${w.word}`} />
-      <span className={`row-dot ${stateOf(progress, w.id)}`} />
+      <span className={`row-dot ${stClass}`} />
       <button className="deck-word-main" onClick={() => openWord(w.id)}>
         <b lang="fr">{w.word}</b>
         {w.custom && <i className="chip chip-mine">自建</i>}
         <span className="deck-word-zh">{glosses[sense] ?? w.zh}</span>
       </button>
-      <button className={`icon-btn ${progress.bookmarks.includes(w.id) ? "is-on" : ""}`} onClick={() => toggleBookmark(w.id)} aria-pressed={progress.bookmarks.includes(w.id)} aria-label={`${progress.bookmarks.includes(w.id) ? "取消收藏" : "收藏"} ${w.word}`} title={progress.bookmarks.includes(w.id) ? "取消收藏" : "收藏"}>
-        {progress.bookmarks.includes(w.id) ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
+      <button className={`icon-btn ${bookmarked ? "is-on" : ""}`} onClick={() => toggleBookmark(w.id)} aria-pressed={bookmarked} aria-label={`${bookmarked ? "取消收藏" : "收藏"} ${w.word}`} title={bookmarked ? "取消收藏" : "收藏"}>
+        {bookmarked ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
       </button>
       {glosses.length > 1 && (
         <select className="deck-sense" value={sense} onChange={(e) => setDeckSense(deckId, w.id, Number(e.target.value))} aria-label={`${w.word} 在这个卡组里学哪个意思`} title="这个卡组学哪个意思">
@@ -435,7 +536,12 @@ function DeckWordRow({ deckId, w, sense, note, progress, selected, onSelect }: {
 /** Words learned before but now in no deck: their records are kept, and they come back when added to a deck. */
 function PausedWords() {
   const atlas = useAtlas();
-  const progress = useStore((s) => s.progress);
+  const progress = useStoreShallow((s) => ({
+    cards: s.progress.cards,
+    decks: s.progress.decks,
+    hidden: s.progress.hidden,
+    coreMigrated: s.progress.coreMigrated,
+  }));
   const ids = useMemo(() => pausedIds(atlas, progress), [atlas, progress]);
   const decks = progress.decks ?? [];
   return (
@@ -453,7 +559,7 @@ function PausedWords() {
             const w = atlas.byId.get(id)!;
             return (
               <li key={id} className="deck-word">
-                <span className={`row-dot ${stateOf(progress, id)}`} />
+                <span className={`row-dot ${stateOf(progress.cards, id)}`} />
                 <button className="deck-word-main" onClick={() => openWord(id)}>
                   <b lang="fr">{w.word}</b>
                   {w.custom && <i className="chip chip-mine">自建</i>}

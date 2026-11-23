@@ -1,14 +1,16 @@
 {
  "meta": {
   "source": "Lexique 3.83 (www.lexique.org), CC BY-SA 4.0, column phon; Lexique code converted to IPA",
-  "generated": "2026-11-06",
+  "generated": "2026-11-23",
   "counts": {
-   "word": 5919,
-   "compound": 1142
+   "word": 5923,
+   "lexdb": 1162,
+   "acronym": 40,
+   "override": 117,
+   "compound": 134
   },
-  "missing": 323,
-  "note": "compound = words joined with spaces; liaison between words is not modelled",
-  "manual": "quelqu-un, aujourd-hui: hand-entered (apostrophe / elided forms not covered by build-ipa.py)"
+  "missing": 0,
+  "note": "compound = words joined with spaces; liaison between words is not modelled"
  },
  "entries": {
   "entretien": {
@@ -333,7 +335,7 @@
   },
   "a-contrecceur": {
    "p": "a kɔ̃tʁəkœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "accuser": {
    "p": "akyze",
@@ -345,7 +347,7 @@
   },
   "a-demi-mot": {
    "p": "a dəmi mo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "achat": {
    "p": "aʃa",
@@ -354,6 +356,10 @@
   "affaire": {
    "p": "afɛʁ",
    "m": "word"
+  },
+  "a-l-improviste": {
+   "p": "alɛ̃pʁovist",
+   "m": "lexdb"
   },
   "acheter": {
    "p": "aʃəte",
@@ -635,6 +641,10 @@
    "p": "akɔ̃plisəmɑ̃",
    "m": "word"
   },
+  "adn": {
+   "p": "a de ɛn",
+   "m": "acronym"
+  },
   "agrandir": {
    "p": "agʁɑ̃diʁ",
    "m": "word"
@@ -805,7 +815,7 @@
   },
   "arrache-agrafes": {
    "p": "aʁaʃ agʁaf",
-   "m": "compound"
+   "m": "lexdb"
   },
   "annuel": {
    "p": "anɥɛl",
@@ -937,7 +947,7 @@
   },
   "appareil-photo": {
    "p": "apaʁɛj foto",
-   "m": "compound"
+   "m": "lexdb"
   },
   "arrosoir": {
    "p": "aʁozwaʁ",
@@ -1291,6 +1301,10 @@
    "p": "ataʃe",
    "m": "word"
   },
+  "b-ande-d-essinee": {
+   "p": "bɑ̃d dɛsine",
+   "m": "lexdb"
+  },
   "attacher": {
    "p": "ataʃe",
    "m": "word"
@@ -1449,7 +1463,7 @@
   },
   "au-depourvu": {
    "p": "o depuʁvy",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bandage": {
    "p": "bɑ̃daʒ",
@@ -1687,6 +1701,10 @@
    "p": "avɛʁtiʁ",
    "m": "word"
   },
+  "bd": {
+   "p": "be de",
+   "m": "acronym"
+  },
   "bombarder": {
    "p": "bɔ̃baʁde",
    "m": "word"
@@ -1794,6 +1812,10 @@
   "bouche-adj": {
    "p": "buʃe",
    "m": "word"
+  },
+  "b-u": {
+   "p": "be y",
+   "m": "acronym"
   },
   "bequille": {
    "p": "bekij",
@@ -1904,8 +1926,8 @@
    "m": "word"
   },
   "cm": {
-   "p": "sɑ̃timɛtʁ",
-   "m": "word"
+   "p": "se ɛm",
+   "m": "acronym"
   },
   "cataclysme": {
    "p": "kataklizm",
@@ -2004,8 +2026,8 @@
    "m": "word"
   },
   "coi": {
-   "p": "kwa",
-   "m": "word"
+   "p": "se o i",
+   "m": "acronym"
   },
   "boursier": {
    "p": "buʁsje",
@@ -2212,12 +2234,16 @@
    "m": "word"
   },
   "capes": {
-   "p": "kap",
-   "m": "word"
+   "p": "se a pe ø ɛs",
+   "m": "acronym"
   },
   "bronze": {
    "p": "bʁɔ̃z",
    "m": "word"
+  },
+  "capesien": {
+   "p": "kapezjɛ̃",
+   "m": "override"
   },
   "chambre": {
    "p": "ʃɑ̃bʁ",
@@ -2424,8 +2450,8 @@
    "m": "word"
   },
   "chef-d-reuvre": {
-   "p": "ʃɛf dœvʁ",
-   "m": "compound"
+   "p": "ʃɛdœvʁ",
+   "m": "word"
   },
   "chemise": {
    "p": "ʃəmiz",
@@ -2501,7 +2527,7 @@
   },
   "cite-u": {
    "p": "site y",
-   "m": "compound"
+   "m": "lexdb"
   },
   "citoyen-n": {
    "p": "sitwajɛ̃",
@@ -2821,10 +2847,6 @@
   },
   "cicatriser": {
    "p": "sikatʁize",
-   "m": "word"
-  },
-  "creur": {
-   "p": "kʁijœʁ",
    "m": "word"
   },
   "cogner": {
@@ -3195,10 +3217,6 @@
    "p": "kʁee",
    "m": "word"
   },
-  "constemation": {
-   "p": "kɔ̃tɑ̃plasjɔ̃",
-   "m": "word"
-  },
   "costume": {
    "p": "kɔstym",
    "m": "word"
@@ -3377,7 +3395,7 @@
   },
   "coup-de-theatre": {
    "p": "ku də teatʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "crochu": {
    "p": "kʁoʃy",
@@ -3529,7 +3547,7 @@
   },
   "du-tac-au-tac": {
    "p": "dy tak o tak",
-   "m": "compound"
+   "m": "lexdb"
   },
   "diverger": {
    "p": "divɛʁʒe",
@@ -3606,6 +3624,10 @@
   "devoiler": {
    "p": "devwale",
    "m": "word"
+  },
+  "doctorant": {
+   "p": "dɔktɔʁɑ̃",
+   "m": "override"
   },
   "doctorat": {
    "p": "dɔktoʁa",
@@ -3995,6 +4017,10 @@
    "p": "dispyte",
    "m": "word"
   },
+  "drh": {
+   "p": "de ɛʁ aʃ",
+   "m": "acronym"
+  },
   "efface": {
    "p": "efase",
    "m": "word"
@@ -4014,6 +4040,10 @@
   "empereur": {
    "p": "ɑ̃pəʁœʁ",
    "m": "word"
+  },
+  "ens": {
+   "p": "ø ɛn ɛs",
+   "m": "acronym"
   },
   "effectu-e-r": {
    "p": "efɛktɥe",
@@ -4053,7 +4083,7 @@
   },
   "efforcer": {
    "p": "sefɔʁse də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "emporte": {
    "p": "ɑ̃pɔʁte",
@@ -4123,6 +4153,10 @@
    "p": "egliz",
    "m": "word"
   },
+  "en-arriere": {
+   "p": "ɑ̃ aʁjɛʁ",
+   "m": "compound"
+  },
   "entracte": {
    "p": "ɑ̃tʁakt",
    "m": "word"
@@ -4133,7 +4167,7 @@
   },
   "en-avant": {
    "p": "ɑ̃ avɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "entrarnement": {
    "p": "ɑ̃tʁɛnəmɑ̃",
@@ -4145,7 +4179,7 @@
   },
   "en-entier": {
    "p": "ɑ̃ ɑ̃tje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "entrarner": {
    "p": "ɑ̃tʁene",
@@ -4154,6 +4188,10 @@
   "elance": {
    "p": "elɑ̃se",
    "m": "word"
+  },
+  "ena": {
+   "p": "ø ɛn a",
+   "m": "acronym"
   },
   "elargir": {
    "p": "elaʁʒiʁ",
@@ -4965,7 +5003,7 @@
   },
   "face-a": {
    "p": "fas a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "figure": {
    "p": "figyʁ",
@@ -5005,7 +5043,7 @@
   },
   "fil-de-fer": {
    "p": "fil də fɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "evident": {
    "p": "evidɑ̃",
@@ -5771,6 +5809,10 @@
    "p": "ɛbdomadɛʁ",
    "m": "word"
   },
+  "hec": {
+   "p": "aʃ ø se",
+   "m": "acronym"
+  },
   "hectare": {
    "p": "ɛktaʁ",
    "m": "word"
@@ -5869,7 +5911,7 @@
   },
   "hors-de": {
    "p": "ɔʁ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "hospitaliser": {
    "p": "ɔspitalize",
@@ -5938,6 +5980,10 @@
   "idiot": {
    "p": "idjo",
    "m": "word"
+  },
+  "iep": {
+   "p": "i ø pe",
+   "m": "acronym"
   },
   "illogique": {
    "p": "iloʒik",
@@ -6591,6 +6637,10 @@
    "p": "ɛ̃teʁimɛʁ",
    "m": "word"
   },
+  "jt": {
+   "p": "ʒi te",
+   "m": "acronym"
+  },
   "licencier": {
    "p": "lisɑ̃sje",
    "m": "word"
@@ -6801,7 +6851,7 @@
   },
   "loin-de": {
    "p": "lwɛ̃ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "melanger": {
    "p": "melɑ̃ʒe",
@@ -7145,7 +7195,7 @@
   },
   "metteur-en-scene": {
    "p": "mɛtœʁ ɑ̃ sɛn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "majorite": {
    "p": "maʒoʁite",
@@ -7169,7 +7219,7 @@
   },
   "mal-a-l-aise": {
    "p": "mal a lɛz",
-   "m": "compound"
+   "m": "lexdb"
   },
   "meche": {
    "p": "mɛʃ",
@@ -7214,6 +7264,10 @@
   "mieux": {
    "p": "mjø",
    "m": "word"
+  },
+  "malbouffe": {
+   "p": "malbuf",
+   "m": "override"
   },
   "medecine": {
    "p": "mɛdsin",
@@ -7365,7 +7419,7 @@
   },
   "mise-en-plis": {
    "p": "miz ɑ̃ pli",
-   "m": "compound"
+   "m": "lexdb"
   },
   "moyen": {
    "p": "mwajɛ̃",
@@ -7377,7 +7431,7 @@
   },
   "mise-en-scene": {
    "p": "miz ɑ̃ sɛn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "moyenne": {
    "p": "mwajɛn",
@@ -7413,7 +7467,7 @@
   },
   "mi-temps": {
    "p": "mi tɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "multinational": {
    "p": "myltinasjonal",
@@ -7454,6 +7508,10 @@
   "multitude": {
    "p": "myltityd",
    "m": "word"
+  },
+  "normale-sup": {
+   "p": "nɔʁmal syp",
+   "m": "override"
   },
   "modernisation": {
    "p": "modɛʁnizasjɔ̃",
@@ -7759,6 +7817,14 @@
    "p": "nɛt",
    "m": "word"
   },
+  "ceil-yeux": {
+   "p": "œj / le jø",
+   "m": "compound"
+  },
+  "mosa-i-que": {
+   "p": "mozaik",
+   "m": "word"
+  },
   "neuf": {
    "p": "nœf",
    "m": "word"
@@ -7931,6 +7997,10 @@
    "p": "papje",
    "m": "word"
   },
+  "pdg": {
+   "p": "pe de ʒe",
+   "m": "acronym"
+  },
   "oral": {
    "p": "oʁal",
    "m": "word"
@@ -7957,7 +8027,7 @@
   },
   "par-cceur": {
    "p": "paʁ kœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pedant": {
    "p": "pedɑ̃",
@@ -8038,6 +8108,10 @@
   "original": {
    "p": "oʁiʒinal",
    "m": "word"
+  },
+  "parcours-lmd": {
+   "p": "paʁkuʁ ɛl ɛm de",
+   "m": "compound"
   },
   "pelle": {
    "p": "pɛl",
@@ -8230,6 +8304,10 @@
   "performant": {
    "p": "pɛʁfɔʁmɑ̃",
    "m": "word"
+  },
+  "p": {
+   "p": "pe",
+   "m": "override"
   },
   "partition": {
    "p": "paʁtisjɔ̃",
@@ -8587,9 +8665,21 @@
    "p": "pjano",
    "m": "word"
   },
+  "pme": {
+   "p": "pe ɛm ø",
+   "m": "acronym"
+  },
   "pourparlers": {
    "p": "puʁpaʁle",
    "m": "word"
+  },
+  "pib": {
+   "p": "pe i be",
+   "m": "acronym"
+  },
+  "pnb": {
+   "p": "pe ɛn be",
+   "m": "acronym"
   },
   "pourpre": {
    "p": "puʁpʁ",
@@ -8677,7 +8767,7 @@
   },
   "point-de-vue": {
    "p": "pwɛ̃ də vy",
-   "m": "compound"
+   "m": "lexdb"
   },
   "preciser": {
    "p": "pʁesize",
@@ -8913,7 +9003,7 @@
   },
   "porte-courrier": {
    "p": "pɔʁt kuʁje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "preservation": {
    "p": "pʁezɛʁvasjɔ̃",
@@ -9370,6 +9460,10 @@
   "rate": {
    "p": "ʁate",
    "m": "word"
+  },
+  "prohibitif": {
+   "p": "pʁɔibitif",
+   "m": "override"
   },
   "quiproquo": {
    "p": "kipʁoko",
@@ -10141,7 +10235,7 @@
   },
   "restau-u": {
    "p": "ʁɛsto y",
-   "m": "compound"
+   "m": "lexdb"
   },
   "rire": {
    "p": "ʁiʁ",
@@ -10149,7 +10243,7 @@
   },
   "sans-conteste": {
    "p": "sɑ̃ kɔ̃tɛst",
-   "m": "compound"
+   "m": "lexdb"
   },
   "rester": {
    "p": "ʁɛste",
@@ -10411,6 +10505,10 @@
    "p": "ʁuj",
    "m": "word"
   },
+  "sciences-po": {
+   "p": "sjɑ̃s po",
+   "m": "override"
+  },
   "reveler": {
    "p": "ʁevele",
    "m": "word"
@@ -10574,6 +10672,10 @@
   "secouer": {
    "p": "səkwe",
    "m": "word"
+  },
+  "rh": {
+   "p": "ɛʁ aʃ",
+   "m": "acronym"
   },
   "saigner": {
    "p": "seɲe",
@@ -11235,6 +11337,10 @@
    "p": "tuʁne",
    "m": "word"
   },
+  "td": {
+   "p": "te de",
+   "m": "acronym"
+  },
   "table": {
    "p": "tabl",
    "m": "word"
@@ -11482,6 +11588,10 @@
   "technicien": {
    "p": "tɛknisjɛ̃",
    "m": "word"
+  },
+  "telecopie": {
+   "p": "telekɔpi",
+   "m": "override"
   },
   "telefilm": {
    "p": "telefilm",
@@ -11794,6 +11904,10 @@
   "u": {
    "p": "y",
    "m": "word"
+  },
+  "ufr": {
+   "p": "y ɛf ɛʁ",
+   "m": "acronym"
   },
   "ulcere": {
    "p": "ylseʁe",
@@ -12141,7 +12255,7 @@
   },
   "agence-d-interim": {
    "p": "aʒɑ̃s dɛ̃teʁim",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ailleurs": {
    "p": "ajœʁ",
@@ -12157,51 +12271,67 @@
   },
   "ambiance-de-travail": {
    "p": "ɑ̃bjɑ̃s də tʁavaj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "apprendre-a-faire": {
    "p": "apʁɑ̃dʁ a fɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "apprendre-a": {
    "p": "apʁɑ̃dʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "attirer-plus-de-jeunes": {
    "p": "atiʁe ply də ʒœn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "au-terme-de-ce-rapport": {
    "p": "o tɛʁm də sø ʁapɔʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "autoriser-a-faire": {
    "p": "otoʁize a fɛʁ",
+   "m": "lexdb"
+  },
+  "avoir-acces-a-qe": {
+   "p": "avwaʁ aksɛ a kɛlk ʃoz",
    "m": "compound"
   },
   "avoir-le-merite-de-faire": {
    "p": "avwaʁ lə meʁit də fɛʁ",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "candidater-pour-un-emploi": {
+   "p": "kɑ̃didate puʁ œ̃n ɑ̃plwa",
+   "m": "override"
   },
   "candidature": {
    "p": "kɑ̃didatyʁ",
    "m": "word"
   },
+  "cdd": {
+   "p": "se de de",
+   "m": "acronym"
+  },
+  "cdi": {
+   "p": "se de i",
+   "m": "acronym"
+  },
   "chercher-un-emploi": {
    "p": "ʃɛʁʃe œ̃ ɑ̃plwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chiffre-d-affaires": {
    "p": "ʃifʁ dafɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "comite-de-direction": {
    "p": "komite də diʁɛksjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "commettre-une-erreur": {
    "p": "komɛtʁ yn ɛʁœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "compabilite": {
    "p": "kɔ̃tabilite",
@@ -12217,15 +12347,15 @@
   },
   "confiance-en-soi": {
    "p": "kɔ̃fjɑ̃s ɑ̃ swa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "conflit-social": {
    "p": "kɔ̃fli sosjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "conge-parental": {
    "p": "kɔ̃ʒe paʁɑ̃tal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "contester": {
    "p": "kɔ̃tɛste",
@@ -12233,7 +12363,7 @@
   },
   "contrat-de-travail": {
    "p": "kɔ̃tʁa də tʁavaj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "convoquer": {
    "p": "kɔ̃voke",
@@ -12241,15 +12371,15 @@
   },
   "copier-coller": {
    "p": "kopje kole",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cote-salaries": {
    "p": "kote salaʁje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "coupe-budgetaire": {
    "p": "kup bydʒetɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "craindre": {
    "p": "kʁɛ̃dʁ",
@@ -12257,11 +12387,11 @@
   },
   "creer-des-emplois": {
    "p": "kʁee de ɑ̃plwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "critere-de-selection": {
    "p": "kʁitɛʁ də selɛksjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "croitre": {
    "p": "kʁwatʁ",
@@ -12269,15 +12399,19 @@
   },
   "culture-generale": {
    "p": "kyltyʁ ʒeneʁal",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "curriculum-vitae": {
+   "p": "kyʁikylɔmvite",
+   "m": "lexdb"
   },
   "cursus-scolaire": {
    "p": "kyʁsys skolɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "declencher-une-greve": {
    "p": "deklɑ̃ʃe yn gʁɛv",
-   "m": "compound"
+   "m": "lexdb"
   },
   "decourager": {
    "p": "dekuʁaʒe",
@@ -12285,11 +12419,15 @@
   },
   "decrocher-un-contrat": {
    "p": "dekʁoʃe œ̃ kɔ̃tʁa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "demarche": {
    "p": "demaʁʃ",
    "m": "word"
+  },
+  "demissionner-donner-sa-demission": {
+   "p": "demisjone sa demisjɔ̃",
+   "m": "compound"
   },
   "democratiser": {
    "p": "demokʁatize",
@@ -12305,7 +12443,7 @@
   },
   "des-mesures-prises": {
    "p": "de məzyʁ pʁiz",
-   "m": "compound"
+   "m": "lexdb"
   },
   "desacraliser": {
    "p": "desakʁalize",
@@ -12313,11 +12451,15 @@
   },
   "desaffection-pour": {
    "p": "dezafɛksjɔ̃ puʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "diffuser-une-annonce": {
    "p": "difyze yn anɔ̃s",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "diminuer-baisser": {
+   "p": "diminɥe",
+   "m": "word"
   },
   "directeur-": {
    "p": "diʁɛktœʁ",
@@ -12333,7 +12475,7 @@
   },
   "donner-sa-demission": {
    "p": "done sa demisjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "economiser": {
    "p": "ekonomize",
@@ -12345,47 +12487,59 @@
   },
   "en-amont": {
    "p": "ɑ̃ amɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "enseignement-superieur": {
    "p": "ɑ̃sɛɲəmɑ̃ sypeʁjœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "entrer-en-conflit": {
    "p": "ɑ̃tʁe ɑ̃ kɔ̃fli",
-   "m": "compound"
+   "m": "lexdb"
   },
   "entretien-d-embauche": {
    "p": "ɑ̃tʁətjɛ̃ dɑ̃boʃ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "envie": {
    "p": "ɑ̃vi",
    "m": "word"
   },
+  "etre-de-profession": {
+   "p": "ɛtʁ də pʁofɛsjɔ̃",
+   "m": "lexdb"
+  },
   "etre-capable-de": {
    "p": "ɛtʁ kapabl də",
+   "m": "lexdb"
+  },
+  "etre-en-a-la-retraite": {
+   "p": "ɛtʁ ɑ̃ la ʁətʁɛt",
    "m": "compound"
   },
   "etre-fier": {
    "p": "ɛtʁ fjɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-frustre": {
    "p": "ɛtʁ fʁystʁe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-promu": {
    "p": "ɛtʁ pʁomy",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "etre-responsable-de-pour": {
+   "p": "ɛtʁ ʁɛspɔ̃sabl də",
+   "m": "lexdb"
   },
   "evoluer-dans-sa-carriere": {
    "p": "evolɥe dɑ̃ sa kaʁjɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "experience-professionnelle": {
    "p": "ɛkspeʁjɑ̃s pʁofɛsjonɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faille": {
    "p": "faj",
@@ -12393,19 +12547,23 @@
   },
   "faire-carriere": {
    "p": "fɛʁ kaʁjɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-de-son-mieux": {
    "p": "fɛʁ də sɔ̃ mjø",
+   "m": "lexdb"
+  },
+  "faire-la-greve-se-mettre-en-greve": {
+   "p": "fɛʁ la gʁɛv mɛtʁ ɑ̃ gʁɛv",
    "m": "compound"
   },
   "filiere-litteraire": {
    "p": "filjɛʁ liteʁɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "filiere-scientifique": {
    "p": "filjɛʁ sjɑ̃tifik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "flexibilite": {
    "p": "flɛksibilite",
@@ -12413,15 +12571,15 @@
   },
   "formation-continue": {
    "p": "fɔʁmasjɔ̃ kɔ̃tiny",
-   "m": "compound"
+   "m": "lexdb"
   },
   "formation-en-alternance": {
    "p": "fɔʁmasjɔ̃ ɑ̃ altɛʁnɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gagner-sa-vie": {
    "p": "gaɲe sa vi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "harcelement": {
    "p": "aʁsɛləmɑ̃",
@@ -12449,7 +12607,7 @@
   },
   "inferieur-a": {
    "p": "ɛ̃feʁjœʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "investigation": {
    "p": "ɛ̃vɛstigasjɔ̃",
@@ -12457,19 +12615,19 @@
   },
   "laisser-de-l-espace": {
    "p": "lese də lɛspas",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lancer-un-ultimatum": {
    "p": "lɑ̃se œ̃ yltimatɔm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "le-pari-est-ose": {
    "p": "lə paʁi e oze",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lettre-de-motivation": {
    "p": "lɛtʁ də motivasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lutte": {
    "p": "lyt",
@@ -12485,11 +12643,11 @@
   },
   "marche-du-travail": {
    "p": "maʁʃe dy tʁavaj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mesurer-a": {
    "p": "sə məzyʁe a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "metier": {
    "p": "metje",
@@ -12497,7 +12655,7 @@
   },
   "mettre-en-avant": {
    "p": "mɛtʁ ɑ̃ avɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "motiver": {
    "p": "motive",
@@ -12509,15 +12667,15 @@
   },
   "negocier-son-salaire": {
    "p": "negosje sɔ̃ salɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "niveau-de-vie": {
    "p": "nivo də vi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "objectif-annuel": {
    "p": "ɔbʒɛktif anɥɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "obliger": {
    "p": "obliʒe",
@@ -12525,11 +12683,11 @@
   },
   "occuper-un-poste": {
    "p": "okype œ̃ pɔst",
-   "m": "compound"
+   "m": "lexdb"
   },
   "offre-d-emploi": {
    "p": "ɔfʁ dɑ̃plwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "paie": {
    "p": "pɛ",
@@ -12537,7 +12695,11 @@
   },
   "parier-sur": {
    "p": "paʁje syʁ",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "pdg-president-directeur-general": {
+   "p": "pe de ʒe",
+   "m": "acronym"
   },
   "perfectionnisme": {
    "p": "pɛʁfɛksjonizm",
@@ -12553,15 +12715,15 @@
   },
   "plus-faible": {
    "p": "ply fɛbl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "population-active": {
    "p": "popylasjɔ̃ aktiv",
-   "m": "compound"
+   "m": "lexdb"
   },
   "poser-sa-candidature-a": {
    "p": "poze sa kɑ̃didatyʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "otentiel-m": {
    "p": "potɑ̃sjɛl",
@@ -12581,11 +12743,11 @@
   },
   "prendre-des-mesures": {
    "p": "pʁɑ̃dʁ de məzyʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prendre-une-decision": {
    "p": "pʁɑ̃dʁ yn desizjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pression": {
    "p": "pʁɛsjɔ̃",
@@ -12593,11 +12755,11 @@
   },
   "preter-a": {
    "p": "pʁete a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "priver-de": {
    "p": "pʁive də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "promoteur": {
    "p": "pʁomotœʁ",
@@ -12609,7 +12771,7 @@
   },
   "rendre-compte": {
    "p": "ʁɑ̃dʁ kɔ̃t",
-   "m": "compound"
+   "m": "lexdb"
   },
   "reperer": {
    "p": "ʁəpeʁe",
@@ -12617,11 +12779,7 @@
   },
   "resolution-d-un-probleme": {
    "p": "ʁezolysjɔ̃ dœ̃ pʁoblɛm",
-   "m": "compound"
-  },
-  "retraite-": {
-   "p": "ʁətʁete",
-   "m": "word"
+   "m": "lexdb"
   },
   "revendiquer": {
    "p": "ʁəvɑ̃dike",
@@ -12629,19 +12787,19 @@
   },
   "s-adresser-a": {
    "p": "sadʁese a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "s-impliquer-dans": {
    "p": "sɛ̃plike dɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "salaire-brut": {
    "p": "salɛʁ bʁyt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "salaire-net": {
    "p": "salɛʁ nɛt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "salarie-": {
    "p": "salaʁje",
@@ -12653,19 +12811,19 @@
   },
   "secteur-primaire": {
    "p": "sektœʁ pʁimɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "secteur-secondaire": {
    "p": "sektœʁ səgɔ̃dɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "service-militaire": {
    "p": "sɛʁvis militɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "situer-au-meme-niveau": {
    "p": "sitɥe o mɛm nivo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "stage": {
    "p": "staʒ",
@@ -12677,7 +12835,7 @@
   },
   "subvenir-a-ses-besoins": {
    "p": "sybvəniʁ a se bəzwɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "supplanter": {
    "p": "syplɑ̃te",
@@ -12685,39 +12843,47 @@
   },
   "supprimer-des-emplois": {
    "p": "sypʁime de ɑ̃plwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "temps-de-travail": {
    "p": "tɑ̃ də tʁavaj",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "temps-plein-partiel": {
+   "p": "tɑ̃ plɛ̃",
+   "m": "lexdb"
   },
   "terminale-scientifique": {
    "p": "tɛʁminal sjɑ̃tifik",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "tisser-des-partenariats": {
+   "p": "tise de paʁtənaʁja",
+   "m": "override"
   },
   "travail-a-plein-temps": {
    "p": "tʁavaj a plɛ̃ tɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "travail-a-temps-partiel": {
    "p": "tʁavaj a tɑ̃ paʁsjɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "travail-au-noir": {
    "p": "tʁavaj o nwaʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "travail-clandestin": {
    "p": "tʁavaj klɑ̃dɛstɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "travail-scolaire": {
    "p": "tʁavaj skolɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "travailler-a-son-compte": {
    "p": "tʁavaje a sɔ̃ kɔ̃t",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tricher": {
    "p": "tʁiʃe",
@@ -12735,6 +12901,10 @@
    "p": "veikyle",
    "m": "word"
   },
+  "viser-a-qo": {
+   "p": "vize a kɛlk ʃoz",
+   "m": "compound"
+  },
   "acupuncture": {
    "p": "akypɔ̃ktyʁ",
    "m": "word"
@@ -12745,7 +12915,7 @@
   },
   "ampoule-buvable": {
    "p": "ɑ̃pul byvabl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "anesthesiste": {
    "p": "anɛstezist",
@@ -12759,113 +12929,133 @@
    "p": "ɑ̃tisɛptik",
    "m": "word"
   },
+  "attraper-une-maladie-tomber-malade": {
+   "p": "atʁape yn maladi / tɔ̃be malad",
+   "m": "compound"
+  },
+  "attraper-prendre-froid": {
+   "p": "atʁape fʁwa",
+   "m": "compound"
+  },
+  "avoir-bonne-mauvaise-mine": {
+   "p": "avwaʁ bɔn min",
+   "m": "compound"
+  },
+  "avoir-de-l-embonpoint-etre-corpulent": {
+   "p": "avwaʁ də lɑ̃bɔ̃pwɛ̃ / ɛtʁ kɔʁpylɑ̃",
+   "m": "compound"
+  },
   "avoir-de-la-fievre": {
    "p": "avwaʁ də la fjɛvʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-de-la-temperature": {
    "p": "avwaʁ də la tɑ̃peʁatyʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-de-troubles-du-sommeil": {
    "p": "avwaʁ de tʁubl dy somɛj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-des-bouffees-de-chaleur": {
    "p": "avwaʁ de bufe də ʃalœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-des-boutons": {
    "p": "avwaʁ de butɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-des-brulures": {
    "p": "avwaʁ de bʁylyʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-des-courbatures": {
    "p": "avwaʁ de kuʁbatyʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-des-crampes": {
    "p": "avwaʁ de kʁɑ̃p",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-des-douleurs-articulaires": {
    "p": "avwaʁ de dulœʁ aʁtikylɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-des-fourmis-dans-le": {
    "p": "avwaʁ de fuʁmi dɑ̃ le ʒɑ̃b",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-des-hauts-et-des-bas": {
    "p": "avwaʁ de o e de ba",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-des-poignees-d-amour": {
    "p": "avwaʁ de pwaɲe damuʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-du-mal-a-s-endormir": {
    "p": "avwaʁ dy mal a sɑ̃dɔʁmiʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-envie-de-vomir": {
    "p": "avwaʁ ɑ̃vi də vomiʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-la-nausee": {
    "p": "avwaʁ la noze",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-la-tete-qui-tourne": {
    "p": "avwaʁ la tɛt ki tuʁn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-le-hoquet": {
    "p": "avwaʁ lə okɛ",
+   "m": "lexdb"
+  },
+  "avoir-le-mal-a-la-tete-au-crane": {
+   "p": "avwaʁ mal a la tɛt / o kʁan",
    "m": "compound"
   },
   "avoir-le-nez-qui-coule": {
    "p": "avwaʁ lə ne ki kul",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-les-nerfs-a-fleur-de-peau": {
    "p": "avwaʁ le nɛʁ a flœʁ də po",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-mal-au-coeur": {
    "p": "avwaʁ mal o kœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-recours-a": {
    "p": "avwaʁ ʁəkuʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-un-coup-de-barre": {
    "p": "avwaʁ œ̃ ku də baʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-un-rage-de-dent": {
    "p": "avwaʁ yn ʁaʒ də dɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-un-rhume": {
    "p": "avwaʁ œ̃ ʁym",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-une-rage-de-dent": {
    "p": "avwaʁ yn ʁaʒ də dɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-une-tendinite": {
    "p": "avwaʁ yn tɑ̃dinit",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-une-toux-seche": {
    "p": "avwaʁ yn tu sɛʃ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bobo": {
    "p": "bobo",
@@ -12873,7 +13063,7 @@
   },
   "bouche-a-bouche": {
    "p": "buʃ a buʃ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "brulure": {
    "p": "bʁylyʁ",
@@ -12893,7 +13083,7 @@
   },
   "conseiller-a": {
    "p": "kɔ̃seje a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "contamination": {
    "p": "kɔ̃taminasjɔ̃",
@@ -12921,7 +13111,7 @@
   },
   "crise-cardiaque": {
    "p": "kʁiz kaʁdjak",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cuisse": {
    "p": "kɥis",
@@ -12945,7 +13135,7 @@
   },
   "des-points-de-suture": {
    "p": "de pwɛ̃ də sytyʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "diabete": {
    "p": "djabɛt",
@@ -12961,19 +13151,23 @@
   },
   "douleur-atroce": {
    "p": "dulœʁ atʁɔs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "effet-benefique": {
    "p": "efɛ benefik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "eleve-infirmiere": {
    "p": "elɛv ɛ̃fiʁmjɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "endiguer-une-epidemie": {
    "p": "ɑ̃dige yn epidemi",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "enfler-gonfler": {
+   "p": "ɑ̃fle",
+   "m": "word"
   },
   "entourage": {
    "p": "ɑ̃tuʁaʒ",
@@ -12981,27 +13175,31 @@
   },
   "etablir-un-diagnostic": {
    "p": "etabliʁ œ̃ djagnostik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-bien-portant": {
    "p": "ɛtʁ bjɛ̃ pɔʁtɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-debout": {
    "p": "ɛtʁ dəbu",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-en-surpoids": {
    "p": "ɛtʁ ɑ̃ syʁpwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-enrhume": {
    "p": "ɛtʁ ɑ̃ʁyme",
+   "m": "lexdb"
+  },
+  "etre-malade-comme-un-cheval-un-chien": {
+   "p": "ɛtʁ malad kɔm œ̃ ʃəval ʃjɛ̃",
    "m": "compound"
   },
   "etre-souple": {
    "p": "ɛtʁ supl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "evanouissement": {
    "p": "evanwisəmɑ̃",
@@ -13021,11 +13219,11 @@
   },
   "externe-des-hopitaux": {
    "p": "ɛkstɛʁn de opito",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-une-prise-de-sang": {
    "p": "fɛʁ yn pʁiz də sɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fatigue": {
    "p": "fatig",
@@ -13050,6 +13248,10 @@
   "generaliste-m": {
    "p": "ʒeneʁalist",
    "m": "word"
+  },
+  "generaliste-specialiste": {
+   "p": "ʒeneʁalist / spesjalist",
+   "m": "compound"
   },
   "genou": {
    "p": "ʒənu",
@@ -13125,11 +13327,11 @@
   },
   "medecin-de-la-famille": {
    "p": "mɛdsɛ̃ də la famij",
-   "m": "compound"
+   "m": "lexdb"
   },
   "medecin-traitant": {
    "p": "mɛdsɛ̃ tʁɛtɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "menton": {
    "p": "mɑ̃tɔ̃",
@@ -13137,7 +13339,7 @@
   },
   "mettre-en-valeur": {
    "p": "mɛtʁ ɑ̃ valœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "microbes": {
    "p": "mikʁɔb",
@@ -13145,7 +13347,7 @@
   },
   "moelle-epiniere": {
    "p": "mwal epinjɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mollet": {
    "p": "molɛ",
@@ -13153,11 +13355,11 @@
   },
   "n-avoir-que-la-peau-sur-les-os": {
    "p": "navwaʁ kə la po syʁ le ɔs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ne-pas-etre-dans-son-assiette": {
    "p": "nə pa ɛtʁ dɑ̃ sɔ̃ asjɛt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "nephrologue": {
    "p": "nefʁolɔg",
@@ -13169,6 +13371,14 @@
   },
   "nez-bouche": {
    "p": "ne buʃe",
+   "m": "lexdb"
+  },
+  "obese-en-surpoids": {
+   "p": "obɛz / ɑ̃ syʁpwa",
+   "m": "compound"
+  },
+  "oeil-les-yeux": {
+   "p": "œj jø",
    "m": "compound"
   },
   "ongle": {
@@ -13217,15 +13427,19 @@
   },
   "prendre-froid": {
    "p": "pʁɑ̃dʁ fʁwa",
+   "m": "lexdb"
+  },
+  "prendre-la-tension-le-pouls": {
+   "p": "pʁɑ̃dʁ la tɑ̃sjɔ̃ lə pu",
    "m": "compound"
   },
   "prendre-le-pouls": {
    "p": "pʁɑ̃dʁ lə pu",
-   "m": "compound"
+   "m": "lexdb"
   },
   "proner-a": {
    "p": "pʁone a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "psychiatre": {
    "p": "psikjatʁ",
@@ -13233,7 +13447,7 @@
   },
   "ralentir-sa-consommation": {
    "p": "ʁalɑ̃tiʁ sa kɔ̃somasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "rapprocher": {
    "p": "ʁapʁoʃe",
@@ -13241,7 +13455,7 @@
   },
   "recourir-a": {
    "p": "ʁəkuʁiʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "rein": {
    "p": "ʁɛ̃",
@@ -13265,7 +13479,7 @@
   },
   "ressentir-des-picotements": {
    "p": "ʁəsɑ̃tiʁ de pikɔtəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "reveiller": {
    "p": "ʁeveje",
@@ -13299,6 +13513,10 @@
    "p": "sɔ̃",
    "m": "word"
   },
+  "sophrologie": {
+   "p": "sɔfʁɔlɔʒi",
+   "m": "override"
+  },
   "sourcil": {
    "p": "suʁsi",
    "m": "word"
@@ -13321,11 +13539,11 @@
   },
   "tomber-dans-les-pommes": {
    "p": "tɔ̃be dɑ̃ le pɔm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tomber-malade": {
    "p": "tɔ̃be malad",
-   "m": "compound"
+   "m": "lexdb"
   },
   "transfusion": {
    "p": "tʁɑ̃sfyzjɔ̃",
@@ -13333,7 +13551,7 @@
   },
   "transfusion-sanguine": {
    "p": "tʁɑ̃sfyzjɔ̃ sɑ̃gin",
-   "m": "compound"
+   "m": "lexdb"
   },
   "vertebre": {
    "p": "vɛʁtɛbʁ",
@@ -13353,7 +13571,7 @@
   },
   "acceder-a": {
    "p": "aksede a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "acces": {
    "p": "aksɛ",
@@ -13365,7 +13583,7 @@
   },
   "attraction-touristique": {
    "p": "atʁaksjɔ̃ tuʁistik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "blague": {
    "p": "blag",
@@ -13377,19 +13595,19 @@
   },
   "chasser-le-stress": {
    "p": "ʃase lə stʁɛs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chasser-les-idees-noires": {
    "p": "ʃase le ide nwaʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "circuit-touristique": {
    "p": "siʁkɥi tuʁistik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "court-metrage": {
    "p": "kuʁ metʁaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "derision": {
    "p": "deʁizjɔ̃",
@@ -13401,7 +13619,7 @@
   },
   "eclater-de-rire": {
    "p": "eklate də ʁiʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "editeur-m": {
    "p": "editœʁ",
@@ -13409,27 +13627,27 @@
   },
   "emission-satirique": {
    "p": "emisjɔ̃ satiʁik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "humour-politique": {
    "p": "ymuʁ politik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "loisirs-culturels": {
    "p": "lwaziʁ kyltyʁɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "long-metrage": {
    "p": "lɔ̃ metʁaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "maison-d-edition": {
    "p": "mɛzɔ̃ dedisjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "marrer": {
    "p": "sə maʁe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "palais": {
    "p": "palɛ",
@@ -13437,7 +13655,7 @@
   },
   "piece-de-theatre": {
    "p": "pjɛs də teatʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "public-m": {
    "p": "pyblik",
@@ -13445,7 +13663,7 @@
   },
   "rire-de-ses-peurs": {
    "p": "ʁiʁ də se pœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sketch": {
    "p": "skɛtʃ",
@@ -13453,19 +13671,19 @@
   },
   "spectacle-humoristique": {
    "p": "spɛktakl ymoʁistik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "spectacles-d-humoristes": {
    "p": "spɛktakl dymoʁist",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tourner-un-film": {
    "p": "tuʁne œ̃ film",
-   "m": "compound"
+   "m": "lexdb"
   },
   "visite-guidee": {
    "p": "vizit gide",
-   "m": "compound"
+   "m": "lexdb"
   },
   "visiter": {
    "p": "vizite",
@@ -13473,7 +13691,7 @@
   },
   "accorder-une-reduction": {
    "p": "akɔʁde yn ʁedyksjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "accumulation": {
    "p": "akymylasjɔ̃",
@@ -13485,31 +13703,31 @@
   },
   "achat-en-ligne": {
    "p": "aʃa ɑ̃ liɲ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "acheter-a-credit": {
    "p": "aʃəte a kʁedi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "acheter-d-occasion": {
    "p": "aʃəte dokazjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "acheter-en-gros": {
    "p": "aʃəte ɑ̃ gʁo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "acheter-par-correspondance": {
    "p": "aʃəte paʁ koʁɛspɔ̃dɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "acheter-pour-une-bouchee-de-pain": {
    "p": "aʃəte puʁ yn buʃe də pɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "acheter-sur-internet": {
    "p": "aʃəte syʁ ɛ̃tɛʁnɛt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "acheteur": {
    "p": "aʃətœʁ",
@@ -13531,21 +13749,25 @@
    "p": "ɑ̃tikɛʁ",
    "m": "word"
   },
+  "argent-fric-ble": {
+   "p": "aʁʒɑ̃ = fʁik = ble",
+   "m": "compound"
+  },
   "argent-de-poche": {
    "p": "aʁʒɑ̃ də pɔʃ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "argent-liquide": {
    "p": "aʁʒɑ̃ likid",
-   "m": "compound"
+   "m": "lexdb"
   },
   "augmentation-de-prix": {
    "p": "ogmɑ̃tasjɔ̃ də pʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "aupres-de": {
    "p": "opʁɛ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "authenticite": {
    "p": "otɑ̃tisite",
@@ -13553,11 +13775,15 @@
   },
   "avec-un-bon-d-achat": {
    "p": "avɛk œ̃ bɔ̃ daʃa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-besoin-d-argent": {
    "p": "avwaʁ bəzwɛ̃ daʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "avoir-a-sa-disposition": {
+   "p": "avwaʁ a sa dispozisjɔ̃",
+   "m": "lexdb"
   },
   "bail": {
    "p": "baj",
@@ -13569,7 +13795,7 @@
   },
   "biens-de-consommation": {
    "p": "bjɛ̃ də kɔ̃somasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bijouterie": {
    "p": "biʒutəʁi",
@@ -13581,7 +13807,7 @@
   },
   "blanchiment-d-argent": {
    "p": "blɑ̃ʃimɑ̃ daʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "blanchisserie": {
    "p": "blɑ̃ʃisəʁi",
@@ -13589,7 +13815,7 @@
   },
   "bon-marche": {
    "p": "bɔ̃ maʁʃe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "boucher": {
    "p": "buʃe",
@@ -13613,11 +13839,11 @@
   },
   "bureau-de-tabac": {
    "p": "byʁo də taba",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cabine-d-essayage": {
    "p": "kabin desɛjaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "caddie": {
    "p": "kadi",
@@ -13625,7 +13851,7 @@
   },
   "campagne-publicitaire": {
    "p": "kɑ̃paɲ pyblisitɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "capital": {
    "p": "kapital",
@@ -13633,7 +13859,7 @@
   },
   "centre-commercial": {
    "p": "sɑ̃tʁ komɛʁsjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "charcuterie": {
    "p": "ʃaʁkytəʁi",
@@ -13653,23 +13879,23 @@
   },
   "commerce-en-detail": {
    "p": "komɛʁs ɑ̃ detaj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "commerce-en-gros": {
    "p": "komɛʁs ɑ̃ gʁo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "commerce-exterieur": {
    "p": "komɛʁs ɛksteʁjœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "commerce-interieur": {
    "p": "komɛʁs ɛ̃teʁjœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "comportement-d-achat": {
    "p": "kɔ̃pɔʁtəmɑ̃ daʃa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "configuration": {
    "p": "kɔ̃figyʁasjɔ̃",
@@ -13681,6 +13907,10 @@
   },
   "consommateur-moyen": {
    "p": "kɔ̃somatœʁ mwajɛ̃",
+   "m": "lexdb"
+  },
+  "consommation-responsable-de-masse": {
+   "p": "kɔ̃somasjɔ̃ ʁɛspɔ̃sabl mas",
    "m": "compound"
   },
   "consommer": {
@@ -13701,15 +13931,19 @@
   },
   "creer-des-besoins": {
    "p": "kʁee de bəzwɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "crise-economique": {
    "p": "kʁiz ekonomik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cycle-de-vie-des-produits": {
    "p": "sikl də vi de pʁodɥi",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "d-a-b": {
+   "p": "de a be",
+   "m": "acronym"
   },
   "deballage": {
    "p": "debalaʒ",
@@ -13721,11 +13955,11 @@
   },
   "demander-le-prix-d-un-article": {
    "p": "dəmɑ̃de lə pʁi dœ̃ aʁtikl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "demarrer-une-campagne-publicitaire": {
    "p": "demaʁe yn kɑ̃paɲ pyblisitɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "denommer": {
    "p": "denome",
@@ -13741,15 +13975,19 @@
   },
   "depenser-de-l-argent": {
    "p": "depɑ̃se də laʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "depenser-trop-d-argent": {
    "p": "depɑ̃se tʁo daʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "deposer-verser-de-l-argent-sur-un-livret-d-epargne": {
+   "p": "depoze də laʁʒɑ̃ syʁ œ̃ livʁɛ depaʁɲ",
+   "m": "lexdb"
   },
   "des-soldes": {
    "p": "de sɔld",
-   "m": "compound"
+   "m": "lexdb"
   },
   "dettes": {
    "p": "dɛt",
@@ -13757,7 +13995,7 @@
   },
   "devoir-de-l-argent-a": {
    "p": "dəvwaʁ də laʁʒɑ̃ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "distributeur": {
    "p": "distʁibytœʁ",
@@ -13767,13 +14005,21 @@
    "p": "distʁibysjɔ̃",
    "m": "word"
   },
+  "distributivite": {
+   "p": "distʁibytivite",
+   "m": "override"
+  },
   "droguerie": {
    "p": "dʁɔgəʁi",
    "m": "word"
   },
+  "economiser-pour-inf": {
+   "p": "ekonomize puʁ",
+   "m": "lexdb"
+  },
   "elasticite-prix": {
    "p": "elastisite pʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "embleme": {
    "p": "ɑ̃blɛm",
@@ -13795,9 +14041,13 @@
    "p": "ɑ̃tʁəpo",
    "m": "word"
   },
+  "epargne-economies": {
+   "p": "epaʁɲ / ekonomi",
+   "m": "compound"
+  },
   "epargner-pour": {
    "p": "epaʁɲe puʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "epicerie": {
    "p": "episəʁi",
@@ -13805,7 +14055,7 @@
   },
   "essayer-un-vetement": {
    "p": "eseje œ̃ vɛtəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "estimer": {
    "p": "ɛstime",
@@ -13817,11 +14067,11 @@
   },
   "etre-a-la-mode": {
    "p": "ɛtʁ a la mɔd",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etude-de-marche": {
    "p": "etyd də maʁʃe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "exonerer": {
    "p": "ɛgzoneʁe",
@@ -13833,31 +14083,31 @@
   },
   "faire-de-la-publicite-pour-un-produit": {
    "p": "fɛʁ də la pyblisite puʁ œ̃ pʁodɥi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-des-depenses": {
    "p": "fɛʁ de depɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-des-economies": {
    "p": "fɛʁ de ekonomi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-du-leche-vitrines": {
    "p": "fɛʁ dy lɛʃ vitʁin",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-fructifier": {
    "p": "fɛʁ fʁyktifje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-plaisir": {
    "p": "fɛʁ pleziʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-une-bonne-affaire": {
    "p": "fɛʁ yn bɔn afɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tanatique": {
    "p": "fanatik",
@@ -13865,11 +14115,11 @@
   },
   "fideliser-la-clientele": {
    "p": "fidɛlize la klijɑ̃tɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "film-publicitaire": {
    "p": "film pyblisitɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "financer": {
    "p": "finɑ̃se",
@@ -13881,10 +14131,14 @@
   },
   "fourchette-de-prix": {
    "p": "fuʁʃɛt də pʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gagner-des-interets": {
    "p": "gaɲe de ɛ̃teʁɛ",
+   "m": "lexdb"
+  },
+  "gagner-se-faire-de-l-argent": {
+   "p": "gaɲe = sə fɛʁ də laʁʒɑ̃",
    "m": "compound"
   },
   "gain": {
@@ -13893,7 +14147,7 @@
   },
   "gaspiller-de-l-argent": {
    "p": "gaspije də laʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gasp-lleur": {
    "p": "gaspijœʁ",
@@ -13911,13 +14165,17 @@
    "p": "ʒeneʁe",
    "m": "word"
   },
+  "gerer-son-argent-son-budget": {
+   "p": "ʒeʁe sɔ̃ aʁʒɑ̃ bydʒɛ",
+   "m": "compound"
+  },
   "grand-magasin": {
    "p": "gʁɑ̃ magazɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "grande-surface": {
    "p": "gʁɑ̃d syʁfas",
-   "m": "compound"
+   "m": "lexdb"
   },
   "heritage": {
    "p": "eʁitaʒ",
@@ -13933,7 +14191,7 @@
   },
   "il-me-manque-de-l-argent": {
    "p": "il mə mɑ̃k də laʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "impots": {
    "p": "ɛ̃po",
@@ -13941,11 +14199,11 @@
   },
   "inciter-a-acheter": {
    "p": "ɛ̃site a aʃəte",
-   "m": "compound"
+   "m": "lexdb"
   },
   "influence-de-la-publicite": {
    "p": "ɛ̃flyɑ̃s də la pyblisite",
-   "m": "compound"
+   "m": "lexdb"
   },
   "initie": {
    "p": "inisje",
@@ -13957,19 +14215,19 @@
   },
   "l-argent-n-a-pas-d-odeur": {
    "p": "laʁʒɑ̃ na pa dodœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "l-argent-ne-fait-pas-le-bonheur": {
    "p": "laʁʒɑ̃ nə fɛ pa lə bonœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "laisser-tenter-par": {
    "p": "sə lese tɑ̃te paʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lancer-un-produit": {
    "p": "lɑ̃se œ̃ pʁodɥi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "librairie": {
    "p": "libʁeʁi",
@@ -13989,39 +14247,39 @@
   },
   "magasin-d-electromenager": {
    "p": "magazɛ̃ delɛktʁomenaʒe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "magas-n-de-chaussures": {
    "p": "magazɛ̃ də ʃosyʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "magas-n-de-jouets": {
    "p": "magazɛ̃ də ʒwɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "magasin-de-meubles": {
    "p": "magazɛ̃ də mœbl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "magasin-de-photos": {
    "p": "magazɛ̃ də foto",
-   "m": "compound"
+   "m": "lexdb"
   },
   "magasin-de-pret-a-porter": {
    "p": "magazɛ̃ də pʁɛ a poʁte",
-   "m": "compound"
+   "m": "lexdb"
   },
   "magasin-de-souvenirs": {
    "p": "magazɛ̃ də suvəniʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "magasin-de-sports": {
    "p": "magazɛ̃ də spɔʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "manque-d-argent": {
    "p": "mɑ̃k daʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "marchandage": {
    "p": "maʁʃɑ̃daʒ",
@@ -14037,15 +14295,19 @@
   },
   "mettre-de-l-argent-sur-son-compte-bancaire": {
    "p": "mɛtʁ də laʁʒɑ̃ syʁ sɔ̃ kɔ̃t bɑ̃kɛʁ",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "mettre-de-cote": {
+   "p": "mɛtʁ də kote",
+   "m": "lexdb"
   },
   "mode-de-vie": {
    "p": "mɔd də vi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "modele-de-societe": {
    "p": "modɛl də sosjete",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mondialisation": {
    "p": "mɔ̃djalizasjɔ̃",
@@ -14061,7 +14323,7 @@
   },
   "ouvrir-un-compte-bancaire": {
    "p": "uvʁiʁ œ̃ kɔ̃t bɑ̃kɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pan": {
    "p": "pɑ̃",
@@ -14073,7 +14335,7 @@
   },
   "par-carte-de-credit": {
    "p": "paʁ kaʁt də kʁedi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "partage": {
    "p": "paʁtaʒ",
@@ -14085,15 +14347,19 @@
   },
   "payer-a-la-caisse": {
    "p": "peje a la kɛs",
+   "m": "lexdb"
+  },
+  "payer-en-especes-en-liquide": {
+   "p": "peje ɑ̃ ɛspɛs = ɑ̃ likid",
    "m": "compound"
   },
   "payer-par-carte-bancaire": {
    "p": "peje paʁ kaʁt bɑ̃kɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "payer-par-cheque": {
    "p": "peje paʁ ʃɛk",
-   "m": "compound"
+   "m": "lexdb"
   },
   "peage": {
    "p": "peaʒ",
@@ -14109,7 +14375,7 @@
   },
   "petit-commerce": {
    "p": "pəti komɛʁs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pharmacie": {
    "p": "faʁmasi",
@@ -14121,7 +14387,7 @@
   },
   "piece-de-monnaie": {
    "p": "pjɛs də monɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "placement": {
    "p": "plasəmɑ̃",
@@ -14133,7 +14399,7 @@
   },
   "plat-prepare": {
    "p": "pla pʁepaʁe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ponctualite": {
    "p": "pɔ̃ktɥalite",
@@ -14141,7 +14407,7 @@
   },
   "porte-a": {
    "p": "pɔʁte a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "possession": {
    "p": "posesjɔ̃",
@@ -14149,11 +14415,11 @@
   },
   "pouvoir-d-achat": {
    "p": "puvwaʁ daʃa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prendre-en-compte": {
    "p": "pʁɑ̃dʁ ɑ̃ kɔ̃t",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prestation": {
    "p": "pʁɛstasjɔ̃",
@@ -14165,7 +14431,7 @@
   },
   "preter-de-l-argent-a": {
    "p": "pʁete də laʁʒɑ̃ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "privilege": {
    "p": "pʁivilɛʒ",
@@ -14181,15 +14447,15 @@
   },
   "prix-de-vente": {
    "p": "pʁi də vɑ̃t",
-   "m": "compound"
+   "m": "lexdb"
   },
   "produit-de-luxe": {
    "p": "pʁodɥi də lyks",
-   "m": "compound"
+   "m": "lexdb"
   },
   "produit-qui-respecte-la-couche-d-ozone": {
    "p": "pʁodɥi ki ʁɛspɛkt la kuʃ dozon",
-   "m": "compound"
+   "m": "lexdb"
   },
   "proprietaire": {
    "p": "pʁopʁijetɛʁ",
@@ -14205,7 +14471,7 @@
   },
   "rapport-qualite-prix": {
    "p": "ʁapɔʁ kalite pʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "recette": {
    "p": "ʁəsɛt",
@@ -14217,7 +14483,7 @@
   },
   "recevoir-de-l-argent": {
    "p": "ʁəsəvwaʁ də laʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "recu": {
    "p": "ʁəsy",
@@ -14225,15 +14491,15 @@
   },
   "reduction-de-prix": {
    "p": "ʁedyksjɔ̃ də pʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "reduire-les-prix": {
    "p": "ʁedɥiʁ le pʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "regarder-sans-acheter": {
    "p": "ʁəgaʁde sɑ̃ aʃəte",
-   "m": "compound"
+   "m": "lexdb"
   },
   "regler": {
    "p": "ʁegle",
@@ -14241,19 +14507,27 @@
   },
   "regler-une-facture": {
    "p": "ʁegle yn faktyʁ",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "regler-payer-ses-depenses": {
+   "p": "ʁegle se depɑ̃s",
+   "m": "lexdb"
   },
   "remboursement": {
    "p": "ʁɑ̃buʁsəmɑ̃",
    "m": "word"
   },
+  "remettre-qe-en-question": {
+   "p": "ʁəmɛtʁ kɛlk ʃoz ɑ̃ kɛstjɔ̃",
+   "m": "compound"
+  },
   "rendre-la-monnaie": {
    "p": "ʁɑ̃dʁ la monɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "repondre-aux-besoins-des-consommateurs": {
    "p": "ʁepɔ̃dʁ o bəzwɛ̃ de kɔ̃somatœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "retirer": {
    "p": "ʁətiʁe",
@@ -14261,7 +14535,7 @@
   },
   "retirer-de-l-argent": {
    "p": "ʁətiʁe də laʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "retrait": {
    "p": "ʁətʁɛ",
@@ -14285,7 +14559,7 @@
   },
   "rue-commercante": {
    "p": "ʁy komɛʁsɑ̃t",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ruiner": {
    "p": "ʁɥine",
@@ -14297,15 +14571,15 @@
   },
   "service-apres-vente": {
    "p": "sɛʁvis apʁɛ vɑ̃t",
-   "m": "compound"
+   "m": "lexdb"
   },
   "servir-le-client": {
    "p": "sɛʁviʁ lə klijɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "societe-de-consommation": {
    "p": "sosjete də kɔ̃somasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "soldes": {
    "p": "sɔld",
@@ -14313,7 +14587,7 @@
   },
   "spot-publicitaire": {
    "p": "spɔt pyblisitɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "stand": {
    "p": "stɑ̃d",
@@ -14349,7 +14623,7 @@
   },
   "tenir-un-commerce": {
    "p": "təniʁ œ̃ komɛʁs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "terreau": {
    "p": "tɛʁo",
@@ -14377,15 +14651,15 @@
   },
   "usage-ponctuel": {
    "p": "yzaʒ pɔ̃ktɥɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "utiliser-une-carte-bancaire": {
    "p": "ytilize yn kaʁt bɑ̃kɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "vendre-au-detail": {
    "p": "vɑ̃dʁ o detaj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "versement": {
    "p": "vɛʁsəmɑ̃",
@@ -14393,7 +14667,7 @@
   },
   "virer-de-l-argent-sur-un-compte-epargne": {
    "p": "viʁe də laʁʒɑ̃ syʁ œ̃ kɔ̃t epaʁɲ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "vitrine": {
    "p": "vitʁin",
@@ -14405,7 +14679,7 @@
   },
   "age-adulte": {
    "p": "aʒ adylt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "anniversaire": {
    "p": "anivɛʁsɛʁ",
@@ -14481,11 +14755,11 @@
   },
   "dialogue-interculturel": {
    "p": "djalɔg ɛ̃tɛʁkyltyʁɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "echouer-a-un-examen": {
    "p": "eʃwe a œ̃ ɛgzamɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "eduquer": {
    "p": "edyke",
@@ -14525,11 +14799,11 @@
   },
   "famille-recomposee": {
    "p": "famij ʁøkɔ̃poze",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fetes-de-fin-d-annee": {
    "p": "fɛt də fɛ̃ dane",
-   "m": "compound"
+   "m": "lexdb"
   },
   "filiere": {
    "p": "filjɛʁ",
@@ -14565,11 +14839,11 @@
   },
   "interruption-volontaire-de-grossesse": {
    "p": "ɛ̃tɛʁypsjɔ̃ volɔ̃tɛʁ də gʁosɛs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "issu-de": {
    "p": "isy də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lien": {
    "p": "ljɛ̃",
@@ -14601,11 +14875,11 @@
   },
   "obeir-a": {
    "p": "obeiʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "orientation-professionnelle": {
    "p": "oʁjɑ̃tasjɔ̃ pʁofɛsjonɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "paques": {
    "p": "pak",
@@ -14613,19 +14887,19 @@
   },
   "parent-isole": {
    "p": "paʁɑ̃ izole",
-   "m": "compound"
+   "m": "lexdb"
   },
   "parents-adoptifs": {
    "p": "paʁɑ̃ adɔptif",
-   "m": "compound"
+   "m": "lexdb"
   },
   "parents-biologiques": {
    "p": "paʁɑ̃ bjoloʒik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pension-alimentaire": {
    "p": "pɑ̃sjɔ̃ alimɑ̃tɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "proviseur": {
    "p": "pʁovizœʁ",
@@ -14637,7 +14911,7 @@
   },
   "quatrieme-age": {
    "p": "katʁijɛm aʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "racines": {
    "p": "ʁasin",
@@ -14653,7 +14927,7 @@
   },
   "rompre-avec": {
    "p": "ʁɔ̃pʁ avɛk",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sagesse": {
    "p": "saʒɛs",
@@ -14661,11 +14935,11 @@
   },
   "se-tromper": {
    "p": "sə tʁɔ̃pe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "societe-multiculturelle": {
    "p": "sosjete myltikyltyʁɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "solitude": {
    "p": "solityd",
@@ -14677,7 +14951,7 @@
   },
   "taches-domestiques": {
    "p": "taʃ domɛstik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "talent": {
    "p": "talɑ̃",
@@ -14697,27 +14971,31 @@
   },
   "accoupler-avec": {
    "p": "sakuple avɛk",
-   "m": "compound"
+   "m": "lexdb"
   },
   "accuser-de": {
    "p": "akyze də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "adversaire-acharne": {
    "p": "advɛʁsɛʁ aʃaʁne",
-   "m": "compound"
+   "m": "lexdb"
   },
   "agence-pour-la-protection-de-l-environnement": {
    "p": "aʒɑ̃s puʁ la pʁotɛksjɔ̃ də lɑ̃viʁɔnəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "aneantir-une-espece": {
    "p": "aneɑ̃tiʁ yn ɛspɛs",
+   "m": "lexdb"
+  },
+  "argument-pour-contreelectrique": {
+   "p": "aʁgymɑ̃ puʁ",
    "m": "compound"
   },
   "arreter-l-importation": {
    "p": "aʁete lɛ̃pɔʁtasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "assainissement": {
    "p": "asenisəmɑ̃",
@@ -14725,7 +15003,7 @@
   },
   "bouteille-consignee": {
    "p": "butɛj kɔ̃siɲe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "braconner": {
    "p": "bʁakone",
@@ -14741,15 +15019,15 @@
   },
   "commerce-de-l-ivoire": {
    "p": "komɛʁs də livwaʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "condamner-a-une-amende": {
    "p": "kɔ̃dane a yn amɑ̃d",
-   "m": "compound"
+   "m": "lexdb"
   },
   "consommation-ecologique": {
    "p": "kɔ̃somasjɔ̃ ekoloʒik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "controler": {
    "p": "kɔ̃tʁole",
@@ -14757,7 +15035,7 @@
   },
   "couche-d-ozone": {
    "p": "kuʃ dozon",
-   "m": "compound"
+   "m": "lexdb"
   },
   "decharge": {
    "p": "deʃaʁʒ",
@@ -14765,11 +15043,11 @@
   },
   "dechets-industriels": {
    "p": "deʃɛ ɛ̃dystʁijɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "dechets-radioactifs": {
    "p": "deʃɛ ʁadjoaktif",
-   "m": "compound"
+   "m": "lexdb"
   },
   "defenseur-m": {
    "p": "defɑ̃sœʁ",
@@ -14783,17 +15061,21 @@
    "p": "depɔlysjɔ̃",
    "m": "word"
   },
+  "desertification": {
+   "p": "dezɛʁtifikasjɔ̃",
+   "m": "override"
+  },
   "destruction": {
    "p": "destʁyksjɔ̃",
    "m": "word"
   },
   "deterioration-de-l-environnement": {
    "p": "deteʁjoʁasjɔ̃ də lɑ̃viʁɔnəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "dioxyde-de-carbone": {
    "p": "djɔksid də kaʁbɔn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ecologie": {
    "p": "ekoloʒi",
@@ -14805,27 +15087,27 @@
   },
   "economiser-l-energie": {
    "p": "ekonomize lenɛʁʒi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "effet-de-serre": {
    "p": "efɛ də sɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "elimination-des-dechets": {
    "p": "eliminasjɔ̃ de deʃɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "emanation-de-dioxyde-de-carbone": {
    "p": "emanasjɔ̃ də djɔksid də kaʁbɔn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "emballage-perdu": {
    "p": "ɑ̃balaʒ pɛʁdy",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-danger-d-extinction": {
    "p": "ɑ̃ dɑ̃ʒe dɛkstɛ̃ksjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "enterrer": {
    "p": "ɑ̃teʁe",
@@ -14837,31 +15119,31 @@
   },
   "etre-abonne-a": {
    "p": "ɛtʁ abone a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-conscient-de": {
    "p": "ɛtʁ kɔ̃sjɑ̃ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-consterne-par": {
    "p": "ɛtʁ kɔ̃stɛʁne paʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-menace-de": {
    "p": "ɛtʁ mənase də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-sans-danger-pour-l-environnement": {
    "p": "ɛtʁ sɑ̃ dɑ̃ʒe puʁ lɑ̃viʁɔnəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-soutenu-par": {
    "p": "ɛtʁ sutəny paʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "exiger-des-solutions": {
    "p": "ɛgziʒe de solysjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "expert": {
    "p": "ɛkspɛʁ",
@@ -14869,7 +15151,7 @@
   },
   "faire-campagne-pour": {
    "p": "fɛʁ kɑ̃paɲ puʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faune": {
    "p": "fon",
@@ -14885,23 +15167,23 @@
   },
   "gagner-en-popularite": {
    "p": "gaɲe ɑ̃ popylaʁite",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gardien-charge-de-la-protection-des-animaux": {
    "p": "gaʁdjɛ̃ ʃaʁʒe də la pʁotɛksjɔ̃ de animo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gaz-carbonique": {
    "p": "gaz kaʁbonik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gaz-d-echappement": {
    "p": "gaz deʃapəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "impot-ecologique": {
    "p": "ɛ̃po ekoloʒik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "incinerateur": {
    "p": "ɛ̃sineʁatœʁ",
@@ -14909,7 +15191,7 @@
   },
   "ingenieur-agronome": {
    "p": "ɛ̃ʒenjœʁ agʁonom",
-   "m": "compound"
+   "m": "lexdb"
   },
   "interdire": {
    "p": "ɛ̃tɛʁdiʁ",
@@ -14917,19 +15199,19 @@
   },
   "interdire-la-chasse": {
    "p": "ɛ̃tɛʁdiʁ la ʃas",
-   "m": "compound"
+   "m": "lexdb"
   },
   "interrompre-la-construction-de": {
    "p": "ɛ̃tɛʁɔ̃pʁ la kɔ̃stʁyksjɔ̃ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lancer-une-petition": {
    "p": "lɑ̃se yn petisjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "loi-sur-l-environnement": {
    "p": "lwa syʁ lɑ̃viʁɔnəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "maitriser": {
    "p": "metʁize",
@@ -14937,31 +15219,31 @@
   },
   "maree-noire": {
    "p": "maʁe nwaʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "menacer-la-survie": {
    "p": "mənase la syʁvi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ministere-de-l-environnement": {
    "p": "ministɛʁ də lɑ̃viʁɔnəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mouvement-ecologique": {
    "p": "muvəmɑ̃ ekoloʒik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mouvements-pour-la-protection-des-animaux": {
    "p": "muvəmɑ̃ puʁ la pʁotɛksjɔ̃ de animo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "nappe-de-petrole": {
    "p": "nap də petʁɔl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "nuage-toxique": {
    "p": "nɥaʒ tɔksik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "nuisance": {
    "p": "nɥizɑ̃s",
@@ -14969,15 +15251,15 @@
   },
   "nuisances-sonores": {
    "p": "nɥizɑ̃s sonɔʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "opposer-a": {
    "p": "sopoze a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ordures-menageres": {
    "p": "ɔʁdyʁ menaʒɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "paille": {
    "p": "paj",
@@ -14985,15 +15267,15 @@
   },
   "papier-recycle": {
    "p": "papje ʁəsikle",
-   "m": "compound"
+   "m": "lexdb"
   },
   "parc-naturel": {
    "p": "paʁk natyʁɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "petrole-brut": {
    "p": "petʁɔl bʁyt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "piege": {
    "p": "pjɛʒ",
@@ -15001,15 +15283,15 @@
   },
   "politique-ecologique": {
    "p": "politik ekoloʒik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "protection-de-l-environnement": {
    "p": "pʁotɛksjɔ̃ də lɑ̃viʁɔnəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "protection-de-la-faune": {
    "p": "pʁotɛksjɔ̃ də la fon",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prouver": {
    "p": "pʁuve",
@@ -15033,19 +15315,19 @@
   },
   "remettre-en-liberte": {
    "p": "ʁəmɛtʁ ɑ̃ libɛʁte",
-   "m": "compound"
+   "m": "lexdb"
   },
   "remuer-l-opinion-publique-to-demonstrate-in-favour-of": {
    "p": "ʁəmɥe lopinjɔ̃ pyblik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "manifester-pour": {
    "p": "manifɛste puʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "reparer-les-dommages": {
    "p": "ʁepaʁe le domaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "reutiliser": {
    "p": "ʁeytilize",
@@ -15069,11 +15351,11 @@
   },
   "seuil-de-danger": {
    "p": "sœj də dɑ̃ʒe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "specialiste-de-la-vie-des-animaux-sauvages": {
    "p": "spesjalist də la vi de animo sovaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "stockage": {
    "p": "stokaʒ",
@@ -15081,11 +15363,11 @@
   },
   "subir-des-tests": {
    "p": "sybiʁ de tɛst",
-   "m": "compound"
+   "m": "lexdb"
   },
   "surveiller-la-pollution": {
    "p": "syʁveje la polysjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "terroir": {
    "p": "tɛʁwaʁ",
@@ -15093,23 +15375,23 @@
   },
   "traiter-l-eau": {
    "p": "tʁete lo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "traiter-les-dechets": {
    "p": "tʁete le deʃɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "traquer-une-proie": {
    "p": "tʁake yn pʁwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "trou-dans-la-couche-d-ozone": {
    "p": "tʁu dɑ̃ la kuʃ dozon",
-   "m": "compound"
+   "m": "lexdb"
   },
   "usine-d-incineration": {
    "p": "yzin dɛ̃sineʁasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "zoologiste": {
    "p": "zooloʒist",
@@ -15117,7 +15399,7 @@
   },
   "a-la-pointe-du-progres": {
    "p": "a la pwɛ̃t dy pʁogʁɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "abonne": {
    "p": "abone",
@@ -15125,35 +15407,39 @@
   },
   "acceder-a-l-information": {
    "p": "aksede a lɛ̃fɔʁmasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "acces-a-internet": {
    "p": "aksɛ a ɛ̃tɛʁnɛt",
+   "m": "lexdb"
+  },
+  "accro-a-qe": {
+   "p": "akʁo a kɛlk ʃoz",
    "m": "compound"
   },
   "activite-physique": {
    "p": "aktivite fizik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "adresse-e-mail": {
    "p": "adʁɛs ø mɛjl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "adresser-a": {
    "p": "adʁese a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "agence-de-presse": {
    "p": "aʒɑ̃s də pʁɛs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ami-en-chair-et-en-os": {
    "p": "ami ɑ̃ ʃɛʁ e ɑ̃ ɔs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ami-en-ligne": {
    "p": "ami ɑ̃ liɲ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "analyser": {
    "p": "analize",
@@ -15177,7 +15463,7 @@
   },
   "approche-scientifique": {
    "p": "apʁɔʃ sjɑ̃tifik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "astronomie": {
    "p": "astʁonomi",
@@ -15187,21 +15473,25 @@
    "p": "odimat",
    "m": "word"
   },
+  "augmenter-baisser-le-volume": {
+   "p": "ogmɑ̃te lə volym",
+   "m": "lexdb"
+  },
   "avoir-bonne-presse": {
    "p": "avwaʁ bɔn pʁɛs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "baisser-le-volume": {
    "p": "bese lə volym",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bande-dessinee": {
-   "p": "bɑ̃d desine",
-   "m": "compound"
+   "p": "bɑ̃d dɛsine",
+   "m": "lexdb"
   },
   "banque-de-donnees": {
    "p": "bɑ̃k də done",
-   "m": "compound"
+   "m": "lexdb"
   },
   "biologie": {
    "p": "bjoloʒi",
@@ -15211,13 +15501,17 @@
    "p": "bjoloʒist",
    "m": "word"
   },
+  "blog": {
+   "p": "blɔɡ",
+   "m": "lexdb"
+  },
   "bouc-emissaire": {
    "p": "buk emisɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "brevet-d-invention": {
    "p": "bʁøvɛ dɛ̃vɑ̃sjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cable-m": {
    "p": "kabl",
@@ -15237,7 +15531,7 @@
   },
   "capter-une-chaine": {
    "p": "kapte yn ʃɛn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "caricature": {
    "p": "kaʁikatyʁ",
@@ -15253,15 +15547,15 @@
   },
   "chaine-privee": {
    "p": "ʃɛn pʁive",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chaine-publique": {
    "p": "ʃɛn pyblik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "changer-de-chaine": {
    "p": "ʃɑ̃ʒe də ʃɛn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chapeau": {
    "p": "ʃapo",
@@ -15290,6 +15584,10 @@
   "citer": {
    "p": "site",
    "m": "word"
+  },
+  "cle-usb": {
+   "p": "kle y ɛs be",
+   "m": "compound"
   },
   "clip": {
    "p": "klip",
@@ -15321,7 +15619,7 @@
   },
   "compte-sur-les-reseaux-sociaux": {
    "p": "kɔ̃t syʁ le ʁezo sosjo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "condamnation-f": {
    "p": "kɔ̃danasjɔ̃",
@@ -15329,7 +15627,7 @@
   },
   "conference-de-presse": {
    "p": "kɔ̃feʁɑ̃s də pʁɛs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "connecter": {
    "p": "konɛkte",
@@ -15337,15 +15635,15 @@
   },
   "contraire-a-l-ethique": {
    "p": "kɔ̃tʁɛʁ a letik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "contribuer-a": {
    "p": "kɔ̃tʁibɥe a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "correcteur-orthographique": {
    "p": "koʁɛktœʁ ɔʁtogʁafik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "courriel": {
    "p": "kuʁjɛl",
@@ -15363,6 +15661,10 @@
    "p": "kyʁsœʁ",
    "m": "word"
   },
+  "cyberdependant-e": {
+   "p": "sibɛʁdepɑ̃dɑ̃",
+   "m": "override"
+  },
   "cyberespace": {
    "p": "sibɛʁespas",
    "m": "word"
@@ -15373,7 +15675,7 @@
   },
   "debat-televise": {
    "p": "deba televize",
-   "m": "compound"
+   "m": "lexdb"
   },
   "deception": {
    "p": "desɛpsjɔ̃",
@@ -15429,15 +15731,15 @@
   },
   "diffuser-en-clair": {
    "p": "difyze ɑ̃ klɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "diffuser-en-differe": {
    "p": "difyze ɑ̃ difeʁe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "diffuser-en-direct": {
    "p": "difyze ɑ̃ diʁɛkt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "discours": {
    "p": "diskuʁ",
@@ -15448,8 +15750,8 @@
    "m": "word"
   },
   "disque-dur": {
-   "p": "disk dyʁ",
-   "m": "compound"
+   "p": "diskə dyʁ",
+   "m": "lexdb"
   },
   "domaine": {
    "p": "domɛn",
@@ -15461,11 +15763,11 @@
   },
   "echapper-a": {
    "p": "eʃape a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "economie-et-social": {
    "p": "ekonomi e sosjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ecouter": {
    "p": "ekute",
@@ -15473,7 +15775,7 @@
   },
   "ecouter-la-radio": {
    "p": "ekute la ʁadjo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "editorial-m": {
    "p": "editoʁjal",
@@ -15485,11 +15787,11 @@
   },
   "effets-speciaux": {
    "p": "efɛ spesjo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "emission-en-direct": {
    "p": "emisjɔ̃ ɑ̃ diʁɛkt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "empieter": {
    "p": "ɑ̃pjete",
@@ -15497,7 +15799,7 @@
   },
   "en-direct": {
    "p": "ɑ̃ diʁɛkt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "enqueter": {
    "p": "ɑ̃kete",
@@ -15517,11 +15819,11 @@
   },
   "envoye-special": {
    "p": "ɑ̃vwaje spesjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "envoyer-un-courriel-electronique": {
    "p": "ɑ̃vwaje œ̃ kuʁjɛl elɛktʁonik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "episode": {
    "p": "epizɔd",
@@ -15529,27 +15831,35 @@
   },
   "etre-a-jour": {
    "p": "ɛtʁ a ʒuʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-a-l-antenne": {
    "p": "ɛtʁ a lɑ̃tɛn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-au-courant-de": {
    "p": "ɛtʁ o kuʁɑ̃ də",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "etre-curieux-euse": {
+   "p": "ɛtʁ kyʁjø",
+   "m": "lexdb"
+  },
+  "etre-decu-e": {
+   "p": "ɛtʁ desy",
+   "m": "lexdb"
   },
   "etre-rive-a": {
    "p": "ɛtʁ ʁive a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-une-atteinte-a": {
    "p": "ɛtʁ yn atɛ̃t a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "evader-de": {
    "p": "sevade də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "excuser": {
    "p": "ɛkskyze",
@@ -15557,27 +15867,27 @@
   },
   "faire-confiance-a": {
    "p": "fɛʁ kɔ̃fjɑ̃s a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-des-recherches": {
    "p": "fɛʁ de ʁəʃɛʁʃ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-faire-a": {
    "p": "fɛʁ fɛʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-la-critique": {
    "p": "fɛʁ la kʁitik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-la-une": {
    "p": "fɛʁ la yn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fait-divers": {
    "p": "fɛ divɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faits": {
    "p": "fɛ",
@@ -15585,11 +15895,11 @@
   },
   "fausse-nouvelle": {
    "p": "fos nuvɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "feuille-de-chou": {
    "p": "fœj də ʃu",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fichier": {
    "p": "fiʃje",
@@ -15597,11 +15907,15 @@
   },
   "flash-d-information": {
    "p": "flaʃ dɛ̃fɔʁmasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "flot-d-information": {
    "p": "flo dɛ̃fɔʁmasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "fm-radio": {
+   "p": "ɛf ɛm",
+   "m": "acronym"
   },
   "forum": {
    "p": "foʁɔm",
@@ -15609,7 +15923,7 @@
   },
   "forum-de-discussion": {
    "p": "foʁɔm də diskysjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fusillade": {
    "p": "fyzijad",
@@ -15621,19 +15935,19 @@
   },
   "grand-public": {
    "p": "gʁɑ̃ pyblik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "grands-titres-de-l-actualite": {
    "p": "gʁɑ̃ titʁ də laktɥalite",
-   "m": "compound"
+   "m": "lexdb"
   },
   "grille-des-programmes": {
    "p": "gʁij de pʁogʁam",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gros-titre": {
    "p": "gʁo titʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "hebdomadaire": {
    "p": "ɛbdomadɛʁ",
@@ -15641,11 +15955,11 @@
   },
   "heure-de-grande-ecoute": {
    "p": "œʁ də gʁɑ̃d ekut",
-   "m": "compound"
+   "m": "lexdb"
   },
   "inciter-a-faire": {
    "p": "ɛ̃site a fɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "infographie": {
    "p": "ɛ̃fogʁafi",
@@ -15653,7 +15967,7 @@
   },
   "informer-sur": {
    "p": "ɛ̃fɔʁme syʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "infos": {
    "p": "ɛ̃fo",
@@ -15677,11 +15991,11 @@
   },
   "jeu-televise": {
    "p": "ʒø televize",
-   "m": "compound"
+   "m": "lexdb"
   },
   "jeux-videeo-en-ligne": {
    "p": "ʒø video ɑ̃ liɲ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "jeux": {
    "p": "ʒø",
@@ -15689,23 +16003,23 @@
   },
   "journal-d-information-en-ligne": {
    "p": "ʒuʁnal dɛ̃fɔʁmasjɔ̃ ɑ̃ liɲ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "journal-en-ligne": {
    "p": "ʒuʁnal ɑ̃ liɲ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "journal-intime": {
    "p": "ʒuʁnal ɛ̃tim",
-   "m": "compound"
+   "m": "lexdb"
   },
   "journal-scolaire": {
    "p": "ʒuʁnal skolɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "journal-televise": {
    "p": "ʒuʁnal televize",
-   "m": "compound"
+   "m": "lexdb"
   },
   "laboratoire": {
    "p": "laboʁatwaʁ",
@@ -15729,19 +16043,23 @@
   },
   "liberte-d-information": {
    "p": "libɛʁte dɛ̃fɔʁmasjɔ̃",
+   "m": "lexdb"
+  },
+  "liberte-d-information-de-la-presse": {
+   "p": "libɛʁte dɛ̃fɔʁmasjɔ̃ / də la pʁɛs",
    "m": "compound"
   },
   "liberte-de-l-expression": {
    "p": "libɛʁte də lɛkspʁɛsjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "liberte-de-la-presse": {
    "p": "libɛʁte də la pʁɛs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "livre-electronique": {
    "p": "livʁ elɛktʁonik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "logique-f": {
    "p": "loʒik",
@@ -15749,7 +16067,7 @@
   },
   "longueur-d-onde": {
    "p": "lɔ̃gœʁ dɔ̃d",
-   "m": "compound"
+   "m": "lexdb"
   },
   "manchette": {
    "p": "mɑ̃ʃɛt",
@@ -15761,7 +16079,7 @@
   },
   "marchand-de-journaux": {
    "p": "maʁʃɑ̃ də ʒuʁno",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mathematicien": {
    "p": "matematisjɛ̃",
@@ -15769,7 +16087,7 @@
   },
   "medias-numeriques": {
    "p": "medja nymeʁik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "medias": {
    "p": "medja",
@@ -15781,11 +16099,15 @@
   },
   "ment-r-a": {
    "p": "mɑ̃tiʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mettre-en-forme": {
    "p": "mɛtʁ ɑ̃ fɔʁm",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "mettre-moins-plus-fort": {
+   "p": "mɛtʁ mwɛ̃ fɔʁ",
+   "m": "lexdb"
   },
   "mois": {
    "p": "mwa",
@@ -15797,7 +16119,7 @@
   },
   "mot-de-passe": {
    "p": "mo də pas",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mot-cle": {
    "p": "mokle",
@@ -15805,7 +16127,7 @@
   },
   "moteur-de-recherche": {
    "p": "motœʁ də ʁəʃɛʁʃ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mots-croises": {
    "p": "mokʁwaze",
@@ -15817,19 +16139,27 @@
   },
   "moyen-d-information": {
    "p": "mwajɛ̃ dɛ̃fɔʁmasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "moyen-moyenne": {
+   "p": "mwajɛ̃",
+   "m": "word"
   },
   "navigateur": {
    "p": "navigatœʁ",
    "m": "word"
   },
+  "naviguer-surfer-sur-internet": {
+   "p": "navige syʁ ɛ̃tɛʁnɛt",
+   "m": "lexdb"
+  },
   "nouer-des-amities": {
    "p": "nwe de amitje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "nouvelles-breves": {
    "p": "nuvɛl bʁɛv",
-   "m": "compound"
+   "m": "lexdb"
   },
   "nouvelles": {
    "p": "nuvɛl",
@@ -15841,6 +16171,10 @@
   },
   "on-fait-des-retouches": {
    "p": "ɔ̃ fɛ de ʁətuʃ",
+   "m": "lexdb"
+  },
+  "ondes-courtes-longues": {
+   "p": "ɔ̃d kuʁt / lɔ̃g",
    "m": "compound"
   },
   "ordinateur": {
@@ -15849,11 +16183,11 @@
   },
   "ordinateur-portable": {
    "p": "ɔʁdinatœʁ pɔʁtabl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "organisme-de-recherche": {
    "p": "ɔʁganizm də ʁəʃɛʁʃ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ovni": {
    "p": "ɔvni",
@@ -15861,15 +16195,15 @@
   },
   "page-d-accueil": {
    "p": "paʒ dakœj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "page-de-publicite": {
    "p": "paʒ də pyblisite",
-   "m": "compound"
+   "m": "lexdb"
   },
   "page-web": {
    "p": "paʒ wɛb",
-   "m": "compound"
+   "m": "lexdb"
   },
   "parabole": {
    "p": "paʁabɔl",
@@ -15881,19 +16215,19 @@
   },
   "petit-ecran": {
    "p": "pəti ekʁɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "petite-annonce": {
    "p": "pətit anɔ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "petites-annonces": {
    "p": "pətit anɔ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "peu-pratique": {
    "p": "pø pʁatik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "philosophie": {
    "p": "filozofi",
@@ -15913,7 +16247,7 @@
   },
   "plage-de-pub": {
    "p": "plaʒ də pœb",
-   "m": "compound"
+   "m": "lexdb"
   },
   "portable-m": {
    "p": "pɔʁtabl",
@@ -15925,39 +16259,39 @@
   },
   "premiere-page": {
    "p": "pʁømjɛʁ paʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "presse-a-scandale": {
    "p": "pʁɛs a skɑ̃dal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "presse-a-sensation": {
    "p": "pʁɛs a sɑ̃sasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "presse-feminine": {
    "p": "pʁɛs feminin",
-   "m": "compound"
+   "m": "lexdb"
   },
   "presse-hebdomadaire": {
    "p": "pʁɛs ɛbdomadɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "presse-mensuelle": {
    "p": "pʁɛs mɑ̃sɥɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "presse-nationale": {
    "p": "pʁɛs nasjonal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "presse-regionale": {
    "p": "pʁɛs ʁeʒjonal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "presse-specialisee": {
    "p": "pʁɛs spesjalize",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pressentir": {
    "p": "pʁesɑ̃tiʁ",
@@ -15965,7 +16299,7 @@
   },
   "prise-de-conscience": {
    "p": "pʁiz də kɔ̃sjɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "production": {
    "p": "pʁodyksjɔ̃",
@@ -15977,11 +16311,11 @@
   },
   "public-cible": {
    "p": "pyblik sibl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "puce-electronique": {
    "p": "pys elɛktʁonik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "punir": {
    "p": "pyniʁ",
@@ -15993,7 +16327,7 @@
   },
   "question-d-actualite": {
    "p": "kɛstjɔ̃ daktɥalite",
-   "m": "compound"
+   "m": "lexdb"
   },
   "quotidien-m": {
    "p": "kotidjɛ̃",
@@ -16002,6 +16336,10 @@
   "realisation": {
    "p": "ʁealizasjɔ̃",
    "m": "word"
+  },
+  "reality-show": {
+   "p": "ʁialiti ʃo",
+   "m": "override"
   },
   "reapparaitre": {
    "p": "ʁeapaʁɛtʁ",
@@ -16013,7 +16351,7 @@
   },
   "redacteur-en-chef": {
    "p": "ʁedaktœʁ ɑ̃ ʃɛf",
-   "m": "compound"
+   "m": "lexdb"
   },
   "redaction": {
    "p": "ʁedaksjɔ̃",
@@ -16021,7 +16359,7 @@
   },
   "redevance-audiovisuelle": {
    "p": "ʁədəvɑ̃s odjovizyɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "rediffusion": {
    "p": "ʁədifyzjɔ̃",
@@ -16033,10 +16371,14 @@
   },
   "regarder-la-tele": {
    "p": "ʁəgaʁde la tele",
-   "m": "compound"
+   "m": "lexdb"
   },
   "remise-en-question": {
    "p": "ʁəmiz ɑ̃ kɛstjɔ̃",
+   "m": "lexdb"
+  },
+  "rendre-garder-l-antenne": {
+   "p": "ʁɑ̃dʁ / gaʁde lɑ̃tɛn",
    "m": "compound"
   },
   "repandre": {
@@ -16045,15 +16387,15 @@
   },
   "reseau-sans-fil": {
    "p": "ʁezo sɑ̃ fil",
-   "m": "compound"
+   "m": "lexdb"
   },
   "reseau-social": {
    "p": "ʁezo sosjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "reseaux-sociaux": {
    "p": "ʁezo sosjo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "retroprojecteur": {
    "p": "ʁetʁopʁoʒɛktœʁ",
@@ -16061,35 +16403,35 @@
   },
   "revue-pour-des-jeunes": {
    "p": "ʁəvy puʁ de ʒœn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "risque-d-addiction": {
    "p": "ʁisk dadiksjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "risque-de-desinformation": {
    "p": "ʁisk də dezɛ̃fɔʁmasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "rive-a-son-ecran": {
    "p": "ʁive a sɔ̃ ekʁɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "rubrique-des-chiens-ecrases": {
    "p": "ʁybʁik de ʃjɛ̃ ekʁaze",
-   "m": "compound"
+   "m": "lexdb"
   },
   "rubrique-sportive": {
    "p": "ʁybʁik spɔʁtiv",
-   "m": "compound"
+   "m": "lexdb"
   },
   "s-abonner-a": {
    "p": "sabone a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sans-fil": {
    "p": "sɑ̃ fil",
-   "m": "compound"
+   "m": "lexdb"
   },
   "savant": {
    "p": "savɑ̃",
@@ -16101,7 +16443,7 @@
   },
   "sciences-de-la-terre": {
    "p": "sjɑ̃s də la tɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "scientifique": {
    "p": "sjɑ̃tifik",
@@ -16113,7 +16455,7 @@
   },
   "selon-moi": {
    "p": "səlɔ̃ mwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sensibiliser": {
    "p": "sɑ̃sibilize",
@@ -16121,19 +16463,27 @@
   },
   "serie-tele": {
    "p": "seʁi tele",
-   "m": "compound"
+   "m": "lexdb"
   },
   "service-de-depannage": {
    "p": "sɛʁvis də depanaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "service-public": {
    "p": "sɛʁvis pyblik",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "site-internet-web": {
+   "p": "sit ɛ̃tɛʁnɛt",
+   "m": "lexdb"
+  },
+  "site-participatif": {
+   "p": "sit paʁtisipatif",
+   "m": "override"
   },
   "site-personnel": {
    "p": "sit pɛʁsonɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "social-m": {
    "p": "sosjal",
@@ -16145,7 +16495,7 @@
   },
   "sources-d-information": {
    "p": "suʁs dɛ̃fɔʁmasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "souris": {
    "p": "suʁi",
@@ -16169,7 +16519,7 @@
   },
   "sur-internet": {
    "p": "syʁ ɛ̃tɛʁnɛt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "surfer": {
    "p": "sœʁfe",
@@ -16189,7 +16539,7 @@
   },
   "techniques-de-l-information": {
    "p": "tɛknik də lɛ̃fɔʁmasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "technologie": {
    "p": "tɛknoloʒi",
@@ -16197,7 +16547,7 @@
   },
   "tele-realite": {
    "p": "tele ʁealite",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tele": {
    "p": "tele",
@@ -16229,11 +16579,15 @@
   },
   "tirer-a": {
    "p": "tiʁe a",
+   "m": "lexdb"
+  },
+  "titre-les-gros-titres": {
+   "p": "titʁ / le gʁo titʁ",
    "m": "compound"
   },
   "tomber-en-panne": {
    "p": "tɔ̃be ɑ̃ pan",
-   "m": "compound"
+   "m": "lexdb"
   },
   "traduire": {
    "p": "tʁadɥiʁ",
@@ -16253,7 +16607,7 @@
   },
   "vendeur-de-journaux": {
    "p": "vɑ̃dœʁ də ʒuʁno",
-   "m": "compound"
+   "m": "lexdb"
   },
   "veridique": {
    "p": "veʁidik",
@@ -16265,7 +16619,7 @@
   },
   "transports-en-commun": {
    "p": "tʁɑ̃spɔʁ ɑ̃ komœ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "accelerateur": {
    "p": "akseleʁatœʁ",
@@ -16277,7 +16631,7 @@
   },
   "agence-de-voyages": {
    "p": "aʒɑ̃s də vwajaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "aire": {
    "p": "ɛʁ",
@@ -16285,11 +16639,11 @@
   },
   "aller-et-retour": {
    "p": "ale e ʁətuʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "aller-simple": {
    "p": "ale sɛ̃pl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "amende": {
    "p": "amɑ̃d",
@@ -16306,6 +16660,10 @@
   "atterr-r": {
    "p": "ateʁiʁ",
    "m": "word"
+  },
+  "autopartage": {
+   "p": "otopaʁtaʒ",
+   "m": "override"
   },
   "autoroute": {
    "p": "otoʁut",
@@ -16397,7 +16755,7 @@
   },
   "distributeur-de-tickets": {
    "p": "distʁibytœʁ də tikɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ecraser": {
    "p": "ekʁaze",
@@ -16429,7 +16787,7 @@
   },
   "faire-le-plein": {
    "p": "fɛʁ lə plɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ferry": {
    "p": "fɛʁi",
@@ -16437,7 +16795,7 @@
   },
   "feu-rouge": {
    "p": "fø ʁuʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "freiner": {
    "p": "fʁene",
@@ -16449,6 +16807,10 @@
   },
   "gare-routiere": {
    "p": "gaʁ ʁutjɛʁ",
+   "m": "lexdb"
+  },
+  "garer-se-garer": {
+   "p": "gaʁe gaʁe",
    "m": "compound"
   },
   "horaire": {
@@ -16477,7 +16839,7 @@
   },
   "permis-de-conduire": {
    "p": "pɛʁmi də kɔ̃dɥiʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "phare": {
    "p": "faʁ",
@@ -16489,7 +16851,7 @@
   },
   "poids-lourd": {
    "p": "pwa luʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "port": {
    "p": "pɔʁ",
@@ -16525,7 +16887,7 @@
   },
   "se-deplacer": {
    "p": "sə deplase",
-   "m": "compound"
+   "m": "lexdb"
   },
   "souven-r-m": {
    "p": "suvəniʁ",
@@ -16541,6 +16903,10 @@
   },
   "titre-de-transport": {
    "p": "titʁ də tʁɑ̃spɔʁ",
+   "m": "lexdb"
+  },
+  "transports-collectifs-transports-en-commun": {
+   "p": "tʁɑ̃spɔʁ kolɛktif ɑ̃ komœ̃",
    "m": "compound"
   },
   "usager-m": {
@@ -16563,6 +16929,10 @@
    "p": "vwajaʒœʁ",
    "m": "word"
   },
+  "vtt": {
+   "p": "ve te te",
+   "m": "acronym"
+  },
   "wagon": {
    "p": "vagɔ̃",
    "m": "word"
@@ -16573,15 +16943,15 @@
   },
   "a-l-etranger": {
    "p": "a letʁɑ̃ʒe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-pied": {
    "p": "a pje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "adaptateur-pour-prise-electrique": {
    "p": "adaptatœʁ puʁ pʁiz elɛktʁik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "addition-f": {
    "p": "adisjɔ̃",
@@ -16589,19 +16959,23 @@
   },
   "agence-de-voyage-f": {
    "p": "aʒɑ̃s də vwajaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "agent-de-voyages": {
    "p": "aʒɑ̃ də vwajaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "agent-des-douanes": {
    "p": "aʒɑ̃ de dwan",
+   "m": "lexdb"
+  },
+  "aller-recuperer-quelqu-un-quelque-part": {
+   "p": "ale ʁekypeʁe kɛlkœ̃ kɛlk paʁ",
    "m": "compound"
   },
   "aller-retour": {
    "p": "ale ʁətuʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "annuler": {
    "p": "anyle",
@@ -16609,7 +16983,7 @@
   },
   "annuler-une-reservation": {
    "p": "anyle yn ʁezɛʁvasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "anti-moustiques": {
    "p": "ɑ̃timustik",
@@ -16621,27 +16995,35 @@
   },
   "assurance-voyage": {
    "p": "asyʁɑ̃s vwajaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "auberge-de-jeunesse": {
    "p": "obɛʁʒ də ʒœnɛs",
+   "m": "lexdb"
+  },
+  "autochtone-un-habitant": {
+   "p": "otoktɔn / œ̃ abitɑ̃",
    "m": "compound"
   },
   "avoir-le-mal-de-mer": {
    "p": "avwaʁ lə mal də mɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bateau-de-croisiere": {
    "p": "bato də kʁwazjɛʁ",
+   "m": "lexdb"
+  },
+  "billet-un-ticket": {
+   "p": "bijɛ / œ̃ tikɛ",
    "m": "compound"
   },
   "bloc-note": {
    "p": "blɔk nɔt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bord-de-mer": {
    "p": "bɔʁ də mɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "boussole": {
    "p": "busɔl",
@@ -16653,7 +17035,7 @@
   },
   "bureau-d-information": {
    "p": "byʁo dɛ̃fɔʁmasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cadeau": {
    "p": "kado",
@@ -16663,29 +17045,33 @@
    "p": "kɑ̃piŋ",
    "m": "word"
   },
+  "carnet-journal-de-voyage": {
+   "p": "kaʁnɛ də vwajaʒ",
+   "m": "lexdb"
+  },
   "carte-postale": {
    "p": "kaʁt pɔstal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "carte-telephonique": {
    "p": "kaʁt telefonik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chambre-a-deux-lits-separes": {
    "p": "ʃɑ̃bʁ a dø li sepaʁe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chambre-d-hotes": {
    "p": "ʃɑ̃bʁ dot",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chambre-double": {
    "p": "ʃɑ̃bʁ dubl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chambre-simple": {
    "p": "ʃɑ̃bʁ sɛ̃pl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "circuit": {
    "p": "siʁkɥi",
@@ -16697,11 +17083,11 @@
   },
   "coffre-fort": {
    "p": "kɔfʁ fɔʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "compagnie-aerienne": {
    "p": "kɔ̃paɲi aeʁjɛn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "confirmer": {
    "p": "kɔ̃fiʁme",
@@ -16709,11 +17095,11 @@
   },
   "consigne-a-bagage": {
    "p": "kɔ̃siɲ a bagaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "controle-des-passeports": {
    "p": "kɔ̃tʁol de paspɔʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "controleur": {
    "p": "kɔ̃tʁolœʁ",
@@ -16721,27 +17107,31 @@
   },
   "coucher-de-soleil": {
    "p": "kuʃe də solɛj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "creme-solaire": {
    "p": "kʁɛm solɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cuisine-locale": {
    "p": "kɥizin lokal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "decalage-horaire": {
    "p": "dekalaʒ oʁɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "dependre-du-tourisme": {
    "p": "depɑ̃dʁ dy tuʁizm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "depliant": {
    "p": "deplijɑ̃",
    "m": "word"
+  },
+  "deposer-quelqu-un": {
+   "p": "depoze kɛlkœ̃",
+   "m": "compound"
   },
   "destination": {
    "p": "destinasjɔ̃",
@@ -16749,7 +17139,7 @@
   },
   "documents-de-voyage": {
    "p": "dokymɑ̃ də vwajaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "douane": {
    "p": "dwan",
@@ -16765,35 +17155,39 @@
   },
   "en-avion": {
    "p": "ɑ̃ avjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-bateau": {
    "p": "ɑ̃ bato",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "en-bus-autobus": {
+   "p": "ɑ̃ bys",
+   "m": "lexdb"
   },
   "en-ferry": {
    "p": "ɑ̃ fɛʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-moto": {
    "p": "ɑ̃ moto",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-train": {
    "p": "ɑ̃ tʁɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-velo": {
    "p": "ɑ̃ velo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-voiture": {
    "p": "ɑ̃ vwatyʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "endroit-a-visiter": {
    "p": "ɑ̃dʁwa a vizite",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etranger-m": {
    "p": "etʁɑ̃ʒe",
@@ -16801,55 +17195,55 @@
   },
   "etre-assure": {
    "p": "ɛtʁ asyʁe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-en-vacances": {
    "p": "ɛtʁ ɑ̃ vakɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "explorer-les-environs": {
    "p": "ɛksploʁe le ɑ̃viʁɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-de-l-auto-stop-loc": {
    "p": "fɛʁ də loto stɔp",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-de-l-escalade": {
    "p": "fɛʁ də lɛskalad",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-de-la-plongee": {
    "p": "fɛʁ də la plɔ̃ʒe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-du-camping": {
    "p": "fɛʁ dy kɑ̃piŋ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-du-kayak": {
    "p": "fɛʁ dy kajak",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-du-tourisme": {
    "p": "fɛʁ dy tuʁizm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-du-trek": {
    "p": "fɛʁ dy tʁɛk",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-escale": {
    "p": "fɛʁ ɛskal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-un-safari": {
    "p": "fɛʁ œ̃ safaʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-un-voyage-organise": {
    "p": "fɛʁ œ̃ vwajaʒ ɔʁganize",
-   "m": "compound"
+   "m": "lexdb"
   },
   "frontiere": {
    "p": "fʁɔ̃tjɛʁ",
@@ -16857,19 +17251,19 @@
   },
   "fuseau-horaire": {
    "p": "fyzo oʁɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gouter-la-cuisine-locale": {
    "p": "gute la kɥizin lokal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "guide-de-conversation": {
    "p": "gid də kɔ̃vɛʁsasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "guide-de-voyage": {
    "p": "gid də vwajaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "handicape-m": {
    "p": "ɑ̃dikape",
@@ -16881,14 +17275,18 @@
   },
   "jour-ferie": {
    "p": "ʒuʁ feʁje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lampe-de-poche": {
    "p": "lɑ̃p də pɔʃ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lever-de-soleil": {
    "p": "ləve də solɛj",
+   "m": "lexdb"
+  },
+  "libre-disponible": {
+   "p": "libʁ / disponibl",
    "m": "compound"
   },
   "louer": {
@@ -16897,27 +17295,31 @@
   },
   "maison-de-campagne": {
    "p": "mɛzɔ̃ də kɑ̃paɲ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "manuel-de-conversation": {
    "p": "manɥɛl də kɔ̃vɛʁsasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "monnaie": {
    "p": "monɛ",
    "m": "word"
   },
+  "monnaie-devise": {
+   "p": "monɛ / dəviz",
+   "m": "compound"
+  },
   "monter-a-bord": {
    "p": "mɔ̃te a bɔʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "numero-de-wagon": {
    "p": "nymeʁo də vagɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "office-du-tourisme": {
    "p": "ofis dy tuʁizm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "oreiller": {
    "p": "oʁeje",
@@ -16925,27 +17327,27 @@
   },
   "parc-d-attractions": {
    "p": "paʁk datʁaksjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "partir-en-vacances": {
    "p": "paʁtiʁ ɑ̃ vakɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "partir-en-voyage": {
    "p": "paʁtiʁ ɑ̃ vwajaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "partir-en-voyage-organise": {
    "p": "paʁtiʁ ɑ̃ vwajaʒ ɔʁganize",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pays-etranger": {
    "p": "pei etʁɑ̃ʒe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "piege-a-touriste": {
    "p": "pjɛʒ a tuʁist",
-   "m": "compound"
+   "m": "lexdb"
   },
   "piscine": {
    "p": "pisin",
@@ -16953,15 +17355,15 @@
   },
   "planter-une-tente": {
    "p": "plɑ̃te yn tɑ̃t",
-   "m": "compound"
+   "m": "lexdb"
   },
   "plongee-avec-tuba": {
    "p": "plɔ̃ʒe avɛk tyba",
-   "m": "compound"
+   "m": "lexdb"
   },
   "plongee-sous-marine": {
    "p": "plɔ̃ʒe su maʁin",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pourboire": {
    "p": "puʁbwaʁ",
@@ -16969,35 +17371,47 @@
   },
   "premiere-classe": {
    "p": "pʁømjɛʁ klas",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prendre-des-coups-de-soleil": {
    "p": "pʁɑ̃dʁ de ku də solɛj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prendre-des-photos": {
    "p": "pʁɑ̃dʁ de foto",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prise-electrique": {
    "p": "pʁiz elɛktʁik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prix-forfaitaire": {
    "p": "pʁi fɔʁfɛtɛʁ",
+   "m": "lexdb"
+  },
+  "prix-raisonnable-exorbitant": {
+   "p": "pʁi ʁɛzonabl / ɛgzɔʁbitɑ̃",
    "m": "compound"
+  },
+  "projeter-prendre-des-vacances": {
+   "p": "pʁoʒəte de vakɑ̃s",
+   "m": "lexdb"
   },
   "receptionniste": {
    "p": "ʁesɛpsjonist",
    "m": "word"
   },
+  "reclamation-plainte": {
+   "p": "ʁeklamasjɔ̃",
+   "m": "word"
+  },
   "regler-la-note": {
    "p": "ʁegle la nɔt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "regler-la-note-d-hotel": {
    "p": "ʁegle la nɔt dotɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "relaxer": {
    "p": "ʁəlakse",
@@ -17005,10 +17419,14 @@
   },
   "rendre-un-bain-de-soleil": {
    "p": "pʁɑ̃dʁ œ̃ bɛ̃ də solɛj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "reservation-directe": {
    "p": "ʁezɛʁvasjɔ̃ diʁɛkt",
+   "m": "lexdb"
+  },
+  "s-enregistrer-faire-l-enregistrement": {
+   "p": "sɑ̃ʁəʒistʁe lɑ̃ʁəʒistʁəmɑ̃",
    "m": "compound"
   },
   "sac": {
@@ -17017,79 +17435,99 @@
   },
   "sac-a-dos": {
    "p": "sak a do",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sac-a-main": {
    "p": "sak a mɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sac-de-couchage": {
    "p": "sak də kuʃaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sac-de-voyage": {
    "p": "sak də vwajaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "saison-basse": {
    "p": "sɛzɔ̃ bas",
-   "m": "compound"
+   "m": "lexdb"
   },
   "saison-haute": {
    "p": "sɛzɔ̃ ot",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "saison-haute-basse": {
+   "p": "sɛzɔ̃ ot",
+   "m": "lexdb"
   },
   "saison-touristique": {
    "p": "sɛzɔ̃ tuʁistik",
+   "m": "lexdb"
+  },
+  "siege-une-place": {
+   "p": "sjɛʒ / yn plas",
    "m": "compound"
+  },
+  "site-attraction-touristique": {
+   "p": "sit tuʁistik",
+   "m": "lexdb"
   },
   "sortir-des-sentiers-battus": {
    "p": "sɔʁtiʁ de sɑ̃tje baty",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sortir-le-soir": {
    "p": "sɔʁtiʁ lə swaʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "souffrir-du-decalage-horaire": {
    "p": "sufʁiʁ dy dekalaʒ oʁɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "soute-a-bagages": {
    "p": "sut a bagaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "station-balneaire": {
    "p": "stasjɔ̃ balneɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "station-de-vacances": {
    "p": "stasjɔ̃ də vakɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "suivre-le-circuit-touristique": {
    "p": "sɥivʁ lə siʁkɥi tuʁistik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sur-reservation": {
    "p": "syʁ ʁezɛʁvasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "terrain-de-camping": {
    "p": "tɛʁɛ̃ də kɑ̃piŋ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tourisme-de-masse": {
    "p": "tuʁizm də mas",
-   "m": "compound"
+   "m": "lexdb"
   },
   "touriste": {
    "p": "tuʁist",
    "m": "word"
   },
+  "tout-inclus-tout-compris": {
+   "p": "tu ɛ̃kly / tu kɔ̃pʁi",
+   "m": "compound"
+  },
   "trousse-de-premiers-secours": {
    "p": "tʁus də pʁømje səkuʁ",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "tva": {
+   "p": "te ve a",
+   "m": "acronym"
   },
   "valise-f": {
    "p": "valiz",
@@ -17101,15 +17539,15 @@
   },
   "voyage-d-affaires": {
    "p": "vwajaʒ dafɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "voyage-d-une-journee": {
    "p": "vwajaʒ dyn ʒuʁne",
-   "m": "compound"
+   "m": "lexdb"
   },
   "voyage-organise": {
    "p": "vwajaʒ ɔʁganize",
-   "m": "compound"
+   "m": "lexdb"
   },
   "associer": {
    "p": "asosje",
@@ -17141,7 +17579,7 @@
   },
   "compte-rendu": {
    "p": "kɔ̃t ʁɑ̃dy",
-   "m": "compound"
+   "m": "lexdb"
   },
   "contredire": {
    "p": "kɔ̃tʁədiʁ",
@@ -17172,8 +17610,8 @@
    "m": "word"
   },
   "developpement-durable": {
-   "p": "devəlɔpəmɑ̃ dyʁabl",
-   "m": "compound"
+   "p": "devəlɔpmɑ̃ dyʁabl",
+   "m": "lexdb"
   },
   "dictateur": {
    "p": "diktatœʁ",
@@ -17197,19 +17635,23 @@
   },
   "etat-d-esprit": {
    "p": "eta dɛspʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-ancre-dans": {
    "p": "ɛtʁ ɑ̃kʁe dɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-confronte": {
    "p": "ɛtʁ kɔ̃fʁɔ̃te",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fiscalite": {
    "p": "fiskalite",
    "m": "word"
+  },
+  "fmi": {
+   "p": "ɛf ɛm i",
+   "m": "acronym"
   },
   "gauche-f": {
    "p": "goʃ",
@@ -17217,7 +17659,7 @@
   },
   "hotel-de-ville": {
    "p": "otɛl də vil",
-   "m": "compound"
+   "m": "lexdb"
   },
   "independant": {
    "p": "ɛ̃depɑ̃dɑ̃",
@@ -17253,7 +17695,11 @@
   },
   "mettre-en-scene": {
    "p": "mɛtʁ ɑ̃ sɛn",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "microeconomie": {
+   "p": "mikʁoekɔnɔmi",
+   "m": "override"
   },
   "monopole": {
    "p": "monopɔl",
@@ -17285,11 +17731,11 @@
   },
   "porter-son-attention": {
    "p": "poʁte sɔ̃ atɑ̃sjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prendre-conscience": {
    "p": "pʁɑ̃dʁ kɔ̃sjɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "preoccupation": {
    "p": "pʁeokypasjɔ̃",
@@ -17297,10 +17743,6 @@
   },
   "productivite": {
    "p": "pʁodyktivite",
-   "m": "word"
-  },
-  "prospere-v": {
-   "p": "pʁɔspɛʁ",
    "m": "word"
   },
   "protectionnisme": {
@@ -17325,7 +17767,7 @@
   },
   "relever-un-defi": {
    "p": "ʁələve œ̃ defi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "rendement": {
    "p": "ʁɑ̃dəmɑ̃",
@@ -17333,7 +17775,7 @@
   },
   "secteur-tertiaire": {
    "p": "sektœʁ tɛʁsjɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sous-developpement": {
    "p": "sudevəlɔpəmɑ̃",
@@ -17361,6 +17803,10 @@
   },
   "a-long-terme": {
    "p": "a lɔ̃ tɛʁm",
+   "m": "lexdb"
+  },
+  "aboutir-a-qo": {
+   "p": "abutiʁ a kɛlk ʃoz",
    "m": "compound"
   },
   "acquerir": {
@@ -17369,19 +17815,19 @@
   },
   "adherer-a": {
    "p": "adeʁe a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "agence-publicitaire": {
    "p": "aʒɑ̃s pyblisitɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "allocation-chomage": {
    "p": "alokasjɔ̃ ʃomaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "allocations-familiales-f": {
    "p": "alokasjɔ̃ familjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "allumer": {
    "p": "alyme",
@@ -17405,35 +17851,35 @@
   },
   "appartenir-a": {
    "p": "apaʁtəniʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "arret-maladie": {
    "p": "aʁɛ maladi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "assemblee-nationale": {
    "p": "asɑ̃ble nasjonal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "assistance-sociale": {
    "p": "asistɑ̃s sosjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "associer-a": {
    "p": "asosje a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "assurance-vieillesse": {
    "p": "asyʁɑ̃s vjɛjɛs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "au-cours-de": {
    "p": "o kuʁ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "augmentation-de-salaire-f": {
    "p": "ogmɑ̃tasjɔ̃ də salɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "autorite-f": {
    "p": "otoʁite",
@@ -17441,11 +17887,11 @@
   },
   "avantages-sociaux": {
    "p": "avɑ̃taʒ sosjo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-confiance-en": {
    "p": "avwaʁ kɔ̃fjɑ̃s ɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bagages-m": {
    "p": "bagaʒ",
@@ -17453,11 +17899,11 @@
   },
   "beneficier-de": {
    "p": "benefisje də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ceder-a": {
    "p": "sede a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "combattre": {
    "p": "kɔ̃batʁ",
@@ -17465,23 +17911,27 @@
   },
   "conditions-de-travail": {
    "p": "kɔ̃disjɔ̃ də tʁavaj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "conditions-de-vie": {
    "p": "kɔ̃disjɔ̃ də vi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "confier-a": {
    "p": "kɔ̃fje a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "configurer": {
    "p": "kɔ̃figyʁe",
    "m": "word"
   },
+  "confondre-avec": {
+   "p": "kɔ̃fɔ̃dʁ / avɛk",
+   "m": "compound"
+  },
   "conges-payes-m": {
    "p": "kɔ̃ʒe peje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "conquerir": {
    "p": "kɔ̃keʁiʁ",
@@ -17489,7 +17939,7 @@
   },
   "consentir-a": {
    "p": "kɔ̃sɑ̃tiʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "considerer": {
    "p": "kɔ̃sideʁe",
@@ -17501,11 +17951,11 @@
   },
   "convaincre-de": {
    "p": "kɔ̃vɛ̃kʁ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "correspondre-a": {
    "p": "koʁɛspɔ̃dʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cotiser-v": {
    "p": "kotize",
@@ -17535,6 +17985,10 @@
    "p": "dedeɲe",
    "m": "word"
   },
+  "deduire-qe-de": {
+   "p": "dedɥiʁ kɛlk ʃoz də",
+   "m": "compound"
+  },
   "defendre": {
    "p": "defɑ̃dʁ",
    "m": "word"
@@ -17542,6 +17996,10 @@
   "defier": {
    "p": "defje",
    "m": "word"
+  },
+  "degager-qe-de": {
+   "p": "degaʒe kɛlk ʃoz də",
+   "m": "compound"
   },
   "dementir": {
    "p": "demɑ̃tiʁ",
@@ -17561,19 +18019,19 @@
   },
   "disposer-de": {
    "p": "dispoze də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "droits-de-l-homme": {
    "p": "dʁwa də lɔm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "eau-douce": {
    "p": "o dus",
-   "m": "compound"
+   "m": "lexdb"
   },
   "eau-salee": {
    "p": "o sale",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ecart": {
    "p": "ekaʁ",
@@ -17589,15 +18047,23 @@
   },
   "economie-de-marche": {
    "p": "ekonomi də maʁʃe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "education-civique": {
    "p": "edykasjɔ̃ sivik",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "effacer-supprimer": {
+   "p": "efase",
+   "m": "word"
+  },
+  "effluents": {
+   "p": "eflɥɑ̃",
+   "m": "override"
   },
   "elever-a": {
    "p": "ɛləve a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "emerger": {
    "p": "emɛʁʒe",
@@ -17605,51 +18071,59 @@
   },
   "emissions-nocives": {
    "p": "emisjɔ̃ nosiv",
-   "m": "compound"
+   "m": "lexdb"
   },
   "emploi-a-plein-temps": {
    "p": "ɑ̃plwa a plɛ̃ tɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "emploi-a-temps-partiel": {
    "p": "ɑ̃plwa a tɑ̃ paʁsjɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "emploi-saisonnier": {
    "p": "ɑ̃plwa sɛzonje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "emploi-a-mi-temps": {
    "p": "ɑ̃plwa a mi tɑ̃",
+   "m": "lexdb"
+  },
+  "employe-employee": {
+   "p": "ɑ̃plwaje / ɑ̃plwaje",
    "m": "compound"
   },
   "emprunter-de-l-argent-a": {
    "p": "ɑ̃pʁœ̃te də laʁʒɑ̃ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-ligne": {
    "p": "ɑ̃ liɲ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-panne": {
    "p": "ɑ̃ pan",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-permanence": {
    "p": "ɑ̃ pɛʁmanɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "energie-eolienne": {
    "p": "enɛʁʒi eoljɛn",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "energie-epuisable": {
+   "p": "enɛʁʒi epɥizabl",
+   "m": "override"
   },
   "energie-renouvelable": {
    "p": "enɛʁʒi ʁənuvəlabl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "energie-solaire": {
    "p": "enɛʁʒi solɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "enjeu": {
    "p": "ɑ̃ʒø",
@@ -17657,7 +18131,7 @@
   },
   "epanouissement-personnel": {
    "p": "epanwisəmɑ̃ pɛʁsonɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "epoux-m": {
    "p": "epu",
@@ -17665,15 +18139,15 @@
   },
   "espace-public": {
    "p": "ɛspas pyblik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "espece-en-voie-d-extinction": {
    "p": "ɛspɛs ɑ̃ vwa dɛkstɛ̃ksjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "espece-protegee": {
    "p": "ɛspɛs pʁoteʒe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "eteindre": {
    "p": "etɛ̃dʁ",
@@ -17681,7 +18155,7 @@
   },
   "etre-concerne": {
    "p": "ɛtʁ kɔ̃sɛʁne",
-   "m": "compound"
+   "m": "lexdb"
   },
   "exclure": {
    "p": "ɛksklyʁ",
@@ -17689,11 +18163,11 @@
   },
   "exercer-un-metier": {
    "p": "ɛgzɛʁse œ̃ metje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fabrication-en-masse": {
    "p": "fabʁikasjɔ̃ ɑ̃ mas",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faiblir": {
    "p": "febliʁ",
@@ -17705,7 +18179,7 @@
   },
   "gagner-de-l-argent": {
    "p": "gaɲe də laʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gasp-ller": {
    "p": "gaspije",
@@ -17721,7 +18195,7 @@
   },
   "guerir-de": {
    "p": "geʁiʁ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "harceler": {
    "p": "aʁsəle",
@@ -17729,19 +18203,19 @@
   },
   "heriter-de": {
    "p": "eʁite də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "heures-supplementaires-f": {
    "p": "œʁ syplemɑ̃tɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "homme-d-affaires": {
    "p": "ɔm dafɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "hors-connexion": {
    "p": "ɔʁ konɛksjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "humidite": {
    "p": "ymidite",
@@ -17765,7 +18239,11 @@
   },
   "impot-sur-le-revenu": {
    "p": "ɛ̃po syʁ lə ʁəvəny",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "incivilite": {
+   "p": "ɛ̃sivilite",
+   "m": "override"
   },
   "inclure": {
    "p": "ɛ̃klyʁ",
@@ -17773,7 +18251,7 @@
   },
   "indemnite-maladie": {
    "p": "ɛ̃dɛmnite maladi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "inquieter": {
    "p": "ɛ̃kjete",
@@ -17797,18 +18275,18 @@
   },
   "liberer-de": {
    "p": "libeʁe də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lier-a": {
    "p": "lje a",
-   "m": "compound"
-  },
-  "maire-v": {
-   "p": "mɛʁ",
-   "m": "word"
+   "m": "lexdb"
   },
   "manier": {
    "p": "manje",
+   "m": "word"
+  },
+  "marcher-fonctionner": {
+   "p": "maʁʃe",
    "m": "word"
   },
   "memoriser": {
@@ -17821,11 +18299,15 @@
   },
   "menacer-de": {
    "p": "mənase də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mepriser": {
    "p": "mepʁize",
    "m": "word"
+  },
+  "mettre-qe-en-scene": {
+   "p": "mɛtʁ kɛlk ʃoz ɑ̃ sɛn",
+   "m": "compound"
   },
   "migrer": {
    "p": "migʁe",
@@ -17835,9 +18317,13 @@
    "p": "negliʒe",
    "m": "word"
   },
+  "non-epuisable": {
+   "p": "nɔ̃n epɥizabl",
+   "m": "override"
+  },
   "nuire-a": {
    "p": "nɥiʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "obesite": {
    "p": "obezite",
@@ -17853,7 +18339,7 @@
   },
   "organisme-genetiquement-modifie": {
    "p": "ɔʁganizm ʒenetikəmɑ̃ modifje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "orientation": {
    "p": "oʁjɑ̃tasjɔ̃",
@@ -17861,7 +18347,7 @@
   },
   "ouvrier-qualifie": {
    "p": "uvʁije kalifje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ouvrier-m": {
    "p": "uvʁije",
@@ -17869,15 +18355,15 @@
   },
   "panneaux-solaires": {
    "p": "pano solɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "partager-avec": {
    "p": "paʁtaʒe avɛk",
-   "m": "compound"
+   "m": "lexdb"
   },
   "perspectives-d-avenir": {
    "p": "pɛʁspɛktiv davəniʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "preceder": {
    "p": "pʁesede",
@@ -17889,7 +18375,7 @@
   },
   "produits-du-terroir": {
    "p": "pʁodɥi dy tɛʁwaʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "promulguer": {
    "p": "pʁomylge",
@@ -17899,13 +18385,13 @@
    "p": "pʁone",
    "m": "word"
   },
-  "proprietaire-v": {
-   "p": "pʁopʁijetɛʁ",
-   "m": "word"
-  },
   "rectifier": {
    "p": "ʁɛktifje",
    "m": "word"
+  },
+  "rediger-qe": {
+   "p": "ʁediʒe kɛlk ʃoz",
+   "m": "compound"
   },
   "remunerer": {
    "p": "ʁemyneʁe",
@@ -17913,15 +18399,19 @@
   },
   "renoncer-a": {
    "p": "ʁənɔ̃se a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "renseignements": {
    "p": "ʁɑ̃sɛɲəmɑ̃",
    "m": "word"
   },
+  "repartir-qe": {
+   "p": "ʁepaʁtiʁ kɛlk ʃoz",
+   "m": "compound"
+  },
   "ressembler-a": {
    "p": "ʁəsɑ̃ble a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ressources": {
    "p": "ʁəsuʁs",
@@ -17933,11 +18423,11 @@
   },
   "retraite-anticipee": {
    "p": "ʁətʁɛt ɑ̃tisipe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sans-papiers": {
    "p": "sɑ̃ papje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sevir": {
    "p": "seviʁ",
@@ -17953,19 +18443,27 @@
   },
   "souffrir-de": {
    "p": "sufʁiʁ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "substances-toxiques": {
    "p": "sypstɑ̃s tɔksik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "succeder-a": {
    "p": "syksede a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "toucher-de-l-argent": {
    "p": "tuʃe də laʁʒɑ̃",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "travail-au-noir-clandestin": {
+   "p": "tʁavaj o nwaʁ",
+   "m": "lexdb"
+  },
+  "travailler-en-par-interim": {
+   "p": "tʁavaje ɑ̃ ɛ̃teʁim",
+   "m": "lexdb"
   },
   "tutoyer": {
    "p": "tytwaje",
@@ -17973,7 +18471,7 @@
   },
   "unir-a": {
    "p": "yniʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "utilisateur": {
    "p": "ytilizatœʁ",
@@ -17993,7 +18491,7 @@
   },
   "verifier-q": {
    "p": "veʁifje ky",
-   "m": "compound"
+   "m": "lexdb"
   },
   "vouvoyer": {
    "p": "vuvwaje",
@@ -18063,6 +18561,10 @@
    "p": "afʁikɛ̃",
    "m": "word"
   },
+  "afrique": {
+   "p": "afʁik",
+   "m": "override"
+  },
   "agneau": {
    "p": "aɲo",
    "m": "word"
@@ -18087,6 +18589,10 @@
    "p": "ɛl",
    "m": "word"
   },
+  "algerie": {
+   "p": "alʒeʁi",
+   "m": "override"
+  },
   "alimentaire-adj": {
    "p": "alimɑ̃tɛʁ",
    "m": "word"
@@ -18105,7 +18611,7 @@
   },
   "aller-chercher": {
    "p": "ale ʃɛʁʃe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "aller-retour-m": {
    "p": "aleʁətuʁ",
@@ -18118,6 +18624,10 @@
   "alpes": {
    "p": "alp",
    "m": "word"
+  },
+  "alsace": {
+   "p": "alzas",
+   "m": "override"
   },
   "ambulance": {
    "p": "ɑ̃bylɑ̃s",
@@ -18162,6 +18672,10 @@
   "antillais": {
    "p": "ɑ̃tijɛ",
    "m": "word"
+  },
+  "antilles": {
+   "p": "ɑ̃tij",
+   "m": "override"
   },
   "antipathique": {
    "p": "ɑ̃tipatik",
@@ -18215,6 +18729,10 @@
    "p": "asɑ̃sœʁ",
    "m": "word"
   },
+  "asie": {
+   "p": "azi",
+   "m": "override"
+  },
   "aspirateur": {
    "p": "aspiʁatœʁ",
    "m": "word"
@@ -18243,6 +18761,10 @@
    "p": "odjovizɥɛl",
    "m": "word"
   },
+  "australie": {
+   "p": "ostʁali",
+   "m": "override"
+  },
   "automatique": {
    "p": "otomatik",
    "m": "word"
@@ -18250,6 +18772,10 @@
   "automne": {
    "p": "otɔn",
    "m": "word"
+  },
+  "autriche": {
+   "p": "otʁiʃ",
+   "m": "override"
   },
   "autrichien": {
    "p": "otʁiʃjɛ̃",
@@ -18441,7 +18967,7 @@
   },
   "boucle-d-oreille": {
    "p": "bukl doʁɛj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bougie": {
    "p": "buʒi",
@@ -18470,6 +18996,10 @@
   "bravo": {
    "p": "bʁavo",
    "m": "word"
+  },
+  "bretagne": {
+   "p": "bʁətaɲ",
+   "m": "override"
   },
   "brie": {
    "p": "bʁi",
@@ -18515,6 +19045,10 @@
    "p": "bylgaʁ",
    "m": "word"
   },
+  "bulgarie": {
+   "p": "bylgaʁi",
+   "m": "override"
+  },
   "bus": {
    "p": "bys",
    "m": "word"
@@ -18547,9 +19081,17 @@
    "p": "kɛs",
    "m": "word"
   },
+  "cambodge": {
+   "p": "kɑ̃bɔdʒ",
+   "m": "override"
+  },
   "camembert": {
    "p": "kamɑ̃bɛʁ",
    "m": "word"
+  },
+  "cameroun": {
+   "p": "kamʁun",
+   "m": "override"
   },
   "camomille": {
    "p": "kamomij",
@@ -18795,6 +19337,10 @@
    "p": "kolin",
    "m": "word"
   },
+  "colombie": {
+   "p": "kɔlɔ̃bi",
+   "m": "override"
+  },
   "comme": {
    "p": "kɔm",
    "m": "word"
@@ -18842,6 +19388,10 @@
   "confortable": {
    "p": "kɔ̃fɔʁtabl",
    "m": "word"
+  },
+  "congo": {
+   "p": "kɔ̃ɡo",
+   "m": "override"
   },
   "congelateur": {
    "p": "kɔ̃ʒelatœʁ",
@@ -18905,7 +19455,7 @@
   },
   "coquille-saint-jacques": {
    "p": "kokij sɛ̃ ʒak",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cornichon": {
    "p": "kɔʁniʃɔ̃",
@@ -18925,7 +19475,7 @@
   },
   "coup-de-fil": {
    "p": "ku də fil",
-   "m": "compound"
+   "m": "lexdb"
   },
   "courgette": {
    "p": "kuʁʒɛt",
@@ -19017,7 +19567,7 @@
   },
   "cote-d-ivoire": {
    "p": "kot divwaʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cotelette": {
    "p": "kotəlɛt",
@@ -19027,9 +19577,17 @@
    "p": "kœʁ",
    "m": "word"
   },
+  "d-o-m-c-o-m": {
+   "p": "de o ɛm se o ɛm",
+   "m": "acronym"
+  },
   "dame": {
    "p": "dam",
    "m": "word"
+  },
+  "danemark": {
+   "p": "danmaʁk",
+   "m": "override"
   },
   "danger": {
    "p": "dɑ̃ʒe",
@@ -19167,6 +19725,10 @@
    "p": "domaʒ",
    "m": "word"
   },
+  "dordogne": {
+   "p": "dɔʁdɔɲ",
+   "m": "override"
+  },
   "douceur": {
    "p": "dusœʁ",
    "m": "word"
@@ -19275,21 +19837,25 @@
    "p": "o",
    "m": "word"
   },
+  "egypte": {
+   "p": "eʒipt",
+   "m": "override"
+  },
   "embrasser": {
    "p": "ɑ̃bʁase",
    "m": "word"
   },
   "en-bas": {
-   "p": "ɑ̃ ba",
-   "m": "compound"
+   "p": "ɑ̃ bɑ",
+   "m": "lexdb"
   },
   "en-face": {
    "p": "ɑ̃ fas",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-haut": {
    "p": "ɑ̃ o",
-   "m": "compound"
+   "m": "lexdb"
   },
   "enseignant-n": {
    "p": "ɑ̃sɛɲɑ̃",
@@ -19331,6 +19897,10 @@
    "p": "ɛskalɔp",
    "m": "word"
   },
+  "espagne": {
+   "p": "ɛspaɲ",
+   "m": "override"
+  },
   "espagnol": {
    "p": "ɛspaɲɔl",
    "m": "word"
@@ -19347,6 +19917,10 @@
    "p": "ɛstoma",
    "m": "word"
   },
+  "estonie": {
+   "p": "ɛstɔni",
+   "m": "override"
+  },
   "estonien": {
    "p": "ɛstonjɛ̃",
    "m": "word"
@@ -19358,6 +19932,10 @@
   "euro": {
    "p": "øʁo",
    "m": "word"
+  },
+  "europe": {
+   "p": "øʁɔp",
+   "m": "override"
   },
   "europeen": {
    "p": "øʁopeɛ̃",
@@ -19413,7 +19991,7 @@
   },
   "femme-de-menage": {
    "p": "fam də menaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fenetre": {
    "p": "fənɛtʁ",
@@ -19429,7 +20007,7 @@
   },
   "feu-d-artifice": {
    "p": "fø daʁtifis",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fille": {
    "p": "fij",
@@ -19439,9 +20017,17 @@
    "p": "fis",
    "m": "word"
   },
+  "finistere": {
+   "p": "finistɛʁ",
+   "m": "override"
+  },
   "finlandais": {
    "p": "fɛ̃lɑ̃dɛ",
    "m": "word"
+  },
+  "finlande": {
+   "p": "fɛ̃lɑ̃d",
+   "m": "override"
   },
   "finnois": {
    "p": "finwa",
@@ -19475,6 +20061,10 @@
    "p": "fʁɑ̃",
    "m": "word"
   },
+  "france": {
+   "p": "fʁɑ̃s",
+   "m": "override"
+  },
   "franchise": {
    "p": "fʁɑ̃ʃiz",
    "m": "word"
@@ -19497,7 +20087,7 @@
   },
   "fruit-de-mer": {
    "p": "fʁɥi də mɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "frere": {
    "p": "fʁɛʁ",
@@ -19519,6 +20109,10 @@
    "p": "fɛt",
    "m": "word"
   },
+  "gabon": {
+   "p": "ɡabɔ̃",
+   "m": "override"
+  },
   "galette": {
    "p": "galɛt",
    "m": "word"
@@ -19534,6 +20128,10 @@
   "garer-v": {
    "p": "gaʁe",
    "m": "word"
+  },
+  "garonne": {
+   "p": "ɡaʁɔn",
+   "m": "override"
   },
   "garcon": {
    "p": "gaʁsɔ̃",
@@ -19587,9 +20185,25 @@
    "p": "gʁɑ̃pɛʁ",
    "m": "word"
   },
+  "grande-bretagne": {
+   "p": "ɡʁɑ̃d bʁətaɲ",
+   "m": "override"
+  },
   "graveur": {
    "p": "gʁavœʁ",
    "m": "word"
+  },
+  "grece": {
+   "p": "ɡʁɛs",
+   "m": "override"
+  },
+  "guadeloupe": {
+   "p": "ɡwadlup",
+   "m": "override"
+  },
+  "guadeloupeen": {
+   "p": "ɡwadlupeɛ̃",
+   "m": "override"
   },
   "guitare": {
    "p": "gitaʁ",
@@ -19602,6 +20216,10 @@
   "guyanais": {
    "p": "gɥijanɛ",
    "m": "word"
+  },
+  "guyane": {
+   "p": "ɡɥijan",
+   "m": "override"
   },
   "gueri": {
    "p": "geʁi",
@@ -19659,6 +20277,14 @@
    "p": "ivɛʁ",
    "m": "word"
   },
+  "hlm": {
+   "p": "aʃ ɛl ɛm",
+   "m": "acronym"
+  },
+  "hongrie": {
+   "p": "ɔ̃ɡʁi",
+   "m": "override"
+  },
   "hongrois": {
    "p": "ɔ̃gʁwa",
    "m": "word"
@@ -19670,6 +20296,10 @@
   "honnetete": {
    "p": "onɛtte",
    "m": "word"
+  },
+  "horodateur": {
+   "p": "ɔʁɔdatœʁ",
+   "m": "override"
   },
   "horrible": {
    "p": "oʁibl",
@@ -19693,7 +20323,7 @@
   },
   "hotesse-de-l-air": {
    "p": "otɛs də lɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ici": {
    "p": "isi",
@@ -19701,7 +20331,11 @@
   },
   "il-faut": {
    "p": "il fo",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "ile": {
+   "p": "il",
+   "m": "word"
   },
   "immatriculation": {
    "p": "imatʁikylasjɔ̃",
@@ -19742,6 +20376,10 @@
   "individuel": {
    "p": "ɛ̃dividɥɛl",
    "m": "word"
+  },
+  "indonesie": {
+   "p": "ɛ̃dɔnezi",
+   "m": "override"
   },
   "informaticien-n": {
    "p": "ɛ̃fɔʁmatisjɛ̃",
@@ -19791,9 +20429,17 @@
    "p": "iʁlɑ̃dɛ",
    "m": "word"
   },
+  "irlande": {
+   "p": "iʁlɑ̃d",
+   "m": "override"
+  },
   "irrite": {
    "p": "iʁite",
    "m": "word"
+  },
+  "italie": {
+   "p": "itali",
+   "m": "override"
   },
   "italien": {
    "p": "italjɛ̃",
@@ -19817,11 +20463,11 @@
   },
   "je-t-en-prie": {
    "p": "ʒə tɑ̃ pʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "je-vous-en-prie": {
    "p": "ʒə vu ɑ̃ pʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "jean": {
    "p": "dʒin",
@@ -19865,11 +20511,15 @@
   },
   "jusqu-a": {
    "p": "ʒyska",
-   "m": "compound"
+   "m": "word"
   },
   "juste-adv": {
    "p": "ʒyst",
    "m": "word"
+  },
+  "kenya": {
+   "p": "kenja",
+   "m": "override"
   },
   "kilo": {
    "p": "kilo",
@@ -19935,6 +20585,10 @@
    "p": "lɛtɔ̃",
    "m": "word"
   },
+  "lettonie": {
+   "p": "letɔni",
+   "m": "override"
+  },
   "lever-m": {
    "p": "ləve",
    "m": "word"
@@ -19954,6 +20608,10 @@
   "litre": {
    "p": "litʁ",
    "m": "word"
+  },
+  "lituanie": {
+   "p": "litɥani",
+   "m": "override"
   },
   "lituanien": {
    "p": "litɥanjɛ̃",
@@ -19983,6 +20641,10 @@
    "p": "lwɛ̃",
    "m": "word"
   },
+  "loire": {
+   "p": "lwaʁ",
+   "m": "override"
+  },
   "loisir": {
    "p": "lwaziʁ",
    "m": "word"
@@ -20006,6 +20668,10 @@
   "lundi": {
    "p": "lœ̃di",
    "m": "word"
+  },
+  "luxembourg": {
+   "p": "lyksɑ̃buʁ",
+   "m": "override"
   },
   "luxembourgeois": {
    "p": "lyksɑ̃buʁʒwa",
@@ -20031,6 +20697,10 @@
    "p": "maʃin",
    "m": "word"
   },
+  "madagascar": {
+   "p": "madaɡaskaʁ",
+   "m": "override"
+  },
   "madame": {
    "p": "madam",
    "m": "word"
@@ -20041,7 +20711,7 @@
   },
   "maillot-de-bain": {
    "p": "majo də bɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mairie-f": {
    "p": "meʁi",
@@ -20065,7 +20735,7 @@
   },
   "malte": {
    "p": "malte",
-   "m": "word"
+   "m": "lexdb"
   },
   "maman": {
    "p": "mamɑ̃",
@@ -20111,6 +20781,10 @@
    "p": "maʁje",
    "m": "word"
   },
+  "maroc": {
+   "p": "maʁɔk",
+   "m": "override"
+  },
   "mars": {
    "p": "maʁs",
    "m": "word"
@@ -20118,6 +20792,10 @@
   "martiniquais": {
    "p": "maʁtinikɛ",
    "m": "word"
+  },
+  "martinique": {
+   "p": "maʁtinik",
+   "m": "override"
   },
   "maths": {
    "p": "mat",
@@ -20130,6 +20808,10 @@
   "mayonnaise": {
    "p": "majonɛz",
    "m": "word"
+  },
+  "mayotte": {
+   "p": "majɔt",
+   "m": "override"
   },
   "melon": {
    "p": "məlɔ̃",
@@ -20166,6 +20848,14 @@
   "meuble": {
    "p": "mœbl",
    "m": "word"
+  },
+  "meuse": {
+   "p": "møz",
+   "m": "override"
+  },
+  "mexique": {
+   "p": "mɛksik",
+   "m": "override"
   },
   "midi": {
    "p": "midi",
@@ -20229,7 +20919,7 @@
   },
   "mots-croises-m": {
    "p": "mo kʁwaze",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mouchoir": {
    "p": "muʃwaʁ",
@@ -20315,6 +21005,10 @@
    "p": "nəvø",
    "m": "word"
   },
+  "niger": {
+   "p": "niʒɛʁ",
+   "m": "override"
+  },
   "niece": {
    "p": "njɛs",
    "m": "word"
@@ -20323,9 +21017,21 @@
    "p": "nɔʁ",
    "m": "word"
   },
+  "normandie": {
+   "p": "nɔʁmɑ̃di",
+   "m": "override"
+  },
   "nounou": {
    "p": "nunu",
    "m": "word"
+  },
+  "nouvelle-caledonie": {
+   "p": "nuvɛl kaledɔni",
+   "m": "override"
+  },
+  "nouvelle-zelande": {
+   "p": "nuvɛl zelɑ̃d",
+   "m": "override"
   },
   "novembre": {
    "p": "novɑ̃bʁ",
@@ -20355,6 +21061,10 @@
    "p": "neɛʁlɑ̃dɛ",
    "m": "word"
   },
+  "o-i-f": {
+   "p": "o i ɛf",
+   "m": "acronym"
+  },
   "occident": {
    "p": "ɔksidɑ̃",
    "m": "word"
@@ -20370,6 +21080,10 @@
   "ocean": {
    "p": "oseɑ̃",
    "m": "word"
+  },
+  "oceanie": {
+   "p": "ɔseani",
+   "m": "override"
   },
   "officiel": {
    "p": "ofisjɛl",
@@ -20439,6 +21153,10 @@
    "p": "u",
    "m": "word"
   },
+  "p-v": {
+   "p": "pe ve",
+   "m": "compound"
+  },
   "paire": {
    "p": "pɛʁ",
    "m": "word"
@@ -20469,7 +21187,7 @@
   },
   "par-terre": {
    "p": "paʁ tɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "parapluie": {
    "p": "paʁaplɥi",
@@ -20513,7 +21231,7 @@
   },
   "passage-pietons": {
    "p": "pasaʒ pjetɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "passion-f": {
    "p": "pasjɔ̃",
@@ -20537,7 +21255,7 @@
   },
   "pays-bas": {
    "p": "pei ba",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pendule": {
    "p": "pɑ̃dyl",
@@ -20569,7 +21287,7 @@
   },
   "petits-pois": {
    "p": "pəti pwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "petits-enfants": {
    "p": "pətiɑ̃fɑ̃",
@@ -20633,7 +21351,7 @@
   },
   "pois-chiche": {
    "p": "pwa ʃiʃ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "poissonnerie": {
    "p": "pwasɔnəʁi",
@@ -20663,13 +21381,21 @@
    "p": "polo",
    "m": "word"
   },
+  "pologne": {
+   "p": "pɔlɔɲ",
+   "m": "override"
+  },
   "polonais": {
    "p": "polonɛ",
    "m": "word"
   },
+  "polynesie": {
+   "p": "pɔlinezi",
+   "m": "override"
+  },
   "pomme-de-terre": {
    "p": "pɔm də tɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pompier": {
    "p": "pɔ̃pje",
@@ -20702,6 +21428,10 @@
   "portugais": {
    "p": "pɔʁtygɛ",
    "m": "word"
+  },
+  "portugal": {
+   "p": "pɔʁtyɡal",
+   "m": "override"
   },
   "positif": {
    "p": "pozitif",
@@ -20783,6 +21513,10 @@
    "p": "pʁopʁijetɛʁ",
    "m": "word"
   },
+  "provence": {
+   "p": "pʁɔvɑ̃s",
+   "m": "override"
+  },
   "provincial": {
    "p": "pʁovɛ̃sjal",
    "m": "word"
@@ -20819,6 +21553,10 @@
    "p": "piʒama",
    "m": "word"
   },
+  "pyrenees": {
+   "p": "piʁene",
+   "m": "override"
+  },
   "paques-f": {
    "p": "pak",
    "m": "word"
@@ -20851,6 +21589,10 @@
    "p": "katɔʁz",
    "m": "word"
   },
+  "quelqu-un": {
+   "p": "kɛlkœ̃",
+   "m": "word"
+  },
   "qui": {
    "p": "ki",
    "m": "word"
@@ -20862,6 +21604,10 @@
   "quoi": {
    "p": "kwa",
    "m": "word"
+  },
+  "quebec": {
+   "p": "kebɛk",
+   "m": "override"
   },
   "radiateur": {
    "p": "ʁadjatœʁ",
@@ -20931,6 +21677,14 @@
    "p": "ʁedəʃose",
    "m": "word"
   },
+  "rhin": {
+   "p": "ʁɛ̃",
+   "m": "override"
+  },
+  "rhone": {
+   "p": "ʁon",
+   "m": "override"
+  },
   "riche-adj": {
    "p": "ʁiʃ",
    "m": "word"
@@ -20971,9 +21725,13 @@
    "p": "ʁumɛ̃",
    "m": "word"
   },
+  "roumanie": {
+   "p": "ʁumani",
+   "m": "override"
+  },
   "royaume-uni": {
    "p": "ʁwajom yni",
-   "m": "compound"
+   "m": "lexdb"
   },
   "russe": {
    "p": "ʁys",
@@ -20989,7 +21747,7 @@
   },
   "republique-tcheque": {
    "p": "ʁepyblik tʃɛk",
-   "m": "compound"
+   "m": "lexdb"
   },
   "reserve-adj": {
    "p": "ʁezɛʁve",
@@ -21013,15 +21771,23 @@
   },
   "s-il-te-plait": {
    "p": "sil tə plɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "s-il-vous-plait": {
    "p": "sil vu plɛ",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "saint-barthelemy": {
+   "p": "sɛ̃ baʁtelemi",
+   "m": "override"
   },
   "saint-martin": {
    "p": "sɛ̃ maʁtɛ̃",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "saint-pierre-et-miquelon": {
+   "p": "sɛ̃ pjɛʁ e miklɔ̃",
+   "m": "override"
   },
   "salade": {
    "p": "salad",
@@ -21033,15 +21799,15 @@
   },
   "salle-de-bains": {
    "p": "sal də bɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "salle-de-sejour": {
    "p": "sal də seʒuʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "salle-a-manger": {
    "p": "sal a mɑ̃ʒe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "salut": {
    "p": "saly",
@@ -21050,6 +21816,10 @@
   "samedi": {
    "p": "samədi",
    "m": "word"
+  },
+  "samu": {
+   "p": "samy",
+   "m": "override"
   },
   "sapin": {
    "p": "sapɛ̃",
@@ -21159,9 +21929,17 @@
    "p": "slovak",
    "m": "word"
   },
+  "slovaquie": {
+   "p": "slɔvaki",
+   "m": "override"
+  },
   "slovene": {
    "p": "slovɛn",
    "m": "word"
+  },
+  "slovenie": {
+   "p": "slɔveni",
+   "m": "override"
   },
   "sociable-adj": {
    "p": "sosjabl",
@@ -21295,6 +22073,10 @@
    "p": "sɥedwa",
    "m": "word"
   },
+  "sweat": {
+   "p": "swit",
+   "m": "override"
+  },
   "seche-cheveux": {
    "p": "sɛʃʃəvø",
    "m": "word"
@@ -21302,6 +22084,10 @@
   "secher": {
    "p": "seʃe",
    "m": "word"
+  },
+  "senegal": {
+   "p": "seneɡal",
+   "m": "override"
   },
   "serieux": {
    "p": "seʁjø",
@@ -21359,6 +22145,10 @@
    "p": "tas",
    "m": "word"
   },
+  "tatie": {
+   "p": "tati",
+   "m": "override"
+  },
   "taxi": {
    "p": "taksi",
    "m": "word"
@@ -21391,6 +22181,10 @@
    "p": "təny",
    "m": "word"
   },
+  "tgv": {
+   "p": "te ʒe ve",
+   "m": "acronym"
+  },
   "thon": {
    "p": "tɔ̃",
    "m": "word"
@@ -21418,6 +22212,10 @@
   "timide": {
    "p": "timid",
    "m": "word"
+  },
+  "togo": {
+   "p": "tɔɡo",
+   "m": "override"
   },
   "toilette": {
    "p": "twalɛt",
@@ -21511,6 +22309,10 @@
    "p": "ty",
    "m": "word"
   },
+  "tunisie": {
+   "p": "tynizi",
+   "m": "override"
+  },
   "telephone": {
    "p": "telefɔn",
    "m": "word"
@@ -21529,7 +22331,7 @@
   },
   "union-europeenne": {
    "p": "ynjɔ̃ øʁopeɛn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "unique": {
    "p": "ynik",
@@ -21562,6 +22364,10 @@
   "vanille": {
    "p": "vanij",
    "m": "word"
+  },
+  "vaucluse": {
+   "p": "voklyz",
+   "m": "override"
   },
   "veau": {
    "p": "vo",
@@ -21598,6 +22404,10 @@
   "video": {
    "p": "video",
    "m": "word"
+  },
+  "vietnam": {
+   "p": "vjɛtnam",
+   "m": "override"
   },
   "village": {
    "p": "vilaʒ",
@@ -21679,6 +22489,10 @@
    "p": "vɛtəmɑ̃",
    "m": "word"
   },
+  "wallis-et-futuna": {
+   "p": "walis e fytuna",
+   "m": "override"
+  },
   "week-end": {
    "p": "wikɛnd",
    "m": "word"
@@ -21705,7 +22519,7 @@
   },
   "ca-va": {
    "p": "sa va",
-   "m": "compound"
+   "m": "lexdb"
   },
   "echarpe": {
    "p": "eʃaʁp",
@@ -21861,7 +22675,7 @@
   },
   "ah-bon": {
    "p": "a bɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "aide-soignant-n": {
    "p": "ɛdswaɲɑ̃",
@@ -21951,6 +22765,10 @@
    "p": "apetisɑ̃",
    "m": "word"
   },
+  "apres-toi-vous": {
+   "p": "apʁɛ twa",
+   "m": "compound"
+  },
   "apres-rasage": {
    "p": "apʁɛʁazaʒ",
    "m": "word"
@@ -22025,6 +22843,10 @@
   },
   "auberge": {
    "p": "obɛʁʒ",
+   "m": "word"
+  },
+  "aujourd-hui": {
+   "p": "oʒuʁdɥi",
    "m": "word"
   },
   "auto-stop": {
@@ -22331,6 +23153,14 @@
    "p": "kategoʁi",
    "m": "word"
   },
+  "cd": {
+   "p": "se de",
+   "m": "acronym"
+  },
+  "cd-rom": {
+   "p": "sedeʁɔm",
+   "m": "lexdb"
+  },
   "centimetre": {
    "p": "sɑ̃timɛtʁ",
    "m": "word"
@@ -22369,7 +23199,7 @@
   },
   "chemin-de-fer": {
    "p": "ʃəmɛ̃ də fɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cheminee": {
    "p": "ʃəmine",
@@ -22609,7 +23439,7 @@
   },
   "couper-coller": {
    "p": "kupe kole",
-   "m": "compound"
+   "m": "lexdb"
   },
   "coupe-adj": {
    "p": "kupe",
@@ -22682,6 +23512,10 @@
   "cuisiniere": {
    "p": "kɥizinjɛʁ",
    "m": "word"
+  },
+  "cv": {
+   "p": "se ve",
+   "m": "acronym"
   },
   "cyclisme": {
    "p": "siklizm",
@@ -22837,7 +23671,11 @@
   },
   "drap-housse": {
    "p": "dʁa us",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "dvd": {
+   "p": "de ve de",
+   "m": "acronym"
   },
   "debardeur": {
    "p": "debaʁdœʁ",
@@ -23089,7 +23927,7 @@
   },
   "en-dessous": {
    "p": "ɑ̃ dəsu",
-   "m": "compound"
+   "m": "lexdb"
   },
   "encre": {
    "p": "ɑ̃kʁ",
@@ -23207,6 +24045,10 @@
    "p": "ɛkstʁɛməmɑ̃",
    "m": "word"
   },
+  "facebook": {
+   "p": "fɛsbuk",
+   "m": "override"
+  },
   "facilement": {
    "p": "fasiləmɑ̃",
    "m": "word"
@@ -23317,7 +24159,7 @@
   },
   "four-a-micro-ondes": {
    "p": "fuʁ a mikʁo ɔ̃d",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fournisseur-m": {
    "p": "fuʁnisœʁ",
@@ -23455,6 +24297,10 @@
    "p": "ɑ̃ʃ",
    "m": "word"
   },
+  "hand": {
+   "p": "ɑ̃d",
+   "m": "override"
+  },
   "harmonieux": {
    "p": "aʁmonjø",
    "m": "word"
@@ -23513,7 +24359,7 @@
   },
   "il-n-y-a-pas-de-quoi": {
    "p": "il ni a pa də kwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "imagination": {
    "p": "imaʒinasjɔ̃",
@@ -23635,6 +24481,10 @@
    "p": "dʒaz",
    "m": "word"
   },
+  "je-t-vous-en-prie": {
+   "p": "ʒə tɑ̃ pʁi",
+   "m": "compound"
+  },
   "jeunesse": {
    "p": "ʒœnɛs",
    "m": "word"
@@ -23681,7 +24531,11 @@
   },
   "lecteur-graveur": {
    "p": "lɛktœʁ gʁavœʁ",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "legging": {
+   "p": "leɡiŋ",
+   "m": "override"
   },
   "lendemain": {
    "p": "lɑ̃dəmɛ̃",
@@ -23767,9 +24621,17 @@
    "p": "malɑ̃tɑ̃dɑ̃",
    "m": "word"
   },
+  "malvoyant-adj": {
+   "p": "malvwajɑ̃",
+   "m": "override"
+  },
   "manche-m": {
    "p": "mɑ̃ʃ",
    "m": "word"
+  },
+  "manique": {
+   "p": "manik",
+   "m": "override"
   },
   "manuel-adj": {
    "p": "manɥɛl",
@@ -23821,7 +24683,7 @@
   },
   "maitre-d-hotel": {
    "p": "mɛtʁ dotɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "maitresse": {
    "p": "mɛtʁɛs",
@@ -24067,6 +24929,10 @@
    "p": "odoʁa",
    "m": "word"
   },
+  "ogm": {
+   "p": "o ʒe ɛm",
+   "m": "acronym"
+  },
   "olympique": {
    "p": "olɛ̃pik",
    "m": "word"
@@ -24102,6 +24968,14 @@
   "ouvre-boite": {
    "p": "uvʁəbwat",
    "m": "word"
+  },
+  "p-v-m": {
+   "p": "pe ve",
+   "m": "acronym"
+  },
+  "pacser": {
+   "p": "pakse",
+   "m": "override"
   },
   "palier": {
    "p": "palje",
@@ -24261,7 +25135,7 @@
   },
   "petit-dejeuner": {
    "p": "pəti deʒœne",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pie-f": {
    "p": "pi",
@@ -24370,6 +25244,10 @@
   "poussiere": {
    "p": "pusjɛʁ",
    "m": "word"
+  },
+  "powerpoint": {
+   "p": "pawœʁpɔjnt",
+   "m": "override"
   },
   "prairie": {
    "p": "pʁeʁi",
@@ -24783,6 +25661,10 @@
    "p": "skje",
    "m": "word"
   },
+  "skype": {
+   "p": "skajp",
+   "m": "override"
+  },
   "slave": {
    "p": "slav",
    "m": "word"
@@ -24790,6 +25672,14 @@
   "smoking": {
    "p": "smɔkiŋ",
    "m": "word"
+  },
+  "sms-m": {
+   "p": "ɛs ɛm ɛs",
+   "m": "override"
+  },
+  "sncf": {
+   "p": "ɛs ɛn se ɛf",
+   "m": "acronym"
   },
   "sobre": {
    "p": "sɔbʁ",
@@ -24801,7 +25691,7 @@
   },
   "socio-professionnel": {
    "p": "sosjo pʁofɛsjonɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "socquette": {
    "p": "sokɛt",
@@ -24893,7 +25783,7 @@
   },
   "stylo-plume": {
    "p": "stilo plym",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sueur": {
    "p": "sɥœʁ",
@@ -24981,7 +25871,7 @@
   },
   "tant-pis": {
    "p": "tɑ̃ pi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tchin-tchin": {
    "p": "tʃintʃin",
@@ -25008,8 +25898,8 @@
    "m": "word"
   },
   "ter": {
-   "p": "tɛʁ",
-   "m": "word"
+   "p": "te ø ɛʁ",
+   "m": "acronym"
   },
   "terminer": {
    "p": "tɛʁmine",
@@ -25077,7 +25967,7 @@
   },
   "tout-droit-adv": {
    "p": "tu dʁwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "toxicomanie": {
    "p": "tɔksikomani",
@@ -25166,6 +26056,10 @@
   "tutoiement": {
    "p": "tytwamɑ̃",
    "m": "word"
+  },
+  "twitter": {
+   "p": "twitœʁ",
+   "m": "override"
   },
   "type": {
    "p": "tip",
@@ -25283,6 +26177,10 @@
    "p": "vuvwamɑ̃",
    "m": "word"
   },
+  "vrp": {
+   "p": "ve ɛʁ pe",
+   "m": "acronym"
+  },
   "vulgaire": {
    "p": "vylgɛʁ",
    "m": "word"
@@ -25299,21 +26197,33 @@
    "p": "wɛb",
    "m": "word"
   },
+  "wifi": {
+   "p": "wifi",
+   "m": "override"
+  },
   "zero-adj": {
    "p": "zeʁo",
    "m": "word"
   },
   "a-verse": {
    "p": "a vɛʁs",
+   "m": "lexdb"
+  },
+  "ca-cela": {
+   "p": "sa / səla",
    "m": "compound"
   },
   "ca-alors": {
    "p": "sa alɔʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "echange": {
    "p": "eʃɑ̃ʒ",
    "m": "word"
+  },
+  "echangeable": {
+   "p": "eʃɑ̃ʒabl",
+   "m": "override"
   },
   "eclaircie": {
    "p": "eklɛʁsi",
@@ -25385,19 +26295,19 @@
   },
   "au-revoir-loc": {
    "p": "o ʁəvwaʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-bientot-loc": {
    "p": "a bjɛ̃to",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-tout-a-l-heure-loc": {
    "p": "a tu a lœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-lundi": {
    "p": "a lœ̃di",
-   "m": "compound"
+   "m": "lexdb"
   },
   "toi": {
    "p": "twa",
@@ -25409,11 +26319,11 @@
   },
   "merci-beaucoup": {
    "p": "mɛʁsi boku",
-   "m": "compound"
+   "m": "lexdb"
   },
   "de-rien": {
    "p": "də ʁjɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "voeu-n": {
    "p": "vø",
@@ -25430,6 +26340,10 @@
   "facteur-m": {
    "p": "faktœʁ",
    "m": "word"
+  },
+  "qu-est-ce-que-je-peux-apporter": {
+   "p": "ke sø kə ʒə pø apɔʁte",
+   "m": "compound"
   },
   "ami-2": {
    "p": "ami",
@@ -25457,71 +26371,71 @@
   },
   "tomber-amoureux-de": {
    "p": "tɔ̃be amuʁø də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "s-embrasser": {
    "p": "sɑ̃bʁase",
-   "m": "compound"
+   "m": "lexdb"
   },
   "passer-la-nuit": {
    "p": "pase la nɥi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-l-amour": {
    "p": "fɛʁ lamuʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "vivre-seul": {
    "p": "vivʁ sœl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "vivre-avec": {
    "p": "vivʁ avɛk",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sortir-avec": {
    "p": "sɔʁtiʁ avɛk",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-marier": {
    "p": "sə maʁje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mariage-civil": {
    "p": "maʁjaʒ sivil",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mariage-religieux": {
    "p": "maʁjaʒ ʁəliʒjø",
-   "m": "compound"
+   "m": "lexdb"
   },
   "robe-de-mariee": {
    "p": "ʁɔb də maʁje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "petit-ami": {
    "p": "pəti ami",
-   "m": "compound"
+   "m": "lexdb"
   },
   "petite-amie": {
    "p": "pətit ami",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-un-enfant": {
    "p": "avwaʁ œ̃ ɑ̃fɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "vie-de-famille": {
    "p": "vi də famij",
-   "m": "compound"
+   "m": "lexdb"
   },
   "demander-le-divorce": {
    "p": "dəmɑ̃de lə divɔʁs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-disputer": {
    "p": "sə dispyte",
-   "m": "compound"
+   "m": "lexdb"
   },
   "jolie": {
    "p": "ʒoli",
@@ -25529,39 +26443,39 @@
   },
   "se-remarier": {
    "p": "sə ʁəmaʁje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "aimer-bien": {
    "p": "eme bjɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "grande-amie": {
    "p": "gʁɑ̃d ami",
-   "m": "compound"
+   "m": "lexdb"
   },
   "relation-amoureuse": {
    "p": "ʁəlasjɔ̃ amuʁøz",
-   "m": "compound"
+   "m": "lexdb"
   },
   "femme-de-sa-vie": {
    "p": "fam də sa vi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "aimer-beaucoup": {
    "p": "eme boku",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bon-caractere": {
    "p": "bɔ̃ kaʁaktɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "au-contraire": {
    "p": "o kɔ̃tʁɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mauvais-caractere": {
    "p": "movɛ kaʁaktɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sympathique": {
    "p": "sɛ̃patik",
@@ -25569,43 +26483,43 @@
   },
   "tout-le-monde": {
    "p": "tu lə mɔ̃d",
-   "m": "compound"
+   "m": "lexdb"
   },
   "parler-en-public": {
    "p": "paʁle ɑ̃ pyblik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bon-cote": {
    "p": "bɔ̃ kote",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sens-de-l-humour": {
    "p": "sɑ̃s də lymuʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "faire-rire": {
    "p": "fɛʁ ʁiʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "le-contraire": {
    "p": "lə kɔ̃tʁɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-general": {
    "p": "ɑ̃ ʒeneʁal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-particulier": {
    "p": "ɑ̃ paʁtikylje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-table": {
    "p": "a tabl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "parler-de": {
    "p": "paʁle də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "menteuse": {
    "p": "mɑ̃tøz",
@@ -25613,11 +26527,11 @@
   },
   "vouloir-dire-loc": {
    "p": "vulwaʁ diʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-d-accord": {
    "p": "ɛtʁ dakɔʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "different": {
    "p": "difeʁɑ̃",
@@ -25625,23 +26539,23 @@
   },
   "penser-de": {
    "p": "pɑ̃se də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bonne-idee": {
    "p": "bɔn ide",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-l-impression": {
    "p": "avwaʁ lɛ̃pʁesjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mauvaise-idee": {
    "p": "movɛz ide",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-raison": {
    "p": "avwaʁ ʁɛzɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "preferer": {
    "p": "pʁefeʁe",
@@ -25649,7 +26563,7 @@
   },
   "comme-tu-veux": {
    "p": "kɔm ty vø",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ca-m-est-egal": {
    "p": "sa me egal",
@@ -25661,19 +26575,19 @@
   },
   "a-l-appareil": {
    "p": "a lapaʁɛj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ne-quittez-pas": {
    "p": "nə kite pa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prendre-un-message": {
    "p": "pʁɑ̃dʁ œ̃ mesaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "laisser-un-message": {
    "p": "lese œ̃ mesaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mobile-m": {
    "p": "mobil",
@@ -25681,7 +26595,7 @@
   },
   "des-que-possible": {
    "p": "dɛ kə posibl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "oeil": {
    "p": "œj",
@@ -25689,63 +26603,63 @@
   },
   "s-asseoir": {
    "p": "saswaʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-lever": {
    "p": "sə ləve",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bonne-sante": {
    "p": "bɔn sɑ̃te",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-forme": {
    "p": "ɑ̃ fɔʁm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-reposer": {
    "p": "sə ʁəpoze",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mauvaise-sante": {
    "p": "movɛz sɑ̃te",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-mal-a": {
    "p": "avwaʁ mal a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-mal-aux-dents": {
    "p": "avwaʁ mal o dɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lentille-de-contact": {
    "p": "lɑ̃tij də kɔ̃takt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fauteuil-roulant": {
    "p": "fotœj ʁulɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "accident-de-ski": {
    "p": "aksidɑ̃ də ski",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-casser": {
    "p": "sə kase",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mal-de-gorge": {
    "p": "mal də gɔʁʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "perdre-du-poids": {
    "p": "pɛʁdʁ dy pwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bel-homme": {
    "p": "bɛl ɔm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "belle": {
    "p": "bɛl",
@@ -25753,7 +26667,7 @@
   },
   "belle-femme": {
    "p": "bɛl fam",
-   "m": "compound"
+   "m": "lexdb"
   },
   "laide": {
    "p": "lɛd",
@@ -25765,11 +26679,11 @@
   },
   "taille-moyenne": {
    "p": "taj mwajɛn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "vieux-monsieur": {
    "p": "vjø məsjø",
-   "m": "compound"
+   "m": "lexdb"
   },
   "marron-adj": {
    "p": "maʁɔ̃",
@@ -25777,15 +26691,15 @@
   },
   "mi-long": {
    "p": "mi lɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "beau-brun": {
    "p": "bo bʁœ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "belle-blonde": {
    "p": "bɛl blɔ̃d",
-   "m": "compound"
+   "m": "lexdb"
   },
   "rousse": {
    "p": "ʁus",
@@ -25793,51 +26707,51 @@
   },
   "petite-rousse": {
    "p": "pətit ʁus",
-   "m": "compound"
+   "m": "lexdb"
   },
   "s-habiller": {
    "p": "sabije",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-deshabiller": {
    "p": "sə dezabije",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-pantalon": {
    "p": "ɑ̃ pɑ̃talɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-changer": {
    "p": "sə ʃɑ̃ʒe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "changer-de-vetements": {
    "p": "ʃɑ̃ʒe də vɛtəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "jupe-habillee": {
    "p": "ʒyp abije",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bien-habille": {
    "p": "bjɛ̃ abije",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mal-habille": {
    "p": "mal abije",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-cle": {
    "p": "a kle",
-   "m": "compound"
+   "m": "lexdb"
   },
   "boite-aux-lettres": {
    "p": "bwat o lɛtʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "agence-immobiliere": {
    "p": "aʒɑ̃s imobiljɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "boeuf": {
    "p": "bœf",
@@ -25865,19 +26779,19 @@
   },
   "foie-gras": {
    "p": "fwa gʁa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bon-appetit": {
-   "p": "bɔ̃ apeti",
-   "m": "compound"
+   "p": "bɔnapeti",
+   "m": "lexdb"
   },
   "demi-bouteille": {
    "p": "dəmibutɛj",
    "m": "word"
   },
   "apres-midi-m": {
-   "p": "apʁɛ midi",
-   "m": "compound"
+   "p": "apʁɛmidi",
+   "m": "lexdb"
   },
   "dix": {
    "p": "dis",
@@ -25909,7 +26823,7 @@
   },
   "lycee-technique": {
    "p": "lise tɛknik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lettres": {
    "p": "lɛtʁ",
@@ -25921,11 +26835,11 @@
   },
   "grande-ecole": {
    "p": "gʁɑ̃d ekɔl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "annee-scolaire": {
    "p": "ane skolɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "terminale": {
    "p": "tɛʁminal",
@@ -25937,7 +26851,7 @@
   },
   "ecole-de-commerce": {
    "p": "ekɔl də komɛʁs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "professeur": {
    "p": "pʁofɛsœʁ",
@@ -25989,7 +26903,7 @@
   },
   "code-postal": {
    "p": "kɔd pɔstal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sinon": {
    "p": "sinɔ̃",
@@ -25997,7 +26911,7 @@
   },
   "pages-jaunes": {
    "p": "paʒ ʒon",
-   "m": "compound"
+   "m": "lexdb"
   },
   "necessaire": {
    "p": "nesesɛʁ",
@@ -26009,7 +26923,7 @@
   },
   "securite-sociale-f": {
    "p": "sekyʁite sosjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "americain": {
    "p": "ameʁikɛ̃",
@@ -26105,11 +27019,11 @@
   },
   "departement-d-outre-mer": {
    "p": "depaʁtəmɑ̃ dutʁ mɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "collectivite-d-outre-mer": {
    "p": "kolɛktivite dutʁ mɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prestigieux": {
    "p": "pʁɛstiʒjø",
@@ -26149,7 +27063,7 @@
   },
   "au-bout": {
    "p": "o bu",
-   "m": "compound"
+   "m": "lexdb"
   },
   "face": {
    "p": "fas",
@@ -26209,7 +27123,7 @@
   },
   "en-prie": {
    "p": "ɑ̃ pʁi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "autoriser": {
    "p": "otoʁize",
@@ -26221,7 +27135,7 @@
   },
   "bonne-chance": {
    "p": "bɔn ʃɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "maternel-adj": {
    "p": "matɛʁnɛl",
@@ -26237,7 +27151,7 @@
   },
   "d-affilee-loc-adv": {
    "p": "dafile",
-   "m": "compound"
+   "m": "lexdb"
   },
   "demi-adj": {
    "p": "dəmi",
@@ -26307,6 +27221,10 @@
    "p": "sizjɛm",
    "m": "word"
   },
+  "erasmus-m": {
+   "p": "eʁasmys",
+   "m": "override"
+  },
   "immigre-adj": {
    "p": "imigʁe",
    "m": "word"
@@ -26361,19 +27279,19 @@
   },
   "de-meme-que": {
    "p": "də mɛm kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mais-aussi": {
    "p": "mɛ osi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-propos-de": {
    "p": "a pʁopo də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ainsi-que": {
    "p": "ɛ̃si kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ainsi": {
    "p": "ɛ̃si",
@@ -26381,15 +27299,15 @@
   },
   "au-sujet-de": {
    "p": "o syʒɛ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "autrement-dit": {
    "p": "otʁəmɑ̃ di",
-   "m": "compound"
+   "m": "lexdb"
   },
   "c-est-a-dire": {
-   "p": "se a diʁ",
-   "m": "compound"
+   "p": "sɛtadiʁ",
+   "m": "word"
   },
   "comme-conj": {
    "p": "kɔm",
@@ -26397,19 +27315,19 @@
   },
   "d-ailleurs": {
    "p": "dajœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "de-meme": {
    "p": "də mɛm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "de-plus": {
    "p": "də ply",
-   "m": "compound"
+   "m": "lexdb"
   },
   "de-surcroit": {
    "p": "də syʁkʁwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "effectivement": {
    "p": "efɛktivəmɑ̃",
@@ -26417,23 +27335,23 @@
   },
   "en-d-autres-termes": {
    "p": "ɑ̃ dotʁ tɛʁm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-effet": {
-   "p": "ɑ̃ efɛ",
-   "m": "compound"
+   "p": "ɑ̃nefɛ",
+   "m": "lexdb"
   },
   "en-fait": {
    "p": "ɑ̃ fɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-outre": {
-   "p": "ɑ̃ utʁ",
-   "m": "compound"
+   "p": "ɑ̃nutʁ",
+   "m": "lexdb"
   },
   "en-plus": {
    "p": "ɑ̃ ply",
-   "m": "compound"
+   "m": "lexdb"
   },
   "encore": {
    "p": "ɑ̃kɔʁ",
@@ -26441,7 +27359,7 @@
   },
   "entre-autres": {
    "p": "ɑ̃tʁ otʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "et": {
    "p": "e",
@@ -26449,6 +27367,10 @@
   },
   "mais-encore": {
    "p": "mɛ ɑ̃kɔʁ",
+   "m": "lexdb"
+  },
+  "non-seulement-mais": {
+   "p": "nɔ̃ sœləmɑ̃ mɛ",
    "m": "compound"
   },
   "notamment": {
@@ -26457,19 +27379,19 @@
   },
   "par-ailleurs": {
    "p": "paʁ ajœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "par-exemple": {
-   "p": "paʁ ɛgzɑ̃pl",
-   "m": "compound"
+   "p": "paʁɛɡzɑ̃pl",
+   "m": "lexdb"
   },
   "quant-a": {
    "p": "kɑ̃ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sans-compter-que": {
    "p": "sɑ̃ kɔ̃te kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "surtout": {
    "p": "syʁtu",
@@ -26480,36 +27402,36 @@
    "m": "word"
   },
   "afin-de": {
-   "p": "afɛ̃ də",
-   "m": "compound"
+   "p": "afɛ̃də",
+   "m": "lexdb"
   },
   "afin-que": {
-   "p": "afɛ̃ kə",
-   "m": "compound"
+   "p": "afɛ̃k",
+   "m": "lexdb"
   },
   "dans-le-but-de": {
    "p": "dɑ̃ lə byt də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "de-crainte-que": {
    "p": "də kʁɛ̃t kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "de-peur-que": {
    "p": "də pøʁ kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-vue-de": {
    "p": "ɑ̃ vy də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pour-que": {
    "p": "puʁ kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-cause-de": {
    "p": "a koz də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "car-conj": {
    "p": "kaʁ",
@@ -26517,19 +27439,19 @@
   },
   "en-raison-de": {
    "p": "ɑ̃ ʁɛzɔ̃ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etant-donne-que": {
    "p": "etɑ̃ done kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "grace-a": {
    "p": "gʁas a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "parce-que": {
-   "p": "paʁs kə",
-   "m": "compound"
+   "p": "paʁsək",
+   "m": "lexdb"
   },
   "puisque": {
    "p": "pɥiskə",
@@ -26537,19 +27459,19 @@
   },
   "sous-pretexte-que": {
    "p": "su pʁetɛkst kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "vu-que": {
    "p": "vy kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "au-fond": {
    "p": "o fɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avant-tout": {
    "p": "avɑ̃ tu",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bref": {
    "p": "bʁɛf",
@@ -26557,11 +27479,19 @@
   },
   "d-abord": {
    "p": "dabɔʁ",
+   "m": "word"
+  },
+  "d-une-part-d-autre-part": {
+   "p": "dyn paʁ dotʁ paʁ",
+   "m": "compound"
+  },
+  "d-un-cote-de-l-autre": {
+   "p": "dœ̃ kote də lotʁ",
    "m": "compound"
   },
   "dans-l-ensemble": {
    "p": "dɑ̃ lɑ̃sɑ̃bl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "deuxiemement": {
    "p": "døzjɛməmɑ̃",
@@ -26573,43 +27503,43 @@
   },
   "en-bref": {
    "p": "ɑ̃ bʁɛf",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-conclusion": {
    "p": "ɑ̃ kɔ̃klyzjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-definitive": {
    "p": "ɑ̃ definitiv",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-dernier-lieu": {
    "p": "ɑ̃ dɛʁnje ljø",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-fin-de-compte": {
    "p": "ɑ̃ fɛ̃ də kɔ̃t",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-premier-lieu": {
    "p": "ɑ̃ pʁømje ljø",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-resume": {
    "p": "ɑ̃ ʁezyme",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-second-lieu": {
    "p": "ɑ̃ səgɔ̃ ljø",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-somme": {
    "p": "ɑ̃ sɔm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-un-mot": {
-   "p": "ɑ̃ œ̃ mo",
-   "m": "compound"
+   "p": "ɑ̃nœ̃ mo",
+   "m": "lexdb"
   },
   "enfin": {
    "p": "ɑ̃fɛ̃",
@@ -26625,23 +27555,23 @@
   },
   "pour-commencer": {
    "p": "puʁ komɑ̃se",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pour-conclure": {
    "p": "puʁ kɔ̃klyʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pour-continuer": {
    "p": "puʁ kɔ̃tinɥe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pour-finir": {
    "p": "puʁ finiʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pour-resumer": {
    "p": "puʁ ʁezyme",
-   "m": "compound"
+   "m": "lexdb"
   },
   "premierement": {
    "p": "pʁømjɛʁəmɑ̃",
@@ -26653,23 +27583,23 @@
   },
   "somme-toute": {
    "p": "sɔm tut",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tout-d-abord": {
    "p": "tu dabɔʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-l-epoque": {
    "p": "a lepɔk",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-l-origine": {
    "p": "a loʁiʒin",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-partir-de": {
    "p": "a paʁtiʁ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "auparavant": {
    "p": "opaʁavɑ̃",
@@ -26685,7 +27615,7 @@
   },
   "des-que": {
    "p": "dɛ kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "desormais": {
    "p": "dezɔʁmɛ",
@@ -26701,11 +27631,11 @@
   },
   "tout-de-suite": {
    "p": "tu də sɥit",
-   "m": "compound"
+   "m": "lexdb"
   },
   "au-point-que": {
    "p": "o pwɛ̃ kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "aussi": {
    "p": "osi",
@@ -26713,67 +27643,71 @@
   },
   "c-est-pourquoi": {
    "p": "se puʁkwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "c-est-pour-cela-que": {
    "p": "se puʁ səla kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "de-facon-que": {
    "p": "də fasɔ̃ kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "de-sorte-que": {
    "p": "də sɔʁt kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-consequence": {
    "p": "ɑ̃ kɔ̃sekɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "et-finalement": {
    "p": "e finaləmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "par-consequent": {
    "p": "paʁ kɔ̃sekɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pour-toutes-ces-raisons": {
    "p": "puʁ tut se ʁɛzɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "si-bien-que": {
    "p": "si bjɛ̃ kə",
+   "m": "lexdb"
+  },
+  "tellement-que": {
+   "p": "tɛləmɑ̃ kə",
    "m": "compound"
   },
   "tout-compte-fait": {
    "p": "tu kɔ̃t fɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "voila-pourquoi": {
    "p": "vwala puʁkwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "a-condition-que": {
    "p": "a kɔ̃disjɔ̃ kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "au-cas-ou": {
    "p": "o ka u",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-admettant-que": {
    "p": "ɑ̃ admɛtɑ̃ kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-cas-de": {
    "p": "ɑ̃ ka də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pourvu-que": {
    "p": "puʁvy kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "si-conj": {
    "p": "si",
@@ -26781,23 +27715,27 @@
   },
   "a-l-inverse": {
    "p": "a lɛ̃vɛʁs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "alors-que": {
    "p": "alɔʁ kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bien-que": {
    "p": "bjɛ̃ kə",
+   "m": "lexdb"
+  },
+  "certes-mais": {
+   "p": "sɛʁt mɛ",
    "m": "compound"
   },
   "contrairement-a": {
    "p": "kɔ̃tʁɛʁəmɑ̃ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-revanche": {
    "p": "ɑ̃ ʁəvɑ̃ʃ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "mais-conj": {
    "p": "mɛ",
@@ -26809,11 +27747,11 @@
   },
   "malgre-tout": {
    "p": "malgʁe tu",
-   "m": "compound"
+   "m": "lexdb"
   },
   "meme-si": {
    "p": "mɛm si",
-   "m": "compound"
+   "m": "lexdb"
   },
   "neanmoins": {
    "p": "neɑ̃mwɛ̃",
@@ -26827,13 +27765,21 @@
    "p": "kwakə",
    "m": "word"
   },
+  "soit-soit": {
+   "p": "swa swa",
+   "m": "compound"
+  },
+  "tandis-que": {
+   "p": "tɑ̃dikø",
+   "m": "lexdb"
+  },
   "toutefois": {
    "p": "tutəfwa",
    "m": "word"
   },
   "aire-de-repos": {
    "p": "ɛʁ də ʁəpo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "desservir-v": {
    "p": "desɛʁviʁ",
@@ -26841,7 +27787,7 @@
   },
   "heures-de-pointe-f": {
    "p": "œʁ də pwɛ̃t",
-   "m": "compound"
+   "m": "lexdb"
   },
   "compagne-f": {
    "p": "kɔ̃paɲ",
@@ -26851,13 +27797,17 @@
    "p": "kɔ̃pʁeɑ̃sibl",
    "m": "word"
   },
+  "consulter-qc": {
+   "p": "kɔ̃sylte kɛlk ʃoz",
+   "m": "compound"
+  },
   "enfants": {
    "p": "ɑ̃fɑ̃",
    "m": "word"
   },
   "etre-dans-la-force-de-l-age-loc": {
    "p": "ɛtʁ dɑ̃ la fɔʁs də laʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fiance-m": {
    "p": "fjɑ̃se",
@@ -26867,6 +27817,10 @@
    "p": "ɛ̃kɔ̃pʁeɑ̃sibl",
    "m": "word"
   },
+  "interesser-a-qc": {
+   "p": "ɛ̃teʁese a kɛlk ʃoz",
+   "m": "compound"
+  },
   "juvenile-adj": {
    "p": "ʒyvenil",
    "m": "word"
@@ -26874,6 +27828,30 @@
   "matrimonial-adj": {
    "p": "matʁimonjal",
    "m": "word"
+  },
+  "obeir-a-qn": {
+   "p": "obeiʁ a kɛlkœ̃",
+   "m": "compound"
+  },
+  "quitter-qn": {
+   "p": "kite kɛlkœ̃",
+   "m": "compound"
+  },
+  "rater-qc": {
+   "p": "ʁate kɛlk ʃoz",
+   "m": "compound"
+  },
+  "resoudre-qc": {
+   "p": "ʁezudʁ kɛlk ʃoz",
+   "m": "compound"
+  },
+  "reussir-qc": {
+   "p": "ʁeysiʁ kɛlk ʃoz",
+   "m": "compound"
+  },
+  "rompre-avec-qn": {
+   "p": "ʁɔ̃pʁ avɛk kɛlkœ̃",
+   "m": "compound"
   },
   "senior-m": {
    "p": "senjɔʁ",
@@ -26907,9 +27885,13 @@
    "p": "ʒeotɛʁmik",
    "m": "word"
   },
+  "liberer-du-co2": {
+   "p": "libeʁe dy se o dø",
+   "m": "compound"
+  },
   "mesures-severes-f": {
    "p": "məzyʁ sevɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "nocif-adj": {
    "p": "nosif",
@@ -26917,7 +27899,7 @@
   },
   "rechauffement-de-la-planete-m": {
    "p": "ʁeʃofmɑ̃ də la planɛt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sauvage-adj": {
    "p": "sovaʒ",
@@ -26973,19 +27955,19 @@
   },
   "carnet-de-voyage": {
    "p": "kaʁnɛ də vwajaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "carte-d-embarquement-f": {
    "p": "kaʁt dɑ̃baʁkəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "consigne-a-bagages": {
    "p": "kɔ̃siɲ a bagaʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "en-bus": {
    "p": "ɑ̃ bys",
-   "m": "compound"
+   "m": "lexdb"
   },
   "facultatif-adj": {
    "p": "fakyltatif",
@@ -26993,11 +27975,11 @@
   },
   "faire-du-ski": {
    "p": "fɛʁ dy ski",
-   "m": "compound"
+   "m": "lexdb"
   },
   "lunettes-de-soleil-f": {
    "p": "lynɛt də solɛj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "pieces-f": {
    "p": "pjɛs",
@@ -27009,19 +27991,19 @@
   },
   "prix-du-trajet-m": {
    "p": "pʁi dy tʁaʒɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prix-raisonnable": {
    "p": "pʁi ʁɛzonabl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "projeter-des-vacances": {
    "p": "pʁoʒəte de vakɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-relaxer": {
    "p": "sə ʁəlakse",
-   "m": "compound"
+   "m": "lexdb"
   },
   "retarde-adj": {
    "p": "ʁətaʁde",
@@ -27029,11 +28011,11 @@
   },
   "s-enregistrer": {
    "p": "sɑ̃ʁəʒistʁe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "site-touristique": {
    "p": "sit tuʁistik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tarif": {
    "p": "taʁif",
@@ -27049,26 +28031,46 @@
   },
   "tout-inclus": {
    "p": "tu ɛ̃kly",
-   "m": "compound"
+   "m": "lexdb"
   },
   "voyager-autour-du-monde-loc": {
    "p": "vwajaʒe otuʁ dy mɔ̃d",
-   "m": "compound"
+   "m": "lexdb"
   },
   "voyager-leger-loc": {
    "p": "vwajaʒe leʒe",
+   "m": "lexdb"
+  },
+  "apprendre-a-faire-qc": {
+   "p": "apʁɑ̃dʁ a fɛʁ kɛlk ʃoz",
+   "m": "compound"
+  },
+  "apprendre-qc-a-qn": {
+   "p": "apʁɑ̃dʁ kɛlk ʃoz a kɛlkœ̃",
    "m": "compound"
   },
   "auto-critique-f": {
    "p": "oto kʁitik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "autodidacte-adj": {
    "p": "otodidakt",
    "m": "word"
   },
+  "autoriser-qn-a-faire-qc": {
+   "p": "otoʁize kɛlkœ̃ a fɛʁ kɛlk ʃoz",
+   "m": "compound"
+  },
   "avantage-financier-m": {
    "p": "avɑ̃taʒ finɑ̃sje",
+   "m": "lexdb"
+  },
+  "avoir-acces-a-qc": {
+   "p": "avwaʁ aksɛ a kɛlk ʃoz",
+   "m": "compound"
+  },
+  "avoir-le-merite-de-faire-qc": {
+   "p": "avwaʁ lə meʁit də fɛʁ kɛlk ʃoz",
    "m": "compound"
   },
   "bachelier-m": {
@@ -27077,7 +28079,7 @@
   },
   "bras-droit-m": {
    "p": "bʁa dʁwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cerebral-adj": {
    "p": "seʁebʁal",
@@ -27085,19 +28087,43 @@
   },
   "chef-de-projet-m": {
    "p": "ʃɛf də pʁoʒɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "collegue-de-travail-m": {
    "p": "kolɛg də tʁavaj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-concentrer": {
    "p": "sə kɔ̃sɑ̃tʁe",
+   "m": "lexdb"
+  },
+  "craindre-qc": {
+   "p": "kʁɛ̃dʁ kɛlk ʃoz",
+   "m": "compound"
+  },
+  "decourager-qn": {
+   "p": "dekuʁaʒe kɛlkœ̃",
    "m": "compound"
   },
   "demissionner": {
    "p": "demisjone",
    "m": "word"
+  },
+  "democratiser-qc": {
+   "p": "demokʁatize kɛlk ʃoz",
+   "m": "compound"
+  },
+  "denoncer-qc": {
+   "p": "denɔ̃se kɛlk ʃoz",
+   "m": "compound"
+  },
+  "desacraliser-qc": {
+   "p": "desakʁalize kɛlk ʃoz",
+   "m": "compound"
+  },
+  "desaffection-pour-qc": {
+   "p": "dezafɛksjɔ̃ puʁ kɛlk ʃoz",
+   "m": "compound"
   },
   "detourne-adj": {
    "p": "detuʁne",
@@ -27105,7 +28131,7 @@
   },
   "se-developper": {
    "p": "sə devəlope",
-   "m": "compound"
+   "m": "lexdb"
   },
   "dirigeants-m": {
    "p": "diʁiʒɑ̃",
@@ -27117,7 +28143,7 @@
   },
   "donner-le-meilleur-de-soi-meme": {
    "p": "done lə mɛjœʁ də swa mɛm",
-   "m": "compound"
+   "m": "lexdb"
   },
   "emblematique-adj": {
    "p": "ɑ̃blematik",
@@ -27127,17 +28153,21 @@
    "p": "ɑ̃sɛɲɑ̃t",
    "m": "word"
   },
+  "envisager-qc": {
+   "p": "ɑ̃vizaʒe kɛlk ʃoz",
+   "m": "compound"
+  },
   "equation-f": {
    "p": "ekwasjɔ̃",
    "m": "word"
   },
   "esprit-d-equipe-m": {
    "p": "ɛspʁi dekip",
-   "m": "compound"
+   "m": "lexdb"
   },
   "estime-de-soi-f": {
    "p": "ɛstim də swa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etabli-adj": {
    "p": "etabli",
@@ -27145,19 +28175,19 @@
   },
   "etre-de-profession-loc": {
    "p": "ɛtʁ də pʁofɛsjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-a-la-retraite": {
    "p": "ɛtʁ a la ʁətʁɛt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-responsable-de": {
    "p": "ɛtʁ ʁɛspɔ̃sabl də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etudiant-en-science-m": {
    "p": "etydjɑ̃ ɑ̃ sjɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "experimente-adj": {
    "p": "ɛkspeʁimɑ̃te",
@@ -27165,7 +28195,7 @@
   },
   "faire-la-greve": {
    "p": "fɛʁ la gʁɛv",
-   "m": "compound"
+   "m": "lexdb"
   },
   "flexible-adj": {
    "p": "flɛksibl",
@@ -27177,7 +28207,7 @@
   },
   "frais-professionnels-m": {
    "p": "fʁɛ pʁofɛsjonɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "habitude-f": {
    "p": "abityd",
@@ -27185,11 +28215,11 @@
   },
   "horaire-a-la-carte-m": {
    "p": "oʁɛʁ a la kaʁt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "horaires-de-travail-m": {
    "p": "oʁɛʁ də tʁavaj",
-   "m": "compound"
+   "m": "lexdb"
   },
   "incomplet-adj": {
    "p": "ɛ̃kɔ̃plɛ",
@@ -27199,17 +28229,37 @@
    "p": "manaʒœʁ",
    "m": "word"
   },
+  "se-mesurer-a-qn": {
+   "p": "sə məzyʁe a kɛlkœ̃",
+   "m": "compound"
+  },
+  "mettre-qc-en-avant": {
+   "p": "mɛtʁ kɛlk ʃoz ɑ̃ avɑ̃",
+   "m": "compound"
+  },
   "operation-d-encaissement-f": {
    "p": "opeʁasjɔ̃ dɑ̃kɛsəmɑ̃",
+   "m": "lexdb"
+  },
+  "parier-sur-qc": {
+   "p": "paʁje syʁ kɛlk ʃoz",
    "m": "compound"
   },
   "se-plaindre": {
    "p": "sə plɛ̃dʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "polyvalent-adj": {
    "p": "polivalɑ̃",
    "m": "word"
+  },
+  "se-preter-a-qc": {
+   "p": "sə pʁete a kɛlk ʃoz",
+   "m": "compound"
+  },
+  "priver-qn-de-qc": {
+   "p": "pʁive kɛlkœ̃ də kɛlk ʃoz",
+   "m": "compound"
   },
   "productif-adj": {
    "p": "pʁodyktif",
@@ -27227,17 +28277,41 @@
    "p": "ʁəkony",
    "m": "word"
   },
+  "recruter-qn": {
+   "p": "ʁəkʁyte kɛlkœ̃",
+   "m": "compound"
+  },
   "se-rendre-compte": {
    "p": "sə ʁɑ̃dʁ kɔ̃t",
+   "m": "lexdb"
+  },
+  "renforcer-qc": {
+   "p": "ʁɑ̃fɔʁse kɛlk ʃoz",
+   "m": "compound"
+  },
+  "reperer-qc": {
+   "p": "ʁəpeʁe kɛlk ʃoz",
    "m": "compound"
   },
   "ressources-pedagogiques-f": {
    "p": "ʁəsuʁs pedagoʒik",
+   "m": "lexdb"
+  },
+  "reveler-qc": {
+   "p": "ʁevele kɛlk ʃoz",
+   "m": "compound"
+  },
+  "s-adresser-a-qn": {
+   "p": "sadʁese a kɛlkœ̃",
+   "m": "compound"
+  },
+  "s-impliquer-dans-qc": {
+   "p": "sɛ̃plike dɑ̃ kɛlk ʃoz",
    "m": "compound"
   },
   "sciences-sociales-f": {
    "p": "sjɑ̃s sosjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "scientifiques-m": {
    "p": "sjɑ̃tifik",
@@ -27245,30 +28319,50 @@
   },
   "se-situer-au-meme-niveau": {
    "p": "sə sitɥe o mɛm nivo",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "smic-m": {
+   "p": "smik",
+   "m": "override"
   },
   "se-specialiser-en": {
    "p": "sə spesjalize ɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-stabiliser": {
    "p": "sə stabilize",
+   "m": "lexdb"
+  },
+  "supplanter-qc": {
+   "p": "syplɑ̃te kɛlk ʃoz",
    "m": "compound"
   },
   "temps-plein": {
    "p": "tɑ̃ plɛ̃",
+   "m": "lexdb"
+  },
+  "vehiculer-qc": {
+   "p": "veikyle kɛlk ʃoz",
+   "m": "compound"
+  },
+  "viser-a-qc": {
+   "p": "vize a kɛlk ʃoz",
    "m": "compound"
   },
   "avoir-des-fourmis-dans": {
    "p": "avwaʁ de fuʁmi dɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-mal-a-la-tete": {
    "p": "avwaʁ mal a la tɛt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chef-de-clinique-m": {
    "p": "ʃɛf də klinik",
+   "m": "lexdb"
+  },
+  "conseiller-qc-a-qn": {
+   "p": "kɔ̃seje kɛlk ʃoz a kɛlkœ̃",
    "m": "compound"
   },
   "contagieux-adj": {
@@ -27277,11 +28371,11 @@
   },
   "se-couvrir": {
    "p": "sə kuvʁiʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-demanger": {
    "p": "sə demɑ̃ʒe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "essouffle-adj": {
    "p": "esufle",
@@ -27289,11 +28383,11 @@
   },
   "etre-malade-comme-un-chien": {
    "p": "ɛtʁ malad kɔm œ̃ ʃjɛ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "exprimer-une-douleur": {
    "p": "ɛkspʁime yn dulœʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "externe-m": {
    "p": "ɛkstɛʁn",
@@ -27309,7 +28403,7 @@
   },
   "se-gratter": {
    "p": "sə gʁate",
-   "m": "compound"
+   "m": "lexdb"
   },
   "interne-m": {
    "p": "ɛ̃tɛʁn",
@@ -27321,15 +28415,15 @@
   },
   "prendre-la-tension": {
    "p": "pʁɑ̃dʁ la tɑ̃sjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-retablir": {
    "p": "sə ʁetabliʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-reveiller": {
    "p": "sə ʁeveje",
-   "m": "compound"
+   "m": "lexdb"
   },
   "sechement-adv": {
    "p": "sɛʃəmɑ̃",
@@ -27347,17 +28441,33 @@
    "p": "vɛn",
    "m": "word"
   },
+  "acceder-a-qc": {
+   "p": "aksede a kɛlk ʃoz",
+   "m": "compound"
+  },
   "se-detendre": {
    "p": "sə detɑ̃dʁ",
+   "m": "lexdb"
+  },
+  "exposer-qc": {
+   "p": "ɛkspoze kɛlk ʃoz",
    "m": "compound"
   },
   "se-marrer": {
    "p": "sə maʁe",
-   "m": "compound"
+   "m": "lexdb"
   },
   "visite-f": {
    "p": "vizit",
    "m": "word"
+  },
+  "visiter-qc": {
+   "p": "vizite kɛlk ʃoz",
+   "m": "compound"
+  },
+  "aupres-de-qn": {
+   "p": "opʁɛ də kɛlkœ̃",
+   "m": "compound"
   },
   "authentique-adj": {
    "p": "otɑ̃tik",
@@ -27365,11 +28475,15 @@
   },
   "avoir-a-sa-disposition-loc": {
    "p": "avwaʁ a sa dispozisjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "carte-bleue-f": {
    "p": "kaʁt blø",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "collaboratif-adj": {
+   "p": "kɔlabɔʁatif",
+   "m": "override"
   },
   "compulsif-adj": {
    "p": "kɔ̃pylsif",
@@ -27381,7 +28495,7 @@
   },
   "consommation-responsable": {
    "p": "kɔ̃somasjɔ̃ ʁɛspɔ̃sabl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "consomme-m": {
    "p": "kɔ̃some",
@@ -27389,18 +28503,30 @@
   },
   "deposer-de-l-argent-sur-un-livret-d-epargne": {
    "p": "depoze də laʁʒɑ̃ syʁ œ̃ livʁɛ depaʁɲ",
+   "m": "lexdb"
+  },
+  "devoir-de-l-argent-a-qn": {
+   "p": "dəvwaʁ də laʁʒɑ̃ a kɛlkœ̃",
    "m": "compound"
+  },
+  "distribuable-adj": {
+   "p": "distʁibɥabl",
+   "m": "override"
   },
   "distributeur-de-billets": {
    "p": "distʁibytœʁ də bijɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "economiser-pour": {
    "p": "ekonomize puʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "s-endetter": {
    "p": "sɑ̃dete",
+   "m": "lexdb"
+  },
+  "epargner-pour-qc": {
+   "p": "epaʁɲe puʁ kɛlk ʃoz",
    "m": "compound"
   },
   "equitable-adj": {
@@ -27409,14 +28535,22 @@
   },
   "se-faire-plaisir": {
    "p": "sə fɛʁ pleziʁ",
+   "m": "lexdb"
+  },
+  "financer-qc": {
+   "p": "finɑ̃se kɛlk ʃoz",
    "m": "compound"
   },
   "gagner-un-salaire": {
    "p": "gaɲe œ̃ salɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gerer-son-budget": {
    "p": "ʒeʁe sɔ̃ bydʒɛ",
+   "m": "lexdb"
+  },
+  "se-laisser-tenter-par-qc": {
+   "p": "sə lese tɑ̃te paʁ kɛlk ʃoz",
    "m": "compound"
   },
   "marque-f": {
@@ -27425,7 +28559,15 @@
   },
   "mettre-de-cote-loc": {
    "p": "mɛtʁ də kote",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "monetisation-f": {
+   "p": "mɔnetizasjɔ̃",
+   "m": "override"
+  },
+  "mutualiste-adj": {
+   "p": "mytɥalist",
+   "m": "override"
   },
   "onereux-adj": {
    "p": "oneʁø",
@@ -27437,7 +28579,7 @@
   },
   "payer-en-especes": {
    "p": "peje ɑ̃ ɛspɛs",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ponctuel-adj": {
    "p": "pɔ̃ktɥɛl",
@@ -27447,13 +28589,25 @@
    "p": "pɔ̃ktɥɛləmɑ̃",
    "m": "word"
   },
+  "porte-a-qc": {
+   "p": "pɔʁte a kɛlk ʃoz",
+   "m": "compound"
+  },
   "possessif-adj": {
    "p": "posesif",
    "m": "word"
   },
+  "preter-de-l-argent-a-qn": {
+   "p": "pʁete də laʁʒɑ̃ a kɛlkœ̃",
+   "m": "compound"
+  },
+  "privilegier-qn": {
+   "p": "pʁivileʒje kɛlkœ̃",
+   "m": "compound"
+  },
   "prix-exorbitant-m": {
    "p": "pʁi ɛgzɔʁbitɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "propriete-f": {
    "p": "pʁopʁijete",
@@ -27461,15 +28615,19 @@
   },
   "regler-ses-depenses": {
    "p": "ʁegle se depɑ̃s",
+   "m": "lexdb"
+  },
+  "remettre-qc-en-question": {
+   "p": "ʁəmɛtʁ kɛlk ʃoz ɑ̃ kɛstjɔ̃",
    "m": "compound"
   },
   "se-ruiner": {
    "p": "sə ʁɥine",
-   "m": "compound"
+   "m": "lexdb"
   },
   "s-organiser": {
    "p": "sɔʁganize",
-   "m": "compound"
+   "m": "lexdb"
   },
   "superette-f": {
    "p": "sypeʁɛt",
@@ -27489,7 +28647,7 @@
   },
   "s-y-mettre": {
    "p": "si mɛtʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "arbitraire-adj": {
    "p": "aʁbitʁɛʁ",
@@ -27503,33 +28661,41 @@
    "p": "astʁonot",
    "m": "word"
   },
+  "atteindre-qc": {
+   "p": "atɛ̃dʁ kɛlk ʃoz",
+   "m": "compound"
+  },
   "atteinte-f": {
    "p": "atɛ̃t",
    "m": "word"
   },
   "augmenter-le-volume": {
    "p": "ogmɑ̃te lə volym",
-   "m": "compound"
+   "m": "lexdb"
   },
   "avoir-conscience-que": {
    "p": "avwaʁ kɔ̃sjɑ̃s kə",
-   "m": "compound"
+   "m": "lexdb"
   },
   "banque-en-ligne-f": {
    "p": "bɑ̃k ɑ̃ liɲ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bimensuel-adj": {
    "p": "bimɑ̃sɥɛl",
    "m": "word"
   },
+  "chronophage-adj": {
+   "p": "kʁɔnɔfaʒ",
+   "m": "override"
+  },
   "se-comporter": {
    "p": "sə kɔ̃pɔʁte",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-connecter": {
    "p": "sə konɛkte",
-   "m": "compound"
+   "m": "lexdb"
   },
   "correspondant-m": {
    "p": "koʁɛspɔ̃dɑ̃",
@@ -27543,29 +28709,45 @@
    "p": "kʁipte",
    "m": "word"
   },
+  "cyberdependant": {
+   "p": "sibɛʁdepɑ̃dɑ̃",
+   "m": "override"
+  },
   "se-deconnecter": {
    "p": "sə dekonɛkte",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-defouler": {
    "p": "sə defule",
-   "m": "compound"
+   "m": "lexdb"
   },
   "denigrer-v": {
    "p": "denigʁe",
    "m": "word"
   },
+  "denoncer-qn": {
+   "p": "denɔ̃se kɛlkœ̃",
+   "m": "compound"
+  },
   "dessin-anime-m": {
    "p": "desɛ̃ anime",
-   "m": "compound"
+   "m": "lexdb"
   },
   "divertissant-adj": {
    "p": "divɛʁtisɑ̃",
    "m": "word"
   },
+  "echapper-a-qn": {
+   "p": "eʃape a kɛlkœ̃",
+   "m": "compound"
+  },
+  "effacer-qc": {
+   "p": "efase kɛlk ʃoz",
+   "m": "compound"
+  },
   "empieter-sur": {
    "p": "ɑ̃pjete syʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "endommage-adj": {
    "p": "ɑ̃domaʒe",
@@ -27573,35 +28755,71 @@
   },
   "envoyer-un-courriel": {
    "p": "ɑ̃vwaje œ̃ kuʁjɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "ethique-f": {
    "p": "etik",
    "m": "word"
   },
+  "etre-au-courant-de-qc": {
+   "p": "ɛtʁ o kuʁɑ̃ də kɛlk ʃoz",
+   "m": "compound"
+  },
   "etre-colle-aux-ecrans": {
    "p": "ɛtʁ kole o ekʁɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-curieux": {
    "p": "ɛtʁ kyʁjø",
-   "m": "compound"
+   "m": "lexdb"
   },
   "etre-decu": {
    "p": "ɛtʁ desy",
+   "m": "lexdb"
+  },
+  "etre-rive-a-qc": {
+   "p": "ɛtʁ ʁive a kɛlk ʃoz",
+   "m": "compound"
+  },
+  "etre-une-atteinte-a-qc": {
+   "p": "ɛtʁ yn atɛ̃t a kɛlk ʃoz",
+   "m": "compound"
+  },
+  "s-evader-de-qc": {
+   "p": "sevade də kɛlk ʃoz",
    "m": "compound"
   },
   "s-excuser": {
    "p": "sɛkskyze",
+   "m": "lexdb"
+  },
+  "face-a-qc": {
+   "p": "fas a kɛlk ʃoz",
    "m": "compound"
+  },
+  "faire-faire-qc-a-qn": {
+   "p": "fɛʁ fɛʁ kɛlk ʃoz a kɛlkœ̃",
+   "m": "compound"
+  },
+  "fm": {
+   "p": "ɛf ɛm",
+   "m": "acronym"
   },
   "illegal-adj": {
    "p": "ilegal",
    "m": "word"
   },
+  "inciter-qn-a-faire-qc": {
+   "p": "ɛ̃site kɛlkœ̃ a fɛʁ kɛlk ʃoz",
+   "m": "compound"
+  },
   "inedit-adj": {
    "p": "inedi",
    "m": "word"
+  },
+  "informer-qn-sur-qc": {
+   "p": "ɛ̃fɔʁme kɛlkœ̃ syʁ kɛlk ʃoz",
+   "m": "compound"
   },
   "innovant-adj": {
    "p": "inovɑ̃",
@@ -27609,7 +28827,7 @@
   },
   "jeux-video-en-ligne": {
    "p": "ʒø video ɑ̃ liɲ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "entrefilet": {
    "p": "ɑ̃tʁəfilɛ",
@@ -27617,23 +28835,31 @@
   },
   "faits-divers": {
    "p": "fɛ divɛʁ",
+   "m": "lexdb"
+  },
+  "liberer-qn": {
+   "p": "libeʁe kɛlkœ̃",
    "m": "compound"
   },
   "mauvaise-reputation-f": {
    "p": "movɛz ʁepytasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-mefier": {
    "p": "sə mefje",
+   "m": "lexdb"
+  },
+  "mentir-a-qn": {
+   "p": "mɑ̃tiʁ a kɛlkœ̃",
    "m": "compound"
   },
   "mettre-moins-fort": {
    "p": "mɛtʁ mwɛ̃ fɔʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "naviguer-sur-internet": {
    "p": "navige syʁ ɛ̃tɛʁnɛt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "nefaste-adj": {
    "p": "nefast",
@@ -27641,7 +28867,7 @@
   },
   "ondes-courtes": {
    "p": "ɔ̃d kuʁt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "parmi-prep": {
    "p": "paʁmi",
@@ -27651,16 +28877,24 @@
    "p": "paʁsjal",
    "m": "word"
   },
+  "posseder-qc": {
+   "p": "posede kɛlk ʃoz",
+   "m": "compound"
+  },
   "precaire-adj": {
    "p": "pʁekɛʁ",
    "m": "word"
   },
   "pres-de": {
-   "p": "pʁɛ də",
-   "m": "compound"
+   "p": "pʁɛdø",
+   "m": "lexdb"
   },
   "presse-people-f": {
    "p": "pʁɛs pipœl",
+   "m": "lexdb"
+  },
+  "pressentir-qc": {
+   "p": "pʁesɑ̃tiʁ kɛlk ʃoz",
    "m": "compound"
   },
   "psychologie": {
@@ -27671,9 +28905,17 @@
    "p": "pyblisitɛʁ",
    "m": "word"
   },
+  "publier-qc": {
+   "p": "pyblije kɛlk ʃoz",
+   "m": "compound"
+  },
   "pubs-f": {
    "p": "pœb",
    "m": "word"
+  },
+  "punir-qn": {
+   "p": "pyniʁ kɛlkœ̃",
+   "m": "compound"
   },
   "radiophonique-adj": {
    "p": "ʁadjofonik",
@@ -27681,14 +28923,22 @@
   },
   "recherche-scientifique": {
    "p": "ʁəʃɛʁʃ sjɑ̃tifik",
+   "m": "lexdb"
+  },
+  "regretter-qc": {
+   "p": "ʁəgʁete kɛlk ʃoz",
    "m": "compound"
   },
   "rendre-l-antenne": {
    "p": "ʁɑ̃dʁ lɑ̃tɛn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-renseigner": {
    "p": "sə ʁɑ̃seɲe",
+   "m": "lexdb"
+  },
+  "retenir-qn": {
+   "p": "ʁətəniʁ kɛlkœ̃",
    "m": "compound"
   },
   "revelateur-adj": {
@@ -27697,15 +28947,15 @@
   },
   "s-abetir-loc": {
    "p": "sabetiʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "serie-televisee": {
    "p": "seʁi televize",
-   "m": "compound"
+   "m": "lexdb"
   },
   "site-internet": {
    "p": "sit ɛ̃tɛʁnɛt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "solitaire-adj": {
    "p": "solitɛʁ",
@@ -27721,7 +28971,7 @@
   },
   "survoler-les-titres": {
    "p": "syʁvole le titʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "susceptible-adj": {
    "p": "sysɛptibl",
@@ -27729,7 +28979,7 @@
   },
   "taper-un-texto": {
    "p": "tape œ̃ tɛksto",
-   "m": "compound"
+   "m": "lexdb"
   },
   "televisuel-adj": {
    "p": "televizɥɛl",
@@ -27737,7 +28987,7 @@
   },
   "theorie-du-complot-f": {
    "p": "teoʁi dy kɔ̃plo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "abondance": {
    "p": "abɔ̃dɑ̃s",
@@ -27745,11 +28995,11 @@
   },
   "aboutir-a": {
    "p": "abutiʁ a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "s-apercevoir-de": {
    "p": "sapɛʁsəvwaʁ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "artisanat-m": {
    "p": "aʁtizana",
@@ -27757,7 +29007,7 @@
   },
   "s-associer-a": {
    "p": "sasosje a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "attrait-m": {
    "p": "atʁɛ",
@@ -27765,19 +29015,19 @@
   },
   "caisse-maladie-f": {
    "p": "kɛs maladi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "base-de-donnees-f": {
    "p": "baz də done",
-   "m": "compound"
+   "m": "lexdb"
   },
   "bombe-atomique-f": {
    "p": "bɔ̃b atomik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "calotte-glaciaire-f": {
    "p": "kalɔt glasjɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "capable-adj": {
    "p": "kapabl",
@@ -27785,27 +29035,31 @@
   },
   "cas-social-m": {
    "p": "ka sosjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "centrale-nucleaire-f": {
    "p": "sɑ̃tʁal nykleɛʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chaine-de-montage-f": {
    "p": "ʃɛn də mɔ̃taʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "chaine-hi-fi-f": {
    "p": "ʃɛn i fi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "circonscription-f": {
    "p": "siʁkɔ̃skʁipsjɔ̃",
    "m": "word"
   },
+  "clim-f": {
+   "p": "klim",
+   "m": "override"
+  },
   "commerce-equitable-m": {
    "p": "komɛʁs ekitabl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "communaute-f": {
    "p": "komynote",
@@ -27817,19 +29071,19 @@
   },
   "se-confier-a": {
    "p": "sə kɔ̃fje a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "confondre-avec-loc": {
    "p": "kɔ̃fɔ̃dʁ avɛk",
-   "m": "compound"
+   "m": "lexdb"
   },
   "conge-maternite-m": {
    "p": "kɔ̃ʒe matɛʁnite",
-   "m": "compound"
+   "m": "lexdb"
   },
   "contrat-a-duree-determinee-m": {
    "p": "kɔ̃tʁa a dyʁe detɛʁmine",
-   "m": "compound"
+   "m": "lexdb"
   },
   "convenir-v": {
    "p": "kɔ̃vəniʁ",
@@ -27841,15 +29095,15 @@
   },
   "couche-sociale-f": {
    "p": "kuʃ sosjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "cout-de-la-vie-m": {
    "p": "ku də la vi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "croissance-demographique-f": {
    "p": "kʁwasɑ̃s demogʁafik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "deboisement-m": {
    "p": "debwazəmɑ̃",
@@ -27861,7 +29115,7 @@
   },
   "demande-d-emploi-f": {
    "p": "dəmɑ̃d dɑ̃plwa",
-   "m": "compound"
+   "m": "lexdb"
   },
   "denree-f": {
    "p": "dɑ̃ʁe",
@@ -27869,15 +29123,15 @@
   },
   "declaration-de-revenus-f": {
    "p": "deklaʁasjɔ̃ də ʁəvəny",
-   "m": "compound"
+   "m": "lexdb"
   },
   "deduire-de": {
    "p": "dedɥiʁ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "degager-de": {
    "p": "degaʒe də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "degradation-f": {
    "p": "degʁadasjɔ̃",
@@ -27893,7 +29147,7 @@
   },
   "departement-des-ressources-humaines-m": {
    "p": "depaʁtəmɑ̃ de ʁəsuʁs ymɛn",
-   "m": "compound"
+   "m": "lexdb"
   },
   "dispositif": {
    "p": "dispozitif",
@@ -27905,7 +29159,7 @@
   },
   "droit-aux-prestations-m": {
    "p": "dʁwa o pʁɛstasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "famine-f": {
    "p": "famin",
@@ -27917,11 +29171,11 @@
   },
   "feuille-de-maladie-f": {
    "p": "fœj də maladi",
-   "m": "compound"
+   "m": "lexdb"
   },
   "fiche-de-paie-f": {
    "p": "fiʃ də pɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "foire-f": {
    "p": "fwaʁ",
@@ -27929,15 +29183,15 @@
   },
   "force-publique-f": {
    "p": "fɔʁs pyblik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "formation-pour-adultes-f": {
    "p": "fɔʁmasjɔ̃ puʁ adylt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "formation-professionnelle-f": {
    "p": "fɔʁmasjɔ̃ pʁofɛsjonɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "foyer-m": {
    "p": "fwaje",
@@ -27949,11 +29203,11 @@
   },
   "fromage-a-tartiner-m": {
    "p": "fʁomaʒ a taʁtine",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gaz-toxique-m": {
    "p": "gaz tɔksik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "geothermie-f": {
    "p": "ʒeotɛʁmi",
@@ -27961,7 +29215,7 @@
   },
   "gestion-de-l-entreprise-f": {
    "p": "ʒɛstjɔ̃ də lɑ̃tʁəpʁiz",
-   "m": "compound"
+   "m": "lexdb"
   },
   "gravure-f": {
    "p": "gʁavyʁ",
@@ -27969,7 +29223,7 @@
   },
   "s-immiscer-dans": {
    "p": "simise dɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "indissociable-adj": {
    "p": "ɛ̃disosjabl",
@@ -27985,35 +29239,35 @@
   },
   "s-interesser-a": {
    "p": "sɛ̃teʁese a",
-   "m": "compound"
+   "m": "lexdb"
   },
   "jeu-interactif-m": {
    "p": "ʒø ɛ̃tɛʁaktif",
-   "m": "compound"
+   "m": "lexdb"
   },
   "jeu-video-m": {
    "p": "ʒø video",
-   "m": "compound"
+   "m": "lexdb"
   },
   "le-cours-m": {
    "p": "lə kuʁ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "les-liens-sociaux-m": {
    "p": "ljɛ̃ sosjo",
-   "m": "compound"
+   "m": "lexdb"
   },
   "libre-circulation-f": {
    "p": "libʁ siʁkylasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "libre-service-m": {
    "p": "libʁəsɛʁvis",
    "m": "word"
   },
   "main-d-oeuvre-f": {
-   "p": "mɛ̃ dœvʁ",
-   "m": "compound"
+   "p": "mɛ̃dœvʁ",
+   "m": "word"
   },
   "malsain-adj": {
    "p": "malsɛ̃",
@@ -28033,7 +29287,7 @@
   },
   "milieu-naturel-m": {
    "p": "miljø natyʁɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "minorite-f": {
    "p": "minoʁite",
@@ -28041,7 +29295,7 @@
   },
   "mise-en-page-f": {
    "p": "miz ɑ̃ paʒ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "modem-m": {
    "p": "modɛm",
@@ -28049,15 +29303,15 @@
   },
   "moyen-de-communication-m": {
    "p": "mwajɛ̃ də komynikasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-mefier-de": {
    "p": "sə mefje də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "nappe-phreatique-f": {
    "p": "nap fʁeatik",
-   "m": "compound"
+   "m": "lexdb"
   },
   "notable-adj": {
    "p": "notabl",
@@ -28081,15 +29335,15 @@
   },
   "pays-en-voie-de-developpement-m": {
    "p": "pei ɑ̃ vwa də devəlɔpəmɑ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "piece-jointe-f": {
    "p": "pjɛs ʒwɛ̃t",
-   "m": "compound"
+   "m": "lexdb"
   },
   "se-plaindre-de": {
    "p": "sə plɛ̃dʁ də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "politicien-m": {
    "p": "politisjɛ̃",
@@ -28101,19 +29355,19 @@
   },
   "periode-d-essai-f": {
    "p": "peʁjɔd desɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prestation-de-service-f": {
    "p": "pʁɛstasjɔ̃ də sɛʁvis",
-   "m": "compound"
+   "m": "lexdb"
   },
   "prestation-sociale-f": {
    "p": "pʁɛstasjɔ̃ sosjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "produit-interieur-brut-m": {
    "p": "pʁodɥi ɛ̃teʁjœʁ bʁyt",
-   "m": "compound"
+   "m": "lexdb"
   },
   "profusion-f": {
    "p": "pʁofyzjɔ̃",
@@ -28122,6 +29376,10 @@
   "promulgation-f": {
    "p": "pʁomylgasjɔ̃",
    "m": "word"
+  },
+  "precariat-m": {
+   "p": "pʁekaʁja",
+   "m": "override"
   },
   "reconversion-f": {
    "p": "ʁəkɔ̃vɛʁsjɔ̃",
@@ -28169,11 +29427,15 @@
   },
   "secteur-industriel-m": {
    "p": "sektœʁ ɛ̃dystʁijɛl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "siege-social-m": {
    "p": "sjɛʒ sosjal",
-   "m": "compound"
+   "m": "lexdb"
+  },
+  "smartphone-m": {
+   "p": "smaʁtfɔn",
+   "m": "override"
   },
   "solvabilite-f": {
    "p": "sɔlvabilite",
@@ -28181,7 +29443,7 @@
   },
   "statut-social-m": {
    "p": "staty sosjal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "suffire-v": {
    "p": "syfiʁ",
@@ -28189,7 +29451,7 @@
   },
   "systeme-d-exploitation-m": {
    "p": "sistɛm dɛksplwatasjɔ̃",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tactile-adj": {
    "p": "taktil",
@@ -28197,7 +29459,7 @@
   },
   "taux-de-croissance-m": {
    "p": "to də kʁwasɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tiers-monde-m": {
    "p": "tjɛʁmɔ̃d",
@@ -28213,19 +29475,19 @@
   },
   "travail-par-interim-m": {
    "p": "tʁavaj paʁ ɛ̃teʁim",
-   "m": "compound"
+   "m": "lexdb"
   },
   "travailler-en-interim": {
    "p": "tʁavaje ɑ̃ ɛ̃teʁim",
-   "m": "compound"
+   "m": "lexdb"
   },
   "tri-des-dechets-m": {
    "p": "tʁi de deʃɛ",
-   "m": "compound"
+   "m": "lexdb"
   },
   "telephone-portable-m": {
    "p": "telefɔn pɔʁtabl",
-   "m": "compound"
+   "m": "lexdb"
   },
   "urbain-adj": {
    "p": "yʁbɛ̃",
@@ -28233,11 +29495,11 @@
   },
   "se-venger-de": {
    "p": "sə vɑ̃ʒe də",
-   "m": "compound"
+   "m": "lexdb"
   },
   "vente-par-correspondance-f": {
    "p": "vɑ̃t paʁ koʁɛspɔ̃dɑ̃s",
-   "m": "compound"
+   "m": "lexdb"
   },
   "violence-f": {
    "p": "vjolɑ̃s",
@@ -28249,19 +29511,11 @@
   },
   "zone-rurale-f": {
    "p": "zon ʁyʁal",
-   "m": "compound"
+   "m": "lexdb"
   },
   "utilite": {
    "p": "ytilite",
    "m": "word"
-  },
-  "quelqu-un": {
-   "p": "kɛlkœ̃",
-   "m": "manual"
-  },
-  "aujourd-hui": {
-   "p": "oʒuʁdɥi",
-   "m": "manual"
   }
  }
 }

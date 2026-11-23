@@ -1,4 +1,6 @@
 import {
+  clearTombstone,
+  markTombstone,
   MAX_DICT_FAVS,
   MAX_DICT_HISTORY,
   MAX_DICT_NOTES,
@@ -32,6 +34,7 @@ const EMPTY_REPORTS: readonly DictReport[] = [];
 
 const cleanId = (id: string): string => {
   const s = id.trim();
+  // eslint-disable-next-line no-control-regex
   return !s || s.length > 120 || /[\u0000-\u001f]/.test(s) ? "" : s;
 };
 
@@ -113,12 +116,12 @@ export function toggleDictFav(id: string): boolean {
       if (!next.length) {
         const { dictFavs: _f, ...rest } = p;
         void _f;
-        return rest;
+        return markTombstone(rest, `fav:${clean}`);
       }
-      return { ...p, dictFavs: next };
+      return markTombstone({ ...p, dictFavs: next }, `fav:${clean}`);
     }
     nowFav = true;
-    return { ...p, dictFavs: [clean, ...prev].slice(0, MAX_DICT_FAVS) };
+    return clearTombstone({ ...p, dictFavs: [clean, ...prev].slice(0, MAX_DICT_FAVS) }, `fav:${clean}`);
   });
   return nowFav;
 }
@@ -135,22 +138,28 @@ export function setDictNote(id: string, note: string): void {
   const clean = cleanId(id);
   if (!clean) return;
   const text = note.trim().slice(0, MAX_TIP);
+  const now = Date.now();
   store.progress((p) => {
     const prev = p.dictNotes ?? {};
+    const prevAt = p.dictNotesAt ?? {};
     if (!text) {
       if (!(clean in prev)) return p;
       const { [clean]: _drop, ...next } = prev;
       void _drop;
+      const nextAt = { ...prevAt, [clean]: now };
       if (!Object.keys(next).length) {
         const { dictNotes: _n, ...rest } = p;
         void _n;
-        return rest;
+        return markTombstone({ ...rest, dictNotesAt: nextAt }, `dictNote:${clean}`, now);
       }
-      return { ...p, dictNotes: next };
+      return markTombstone({ ...p, dictNotes: next, dictNotesAt: nextAt }, `dictNote:${clean}`, now);
     }
     if (prev[clean] === text) return p;
     if (!(clean in prev) && Object.keys(prev).length >= MAX_DICT_NOTES) return p;
-    return { ...p, dictNotes: { ...prev, [clean]: text } };
+    return clearTombstone(
+      { ...p, dictNotes: { ...prev, [clean]: text }, dictNotesAt: { ...prevAt, [clean]: now } },
+      `dictNote:${clean}`,
+    );
   });
 }
 

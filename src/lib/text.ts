@@ -81,3 +81,17 @@ export const splitPair = (s: string) => {
 };
 
 export const plural = (n: number) => n.toLocaleString("en-US");
+
+export type WordRegister = "soutenu" | "courant" | "familier";
+
+export const REGISTER_LABELS: Record<WordRegister, string> = {
+  soutenu: "正式 soutenu",
+  courant: "中性 courant",
+  familier: "口语 familier",
+};
+
+export const REGISTER_CHOICES: { value: WordRegister; label: string; hint: string }[] = [
+  { value: "soutenu", label: "soutenu", hint: "正式 / 书面语" },
+  { value: "courant", label: "courant", hint: "中性 / 通用语" },
+  { value: "familier", label: "familier", hint: "口语 / 非正式" },
+];

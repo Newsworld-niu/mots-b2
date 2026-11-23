@@ -195,20 +195,43 @@ def main():
                     break
                 prev_r = row[1]
 
-    # 4) Validate suggest.json
-    sug_p = out_dir / "suggest.json"
-    if not sug_p.exists():
-        errors.append("Missing suggest.json")
-    else:
-        total_bytes += sug_p.stat().st_size
-        sug = json.loads(sug_p.read_text(encoding="utf-8"))
-        if not isinstance(sug, list) or not sug:
-            errors.append("suggest.json is empty or not an array")
+    # 4) Validate sharded suggest/*.json (or legacy suggest.json)
+    if meta.get("suggestShards"):
+        sug_dir = out_dir / "suggest"
+        sug_files = sorted(sug_dir.glob("*.json")) if sug_dir.exists() else []
+        if not sug_files or not (sug_dir / "top.json").exists():
+            errors.append("Missing public/lexdb/suggest/*.json or suggest/top.json")
         else:
-            for row in sug[:500]:
-                if not (isinstance(row, list) and len(row) == 4 and isinstance(row[0], str) and isinstance(row[1], str) and isinstance(row[2], int) and isinstance(row[3], str)):
-                    errors.append(f"suggest.json invalid row: {row}")
-                    break
+            for sp in sug_files:
+                sz = sp.stat().st_size
+                total_bytes += sz
+                if sz > max_shard_bytes:
+                    max_shard_bytes = sz
+                    max_shard_name = f"suggest/{sp.name}"
+                if sz > MAX_SHARD_BYTES:
+                    errors.append(f"suggest/{sp.name} exceeds 400 KB limit ({sz} bytes)")
+                sug = json.loads(sp.read_text(encoding="utf-8"))
+                if not isinstance(sug, list) or not sug:
+                    errors.append(f"suggest/{sp.name} is empty or not an array")
+                else:
+                    for row in sug[:500]:
+                        if not (isinstance(row, list) and len(row) == 4 and isinstance(row[0], str) and isinstance(row[1], str) and isinstance(row[2], int) and isinstance(row[3], str)):
+                            errors.append(f"suggest/{sp.name} invalid row: {row}")
+                            break
+    else:
+        sug_p = out_dir / "suggest.json"
+        if not sug_p.exists():
+            errors.append("Missing suggest.json")
+        else:
+            total_bytes += sug_p.stat().st_size
+            sug = json.loads(sug_p.read_text(encoding="utf-8"))
+            if not isinstance(sug, list) or not sug:
+                errors.append("suggest.json is empty or not an array")
+            else:
+                for row in sug[:500]:
+                    if not (isinstance(row, list) and len(row) == 4 and isinstance(row[0], str) and isinstance(row[1], str) and isinstance(row[2], int) and isinstance(row[3], str)):
+                        errors.append(f"suggest.json invalid row: {row}")
+                        break
 
     # 5) Validate pilot 200 entries
     pilot_valid = 0

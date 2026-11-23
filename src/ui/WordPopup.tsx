@@ -13,7 +13,7 @@ import beauFixture from "../lib/lexdb/fixtures/beau.json";
 import prendreFixture from "../lib/lexdb/fixtures/prendre.json";
 import { isNative } from "../lib/native";
 import { href, openWord } from "../lib/router";
-import { addToDeck, createDeck, findSame } from "../store/decks";
+import { MAX_SOURCE_SENTENCE, addPicked, addToDeck, createDeck, findSame, setDeckNote } from "../store/decks";
 import { store, useStore } from "../store/store";
 import { Sheet } from "./Sheet";
 import { toast } from "./Toast";
@@ -48,14 +48,14 @@ const FIXTURE_FORMS: Record<string, string[]> = {
 };
 
 const ELISION_RE = /^(?:l|d|qu|j|m|t|s|n|c|jusqu|lorsqu|puisqu|quoiqu)['’]/i;
-const WORD_CHAR_RE = /[\p{L}'’\-]/u;
+const WORD_CHAR_RE = /[\p{L}'’-]/u;
 const FRENCH_LETTER_RE = /[A-Za-zÀ-ÿŒœ]/;
 
 function cleanSelectionText(raw: string): string {
   return raw
     .trim()
     .replace(/\s+/g, " ")
-    .replace(/^[«»"“”'‘’.,;:!?()[\]{}…—–\-]+|[«»"“”'‘’.,;:!?()[\]{}…—–\-]+$/g, "")
+    .replace(/^[«»"“”'‘’.,;:!?()[\]{}…—–-]+|[«»"“”'‘’.,;:!?()[\]{}…—–-]+$/g, "")
     .trim();
 }
 
@@ -117,7 +117,94 @@ export async function lookupLexdbWithFallback(rawQuery: string): Promise<Resolve
   return res;
 }
 
-function extractTappedFrenchWord(container: HTMLElement, clientX: number, clientY: number): string | null {
+interface LoungeTapContext {
+  sentence?: string;
+  source?: string;
+}
+
+function extractLoungeContext(node: Node | Element | null | undefined): LoungeTapContext | undefined {
+  const el =
+    node && "closest" in node && typeof node.closest === "function"
+      ? node
+      : node && "parentElement" in node
+        ? node.parentElement
+        : null;
+  const host = el?.closest("[data-lounge-sentence]");
+  if (!host) return undefined;
+  const sentence = host.getAttribute("data-lounge-sentence")?.trim() || undefined;
+  const source = host.getAttribute("data-lounge-source")?.trim() || undefined;
+  return sentence || source ? { sentence, source } : undefined;
+}
+
+function findTokenSpan(sentence: string, candidates: readonly string[]): [number, number] | undefined {
+  const lower = sentence.toLowerCase();
+  const isLetter = (ch: string | undefined) => !!ch && /\p{L}/u.test(ch);
+  for (const raw of candidates) {
+    const needle = raw.trim().toLowerCase();
+    if (!needle) continue;
+    let from = 0;
+    while (from <= lower.length - needle.length) {
+      const idx = lower.indexOf(needle, from);
+      if (idx < 0) break;
+      const end = idx + needle.length;
+      const before = idx > 0 ? sentence[idx - 1] : undefined;
+      const after = end < sentence.length ? sentence[end] : undefined;
+      if (!isLetter(before) && !isLetter(after)) {
+        return [idx, end];
+      }
+      from = idx + 1;
+    }
+  }
+  return undefined;
+}
+
+function prepareLoungeSentence(
+  rawSentence: string,
+  query: string,
+  headword?: string,
+): { sentence: string; span?: [number, number] } {
+  const clean = rawSentence.replace(/\s+/g, " ").trim();
+  const candidates = [...new Set([query, stripElision(query), ...(headword ? [headword] : [])].filter(Boolean))];
+  if (clean.length <= MAX_SOURCE_SENTENCE) {
+    return { sentence: clean, span: findTokenSpan(clean, candidates) };
+  }
+  const parts = clean.split(/(?<=[.!?…»])\s+/);
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    const sp = findTokenSpan(trimmed, candidates);
+    if (sp && trimmed.length <= MAX_SOURCE_SENTENCE) {
+      return { sentence: trimmed, span: sp };
+    }
+  }
+  const fullSpan = findTokenSpan(clean, candidates);
+  if (!fullSpan) {
+    return { sentence: `${clean.slice(0, MAX_SOURCE_SENTENCE - 1).trimEnd()}…` };
+  }
+  const [s0, e0] = fullSpan;
+  const budget = MAX_SOURCE_SENTENCE - 2;
+  const half = Math.max(0, Math.floor((budget - (e0 - s0)) / 2));
+  let winStart = Math.max(0, s0 - half);
+  const winEnd = Math.min(clean.length, winStart + budget);
+  if (winEnd - winStart < budget) winStart = Math.max(0, winEnd - budget);
+  const prefix = winStart > 0 ? "…" : "";
+  const suffix = winEnd < clean.length ? "…" : "";
+  const sliced = `${prefix}${clean.slice(winStart, winEnd)}${suffix}`;
+  const shiftedStart = s0 - winStart + prefix.length;
+  const shiftedEnd = e0 - winStart + prefix.length;
+  const span: [number, number] | undefined =
+    shiftedStart >= 0 && shiftedEnd <= sliced.length && shiftedStart < shiftedEnd
+      ? [shiftedStart, shiftedEnd]
+      : findTokenSpan(sliced, candidates);
+  return { sentence: sliced, span };
+}
+
+function extractTappedFrenchWord(
+  container: HTMLElement,
+  clientX: number,
+  clientY: number,
+  fallbackTarget?: Element | null,
+): { token: string; context?: LoungeTapContext } | null {
   let textNode: Node | null = null;
   let offset = 0;
 
@@ -156,8 +243,8 @@ function extractTappedFrenchWord(container: HTMLElement, clientX: number, client
   let end = pos + 1;
   while (start > 0 && WORD_CHAR_RE.test(text[start - 1])) start--;
   while (end < text.length && WORD_CHAR_RE.test(text[end])) end++;
-  while (start < end && /['’\-]/.test(text[start])) start++;
-  while (end > start && /['’\-]/.test(text[end - 1])) end--;
+  while (start < end && /['’-]/.test(text[start])) start++;
+  while (end > start && /['’-]/.test(text[end - 1])) end--;
   if (start >= end) return null;
 
   const range = document.createRange();
@@ -170,13 +257,17 @@ function extractTappedFrenchWord(container: HTMLElement, clientX: number, client
   if (!hit) return null;
 
   const token = cleanSelectionText(text.slice(start, end));
-  return token && FRENCH_LETTER_RE.test(token) ? token : null;
+  if (!token || !FRENCH_LETTER_RE.test(token)) return null;
+  const context = extractLoungeContext(textNode) ?? extractLoungeContext(fallbackTarget);
+  return { token, context };
 }
 
 interface PopupState {
   query: string;
   loading: boolean;
   result: ResolveResult | null;
+  contextSentence?: string;
+  contextSource?: string;
 }
 
 export interface WordPopupProps {
@@ -198,6 +289,7 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
 
   const atlas = useAtlas();
   const decks = useStore((s) => s.progress.decks) ?? [];
+  const customWords = useStore((s) => s.progress.custom);
   const readDeck = useStore((s) => s.settings.readDeck);
   const voice = useStore((s) => s.settings.accent);
 
@@ -219,16 +311,20 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
     }
   }, [containerRef]);
 
-  const lookup = useCallback(async (rawText: string) => {
+  const lookup = useCallback(async (rawText: string, context?: LoungeTapContext) => {
     const query = cleanSelectionText(rawText);
     if (!query || query.length > 60 || !FRENCH_LETTER_RE.test(query)) return;
     const id = ++reqId.current;
-    setPopup({ query, loading: true, result: null });
+    const contextSentence = context?.sentence;
+    const contextSource = context?.source;
+    setPopup({ query, loading: true, result: null, contextSentence, contextSource });
     try {
       const result = await lookupLexdbWithFallback(query);
-      if (reqId.current === id) setPopup({ query, loading: false, result });
+      if (reqId.current === id) setPopup({ query, loading: false, result, contextSentence, contextSource });
     } catch {
-      if (reqId.current === id) setPopup({ query, loading: false, result: { entries: [], matchedVia: "none" } });
+      if (reqId.current === id) {
+        setPopup({ query, loading: false, result: { entries: [], matchedVia: "none" }, contextSentence, contextSource });
+      }
     }
   }, []);
 
@@ -254,7 +350,7 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
       const text = cleanSelectionText(sel.toString());
       if (!text || text.length > 60 || !FRENCH_LETTER_RE.test(text)) return false;
       lastSelectAt.current = Date.now();
-      void lookup(text);
+      void lookup(text, extractLoungeContext(anchorEl));
       return true;
     };
 
@@ -286,8 +382,8 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
       if (!target || !el.contains(target)) return;
       if (target.closest("[data-word-popup-zone]") !== el) return;
       if (isInteractive(target)) return;
-      const token = extractTappedFrenchWord(el, e.clientX, e.clientY);
-      if (token) void lookup(token);
+      const tapped = extractTappedFrenchWord(el, e.clientX, e.clientY, target);
+      if (tapped) void lookup(tapped.token, tapped.context);
     };
 
     el.addEventListener("mouseup", onMouseUp);
@@ -339,7 +435,13 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
 
   const entry = popup?.result?.entries[0] ?? null;
   const atlasMatch = useMemo(() => (entry ? findSame(atlas, entry.w)[0] : undefined), [atlas, entry]);
-  const inDeck = !!atlasMatch && !!deck?.words.includes(atlasMatch.id);
+  const savedWordId = useMemo(() => {
+    if (atlasMatch) return atlasMatch.id;
+    if (!entry || !customWords) return undefined;
+    const target = entry.w.trim().toLowerCase();
+    return Object.keys(customWords).find((k) => customWords[k].w.trim().toLowerCase() === target);
+  }, [atlasMatch, entry, customWords]);
+  const inDeck = !!savedWordId && !!deck?.words.includes(savedWordId);
 
   const topSenses = useMemo(() => {
     if (!entry) return [];
@@ -419,8 +521,8 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
             )}
 
             <div className="word-popup-actions">
-              {atlasMatch && inDeck ? (
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => openWord(atlasMatch.id)}>
+              {savedWordId && inDeck ? (
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => openWord(savedWordId)}>
                   <Check size={14} /> 已在「{deckName}」
                 </button>
               ) : atlasMatch ? (
@@ -429,9 +531,31 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
                   className="btn btn-ghost btn-sm"
                   onClick={() => {
                     const id = targetDeck();
-                    addToDeck(id, atlasMatch.id);
-                    const name = store.get().progress.decks?.find((d) => d.id === id)?.name ?? POPUP_DECK;
-                    toast(`已加入「${name}」`, "ok");
+                    if (popup.contextSentence) {
+                      const { sentence, span } = prepareLoungeSentence(popup.contextSentence, popup.query, atlasMatch.word);
+                      addPicked(
+                        id,
+                        [
+                          {
+                            kind: "atlas",
+                            id: atlasMatch.id,
+                            word: atlasMatch.word,
+                            zh: atlasMatch.zh,
+                            sentence,
+                            span,
+                            deckNote: popup.contextSource,
+                          },
+                        ],
+                        true,
+                      );
+                      if (popup.contextSource) setDeckNote(id, atlasMatch.id, popup.contextSource);
+                      const name = store.get().progress.decks?.find((d) => d.id === id)?.name ?? POPUP_DECK;
+                      toast(`已连同原句加入「${name}」`, "ok");
+                    } else {
+                      addToDeck(id, atlasMatch.id);
+                      const name = store.get().progress.decks?.find((d) => d.id === id)?.name ?? POPUP_DECK;
+                      toast(`已加入「${name}」`, "ok");
+                    }
                   }}
                 >
                   <Plus size={14} /> 加入生词本 / 复习
@@ -440,7 +564,45 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
-                  onClick={() => setFormState({ entry, deckId: targetDeck() })}
+                  onClick={() => {
+                    const id = targetDeck();
+                    if (popup.contextSentence) {
+                      const seed = entryToSeed(entry);
+                      if (seed.zh.trim()) {
+                        const prevWords = new Set(store.get().progress.decks?.find((d) => d.id === id)?.words ?? []);
+                        const { sentence, span } = prepareLoungeSentence(popup.contextSentence, popup.query, entry.w);
+                        addPicked(
+                          id,
+                          [
+                            {
+                              kind: "dict",
+                              word: seed.w,
+                              pos: seed.pos,
+                              ipa: seed.ipa || undefined,
+                              zh: seed.zh,
+                              dictEx: seed.ex,
+                              note: seed.note || undefined,
+                              col: seed.col,
+                              fam: seed.fam,
+                              sentence,
+                              span,
+                              deckNote: popup.contextSource,
+                            },
+                          ],
+                          true,
+                        );
+                        if (popup.contextSource) {
+                          const updatedWords = store.get().progress.decks?.find((d) => d.id === id)?.words ?? [];
+                          const addedId = updatedWords.find((wId) => !prevWords.has(wId)) ?? updatedWords[updatedWords.length - 1];
+                          if (addedId) setDeckNote(id, addedId, popup.contextSource);
+                        }
+                        const name = store.get().progress.decks?.find((d) => d.id === id)?.name ?? POPUP_DECK;
+                        toast(`已连同原句加入「${name}」`, "ok");
+                        return;
+                      }
+                    }
+                    setFormState({ entry, deckId: id });
+                  }}
                 >
                   <Plus size={14} /> 加入生词本 / 复习
                 </button>

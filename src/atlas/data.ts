@@ -1,5 +1,7 @@
 import type { Atlas, Entry, IndexRow, WordRef } from "./types";
 import { MEDIA } from "./types";
+import { resolveMediaUrl } from "../lib/media";
+import { LruCache } from "../lib/lru";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 const url = (p: string) => `${BASE}/atlas/${p}`;
@@ -46,7 +48,7 @@ export async function loadOpenAtlas(): Promise<Atlas> {
     ...(r[8]?.length ? { more: r[8] } : {}),
   }));
   const byId = new Map(words.map((w) => [w.id, w]));
-  const cache = new Map<string, Entry>();
+  const cache = new LruCache<string, Entry>(600);
   const pending = new Map<number, Promise<void>>();
 
   const loadChunk = (n: number) => {
@@ -58,9 +60,8 @@ export async function loadOpenAtlas(): Promise<Atlas> {
           return r.json() as Promise<Entry[]>;
         })
         .then((list) => list.forEach((e) => cache.set(e.id, e)))
-        .catch((e) => {
+        .finally(() => {
           pending.delete(n);
-          throw e;
         });
       pending.set(n, p);
     }
@@ -100,7 +101,7 @@ export async function loadOpenAtlas(): Promise<Atlas> {
       const first = kind === "uk" || kind === "us" ? kind : voice;
       for (const v of [first, first === "uk" ? "us" : "uk"] as const) {
         const file = AUDIO_FILES[kind === "uk" || kind === "us" ? v : `${kind}-${v}`];
-        if (m & file.bit) return url(`audio/${file.dir}/${ref.id}.mp3`);
+        if (m & file.bit) return resolveMediaUrl(`atlas/audio/${file.dir}/${ref.id}.mp3`, import.meta.env.BASE_URL);
       }
       return null;
     },

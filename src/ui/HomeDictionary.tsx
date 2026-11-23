@@ -4,7 +4,7 @@ import { ready, useAiConfig } from "../ai/config";
 import { completeGaps } from "../ai/tasks";
 import { useAtlas } from "../atlas/context";
 import { lookupDict, type DictHit } from "../lib/dict";
-import { frdicUrl, GAP, loadFrdic, type DictionaryNode, type FrdicResult } from "../lib/frdic";
+import { canAutoFetchFrdic, frdicUrl, GAP, loadFrdic, type DictionaryNode, type FrdicResult } from "../lib/frdic";
 import { buildSeed, CAPACITY, dictPicks, frdicPicks, hasGap, KIND_LABEL, KINDS, tooLong, withZh, type Pick, type Seed } from "../lib/lookup";
 import { isNative } from "../lib/native";
 import { openWord } from "../lib/router";
@@ -92,17 +92,25 @@ export function HomeDictionary() {
   }, [atlas, term, hits]);
 
   const close = () => { job.current?.abort(); setBusy(false); setError(""); setResult(null); setHits(null); setTerm(""); setChosen([]); };
+  const fetchFrdic = async (word: string, c: AbortController) => {
+    setBusy(true); setError(""); setResult(null);
+    try { const data = await loadFrdic(word, c.signal); if (!c.signal.aborted) setResult(data); }
+    catch (e) { if (!c.signal.aborted) setError((e as Error).message); }
+    finally { if (!c.signal.aborted) setBusy(false); }
+  };
   const search = async () => {
     const word = query.trim();
     if (!word) return;
     job.current?.abort();
     const c = new AbortController(); job.current = c;
-    setTerm(word); setBusy(true); setError(""); setResult(null); setHits(null); setChosen([]);
-    // the offline dictionary and 法语助手 are asked separately: one failing leaves the other's answer on the screen
+    setTerm(word); setError(""); setResult(null); setHits(null); setChosen([]);
+    // the offline dictionary (LexDB) always runs locally; 法语助手 auto-fetches only when native or local proxy is available
     void lookupDict(word).then((h) => { if (!c.signal.aborted) setHits(h); }, () => { if (!c.signal.aborted) setHits([]); });
-    try { const data = await loadFrdic(word, c.signal); if (!c.signal.aborted) setResult(data); }
-    catch (e) { if (!c.signal.aborted) setError((e as Error).message); }
-    finally { if (!c.signal.aborted) setBusy(false); }
+    if (canAutoFetchFrdic()) {
+      await fetchFrdic(word, c);
+    } else {
+      setBusy(false);
+    }
   };
 
   /** The deck words go to: the one chosen, else 阅读生词 (made the first time). */
@@ -169,18 +177,29 @@ export function HomeDictionary() {
       </details>
 
       <details className="lookup-section" open={dictOnly.length > 0}>
-        <summary>离线词典 <small>{dictBusy ? "查询中…" : `${dictOnly.length} 项`}</small></summary>
-        {dictOnly.length === 0 ? <p className="lookup-empty">{dictBusy ? "正在查询…" : "离线词典里没有这个词。"}</p> : <>
+        <summary>离线大词典 (LexDB) <small>{dictBusy ? "查询中…" : `${dictOnly.length} 项`}</small></summary>
+        {dictOnly.length === 0 ? <p className="lookup-empty">{dictBusy ? "正在查询…" : "词典里没有这个词。"}</p> : <>
           {(hits ?? [])[0]?.form && <p className="muted small">「{term}」是 <span lang="fr">{hits![0].w}</span> 的变化形式。</p>}
           <Picks picks={dictOnly} chosen={list} toggle={toggle} />
         </>}
       </details>
 
       <details className="lookup-section" open={frdicOnly.length > 0 || !!error || busy}>
-        <summary>法语助手 <small>{busy ? "查询中…" : error ? "查询失败" : `${frdicOnly.length} 项`}</small></summary>
+        <summary>法语助手 <small>{busy ? "查询中…" : error ? "查询失败" : result ? `${frdicOnly.length} 项` : canAutoFetchFrdic() ? "0 项" : "静态托管不自动请求"}</small></summary>
         {busy && <p role="status" className="lookup-empty">正在查询法语助手…</p>}
         {error && <div role="alert" className="lookup-error"><p>{error}</p><button className="btn btn-ghost btn-sm" onClick={() => void search()}>重新查询</button></div>}
-        {!busy && !error && frdicOnly.length === 0 && <p className="lookup-empty">法语助手里没有可以选的内容。</p>}
+        {!busy && !error && !result && !canAutoFetchFrdic() && (
+          <div className="lookup-empty">
+            <p>静态托管环境不自动抓取法语助手，避免额外 404 请求；可前往 <a className="link" href={`#/dict?w=${encodeURIComponent(term)}`}>LexDB 完整词典</a> 或打开法语助手原文查看。</p>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => {
+              job.current?.abort();
+              const c = new AbortController();
+              job.current = c;
+              void fetchFrdic(term, c);
+            }}>尝试联网查询法语助手</button>
+          </div>
+        )}
+        {!busy && !error && (!!result || canAutoFetchFrdic()) && frdicOnly.length === 0 && <p className="lookup-empty">法语助手里没有可以选的内容。</p>}
         {frdicOnly.length > 0 && <>
           <p className="muted small">词典把不少汉字画成图片，复制不出来，这些字在这里显示为 <i className="pick-gap">□</i>；选中后可以让 AI 补全。</p>
           <Picks picks={frdicOnly} chosen={list} toggle={toggle} />

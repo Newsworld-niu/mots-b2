@@ -4,7 +4,10 @@
  * strengths and weaknesses across vocabulary, grammar, reading, and listening.
  */
 
-export type PlacementSection = "vocab" | "grammar" | "read" | "listen";
+import { countWords } from "./essay-schema";
+import type { ExamResult } from "./exam-schema";
+import type { PlacementProduction, PlacementResult, PlacementSection } from "./placement-schema";
+export * from "./placement-schema";
 
 export interface PlacementQuestion {
   id: string;
@@ -15,23 +18,6 @@ export interface PlacementQuestion {
   options: readonly string[];
   answer: number;
   why: string;
-}
-
-export interface PlacementResult {
-  at: number;
-  /** Recommended CEFR index (0 = A1, 1 = A2, 2 = B1, 3 = B2). */
-  level: number;
-  /** Weighted overall score 0..100. */
-  score: number;
-  sections: {
-    vocab: number;
-    grammar: number;
-    read: number;
-    /** Null when listening was skipped due to device/environment constraints. */
-    listen: number | null;
-  };
-  /** Sections below target readiness, weakest first. */
-  weak: PlacementSection[];
 }
 
 export const PLACEMENT_ESTIMATE = "约 10–15 分钟";
@@ -69,8 +55,8 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     level: "A1",
     weight: 1,
     prompt: "Avant de partir en voyage, n'oubliez pas de ______ votre valise.",
-    options: ["faire", "dire", "savoir", "pouvoir"],
-    answer: 0,
+    options: ["dire", "savoir", "faire", "pouvoir"],
+    answer: 2,
     why: "faire sa valise 是固定搭配（收拾行李）。",
   },
   {
@@ -79,8 +65,8 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     level: "A2",
     weight: 1,
     prompt: "Ce documentaire m'a vraiment ______, je n'ai pas vu le temps passer.",
-    options: ["passionné", "ennuyé", "empêché", "regretté"],
-    answer: 0,
+    options: ["ennuyé", "passionné", "empêché", "regretté"],
+    answer: 1,
     why: "passionner 表示“使着迷”；后句“没觉察时间流逝”印证正向吸引。",
   },
   {
@@ -89,8 +75,8 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     level: "B1",
     weight: 1.5,
     prompt: "La municipalité souhaite ______ les émissions de gaz à effet de serre d'ici 2030.",
-    options: ["réduire", "produire", "subir", "hausser"],
-    answer: 0,
+    options: ["produire", "subir", "hausser", "réduire"],
+    answer: 3,
     why: "réduire les émissions de gaz à effet de serre（减少温室气体排放）是 B1/B2 环保高频搭配。",
   },
   {
@@ -109,8 +95,8 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     level: "B2",
     weight: 2,
     prompt: "Malgré les critiques initiales, cette réforme s'est ______ efficace à long terme.",
-    options: ["avérée", "avouée", "accordée", "adressée"],
-    answer: 0,
+    options: ["avouée", "accordée", "avérée", "adressée"],
+    answer: 2,
     why: "s'avérer + 形容词表示“结果证明是……”，典型 B2 书面语表达。",
   },
   {
@@ -119,8 +105,8 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     level: "B2",
     weight: 2,
     prompt: "______ de sensibiliser le public, l'association organise des ateliers gratuits.",
-    options: ["Afin", "Grâce", "Malgré", "Quant"],
-    answer: 0,
+    options: ["Grâce", "Afin", "Malgré", "Quant"],
+    answer: 1,
     why: "afin de + 不定式表示目的（“为了……”）；grâce à / malgré / quant à 后接名词。",
   },
 
@@ -131,8 +117,8 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     level: "A2",
     weight: 1,
     prompt: "Hier soir, je ______ tranquillement quand le téléphone a sonné.",
-    options: ["lisais", "ai lu", "lirai", "lise"],
-    answer: 0,
+    options: ["ai lu", "lirai", "lise", "lisais"],
+    answer: 3,
     why: "背景持续动作（当时正在读）用未完成过去时 lisais，打断事件用复合过去时 a sonné。",
   },
   {
@@ -151,8 +137,8 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     level: "B1",
     weight: 1.5,
     prompt: "Bien qu'il ______ très tard, elle continue de relire son rapport.",
-    options: ["soit", "est", "sera", "était"],
-    answer: 0,
+    options: ["est", "soit", "sera", "était"],
+    answer: 1,
     why: "bien que 引导让步状语从句，后接虚拟式 subjonctif（soit）。",
   },
   {
@@ -161,8 +147,8 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     level: "B1",
     weight: 1.5,
     prompt: "Si les transports gratuits existaient partout, davantage de citoyens ______ leur voiture au garage.",
-    options: ["laisseraient", "laissent", "laisseront", "ont laissé"],
-    answer: 0,
+    options: ["laissent", "laisseront", "laisseraient", "ont laissé"],
+    answer: 2,
     why: "si + imparfait（非真实假设），主句必须用条件式现在时 conditionnel présent（laisseraient）。",
   },
   {
@@ -171,8 +157,8 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     level: "B2",
     weight: 2,
     prompt: "Lorsqu'elle est arrivée à la gare, le train ______ déjà ______.",
-    options: ["était ... parti", "est ... parti", "sera ... parti", "avait ... parti"],
-    answer: 0,
+    options: ["est ... parti", "sera ... parti", "avait ... parti", "était ... parti"],
+    answer: 3,
     why: "过去的过去（先时性）用愈过去时 plus-que-parfait，且 partir 以 être 作助动词：était parti。",
   },
   {
@@ -195,10 +181,10 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     prompt: "Quel changement concret a déjà été observé dans certaines villes françaises ?",
     options: [
       "L'interdiction totale des voitures dans toute la ville.",
-      "La fermeture de rues devant les écoles aux heures d'affluence.",
       "La suppression des transports en commun en périphérie.",
+      "La fermeture de rues devant les écoles aux heures d'affluence.",
     ],
-    answer: 1,
+    answer: 2,
     why: "原文第一段明确提到学校周边道路在高峰时段禁止通行（aux heures de pointe = aux heures d'affluence）。",
   },
   {
@@ -238,11 +224,11 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     weight: 1.5,
     prompt: "Selon l'étude citée, quel est l'effet positif des tablettes en classe ?",
     options: [
-      "Elles remplacent complètement les manuels scolaires.",
       "Elles stimulent l'envie de faire des exercices de lecture rapide.",
+      "Elles remplacent complètement les manuels scolaires.",
       "Elles améliorent automatiquement l'écriture manuscrite.",
     ],
-    answer: 1,
+    answer: 0,
     why: "听力文本提到：l'outil numérique motive les élèves pour les exercices de lecture rapide（motive = stimule l'envie）。",
   },
   {
@@ -252,11 +238,11 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
     weight: 2,
     prompt: "Quelle limite les deux tiers des enseignants constatent-ils ?",
     options: [
-      "Les élèves mémorisent moins bien les idées difficiles sur écran.",
       "Les tablettes tombent souvent en panne pendant les cours.",
       "Les parents refusent que leurs enfants utilisent des livres papier.",
+      "Les élèves mémorisent moins bien les idées difficiles sur écran.",
     ],
-    answer: 0,
+    answer: 2,
     why: "听力文本转折：retiennent moins bien les notions complexes lorsqu'ils lisent sur écran。",
   },
   {
@@ -277,8 +263,42 @@ export const PLACEMENT_QUESTIONS: readonly PlacementQuestion[] = [
 
 const pct = (earned: number, total: number) => (total > 0 ? Math.round((earned / total) * 100) : 0);
 
+export const PLACEMENT_PRODUCTION_PROMPT = {
+  title: "3 分钟微写作诊断（选做）",
+  questionFr: "Dans votre ville, faudrait-il rendre les transports en commun gratuits ou investir plutôt dans de nouvelles lignes ? Donnez votre avis en quelques phrases structurées (60–90 mots).",
+  tipZh: "建议写清立场 + 1 个让步转折（如 certes / mais / toutefois / bien que）+ 1 个因果或建议句；可跳过，不影响客观题定级分。",
+};
+
+const PROD_CONNECTOR_RE = /\b(cependant|toutefois|néanmoins|en revanche|certes|malgré|bien que|quoique|car|en effet|puisque|donc|c'est pourquoi|par conséquent|d'une part|d'autre part|par ailleurs|selon moi|en somme|tandis que|alors que|afin de)\b/gi;
+const PROD_CLAUSE_RE = /\b(qui|que|dont|où|pour que|bien que|parce que|si|lorsque|afin que|soit|ait|fasse|puisse|convienne)\b/gi;
+
+/** Offline heuristic evaluation of the optional 3-minute placement micro-writing response. */
+export function evaluateMicroProduction(text: string): PlacementProduction {
+  const clean = text.trim();
+  const words = countWords(clean);
+  const connectorHits = new Set((clean.match(PROD_CONNECTOR_RE) ?? []).map((x) => x.toLowerCase())).size;
+  const clauseHits = (clean.match(PROD_CLAUSE_RE) ?? []).length;
+  const longWords = (clean.toLowerCase().match(/\p{L}{7,}/gu) ?? []).length;
+
+  const wordPts = words >= 55 ? 40 : words >= 35 ? 28 : words >= 20 ? 16 : 6;
+  const structPts = Math.min(40, connectorHits * 11 + Math.min(2, clauseHits) * 7);
+  const lexPts = Math.min(20, longWords * 3);
+  const score = Math.min(100, wordPts + structPts + lexPts);
+
+  const band: PlacementProduction["band"] =
+    score >= 70 && words >= 55 && connectorHits >= 2 ? "B2" : score >= 40 && words >= 28 ? "B1" : "A2";
+
+  const notes: string[] = [];
+  if (words < 45) notes.push(`篇幅较短（${words} 词），B2 书面立论建议至少展开至 60–90 词。`);
+  if (connectorHits < 2) notes.push("逻辑连接偏单一，可加入 certes… mais、toutefois 或 par conséquent 串联让步与因果。");
+  if (clauseHits === 0 && words >= 20) notes.push("缺少复合从句（qui/que/dont 或虚拟式），目前偏简单单句表达。");
+  if (notes.length === 0) notes.push("微写作衔接清晰、篇幅适中，具备 B2 书面立论展开能力。");
+
+  return { words, band, score, connectors: connectorHits, notes };
+}
+
 /** Compute level recommendation (0=A1 .. 3=B2) and section breakdown from quiz answers. */
-export function scorePlacement(answers: Record<string, number>, skipListen = false, now = Date.now()): PlacementResult {
+export function scorePlacement(answers: Record<string, number>, skipListen = false, now = Date.now(), productionText?: string): PlacementResult {
   const secScore = (sec: PlacementSection) => {
     const qs = PLACEMENT_QUESTIONS.filter((q) => q.section === sec);
     let earned = 0;
@@ -311,6 +331,7 @@ export function scorePlacement(answers: Record<string, number>, skipListen = fal
   entries.sort((a, b) => a[1] - b[1]);
   const below = entries.filter(([, p]) => p < 70).map(([s]) => s);
   const weak = below.length ? below : entries[0][1] < 95 ? [entries[0][0]] : [];
+  const production = productionText?.trim() ? evaluateMicroProduction(productionText) : undefined;
 
   return {
     at: now,
@@ -323,32 +344,47 @@ export function scorePlacement(answers: Record<string, number>, skipListen = fal
       listen: listen ? listen.pct : null,
     },
     weak,
+    ...(production ? { production } : {}),
   };
 }
 
-const VALID_SECTIONS = new Set<PlacementSection>(["vocab", "grammar", "read", "listen"]);
-
-export function sanitizePlacement(v: unknown): PlacementResult | undefined {
-  if (!v || typeof v !== "object" || Array.isArray(v)) return undefined;
-  const r = v as Record<string, unknown>;
-  const num = (x: unknown, lo: number, hi: number) => typeof x === "number" && Number.isFinite(x) && x >= lo && x <= hi;
-  if (!num(r.at, 0, Infinity) || !num(r.level, 0, 3) || !num(r.score, 0, 100)) return undefined;
-  const s = r.sections;
-  if (!s || typeof s !== "object" || Array.isArray(s)) return undefined;
-  const sec = s as Record<string, unknown>;
-  if (!num(sec.vocab, 0, 100) || !num(sec.grammar, 0, 100) || !num(sec.read, 0, 100)) return undefined;
-  if (sec.listen !== null && !num(sec.listen, 0, 100)) return undefined;
-  const weak = Array.isArray(r.weak) ? [...new Set(r.weak.filter((x): x is PlacementSection => typeof x === "string" && VALID_SECTIONS.has(x as PlacementSection)))] : [];
-  return {
-    at: r.at as number,
-    level: Math.round(r.level as number),
-    score: Math.round(r.score as number),
-    sections: {
-      vocab: Math.round(sec.vocab as number),
-      grammar: Math.round(sec.grammar as number),
-      read: Math.round(sec.read as number),
-      listen: sec.listen === null ? null : Math.round(sec.listen as number),
-    },
-    weak,
-  };
+/**
+ * Convert a completed placement diagnostic into explicitly `unverified: true` exam log entries
+ * so `ExamDashboard` can display placement estimates separately without polluting verified B2 `/100` readiness.
+ */
+export function placementToExamResults(res: PlacementResult): Omit<ExamResult, "at">[] {
+  const out: Omit<ExamResult, "at">[] = [];
+  const to25 = (pctVal: number) => Math.round((pctVal / 100) * 250) / 10;
+  out.push({
+    part: "read",
+    what: "placement-ce",
+    score: to25(res.sections.read),
+    total: 25,
+    level: "B2",
+    scope: "full",
+    unverified: true,
+  });
+  if (res.sections.listen !== null) {
+    out.push({
+      part: "listen",
+      what: "placement-co",
+      score: to25(res.sections.listen),
+      total: 25,
+      level: "B2",
+      scope: "full",
+      unverified: true,
+    });
+  }
+  if (res.production) {
+    out.push({
+      part: "essay",
+      what: "placement-pe",
+      score: to25(res.production.score),
+      total: 25,
+      level: "B2",
+      scope: "full",
+      unverified: true,
+    });
+  }
+  return out;
 }

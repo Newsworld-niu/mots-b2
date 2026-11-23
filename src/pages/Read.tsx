@@ -10,6 +10,7 @@ import { joinGlosses, lookupDict } from "../lib/dict";
 import { foldAccents } from "../lib/accent";
 import { FUNCTION_WORDS } from "../lib/extract";
 import { ACCEPT, readImport } from "../lib/files";
+import { READ_PRESETS, readPresetById } from "../lib/read-presets";
 import { annotate, coverage, MAX_TEXT_LENGTH, pickTargets, readStats, unknownShare, type QuizItem, type ReadSentence, type ReadToken, type SavedText, type WordStatus } from "../lib/reader";
 import { go, href, openWord } from "../lib/router";
 import { addPicked, createDeck, MAX_SOURCE_SENTENCE } from "../store/decks";
@@ -18,9 +19,43 @@ import { store, useStore } from "../store/store";
 import { deleteText, markTextRead, saveText } from "../store/texts";
 import { toast } from "../ui/Toast";
 import { WordPopup } from "../ui/WordPopup";
+import "../styles/listening.css";
+
+const B2_CONNECTOR_RES: RegExp[] = [
+  /\b(?:sans pour autant|en revanche|par ailleurs|en outre|dès lors|par conséquent|au demeurant|de surcroît|à l['’]inverse|en définitive|en somme|en effet|pour autant|à condition qu(?:e|['’])|tandis qu(?:e|['’])|alors qu(?:e|['’])|bien qu(?:e|['’])|quoiqu(?:e|['’])|faute de|cependant|néanmoins|toutefois|pourtant|certes|ainsi|malgré|or)\b/giu,
+];
+
+function connectorRanges(text: string): [number, number][] {
+  const ranges: [number, number][] = [];
+  for (const re of B2_CONNECTOR_RES) {
+    re.lastIndex = 0;
+    for (let m = re.exec(text); m; m = re.exec(text)) {
+      ranges.push([m.index, m.index + m[0].length]);
+    }
+  }
+  return ranges;
+}
 
 const READ_DECK = "阅读生词";
 const SRC_LABEL: Record<SavedText["src"], string> = { paste: "粘贴", file: "导入", ai: "AI 生成" };
+const PRESET_DONE_KEY = "fb2.read.presets.done.v1";
+
+function readPresetDoneSet(): Set<string> {
+  try {
+    const raw = JSON.parse(localStorage.getItem(PRESET_DONE_KEY) || "[]");
+    return new Set(Array.isArray(raw) ? raw.filter((x): x is string => typeof x === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function writePresetDoneSet(ids: Set<string>) {
+  try {
+    localStorage.setItem(PRESET_DONE_KEY, JSON.stringify([...ids]));
+  } catch {
+    /* ignore quota/private mode */
+  }
+}
 /** The colours and what they mean, shown as the legend. */
 const LEGEND: [Exclude<WordStatus, "function" | "name">, string, string][] = [
   ["new", "没学过", "词库或离线词典里有，你还没开始学"],
@@ -41,13 +76,50 @@ const withStatus = (paras: ReadSentence[][], cards: Record<string, CardState>) =
 const annotateFor = (atlas: Atlas, text: string) => annotate(text, atlas, () => "new", lookupDict);
 
 export function Read({ textId }: { textId?: string }) {
-  const text = useStore((s) => s.progress.texts?.find((t) => t.id === textId));
-  return text ? <Reader key={text.id} text={text} /> : <Library />;
+  const [presetDone, setPresetDone] = useState<Set<string>>(() => readPresetDoneSet());
+  const saved = useStore((s) => s.progress.texts?.find((t) => t.id === textId));
+  const preset = !saved ? readPresetById(textId) : undefined;
+  const togglePresetRead = (id: string, done: boolean) => {
+    setPresetDone((cur) => {
+      const next = new Set(cur);
+      if (done) next.add(id);
+      else next.delete(id);
+      writePresetDoneSet(next);
+      return next;
+    });
+  };
+  if (saved) return <Reader key={saved.id} text={saved} />;
+  if (preset) {
+    return (
+      <Reader
+        key={preset.id}
+        text={{
+          id: preset.id,
+          title: preset.title,
+          text: preset.text,
+          created: 0,
+          src: "file",
+          level: preset.level,
+          zh: preset.zh,
+          quiz: preset.quiz,
+          ...(presetDone.has(preset.id) ? { read: 1 } : {}),
+        }}
+        presetLabel={`精选 B2 · ${preset.topicZh}`}
+        onMarkPreset={(done) => togglePresetRead(preset.id, done)}
+        onSavePresetCopy={() => {
+          const id = saveText({ title: preset.title, text: preset.text, src: "file", level: preset.level, zh: preset.zh, quiz: preset.quiz });
+          toast("已收藏到「我的文章」，可随时保留笔记", "ok");
+          go({ page: "read", t: id });
+        }}
+      />
+    );
+  }
+  return <Library presetDone={presetDone} />;
 }
 
 /* ---------- 文章列表、导入、AI 生成 ---------- */
 
-function Library() {
+function Library({ presetDone }: { presetDone: Set<string> }) {
   const atlas = useAtlas();
   const ai = useAiConfig();
   const texts = useStore((s) => s.progress.texts) ?? [];
@@ -59,7 +131,7 @@ function Library() {
   const [fromFile, setFromFile] = useState(false);
   const [busy, setBusy] = useState<"" | "file" | "ai">("");
   const [kind, setKind] = useState<"récit" | "dialogue" | "article">("récit");
-  const [length, setLength] = useState(150);
+  const [length, setLength] = useState(250);
   const [confirm, setConfirm] = useState<string | null>(null);
   const ctrl = useRef<AbortController | null>(null);
   useEffect(() => () => ctrl.current?.abort(), []);
@@ -145,97 +217,54 @@ function Library() {
   return (
     <div className="page read">
       <header className="page-head">
+        <div className="segmented gram-tabs" role="tablist" aria-label="阅读训练模式">
+          <a role="tab" aria-selected={true} className="is-on" href="#/read">
+            报刊精读（免 AI）
+          </a>
+          <a role="tab" aria-selected={false} href="#/examread">
+            CE 应试阅读
+          </a>
+        </div>
         <p className="eyebrow">阅读 · Lecture</p>
         <h1 className="display">把词，放回文章里。</h1>
-        <p className="lede">读成篇的法语：点任何一个词查意思、加进卡组，逐句朗读当听力。阅读不改动记忆进度。</p>
+        <p className="lede">读成篇的法语：先从下方 10 篇免 AI 精选报刊直接开读，点词查释义、加进卡组、逐句朗读当听力；阅读不改动记忆进度。</p>
+        <p>
+          <a className="btn btn-ghost btn-sm" href="#/lounge?shelf=books">
+            去书架与睡前小品 →
+          </a>
+        </p>
       </header>
 
-      <div className="read-grid">
-        <section className="panel">
-          <h3 className="eyebrow">导入一篇文章</h3>
-          <input className="read-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="标题（可不填）" maxLength={80} aria-label="标题" />
-          <textarea
-            className="read-draft"
-            lang="fr"
-            rows={7}
-            value={draft}
-            onChange={(e) => setDraft(e.target.value.slice(0, MAX_TEXT_LENGTH))}
-            placeholder="粘贴一段法语：新闻、课文、邮件、歌词……"
-            spellCheck={false}
-            aria-label="文章内容"
-          />
-          <div className="read-actions">
-            <label className={`btn btn-ghost ${busy ? "is-disabled" : ""}`}>
-              <FileUp size={16} /> {busy === "file" ? "读取中…" : "从文件或照片"}
-              <input
-                type="file"
-                accept={ACCEPT}
-                hidden
-                disabled={!!busy}
-                onChange={(e) => {
-                  void onFile(e.target.files?.[0]);
-                  e.target.value = "";
-                }}
-              />
-            </label>
-            <button className="btn btn-primary" onClick={save} disabled={!draft.trim()}>
-              保存并阅读
-            </button>
-          </div>
-          <p className="muted small">
-            文章只存在这台设备上，会进备份。{draft ? `${wordCount(draft)} 词` : `最多 ${MAX_TEXT_LENGTH} 个字符`}；txt、docx 直接读取，图片和 PDF 用识图服务。
-          </p>
-        </section>
-
-        <section className="panel">
-          <h3 className="eyebrow">AI 按你在学的词写一篇</h3>
-          {targets.length ? (
-            <>
-              <p className="muted small">会用上这些词（今天到期的、最近答错的，不够时从学习路线补）：</p>
-              <p className="read-targets" lang="fr">
-                {targets.map((w) => (
-                  <button key={w.id} className="chip" onClick={() => openWord(w.id)} title={w.zh}>
-                    {w.word}
-                  </button>
-                ))}
-              </p>
-              <div className="read-options">
-                <div className="segmented">
-                  {KINDS.map(([k, label]) => (
-                    <button key={k} className={kind === k ? "is-on" : ""} onClick={() => setKind(k)} aria-pressed={kind === k}>
-                      {label}
-                    </button>
-                  ))}
-                </div>
-                <div className="segmented">
-                  {[100, 150, 220].map((n) => (
-                    <button key={n} className={length === n ? "is-on" : ""} onClick={() => setLength(n)} aria-pressed={length === n}>
-                      约 {n} 词
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {ready.text(ai) ? (
-                <button className="btn btn-primary" onClick={generate} disabled={!!busy}>
-                  <Sparkles size={16} /> {busy === "ai" ? "生成中（约 20–40 秒）…" : `生成一篇 ${level} 的${KINDS.find(([k]) => k === kind)![1]}`}
-                </button>
-              ) : (
-                <p className="muted small">
-                  先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置生成卡片服务。
-                </p>
-              )}
-              <p className="muted small">附中文译文和 3 道理解题。AI 写的内容未经人工核对，会标「AI 生成」。</p>
-            </>
-          ) : (
-            <p className="muted">词库还没有加载好。</p>
-          )}
-        </section>
-      </div>
+      <section className="panel read-list">
+        <h2 className="eyebrow">
+          精选 DELF B2 报刊读物（免 AI 即开即读） <small>{READ_PRESETS.length} 篇</small>
+        </h2>
+        <ul>
+          {READ_PRESETS.map((p) => (
+            <li key={p.id}>
+              <a href={href({ page: "read", t: p.id })}>
+                <b lang="fr">{p.title}</b>
+                <small>
+                  <span className="chip chip-preset">{p.topicZh}</span>
+                  <span>{p.level}</span>
+                  <span>{wordCount(p.text)} 词</span>
+                  <span>{p.sourceNote}</span>
+                  {presetDone.has(p.id) && (
+                    <span className="read-done">
+                      <Check size={13} /> 读过
+                    </span>
+                  )}
+                </small>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="panel read-list">
-        <h3 className="eyebrow">我的文章 {texts.length > 0 && <small>{texts.length} 篇</small>}</h3>
+        <h2 className="eyebrow">我的文章 {texts.length > 0 && <small>{texts.length} 篇</small>}</h2>
         {texts.length === 0 ? (
-          <p className="muted">还没有文章。粘贴一段法语，或让 AI 写一篇。</p>
+          <p className="muted">还没有自存文章。可先阅读上方「精选 DELF B2 报刊读物」，或在下方粘贴一段法语。</p>
         ) : (
           <ul>
             {texts.map((t) => (
@@ -279,6 +308,88 @@ function Library() {
           </ul>
         )}
       </section>
+
+      <div className="read-grid">
+        <section className="panel">
+          <h2 className="eyebrow">导入一篇文章</h2>
+          <input className="read-title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="标题（可不填）" maxLength={80} aria-label="标题" />
+          <textarea
+            className="read-draft"
+            lang="fr"
+            rows={7}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value.slice(0, MAX_TEXT_LENGTH))}
+            placeholder="粘贴一段法语：新闻、课文、邮件、歌词……"
+            spellCheck={false}
+            aria-label="文章内容"
+          />
+          <div className="read-actions">
+            <label className={`btn btn-ghost ${busy ? "is-disabled" : ""}`}>
+              <FileUp size={16} /> {busy === "file" ? "读取中…" : "从文件或照片"}
+              <input
+                type="file"
+                accept={ACCEPT}
+                hidden
+                disabled={!!busy}
+                onChange={(e) => {
+                  void onFile(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            <button className="btn btn-primary" onClick={save} disabled={!draft.trim()}>
+              保存并阅读
+            </button>
+          </div>
+          <p className="muted small">
+            文章只存在这台设备上，会进备份。{draft ? `${wordCount(draft)} 词` : `最多 ${MAX_TEXT_LENGTH} 个字符`}；txt、docx 直接读取，图片和 PDF 用识图服务。
+          </p>
+        </section>
+
+        <section className="panel">
+          <h2 className="eyebrow">AI 按你在学的词写一篇</h2>
+          {targets.length ? (
+            <>
+              <p className="muted small">会用上这些词（今天到期的、最近答错的，不够时从学习路线补）：</p>
+              <p className="read-targets" lang="fr">
+                {targets.map((w) => (
+                  <button key={w.id} className="chip" onClick={() => openWord(w.id)} title={w.zh}>
+                    {w.word}
+                  </button>
+                ))}
+              </p>
+              <div className="read-options">
+                <div className="segmented">
+                  {KINDS.map(([k, label]) => (
+                    <button key={k} className={kind === k ? "is-on" : ""} onClick={() => setKind(k)} aria-pressed={kind === k}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <div className="segmented">
+                  {[150, 250, 450, 600].map((n) => (
+                    <button key={n} className={length === n ? "is-on" : ""} onClick={() => setLength(n)} aria-pressed={length === n}>
+                      约 {n} 词
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {ready.text(ai) ? (
+                <button className="btn btn-primary" onClick={generate} disabled={!!busy}>
+                  <Sparkles size={16} /> {busy === "ai" ? "生成中（约 20–40 秒）…" : `生成一篇 ${level} 的${KINDS.find(([k]) => k === kind)![1]}`}
+                </button>
+              ) : (
+                <p className="muted small">
+                  先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置 AI 文本服务。
+                </p>
+              )}
+              <p className="muted small">附中文译文和 3 道理解题。AI 写的内容未经人工核对，会标「AI 生成」。</p>
+            </>
+          ) : (
+            <p className="muted">词库还没有加载好。</p>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
@@ -292,7 +403,17 @@ interface Picked {
   at: number;
 }
 
-function Reader({ text }: { text: SavedText }) {
+function Reader({
+  text,
+  presetLabel,
+  onMarkPreset,
+  onSavePresetCopy,
+}: {
+  text: SavedText;
+  presetLabel?: string;
+  onMarkPreset?: (done: boolean) => void;
+  onSavePresetCopy?: () => void;
+}) {
   const atlas = useAtlas();
   const cards = useStore((s) => s.progress.cards);
   const decks = useStore((s) => s.progress.decks) ?? [];
@@ -303,6 +424,7 @@ function Reader({ text }: { text: SavedText }) {
   const [picked, setPicked] = useState<Picked | null>(null);
   const [playing, setPlaying] = useState<number | null>(null);
   const [showZh, setShowZh] = useState(false);
+  const [showConnectors, setShowConnectors] = useState(false);
   const run = useRef(0);
   const readerRef = useRef<HTMLDivElement>(null);
 
@@ -403,12 +525,15 @@ function Reader({ text }: { text: SavedText }) {
           <label className="reader-toggle">
             <input type="checkbox" checked={colors} onChange={(e) => store.settings({ readColors: e.target.checked })} /> 按熟悉度给词上色
           </label>
+          <label className="reader-toggle">
+            <input type="checkbox" checked={showConnectors} onChange={(e) => setShowConnectors(e.target.checked)} /> B2 逻辑连接词高亮
+          </label>
         </div>
       </header>
 
       <article className="panel reader-body">
         <p className="eyebrow">
-          <span className={`chip ${text.src === "ai" ? "chip-ai" : ""}`}>{SRC_LABEL[text.src]}</span>
+          <span className={`chip ${presetLabel ? "chip-preset" : text.src === "ai" ? "chip-ai" : ""}`}>{presetLabel ?? SRC_LABEL[text.src]}</span>
           {text.level && <span> {text.level}</span>} · {wordCount(text.text)} 词
           {text.src === "ai" && " · 未经人工核对"}
         </p>
@@ -437,15 +562,21 @@ function Reader({ text }: { text: SavedText }) {
               <p key={pi}>
                 {para.map((s, si) => {
                   const at = cursor++;
+                  const cRanges = showConnectors ? connectorRanges(s.text) : [];
                   const parts: React.ReactNode[] = [];
                   let pos = 0;
                   s.tokens.forEach((t, ti) => {
                     if (t.s > pos) parts.push(s.text.slice(pos, t.s));
+                    const isConn = cRanges.some(([cs, ce]) => t.s < ce && t.e > cs);
                     parts.push(
                       t.status === "name" ? (
-                        <span key={ti}>{t.t}</span>
+                        <span key={ti} className={isConn ? "rw-connector" : undefined}>{t.t}</span>
                       ) : (
-                        <button key={ti} className={`rw rw-${t.status} ${picked?.tok === paras![pi][si].tokens[ti] ? "is-picked" : ""}`} onClick={() => pick(paras![pi][si].tokens[ti], s.text, at)}>
+                        <button
+                          key={ti}
+                          className={`rw rw-${t.status} ${isConn ? "rw-connector" : ""} ${picked?.tok === paras![pi][si].tokens[ti] ? "is-picked" : ""}`}
+                          onClick={() => pick(paras![pi][si].tokens[ti], s.text, at)}
+                        >
                           {t.t}
                         </button>
                       ),
@@ -493,9 +624,17 @@ function Reader({ text }: { text: SavedText }) {
               看中文译文
             </button>
           ))}
-        <button className={`btn ${text.read ? "btn-ghost" : "btn-primary"}`} onClick={() => markTextRead(text.id, !text.read)}>
+        <button
+          className={`btn ${text.read ? "btn-ghost" : "btn-primary"}`}
+          onClick={() => (onMarkPreset ? onMarkPreset(!text.read) : markTextRead(text.id, !text.read))}
+        >
           <Check size={16} /> {text.read ? "已读（点一下取消）" : "读完了"}
         </button>
+        {onSavePresetCopy && (
+          <button className="btn btn-ghost" onClick={onSavePresetCopy}>
+            <Plus size={16} /> 收藏到我的文章
+          </button>
+        )}
       </section>
 
       {/* in the body: the page's entry animation leaves a transform that would trap position: fixed */}

@@ -2,7 +2,7 @@
  * Sound design: short UI cues and looping ambience, played through Web Audio so
  * loops are gapless and the ambience can duck under pronunciations.
  */
-const BASE = `${import.meta.env.BASE_URL}sfx/`;
+const BASE = `${typeof import.meta !== "undefined" && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : "/"}sfx/`;
 
 export type Cue = "correct" | "wrong" | "flip" | "page" | "complete" | "streak" | "start" | "tap" | "key" | "twinkle" | "fly" | "ignite";
 export const AMBIENCE = [
@@ -104,7 +104,9 @@ export async function cue(name: Cue) {
 let amb: { id: AmbienceId; src: AudioBufferSourceNode; gain: GainNode } | null = null;
 let ambVolume = 0.5;
 let ducked = false;
+let ambSuspended = false;
 const level = () => ambVolume * (ducked ? 0.35 : 1) * 0.9;
+const targetAmbLevel = () => (ambSuspended ? 0 : level());
 
 function fadeTo(g: GainNode, v: number, seconds: number) {
   const c = ctx!;
@@ -116,7 +118,7 @@ function fadeTo(g: GainNode, v: number, seconds: number) {
 export async function setAmbience(id: AmbienceId | null, volume = ambVolume) {
   ambVolume = volume;
   if (amb && amb.id === id) {
-    fadeTo(amb.gain, level(), 0.4);
+    fadeTo(amb.gain, targetAmbLevel(), 0.4);
     return;
   }
   const old = amb;
@@ -141,13 +143,24 @@ export async function setAmbience(id: AmbienceId | null, volume = ambVolume) {
   src.connect(gain).connect(master);
   src.start(0, 0.06);
   amb = { id, src, gain };
-  fadeTo(gain, level(), 2);
+  fadeTo(gain, targetAmbLevel(), 2);
 }
 
 /** Lower the ambience while a word or sentence is being spoken. */
 export function duck(on: boolean) {
   ducked = on;
-  if (amb) fadeTo(amb.gain, level(), on ? 0.15 : 0.6);
+  if (amb && !ambSuspended) fadeTo(amb.gain, level(), on ? 0.15 : 0.6);
+}
+
+/** Temporarily mute ambience while Lounge video or audiobook playback is active, restoring smoothly afterwards. */
+export function suspendAmbience(on: boolean): void {
+  if (ambSuspended === on) return;
+  ambSuspended = on;
+  if (amb && ctx) fadeTo(amb.gain, on ? 0 : level(), on ? 0.25 : 0.6);
+}
+
+export function isAmbienceSuspended(): boolean {
+  return ambSuspended;
 }
 
 export const ambienceId = () => amb?.id ?? null;

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { directUrl, proxyUrl, toResponse } from "./proxy.ts";
+import { sanitizeBaseUrl } from "./config.ts";
+import { AiError, directUrl, fetchWithTimeout, proxyUrl, resolveOpenAiEndpoint, toResponse } from "./proxy.ts";
 
 test("in the app each service is called at its own address; Azure by region", () => {
   assert.equal(directUrl("openai", "/v1/chat/completions"), "https://api.openai.com/v1/chat/completions");
@@ -35,4 +36,29 @@ test("a native answer becomes a fetch Response: parsed JSON, base64 bytes, error
 
   const failed = toResponse({ status: 429, headers: { "Content-Type": "application/json" }, data: { error: { message: "quota" } } });
   assert.equal((await failed.json()).error.message, "quota");
+});
+
+test("sanitizeBaseUrl validates HTTPS / localhost origins and resolveOpenAiEndpoint avoids double /v1", () => {
+  assert.equal(sanitizeBaseUrl("https://relay.example.com/"), "https://relay.example.com");
+  assert.equal(sanitizeBaseUrl("https://api.groq.com/openai/v1/"), "https://api.groq.com/openai/v1");
+  assert.equal(sanitizeBaseUrl("http://localhost:11434/v1/"), "http://localhost:11434/v1");
+  assert.equal(sanitizeBaseUrl("http://evil.example.com/v1"), "");
+  assert.equal(sanitizeBaseUrl("javascript:alert(1)"), "");
+
+  assert.equal(resolveOpenAiEndpoint("", "/chat/completions"), "/ai-proxy/openai/v1/chat/completions");
+  assert.equal(resolveOpenAiEndpoint("https://relay.example.com", "/chat/completions"), "https://relay.example.com/v1/chat/completions");
+  assert.equal(resolveOpenAiEndpoint("https://relay.example.com/v1", "/models"), "https://relay.example.com/v1/models");
+  assert.equal(resolveOpenAiEndpoint("https://api.groq.com/openai/v1", "/audio/transcriptions"), "https://api.groq.com/openai/v1/audio/transcriptions");
+  assert.equal(resolveOpenAiEndpoint("https://dashscope.aliyuncs.com/compatible-mode/v1", "/chat/completions"), "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions");
+});
+
+test("fetchWithTimeout rejects with clear AiError timeout message", async () => {
+  const hanging: typeof fetch = (_input, init) =>
+    new Promise((_resolve, reject) => {
+      init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), { once: true });
+    });
+  await assert.rejects(
+    () => fetchWithTimeout("https://example.com", undefined, 25, "OpenAI", hanging),
+    (err: unknown) => err instanceof AiError && err.message.includes("OpenAI 请求超时"),
+  );
 });

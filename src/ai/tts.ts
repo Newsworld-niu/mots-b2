@@ -2,36 +2,19 @@
  * Azure speech for words and sentences without a recording, cached in IndexedDB (one MP3 per voice and text)
  * so each text is paid for once. Not part of backups: lost audio is simply made again.
  */
-import { azureSpeak, azureSpeakSsml } from "./clients";
+import { createIdb } from "../lib/idb";
 import { getAiConfig, ready } from "./config";
 
 const DB = "word-atlas-tts";
 const STORE = "audio";
 const MAX_TEXT = 400;
 
-let db: Promise<IDBDatabase | null> | null = null;
-function open() {
-  if (typeof indexedDB === "undefined") return Promise.resolve(null);
-  db ??= new Promise((resolve) => {
-    const req = indexedDB.open(DB, 1);
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => resolve(null);
-  });
-  return db;
-}
+const ttsIdb = createIdb(DB, 1, (d) => {
+  if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE);
+});
 
-function run<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T | null> {
-  return open().then(
-    (d) =>
-      new Promise((resolve) => {
-        if (!d) return resolve(null);
-        const req = fn(d.transaction(STORE, mode).objectStore(STORE));
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = () => resolve(null);
-      }),
-  );
-}
+const run = <T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>) =>
+  ttsIdb.tx(STORE, mode, fn);
 
 const cacheKey = (voice: string, text: string) => `${voice}\n${text}`;
 const urls = new Map<string, string>();
@@ -49,7 +32,7 @@ export function ttsUrl(text: string, accentOrVoice: string = "uk"): Promise<stri
   const c = getAiConfig();
   const voice = accentOrVoice === "us" ? c.azureVoiceMale : accentOrVoice === "uk" ? c.azureVoice : accentOrVoice;
   const k = cacheKey(voice, clean);
-  const p = getOrFetch(k, () => azureSpeak(clean, voice));
+  const p = getOrFetch(k, async () => (await import("./clients")).azureSpeak(clean, voice));
   return p;
 }
 
@@ -81,7 +64,7 @@ function getOrFetch(k: string, synth: () => Promise<Blob>): Promise<string> {
 
 /** Cacheable object URL for a full SSML passage (including multi-speaker dialogues). */
 export function ttsSsmlUrl(ssml: string): Promise<string> {
-  return getOrFetch(`ssml\n${hashTag(ssml)}\n${ssml.length}`, () => azureSpeakSsml(ssml));
+  return getOrFetch(`ssml\n${hashTag(ssml)}\n${ssml.length}`, async () => (await import("./clients")).azureSpeakSsml(ssml));
 }
 
 export async function ttsCacheSize() {

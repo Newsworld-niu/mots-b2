@@ -29,29 +29,48 @@ test("P1: preset-read-3 fixes zh hallucinations, R3_LONG_2 Q2/Q5, R3_OPINIONS Q4
     assert.ok(!zh1.includes(extra), `R3_LONG_1 zh still contains hallucinated text: ${extra}`);
   }
 
-  // 2. R3_LONG_2 Q2 no longer narrows to "à Paris"
-  const q2 = r3.exs[1].questions[1];
-  assert.equal(q2.qType, "vf");
-  assert.ok(!q2.q.includes("à Paris"));
-  assert.equal(gradeCompQuestion(q2, 0, q2.quote, r3.exs[1].docs[0].text).correct, true);
-
-  // 3. R3_LONG_2 Q5 accepted contains both "de 2%" and "de 2 %" and grades variants cleanly
-  const q5 = r3.exs[1].questions[4];
-  assert.equal(q5.qType, "short");
-  assert.ok(q5.accepted?.includes("de 2%"));
-  assert.ok(q5.accepted?.includes("de 2 %"));
-  for (const ans of ["2%", "2 %", "de 2%", "de 2 %", "deux pour cent", "2 pour cent"]) {
-    assert.equal(gradeCompQuestion(q5, undefined, ans, r3.exs[1].docs[0].text).correct, true, ans);
+  // 2. Post-2020 DELF B2 reading format: all preset reading papers use 100% 3-option QCMs with verbatim evidence & trapTypes
+  const readPapers = PRESET_PAPERS.filter((p) => p.kind === "read");
+  assert.equal(readPapers.length, 5);
+  const listenPapers = PRESET_PAPERS.filter((p) => p.kind === "listen");
+  assert.equal(listenPapers.length, 5);
+  for (const paper of [...readPapers, ...listenPapers]) {
+    assert.equal(paper.exs.reduce((n, ex) => n + exercisePoints(ex), 0), 25, paper.id);
+    for (const ex of paper.exs) {
+      assert.equal(isValidComprehension(ex, ex.form), true, `${paper.id}:${ex.title}`);
+      assert.deepEqual(qualityIssues(ex), [], `${paper.id}:${ex.title}`);
+    }
+  }
+  for (const paper of readPapers) {
+    for (const ex of paper.exs) {
+      for (const q of ex.questions) {
+        assert.ok(!q.qType || q.qType === "qcm", `${paper.id}: unexpected legacy qType ${q.qType}`);
+        assert.equal(q.options.length, 3, `${paper.id}: ${q.q}`);
+        assert.equal(gradeCompQuestion(q, q.answer, undefined, ex.docs[q.doc].text).correct, true, `${paper.id}: ${q.q}`);
+      }
+    }
   }
 
-  // 4. R3_OPINIONS Q4 uniquely points to Sophie (education civique dès le plus jeune âge)
+  // 3. R3_LONG_2 Q2 avoids narrowing to "à Paris" and carries verbatim evidence + 3 trap annotations
+  const q2 = r3.exs[1].questions[1];
+  assert.ok(!q2.q.includes("à Paris"));
+  assert.ok(q2.evidence && r3.exs[1].docs[0].text.includes(q2.evidence));
+  assert.equal(q2.trapTypes?.length, 3);
+  assert.equal(gradeCompQuestion(q2, q2.answer, undefined, r3.exs[1].docs[0].text).correct, true);
+
+  // 4. R3_LONG_2 Q6 (INSEE 2% income drop) carries verbatim evidence inside doc text
+  const q6 = r3.exs[1].questions[5];
+  assert.ok(q6.evidence?.includes("2%"));
+  assert.ok(q6.evidence && r3.exs[1].docs[0].text.includes(q6.evidence));
+
+  // 5. R3_OPINIONS Q4 uniquely points to Sophie (éducation civique dès le plus jeune âge)
   const q4Op = r3.exs[2].questions[3];
   assert.equal(q4Op.answer, 2);
   assert.equal(q4Op.options[2], "Sophie");
   assert.ok(!q4Op.q.includes("fausser les résultats"));
   assert.ok(q4Op.q.includes("éducation civique"));
 
-  // 5. 待核对 annotation preserved in source
+  // 6. 待核对 annotation preserved in source
   const presetsSrc = fs.readFileSync(path.resolve("src/lib/exam-presets.ts"), "utf8");
   assert.ok(presetsSrc.includes("待核对"));
 });

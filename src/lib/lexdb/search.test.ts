@@ -489,3 +489,41 @@ test("entryToSeed converts LexEntry fixtures into WordForm/createCustomWord comp
   assert.equal(cleaned.custom?.[id]?.w, "beau");
   assert.equal(cleaned.custom?.[id]?.ex?.[1]?.src, "tatoeba");
 });
+
+test("sharded suggest mode queries suggest/<bucket>.json and suggest/top.json instead of suggest.json", async () => {
+  const asked: string[] = [];
+  const files: Record<string, unknown> = {
+    "/lexdb/meta.json": {
+      version: 1,
+      generated: "2026-11-22",
+      sources: { atlas: "atlas", lexique: "lexique" },
+      licenses: ["CC BY-SA 4.0"],
+      splits: ["pr"],
+      suggestShards: true,
+      suggestSplits: ["a"],
+      counts: { lemmas: 4, withZh: 4 },
+    },
+    "/lexdb/suggest/top.json": [
+      ["accueil", "accueil", 1650, "接待；迎接；欢迎"],
+      ["beau", "beau", 200, "英俊的；晴朗的"],
+    ],
+    "/lexdb/suggest/ac.json": [["accueil", "accueil", 1650, "接待；迎接；欢迎"]],
+    "/lexdb/suggest/b.json": [["beau", "beau", 200, "英俊的；晴朗的"]],
+    "/lexdb/suggest/q.json": [],
+    "/lexdb/suggest/c.json": [],
+    "/lexdb/zh/10.json": { 接待: [["accueil", 1650]] },
+  };
+
+  setLexdbFetcher(async (url) => {
+    asked.push(url);
+    return files[url] ?? null;
+  });
+
+  const sug = await suggest("acc");
+  assert.equal(sug[0][0], "accueil");
+  const dym = await didYouMean("qcceuil");
+  assert.equal(dym[0][0], "accueil");
+  const zh = await zhLookup("接待");
+  assert.equal(zh[0].w, "accueil");
+  assert.equal(asked.includes("/lexdb/suggest.json"), false);
+});

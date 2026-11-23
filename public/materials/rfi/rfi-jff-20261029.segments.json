@@ -1,0 +1,644 @@
+{
+  "id": "rfi-jff-20261029",
+  "audio": "materials/rfi/rfi-jff-20261029.mp3",
+  "duration": 600.11,
+  "method": "ffmpeg-silence-align",
+  "segments": [
+    {
+      "idx": 0,
+      "start": 0.19,
+      "end": 5.97,
+      "text": "Jeudi 29 octobre. Il est 17 heures à Madrid et à Paris, une heure de moins en temps universel."
+    },
+    {
+      "idx": 1,
+      "start": 5.97,
+      "end": 7.2,
+      "text": "Merci d'écouter RFI."
+    },
+    {
+      "idx": 2,
+      "start": 7.2,
+      "end": 9.04,
+      "text": "Le Journal en français facile."
+    },
+    {
+      "idx": 3,
+      "start": 9.04,
+      "end": 9.84,
+      "text": "Diane Berger."
+    },
+    {
+      "idx": 4,
+      "start": 9.84,
+      "end": 15.44,
+      "text": "L'Espagne toujours sous le choc après le grave accident de train qui a fait 69 morts, hier."
+    },
+    {
+      "idx": 5,
+      "start": 15.44,
+      "end": 19.68,
+      "text": "C'est la troisième catastrophe de ce type depuis le début de l'année."
+    },
+    {
+      "idx": 6,
+      "start": 19.68,
+      "end": 24.72,
+      "text": "Les pouvoirs publics espagnols n'ont pas mis assez d'argent dans le chemin de fer."
+    },
+    {
+      "idx": 7,
+      "start": 24.72,
+      "end": 26.87,
+      "text": "Mais ce n'est pas le seul problème."
+    },
+    {
+      "idx": 8,
+      "start": 26.87,
+      "end": 31.36,
+      "text": "Pas de majorité claire en Israël après les législatives de mardi dernier."
+    },
+    {
+      "idx": 9,
+      "start": 31.36,
+      "end": 34.06,
+      "text": "Alors, Benyamin Netanyahu ou Gadi Eisenkot ?"
+    },
+    {
+      "idx": 10,
+      "start": 34.06,
+      "end": 41.81,
+      "text": "Ça ne changera pas grand-chose, de toute façon, selon les habitants du sud du Liban, marqués par la guerre avec leurs voisins."
+    },
+    {
+      "idx": 11,
+      "start": 41.81,
+      "end": 49.06,
+      "text": "Et puis la Corée du Nord envahit la Corée du Sud ; pas dans la vraie vie, mais dans le dernier jeu vidéo Call of Duty."
+    },
+    {
+      "idx": 12,
+      "start": 49.06,
+      "end": 53.49,
+      "text": "C'est pris très au sérieux par les députés d'opposition en Corée du Sud."
+    },
+    {
+      "idx": 13,
+      "start": 53.49,
+      "end": 58.04,
+      "text": "Selon eux, le pays ne serait pas prêt en cas de guerre dans le monde réel."
+    },
+    {
+      "idx": 14,
+      "start": 58.04,
+      "end": 61.48,
+      "text": "Une minute de silence a été respectée à midi en Espagne."
+    },
+    {
+      "idx": 15,
+      "start": 61.48,
+      "end": 69.84,
+      "text": "Trois jours de deuil national dans le pays après ce terrible accident qui a eu lieu hier matin, près d'Urda, dans la province de Tolède."
+    },
+    {
+      "idx": 16,
+      "start": 69.84,
+      "end": 75.31,
+      "text": "Deux trains sont entrés en collision – ils se sont percutés –, ce qui a tué 69 personnes."
+    },
+    {
+      "idx": 17,
+      "start": 75.31,
+      "end": 82.14,
+      "text": "Des dizaines d'autres sont blessées et des secouristes cherchent toujours d'autres personnes portées disparues."
+    },
+    {
+      "idx": 18,
+      "start": 82.14,
+      "end": 90.19,
+      "text": "C'est le troisième accident de train depuis le début de l'année en Espagne, le deuxième sur cette ligne qui relie Madrid à Séville."
+    },
+    {
+      "idx": 19,
+      "start": 90.19,
+      "end": 94,
+      "text": "Il y avait déjà eu 46 morts et 150 blessés au mois de janvier."
+    },
+    {
+      "idx": 20,
+      "start": 94,
+      "end": 101.68,
+      "text": "Nathanaël Vittrant, c'est ce que l'on appelle une série noire, et elle pose question sur l'état des chemins de fer espagnols."
+    },
+    {
+      "idx": 21,
+      "start": 101.68,
+      "end": 116.25,
+      "text": "C'est vrai. L'Espagne a beaucoup investi ces 30 dernières années pour développer ses lignes à grande vitesse : près de 4 000 kilomètres – aujourd'hui, deuxième plus grand réseau du monde, loin derrière la Chine et juste devant la France."
+    },
+    {
+      "idx": 22,
+      "start": 116.25,
+      "end": 119.08,
+      "text": "Depuis la libéralisation, le trafic a explosé."
+    },
+    {
+      "idx": 23,
+      "start": 119.08,
+      "end": 124.86,
+      "text": "Le nombre de passagers sur les lignes à grande vitesse en Espagne a doublé entre 2015 et 2024."
+    },
+    {
+      "idx": 24,
+      "start": 124.86,
+      "end": 128.98,
+      "text": "Mais l'investissement dans les infrastructures, lui, n'a pas suivi."
+    },
+    {
+      "idx": 25,
+      "start": 128.98,
+      "end": 133.9,
+      "text": "Les dépenses par passager ont même chuté de plus d'un quart sur la même période."
+    },
+    {
+      "idx": 26,
+      "start": 133.9,
+      "end": 141.33,
+      "text": "Pour Arnaud Aymé, spécialiste des transports au cabinet Sia, cela ne suffit pas, pourtant, à expliquer cette série noire."
+    },
+    {
+      "idx": 27,
+      "start": 141.33,
+      "end": 150.12,
+      "text": "« Aujourd'hui, il y a pas de consensus sur le fait que le réseau ferroviaire à grande vitesse espagnol ferait l'objet d'un sous-investissement."
+    },
+    {
+      "idx": 28,
+      "start": 150.12,
+      "end": 163.71,
+      "text": "Quand bien même ce serait le cas, c'est pas parce qu'il y a un sous-investissement qu'il y a une sous-sécurité."
+    },
+    {
+      "idx": 29,
+      "start": 163.71,
+      "end": 165.2,
+      "text": "Quand il y a un sous-investissement, il y a des pannes et des retards de trains."
+    },
+    {
+      "idx": 30,
+      "start": 165.2,
+      "end": 168.63,
+      "text": "Mais le sous-investissement ne peut pas expliquer des problèmes de sécurité ni en Espagne ni ailleurs. »"
+    },
+    {
+      "idx": 31,
+      "start": 168.63,
+      "end": 173.12,
+      "text": "L'expert rappelle que les deux accidents ont des causes très différentes."
+    },
+    {
+      "idx": 32,
+      "start": 173.12,
+      "end": 182.71,
+      "text": "Un problème mécanique en janvier, contre, a priori, une panne du réseau de signalisation et un problème de respect des procédures de sécurité cette semaine."
+    },
+    {
+      "idx": 33,
+      "start": 182.71,
+      "end": 200.47,
+      "text": "« Après, c'est pas parce que les causes immédiates sont différentes qu'il peut pas y avoir un problème plus systémique, ce problème systémique n'étant pas forcément lié à des moyens financiers : ça peut être lié, aussi, à un problème de culture de sécurité dans ces entreprises-là. »"
+    },
+    {
+      "idx": 34,
+      "start": 200.47,
+      "end": 207.54,
+      "text": "Avant de pouvoir tirer des conclusions définitives, il faudra, de toute façon, du temps et une enquête approfondie."
+    },
+    {
+      "idx": 35,
+      "start": 207.54,
+      "end": 208.71,
+      "text": "Nathanaël Vittrant."
+    },
+    {
+      "idx": 36,
+      "start": 208.71,
+      "end": 219.1,
+      "text": "Eux sont morts alors qu'ils cherchaient à prendre le train : en Ukraine, quatorze personnes ont été tuées par une frappe de drone russe sur un quai de la gare de Dnipro."
+    },
+    {
+      "idx": 37,
+      "start": 219.1,
+      "end": 229.73,
+      "text": "Dans ce contexte, l'Union européenne appelle, à nouveau, ses alliés à augmenter la pression sur la Russie, je cite, « jusqu'à ce qu'une paix durable et juste soit obtenue »."
+    },
+    {
+      "idx": 38,
+      "start": 229.73,
+      "end": 232.81,
+      "text": "Il ne faut pas discréditer « tout le vote arabe »."
+    },
+    {
+      "idx": 39,
+      "start": 232.81,
+      "end": 242.77,
+      "text": "C'est le message d'Isaac Herzog, le président israélien, après les législatives de mardi – le discréditer, c'est-à-dire le critiquer, dire qu'il n'est pas valide."
+    },
+    {
+      "idx": 40,
+      "start": 242.77,
+      "end": 247.62,
+      "text": "Les derniers bulletins de vote sont toujours en train d'être comptés en Israël."
+    },
+    {
+      "idx": 41,
+      "start": 247.62,
+      "end": 249.1,
+      "text": "Il en reste environ 3 %."
+    },
+    {
+      "idx": 42,
+      "start": 249.1,
+      "end": 258.01,
+      "text": "Mais c'est maintenant quasiment certain : ni le camp du Premier ministre sortant, Benyamin Netanyahu, ni celui de l'opposition n'ont de majorité."
+    },
+    {
+      "idx": 43,
+      "start": 258.01,
+      "end": 262.56,
+      "text": "Ils ont été perturbés par la montée surprise des partis arabes israéliens."
+    },
+    {
+      "idx": 44,
+      "start": 262.56,
+      "end": 266.25,
+      "text": "Résultat, certains hommes politiques les accusent de fraude."
+    },
+    {
+      "idx": 45,
+      "start": 266.25,
+      "end": 271.9,
+      "text": "Le Qatar est, également, pointé du doigt, accusé d'ingérence – de s'être mêlé de l'élection."
+    },
+    {
+      "idx": 46,
+      "start": 271.9,
+      "end": 274.49,
+      "text": "Le royaume répond que ce n'est pas le cas."
+    },
+    {
+      "idx": 47,
+      "start": 274.49,
+      "end": 285,
+      "text": "Celui qui arrivera, en tout cas, à créer une coalition pour diriger Israël pourra ensuite décider de la suite des opérations militaires dans la région, notamment au Liban."
+    },
+    {
+      "idx": 48,
+      "start": 285,
+      "end": 289.55,
+      "text": "L'armée israélienne occupe toujours 6 % du territoire dans le sud du pays."
+    },
+    {
+      "idx": 49,
+      "start": 289.55,
+      "end": 294.28,
+      "text": "Des villages entiers ont été détruits au nom de la lutte contre le Hezbollah."
+    },
+    {
+      "idx": 50,
+      "start": 294.28,
+      "end": 302.46,
+      "text": "Notre correspondante, Sophie Guignon, est allée parler de cette élection aux habitants de Zaoutar el-Gharbiyeh, un village d'où les troupes israéliennes se sont retirées fin juillet."
+    },
+    {
+      "idx": 51,
+      "start": 302.46,
+      "end": 306.08,
+      "text": "Reportage."
+    },
+    {
+      "idx": 52,
+      "start": 306.08,
+      "end": 311.98,
+      "text": "À Zaoutar el-Gharbiyeh, la moitié du village a été complètement détruite, l'autre partiellement."
+    },
+    {
+      "idx": 53,
+      "start": 311.98,
+      "end": 314.57,
+      "text": "Même la municipalité n'a pas été épargnée."
+    },
+    {
+      "idx": 54,
+      "start": 314.57,
+      "end": 319.55,
+      "text": "Le maire Abed Ezzedine, élu du mouvement chiite Amal, reçoit dans un préfabriqué."
+    },
+    {
+      "idx": 55,
+      "start": 319.55,
+      "end": 322.56,
+      "text": "« Ces élections en Israël ne nous concernent pas."
+    },
+    {
+      "idx": 56,
+      "start": 322.56,
+      "end": 325.94,
+      "text": "Peu importe qui est élu, ça ne changera rien pour nous."
+    },
+    {
+      "idx": 57,
+      "start": 325.94,
+      "end": 329.93,
+      "text": "Depuis notre enfance, nous avons grandi avec les mêmes problèmes."
+    },
+    {
+      "idx": 58,
+      "start": 329.93,
+      "end": 332.21,
+      "text": "Ça a toujours été pareil avec Israël."
+    },
+    {
+      "idx": 59,
+      "start": 332.21,
+      "end": 336.57,
+      "text": "Peu importe qui est au pouvoir, qui perd ou gagne une élection. »"
+    },
+    {
+      "idx": 60,
+      "start": 336.57,
+      "end": 340.2,
+      "text": "L'approche de Tel-Aviv sur le Liban ne devrait pas changer."
+    },
+    {
+      "idx": 61,
+      "start": 340.2,
+      "end": 346.66,
+      "text": "Benyamin Netanyahu pourrait être tenté de lancer une nouvelle guerre pour sortir d'une impasse politique."
+    },
+    {
+      "idx": 62,
+      "start": 346.66,
+      "end": 357.17,
+      "text": "Et Gadi Eisenkot, ancien général de l'armée, est l'artisan de la doctrine Dahiyé, qui vise à infliger des destructions disproportionnées, au mépris du droit international."
+    },
+    {
+      "idx": 63,
+      "start": 357.17,
+      "end": 364.73,
+      "text": "Depuis la place centrale du village, Salim Zeineddine observe les zones occupées, à quelques centaines de mètres seulement."
+    },
+    {
+      "idx": 64,
+      "start": 364.73,
+      "end": 366.94,
+      "text": "« Cela ne va rien changer pour nous."
+    },
+    {
+      "idx": 65,
+      "start": 366.94,
+      "end": 368.17,
+      "text": "C'est la même chose."
+    },
+    {
+      "idx": 66,
+      "start": 368.17,
+      "end": 369.77,
+      "text": "Ils ont la même mentalité."
+    },
+    {
+      "idx": 67,
+      "start": 369.77,
+      "end": 374.75,
+      "text": "Nous ne voulons pas vivre dans un pays occupé avec un peuple réduit en esclavage."
+    },
+    {
+      "idx": 68,
+      "start": 374.75,
+      "end": 382.43,
+      "text": "Nous voulons pouvoir vivre avec Israël, chacun de son côté, mais à condition que chacun puisse vivre dans la dignité. »"
+    },
+    {
+      "idx": 69,
+      "start": 382.43,
+      "end": 385.32,
+      "text": "Un scénario qui semble loin d'être d'actualité."
+    },
+    {
+      "idx": 70,
+      "start": 385.32,
+      "end": 388.7,
+      "text": "Sophie Guignon, de retour de Zaoutar el-Gharbiyeh, RFI."
+    },
+    {
+      "idx": 71,
+      "start": 388.7,
+      "end": 400.14,
+      "text": "Plus à l'est, dans la région, un quatrième pétrolier a pris feu dans le détroit d'Ormuz, selon les forces armées iraniennes, après déjà trois autres navires signalés en flammes ce jeudi."
+    },
+    {
+      "idx": 72,
+      "start": 400.14,
+      "end": 410.16,
+      "text": "D'après les Gardiens de la Révolution, ces bateaux ont percuté des mines dans ce point de passage stratégique, au cœur de la guerre entre l'Iran et les États-Unis."
+    },
+    {
+      "idx": 73,
+      "start": 410.16,
+      "end": 413.05,
+      "text": "Une cheminée de fée s'est effondrée en Turquie."
+    },
+    {
+      "idx": 74,
+      "start": 413.05,
+      "end": 414.71,
+      "text": "Elle a tué trois personnes."
+    },
+    {
+      "idx": 75,
+      "start": 414.71,
+      "end": 423.19,
+      "text": "Une cheminée de fée, c'est une grande colonne de roche haute de plusieurs mètres, creusée, formée par des siècles et des siècles de pluie."
+    },
+    {
+      "idx": 76,
+      "start": 423.19,
+      "end": 430.32,
+      "text": "Elles sont nombreuses dans la région turque de Cappadoce, là où l'accident a eu lieu, dans un site très touristique."
+    },
+    {
+      "idx": 77,
+      "start": 430.32,
+      "end": 436.71,
+      "text": "L'actualité en France. L'auteur de l'attentat de Trappes a été mis en examen par un juge antiterroriste."
+    },
+    {
+      "idx": 78,
+      "start": 436.71,
+      "end": 443.72,
+      "text": "Kevin T. a reconnu avoir agi avec un mobile raciste, selon le procureur antiterroriste à la fin de sa garde à vue."
+    },
+    {
+      "idx": 79,
+      "start": 443.72,
+      "end": 449.44,
+      "text": "Il dit avoir ciblé spécifiquement des personnes de types musulman, africain ou nord-africain."
+    },
+    {
+      "idx": 80,
+      "start": 449.44,
+      "end": 456.08,
+      "text": "On le rappelle, cet homme a tué une personne vendredi dernier et blessé plusieurs autres, dont une fillette."
+    },
+    {
+      "idx": 81,
+      "start": 456.08,
+      "end": 459.58,
+      "text": "Le parquet a demandé son placement derrière les barreaux."
+    },
+    {
+      "idx": 82,
+      "start": 459.58,
+      "end": 462.66,
+      "text": "Quand le jeu vidéo s'invite dans la vie politique."
+    },
+    {
+      "idx": 83,
+      "start": 462.66,
+      "end": 471.2,
+      "text": "En Corée du Sud, les bancs du Parlement s'enflamment, les députés s'agitent autour du dernier Call of Duty, le célèbre jeu vidéo de guerre."
+    },
+    {
+      "idx": 84,
+      "start": 471.2,
+      "end": 477.29,
+      "text": "Le dernier volet de la série est sorti vendredi dernier et il se passe, justement, en Corée du Sud."
+    },
+    {
+      "idx": 85,
+      "start": 477.29,
+      "end": 482.33,
+      "text": "Dans l'histoire racontée par le jeu, le pays se fait envahir par la Corée du Nord."
+    },
+    {
+      "idx": 86,
+      "start": 482.33,
+      "end": 489.46,
+      "text": "Alors, c'est un carton auprès des joueurs sud-coréens – un grand succès, ils sont nombreux à l'acheter et à y jouer."
+    },
+    {
+      "idx": 87,
+      "start": 489.46,
+      "end": 492.1,
+      "text": "Et les députés conservateurs s'en emparent."
+    },
+    {
+      "idx": 88,
+      "start": 492.1,
+      "end": 497.2,
+      "text": "Ils utilisent le jeu pour dénoncer le manque de préparation militaire de leur pays."
+    },
+    {
+      "idx": 89,
+      "start": 497.2,
+      "end": 498,
+      "text": "Benoît Gross."
+    },
+    {
+      "idx": 90,
+      "start": 498,
+      "end": 503.6,
+      "text": "Vous êtes un soldat sud-coréen en patrouille quand, soudain, les télés du monde s'affolent."
+    },
+    {
+      "idx": 91,
+      "start": 503.6,
+      "end": 509.81,
+      "text": "« La Corée du Nord semble avoir lancé une invasion à grande échelle du territoire sud-coréen. »"
+    },
+    {
+      "idx": 92,
+      "start": 509.81,
+      "end": 515.15,
+      "text": "Ce scénario, c'est celui du nouveau Call of Duty, numéro un des ventes en Corée du Sud."
+    },
+    {
+      "idx": 93,
+      "start": 515.15,
+      "end": 524.07,
+      "text": "Un succès que l'opposition conservatrice utilise pour attaquer la politique du président Lee Jae Myung, jugée trop naïve face à la Corée du Nord."
+    },
+    {
+      "idx": 94,
+      "start": 524.07,
+      "end": 533.78,
+      "text": "Tout cela [sur] fond de tensions entre les deux pays : la semaine dernière, trois soldats ont été blessés par l'explosion de mines dans la zone démilitarisée."
+    },
+    {
+      "idx": 95,
+      "start": 533.78,
+      "end": 538.33,
+      "text": "À l'Assemblée, le député Kim Seok-ki interpelle le ministre de la Culture."
+    },
+    {
+      "idx": 96,
+      "start": 538.33,
+      "end": 545.15,
+      "text": "« Le président Kim Jong-un a qualifié cet incident de mise en scène suicidaire sans que l'on puisse y répondre."
+    },
+    {
+      "idx": 97,
+      "start": 545.15,
+      "end": 552.22,
+      "text": "Dans ce jeu, au moins on réagit avec fermeté face aux provocations et aux manœuvres militaires de la Corée du Nord."
+    },
+    {
+      "idx": 98,
+      "start": 552.22,
+      "end": 554.87,
+      "text": "C'est ce que les jeunes apprécient. »"
+    },
+    {
+      "idx": 99,
+      "start": 554.87,
+      "end": 565.25,
+      "text": "L'opposition critique, aussi, la baisse des exercices militaires conjoints avec Washington, alors que, dans le jeu, l'armée sud-coréenne combat aux côtés des Américains."
+    },
+    {
+      "idx": 100,
+      "start": 565.25,
+      "end": 575.26,
+      "text": "Ce n'est pas la première fois qu'un jeu Call of Duty attise les débats."
+    },
+    {
+      "idx": 101,
+      "start": 575.26,
+      "end": 576.75,
+      "text": "Il y a six ans, une mission qui mettait en scène le gazage de civils par l'armée russe avait été censurée en Russie."
+    },
+    {
+      "idx": 102,
+      "start": 576.75,
+      "end": 577.55,
+      "text": "Benoît Gross."
+    },
+    {
+      "idx": 103,
+      "start": 577.55,
+      "end": 580.38,
+      "text": "C'est la fin de ce Journal en français facile."
+    },
+    {
+      "idx": 104,
+      "start": 584.13,
+      "end": 591.75,
+      "text": "Vous retrouverez même le script de chaque journal pour vous entraîner, revoir un mot de vocabulaire, une précision."
+    },
+    {
+      "idx": 105,
+      "start": 591.75,
+      "end": 597.22,
+      "text": "Et il y a même des exercices concoctés – préparés – par l'équipe Langue française de RFI."
+    }
+  ]
+}

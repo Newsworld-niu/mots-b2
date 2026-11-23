@@ -1,4 +1,4 @@
-# Builds the site and publishes it to GitHub Pages on every push to main.
+# Builds, verifies, tests E2E, and publishes the site to GitHub Pages on every push to main.
 name: Pages
 
 on:
@@ -24,12 +24,45 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
       - run: npm ci
+      - run: npm --prefix server ci
+      - run: npx tsc --noEmit
+      - run: npm run lint
+      - run: npm run css:check
       - run: npm test
-      # the site lives under https://<user>.github.io/<repository>/
+      - run: npm run test:ui
+      - run: npm --prefix server test
+      - run: npm --prefix server run build
+      - run: npm run lexicon:check
+      - run: npm run lexicon:ids
+      - run: npm run lexdb:check
+      - run: npm run lexicon:enrich-b2 -- --dry-run
+      # Build the exact Pages bundle and run cross-platform Playwright Chromium E2E against it.
       - run: npm run build
         env:
           ATLAS_BASE: /${{ github.event.repository.name }}/
+          VITE_SYNC_URL: ${{ vars.VITE_SYNC_URL }}
+          VITE_MEDIA_BASE_URL: ${{ vars.VITE_MEDIA_BASE_URL }}
+      - run: npm run bundle:check
+      - run: npx playwright install --with-deps chromium
+      - name: Run Playwright E2E against vite preview
+        run: |
+          npx vite preview --host 127.0.0.1 --port 5191 &
+          PREVIEW_PID=$!
+          trap "kill $PREVIEW_PID 2>/dev/null || true" EXIT
+          TARGET_URL="http://127.0.0.1:5191/${{ github.event.repository.name }}/"
+          for i in $(seq 1 30); do
+            if curl -fsS "$TARGET_URL" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          FR_URL="$TARGET_URL" npm run e2e
+          FR_URL="$TARGET_URL" npm run e2e:lexdb
+          FR_URL="$TARGET_URL" npm run e2e:gates
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

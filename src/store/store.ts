@@ -1,351 +1,31 @@
-import { cleanWikiSources } from "../lib/wiktionary";
-import { familyIds } from "../lib/families";
-import { POS_OPTIONS } from "../lib/pos";
-import { useSyncExternalStore } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import { migrateAliases as migrateAliasesPure, type AliasMap } from "./aliases";
-import type { Accent } from "../atlas/types";
-import type { CardState, Grade } from "./srs";
-import { getImages, isImageDataUrl, replaceImages, waitImagesLoaded } from "./images";
-import { sanitizeTexts, type SavedText } from "../lib/reader";
-import { sanitizeAiTasks, sanitizeEssays, sanitizeNotes, type EssayCorrection, type EssayTask, type SavedEssay, type SavedNote } from "../lib/essay";
-import { ERROR_TYPES, type ErrorType } from "../lib/writing";
-import { sanitizeExamLog, type ExamResult } from "../lib/exam";
-import { sanitizeMisses, sanitizeSources, type CompMiss, type RealSource } from "../lib/listening";
-import { sanitizeDrillDays } from "../lib/drill";
-import { sanitizePlacement, type PlacementResult } from "../lib/placement";
-import { TENSES } from "../lib/conjugation";
-import { EXPR_ID } from "../lib/expressions";
-import { reloadBank } from "./exam-bank";
+import { createBackupActions } from "./backup";
+import { sanitizeProgress, sanitizeSettings } from "./sanitize";
 import {
-  collectEssayDrafts,
+  SETTINGS_KEY,
+  compactProgressForLocalStorage,
+  emptyProgress,
+  markTombstone,
+  clearTombstone,
+  progressKey,
+  syncFavorites,
+  type Progress,
+  type Settings,
+  type State,
+} from "./types";
+import {
   getHeavy,
   getSnapshotIdb,
   listSnapshotsIdb,
   mergeHeavy,
   putHeavy,
   putSnapshotIdb,
-  readExamBankBackup,
-  restoreEssayDrafts,
-  restoreExamBankBackup,
-  type ExamBankBackup,
   type PutHeavyOptions,
 } from "./vault";
 
-/**
- * "gender": choose un / une for a noun (no options list; the two articles are fixed).
- * "cloze": an example sentence with the word blanked (and its Chinese), choose the French word.
- * "dictation": hear the example sentence, type the blanked word.
- */
-export type QuizKind = "meaning" | "picture" | "listen" | "spell" | "gender" | "cloze" | "dictation";
-/** "pairing": match five French words with their meanings; extra practice, never graded (`ids`: the five words). */
-/** `sense`: the sense a deck asks for (index into the entry's senses), shown first and used as the answer's gloss. */
-export type Step =
-  | { id: string; kind: "intro"; sense?: number }
-  | { id: string; kind: "pairing"; ids: string[] }
-  | { id: string; kind: QuizKind; retry?: boolean; options?: string[]; pair?: boolean; sense?: number };
-
-/**
- * A deck (卡组) the learner made: a list of word ids. Progress belongs to the word, not the deck,
- * so a word in several decks is learned once. `sense` and `note` are per deck.
- */
-export interface Deck {
-  id: string;
-  name: string;
-  created: number;
-  words: string[];
-  /** word id → sense index this deck cares about (avocat: 律师 in one deck, 牛油果 in another). */
-  sense?: Record<string, number>;
-  /** word id → the learner's note for this deck ("《小王子》第 3 章"). */
-  note?: Record<string, string>;
-}
-
-export interface UserExample {
-  fr: string;
-  zh: string;
-  /** "tatoeba": taken from the offline dictionary (Tatoeba, CC BY 2.0 FR), not written by the learner. */
-  src?: "tatoeba";
-  /** Where the headword sits in fr (UTF-16), when the dictionary knows it (vont for aller). */
-  hl?: [number, number];
-}
-
-/** A further meaning the learner put on a card (from AI 讲解), shown after the card's own senses. */
-export interface OwnSense {
-  pos: string;
-  zh: string;
-}
-
-/** What the learner can put on any card besides collocations and a 注意点: further meanings and related words. */
-export interface CardExtras {
-  wikiSources?: string[];
-  senses?: OwnSense[];
-  /** Related words, each "mot (中文)". */
-  syn?: string[];
-  ant?: string[];
-  fam?: string[];
-}
-export const MAX_OWN_SENSES = 6;
-export const MAX_RELATED = 12;
-export const MAX_EXAMPLES = 5;
-/** Longest 注意点 (several lines, one point each). */
-export const MAX_TIP = 1000;
-
-/** A word the learner added that is not in the atlas. Stored under an id "u-…". */
-export interface CustomWord extends CardExtras {
-  w: string;
-  /** Part of speech as the atlas writes it: "n.m.", "n.f.", "v.", "adj." … ; n.m. / n.f. give the un / une quiz. */
-  pos: string;
-  zh: string;
-  ipa?: string;
-  ex?: UserExample[];
-  note?: string;
-  created: number;
-  /** Filled from the offline dictionary and not yet checked by the learner (自动填写·待核对). */
-  auto?: boolean;
-  /** The learner chose 不要图片: no picture and no text plate on the card, and no picture question. */
-  noImg?: boolean;
-  /** Collocations, each "French｜中文" (the atlas notation). The note above is shown as the card's 注意点. */
-  col?: string[];
-}
-
-/** The learner's changes to an atlas word, shown in every deck: a gloss for the first sense, own examples (first). */
-export interface WordEdit extends CardExtras {
-  /** Saved content replaces the bundled suggestions, including empty lists. */
-  replaceContent?: boolean;
-  zh?: string;
-  /** Glosses for the second sense onward ("" keeps the atlas's). */
-  zhMore?: string[];
-  ex?: UserExample[];
-  /** Atlas examples the learner does not want, by their place in the atlas's list. */
-  hideEx?: number[];
-  /** 不要图片 for an atlas word (see CustomWord.noImg). */
-  noImg?: boolean;
-  /** Own collocations ("French｜中文"), shown before the atlas ones. */
-  col?: string[];
-  /** Own 注意点, shown before the atlas tip. */
-  tip?: string;
-  /** The atlas's own senses the learner took off the card, by position (0 = the first). Never all of the card's senses. */
-  hide?: number[];
-}
-
-/** Stable id of the initial deck; managed like other decks after migration. */
-export const CORE_DECK = "core";
-export const FAVORITES_DECK = "d-favorites";
-
-/** Bookmarks are the source of truth for the automatic collection. */
-export function syncFavorites(p: Progress): Progress {
-  if (!p.coreMigrated) return p;
-  const old = p.decks?.find(d => d.id === FAVORITES_DECK);
-  const words = [...new Set(p.bookmarks)];
-  const members = new Set(words);
-  const keep = <T,>(v?: Record<string, T>) => v ? Object.fromEntries(Object.entries(v).filter(([id]) => members.has(id))) : undefined;
-  const deck: Deck = { ...old, id: FAVORITES_DECK, name: "收藏", created: old?.created ?? 0, words, sense: keep(old?.sense), note: keep(old?.note) };
-  return { ...p, decks: [...(p.decks ?? []).filter(d => d.id !== FAVORITES_DECK), deck] };
-}
-
-export interface ActiveSession {
-  id: string;
-  started: number;
-  steps: Step[];
-  index: number;
-  /** First-attempt grade per word; retries never change it. */
-  graded: Record<string, Grade>;
-  newIds: string[];
-  reviewIds: string[];
-  /** New words the learner said they do not know on first meeting: their first answer in this session cannot raise familiarity. */
-  unknown?: string[];
-  /** Answer shown but not yet continued; survives reload without double counting. */
-  pending?: { correct: boolean; value: string; /** right letters, wrong accent: counted correct but graded Hard */ accentOnly?: boolean; /** noun spelled right, article wrong or missing: counted wrong */ articleWrong?: boolean };
-  finished?: number;
-}
-
-export interface DayStat {
-  n: number; // new words met
-  r: number; // graded reviews (first attempts)
-  c: number; // correct first attempts
-  t: number; // active seconds
-}
-
-export interface TypingRound {
-  at: number;
-  mode: "word" | "sentence" | "dictation";
-  items: number;
-  wpm: number;
-  accuracy: number;
-}
-
-export interface Progress {
-  coreMigrated?: boolean;
-  version: 2;
-  datasetId: string;
-  cards: Record<string, CardState>;
-  bookmarks: string[];
-  days: Record<string, DayStat>;
-  typing: TypingRound[];
-  session: ActiveSession | null;
-  /** Rolling list of recent mistakes, newest first. */
-  mistakes: string[];
-  /** Records moved aside by the alias migration when both ids had a record (recoverable, never merged). */
-  aliasArchive?: Record<string, CardState>;
-  /** When the alias migration last changed this progress (epoch ms). */
-  aliasMigratedAt?: number;
-  /** Conjugation cards (变位), one per verb × tense × person, keyed "verbId|tense|person"; legacy two-part keys retained. Separate from word cards. */
-  conj?: Record<string, CardState>;
-  /** Conjugation stats per day: n = new cards started, r = graded answers, c = correct. */
-  conjDays?: Record<string, { n: number; r: number; c: number; verbs?: string[] }>;
-  /** Grammar point cards (语法), one per point id; graded once per practice round of the point. */
-  gram?: Record<string, CardState>;
-  /** Grammar drills per day: n = points started, r = drills answered, c = right. */
-  gramDays?: Record<string, { n: number; r: number; c: number; verbs?: string[] }>;
-  /** Grammar drills the learner reported as wrong or ambiguous (drillId), never asked again. */
-  gramSkip?: string[];
-  /** How the learner does on each part of a grammar point ("point|r2", "point|t0"): answered n, wrong w (rolling). */
-  gramTags?: Record<string, { n: number; w: number }>;
-  /** Expression cards (表达: connectors, argument frames, collocations, register, letter formulas), one per expression id. */
-  expr?: Record<string, CardState>;
-  /** The learner's own decks, in the order made. */
-  decks?: Deck[];
-  /** Atlas words taken out of the initial deck (初始词本); still learned when in another deck. */
-  hidden?: string[];
-  /** Words the learner created, by id ("u-…"). */
-  custom?: Record<string, CustomWord>;
-  /** The learner's changes to atlas words, by id. */
-  edits?: Record<string, WordEdit>;
-  /** Saved texts of 阅读 (pasted, imported or written by the AI), newest first. */
-  texts?: SavedText[];
-  /** Texts written in 篇章写作, with their marking, newest first. */
-  essays?: SavedEssay[];
-  /** Essay tasks the AI wrote for 篇章写作, newest first. */
-  essayTasks?: EssayTask[];
-  /** Mistakes kept from markings (错句本), newest first. */
-  essayNotes?: SavedNote[];
-  /** Results of 听力理解、应试阅读、口语, newest first. */
-  examLog?: ExamResult[];
-  /** Questions missed in 听力理解 / 应试阅读, with why (错因), newest first. */
-  compMisses?: CompMiss[];
-  /** 真实材料精听: recordings on other sites, by link and timestamps. */
-  listenSources?: RealSource[];
-  /** 每日一分钟口语 done per day (dayKey → count). */
-  drillDays?: Record<string, number>;
-  /** Optional DELF diagnostic placement result (摸底定级小测). */
-  placement?: PlacementResult;
-  /** Mistakes recorded from speaking markings (口语纠错), newest first. */
-  speakCorrections?: SavedSpeakingCorrection[];
-  /** Dictionary lookup history (entry ids), newest first, capped at MAX_DICT_HISTORY. */
-  dictHistory?: string[];
-  /** Dictionary favorited entry ids, newest first. */
-  dictFavs?: string[];
-  /** Learner notes per dictionary entry id. */
-  dictNotes?: Record<string, string>;
-  /** Learner-submitted dictionary error reports, newest first. */
-  dictReports?: DictReport[];
-}
-
-export interface DictReport {
-  id: string;
-  entryId: string;
-  w?: string;
-  kind?: string;
-  detail: string;
-  at: number;
-}
-
-export const MAX_DICT_HISTORY = 200;
-export const MAX_DICT_FAVS = 5000;
-export const MAX_DICT_NOTES = 5000;
-export const MAX_DICT_REPORTS = 200;
-
-export interface SavedSpeakingCorrection {
-  id: string;
-  subject: string;
-  at: number;
-  corrections: EssayCorrection[];
-}
-
-export const MAX_SPEAK_CORRECTIONS = 40;
-
-/** The most new words a day can be set to: the learner decides, the app only keeps the number sane. */
-export const MAX_DAILY_NEW = 2000;
-
-export interface Settings {
-  accent: Accent;
-  autoplay: boolean;
-  dailyNew: number;
-  retention: number;
-  theme: "system" | "light" | "dark";
-  sfx: boolean;
-  spell: boolean;
-  startLevel: number;
-  onboarded: boolean;
-  /** Target DELF B2 exam date ("YYYY-MM-DD"), or null if unset. */
-  examDate: string | null;
-  /** Target total score out of 100 (default 75). */
-  targetScore: number;
-  dataset: "open" | "private";
-  ambience: "off" | "stars" | "rain" | "sea" | "forest" | "fire" | "voyage" | "cafe";
-  ambienceVolume: number;
-  splash: boolean;
-  /** Tenses practised in 变位; null = follow the start level (A1: présent + passé composé …). */
-  conjTenses: string[] | null;
-  /** New conjugation cards per day. */
-  conjNew: number;
-  /** Topic key new words are drawn from (按主题学); null = the whole learning path. */
-  focusTopic: string | null;
-  /** Decks studied in 今日 (new words and reviews); null = every deck. CORE_DECK is the initial deck. */
-  studyDecks: string[] | null;
-  /** Part of speech for new words and reviews; null means all. */
-  studyPos?: string[] | null;
-  studyFamilies?: string[] | null;
-  /** 阅读: colour the words by how well they are known (没学过 / 在学 / 已掌握). */
-  readColors: boolean;
-  /** 阅读: the deck new words go to; null = none chosen yet. */
-  readDeck: string | null;
-  /** Epoch ms when the learner last exported a JSON backup; null if never exported. */
-  lastBackupAt: number | null;
-}
-
-export const defaultSettings: Settings = {
-  accent: "uk",
-  autoplay: true,
-  dailyNew: 10,
-  retention: 0.9,
-  theme: "dark",
-  sfx: true,
-  spell: true,
-  startLevel: 0,
-  onboarded: false,
-  examDate: null,
-  targetScore: 75,
-  dataset: "open",
-  ambience: "stars",
-  ambienceVolume: 0.45,
-  splash: true,
-  conjTenses: null,
-  conjNew: 10,
-  focusTopic: null,
-  studyDecks: null,
-  studyPos: null,
-  studyFamilies: null,
-  readColors: true,
-  readDeck: null,
-  lastBackupAt: null,
-};
-
-export const emptyProgress = (datasetId: string): Progress => ({
-  version: 2,
-  datasetId,
-  cards: {},
-  bookmarks: [],
-  days: {},
-  typing: [],
-  session: null,
-  mistakes: [],
-});
-
-export const dayKey = (d = new Date()) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-
-const SETTINGS_KEY = "word-atlas:settings";
-const progressKey = (id: string) => `word-atlas:v2:${id}`;
+export * from "./types";
+export * from "./sanitize";
 
 function read<T>(key: string): T | null {
   try {
@@ -355,6 +35,7 @@ function read<T>(key: string): T | null {
     return null;
   }
 }
+
 function write(key: string, value: unknown) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
@@ -364,389 +45,6 @@ function write(key: string, value: unknown) {
   }
 }
 
-/* ---------- validation (backups and stored data are untrusted) ---------- */
-
-const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
-const num = (v: unknown, lo = -Infinity, hi = Infinity) => typeof v === "number" && Number.isFinite(v) && v >= lo && v <= hi;
-
-function validCard(v: unknown): v is CardState {
-  return (
-    isObj(v) &&
-    num(v.due, 0) &&
-    num(v.s, 0) &&
-    num(v.d, 0, 11) &&
-    num(v.el, 0) &&
-    num(v.sd, 0) &&
-    num(v.ls, 0) &&
-    num(v.reps, 0) &&
-    num(v.lapses, 0) &&
-    [0, 1, 2, 3].includes(v.st as number) &&
-    (v.last === undefined || num(v.last, 0)) &&
-    num(v.seen, 0)
-  );
-}
-
-export function sanitizeProgress(v: unknown, datasetId: string): Progress {
-  const out = emptyProgress(datasetId);
-  if (!isObj(v) || v.version !== 2) return syncFavorites(out);
-  if (isObj(v.cards)) for (const [k, c] of Object.entries(v.cards)) if (validCard(c)) out.cards[k] = c;
-  if (Array.isArray(v.bookmarks)) out.bookmarks = v.bookmarks.filter((x): x is string => typeof x === "string").slice(0, 20000);
-  if (Array.isArray(v.mistakes)) out.mistakes = v.mistakes.filter((x): x is string => typeof x === "string").slice(0, 300);
-  if (isObj(v.aliasArchive)) {
-    const arc: Record<string, CardState> = {};
-    for (const [k, c] of Object.entries(v.aliasArchive)) if (validCard(c)) arc[k] = c;
-    if (Object.keys(arc).length) out.aliasArchive = arc;
-  }
-  if (typeof v.aliasMigratedAt === "number") out.aliasMigratedAt = v.aliasMigratedAt;
-  if (isObj(v.days))
-    for (const [k, d] of Object.entries(v.days))
-      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isObj(d) && num(d.n, 0) && num(d.r, 0) && num(d.c, 0) && num(d.t, 0))
-        out.days[k] = { n: d.n as number, r: d.r as number, c: d.c as number, t: d.t as number };
-  if (Array.isArray(v.typing))
-    out.typing = v.typing
-      .filter(
-        (t): t is TypingRound =>
-          isObj(t) && num(t.at, 0) && ["word", "sentence", "dictation"].includes(t.mode as string) && num(t.items, 0) && num(t.wpm, 0, 400) && num(t.accuracy, 0, 100),
-      )
-      .slice(-500);
-  if (isObj(v.conj)) {
-    const conj: Record<string, CardState> = {};
-    for (const [k, c] of Object.entries(v.conj)) if (/^[^|]+\|(pres|pc|imp|fut|cond|subj|pqp|fa|condp|subjp|ppres)(\|[0-5])?$/.test(k) && validCard(c)) conj[k] = c;
-    if (Object.keys(conj).length) out.conj = conj;
-  }
-  if (isObj(v.conjDays)) {
-    const days: Record<string, { n: number; r: number; c: number; verbs?: string[] }> = {};
-    for (const [k, d] of Object.entries(v.conjDays))
-      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isObj(d) && num(d.n, 0) && num(d.r, 0) && num(d.c, 0)) days[k] = { n: d.n as number, r: d.r as number, c: d.c as number, ...(Array.isArray(d.verbs) ? { verbs: [...new Set(d.verbs.filter((id): id is string => typeof id === "string" && id.length > 0))] } : {}) };
-    if (Object.keys(days).length) out.conjDays = days;
-  }
-  if (isObj(v.gram)) {
-    const gram: Record<string, CardState> = {};
-    for (const [k, c] of Object.entries(v.gram)) if (/^[a-z0-9-]{2,40}$/.test(k) && validCard(c)) gram[k] = c;
-    if (Object.keys(gram).length) out.gram = gram;
-  }
-  if (isObj(v.gramDays)) {
-    const days: Record<string, { n: number; r: number; c: number; verbs?: string[] }> = {};
-    for (const [k, d] of Object.entries(v.gramDays))
-      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isObj(d) && num(d.n, 0) && num(d.r, 0) && num(d.c, 0)) days[k] = { n: d.n as number, r: d.r as number, c: d.c as number, ...(Array.isArray(d.verbs) ? { verbs: [...new Set(d.verbs.filter((id): id is string => typeof id === "string" && id.length > 0))] } : {}) };
-    if (Object.keys(days).length) out.gramDays = days;
-  }
-  if (Array.isArray(v.gramSkip)) {
-    const skip = [...new Set(v.gramSkip.filter((x): x is string => typeof x === "string" && /^[a-z0-9-]{2,40}:[a-z0-9]{1,12}$/.test(x)))].slice(0, 5000);
-    if (skip.length) out.gramSkip = skip;
-  }
-  if (isObj(v.gramTags)) {
-    const tags: Record<string, { n: number; w: number }> = {};
-    for (const [k, t] of Object.entries(v.gramTags))
-      if (/^[a-z0-9-]{2,40}\|[rt]\d{1,2}$/.test(k) && isObj(t) && num(t.n, 0) && num(t.w, 0) && (t.w as number) <= (t.n as number)) tags[k] = { n: t.n as number, w: t.w as number };
-    if (Object.keys(tags).length) out.gramTags = tags;
-  }
-  if (isObj(v.expr)) {
-    const expr: Record<string, CardState> = {};
-    for (const [k, c] of Object.entries(v.expr)) if (EXPR_ID.test(k) && validCard(c)) expr[k] = c;
-    if (Object.keys(expr).length) out.expr = expr;
-  }
-  Object.assign(out, sanitizeUserData(v));
-  const texts = sanitizeTexts(v.texts);
-  if (texts) out.texts = texts;
-  const essays = sanitizeEssays(v.essays);
-  if (essays) out.essays = essays;
-  const essayTasks = sanitizeAiTasks(v.essayTasks);
-  if (essayTasks) out.essayTasks = essayTasks;
-  const essayNotes = sanitizeNotes(v.essayNotes);
-  if (essayNotes) out.essayNotes = essayNotes;
-  const examLog = sanitizeExamLog(v.examLog);
-  if (examLog) out.examLog = examLog;
-  const compMisses = sanitizeMisses(v.compMisses);
-  if (compMisses) out.compMisses = compMisses;
-  const listenSources = sanitizeSources(v.listenSources);
-  if (listenSources) out.listenSources = listenSources;
-  const drillDays = sanitizeDrillDays(v.drillDays);
-  if (drillDays) out.drillDays = drillDays;
-  const placement = sanitizePlacement(v.placement);
-  if (placement) out.placement = placement;
-  const speakCorrections = sanitizeSpeakingCorrections(v.speakCorrections);
-  if (speakCorrections) out.speakCorrections = speakCorrections;
-  const validDictId = (x: unknown): string => {
-    if (typeof x !== "string") return "";
-    const s = x.trim();
-    return !s || s.length > 120 || /[\u0000-\u001f]/.test(s) ? "" : s;
-  };
-  if (Array.isArray(v.dictHistory)) {
-    const dictHistory = [...new Set(v.dictHistory.map(validDictId).filter(Boolean))].slice(0, MAX_DICT_HISTORY);
-    if (dictHistory.length) out.dictHistory = dictHistory;
-  }
-  if (Array.isArray(v.dictFavs)) {
-    const dictFavs = [...new Set(v.dictFavs.map(validDictId).filter(Boolean))].slice(0, MAX_DICT_FAVS);
-    if (dictFavs.length) out.dictFavs = dictFavs;
-  }
-  if (isObj(v.dictNotes)) {
-    const dictNotes: Record<string, string> = {};
-    for (const [k, raw] of Object.entries(v.dictNotes)) {
-      const id = validDictId(k);
-      const note = str(raw, MAX_TIP);
-      if (!id || !note) continue;
-      dictNotes[id] = note;
-      if (Object.keys(dictNotes).length >= MAX_DICT_NOTES) break;
-    }
-    if (Object.keys(dictNotes).length) out.dictNotes = dictNotes;
-  }
-  if (Array.isArray(v.dictReports)) {
-    const seen = new Set<string>();
-    const dictReports: DictReport[] = [];
-    for (const r of v.dictReports) {
-      if (!isObj(r)) continue;
-      const id = str(r.id, 60);
-      const entryId = validDictId(r.entryId);
-      const detail = str(r.detail, 500);
-      if (!id || seen.has(id) || !entryId || !detail || !num(r.at, 0)) continue;
-      seen.add(id);
-      const item: DictReport = { id, entryId, detail, at: r.at as number };
-      const w = str(r.w, 120);
-      if (w) item.w = w;
-      const kind = str(r.kind, 40);
-      if (kind) item.kind = kind;
-      dictReports.push(item);
-      if (dictReports.length >= MAX_DICT_REPORTS) break;
-    }
-    if (dictReports.length) out.dictReports = dictReports;
-  }
-  const s = v.session;
-  if (isObj(s) && typeof s.id === "string" && Array.isArray(s.steps) && num(s.index, 0) && isObj(s.graded))
-    out.session = s as unknown as ActiveSession;
-  return syncFavorites(out);
-}
-
-function sanitizeSpeakingCorrections(v: unknown): SavedSpeakingCorrection[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const out: SavedSpeakingCorrection[] = [];
-  for (const x of v) {
-    if (!isObj(x) || typeof x.id !== "string" || !x.id.trim() || typeof x.at !== "number" || !Number.isFinite(x.at)) continue;
-    const subject = str(x.subject, 80);
-    if (!subject || !Array.isArray(x.corrections)) continue;
-    const corrections: EssayCorrection[] = [];
-    for (const c of x.corrections) {
-      if (!isObj(c)) continue;
-      const wrong = str(c.wrong, 200);
-      const right = str(c.right, 200);
-      if (!(wrong || right) || wrong === right) continue;
-      corrections.push({
-        wrong,
-        right,
-        type: (ERROR_TYPES as readonly string[]).includes(c.type as string) ? (c.type as ErrorType) : "other",
-        why: str(c.why, 300),
-        point: typeof c.point === "string" && /^[a-z0-9-]{2,40}$/.test(c.point) ? c.point : "",
-      });
-      if (corrections.length >= 25) break;
-    }
-    if (!corrections.length) continue;
-    out.push({ id: x.id.trim().slice(0, 40), subject, at: x.at, corrections });
-    if (out.length >= MAX_SPEAK_CORRECTIONS) break;
-  }
-  return out.length ? out : undefined;
-}
-
-const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
-const WORD_ID = /^[\p{L}\p{N}_.'’-]{1,80}$/u;
-export const CUSTOM_ID = /^u-[a-z0-9]{4,24}$/;
-const DECK_ID = /^d-[a-z0-9]{4,24}$/;
-
-function sanitizeExamples(v: unknown): UserExample[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const out = v
-    .filter(isObj)
-    .map((x) => {
-      const ex: UserExample = { fr: str(x.fr, 400), zh: str(x.zh, 400) };
-      if (x.src === "tatoeba") ex.src = "tatoeba";
-      const hl = x.hl;
-      if (Array.isArray(hl) && hl.length === 2 && num(hl[0], 0) && num(hl[1], 0) && (hl[0] as number) < (hl[1] as number) && (hl[1] as number) <= ex.fr.length)
-        ex.hl = [hl[0] as number, hl[1] as number];
-      return ex;
-    })
-    .filter((x) => x.fr)
-    .slice(0, MAX_EXAMPLES);
-  return out.length ? out : undefined;
-}
-
-/** Collocations: "French｜中文" strings, at most MAX_COLLOCATIONS. */
-export const MAX_COLLOCATIONS = 8;
-function sanitizeCollocations(v: unknown): string[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const out = [...new Set(v.map((x) => str(x, 160)).filter((x) => x && !x.startsWith("｜")))].slice(0, MAX_COLLOCATIONS);
-  return out.length ? out : undefined;
-}
-
-function sanitizeRelated(v: unknown): string[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const out = [...new Set(v.map((x) => str(x, 120)).filter(Boolean))].slice(0, MAX_RELATED);
-  return out.length ? out : undefined;
-}
-/** Further meanings and related words on a card, from stored data (untrusted). */
-function sanitizeExtras(v: Record<string, unknown>): CardExtras {
-  const out: CardExtras = {};
-  const sources = cleanWikiSources(v.wikiSources);
-  if (sources.length) out.wikiSources = sources;
-  if (Array.isArray(v.senses)) {
-    const senses = v.senses
-      .filter(isObj)
-      .map((x) => ({ pos: str(x.pos, 16), zh: str(x.zh, 300) }))
-      .filter((x) => x.zh)
-      .slice(0, MAX_OWN_SENSES);
-    if (senses.length) out.senses = senses;
-  }
-  for (const k of ["syn", "ant", "fam"] as const) {
-    const list = sanitizeRelated(v[k]);
-    if (list) out[k] = list;
-    else if (k === "fam" && Array.isArray(v.fam)) out.fam = [];
-  }
-  return out;
-}
-
-/** Decks, hidden words, custom words and edits from stored data or a backup (untrusted). */
-export function sanitizeUserData(v: Record<string, unknown>): Pick<Progress, "decks" | "hidden" | "custom" | "edits" | "coreMigrated"> {
-  const out: Pick<Progress, "decks" | "hidden" | "custom" | "edits" | "coreMigrated"> = {};
-  const isWord = (x: unknown): x is string => typeof x === "string" && WORD_ID.test(x);
-  if (v.coreMigrated === true) out.coreMigrated = true;
-  if (Array.isArray(v.decks)) {
-    const seen = new Set<string>();
-    const decks: Deck[] = [];
-    for (const d of v.decks) {
-      if (!isObj(d) || typeof d.id !== "string" || !(d.id === CORE_DECK || DECK_ID.test(d.id)) || seen.has(d.id)) continue;
-      const name = str(d.name, 40);
-      if (!name) continue;
-      seen.add(d.id);
-      const words = Array.isArray(d.words) ? [...new Set(d.words.filter(isWord))].slice(0, 20000) : [];
-      const deck: Deck = { id: d.id, name, created: num(d.created, 0) ? (d.created as number) : 0, words };
-      const inDeck = new Set(words);
-      if (isObj(d.sense)) {
-        const sense: Record<string, number> = {};
-        for (const [k, n] of Object.entries(d.sense)) if (inDeck.has(k) && num(n, 0, 30) && Number.isInteger(n)) sense[k] = n as number;
-        if (Object.keys(sense).length) deck.sense = sense;
-      }
-      if (isObj(d.note)) {
-        const note: Record<string, string> = {};
-        for (const [k, n] of Object.entries(d.note)) if (inDeck.has(k) && str(n, 200)) note[k] = str(n, 200);
-        if (Object.keys(note).length) deck.note = note;
-      }
-      decks.push(deck);
-      if (decks.length >= 300) break;
-    }
-    if (decks.length) out.decks = decks;
-  }
-  if (Array.isArray(v.hidden)) {
-    const hidden = [...new Set(v.hidden.filter(isWord))].slice(0, 20000);
-    if (hidden.length) out.hidden = hidden;
-  }
-  if (isObj(v.custom)) {
-    const custom: Record<string, CustomWord> = {};
-    for (const [id, c] of Object.entries(v.custom)) {
-      if (!CUSTOM_ID.test(id) || !isObj(c)) continue;
-      const w = str(c.w, 80);
-      const zh = str(c.zh, 300);
-      if (!w || !zh) continue;
-      const word: CustomWord = { w, zh, pos: str(c.pos, 16), created: num(c.created, 0) ? (c.created as number) : 0 };
-      const ipa = str(c.ipa, 80);
-      if (ipa) word.ipa = ipa;
-      const ex = sanitizeExamples(c.ex);
-      if (ex) word.ex = ex;
-      const note = str(c.note, MAX_TIP);
-      if (note) word.note = note;
-      if (c.auto === true) word.auto = true;
-      if (c.noImg === true) word.noImg = true;
-      const col = sanitizeCollocations(c.col);
-      if (col) word.col = col;
-      Object.assign(word, sanitizeExtras(c));
-      custom[id] = word;
-      if (Object.keys(custom).length >= 20000) break;
-    }
-    if (Object.keys(custom).length) out.custom = custom;
-  }
-  if (isObj(v.edits)) {
-    const edits: Record<string, WordEdit> = {};
-    for (const [id, e] of Object.entries(v.edits)) {
-      if (!isWord(id) || !isObj(e)) continue;
-      const edit: WordEdit = {};
-      if (e.replaceContent === true) edit.replaceContent = true;
-      const zh = str(e.zh, 300);
-      if (zh) edit.zh = zh;
-      const ex = sanitizeExamples(e.ex);
-      if (ex) edit.ex = ex;
-      if (Array.isArray(e.zhMore)) {
-        const more = e.zhMore.slice(0, 12).map((x) => str(x, 300) ?? "");
-        while (more.length && !more[more.length - 1]) more.pop();
-        if (more.length) edit.zhMore = more;
-      }
-      const nums = (v: unknown) => (Array.isArray(v) ? [...new Set(v.filter((n): n is number => Number.isInteger(n) && (n as number) >= 0 && (n as number) < 40))].sort((a, b) => a - b) : []);
-      const hideEx = nums(e.hideEx);
-      if (hideEx.length) edit.hideEx = hideEx;
-      const hide = nums(e.hide);
-      if (hide.length) edit.hide = hide;
-      if (e.noImg === true) edit.noImg = true;
-      const col = sanitizeCollocations(e.col);
-      if (col) edit.col = col;
-      const tip = str(e.tip, MAX_TIP);
-      if (tip) edit.tip = tip;
-      Object.assign(edit, sanitizeExtras(e));
-      if (Object.keys(edit).length) edits[id] = edit;
-    }
-    if (Object.keys(edits).length) out.edits = edits;
-  }
-  return out;
-}
-
-export function sanitizeSettings(v: unknown): Settings {
-  const s = { ...defaultSettings };
-  if (!isObj(v)) return s;
-  if (v.accent === "uk" || v.accent === "us") s.accent = v.accent;
-  if (typeof v.autoplay === "boolean") s.autoplay = v.autoplay;
-  if (num(v.dailyNew, 0, MAX_DAILY_NEW)) s.dailyNew = Math.round(v.dailyNew as number);
-  if (num(v.retention, 0.7, 0.97)) s.retention = v.retention as number;
-  if (v.theme === "system" || v.theme === "light" || v.theme === "dark") s.theme = v.theme;
-  if (typeof v.sfx === "boolean") s.sfx = v.sfx;
-  if (typeof v.spell === "boolean") s.spell = v.spell;
-  if (num(v.startLevel, 0, 5)) s.startLevel = Math.round(v.startLevel as number);
-  if (typeof v.onboarded === "boolean") s.onboarded = v.onboarded;
-  if (typeof v.examDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.examDate)) {
-    const [y, m, d] = v.examDate.split("-").map(Number);
-    const dt = new Date(y, m - 1, d);
-    if (dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d) s.examDate = v.examDate;
-  }
-  if (num(v.targetScore, 50, 100)) s.targetScore = Math.round(v.targetScore as number);
-  if (v.dataset === "open" || v.dataset === "private") s.dataset = v.dataset;
-  if (["off", "stars", "rain", "sea", "forest", "fire", "voyage", "cafe"].includes(v.ambience as string)) s.ambience = v.ambience as Settings["ambience"];
-  if (num(v.ambienceVolume, 0, 1)) s.ambienceVolume = v.ambienceVolume as number;
-  if (typeof v.splash === "boolean") s.splash = v.splash;
-  if (Array.isArray(v.conjTenses)) {
-    const t = v.conjTenses.filter((x): x is string => (TENSES as readonly string[]).includes(x as string));
-    s.conjTenses = t.length ? [...new Set(t)] : null;
-  }
-  if (num(v.conjNew, 0, MAX_DAILY_NEW)) s.conjNew = Math.round(v.conjNew as number);
-  if (typeof v.focusTopic === "string" && /^[a-z0-9-]{1,40}$/.test(v.focusTopic)) s.focusTopic = v.focusTopic;
-  if (Array.isArray(v.studyFamilies)) {
-    const ids = [...new Set(v.studyFamilies.filter((id): id is string => typeof id === "string" && (familyIds.has(id) || /^[a-z0-9][a-z0-9_-]{0,119}$/.test(id))))];
-    s.studyFamilies = ids.length ? ids : null;
-  }
-  const chosenPos = Array.isArray(v.studyPos) ? v.studyPos : [v.studyPos];
-  const validPos = POS_OPTIONS.filter(([key]) => chosenPos.includes(key)).map(([key]) => key);
-  s.studyPos = validPos.length && validPos.length < POS_OPTIONS.length ? validPos : null;
-  if (Array.isArray(v.studyDecks)) {
-    const d = v.studyDecks.filter((x): x is string => typeof x === "string" && (x === CORE_DECK || DECK_ID.test(x)));
-    s.studyDecks = d.length ? [...new Set(d)].slice(0, 300) : null;
-  }
-  if (typeof v.readColors === "boolean") s.readColors = v.readColors;
-  if (typeof v.readDeck === "string" && (v.readDeck === CORE_DECK || DECK_ID.test(v.readDeck))) s.readDeck = v.readDeck;
-  if (num(v.lastBackupAt, 0)) s.lastBackupAt = v.lastBackupAt as number;
-  return s;
-}
-
-/* ---------- store ---------- */
-
-interface State {
-  progress: Progress;
-  settings: Settings;
-  saveError: boolean;
-}
-
 let state: State = {
   progress: emptyProgress("word-atlas-open"),
   settings: sanitizeSettings(read(SETTINGS_KEY)),
@@ -754,8 +52,12 @@ let state: State = {
 };
 const listeners = new Set<() => void>();
 let saveTimer: number | undefined;
-/** Only write when this tab changed something, so idle tabs never clobber newer data. */
-let dirty = false;
+let maxSaveTimer: number | undefined;
+let idleHandle: number | undefined;
+/** Domain dirty flags: idle/settings-only updates never re-serialize full progress. */
+let progressDirty = false;
+let settingsDirty = false;
+let heavyDirty = false;
 /** Progress is written only after it has been read from storage for this dataset. */
 let loadedId: string | null = null;
 /** Datasets whose heavy fields (texts, essays) have been synced to IndexedDB fb2-vault. */
@@ -768,21 +70,28 @@ const pendingClearEssays = new Set<string>();
 let storageSaveError = false;
 let vaultSaveError = false;
 
+const isDirty = () => progressDirty || settingsDirty || heavyDirty;
+
+function markDirty(kind: "progress" | "settings" | "all" = "all") {
+  if (kind === "settings") {
+    settingsDirty = true;
+    return;
+  }
+  if (kind === "progress") {
+    progressDirty = true;
+    return;
+  }
+  progressDirty = true;
+  settingsDirty = true;
+  heavyDirty = true;
+}
+
 function syncSaveError() {
   const next = storageSaveError || vaultSaveError;
   if (next !== state.saveError) {
     state = { ...state, saveError: next };
     emit();
   }
-}
-
-/** Strip heavy essays/texts from the localStorage mirror once IndexedDB vault holds them. */
-export function compactProgressForLocalStorage(p: Progress): Progress {
-  if (!p.texts?.length && !p.essays?.length) return p;
-  const { texts: _t, essays: _e, ...rest } = p;
-  void _t;
-  void _e;
-  return rest;
 }
 
 function queueHeavySave(p: Progress, opts?: PutHeavyOptions): Promise<boolean> {
@@ -810,7 +119,6 @@ async function hydrateVaultForDataset(datasetId: string): Promise<void> {
   if (existing) return existing;
   const task = (async () => {
     try {
-      // 1. Migrate legacy localStorage snapshots into IndexedDB and free localStorage quota
       for (const key of listSnapshots(datasetId)) {
         const snap = read<Progress>(key);
         if (snap && (await putSnapshotIdb(key, sanitizeProgress(snap, datasetId)))) {
@@ -821,7 +129,6 @@ async function hydrateVaultForDataset(datasetId: string): Promise<void> {
           }
         }
       }
-      // 2. Merge heavy texts/essays from IndexedDB with any legacy localStorage or in-memory entries
       const idb = await getHeavy(datasetId);
       const cur = state.progress.datasetId === datasetId ? state.progress : null;
       if (!cur) return;
@@ -842,7 +149,6 @@ async function hydrateVaultForDataset(datasetId: string): Promise<void> {
           };
           emit();
         }
-        // Rewrite compact localStorage copy so legacy large blobs are freed
         write(progressKey(datasetId), compactProgressForLocalStorage(state.progress));
       }
     } finally {
@@ -857,32 +163,80 @@ function emit() {
   listeners.forEach((l) => l());
 }
 
-function scheduleSave() {
-  dirty = true;
+function cancelScheduledSave() {
+  if (typeof window === "undefined") return;
+  if (saveTimer !== undefined) {
+    window.clearTimeout(saveTimer);
+    saveTimer = undefined;
+  }
+  if (maxSaveTimer !== undefined) {
+    window.clearTimeout(maxSaveTimer);
+    maxSaveTimer = undefined;
+  }
+  if (idleHandle !== undefined) {
+    const cancelIdle = (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback;
+    cancelIdle?.(idleHandle);
+    idleHandle = undefined;
+  }
+}
+
+function scheduleIdleFlush() {
+  if (typeof window === "undefined") return;
+  const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number }).requestIdleCallback;
+  if (typeof ric === "function") {
+    idleHandle = ric(() => {
+      idleHandle = undefined;
+      flush();
+    }, { timeout: 100 });
+  } else {
+    flush();
+  }
+}
+
+function scheduleSave(kind: "progress" | "settings") {
+  if (kind === "settings") settingsDirty = true;
+  else progressDirty = true;
   if (typeof window !== "undefined") {
     window.clearTimeout(saveTimer);
-    saveTimer = window.setTimeout(() => flush(), 250);
+    saveTimer = window.setTimeout(() => {
+      saveTimer = undefined;
+      scheduleIdleFlush();
+    }, 250);
+    if (maxSaveTimer === undefined) {
+      maxSaveTimer = window.setTimeout(() => {
+        maxSaveTimer = undefined;
+        flush();
+      }, 1200);
+    }
   }
 }
 
 export function flush(opts?: { skipHeavy?: boolean }) {
-  if (typeof window !== "undefined") window.clearTimeout(saveTimer);
-  if (!dirty) return;
-  dirty = false;
+  cancelScheduledSave();
+  if (!isDirty()) return;
+  const writeProgress = progressDirty || heavyDirty;
+  const writeSettings = settingsDirty;
+  const writeHeavy = heavyDirty;
+  progressDirty = false;
+  settingsDirty = false;
+  heavyDirty = false;
+
   let progressOk = true;
-  if (loadedId === state.progress.datasetId) {
+  if (writeProgress && loadedId === state.progress.datasetId) {
     const p = state.progress;
     const clearAll = pendingClearAll.delete(p.datasetId);
     const clearTexts = pendingClearTexts.delete(p.datasetId);
     const clearEssays = pendingClearEssays.delete(p.datasetId);
+    const shouldWriteHeavy =
+      !opts?.skipHeavy &&
+      (writeHeavy || vaultSaveError || !vaultSynced.has(p.datasetId) || clearAll || clearTexts || clearEssays);
     if (typeof indexedDB !== "undefined") {
       if (vaultSynced.has(p.datasetId) || clearAll || clearTexts || clearEssays) {
-        if (!opts?.skipHeavy) void queueHeavySave(p, { clear: clearAll, clearTexts, clearEssays });
+        if (shouldWriteHeavy) void queueHeavySave(p, { clear: clearAll, clearTexts, clearEssays });
         progressOk = write(progressKey(p.datasetId), compactProgressForLocalStorage(p));
       } else {
         progressOk = write(progressKey(p.datasetId), p);
         if (!progressOk) {
-          // QuotaExceededError on full payload: offload heavy fields to IDB and keep compact progress in localStorage
           if (!opts?.skipHeavy) void queueHeavySave(p);
           progressOk = write(progressKey(p.datasetId), compactProgressForLocalStorage(p));
         }
@@ -891,7 +245,8 @@ export function flush(opts?: { skipHeavy?: boolean }) {
       progressOk = write(progressKey(p.datasetId), p);
     }
   }
-  storageSaveError = !(progressOk && write(SETTINGS_KEY, state.settings));
+  const settingsOk = writeSettings ? write(SETTINGS_KEY, state.settings) : true;
+  storageSaveError = !(progressOk && settingsOk);
   syncSaveError();
 }
 
@@ -930,7 +285,6 @@ if (typeof window !== "undefined") {
   if (typeof document !== "undefined") {
     document.addEventListener("visibilitychange", () => document.visibilityState === "hidden" && flush());
   }
-  // Another tab saved: adopt its data while preserving heavy texts/essays and never wiping IDB vault.
   window.addEventListener("storage", handleStorageEvent);
 }
 
@@ -969,8 +323,8 @@ export const store = {
     if (!report.changed) return { ...report, snapshot: null as string | null };
     const snapshot = writeSnapshot(state.progress);
     state = { ...state, progress: syncFavorites(progress) };
+    markDirty("all");
     emit();
-    scheduleSave();
     flush();
     return { ...report, snapshot };
   },
@@ -980,8 +334,8 @@ export const store = {
     if (!raw) return false;
     const restored = sanitizeProgress(raw, state.progress.datasetId);
     state = { ...state, progress: restored };
+    markDirty("all");
     emit();
-    scheduleSave();
     flush();
     return true;
   },
@@ -990,8 +344,8 @@ export const store = {
     if (!raw) return false;
     const restored = sanitizeProgress(raw, state.progress.datasetId);
     state = { ...state, progress: restored };
+    markDirty("all");
     emit();
-    scheduleSave();
     flush();
     return true;
   },
@@ -1009,186 +363,116 @@ export const store = {
   progress(fn: (p: Progress) => Progress) {
     const prev = state.progress;
     const next = syncFavorites(fn(prev));
-    if (prev.texts?.length && !next.texts?.length) pendingClearTexts.add(next.datasetId);
+    if (prev.texts !== next.texts || prev.essays !== next.essays) heavyDirty = true;
+    if (prev.texts?.length && !next.texts?.length) {
+      pendingClearTexts.add(next.datasetId);
+      heavyDirty = true;
+    }
     if (next.texts?.length) pendingClearTexts.delete(next.datasetId);
-    if (prev.essays?.length && !next.essays?.length) pendingClearEssays.add(next.datasetId);
+    if (prev.essays?.length && !next.essays?.length) {
+      pendingClearEssays.add(next.datasetId);
+      heavyDirty = true;
+    }
     if (next.essays?.length) pendingClearEssays.delete(next.datasetId);
     state = { ...state, progress: next };
     emit();
-    scheduleSave();
+    scheduleSave("progress");
   },
   settings(patch: Partial<Settings>) {
     state = { ...state, settings: { ...state.settings, ...patch } };
     emit();
-    scheduleSave();
+    scheduleSave("settings");
   },
 };
+
+export function shallowEqual<T>(a: T, b: T): boolean {
+  if (Object.is(a, b)) return true;
+  if (typeof a !== "object" || a === null || typeof b !== "object" || b === null) return false;
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) if (!Object.is(a[i], b[i])) return false;
+    return true;
+  }
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  for (let i = 0; i < keysA.length; i++) {
+    const k = keysA[i];
+    if (!Object.prototype.hasOwnProperty.call(b, k) || !Object.is((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k])) {
+      return false;
+    }
+  }
+  return true;
+}
 
 export function useStore<T>(select: (s: State) => T): T {
   return useSyncExternalStore(store.subscribe, () => select(state), () => select(state));
 }
 
-export function bumpDay(p: Progress, patch: Partial<DayStat>): Progress {
-  const k = dayKey();
-  const d = p.days[k] ?? { n: 0, r: 0, c: 0, t: 0 };
-  return {
-    ...p,
-    days: {
-      ...p.days,
-      [k]: { n: d.n + (patch.n ?? 0), r: d.r + (patch.r ?? 0), c: d.c + (patch.c ?? 0), t: d.t + (patch.t ?? 0) },
-    },
+/**
+ * Subscribe to a derived slice object/tuple without re-rendering when unselected store branches change.
+ * Caches the previous snapshot in a ref so React 19 useSyncExternalStore receives a referentially stable value.
+ */
+export function useStoreShallow<T>(select: (s: State) => T): T {
+  const cacheRef = useRef<{ has: boolean; val: T }>({ has: false, val: undefined as T });
+  const getSnapshot = () => {
+    const next = select(state);
+    if (cacheRef.current.has && shallowEqual(cacheRef.current.val, next)) {
+      return cacheRef.current.val;
+    }
+    cacheRef.current = { has: true, val: next };
+    return next;
   };
+  return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
 }
 
 export function toggleBookmark(id: string) {
-  store.progress((p) => ({
-    ...p,
-    bookmarks: p.bookmarks.includes(id) ? p.bookmarks.filter((x) => x !== id) : [id, ...p.bookmarks],
-  }));
+  store.progress((p) => {
+    const removing = p.bookmarks.includes(id);
+    const next: Progress = {
+      ...p,
+      bookmarks: removing ? p.bookmarks.filter((x) => x !== id) : [id, ...p.bookmarks],
+    };
+    return removing ? markTombstone(next, `bookmark:${id}`) : clearTombstone(next, `bookmark:${id}`);
+  });
 }
 
-/* ---------- backup ---------- */
+/* ---------- backup & reset ---------- */
 
-export function markBackupExported(now = Date.now()) {
-  store.settings({ lastBackupAt: now });
-  flush();
-}
+const backupActions = createBackupActions({
+  getState: () => state,
+  setState: (next) => {
+    state = next;
+  },
+  updateSettings: (patch) => store.settings(patch),
+  flush,
+  emit,
+  markDirty,
+  hydrateVault: hydrateVaultForDataset,
+  waitHeavyWrite: (id) => vaultWriting.get(id),
+  queueHeavySave,
+});
 
-export function hasAnyProgress(p: Progress): boolean {
-  if (!p || typeof p !== "object") return false;
-  return (
-    Object.keys(p.cards ?? {}).length > 0 ||
-    (p.essays?.length ?? 0) > 0 ||
-    (p.examLog?.length ?? 0) > 0 ||
-    (p.texts?.length ?? 0) > 0 ||
-    Object.keys(p.gram ?? {}).length > 0 ||
-    Object.keys(p.conj ?? {}).length > 0 ||
-    Object.keys(p.expr ?? {}).length > 0 ||
-    Object.keys(p.custom ?? {}).length > 0 ||
-    (p.bookmarks?.length ?? 0) > 0 ||
-    (p.dictFavs?.length ?? 0) > 0 ||
-    Object.keys(p.dictNotes ?? {}).length > 0 ||
-    !!p.placement
-  );
-}
-
-export function needsBackupReminder(p: Progress, lastBackupAt: number | null, now = Date.now()): { remind: boolean; daysSince: number } {
-  if (!hasAnyProgress(p)) return { remind: false, daysSince: 0 };
-  if (lastBackupAt !== null) {
-    const daysSince = Math.max(0, Math.floor((now - lastBackupAt) / 86400000));
-    return { remind: daysSince >= 7, daysSince };
-  }
-  const stamps: number[] = [];
-  for (const k of Object.keys(p.days)) {
-    const [y, m, d] = k.split("-").map(Number);
-    if (y && m && d) stamps.push(new Date(y, m - 1, d).getTime());
-  }
-  for (const c of Object.values(p.cards)) if (c.seen > 0) stamps.push(c.seen);
-  for (const e of p.essays ?? []) stamps.push(e.created);
-  for (const r of p.examLog ?? []) stamps.push(r.at);
-  for (const t of p.texts ?? []) stamps.push(t.created);
-  if (p.placement?.at) stamps.push(p.placement.at);
-  if (!stamps.length) return { remind: false, daysSince: 0 };
-  const earliest = Math.min(...stamps);
-  const daysSince = Math.max(0, Math.floor((now - earliest) / 86400000));
-  return { remind: daysSince >= 7, daysSince };
-}
-
-export function exportBackup(extra?: { examBank?: ExamBankBackup | null; essayDrafts?: Record<string, string> }) {
-  flush();
-  const { progress, settings } = state;
-  const images = getImages();
-  const essayDrafts = extra?.essayDrafts ?? collectEssayDrafts();
-  return JSON.stringify(
-    {
-      app: "word-atlas",
-      version: 2,
-      exported: new Date().toISOString(),
-      progress: { ...progress, session: null },
-      settings,
-      ...(Object.keys(images).length ? { images } : {}),
-      ...(Object.keys(essayDrafts).length ? { essayDrafts } : {}),
-      ...(extra?.examBank ? { examBank: extra.examBank } : {}),
-    },
-    null,
-    1,
-  );
-}
-
-export async function exportBackupAsync(): Promise<string> {
-  await Promise.all([hydrateVaultForDataset(state.progress.datasetId), waitImagesLoaded()]);
-  const pending = vaultWriting.get(state.progress.datasetId);
-  if (pending) await pending;
-  const examBank = await readExamBankBackup();
-  return exportBackup({ examBank, essayDrafts: collectEssayDrafts() });
-}
-
-function markDirty() {
-  dirty = true;
-}
-
-function applyImportData(data: Record<string, unknown>, id: string): { progress: Progress; imgs: Record<string, string>; examBank: unknown } {
-  const progress = sanitizeProgress({ ...((data.progress as Record<string, unknown>) ?? {}), session: null }, id);
-  state = { ...state, progress, settings: { ...sanitizeSettings(data.settings), onboarded: true } };
-  const imgs: Record<string, string> = {};
-  if (isObj(data.images)) {
-    for (const [k, v] of Object.entries(data.images)) if (WORD_ID.test(k) && isImageDataUrl(v)) imgs[k] = v;
-  }
-  restoreEssayDrafts(isObj(data.essayDrafts) ? data.essayDrafts : {});
-  return { progress, imgs, examBank: isObj(data.examBank) ? data.examBank : { papers: [], attempts: {} } };
-}
-
-export function importBackup(text: string): { ok: true; cards: number } | { ok: false; error: string } {
-  let data: unknown;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    return { ok: false, error: "文件不是有效的 JSON。" };
-  }
-  if (!isObj(data) || data.app !== "word-atlas" || data.version !== 2 || !isObj(data.progress))
-    return { ok: false, error: "这不是法语词光的学习备份。" };
-  const id = state.progress.datasetId;
-  if (data.progress.datasetId !== id) return { ok: false, error: "备份来自另一个词库，请先切换到对应词库。" };
-  const { progress, imgs, examBank } = applyImportData(data, id);
-  void replaceImages(imgs);
-  void restoreExamBankBackup(examBank).then((ok) => ok && void reloadBank());
-  if (typeof indexedDB !== "undefined") void queueHeavySave(progress, { clear: true });
-  emit();
-  markDirty();
-  flush({ skipHeavy: true });
-  return { ok: true, cards: Object.keys(progress.cards).length };
-}
-
-export async function importBackupAsync(text: string): Promise<{ ok: true; cards: number } | { ok: false; error: string }> {
-  let data: unknown;
-  try {
-    data = JSON.parse(text);
-  } catch {
-    return { ok: false, error: "文件不是有效的 JSON。" };
-  }
-  if (!isObj(data) || data.app !== "word-atlas" || data.version !== 2 || !isObj(data.progress))
-    return { ok: false, error: "这不是法语词光的学习备份。" };
-  const id = state.progress.datasetId;
-  if (data.progress.datasetId !== id) return { ok: false, error: "备份来自另一个词库，请先切换到对应词库。" };
-  const { progress, imgs, examBank } = applyImportData(data, id);
-  const ops: Promise<unknown>[] = [
-    replaceImages(imgs),
-    restoreExamBankBackup(examBank).then((ok) => (ok ? reloadBank() : undefined)),
-  ];
-  if (typeof indexedDB !== "undefined") ops.push(queueHeavySave(progress, { clear: true }));
-  await Promise.all(ops);
-  emit();
-  markDirty();
-  flush({ skipHeavy: true });
-  return { ok: true, cards: Object.keys(progress.cards).length };
-}
+export const markBackupExported = backupActions.markBackupExported;
+export const exportBackup = backupActions.exportBackup;
+export const exportBackupAsync = backupActions.exportBackupAsync;
+export const importBackup = backupActions.importBackup;
+export const importBackupAsync = backupActions.importBackupAsync;
 
 export function resetProgress() {
   const id = state.progress.datasetId;
   state = { ...state, progress: emptyProgress(id) };
   pendingClearAll.add(id);
   if (typeof indexedDB !== "undefined") void queueHeavySave(state.progress, { clear: true });
+  if (typeof localStorage !== "undefined") {
+    try {
+      localStorage.removeItem("fb2.mock.v1");
+      localStorage.removeItem("fb2.mock.last.v1");
+    } catch {
+      /* ignore quota or private mode storage errors */
+    }
+  }
   emit();
-  markDirty();
+  markDirty("all");
   flush({ skipHeavy: true });
 }

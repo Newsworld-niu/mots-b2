@@ -6,6 +6,8 @@ export interface HttpRequestInput {
   path: string;
   headers?: Record<string, string | undefined> | Headers;
   body?: string | Buffer | Uint8Array | null;
+  /** Optional lazy reader used in Azure Functions so bodies are read only after auth & rate-limit checks. */
+  readBody?: (maxBytes: number) => Promise<{ ok: true; body: Uint8Array } | { ok: false; status: 413 }>;
 }
 
 export interface HttpResponseOutput {
@@ -17,15 +19,68 @@ export interface HttpResponseOutput {
 export interface HandlerEnv {
   ADMIN_KEY?: string;
   ALLOWED_ORIGINS?: string;
+  RATE_LIMIT_DISABLED?: string;
 }
 
-const MAX_SYNC_BYTES = 30 * 1024 * 1024;
+export const MAX_SYNC_BYTES = 30 * 1024 * 1024;
+export const MAX_CONTROL_BYTES = 64 * 1024;
+export const MAX_RATE_BUCKETS = 4096;
 const MAX_HISTORY_ITEMS = 20;
 const SYNC_CODE_RE = /^mb2_[A-Za-z0-9_-]{43}$/;
+const AUTH_TOKEN_RE = /^mb2a_[A-Za-z0-9_-]{32,128}$/;
 const DATASET_ID_RE = /^[a-z0-9-]{1,64}$/;
 const HISTORY_ID_RE = /^[A-Za-z0-9TZ._-]+$/;
 export const DEFAULT_ALLOWED_ORIGINS =
-  "https://newsworld-niu.github.io,http://127.0.0.1:5190,http://localhost:5190,http://127.0.0.1:5188,https://localhost,capacitor://localhost";
+  "https://newsworld-niu.github.io,http://127.0.0.1:5190,http://localhost:5190,http://127.0.0.1:5191,http://localhost:5191,http://127.0.0.1:5188,http://localhost:5188,https://localhost,capacitor://localhost";
+
+const rateBuckets = new Map<string, { count: number; resetAt: number }>();
+
+export function resetRateLimits(): void {
+  rateBuckets.clear();
+}
+
+export function rateBucketCountForTest(): number {
+  return rateBuckets.size;
+}
+
+function checkRateLimit(
+  key: string,
+  limit: number,
+  windowMs: number,
+  now = Date.now(),
+): { ok: true } | { ok: false; retryAfterSec: number } {
+  if (rateBuckets.size >= MAX_RATE_BUCKETS) {
+    for (const [k, b] of rateBuckets) {
+      if (b.resetAt <= now) rateBuckets.delete(k);
+    }
+    while (rateBuckets.size >= MAX_RATE_BUCKETS) {
+      const oldest = rateBuckets.keys().next().value;
+      if (oldest === undefined) break;
+      rateBuckets.delete(oldest);
+    }
+  }
+  const cur = rateBuckets.get(key);
+  if (!cur || cur.resetAt <= now) {
+    rateBuckets.set(key, { count: 1, resetAt: now + windowMs });
+    return { ok: true };
+  }
+  if (cur.count >= limit) {
+    return { ok: false, retryAfterSec: Math.max(1, Math.ceil((cur.resetAt - now) / 1000)) };
+  }
+  cur.count++;
+  return { ok: true };
+}
+
+export function clientIpKey(req: Pick<HttpRequestInput, "headers">): string {
+  const azureIp = getHeader(req.headers, "x-azure-clientip")?.trim();
+  if (azureIp) return azureIp;
+  const xff = getHeader(req.headers, "x-forwarded-for");
+  if (xff) {
+    const parts = xff.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length) return parts[parts.length - 1];
+  }
+  return getHeader(req.headers, "x-real-ip")?.trim() || getHeader(req.headers, "x-client-ip")?.trim() || "unknown";
+}
 
 let lastHistoryMs = 0;
 
@@ -128,7 +183,7 @@ function jsonResponse(
   };
 }
 
-function readBodyBytes(body: HttpRequestInput["body"]): {
+function readBodyBytes(body: HttpRequestInput["body"], maxBytes: number): {
   bytes: number;
   text: string;
 } {
@@ -136,15 +191,34 @@ function readBodyBytes(body: HttpRequestInput["body"]): {
     return { bytes: 0, text: "" };
   }
   if (typeof body === "string") {
-    return { bytes: Buffer.byteLength(body, "utf8"), text: body };
+    const bytes = Buffer.byteLength(body, "utf8");
+    return bytes > maxBytes ? { bytes, text: "" } : { bytes, text: body };
   }
-  if (body.byteLength > MAX_SYNC_BYTES) {
+  if (body.byteLength > maxBytes) {
     return { bytes: body.byteLength, text: "" };
   }
   return {
     bytes: body.byteLength,
     text: Buffer.from(body.buffer, body.byteOffset, body.byteLength).toString("utf8"),
   };
+}
+
+async function loadRequestBody(
+  req: HttpRequestInput,
+  maxBytes: number,
+): Promise<{ ok: true; bytes: number; text: string } | { ok: false; status: 413 }> {
+  if (req.readBody) {
+    const res = await req.readBody(maxBytes);
+    if (!res.ok) return { ok: false, status: 413 };
+    return {
+      ok: true,
+      bytes: res.body.byteLength,
+      text: Buffer.from(res.body).toString("utf8"),
+    };
+  }
+  const { bytes, text } = readBodyBytes(req.body, maxBytes);
+  if (bytes > maxBytes) return { ok: false, status: 413 };
+  return { ok: true, bytes, text };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -163,19 +237,34 @@ function parseTimestampFromId(id: string, fallback: Date): string {
 async function authenticate(
   req: HttpRequestInput,
   store: ObjStore,
-): Promise<string | null> {
+): Promise<{ ns: string; tokenHash: string } | null> {
   const auth = getHeader(req.headers, "authorization");
   if (!auth) return null;
   const spaceIdx = auth.indexOf(" ");
   if (spaceIdx === -1) return null;
   const scheme = auth.slice(0, spaceIdx);
   const token = auth.slice(spaceIdx + 1).trim();
-  if (scheme.toLowerCase() !== "bearer" || !SYNC_CODE_RE.test(token)) {
+  if (scheme.toLowerCase() !== "bearer" || (!SYNC_CODE_RE.test(token) && !AUTH_TOKEN_RE.test(token))) {
     return null;
   }
-  const ns = sha256hex(token);
-  const exists = await store.exists(`users/${ns}/meta.json`);
-  return exists ? ns : null;
+  const tokenHash = sha256hex(token);
+  if (await store.exists(`users/${tokenHash}/meta.json`)) {
+    return { ns: tokenHash, tokenHash };
+  }
+  const aliasObj = await store.get(`aliases/${tokenHash}.json`);
+  if (aliasObj && aliasObj !== "not-modified") {
+    try {
+      const alias = JSON.parse(aliasObj.body) as unknown;
+      if (isRecord(alias) && typeof alias.ns === "string" && /^[a-f0-9]{64}$/.test(alias.ns)) {
+        if (await store.exists(`users/${alias.ns}/meta.json`)) {
+          return { ns: alias.ns, tokenHash };
+        }
+      }
+    } catch {
+      /* corrupt alias */
+    }
+  }
+  return null;
 }
 
 async function handleRegister(
@@ -183,14 +272,14 @@ async function handleRegister(
   store: ObjStore,
   baseHeaders: Record<string, string>,
 ): Promise<HttpResponseOutput> {
-  const { bytes, text } = readBodyBytes(req.body);
-  if (bytes > 64 * 1024) {
-    return jsonResponse(baseHeaders, 400, { error: "invalid_payload" });
+  const bodyRes = await loadRequestBody(req, MAX_CONTROL_BYTES);
+  if (!bodyRes.ok) {
+    return jsonResponse(baseHeaders, 413, { error: "payload_too_large" });
   }
   let parsed: unknown = {};
-  if (text.trim().length > 0) {
+  if (bodyRes.text.trim().length > 0) {
     try {
-      parsed = JSON.parse(text);
+      parsed = JSON.parse(bodyRes.text);
     } catch {
       return jsonResponse(baseHeaders, 400, { error: "invalid_json" });
     }
@@ -203,9 +292,27 @@ async function handleRegister(
     return jsonResponse(baseHeaders, 403, { error: "invalid_invite" });
   }
 
+  let suppliedAuthToken: string | null = null;
+  if (parsed.authToken !== undefined) {
+    if (typeof parsed.authToken !== "string" || !AUTH_TOKEN_RE.test(parsed.authToken.trim())) {
+      return jsonResponse(baseHeaders, 400, { error: "invalid_auth_token" });
+    }
+    suppliedAuthToken = parsed.authToken.trim();
+  }
+
   const inviteKey = `invites/${sha256hex(inviteCode)}`;
   if (!(await store.delete(inviteKey))) {
     return jsonResponse(baseHeaders, 403, { error: "invalid_invite" });
+  }
+
+  if (suppliedAuthToken) {
+    const ns = sha256hex(suppliedAuthToken);
+    await store.put(
+      `users/${ns}/meta.json`,
+      JSON.stringify({ created: new Date().toISOString(), authVersion: 2 }),
+      { ifNoneMatchStar: true },
+    );
+    return jsonResponse(baseHeaders, 201, { authVersion: 2 });
   }
 
   const syncCode = "mb2_" + randomBytes(32).toString("base64url");
@@ -217,6 +324,34 @@ async function handleRegister(
   );
 
   return jsonResponse(baseHeaders, 201, { syncCode });
+}
+
+async function handleAuthUpgrade(
+  req: HttpRequestInput,
+  store: ObjStore,
+  ns: string,
+  baseHeaders: Record<string, string>,
+): Promise<HttpResponseOutput> {
+  const bodyRes = await loadRequestBody(req, MAX_CONTROL_BYTES);
+  if (!bodyRes.ok) {
+    return jsonResponse(baseHeaders, 413, { error: "payload_too_large" });
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(bodyRes.text);
+  } catch {
+    return jsonResponse(baseHeaders, 400, { error: "invalid_json" });
+  }
+  if (!isRecord(parsed) || typeof parsed.newAuthToken !== "string" || !AUTH_TOKEN_RE.test(parsed.newAuthToken.trim())) {
+    return jsonResponse(baseHeaders, 400, { error: "invalid_auth_token" });
+  }
+  const newToken = parsed.newAuthToken.trim();
+  const aliasHash = sha256hex(newToken);
+  await store.put(
+    `aliases/${aliasHash}.json`,
+    JSON.stringify({ ns, upgradedAt: new Date().toISOString() }),
+  );
+  return jsonResponse(baseHeaders, 200, { ok: true, authVersion: 2 });
 }
 
 async function handleAdminInvites(
@@ -235,10 +370,11 @@ async function handleAdminInvites(
     return jsonResponse(baseHeaders, 401, { error: "unauthorized" });
   }
 
-  const { bytes, text } = readBodyBytes(req.body);
-  if (bytes > 64 * 1024) {
-    return jsonResponse(baseHeaders, 400, { error: "invalid_payload" });
+  const bodyRes = await loadRequestBody(req, MAX_CONTROL_BYTES);
+  if (!bodyRes.ok) {
+    return jsonResponse(baseHeaders, 413, { error: "payload_too_large" });
   }
+  const { text } = bodyRes;
   let count = 1;
   if (text.trim().length > 0) {
     let parsed: unknown;
@@ -320,10 +456,11 @@ async function handlePutSync(
   datasetId: string,
   baseHeaders: Record<string, string>,
 ): Promise<HttpResponseOutput> {
-  const { bytes, text } = readBodyBytes(req.body);
-  if (bytes > MAX_SYNC_BYTES) {
+  const bodyRes = await loadRequestBody(req, MAX_SYNC_BYTES);
+  if (!bodyRes.ok) {
     return jsonResponse(baseHeaders, 413, { error: "payload_too_large" });
   }
+  const { text } = bodyRes;
 
   let parsed: unknown;
   try {
@@ -331,13 +468,24 @@ async function handlePutSync(
   } catch {
     return jsonResponse(baseHeaders, 400, { error: "invalid_payload" });
   }
-  if (
-    !isRecord(parsed) ||
-    parsed.app !== "word-atlas" ||
-    parsed.version !== 2 ||
-    !isRecord(parsed.progress) ||
-    parsed.progress.datasetId !== datasetId
-  ) {
+  const validLegacy =
+    isRecord(parsed) &&
+    parsed.app === "word-atlas" &&
+    parsed.version === 2 &&
+    isRecord(parsed.progress) &&
+    parsed.progress.datasetId === datasetId;
+  const validE2ee =
+    isRecord(parsed) &&
+    parsed.app === "word-atlas" &&
+    parsed.version === 2 &&
+    parsed.enc === "aes-gcm-v1" &&
+    parsed.datasetId === datasetId &&
+    typeof parsed.iv === "string" &&
+    parsed.iv.length >= 12 &&
+    parsed.iv.length <= 64 &&
+    typeof parsed.ct === "string" &&
+    parsed.ct.length >= 16;
+  if (!validLegacy && !validE2ee) {
     return jsonResponse(baseHeaders, 400, { error: "invalid_payload" });
   }
 
@@ -471,6 +619,31 @@ export async function handleRequest(
     return jsonResponse(baseHeaders, 200, { ok: true });
   }
 
+  if (env.RATE_LIMIT_DISABLED !== "1") {
+    let limitKey = "";
+    let maxReq = 120;
+    if (path === "/register") {
+      limitKey = `reg:${clientIpKey(req)}`;
+      maxReq = 10;
+    } else if (path === "/invites") {
+      limitKey = `inv:${clientIpKey(req)}`;
+      maxReq = 20;
+    } else if (path === "/auth/upgrade") {
+      limitKey = `up:${clientIpKey(req)}`;
+      maxReq = 20;
+    } else if (path === "/account" || path.startsWith("/sync")) {
+      const auth = getHeader(req.headers, "authorization") ?? clientIpKey(req);
+      limitKey = `sync:${sha256hex(auth).slice(0, 16)}`;
+      maxReq = 120;
+    }
+    if (limitKey) {
+      const rl = checkRateLimit(limitKey, maxReq, 60_000);
+      if (!rl.ok) {
+        return jsonResponse(baseHeaders, 429, { error: "rate_limited" }, { "Retry-After": String(rl.retryAfterSec) });
+      }
+    }
+  }
+
   if (path === "/register") {
     if (method !== "POST") {
       return jsonResponse(baseHeaders, 405, { error: "method_not_allowed" });
@@ -485,17 +658,31 @@ export async function handleRequest(
     return handleAdminInvites(req, store, env, baseHeaders);
   }
 
+  if (path === "/auth/upgrade") {
+    if (method !== "POST") {
+      return jsonResponse(baseHeaders, 405, { error: "method_not_allowed" });
+    }
+    const auth = await authenticate(req, store);
+    if (!auth) {
+      return jsonResponse(baseHeaders, 401, { error: "unauthorized" });
+    }
+    return handleAuthUpgrade(req, store, auth.ns, baseHeaders);
+  }
+
   if (path === "/account") {
     if (method !== "DELETE") {
       return jsonResponse(baseHeaders, 405, { error: "method_not_allowed" });
     }
-    const ns = await authenticate(req, store);
-    if (!ns) {
+    const auth = await authenticate(req, store);
+    if (!auth) {
       return jsonResponse(baseHeaders, 401, { error: "unauthorized" });
     }
-    const items = await store.list(`users/${ns}/`);
+    const items = await store.list(`users/${auth.ns}/`);
     await Promise.all(items.map((item) => store.delete(item.key)));
-    await store.delete(`users/${ns}/meta.json`);
+    await store.delete(`users/${auth.ns}/meta.json`);
+    if (auth.tokenHash !== auth.ns) {
+      await store.delete(`aliases/${auth.tokenHash}.json`);
+    }
     return { status: 204, headers: baseHeaders };
   }
 
@@ -504,15 +691,15 @@ export async function handleRequest(
     if (method !== "GET") {
       return jsonResponse(baseHeaders, 405, { error: "method_not_allowed" });
     }
-    const ns = await authenticate(req, store);
-    if (!ns) {
+    const auth = await authenticate(req, store);
+    if (!auth) {
       return jsonResponse(baseHeaders, 401, { error: "unauthorized" });
     }
     const [, datasetId, historyId] = syncHistoryItemMatch;
     if (!DATASET_ID_RE.test(datasetId)) {
       return jsonResponse(baseHeaders, 400, { error: "invalid_dataset_id" });
     }
-    return handleGetHistoryItem(store, ns, datasetId, historyId, baseHeaders);
+    return handleGetHistoryItem(store, auth.ns, datasetId, historyId, baseHeaders);
   }
 
   const syncHistoryMatch = /^\/sync\/([^/]+)\/history$/.exec(path);
@@ -520,15 +707,15 @@ export async function handleRequest(
     if (method !== "GET") {
       return jsonResponse(baseHeaders, 405, { error: "method_not_allowed" });
     }
-    const ns = await authenticate(req, store);
-    if (!ns) {
+    const auth = await authenticate(req, store);
+    if (!auth) {
       return jsonResponse(baseHeaders, 401, { error: "unauthorized" });
     }
     const [, datasetId] = syncHistoryMatch;
     if (!DATASET_ID_RE.test(datasetId)) {
       return jsonResponse(baseHeaders, 400, { error: "invalid_dataset_id" });
     }
-    return handleListHistory(store, ns, datasetId, baseHeaders);
+    return handleListHistory(store, auth.ns, datasetId, baseHeaders);
   }
 
   const syncMatch = /^\/sync\/([^/]+)$/.exec(path);
@@ -536,8 +723,8 @@ export async function handleRequest(
     if (method !== "GET" && method !== "PUT") {
       return jsonResponse(baseHeaders, 405, { error: "method_not_allowed" });
     }
-    const ns = await authenticate(req, store);
-    if (!ns) {
+    const auth = await authenticate(req, store);
+    if (!auth) {
       return jsonResponse(baseHeaders, 401, { error: "unauthorized" });
     }
     const [, datasetId] = syncMatch;
@@ -545,9 +732,9 @@ export async function handleRequest(
       return jsonResponse(baseHeaders, 400, { error: "invalid_dataset_id" });
     }
     if (method === "GET") {
-      return handleGetSync(req, store, ns, datasetId, baseHeaders);
+      return handleGetSync(req, store, auth.ns, datasetId, baseHeaders);
     }
-    return handlePutSync(req, store, ns, datasetId, baseHeaders);
+    return handlePutSync(req, store, auth.ns, datasetId, baseHeaders);
   }
 
   return jsonResponse(baseHeaders, 404, { error: "not_found" });

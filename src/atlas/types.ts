@@ -46,6 +46,7 @@ export interface Entry {
   syn: string[];
   ant: string[];
   tip: string;
+  register?: "soutenu" | "courant" | "familier";
   cefr: string;
   topic: string;
   /** Usage caution (register, offensiveness, spelling), shown with the entry. */

@@ -37,7 +37,7 @@ export async function startRecording(): Promise<Recording> {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 } });
   } catch (e) {
-    throw new Error(micError(e));
+    throw new Error(micError(e), { cause: e });
   }
   const type = pickType();
   let rec: MediaRecorder;
@@ -45,7 +45,7 @@ export async function startRecording(): Promise<Recording> {
     rec = type ? new MediaRecorder(stream, { mimeType: type }) : new MediaRecorder(stream);
   } catch (e) {
     stream.getTracks().forEach((t) => t.stop());
-    throw new Error(micError(e));
+    throw new Error(micError(e), { cause: e });
   }
   const chunks: Blob[] = [];
   rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);

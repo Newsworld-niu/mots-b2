@@ -1,5 +1,5 @@
 import { FamilyPicker } from "../ui/FamilyPicker";
-import { familyWords, familiesFor } from "../lib/families";
+import { familyWords, familiesFor, useFamilies } from "../lib/families";
 import { ChevronDown, Check, Grid3x3, GraduationCap, Layers, List, Search, Sparkles, X } from "lucide-react";
 import { Galaxy } from "../galaxy/Galaxy";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
@@ -7,13 +7,16 @@ import { useAtlas } from "../atlas/context";
 import type { WordRef } from "../atlas/types";
 import { morphFrom } from "../lib/motion";
 import { go, openWord, type Route } from "../lib/router";
+import { normalize } from "../lib/text";
 import { isMastered } from "../store/srs";
-import { CORE_DECK, store, useStore } from "../store/store";
+import { CORE_DECK, store, useStore, useStoreShallow } from "../store/store";
 import { Illustration, plateArticle } from "../ui/Illustration";
 import { searchAtlas } from "../lib/search";
 import { CORE_NAME, deckWords } from "../store/decks";
 import { Speak } from "../ui/Speak";
+import { LexiconTabs } from "../ui/LexiconTabs";
 import { matchesPos, POS_OPTIONS } from "../lib/pos";
+import { useWindowRange } from "../ui/useWindowRange";
 
 type Status = "all" | "new" | "learning" | "mastered" | "saved";
 const STATUS: [Status, string][] = [
@@ -40,7 +43,15 @@ export function AtlasPage({
   route: Extract<Route, { page: "atlas" }>;
 }) {
   const atlas = useAtlas();
-  const progress = useStore((s) => s.progress);
+  const progress = useStoreShallow((s) => ({
+    cards: s.progress.cards,
+    bookmarks: s.progress.bookmarks,
+    decks: s.progress.decks,
+    hidden: s.progress.hidden,
+    coreMigrated: s.progress.coreMigrated,
+    custom: s.progress.custom,
+    edits: s.progress.edits,
+  }));
   const { cards, bookmarks } = progress;
   const decks = progress.decks;
   const deckCount = decks?.length ?? 0;
@@ -55,13 +66,27 @@ export function AtlasPage({
       : deckWords(atlas, { decks, hidden, coreMigrated }, deckId).map((id) => atlas.byId.get(id)!),
     [atlas, decks, hidden, coreMigrated, deckId],
   );
+  const [qInput, setQInput] = useState(route.q ?? "");
   const [q, setQ] = useState(route.q ?? "");
   const [status, setStatus] = useState<Status>("all");
   const pos = POS_OPTIONS.some(([key]) => key === route.pos) ? route.pos! : "";
-  const groups = useMemo(()=>familiesFor(atlas,progress),[atlas,progress]);
+  const baseFamilies = useFamilies();
+  const groups = useMemo(()=>familiesFor(atlas,progress,baseFamilies),[atlas,progress,baseFamilies]);
   const families = useMemo(() => route.families?.split(",") ?? [], [route.families]);
   const scopedWords = useMemo(() => { const members = familyWords(families,groups); return words.filter((w) => matchesPos(w.pos, pos) && (!members || members.has(w.id))); }, [words, pos, families, groups]);
-  useEffect(() => setQ(route.q ?? ""), [route.q]);
+  useEffect(() => {
+    const rq = route.q ?? "";
+    setQInput(rq);
+    setQ(rq);
+  }, [route.q]);
+  useEffect(() => {
+    if (!qInput) {
+      setQ("");
+      return;
+    }
+    const timer = window.setTimeout(() => setQ(qInput), 120);
+    return () => window.clearTimeout(timer);
+  }, [qInput]);
   const [view, setViewState] = useState<View>(() =>
     route.view === "galaxy" || route.view === "list" || route.view === "grid"
       ? route.view
@@ -79,7 +104,7 @@ export function AtlasPage({
         d: deckId,
         families: route.families,
         pos: pos || undefined,
-        q: q || undefined,
+        q: qInput || undefined,
         topic: route.topic,
         level: route.level,
         view: v === "grid" ? undefined : v,
@@ -117,12 +142,13 @@ export function AtlasPage({
   }, [atlas, scopedWords, q, topic, level, status, cards, bookmarks]);
 
   const setFilter = (patch: Partial<Extract<Route, { page: "atlas" }>>) =>
-    go({ page: "atlas", d: deckId, families: route.families, pos: pos || undefined, q: q || undefined, topic, level, view: route.view, ...patch }, null, true);
+    go({ page: "atlas", d: deckId, families: route.families, pos: pos || undefined, q: qInput || undefined, topic, level, view: route.view, ...patch }, null, true);
 
   return (
     <div className={`page atlas ${view === "galaxy" ? "is-galaxy" : ""}`}>
       <header className="atlas-head">
         <div>
+          <LexiconTabs on="atlas" />
           <p className="eyebrow">图鉴 · {deckName} · {words.length.toLocaleString()} 词</p>
           <h1 className="display">
             每个词，
@@ -139,16 +165,19 @@ export function AtlasPage({
         <label className="search">
           <Search size={19} />
           <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
+            value={qInput}
+            onChange={(e) => setQInput(e.target.value)}
             placeholder="搜索单词或中文释义"
             spellCheck={false}
             autoComplete="off"
           />
-          {q && (
+          {qInput && (
             <button
               className="icon-btn"
-              onClick={() => setQ("")}
+              onClick={() => {
+                setQInput("");
+                setQ("");
+              }}
               aria-label="清空搜索"
             >
               <X size={16} />
@@ -291,42 +320,6 @@ export function AtlasPage({
   );
 }
 
-function useWindowRange(
-  container: React.RefObject<HTMLDivElement | null>,
-  rowHeight: number,
-  rows: number,
-  overscan = 4,
-) {
-  const [range, setRange] = useState<[number, number]>([0, 12]);
-  useLayoutEffect(() => {
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const el = container.current;
-      if (!el) return;
-      const top = el.getBoundingClientRect().top;
-      const first = Math.max(0, Math.floor(-top / rowHeight) - overscan);
-      const last = Math.min(
-        rows,
-        Math.ceil((window.innerHeight - top) / rowHeight) + overscan,
-      );
-      setRange((r) => (r[0] === first && r[1] === last ? r : [first, last]));
-    };
-    const on = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", on, { passive: true });
-    window.addEventListener("resize", on);
-    return () => {
-      window.removeEventListener("scroll", on);
-      window.removeEventListener("resize", on);
-      cancelAnimationFrame(raf);
-    };
-  }, [container, rowHeight, rows, overscan]);
-  return range;
-}
-
 function useWidth(ref: React.RefObject<HTMLDivElement | null>) {
   const [w, setW] = useState(0);
   useLayoutEffect(() => {
@@ -340,6 +333,8 @@ function useWidth(ref: React.RefObject<HTMLDivElement | null>) {
   return w;
 }
 
+const disambigTag = (w: WordRef) => (w.g === "m" ? "n.m." : w.g === "f" ? "n.f." : w.pos || "");
+
 function VirtualGrid({
   items,
   cards,
@@ -348,6 +343,14 @@ function VirtualGrid({
   cards: Record<string, { s: number; st: number }>;
 }) {
   const atlas = useAtlas();
+  const homographs = useMemo(() => {
+    const seen = new Map<string, number>();
+    for (const w of atlas.words) {
+      const k = normalize(w.word);
+      seen.set(k, (seen.get(k) ?? 0) + 1);
+    }
+    return new Set([...seen.entries()].filter(([, n]) => n > 1).map(([k]) => k));
+  }, [atlas.words]);
   const box = useRef<HTMLDivElement>(null);
   const width = useWidth(box);
   const gap = width < 560 ? 10 : 16;
@@ -394,6 +397,7 @@ function VirtualGrid({
             <span className="tile-text">
               <span className="tile-word" lang="fr">
                 {w.word}
+                {homographs.has(normalize(w.word)) && disambigTag(w) && <i className="tile-homograph">{disambigTag(w)}</i>}
               </span>
               <span className={`tile-lv lv-${w.custom ? "mine" : atlas.cefr[w.cefr]}`}>
                 {w.custom ? "自建" : atlas.cefr[w.cefr]}
@@ -418,6 +422,14 @@ function VirtualList({
   cards: Record<string, { s: number; st: number }>;
 }) {
   const atlas = useAtlas();
+  const homographs = useMemo(() => {
+    const seen = new Map<string, number>();
+    for (const w of atlas.words) {
+      const k = normalize(w.word);
+      seen.set(k, (seen.get(k) ?? 0) + 1);
+    }
+    return new Set([...seen.entries()].filter(([, n]) => n > 1).map(([k]) => k));
+  }, [atlas.words]);
   const accent = useStore((s) => s.settings.accent);
   const box = useRef<HTMLDivElement>(null);
   const rowH = 68;
@@ -445,6 +457,7 @@ function VirtualList({
             />
             <span className="row-word" lang="fr">
               {w.word}
+              {homographs.has(normalize(w.word)) && disambigTag(w) && <i className="tile-homograph">{disambigTag(w)}</i>}
             </span>
             <span className="row-ipa ipa">{w.ipa}</span>
             <span className="row-zh">{w.zh}{w.more && <i className="more-tag" title={w.more.join("；")}>+{w.more.length}</i>}</span>

@@ -38,6 +38,7 @@ test("buildDialogueSsmlBatches assigns 3+ voices, interruption breaks, and split
   for (const v of voices) assert.ok(batches[0].includes(`<voice name="${v}">`), v);
   assert.ok(batches[0].includes('<break time="80ms"/>'));
   assert.ok(batches[0].includes('<break time="240ms"/>'));
+  assert.ok(!/<\/voice><break/.test(batches[0]));
   assert.ok(batches[0].includes("<prosody "));
 
   const split = buildDialogueSsmlBatches(turns, voices, { style: "radio" }, 2);

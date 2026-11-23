@@ -92,14 +92,16 @@ export async function registerInvite(
   inviteCode: string,
   baseUrl = SYNC_API_URL,
   timeoutMs = DEFAULT_TIMEOUT_MS,
-): Promise<{ syncCode: string }> {
+  authToken?: string,
+): Promise<{ syncCode?: string; authVersion?: 1 | 2 }> {
   const base = requireBase(baseUrl);
+  const payload = authToken ? { inviteCode: inviteCode.trim(), authToken } : { inviteCode: inviteCode.trim() };
   const res = await fetchWithTimeout(
     `${base}/api/register`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ inviteCode: inviteCode.trim() }),
+      body: JSON.stringify(payload),
     },
     timeoutMs,
   );
@@ -111,11 +113,42 @@ export async function registerInvite(
     const body = await readErrorBody(res);
     throw new SyncApiError(res.status, body?.error, `注册失败（${res.status}）`);
   }
-  const data = (await res.json()) as { syncCode?: unknown };
+  const data = (await res.json()) as { syncCode?: unknown; authVersion?: unknown };
+  if (authToken && data.authVersion === 2) {
+    return { authVersion: 2 };
+  }
   if (typeof data.syncCode !== "string" || !data.syncCode) {
     throw new SyncApiError(res.status, "invalid_response", "服务器未返回有效的同步码");
   }
   return { syncCode: data.syncCode };
+}
+
+export async function upgradeSyncAuth(
+  legacySyncCode: string,
+  newAuthToken: string,
+  baseUrl = SYNC_API_URL,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<boolean> {
+  const base = requireBase(baseUrl);
+  const res = await fetchWithTimeout(
+    `${base}/api/auth/upgrade`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${legacySyncCode}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ newAuthToken }),
+    },
+    timeoutMs,
+  );
+  if (res.status === 401) throw new SyncAuthError();
+  if (res.status === 404 || res.status === 405) return false;
+  if (!res.ok) {
+    const err = await readErrorBody(res);
+    throw new SyncApiError(res.status, err?.error, `升级云端认证失败（${res.status}）`);
+  }
+  return true;
 }
 
 export async function pullSync(

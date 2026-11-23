@@ -1,10 +1,11 @@
 /* Browser checks for LexDB (#/dict), WordPopup, Read token tap, and Decks 自己添加 against a running server (FR_URL, default http://127.0.0.1:5190/).
- * Uses the installed Google Chrome. Writes screenshot and JSON results to output/e2e/. */
+ * Uses CHROME_PATH if set, macOS Chrome if present, or Playwright's bundled Chromium. Writes screenshot and JSON results to output/e2e/. */
 import { chromium } from "playwright";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 
-const BASE = process.env.FR_URL ?? "http://127.0.0.1:5190/";
-const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const BASE = (process.env.FR_URL ?? "http://127.0.0.1:5190/").replace(/\/?$/, "/");
+const MAC_CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const CHROME = process.env.CHROME_PATH || (existsSync(MAC_CHROME) ? MAC_CHROME : undefined);
 mkdirSync("output/e2e", { recursive: true });
 
 const checks = [];
@@ -17,7 +18,7 @@ const settle = (p, ms = 400) => p.waitForTimeout(ms);
 const progressOf = (p) =>
   p.evaluate(() => JSON.parse(localStorage.getItem("word-atlas:v2:francais-b2-lexicon") || "null"));
 
-const browser = await chromium.launch({ executablePath: CHROME, headless: true });
+const browser = await chromium.launch({ ...(CHROME ? { executablePath: CHROME } : {}), headless: true });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "zh-CN" });
 await ctx.addInitScript((s) => {
   if (!sessionStorage.getItem("seeded")) {
@@ -131,9 +132,8 @@ check("Read token tap opens reader-word panel with 词典详情 link", /accueil/
 
 // 7) WordPopup selection on an Essay French paragraph
 await page.goto(BASE + "#/practice");
-await page.waitForSelector(".mode-card");
-await page.locator(".mode-card", { hasText: /^\s*篇章/ }).click();
-await page.getByRole("button", { name: "选题目" }).click();
+await page.waitForSelector(".practice-exam-grid .mode-card");
+await page.locator(".practice-exam-grid .mode-card", { hasText: /篇章写作/ }).click();
 await page.waitForSelector(".essay-task.is-rec");
 await page.locator(".essay-task.is-rec").click();
 await page.waitForSelector(".essay-consigne");

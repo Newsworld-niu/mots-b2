@@ -1,35 +1,37 @@
-import { HomeDictionary } from "../ui/HomeDictionary";
-import { FamilyPicker } from "../ui/FamilyPicker";
 import { POS_OPTIONS } from "../lib/pos";
-import { ArrowRight, Calendar, Compass, Download, Flame, Keyboard, Sparkles, Target } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, BookMarked, Calendar, Compass, Download, Flame, Headphones, Keyboard, MessageSquareQuote, Mic, Sparkles, Target } from "lucide-react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { prefetch, useAtlas, useEntry } from "../atlas/context";
-import { useGrammar } from "../atlas/grammar";
+import { useGrammarMeta } from "../atlas/grammar";
 import { cloudSyncHealthy, downloadBackupFile, isBackupSnoozedToday, snoozeBackupToday } from "../lib/backup";
+import { DRILL_QUESTIONS_COUNT } from "../lib/drill-schema";
+import { EXPRESSIONS_COUNT } from "../lib/expr-schema";
+import { useFamilies } from "../lib/families";
 import { go, openWord } from "../lib/router";
 import { cue } from "../lib/sound";
-import { buildPrepSchedule, type PrepKind } from "../lib/study-plan";
+import { buildPrepSchedule, reconcileDailyTasks, type PrepKind } from "../lib/study-plan";
 import { hashSeed } from "../lib/text";
 import { duePoints, untouchedWithErrors } from "../store/grammar";
+import { reflowSummary } from "../store/note-review";
 import { buildSession, isTaughtReady, masteredCount, todayPlan } from "../store/session";
 import { isMastered } from "../store/srs";
 import { CORE_NAME, studyRange } from "../store/decks";
-import { dayKey, MAX_DAILY_NEW, needsBackupReminder, store, useStore } from "../store/store";
+import { latestLoungeResume } from "../lib/lounge-resume";
+import { dayKey, MAX_DAILY_NEW, needsBackupReminder, store, useStore, useStoreShallow } from "../store/store";
+import { unifiedStreakOf, unifiedWeek } from "../lib/activity";
 import { useSyncState } from "../sync/state";
-import { Galaxy } from "../galaxy/Galaxy";
-import { ExamDashboard } from "../ui/ExamDashboard";
-import { Highlight, Pronounce } from "../ui/EntryView";
+import { Highlight, Pronounce } from "../ui/WordText";
 import { Illustration, plateArticle } from "../ui/Illustration";
-import { PlacementTest } from "../ui/PlacementTest";
 import { Ring } from "../ui/Ring";
 import { Sheet } from "../ui/Sheet";
 import { toast } from "../ui/Toast";
-import { ComprehensionStudio } from "./Comprehension";
-import { DrillStudio, DrillTeaser } from "./Drill";
-import { EssayStudio } from "./Essay";
-import { ExprStudio, ExprTeaser } from "./Expressions";
-import { MockExam } from "./MockExam";
-import { SpeakingStudio } from "./Speaking";
+
+const LazyExamDashboard = lazy(() => import("../ui/ExamDashboard").then((m) => ({ default: m.ExamDashboard })));
+const LazyGalaxy = lazy(() => import("../galaxy/Galaxy").then((m) => ({ default: m.Galaxy })));
+const LazyHomeDictionary = lazy(() => import("../ui/HomeDictionary").then((m) => ({ default: m.HomeDictionary })));
+const LazyFamilyPicker = lazy(() => import("../ui/FamilyPicker").then((m) => ({ default: m.FamilyPicker })));
+const LazyPlacementTest = lazy(() => import("../ui/PlacementTest").then((m) => ({ default: m.PlacementTest })));
+const LazyCockpitInsights = lazy(() => import("../ui/CockpitInsights").then((m) => ({ default: m.CockpitInsights })));
 
 const BRAND = `${import.meta.env.BASE_URL}brand`;
 /** Topics without their own tile art borrow a related one. */
@@ -59,9 +61,40 @@ export function streakOf(days: Record<string, { r: number }>) {
 
 export function Today() {
   const atlas = useAtlas();
-  const progress = useStore((s) => s.progress);
+  const progress = useStoreShallow((s) => ({
+    cards: s.progress.cards,
+    days: s.progress.days,
+    session: s.progress.session,
+    decks: s.progress.decks,
+    hidden: s.progress.hidden,
+    coreMigrated: s.progress.coreMigrated,
+    custom: s.progress.custom,
+    edits: s.progress.edits,
+    suspendedLeeches: s.progress.suspendedLeeches,
+    gram: s.progress.gram,
+    gramDays: s.progress.gramDays,
+    gramTags: s.progress.gramTags,
+    conjDays: s.progress.conjDays,
+    expr: s.progress.expr,
+    essays: s.progress.essays,
+    essayTasks: s.progress.essayTasks,
+    essayNotes: s.progress.essayNotes,
+    speakCorrections: s.progress.speakCorrections,
+    compMisses: s.progress.compMisses,
+    noteCards: s.progress.noteCards,
+    examLog: s.progress.examLog,
+    drillDays: s.progress.drillDays,
+    placement: s.progress.placement,
+    speakingSessions: s.progress.speakingSessions,
+    listenSources: s.progress.listenSources,
+    texts: s.progress.texts,
+    bookProgress: s.progress.bookProgress,
+    mediaProgress: s.progress.mediaProgress,
+    loungeDays: s.progress.loungeDays,
+  }));
   const settings = useStore((s) => s.settings);
-  const plan = useMemo(() => todayPlan(atlas, progress, settings), [atlas, progress, settings]);
+  const baseFamilies = useFamilies(Boolean(settings.studyFamilies?.length));
+  const plan = useMemo(() => todayPlan(atlas, progress, settings), [atlas, progress, settings, baseFamilies]);
   // Warm the first cards of today's journey so the session opens instantly.
   const firstIds = [...plan.due.slice(0, 4), ...plan.fresh.slice(0, 6)].join(",");
   useEffect(() => {
@@ -71,24 +104,31 @@ export function Today() {
   }, [atlas, firstIds]);
   const now = new Date();
   const today = progress.days[dayKey()];
-  const streak = streakOf(progress.days);
+  const streak = unifiedStreakOf(progress, now);
   const active = progress.session && !progress.session.finished ? progress.session : null;
   const total = plan.due.length + plan.fresh.length;
-  const goal = settings.dailyNew + Math.min(plan.due.length, 60);
   const doneToday = today?.r ?? 0;
+  const remaining = plan.fresh.length + Math.min(plan.due.length, 60);
+  const goal = doneToday + remaining;
 
   const [more, setMore] = useState("");
-  const [drill, setDrill] = useState(false);
-  const [expr, setExpr] = useState(false);
-  const [studio, setStudio] = useState<"listen" | "read" | "essay" | "speak" | "mock" | null>(null);
   const [placeOpen, setPlaceOpen] = useState(false);
+  const [discoverOpen, setDiscoverOpen] = useState(() => !Object.keys(progress.cards).length && !settings.examDate);
+  const [icebreakerDismissed, setIcebreakerDismissed] = useState(() => {
+    try {
+      return localStorage.getItem("fb2.icebreaker.dismissed") === "1";
+    } catch {
+      return false;
+    }
+  });
   const sync = useSyncState();
   const [backupDismissed, setBackupDismissed] = useState(isBackupSnoozedToday);
-  const backupDue = useMemo(() => needsBackupReminder(progress, settings.lastBackupAt), [progress, settings.lastBackupAt]);
+  const backupDue = useStoreShallow((s) => needsBackupReminder(s.progress, s.settings.lastBackupAt));
   const moreN = Math.min(MAX_DAILY_NEW, Math.max(0, Math.round(Number(more) || 0)));
   const start = (opts?: { reviewOnly?: boolean; extra?: number }) => {
     if (!active) {
-      const s = buildSession(atlas, progress, opts?.extra ? { ...settings, dailyNew: (today?.n ?? 0) + opts.extra } : settings, { reviewOnly: opts?.reviewOnly });
+      const full = store.get().progress;
+      const s = buildSession(atlas, full, opts?.extra ? { ...settings, dailyNew: (today?.n ?? 0) + opts.extra } : settings, { reviewOnly: opts?.reviewOnly });
       if (!s.steps.length) return;
       store.progress((p) => ({ ...p, session: s }));
     }
@@ -96,7 +136,7 @@ export function Today() {
     go({ page: "learn" });
   };
 
-  const { data: grammar } = useGrammar();
+  const { data: grammar } = useGrammarMeta();
   const grammarDueCount = useMemo(() => (grammar ? duePoints(grammar, progress).length : 0), [grammar, progress]);
   const grammarUntouchedErrors = useMemo(() => (grammar ? untouchedWithErrors(grammar, progress).length : 0), [grammar, progress]);
   const prep = useMemo(
@@ -114,36 +154,22 @@ export function Today() {
   );
 
   const launchPrepTask = (kind: PrepKind) => {
-    if (kind === "listen" || kind === "read" || kind === "essay" || kind === "speak") {
-      setStudio(kind);
-      return;
-    }
-    if (kind === "grammar") {
-      go({ page: "grammar" });
-      return;
-    }
+    if (kind === "listen") return go({ page: "listen" });
+    if (kind === "read") return go({ page: "examread" });
+    if (kind === "essay") return go({ page: "essay" });
+    if (kind === "speak") return go({ page: "speak" });
+    if (kind === "grammar") return go({ page: "grammar" });
     if (active || total > 0) start();
     else go({ page: "practice" });
   };
 
-  const week = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    const k = dayKey(d);
-    return { k, label: "日一二三四五六"[d.getDay()], v: progress.days[k]?.r ?? 0, today: i === 6 };
-  });
+  const week = unifiedWeek(progress, now);
 
   const learned = Object.keys(progress.cards).length;
   const mastered = masteredCount(progress);
+  const reflow = useMemo(() => reflowSummary(progress), [progress]);
+  const loungeResume = useMemo(() => latestLoungeResume(progress), [progress]);
   const teaser = (active ? active.newIds : plan.fresh).slice(0, 5).map((id) => atlas.byId.get(id)!).filter(Boolean);
-
-  if (drill) return <DrillStudio onExit={() => setDrill(false)} exitLabel="返回今日" />;
-  if (expr) return <ExprStudio onExit={() => setExpr(false)} exitLabel="返回今日" />;
-  if (studio === "listen") return <ComprehensionStudio key="listen" kind="listen" onExit={() => setStudio(null)} />;
-  if (studio === "read") return <ComprehensionStudio key="read" kind="read" onExit={() => setStudio(null)} />;
-  if (studio === "essay") return <EssayStudio onExit={() => setStudio(null)} />;
-  if (studio === "speak") return <SpeakingStudio onExit={() => setStudio(null)} />;
-  if (studio === "mock") return <MockExam onExit={() => setStudio(null)} />;
 
   return (
     <div className="page today">
@@ -156,7 +182,47 @@ export function Today() {
         </h1>
       </header>
 
-      <HomeDictionary />
+      {!icebreakerDismissed && learned < 5 && !(progress.examLog?.length) && (
+        <section className="panel today-icebreaker" aria-label="3 分钟快速体验 DELF B2">
+          <div className="panel-head">
+            <div>
+              <p className="eyebrow">新手 3 分钟破冰 · DELF B2</p>
+              <h2>无需配置 Key，先完成这 3 步体验闭环</h2>
+            </div>
+            <button
+              type="button"
+              className="link small"
+              onClick={() => {
+                setIcebreakerDismissed(true);
+                try {
+                  localStorage.setItem("fb2.icebreaker.dismissed", "1");
+                } catch {
+                  /* optional */
+                }
+              }}
+            >
+              收起引导
+            </button>
+          </div>
+          <div className="today-icebreaker-steps">
+            <button type="button" className="icebreaker-step" onClick={() => start({ extra: 5 })}>
+              <span className="chip">第 1 步 · 1 分钟</span>
+              <b>5 词快速热身</b>
+              <small>按 FSRS 记忆卡点亮前 5 颗核心词汇</small>
+            </button>
+            <button type="button" className="icebreaker-step" onClick={() => go({ page: "read" })}>
+              <span className="chip">第 2 步 · 1 分钟</span>
+              <b>精读一篇免 AI B2 报刊</b>
+              <small>即点即查词典与句级跟读，直接对接真题题材</small>
+            </button>
+            <button type="button" className="icebreaker-step" onClick={() => go({ page: "essay" })}>
+              <span className="chip">第 3 步 · 1 分钟</span>
+              <b>看一遍高分作文批改样张</b>
+              <small>免 Key 预览官方五项评分表与润色对照</small>
+            </button>
+          </div>
+        </section>
+      )}
 
       {backupDue.remind && !cloudSyncHealthy(sync) && !backupDismissed && (
         <aside className="backup-remind" role="status">
@@ -184,7 +250,9 @@ export function Today() {
       <section className="panel prep-card" aria-label="今日备考调度">
         <div className="prep-head">
           <div className="prep-meta">
-            <p className="eyebrow">今日备考调度 · DELF B2</p>
+            <p className="eyebrow">
+              今日备考调度 · {settings.examTrack === "tcf" ? "TCF 全科" : settings.examTrack === "tef" ? "TEF 新政" : "DELF B2"}
+            </p>
             <div className="prep-pills">
               <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
                 <Calendar size={14} />
@@ -197,8 +265,19 @@ export function Today() {
                       : "已过设定考期"}
               </button>
               <span className="prep-pill">
-                <Target size={14} /> 目标 {prep.targetScore}/100（均 {prep.targetPerPart}/25）
+                <Target size={14} />{" "}
+                {settings.examTrack === "tcf"
+                  ? "目标 B2 (400+ / 10+) · NCLC 7+"
+                  : settings.examTrack === "tef"
+                    ? "目标 B2 (400+) · NCLC 7+ (434+/456+)"
+                    : `目标 ${prep.targetScore}/100（均 ${prep.targetPerPart}/25）`}
               </span>
+              <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
+                每日预算 {prep.totalMinutes} 分钟
+              </button>
+              {prep.phase === "urgent" && (
+                <span className="prep-pill is-urgent">考前 30 天内 · 冲刺模式</span>
+              )}
             </div>
           </div>
           <div className="prep-head-actions">
@@ -208,43 +287,21 @@ export function Today() {
           </div>
         </div>
 
-        <ul className="prep-skills" aria-label="四科当前表现">
-          {(["listen", "read", "essay", "speak"] as const).map((k) => {
-            const st = prep.skills[k];
-            const isWeak = prep.weakest === k;
-            return (
-              <li key={k} className={`prep-skill ${isWeak ? "is-weak" : ""}`}>
-                <span>
-                  {st.label} <b>{st.code}</b>
-                </span>
-                <strong>
-                  {st.score25 !== null ? (
-                    <>
-                      {st.score25}
-                      <small>/25{st.source === "placement" ? " 定级" : ""}</small>
-                    </>
-                  ) : (
-                    <small>待测</small>
-                  )}
-                </strong>
-              </li>
-            );
-          })}
-        </ul>
-
-        <ExamDashboard compact onStartMock={() => setStudio("mock")} />
+        <Suspense fallback={null}>
+          <LazyExamDashboard compact onStartMock={() => go({ page: "mock" })} />
+        </Suspense>
 
         {prep.vocabOverCap && (
           <div className="prep-warn" role="status">
             <span>
-              距考不足 6 个月：当前背词预计 {prep.vocabRawMinutes} 分钟（占今日 {prep.vocabSharePct}%），建议控制在 ≤{prep.vocabCapPct}%（≤{prep.vocabCapMinutes} 分钟）。
+              {prep.phase === "urgent" ? `考前 ${prep.daysLeft} 天冲刺` : "距考不足 6 个月"}：当前背词预计 {prep.vocabRawMinutes} 分钟（占今日 {prep.vocabSharePct}%），建议控制在 ≤{prep.vocabCapPct}%（≤{prep.vocabCapMinutes} 分钟）。
             </span>
             <button
               type="button"
               className="btn btn-ghost btn-sm"
               onClick={() => {
                 store.settings({ dailyNew: prep.suggestedDailyNew });
-                toast(`已将每日新词调为 ${prep.suggestedDailyNew} 个（背词控制在 25% 以内）`, "ok");
+                toast(`已将每日新词调为 ${prep.suggestedDailyNew} 个（背词控制在 ${prep.vocabCapPct}% 以内）`, "ok");
               }}
             >
               调为每日 {prep.suggestedDailyNew} 新词
@@ -252,25 +309,43 @@ export function Today() {
           </div>
         )}
 
-        <ol className="prep-tasks">
-          {prep.tasks.map((t) => (
-            <li key={t.kind} className={`prep-task is-${t.kind}`}>
-              <div className="prep-task-body">
-                <div className="prep-task-top">
-                  <b>{t.title}</b>
-                  <span className="prep-task-time">
-                    {t.minutes} 分钟 · {t.sharePct}%
-                  </span>
-                </div>
-                <small className="muted">{t.reason}</small>
-              </div>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => launchPrepTask(t.kind)}>
-                {t.cta} <ArrowRight size={14} />
-              </button>
-            </li>
-          ))}
-        </ol>
+        {(() => {
+          const dailyStatus = reconcileDailyTasks(prep.tasks, progress, now);
+          return (
+            <ol className="prep-tasks">
+              {prep.tasks.map((t) => {
+                const st = dailyStatus[t.kind];
+                return (
+                  <li key={t.kind} className={`prep-task is-${t.kind}${st?.done ? " is-done" : ""}`}>
+                    <div className="prep-task-body">
+                      <div className="prep-task-top">
+                        <b>
+                          {st?.done ? "✓ " : ""}
+                          {t.title}
+                        </b>
+                        <span className="prep-task-time">
+                          {t.minutes} 分钟 · {t.sharePct}%
+                        </span>
+                      </div>
+                      <small className="muted">
+                        {st?.done ? `${st.detail} · ` : ""}
+                        {t.reason}
+                      </small>
+                    </div>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => launchPrepTask(t.kind)}>
+                      {st?.done ? "再练一次" : t.cta} <ArrowRight size={14} />
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          );
+        })()}
       </section>
+
+      <Suspense fallback={null}>
+        <LazyCockpitInsights />
+      </Suspense>
 
       <section className={`journey ${total === 0 && !active ? "is-clear" : ""}`}>
         <img className="journey-art" src={`${BRAND}/hero.webp`} alt="" fetchPriority="high" />
@@ -302,6 +377,9 @@ export function Today() {
               <p className="journey-lede">约 {plan.minutes} 分钟。先温故，再知新。</p>
               <FocusNote />
               <RangeNote otherDue={plan.otherDue} />
+              {plan.overflowDue > 0 && (
+                <p className="muted small">已按每日复习上限展示，另有 {plan.overflowDue} 个到期词自动延至明日</p>
+              )}
             </>
           ) : (
             <>
@@ -325,7 +403,7 @@ export function Today() {
             </div>
             <small>{active ? "下次旅程生效，当前旅程继续原来的词" : "可多选 · 新词和复习包含任一所选词性"}</small>
           </div>
-          <div className="study-family-row"><span>按词族学习：</span><FamilyPicker study value={settings.studyFamilies} onChange={(ids, scope) => store.settings({ studyFamilies: ids.length ? ids : null, ...(scope && scope !== "study" ? { studyDecks: scope === "all" ? null : [scope] } : {}) })} /></div>
+          <div className="study-family-row"><span>按词族学习：</span><Suspense fallback={null}><LazyFamilyPicker study value={settings.studyFamilies} onChange={(ids, scope) => store.settings({ studyFamilies: ids.length ? ids : null, ...(scope && scope !== "study" ? { studyDecks: scope === "all" ? null : [scope] } : {}) })} /></Suspense></div>
           {teaser.length > 0 && (
             <div className="teaser" aria-label="今天将遇见的新词">
               {teaser.map((w, i) => (
@@ -377,12 +455,44 @@ export function Today() {
         </div>
       </section>
 
-      <div className="today-grid">
-        <WordOfDay />
+      <section className="panel today-lounge-card" aria-label="漫游 · 书影音馆">
+        <div className="panel-head">
+          <div>
+            <p className="eyebrow">漫游 · 书影音馆 · Flânerie</p>
+            <p>
+              {total > 0 || active
+                ? "脑子转不动了？去翻两页法语故事或看支短片，不计分、不催复习 →"
+                : "今日备考收工 · 去漫游馆听场雨声读篇睡前法语 →"}
+            </p>
+          </div>
+          <div className="backup-remind-actions">
+            {loungeResume && (
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() =>
+                  go({
+                    page: "lounge",
+                    shelf: loungeResume.shelf,
+                    item: loungeResume.item,
+                    ...(loungeResume.ch !== undefined ? { ch: String(loungeResume.ch) } : {}),
+                  })
+                }
+              >
+                继续《{loungeResume.title}》({loungeResume.label})
+              </button>
+            )}
+            <a className="btn btn-ghost btn-sm" href="#/lounge">
+              进入漫游馆 →
+            </a>
+          </div>
+        </div>
+      </section>
 
+      <div className="today-primary-grid">
         <section className="panel streak-panel">
           <div className="panel-head">
-            <h3 className="eyebrow">这一周</h3>
+            <h2 className="eyebrow">这一周</h2>
             <span className={`streak ${streak ? "is-on" : ""}`}>
               <Flame size={16} /> 连续 {streak} 天
             </span>
@@ -417,26 +527,81 @@ export function Today() {
           </dl>
         </section>
 
-        <DrillTeaser onOpen={() => setDrill(true)} />
-        <ExprTeaser onOpen={() => setExpr(true)} />
-        <LevelPath />
-        <CompareTeaser />
-        <GalaxyPanel learned={learned} total={atlas.count} />
-        <Topics />
+        <section className="panel today-quick-links" aria-label="B2 专项直达">
+          <h2 className="eyebrow">专项训练直达</h2>
+          <div className="today-quick-grid">
+            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "real" })}>
+              <Headphones size={16} /> 真实电台 RFI
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "reflow" })}>
+              <BookMarked size={16} /> 统一错题中心{reflow.due > 0 ? ` (${reflow.due})` : ""}
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "expr" })}>
+              高频论证表达
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "mock" })}>
+              全真模考
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "conj" })}>
+              动词变位
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "compare" })}>
+              易混词辨析
+            </button>
+          </div>
+        </section>
       </div>
+
+      <section className="today-dict-section" aria-label="快速查词">
+        <Suspense fallback={null}>
+          <LazyHomeDictionary />
+        </Suspense>
+      </section>
+
+      <details className="today-discover" open={discoverOpen} onToggle={(e) => setDiscoverOpen(e.currentTarget.open)}>
+        <summary className="today-discover-summary">
+          <span>词汇星图 · 每日一词 · 一分钟口语 · 话题与易混词探索</span>
+          <small className="muted">{discoverOpen ? "收起探索区" : "展开更多探索"}</small>
+        </summary>
+        <div className="today-grid">
+          <WordOfDay />
+          <section className="panel compare-teaser" onClick={() => go({ page: "drill" })} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && go({ page: "drill" })} aria-labelledby="today-drill-title">
+            <p className="eyebrow">每日一分钟口语</p>
+            <h2 id="today-drill-title">想 15 秒 · 说 60 秒</h2>
+            <p>内置 {DRILL_QUESTIONS_COUNT} 个 DELF B2 高频辩题，录音回放并支持 Azure 发音评测。</p>
+            <span className="compare-teaser-go">
+              <Mic size={15} /> 去开口说 <ArrowRight size={16} />
+            </span>
+          </section>
+          <section className="panel compare-teaser" onClick={() => go({ page: "expr" })} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && go({ page: "expr" })} aria-labelledby="today-expr-title">
+            <p className="eyebrow">B2 论证表达库</p>
+            <h2 id="today-expr-title">{EXPRESSIONS_COUNT} 张连接词与书信套话卡</h2>
+            <p>按 FSRS 记忆曲线主动填空掌握让步、因果、立场转折与正式信函表达。</p>
+            <span className="compare-teaser-go">
+              <MessageSquareQuote size={15} /> 去练表达 <ArrowRight size={16} />
+            </span>
+          </section>
+          <LevelPath />
+          <CompareTeaser />
+          <GalaxyPanel learned={learned} total={atlas.count} />
+          <Topics />
+        </div>
+      </details>
       <Sheet open={placeOpen} onClose={() => setPlaceOpen(false)} label="摸底定级小测" wide>
         <h2 className="sheet-title">摸底定级小测</h2>
         {placeOpen && (
-          <PlacementTest
-            initial={progress.placement}
-            onCancel={() => setPlaceOpen(false)}
-            onApply={(res) => {
-              store.progress((p) => ({ ...p, placement: res }));
-              store.settings({ startLevel: res.level });
-              setPlaceOpen(false);
-              toast(`已定级为 ${atlas.cefr[res.level] ?? "B1"}，备考任务已更新`, "ok");
-            }}
-          />
+          <Suspense fallback={<span className="spinner" />}>
+            <LazyPlacementTest
+              initial={progress.placement}
+              onCancel={() => setPlaceOpen(false)}
+              onApply={(res) => {
+                store.progress((p) => ({ ...p, placement: res }));
+                store.settings({ startLevel: res.level });
+                setPlaceOpen(false);
+                toast(`已定级为 ${atlas.cefr[res.level] ?? "B1"}，备考任务已更新`, "ok");
+              }}
+            />
+          </Suspense>
         )}
       </Sheet>
     </div>
@@ -456,12 +621,14 @@ function GalaxyPanel({ learned, total }: { learned: number; total: number }) {
   void today;
   return (
     <section className="galaxy-panel" onClick={() => go({ page: "atlas", view: "galaxy" })} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && go({ page: "atlas", view: "galaxy" })}>
-      <Galaxy mode="mini" highlight={todayIds} />
+      <Suspense fallback={<div className="galaxy galaxy-mini" />}>
+        <LazyGalaxy mode="mini" highlight={todayIds} />
+      </Suspense>
       <div className="galaxy-panel-copy">
         <p className="eyebrow eyebrow-light">你的词汇星图</p>
-        <h3>
+        <h2>
           已点亮 <b>{learned.toLocaleString()}</b> 颗星
-        </h3>
+        </h2>
         <p>{learned ? `还有 ${(total - learned).toLocaleString()} 颗在等你。金色是今天新点亮的。` : `${total.toLocaleString()} 个词是 ${total.toLocaleString()} 颗星。学会一个，就点亮一颗。`}</p>
         <span className="btn btn-glass">
           进入星图 <ArrowRight size={18} />
@@ -482,11 +649,11 @@ function WordOfDay() {
   const { entry } = useEntry(pick?.id);
   if (!pick) return null;
   return (
-    <section className="panel wotd" onClick={() => openWord(pick.id)} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && openWord(pick.id)} aria-label={`今日一词：${pick.word}`}>
+    <section className="panel wotd" onClick={() => openWord(pick.id)} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && openWord(pick.id)} aria-labelledby="today-wotd-word">
       <Illustration src={atlas.img(pick)} word={pick.word} topic={pick.topic} className="wotd-art" art={entry?.art ?? plateArticle(pick)} />
       <div className="wotd-body">
-        <h3 className="eyebrow">今日一词</h3>
-        <p className="wotd-word" lang="fr">
+        <h2 className="eyebrow">今日一词</h2>
+        <p id="today-wotd-word" className="wotd-word" lang="fr">
           {pick.word}
         </p>
         {entry && (
@@ -528,7 +695,7 @@ function LevelPath() {
   return (
     <section className="panel path-panel">
       <div className="panel-head">
-        <h3 className="eyebrow">学习路线 · {bands.length ? `${bands[0].name} 到 ${bands[bands.length - 1].name}` : "全部等级"}</h3>
+        <h2 className="eyebrow">学习路线 · {bands.length ? `${bands[0].name} 到 ${bands[bands.length - 1].name}` : "全部等级"}</h2>
         <span className="legend">
           <i className="lg-seen" /> 已学 <i className="lg-done" /> 已掌握
         </span>
@@ -570,7 +737,7 @@ function Topics() {
   return (
     <section className="topics-panel">
       <div className="panel-head">
-        <h3 className="eyebrow">按主题探索</h3>
+        <h2 className="eyebrow">按主题探索</h2>
         <button className="link" onClick={() => go({ page: "atlas" })}>
           打开图鉴
         </button>
@@ -610,9 +777,12 @@ function FocusNote() {
 
 /** 学习范围: which decks today's words come from, and due words waiting in the other decks. */
 function RangeNote({ otherDue }: { otherDue: number }) {
-  const progress = useStore((s) => s.progress);
+  const rangeSlice = useStoreShallow((s) => ({
+    decks: s.progress.decks,
+    coreMigrated: s.progress.coreMigrated,
+  }));
   const studyDecks = useStore((s) => s.settings.studyDecks);
-  const range = studyRange(progress, { studyDecks });
+  const range = studyRange(rangeSlice, { studyDecks });
   const names = [...(range.core ? [CORE_NAME] : []), ...range.decks.map((d) => d.name)];
 
   return (
@@ -634,11 +804,11 @@ function RangeNote({ otherDue }: { otherDue: number }) {
 /** Entry to the 易混词辨析 page: the page is not in the tab bar, so the home page points to it. */
 function CompareTeaser() {
   return (
-    <section className="panel compare-teaser" onClick={() => go({ page: "compare" })} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && go({ page: "compare" })} aria-label="易混词辨析">
+    <section className="panel compare-teaser" onClick={() => go({ page: "compare" })} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && go({ page: "compare" })} aria-labelledby="today-compare-title">
       <p className="eyebrow">易混词辨析</p>
-      <h3 lang="fr">
+      <h2 id="today-compare-title" lang="fr">
         ou / où <i>·</i> voir / regarder <i>·</i> emprunter / prêter
-      </h3>
+      </h2>
       <p>读音一样、意思相近、中文都翻成一个词的法语词，放在一起比一比，再用例句填空检验。</p>
       <span className="compare-teaser-go">
         去辨析 <ArrowRight size={16} />

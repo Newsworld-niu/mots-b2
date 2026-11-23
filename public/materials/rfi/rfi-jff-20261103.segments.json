@@ -1,0 +1,650 @@
+{
+  "id": "rfi-jff-20261103",
+  "audio": "materials/rfi/rfi-jff-20261103.mp3",
+  "duration": 600.11,
+  "method": "ffmpeg-silence-align",
+  "segments": [
+    {
+      "idx": 0,
+      "start": 0.77,
+      "end": 2.55,
+      "text": "Bonjour à toutes et à tous."
+    },
+    {
+      "idx": 1,
+      "start": 2.55,
+      "end": 7.03,
+      "text": "Soyez les bienvenus à l'écoute de RFI - Radio France Internationale."
+    },
+    {
+      "idx": 2,
+      "start": 7.03,
+      "end": 9.47,
+      "text": "En direct de Paris, il est 17 heures."
+    },
+    {
+      "idx": 3,
+      "start": 9.47,
+      "end": 11.44,
+      "text": "Le Journal en français facile."
+    },
+    {
+      "idx": 4,
+      "start": 11.44,
+      "end": 12.56,
+      "text": "Adrien Delgrange."
+    },
+    {
+      "idx": 5,
+      "start": 12.56,
+      "end": 14.67,
+      "text": "Nous sommes le mardi 3 novembre."
+    },
+    {
+      "idx": 6,
+      "start": 14.67,
+      "end": 16.98,
+      "text": "Voici les titres de cette édition :"
+    },
+    {
+      "idx": 7,
+      "start": 16.98,
+      "end": 20.8,
+      "text": "C'est une élection qui a valeur de test pour Donald Trump."
+    },
+    {
+      "idx": 8,
+      "start": 20.8,
+      "end": 23.57,
+      "text": "Les élections de mi-mandat aux États-Unis."
+    },
+    {
+      "idx": 9,
+      "start": 23.57,
+      "end": 26.34,
+      "text": "Des bureaux de vote ont commencé à ouvrir."
+    },
+    {
+      "idx": 10,
+      "start": 26.34,
+      "end": 32.92,
+      "text": "Les Américains ont l'occasion de dire stop ou encore à la politique de l'actuel président américain."
+    },
+    {
+      "idx": 11,
+      "start": 32.92,
+      "end": 36.48,
+      "text": "Nous sommes en direct de Washington et de Los Angeles."
+    },
+    {
+      "idx": 12,
+      "start": 36.48,
+      "end": 43.07,
+      "text": "Le roi d'Angleterre revient, pour la première fois en public, sur les années sombres du Royaume-Uni."
+    },
+    {
+      "idx": 13,
+      "start": 43.07,
+      "end": 49.99,
+      "text": "Charles III vient de dire son « horreur face à l'esclavage », qu'il qualifie d'« injustice monstrueuse »."
+    },
+    {
+      "idx": 14,
+      "start": 49.99,
+      "end": 61.19,
+      "text": "Nous reviendrons, aussi, dans ce journal sur cette cyberattaque en Europe, où les températures des frigos de supermarchés ont été déréglées par des pirates informatiques."
+    },
+    {
+      "idx": 15,
+      "start": 61.19,
+      "end": 62.57,
+      "text": "Nous serons en Suède."
+    },
+    {
+      "idx": 16,
+      "start": 62.57,
+      "end": 67.12,
+      "text": "Et puis, enfin, c'est la plus grande récompense littéraire de France."
+    },
+    {
+      "idx": 17,
+      "start": 67.12,
+      "end": 74.04,
+      "text": "Le prix Goncourt a été remis, aujourd'hui, à Philippe Jaenada pour son livre L'inconnue du quai de Javel."
+    },
+    {
+      "idx": 18,
+      "start": 74.04,
+      "end": 80.63,
+      "text": "Nous sommes, donc, aux États-Unis pour commencer ce journal, pour parler des élections de mi-mandat."
+    },
+    {
+      "idx": 19,
+      "start": 80.63,
+      "end": 82.94,
+      "text": "Elles ont lieu tous les quatre ans."
+    },
+    {
+      "idx": 20,
+      "start": 82.94,
+      "end": 86.1,
+      "text": "Elles sont à mi-parcours du mandat présidentiel."
+    },
+    {
+      "idx": 21,
+      "start": 86.1,
+      "end": 99.54,
+      "text": "Ces élections sont particulièrement importantes, car elles permettent de mesurer le soutien des Américains au président, en l'occurrence Donald Trump, qui est revenu au pouvoir il y a maintenant deux ans."
+    },
+    {
+      "idx": 22,
+      "start": 99.54,
+      "end": 101.19,
+      "text": "Vincent Souriau, bonjour."
+    },
+    {
+      "idx": 23,
+      "start": 101.19,
+      "end": 103.3,
+      "text": "Bonjour, Adrien. Bonjour à tous."
+    },
+    {
+      "idx": 24,
+      "start": 103.3,
+      "end": 108.9,
+      "text": "Correspondant de RFI à Washington, où il est un petit peu plus de 11 heures du matin."
+    },
+    {
+      "idx": 25,
+      "start": 108.9,
+      "end": 113.64,
+      "text": "Vincent, c'est la fin de mandat de Donald Trump qui se joue aujourd'hui."
+    },
+    {
+      "idx": 26,
+      "start": 113.64,
+      "end": 122.21,
+      "text": "Oui. L'enjeu de ces élections, c'est le contrôle du Congrès américain, c'est-à-dire le siège du pouvoir législatif aux États-Unis."
+    },
+    {
+      "idx": 27,
+      "start": 122.21,
+      "end": 133.8,
+      "text": "Ce congrès est composé de deux chambres – le Sénat et la Chambre des représentants –, qui sont, pour l'instant, contrôlées par le Parti républicain, à une très courte majorité."
+    },
+    {
+      "idx": 28,
+      "start": 133.8,
+      "end": 150.47,
+      "text": "Mais, compte tenu de l'impopularité de Donald Trump en raison de la hausse du coût de la vie, les démocrates ont de très fortes chances de l'emporter, car l'électorat de gauche va se mobiliser en masse pour sanctionner la politique de la Maison Blanche."
+    },
+    {
+      "idx": 29,
+      "start": 150.47,
+      "end": 163.72,
+      "text": "Et, dans le camp d'en face, les Américains qui ont soutenu Donald Trump lors de la présidentielle de 2024 sont déçus, dans l'ensemble, de son début de mandat et pourraient décider de bouder ce scrutin."
+    },
+    {
+      "idx": 30,
+      "start": 163.72,
+      "end": 171.82,
+      "text": "Alors, Vincent, cela signifie-t-il pour autant que le Parti démocrate va prendre le contrôle des deux chambres du Congrès ?"
+    },
+    {
+      "idx": 31,
+      "start": 171.82,
+      "end": 174.85,
+      "text": "Eh bien, ce n'est pas du tout certain, Adrien."
+    },
+    {
+      "idx": 32,
+      "start": 174.85,
+      "end": 179.07,
+      "text": "Pour ce qui est de la Chambre des représentants, c'est probable."
+    },
+    {
+      "idx": 33,
+      "start": 179.07,
+      "end": 187.11,
+      "text": "En revanche, ce sera beaucoup plus serré au Sénat, parce que le Parti démocrate doit conquérir quatre sièges de sénateurs."
+    },
+    {
+      "idx": 34,
+      "start": 187.11,
+      "end": 201.01,
+      "text": "Si les démocrates y arrivent, on pourra parler d'une véritable gifle pour le président américain, puisque cela voudra dire que la gauche sera parvenue à s'emparer de certains sièges que l'on pensait imprenables."
+    },
+    {
+      "idx": 35,
+      "start": 201.01,
+      "end": 207.67,
+      "text": "Par exemple, dans les États du Texas ou du Kansas, qui sont historiquement des bastions républicains."
+    },
+    {
+      "idx": 36,
+      "start": 207.67,
+      "end": 211.69,
+      "text": "Il reste deux éléments assez difficiles à mesurer à ce stade."
+    },
+    {
+      "idx": 37,
+      "start": 211.69,
+      "end": 217.02,
+      "text": "D'abord, Donald Trump va-t-il contester le résultat de certains de ces scrutins ?"
+    },
+    {
+      "idx": 38,
+      "start": 217.02,
+      "end": 221.24,
+      "text": "On ne le sait pas encore, mais il a donné des signes en ce sens."
+    },
+    {
+      "idx": 39,
+      "start": 221.24,
+      "end": 236,
+      "text": "Et, enfin, si le congrès bascule bel et bien, il va falloir que Donald Trump cohabite avec un Parlement qui lui sera hostile, et on ne sait pas à quel point le président américain est prêt à faire des concessions politiques."
+    },
+    {
+      "idx": 40,
+      "start": 236,
+      "end": 237.91,
+      "text": "Merci, Vincent, à Washington."
+    },
+    {
+      "idx": 41,
+      "start": 237.91,
+      "end": 242.19,
+      "text": "Les élections de mi-mandat ont lieu dans les 50 États américains."
+    },
+    {
+      "idx": 42,
+      "start": 242.19,
+      "end": 245.95,
+      "text": "Nous sommes, à présent, sur la côte ouest des États-Unis."
+    },
+    {
+      "idx": 43,
+      "start": 245.95,
+      "end": 248.85,
+      "text": "En Californie, État à la majorité démocrate."
+    },
+    {
+      "idx": 44,
+      "start": 248.85,
+      "end": 251.75,
+      "text": "Il ne devrait pas y avoir trop de surprises."
+    },
+    {
+      "idx": 45,
+      "start": 251.75,
+      "end": 259.92,
+      "text": "Le prochain gouverneur et la plupart des 52 députés pour la Chambre des représentants seront, très probablement, démocrates."
+    },
+    {
+      "idx": 46,
+      "start": 259.92,
+      "end": 269.27,
+      "text": "Les Californiens vont, aussi, se prononcer sur un autre sujet : un référendum local, pour ou contre une taxe sur la fortune des milliardaires."
+    },
+    {
+      "idx": 47,
+      "start": 269.27,
+      "end": 276.46,
+      "text": "Et là, Loïc Pialat, correspondant de RFI à Los Angeles, il est plus difficile de prédire le résultat du vote."
+    },
+    {
+      "idx": 48,
+      "start": 276.46,
+      "end": 284.95,
+      "text": "Oui. En Californie, les référendums locaux s'appellent des propositions."
+    },
+    {
+      "idx": 49,
+      "start": 284.95,
+      "end": 285.61,
+      "text": "Et la proposition 40 – c'est le nom de ce référendum – établirait une taxe de 5 % pour les 250 milliardaires de l'État."
+    },
+    {
+      "idx": 50,
+      "start": 285.61,
+      "end": 294.25,
+      "text": "Il ne s'agirait pas d'un impôt annuel, mais d'une taxe prélevée une seule fois."
+    },
+    {
+      "idx": 51,
+      "start": 294.25,
+      "end": 299.91,
+      "text": "La mesure est inspirée par deux économistes français, Gabriel Zucman et Emmanuel Saez."
+    },
+    {
+      "idx": 52,
+      "start": 299.91,
+      "end": 304.26,
+      "text": "Elle rapporterait, selon ses défenseurs, 100 milliards de dollars."
+    },
+    {
+      "idx": 53,
+      "start": 304.26,
+      "end": 313.02,
+      "text": "L'argent récolté servira à compenser les coupes budgétaires imposées par le gouvernement de Donald Trump dans le secteur de la santé."
+    },
+    {
+      "idx": 54,
+      "start": 313.02,
+      "end": 318.43,
+      "text": "Mais les opposants à cet impôt sur la fortune redoutent un exil des milliardaires."
+    },
+    {
+      "idx": 55,
+      "start": 318.43,
+      "end": 323.7,
+      "text": "Sergueï Brin, le cofondateur de Google, a déjà déménagé en Floride, par exemple."
+    },
+    {
+      "idx": 56,
+      "start": 323.7,
+      "end": 331.28,
+      "text": "Il a, aussi, dépensé des dizaines de millions de dollars en publicité pour faire campagne contre la proposition 40."
+    },
+    {
+      "idx": 57,
+      "start": 331.28,
+      "end": 334.37,
+      "text": "Cette taxe divise même dans le Parti démocrate."
+    },
+    {
+      "idx": 58,
+      "start": 334.37,
+      "end": 337.4,
+      "text": "L'actuel gouverneur, Gavin Newsom, votera non."
+    },
+    {
+      "idx": 59,
+      "start": 337.4,
+      "end": 347.95,
+      "text": "Ses détracteurs l'accusent de vouloir protéger les milliardaires, parce qu'il aura besoin de leur argent quand il se lancera dans la course à la Maison Blanche."
+    },
+    {
+      "idx": 60,
+      "start": 347.95,
+      "end": 354.14,
+      "text": "Les électeurs sont très partagés, mais les sondages les plus récents donnent le non vainqueur."
+    },
+    {
+      "idx": 61,
+      "start": 354.14,
+      "end": 356.45,
+      "text": "Loïc Pialat à Los Angeles pour RFI."
+    },
+    {
+      "idx": 62,
+      "start": 356.45,
+      "end": 365.76,
+      "text": "Les équipes de Radio France Internationale mobilisées pour vous informer et vous faire vivre en direct ce scrutin."
+    },
+    {
+      "idx": 63,
+      "start": 365.76,
+      "end": 367.78,
+      "text": "Premiers résultats attendus demain matin, heure française."
+    },
+    {
+      "idx": 64,
+      "start": 367.78,
+      "end": 371.93,
+      "text": "Les mots sont volontairement choisis tant le sujet est délicat."
+    },
+    {
+      "idx": 65,
+      "start": 371.93,
+      "end": 378.12,
+      "text": "Le roi Charles III s'est exprimé, cet après-midi, sur le rôle du Royaume-Uni dans l'esclavage."
+    },
+    {
+      "idx": 66,
+      "start": 378.12,
+      "end": 387.55,
+      "text": "Il a évoqué la responsabilité historique du Royaume-Uni dans la traite des esclaves, une période qu'il a qualifiée d'« injustice monstrueuse »."
+    },
+    {
+      "idx": 67,
+      "start": 387.55,
+      "end": 393.08,
+      "text": "Il a aussi appelé « à tirer les leçons du passé, à construire un avenir différent »."
+    },
+    {
+      "idx": 68,
+      "start": 393.08,
+      "end": 402.11,
+      "text": "Enfin, notons que plusieurs pays des Caraïbes demandent toujours au Royaume-Uni d'aller plus loin, en prononçant des excuses officielles."
+    },
+    {
+      "idx": 69,
+      "start": 402.11,
+      "end": 407.71,
+      "text": "La température des congélateurs est passée de -20 à plus de 50 °C en quelques heures."
+    },
+    {
+      "idx": 70,
+      "start": 407.71,
+      "end": 413.97,
+      "text": "Hier, plusieurs pays européens ont été victimes d'une cyberattaque qui visait des supermarchés."
+    },
+    {
+      "idx": 71,
+      "start": 413.97,
+      "end": 424.11,
+      "text": "Ont été concernés la Belgique, le Luxembourg, l'Estonie, l'Irlande ou encore la Suède."
+    },
+    {
+      "idx": 72,
+      "start": 424.11,
+      "end": 424.56,
+      "text": "Témoignage de la responsable de ce supermarché à Stockholm."
+    },
+    {
+      "idx": 73,
+      "start": 424.56,
+      "end": 429.91,
+      "text": "« On a dû jeter tellement de marchandises et ça nous a pris beaucoup de temps pour gérer tout ça."
+    },
+    {
+      "idx": 74,
+      "start": 429.91,
+      "end": 434.46,
+      "text": "Et il faut du temps pour remettre les congélateurs en marche. »"
+    },
+    {
+      "idx": 75,
+      "start": 434.46,
+      "end": 436.37,
+      "text": "« Ça fait bizarre de voir ça."
+    },
+    {
+      "idx": 76,
+      "start": 436.37,
+      "end": 438.22,
+      "text": "On se dit que c'est insensé."
+    },
+    {
+      "idx": 77,
+      "start": 438.22,
+      "end": 439.67,
+      "text": "Mais quel est le but ?"
+    },
+    {
+      "idx": 78,
+      "start": 439.67,
+      "end": 448.03,
+      "text": "C'est très étrange et, forcément, on se demande si ce n'est pas un pays de l'Est qui aurait intérêt à semer le trouble. »"
+    },
+    {
+      "idx": 79,
+      "start": 448.03,
+      "end": 452.98,
+      "text": "Témoignages recueillis par notre correspondante à Stockholm, Ottilia Ferey."
+    },
+    {
+      "idx": 80,
+      "start": 452.98,
+      "end": 456.21,
+      "text": "Parlons de littérature. C'est un rituel français."
+    },
+    {
+      "idx": 81,
+      "start": 456.21,
+      "end": 465.17,
+      "text": "Tous les ans, début novembre, est annoncé en haut des escaliers d'une brasserie parisienne, chez Drouant, le vainqueur du prix Goncourt."
+    },
+    {
+      "idx": 82,
+      "start": 465.17,
+      "end": 472.08,
+      "text": "« Le 124ᵉ Goncourt a été attribué à Philippe Jaenada, pour son livre L'inconnue du quai de Javel. »"
+    },
+    {
+      "idx": 83,
+      "start": 472.08,
+      "end": 472.81,
+      "text": "« Bravo ! »"
+    },
+    {
+      "idx": 84,
+      "start": 472.81,
+      "end": 478.74,
+      "text": "L'écrivain Philippe Jaenada couronné, donc, pour son dernier roman, édité chez Flammarion."
+    },
+    {
+      "idx": 85,
+      "start": 478.74,
+      "end": 485.99,
+      "text": "Catherine Fruchon-Toussaint, Philippe Jaenada est un auteur déjà très reconnu dans le monde de la littérature."
+    },
+    {
+      "idx": 86,
+      "start": 485.99,
+      "end": 495.02,
+      "text": "Déjà lauréat du prix Femina en 2017, Philippe Jaenada décroche donc, aussi, le Graal avec son 17ᵉ roman."
+    },
+    {
+      "idx": 87,
+      "start": 495.02,
+      "end": 499.43,
+      "text": "Un livre qui s'inscrit dans le processus littéraire de ses précédents, à savoir des romans-enquêtes."
+    },
+    {
+      "idx": 88,
+      "start": 499.43,
+      "end": 512.08,
+      "text": "L'auteur de 62 ans est, en effet, passionné par les faits divers du XXᵉ siècle, particulièrement les cold cases – en bon français, des affaires classées non résolues –, comme c'est le cas ici."
+    },
+    {
+      "idx": 89,
+      "start": 512.08,
+      "end": 523.35,
+      "text": "Il a choisi, en effet, de rouvrir le dossier du meurtre non élucidé d'une jeune femme à Paris, en septembre 1949 – pas très loin de RFI d'ailleurs –, sur le quai de Javel."
+    },
+    {
+      "idx": 90,
+      "start": 523.35,
+      "end": 526.05,
+      "text": "Il s'est, donc, plongé dans les archives."
+    },
+    {
+      "idx": 91,
+      "start": 526.05,
+      "end": 534.48,
+      "text": "Mais, ici, la plus-value, c'est qu'il prend pour modèle le commissaire Maigret, le célèbre policier inventé par Georges Simenon."
+    },
+    {
+      "idx": 92,
+      "start": 534.48,
+      "end": 538.96,
+      "text": "Et, sur les traces de son héros, il avoue clairement son admiration."
+    },
+    {
+      "idx": 93,
+      "start": 538.96,
+      "end": 542.92,
+      "text": "Il va peu à peu nous raconter qui était cette Louise Cansot."
+    },
+    {
+      "idx": 94,
+      "start": 542.92,
+      "end": 545.49,
+      "text": "Mieux, il va dénicher le vrai coupable."
+    },
+    {
+      "idx": 95,
+      "start": 545.49,
+      "end": 550.56,
+      "text": "Bref, un récit qui se lit comme un roman policier, pétri d'humour, documenté."
+    },
+    {
+      "idx": 96,
+      "start": 550.56,
+      "end": 557.02,
+      "text": "Avec L'inconnue du quai de Javel, le [jury] Goncourt récompense un livre populaire et réjouissant."
+    },
+    {
+      "idx": 97,
+      "start": 557.02,
+      "end": 561.43,
+      "text": "Catherine Fruchon-Toussaint, dans votre Journal en français facile."
+    },
+    {
+      "idx": 98,
+      "start": 561.43,
+      "end": 564.2,
+      "text": "L'heure de passer la main à Annie Gasnier."
+    },
+    {
+      "idx": 99,
+      "start": 564.2,
+      "end": 565.19,
+      "text": "Bonsoir, Annie."
+    },
+    {
+      "idx": 100,
+      "start": 565.19,
+      "end": 566.24,
+      "text": "Bonsoir, Adrien."
+    },
+    {
+      "idx": 101,
+      "start": 566.24,
+      "end": 570.79,
+      "text": "Radio Foot Internationale se met à l'heure de la Ligue des champions."
+    },
+    {
+      "idx": 102,
+      "start": 570.79,
+      "end": 575.2,
+      "text": "Eh oui, puisqu'il s'agit de la quatrième journée de la compétition."
+    },
+    {
+      "idx": 103,
+      "start": 575.2,
+      "end": 578.83,
+      "text": "Nous reviendrons, donc, sur certaines affiches du jour."
+    },
+    {
+      "idx": 104,
+      "start": 578.83,
+      "end": 586.54,
+      "text": "Mais nous parlerons, aussi, d'un match important qu'il y a eu en Allemagne au cours du week-end, le fameux Klassiker."
+    },
+    {
+      "idx": 105,
+      "start": 586.54,
+      "end": 593.85,
+      "text": "Et puis, aussi, nous évoquerons le décès d'un joueur espagnol après un choc contre un gardien, lors d'un match."
+    },
+    {
+      "idx": 106,
+      "start": 593.85,
+      "end": 597.01,
+      "text": "Annie Gasnier et ses coéquipiers vous attendent."
+    }
+  ]
+}

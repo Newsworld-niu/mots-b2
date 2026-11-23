@@ -31,11 +31,13 @@ import {
   SYNC_STORAGE_KEY,
   getLocalSafetyCopy,
   getSyncState,
+  loadLocalSafetyCopy,
   reloadSyncState,
   resetSyncState,
   saveLocalSafetyCopy,
   setSyncState,
 } from "./state";
+import { decryptSyncPayload, deriveSyncAuthToken, encryptSyncPayload, generateSyncCode, isEncryptedSyncPayload } from "./crypto";
 
 const sampleCard = { due: 100, s: 2, d: 5, el: 0, sd: 1, ls: 0, reps: 1, lapses: 0, st: 2 as const, seen: 1 };
 const VALID_CODE = "mb2_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijk1234";
@@ -110,7 +112,7 @@ test("state persists only allowed keys to fb2.sync and keeps busy/conflict in me
   const raw = globalThis.localStorage.getItem(SYNC_STORAGE_KEY);
   assert.ok(raw);
   const parsed = JSON.parse(raw) as Record<string, unknown>;
-  assert.deepEqual(Object.keys(parsed).sort(), ["baseEtag", "code", "lastError", "lastOkAt", "lastSyncedHash"]);
+  assert.deepEqual(Object.keys(parsed).sort(), ["authVersion", "baseEtag", "code", "lastError", "lastOkAt", "lastSyncedHash"]);
   assert.equal(parsed.busy, undefined);
   assert.equal(parsed.conflict, undefined);
   assert.equal(getSyncState().busy, true);
@@ -122,12 +124,13 @@ test("state persists only allowed keys to fb2.sync and keeps busy/conflict in me
   assert.equal(getSyncState().code, VALID_CODE);
 });
 
-test("saveLocalSafetyCopy ignores quota errors cleanly", () => {
+test("saveLocalSafetyCopy stores out of localStorage and migrates legacy key safely", async () => {
   (globalThis.localStorage as unknown as { setItem: () => void }).setItem = () => {
     throw new Error("QuotaExceededError");
   };
   assert.doesNotThrow(() => saveLocalSafetyCopy('{"test":1}'));
-  assert.equal(getLocalSafetyCopy(), null);
+  assert.equal(getLocalSafetyCopy(), '{"test":1}');
+  assert.equal(await loadLocalSafetyCopy(), '{"test":1}');
 });
 
 test("cloudSyncHealthy checks paired code and 7-day freshness", () => {
@@ -261,11 +264,13 @@ test("engine register, pair, conflict resolution, history restore, and wipe work
     return new Response(null, { status: 404 });
   }) as typeof fetch;
 
-  // 1. Register on Device A with existing card progress -> auto push-creates
+  // 1. Register on Device A with existing card progress -> auto push-creates with E2EE ciphertext
   store.progress((p) => ({ ...p, cards: { bonjour: sampleCard } }));
   const code = await registerWithInvite("inv_demo");
   assert.equal(code, VALID_CODE);
   assert.ok(cloudBody);
+  assert.equal(isEncryptedSyncPayload(String(cloudBody)), true);
+  assert.equal(String(cloudBody).includes("bonjour"), false, "server never sees plaintext card ids");
   assert.equal(getSyncState().baseEtag, '"e1"');
   assert.ok(getSyncState().lastSyncedHash);
 
@@ -282,34 +287,52 @@ test("engine register, pair, conflict resolution, history restore, and wipe work
   const dec = await pairWithCode(VALID_CODE);
   assert.equal(dec, "apply-remote");
   assert.deepEqual(Object.keys(store.get().progress.cards).sort(), ["bonjour", "merci"]);
-  assert.ok(globalThis.localStorage.getItem(LAST_LOCAL_KEY));
+  assert.equal(globalThis.localStorage.getItem(LAST_LOCAL_KEY), null, "safety copy stays out of localStorage");
+  assert.ok(getLocalSafetyCopy());
 
-  // 4. Simulate conflict: remote advances externally and local changes too
-  const remoteObj = JSON.parse(cloudBody!) as Record<string, unknown>;
-  (remoteObj.progress as Record<string, unknown>).cards = { ...((remoteObj.progress as Record<string, unknown>).cards as object), salut: sampleCard };
-  cloudBody = JSON.stringify(remoteObj);
+  // 4. Simulate already-paired device divergence: auto smart-merge preserves BOTH sides
+  const plainRemote = await decryptSyncPayload(cloudBody!, VALID_CODE, "francais-b2-lexicon");
+  const remoteObj = JSON.parse(plainRemote) as Record<string, unknown>;
+  (remoteObj.progress as Record<string, unknown>).cards = {
+    ...((remoteObj.progress as Record<string, unknown>).cards as object),
+    salut: sampleCard,
+  };
+  cloudBody = await encryptSyncPayload(JSON.stringify(remoteObj), VALID_CODE, "francais-b2-lexicon");
   cloudEtag++;
   store.progress((p) => ({ ...p, cards: { ...p.cards, au_revoir: sampleCard } }));
 
-  const conflictDec = await syncNow();
-  assert.equal(conflictDec, "conflict");
-  assert.ok(getSyncState().conflict);
-  assert.equal(getSyncState().conflict?.remoteSummary.cards, 3);
-  assert.equal(getSyncState().conflict?.localSummary.cards, 3);
-
-  // Resolve using remote -> applies remote and saves pre-overwrite safety copy
-  const okRemote = await resolveConflict("remote");
-  assert.equal(okRemote, true);
+  const mergeDec = await syncNow();
+  assert.equal(mergeDec, "merged");
   assert.equal(getSyncState().conflict, null);
-  assert.ok(store.get().progress.cards.salut);
-  assert.equal(store.get().progress.cards.au_revoir, undefined);
-  assert.match(getLocalSafetyCopy() ?? "", /au_revoir/);
+  assert.ok(store.get().progress.cards.salut, "remote card survived auto merge");
+  assert.ok(store.get().progress.cards.au_revoir, "local card survived auto merge");
 
-  // 5. Restore history version v1 (which only had "bonjour") -> applies locally and pushes to cloud
+  // 4b. Legacy plaintext backup in cloud still decrypts/merges, and initial pair conflict opens manual dialog
+  unpairLocal();
+  resetProgress();
+  store.progress((p) => ({ ...p, cards: { local_first: sampleCard } }));
+  cloudBody = JSON.stringify({
+    app: "word-atlas",
+    version: 2,
+    exported: "2026-11-22T00:00:00.000Z",
+    progress: { version: 2, datasetId: "francais-b2-lexicon", cards: { bonjour: sampleCard, salut: sampleCard } },
+  });
+  cloudEtag++;
+  const pairConflict = await pairWithCode(VALID_CODE);
+  assert.equal(pairConflict, "conflict");
+  assert.ok(getSyncState().conflict);
+  const okMergeManual = await resolveConflict("merge");
+  assert.equal(okMergeManual, true);
+  assert.ok(store.get().progress.cards.local_first);
+  assert.ok(store.get().progress.cards.salut);
+
+  // 5. Restore history version v1 (which only had "bonjour") -> applies locally and pushes E2EE to cloud
   const restored = await restoreHistoryVersion("v1");
   assert.equal(restored, true);
   assert.deepEqual(Object.keys(store.get().progress.cards), ["bonjour"]);
-  assert.equal(await canonicalHash(cloudBody!), getSyncState().lastSyncedHash);
+  assert.equal(isEncryptedSyncPayload(cloudBody!), true);
+  const decryptedLatest = await decryptSyncPayload(cloudBody!, VALID_CODE, "francais-b2-lexicon");
+  assert.equal(await canonicalHash(decryptedLatest), getSyncState().lastSyncedHash);
 
   // 6. Network error maps silently to friendly message
   globalThis.fetch = (async () => {
@@ -331,4 +354,73 @@ test("engine register, pair, conflict resolution, history restore, and wipe work
   await wipeCloudAccount();
   assert.equal(getSyncState().code, null);
   assert.equal(globalThis.localStorage.getItem(SYNC_STORAGE_KEY), null);
+});
+
+test("zero-knowledge v2 register and v1->v2 upgrade never send raw syncCode on subsequent sync requests", async () => {
+  const localCode = generateSyncCode();
+  assert.match(localCode, /^mb2_[A-Za-z0-9_-]{43}$/);
+  const derivedAuth = await deriveSyncAuthToken(localCode);
+  assert.match(derivedAuth, /^mb2a_[A-Za-z0-9_-]{43}$/);
+  assert.notEqual(derivedAuth, localCode);
+  assert.equal(await deriveSyncAuthToken(localCode), derivedAuth);
+
+  // Check AES-GCM round-trip remains compatible
+  const enc = await encryptSyncPayload('{"ok":1}', localCode, "francais-b2-lexicon");
+  assert.equal(await decryptSyncPayload(enc, localCode, "francais-b2-lexicon"), '{"ok":1}');
+
+  const seenAuths: Array<{ url: string; auth?: string; body?: string }> = [];
+  let cloudBody: string | null = null;
+  let upgraded = false;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    const headers = (init?.headers ?? {}) as Record<string, string>;
+    seenAuths.push({ url, auth: headers.Authorization ?? headers.authorization, body: init?.body ? String(init.body) : undefined });
+
+    if (url.endsWith("/api/register")) {
+      const payload = JSON.parse(String(init?.body ?? "{}")) as { authToken?: string };
+      assert.match(payload.authToken ?? "", /^mb2a_/);
+      return new Response(JSON.stringify({ authVersion: 2 }), { status: 201 });
+    }
+    if (url.endsWith("/api/auth/upgrade")) {
+      if (headers.Authorization === `Bearer ${VALID_CODE}`) {
+        upgraded = true;
+        return new Response(JSON.stringify({ ok: true, authVersion: 2 }), { status: 200 });
+      }
+      return new Response(null, { status: 401 });
+    }
+    if (url.endsWith("/api/sync/francais-b2-lexicon")) {
+      const okToken = upgraded
+        ? headers.Authorization === `Bearer ${await deriveSyncAuthToken(VALID_CODE)}`
+        : headers.Authorization?.startsWith("Bearer mb2a_");
+      if (!okToken) return new Response(null, { status: 401 });
+      if (init?.method === "GET") {
+        if (!cloudBody) return new Response(null, { status: 404 });
+        return new Response(cloudBody, { status: 200, headers: { ETag: '"e1"' } });
+      }
+      if (init?.method === "PUT") {
+        cloudBody = String(init.body ?? "");
+        return new Response(JSON.stringify({ etag: '"e1"' }), { status: 200, headers: { ETag: '"e1"' } });
+      }
+    }
+    return new Response(null, { status: 404 });
+  }) as typeof fetch;
+
+  store.progress((p) => ({ ...p, cards: { avenir: sampleCard } }));
+  const registeredCode = await registerWithInvite("inv_v2");
+  assert.match(registeredCode, /^mb2_/);
+  assert.equal(getSyncState().authVersion, 2);
+  for (const call of seenAuths) {
+    assert.ok(!call.auth?.includes(registeredCode), "raw syncCode must never appear in Authorization header");
+    assert.ok(!call.body?.includes(registeredCode), "raw syncCode must never appear in request body");
+  }
+
+  // Test automatic v1 -> v2 upgrade
+  unpairLocal();
+  seenAuths.length = 0;
+  setSyncState({ code: VALID_CODE, authVersion: 1 });
+  await syncNow();
+  assert.equal(getSyncState().authVersion, 2);
+  const derivedV1 = await deriveSyncAuthToken(VALID_CODE);
+  const syncCall = seenAuths.find((c) => c.url.includes("/api/sync/"));
+  assert.equal(syncCall?.auth, `Bearer ${derivedV1}`);
 });

@@ -73,12 +73,26 @@ test("order answers ignore case; shuffles are never already in order", () => {
   for (let seed = 0; seed < 50; seed++) assert.notDeepEqual(shuffled(d.t, seed), d.t);
 });
 
-test("typed answers distinguish exact, accent-only and wrong", () => {
+test("typed answers distinguish exact, lexical accent-only, contrastive diacritic/cedilla wrong, 1990 variants, and cloze elisions", () => {
   assert.equal(checkTyped("  Il m’a dit qu'il viendrait. ", ["Il m'a dit qu'il viendrait"]), "right");
   assert.equal(checkTyped("ecrites", ["écrites"]), "accent");
   assert.equal(checkTyped("soeur", ["sœur"]), "accent");
   assert.equal(checkTyped("ecrit", ["écrites"]), "wrong");
   assert.equal(checkTyped("", ["écrites"]), "wrong");
+  // Contrastive morphosyntax / phonological errors are strictly wrong, never excused as accent-only
+  assert.equal(checkTyped("parle", ["parlé"]), "wrong");
+  assert.equal(checkTyped("entree", ["entrée"]), "wrong");
+  assert.equal(checkTyped("commenca", ["commença"]), "wrong");
+  assert.equal(checkTyped("remplacant", ["remplaçant"]), "wrong");
+  assert.equal(checkTyped("ou", ["où"]), "wrong");
+  assert.equal(checkTyped("a", ["à"]), "wrong");
+  assert.equal(checkTyped("du", ["dû"]), "wrong");
+  // 1990 spelling reforms accepted as right
+  assert.equal(checkTyped("évènement", ["événement"]), "right");
+  assert.equal(checkTyped("cèderai", ["céderai"]), "right");
+  // Boundary elision assembly
+  assert.equal(checkTyped("qu'il", ["il"], { before: "Je pense que ", after: " viendra." }), "right");
+  assert.equal(checkTyped("il", ["qu'il"], { before: "Je pense qu'", after: " viendra." }), "right");
 });
 
 test("a round is graded by its slips", () => {

@@ -1,11 +1,18 @@
 /**
  * The learner's last few recordings (口语、每日一分钟), kept in their own IndexedDB database so that they can be
- * played again after the page is closed. Never in localStorage or backups; the oldest beyond MAX_KEPT are removed.
+ * played again after the page is closed. Never in localStorage or backups; quota is partitioned by `bucket`
+ * (`MAX_EXAM_KEPT = 12`, `MAX_DRILL_KEPT = 8`) so 1-min daily drills never evict PO exam monologues.
  */
+
+import { createIdb } from "../lib/idb";
 
 const DB = "word-atlas-recordings";
 const STORE = "recordings";
-export const MAX_KEPT = 6;
+export const MAX_EXAM_KEPT = 12;
+export const MAX_DRILL_KEPT = 8;
+export const MAX_KEPT = MAX_EXAM_KEPT;
+
+export type RecordingBucket = "exam" | "drill";
 
 export interface KeptRecording {
   id: string;
@@ -14,49 +21,67 @@ export interface KeptRecording {
   label: string;
   seconds: number;
   blob: Blob;
+  /** Quota partition ("exam" = PO monologue archive, "drill" = 1-min daily drill; legacy entries default to "exam"). */
+  bucket?: RecordingBucket;
 }
 
-function open(): Promise<IDBDatabase | null> {
-  if (typeof indexedDB === "undefined") return Promise.resolve(null);
-  return new Promise((resolve) => {
-    const req = indexedDB.open(DB, 1);
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE, { keyPath: "id" });
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => resolve(null);
-  });
+const bucketOf = (r: Pick<KeptRecording, "bucket">): RecordingBucket =>
+  r.bucket === "drill" ? "drill" : "exam";
+
+/** Pure quota eviction planner (exported for deterministic unit testing). */
+export function selectEvictedRecordingIds<T extends { id: string; at: number; bucket?: RecordingBucket }>(
+  items: readonly T[],
+  limits: { exam?: number; drill?: number } = {},
+): string[] {
+  const maxExam = limits.exam ?? MAX_EXAM_KEPT;
+  const maxDrill = limits.drill ?? MAX_DRILL_KEPT;
+  const sorted = [...items].sort((a, b) => b.at - a.at);
+  const exams = sorted.filter((r) => bucketOf(r) === "exam");
+  const drills = sorted.filter((r) => bucketOf(r) === "drill");
+  return [...exams.slice(maxExam).map((r) => r.id), ...drills.slice(maxDrill).map((r) => r.id)];
 }
 
-function run<T>(db: IDBDatabase, mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T | null> {
-  return new Promise((resolve) => {
-    try {
-      const req = fn(db.transaction(STORE, mode).objectStore(STORE));
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => resolve(null);
-    } catch {
-      resolve(null);
+const recIdb = createIdb(DB, 1, (d) => {
+  if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE, { keyPath: "id" });
+});
+
+const run = <T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>) =>
+  recIdb.tx(STORE, mode, fn);
+
+/** Newest first; optionally filtered to `"exam"` or `"drill"`. */
+export async function listRecordings(bucket?: RecordingBucket): Promise<KeptRecording[]> {
+  const all = ((await run<KeptRecording[]>("readonly", (s) => s.getAll())) ?? []) as KeptRecording[];
+  const valid = all.filter((r) => r && r.blob instanceof Blob).sort((a, b) => b.at - a.at);
+  return bucket ? valid.filter((r) => bucketOf(r) === bucket) : valid;
+}
+
+/** Read one kept recording by id, or null when missing/expired. */
+export async function getRecording(id: string): Promise<KeptRecording | null> {
+  try {
+    const r = await run<KeptRecording | undefined>("readonly", (s) => s.get(id));
+    return r && r.blob instanceof Blob ? r : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Keep a recording in its `bucket` (`"exam"` default, or `"drill"`); drops only oldest entries in the same bucket. */
+export async function keepRecording(r: Omit<KeptRecording, "id" | "at">): Promise<string | null> {
+  try {
+    const at = Date.now();
+    const id = `r-${at.toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+    const bucket: RecordingBucket = bucketOf(r);
+    await run("readwrite", (s) => s.put({ ...r, bucket, id, at }));
+    const all = await listRecordings();
+    for (const oldId of selectEvictedRecordingIds(all)) {
+      await run("readwrite", (s) => s.delete(oldId));
     }
-  });
-}
-
-/** Newest first. */
-export async function listRecordings(): Promise<KeptRecording[]> {
-  const db = await open();
-  if (!db) return [];
-  const all = ((await run(db, "readonly", (s) => s.getAll())) ?? []) as KeptRecording[];
-  return all.filter((r) => r && r.blob instanceof Blob).sort((a, b) => b.at - a.at);
-}
-
-/** Keep a recording; drops the oldest beyond MAX_KEPT. Fails quietly (private mode, no space). */
-export async function keepRecording(r: Omit<KeptRecording, "id" | "at">): Promise<void> {
-  const db = await open();
-  if (!db) return;
-  const at = Date.now();
-  await run(db, "readwrite", (s) => s.put({ ...r, id: `r-${at.toString(36)}${Math.random().toString(36).slice(2, 6)}`, at }));
-  const all = await listRecordings();
-  for (const old of all.slice(MAX_KEPT)) await run(db, "readwrite", (s) => s.delete(old.id));
+    return id;
+  } catch {
+    return null;
+  }
 }
 
 export async function deleteRecording(id: string): Promise<void> {
-  const db = await open();
-  if (db) await run(db, "readwrite", (s) => s.delete(id));
+  await run("readwrite", (s) => s.delete(id));
 }

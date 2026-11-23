@@ -6,14 +6,16 @@ import type { Accent, Entry, WordRef } from "../atlas/types";
 import { play, stopAudio } from "../lib/audio";
 import { burst } from "../lib/burst";
 import { cue } from "../lib/sound";
-import { currentLocation, go, openWord, useLocation } from "../lib/router";
+import { go, openWord, useLocation } from "../lib/router";
 import { frenchClueFor, readPureFr, writePureFr } from "../lib/pure-fr";
-import { gap, hashSeed, normalize, shuffle } from "../lib/text";
+import { gap, hashSeed, locateWord, normalize, REGISTER_CHOICES, REGISTER_LABELS, shuffle, splitPair } from "../lib/text";
 import { articleVerdict } from "../lib/accent";
 import { AccentKeys } from "../ui/AccentKeys";
-import { ARTICLE_CHOICES, articleTone, isArticleCorrect, spellTarget } from "../lib/gender";
-import { answer, advance, buildSession, gradeFor, introduce, isTyped, recordMistake, sessionStats, type IntroVerdict } from "../store/session";
-import { formatInterval, preview, Rating } from "../store/srs";
+import { ARTICLE_CHOICES, articleTone, isArticleCorrect, isSpellableHeadword, spellTarget } from "../lib/gender";
+import { useKeys } from "../lib/keys";
+import { useFamilies } from "../lib/families";
+import { answer, advance, buildSession, canRegradePending, canUndoStep, getPendingPrevCard, gradeFor, introduce, isTyped, recordMistake, regradePending, sessionStats, undoLastStep, type IntroVerdict } from "../store/session";
+import { formatInterval, preview, Rating, type Grade } from "../store/srs";
 import { store, useStore, type ActiveSession, type QuizKind, type Step } from "../store/store";
 import { EntryView, Highlight, VoicePick } from "../ui/EntryView";
 import { Illustration, plateArticle } from "../ui/Illustration";
@@ -26,9 +28,13 @@ import { shareSession } from "../ui/shareSession";
 export function Learn() {
   const atlas = useAtlas();
   const session = useStore((s) => s.progress.session);
+  const studyFamilies = useStore((s) => s.settings.studyFamilies);
+  const baseFamilies = useFamilies(Boolean(studyFamilies?.length));
+  const familiesReady = !studyFamilies?.length || baseFamilies.length > 0;
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    if (!familiesReady) return;
     const { progress, settings } = store.get();
     if (!progress.session) {
       const s = buildSession(atlas, progress, settings);
@@ -38,7 +44,7 @@ export function Learn() {
       }
       store.progress((p) => ({ ...p, session: s }));
     }
-  }, [atlas]);
+  }, [atlas, familiesReady]);
 
   const ids = useMemo(() => [...new Set(session?.steps.map((s) => s.id) ?? [])], [session?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -60,8 +66,11 @@ export function Learn() {
 }
 
 function Runner({ session }: { session: ActiveSession }) {
+  const settingsAccent = useStore((s) => s.settings.accent);
+  const [exVoice, setExVoice] = useState<Accent>(settingsAccent);
   const step = session.steps[session.index];
   const total = session.steps.length;
+  const showUndo = canUndoStep(session.id) && !session.pending;
   const exit = () => {
     stopAudio();
     go({ page: "today" });
@@ -75,15 +84,29 @@ function Runner({ session }: { session: ActiveSession }) {
         <div className="learn-progress" role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={session.index}>
           <span style={{ width: `${(session.index / total) * 100}%` }} />
         </div>
+        {showUndo && (
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={() => {
+              stopAudio();
+              undoLastStep();
+            }}
+            aria-label="撤销上一题"
+            title="撤销上一题"
+          >
+            <RotateCcw size={17} />
+          </button>
+        )}
         <span className="learn-count">
           {session.index + 1}
           <small>/{total}</small>
         </span>
         <AmbiencePicker />
       </header>
-      <main className="learn-stage" key={`${session.id}-${session.index}`}>
-        {step.kind === "intro" ? <Intro step={step} /> : step.kind === "pairing" ? <Pairing step={step} /> : <Quiz step={step} session={session} />}
-      </main>
+      <div className="learn-stage" key={`${session.id}-${session.index}`}>
+        {step.kind === "intro" ? <Intro step={step} /> : step.kind === "pairing" ? <Pairing step={step} /> : <Quiz step={step} session={session} exVoice={exVoice} onExVoice={setExVoice} />}
+      </div>
     </div>
   );
 }
@@ -265,9 +288,21 @@ const KIND_LABEL: Record<QuizKind, string> = {
   gender: "un 还是 une？",
   cloze: "空格里是哪个词？（选原形）",
   dictation: "听句子，写出空格里的词",
+  collocation: "选词填入高频搭配",
+  register: "这个词常见于哪种语域？",
 };
 
-function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; session: ActiveSession }) {
+function Quiz({
+  step,
+  session,
+  exVoice,
+  onExVoice,
+}: {
+  step: Extract<Step, { kind: QuizKind }>;
+  session: ActiveSession;
+  exVoice: Accent;
+  onExVoice: (v: Accent) => void;
+}) {
   const atlas = useAtlas();
   const ref = focusRef(atlas.byId.get(step.id)!, step.sense);
   const { entry: raw } = useEntry(step.id);
@@ -288,6 +323,16 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
     () => (step.options ?? []).map((id) => atlas.byId.get(id)).filter((w): w is WordRef => !!w).map((w) => (w.id === step.id ? focusRef(w, step.sense) : w)),
     [atlas, step.options, step.id, step.sense],
   );
+  const collocation = useMemo(() => {
+    if (!entry?.col.length) return null;
+    for (const c of entry.col) {
+      const { en, zh } = splitPair(c);
+      if (!en) continue;
+      const g = gap(en, entry.w, locateWord(en, entry.w));
+      if (g) return { fr: en, zh, ...g };
+    }
+    return null;
+  }, [entry]);
 
   const submit = useCallback(
     (value: string, correct: boolean, accentOnly = false, articleWrong = false) => {
@@ -322,9 +367,10 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
   // A picture question for a word that has no picture (removed, or 不要图片 chosen after the session was built)
   // becomes a cloze: a text plate would print the answer.
   const noPicture = step.kind === "picture" && !!entry && !atlas.img(entry);
-  const kind: QuizKind = step.kind === "dictation" && !sentence ? "spell" : noPicture ? "cloze" : step.kind;
-  // the dictation sentence's voice: 女/男 under the sentence, kept for the rest of the session
-  const [exVoice, setExVoice] = useState<Accent>(settings.accent);
+  const noCollocation = step.kind === "collocation" && !!entry && !collocation;
+  const noRegister = step.kind === "register" && !!entry && !entry.register;
+  const spellFallback: QuizKind = entry && isSpellableHeadword(entry.w) ? "spell" : "meaning";
+  const kind: QuizKind = step.kind === "dictation" && !sentence ? spellFallback : noPicture || noCollocation ? "cloze" : noRegister ? "meaning" : step.kind;
   const exVoiceRef = useRef(exVoice);
   exVoiceRef.current = exVoice;
   const playSentence = useCallback(
@@ -338,12 +384,27 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
     if (kind === "dictation") void playSentence();
   }, [kind, entry, atlas, settings.accent, pending, playSentence]);
 
+  const canRegrade = canRegradePending(session.id, session.index);
   const keys: Record<string, () => void> = {};
   if (pending) {
     keys.Enter = next;
     keys[" "] = next;
+    if (canRegrade) {
+      keys["1"] = () => regradePending(Rating.Again, atlas);
+      keys["2"] = () => regradePending(Rating.Hard, atlas);
+      keys["3"] = () => regradePending(Rating.Good, atlas);
+      keys["4"] = () => regradePending(Rating.Easy, atlas);
+    }
+    if (canUndoStep(session.id)) {
+      keys.z = () => {
+        stopAudio();
+        undoLastStep();
+      };
+    }
   } else if (kind === "gender") {
     ARTICLE_CHOICES.forEach((a, i) => (keys[String(i + 1)] = () => submit(a, isArticleCorrect(a, ref.g))));
+  } else if (kind === "register" && entry?.register) {
+    REGISTER_CHOICES.forEach((r, i) => (keys[String(i + 1)] = () => submit(r.value, r.value === entry.register)));
   } else if (!isTyped(kind)) {
     options.forEach((o, i) => (keys[String(i + 1)] = () => submit(o.id, o.id === ref.id)));
   }
@@ -417,7 +478,8 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
                   entry={entry}
                   value={exVoice}
                   onPick={(v) => {
-                    setExVoice(v);
+                    onExVoice(v);
+                    exVoiceRef.current = v;
                     void playSentence(1, v);
                   }}
                 />
@@ -463,6 +525,27 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
             <Speak url={atlas.audio(entry, settings.accent)} text={entry.w} accent={settings.accent} size="sm" label="听发音" />
           </div>
         )}
+        {kind === "collocation" && collocation && (
+          <div className="prompt-cloze prompt-collocation">
+            <p className="cloze" lang="fr">
+              {collocation.before}
+              <span className="blank">{pending ? collocation.hidden : "\u3000\u3000\u3000"}</span>
+              {collocation.after}
+            </p>
+            {collocation.zh && <p className="cloze-zh">{collocation.zh}</p>}
+          </div>
+        )}
+        {kind === "register" && (
+          <div className="prompt-word prompt-register">
+            <h2 className="headword" lang="fr">
+              {entry.w}
+            </h2>
+            <Speak url={atlas.audio(entry, settings.accent)} text={entry.w} accent={settings.accent} label={<span className="ipa">{settings.accent === "us" ? entry.us || entry.uk : entry.uk || entry.us}</span>} />
+            <p className="gender-zh">
+              <span className="pos">{entry.senses[0].pos}</span> {entry.senses[0].zh}
+            </p>
+          </div>
+        )}
       </section>
 
       {kind === "gender" ? (
@@ -476,6 +559,25 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
                 <button className={`option option-art ${articleTone(a)} ${cls}`} data-option={a} onClick={() => submit(a, isAnswer)} disabled={!!pending}>
                   <kbd>{i + 1}</kbd>
                   <span lang="fr">{a}</span>
+                  {pending && isAnswer && <Check size={20} className="option-mark" />}
+                  {pending && chosen && !isAnswer && <X size={20} className="option-mark" />}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      ) : kind === "register" && entry.register ? (
+        <ul className="options options-register">
+          {REGISTER_CHOICES.map((r, i) => {
+            const isAnswer = r.value === entry.register;
+            const chosen = pending?.value === r.value;
+            const cls = pending ? (isAnswer ? "is-answer" : chosen ? "is-chosen" : "is-dim") : "";
+            return (
+              <li key={r.value}>
+                <button className={`option option-reg reg-${r.value} ${cls}`} data-option={r.value} onClick={() => submit(r.value, isAnswer)} disabled={!!pending}>
+                  <kbd>{i + 1}</kbd>
+                  <span lang="fr">{r.label}</span>
+                  <small className="option-reg-hint">{r.hint}</small>
                   {pending && isAnswer && <Check size={20} className="option-mark" />}
                   {pending && chosen && !isAnswer && <X size={20} className="option-mark" />}
                 </button>
@@ -513,7 +615,26 @@ function Quiz({ step, session }: { step: Extract<Step, { kind: QuizKind }>; sess
           不会，看卡片 <kbd>0</kbd>
         </button>
       )}
-      {pending && <Feedback entry={entry} refw={ref} correct={pending.correct} accentOnly={pending.accentOnly} articleWrong={pending.articleWrong} onNext={next} />}
+      {pending && (
+        <Feedback
+          entry={entry}
+          refw={ref}
+          correct={pending.correct}
+          accentOnly={pending.accentOnly}
+          articleWrong={pending.articleWrong}
+          grade={pending.grade ?? session.graded[step.id]}
+          canRegrade={canRegrade}
+          canUndo={canUndoStep(session.id)}
+          prevCard={getPendingPrevCard(session.id, session.index)}
+          retention={settings.retention}
+          onRegrade={(g) => regradePending(g, atlas)}
+          onUndo={() => {
+            stopAudio();
+            undoLastStep();
+          }}
+          onNext={next}
+        />
+      )}
     </div>
   );
 }
@@ -534,7 +655,7 @@ function SpellPrompt({ entry, refw, hints }: { entry: Entry; refw: WordRef; hint
         {sentence && (
           <p className="cloze cloze-sm" lang="fr">
             {sentence.before}
-            <span className="blank">　　　</span>
+            <span className="blank">{"\u3000\u3000\u3000"}</span>
             {sentence.after}
           </p>
         )}
@@ -613,10 +734,46 @@ function SpellInput({ target, sentence, pending, hints, onHint, onSubmit, onGive
   );
 }
 
-function Feedback({ entry, refw, correct, accentOnly, articleWrong, onNext }: { entry: Entry; refw: WordRef; correct: boolean; accentOnly?: boolean; articleWrong?: boolean; onNext: () => void }) {
+const REGRADE_OPTS: { grade: Grade; keyHint: string; label: string }[] = [
+  { grade: Rating.Again, keyHint: "1", label: "重来" },
+  { grade: Rating.Hard, keyHint: "2", label: "困难" },
+  { grade: Rating.Good, keyHint: "3", label: "良好" },
+  { grade: Rating.Easy, keyHint: "4", label: "简单" },
+];
+
+function Feedback({
+  entry,
+  refw,
+  correct,
+  accentOnly,
+  articleWrong,
+  grade,
+  canRegrade,
+  canUndo,
+  prevCard,
+  retention,
+  onRegrade,
+  onUndo,
+  onNext,
+}: {
+  entry: Entry;
+  refw: WordRef;
+  correct: boolean;
+  accentOnly?: boolean;
+  articleWrong?: boolean;
+  grade?: Grade;
+  canRegrade?: boolean;
+  canUndo?: boolean;
+  prevCard?: ReturnType<typeof getPendingPrevCard>;
+  retention: number;
+  onRegrade: (g: Grade) => void;
+  onUndo: () => void;
+  onNext: () => void;
+}) {
   const atlas = useAtlas();
   const btn = useRef<HTMLButtonElement>(null);
   const sheetOpen = useLocation().word !== null;
+  const intervals = useMemo(() => (canRegrade ? preview(prevCard, Date.now(), retention) : null), [canRegrade, prevCard, retention]);
   // focus "continue" on arrival and again once the word sheet closes, so Enter keeps going
   useEffect(() => {
     if (sheetOpen) return;
@@ -635,6 +792,7 @@ function Feedback({ entry, refw, correct, accentOnly, articleWrong, onNext }: { 
               {entry.w}
             </b>
             <span className="ipa">{entry.uk || entry.us}</span>
+            {entry.register && <span className={`chip chip-reg reg-${entry.register}`}>{REGISTER_LABELS[entry.register]}</span>}
           </p>
           <p className="feedback-zh">
             {entry.senses.length > 1
@@ -651,8 +809,34 @@ function Feedback({ entry, refw, correct, accentOnly, articleWrong, onNext }: { 
               <Highlight text={entry.ex[0].en} word={entry.w} span={entry.ex[0].hl} />
             </p>
           )}
+          {(entry.syn.length > 0 || entry.tip) && (
+            <p className="feedback-meta">
+              {entry.syn.length > 0 && <span>近义：{entry.syn.slice(0, 2).join(" · ")}</span>}
+              {entry.tip && <span>提示：{entry.tip.split("\n")[0]}</span>}
+            </p>
+          )}
         </div>
         <div className="feedback-actions">
+          {canRegrade && intervals && (
+            <div className="feedback-regrade" role="group" aria-label="微调记忆评级">
+              {REGRADE_OPTS.map((o) => (
+                <button
+                  key={o.grade}
+                  type="button"
+                  className={`chip-btn ${grade === o.grade ? "is-on" : ""}`}
+                  aria-pressed={grade === o.grade}
+                  onClick={() => onRegrade(o.grade)}
+                >
+                  <kbd>{o.keyHint}</kbd> {o.label} <small>{formatInterval(intervals[o.grade])}</small>
+                </button>
+              ))}
+            </div>
+          )}
+          {canUndo && (
+            <button type="button" className="btn btn-ghost feedback-undo" onClick={onUndo} title="撤销本次作答并重做 (Z)">
+              <RotateCcw size={16} /> 撤销
+            </button>
+          )}
           <button type="button" className="btn btn-ghost feedback-more" onClick={() => openWord(entry.id)}>
             <BookOpen size={18} /> 详情
           </button>
@@ -742,26 +926,4 @@ function Summary({ session }: { session: ActiveSession }) {
   );
 }
 
-/** Page-level shortcuts that ignore typing in inputs (except Enter, which forms handle). */
-export function useKeys(map: Record<string, () => void>) {
-  const ref = useRef(map);
-  ref.current = map;
-  useEffect(() => {
-    const on = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
-      // a word sheet is open on top of the session: leave its keys alone
-      if (currentLocation().word) return;
-      const t = e.target as HTMLElement;
-      const typing = t.tagName === "INPUT" || t.tagName === "TEXTAREA";
-      if (typing && !(e.key === "Enter" && (t as HTMLInputElement).readOnly)) return;
-      if (t.tagName === "BUTTON" && (e.key === "Enter" || e.key === " ")) return;
-      const fn = ref.current[e.key];
-      if (fn) {
-        e.preventDefault();
-        fn();
-      }
-    };
-    window.addEventListener("keydown", on);
-    return () => window.removeEventListener("keydown", on);
-  }, []);
-}
+export { useKeys } from "../lib/keys";

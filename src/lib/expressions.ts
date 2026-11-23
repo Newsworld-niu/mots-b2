@@ -97,8 +97,7 @@ export const DEBATE_PHRASE_FNS = [
 export const debatePhrases = (): [fn: string, Expression[]][] =>
   DEBATE_PHRASE_FNS.map((fn) => [fn, EXPRESSIONS.filter((e) => e.group === "arg" && e.fn === fn)] as [string, Expression[]]).filter(([, xs]) => xs.length > 0);
 
-/** Card ids in the progress: group prefix and slug. */
-export const EXPR_ID = /^(conn|arg|col|reg|lettre|reform)-[a-z0-9-]{1,50}$/;
+export * from "./expr-schema";
 
 /** The example split at its gap. */
 export function gapOf(ex: string) {

@@ -1,91 +1,79 @@
-import { ArrowLeft, ArrowRight, Mic, Shuffle, Sparkles, Square } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ready, useAiConfig, type AiConfig } from "../ai/config";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { transcribeAudio } from "../ai/clients";
+import { ready, useAiConfig } from "../ai/config";
+import { assessRecording, canAssess, canAssessOrTranscribe, oralCapabilityTier } from "../ai/pronunciation";
 import { debateQuestion, gradeSpeaking, makeSubject } from "../ai/tasks";
-import { assessRecording, canAssess } from "../ai/pronunciation";
-import { ttsOn, ttsUrl } from "../ai/tts";
 import { useGrammar } from "../atlas/grammar";
-import { TARGET_LANG } from "../config";
-import { play, stopAudio } from "../lib/audio";
-import { CONNECTORS, countWords, CRITERION_CHECK, CRITERION_LABEL, LEVEL_LABEL, LEVELS, MAX_SPEAKING_MONOLOGUE_LENGTH, totalScore } from "../lib/essay";
-import { assessDebateEscalation, checkProblematiqueDraft, clock, isSpeakingTyped, MAX_EXAM_LOG, outlineKeywords, PO_STANDARD_CONSIGNE, PROBLEMATIQUE_TIPS, realScore25, resolveLockedTranscripts, SPEAK_TIMES, SPEAKING_SUBJECTS, TALK_PLAN, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
-import { debatePhrases } from "../lib/expressions";
-import { isNative } from "../lib/native";
-import { href } from "../lib/router";
-import { duck } from "../lib/sound";
-import { canDictate, dictate, pickBrowserFrenchVoice, pickExaminerVoice, shouldFallbackToAzureStt } from "../lib/speech";
-import { useTimer } from "../lib/timer";
-import { saveSpeakingCorrections } from "../store/essays";
-import { store, useStore } from "../store/store";
-import { Marking } from "../ui/Marking";
-import { combineSpeakingProns, pendingDebateSamples, phonoLevel, type PronResult } from "../lib/pronunciation";
+import { stopAudio } from "../lib/audio";
+import { countWords, MAX_SPEAKING_MONOLOGUE_LENGTH, totalScore } from "../lib/essay";
+import { clock, isSpeakingTyped, MAX_EXAM_LOG, PO_STANDARD_CONSIGNE, resolveLockedTranscripts, SPEAK_TIMES, SPEAKING_SUBJECTS, TOPICS, topicOf, type DebateTurn, type SpeakingFeedback, type SpeakingSubject } from "../lib/exam";
+import type { SpeakingSession } from "../lib/exam-schema";
+import type { ExamTrack } from "../lib/exam-tracks";
+import { useNavGuard } from "../lib/nav-guard";
+import { combineSpeakingProns, pendingDebateSamples, phonoLevel, summarizeAcoustics, type PronResult } from "../lib/pronunciation";
 import type { Take } from "../lib/recorder";
-import { AssessHint, AssessStatus, PronReport, TakePlayer, useAssess, useRecorder } from "../ui/Recording";
+import { speakingPresetOf } from "../lib/speaking-presets";
+import { canDictate, dictate, shouldFallbackToStt } from "../lib/speech";
+import { useTimer } from "../lib/timer";
+import { logExam, patchSpeakingSessionScore, saveSpeakingCorrections, saveSpeakingSession } from "../store/essays";
+import { keepRecording } from "../store/recordings";
+import { store, useStore } from "../store/store";
+import { confirmAction } from "../ui/ConfirmSheet";
+import { useAssess, useRecorder, useSilenceVad } from "../ui/Recording";
 import { toast } from "../ui/Toast";
+import {
+  emptyOfflineSelf,
+  MONOLOGUE_CUTOFF_FR,
+  MONOLOGUE_CUTOFF_SEC,
+  MONOLOGUE_WARN_SEC,
+  type Phase,
+  speakExaminer,
+  two,
+  VAD_SILENCE_MS,
+} from "./speaking/helpers";
+import { SpeakingResult } from "./speaking/SpeakingResult";
+import { SpeakingSetup } from "./speaking/SpeakingSetup";
+import { SpeakingWork } from "./speaking/SpeakingWork";
 
-const day = (ms: number) => new Date(ms).toLocaleDateString("zh-CN", { month: "numeric", day: "numeric" });
-const two = <T,>(xs: T[]) => [...xs].sort(() => Math.random() - 0.5).slice(0, 2);
-
-/** Read an examiner turn aloud, rotating among multiple French voices (Azure fr-FR or browser French voices). */
-async function speakExaminer(text: string, turnIndex: number, offset: number, aiConfig: AiConfig, signal?: AbortSignal): Promise<"recorded" | "device" | "stopped" | "unsupported"> {
-  if (signal?.aborted) return "stopped";
-  const second = turnIndex % 2 === 1;
-  if (ttsOn()) {
-    const voice = pickExaminerVoice(turnIndex, offset, { female: aiConfig.azureVoice, male: aiConfig.azureVoiceMale });
-    const src = await ttsUrl(text, voice).catch(() => null);
-    if (signal?.aborted) return "stopped";
-    return play(src, text, second ? "us" : "uk", 1, second);
-  }
-  if (!isNative() && typeof window !== "undefined" && "speechSynthesis" in window) {
-    stopAudio();
-    duck(true);
-    try {
-      const u = new SpeechSynthesisUtterance(text);
-      const { voice, pitch } = pickBrowserFrenchVoice(window.speechSynthesis.getVoices(), turnIndex, offset);
-      u.lang = TARGET_LANG;
-      u.rate = 0.95;
-      u.pitch = pitch;
-      if (voice) u.voice = voice;
-      return await new Promise<"device" | "stopped">((resolve) => {
-        let settled = false;
-        const finish = (res: "device" | "stopped") => {
-          if (settled) return;
-          settled = true;
-          signal?.removeEventListener("abort", onAbort);
-          resolve(res);
-        };
-        const onAbort = () => {
-          stopAudio();
-          finish("stopped");
-        };
-        signal?.addEventListener("abort", onAbort, { once: true });
-        u.onend = () => finish(signal?.aborted ? "stopped" : "device");
-        u.onerror = (e) => {
-          const err = (e as SpeechSynthesisErrorEvent).error;
-          finish(signal?.aborted || err === "interrupted" || err === "canceled" ? "stopped" : "device");
-        };
-        window.speechSynthesis.speak(u);
-      });
-    } finally {
-      duck(false);
-    }
-  }
-  return play(null, text, second ? "us" : "uk", 1, second);
-}
-
-type Phase = "pick" | "drawing" | "choose" | "prep" | "talk" | "review" | "debate" | "grading" | "result";
+const TrackSpeakingStudio = lazy(() =>
+  import("./speaking/TrackSpeakingStudio").then((m) => ({ default: m.TrackSpeakingStudio })),
+);
 
 /**
- * 口语, in the form of the exam: draw two subjects and keep one, 30 minutes to prepare, a talk of 5 to 7 minutes
- * defending a point of view, then a debate in which the AI plays the examiner. The browser turns speech into
- * text and the talk is recorded (kept in memory for playback); the AI marks the transcripts on four criteria of
- * the official grid. The fifth, pronunciation, comes from Azure's pronunciation assessment of the recording when
- * it is set up; otherwise the learner rates it against the grid's descriptors.
+ * 口语, supporting DELF B2 (30m prep + 5–7m monologue + debate), TCF EO (12m T1–T3), and TEF EO (15m Sec A `vous` + Sec B `tu`).
  */
 export function SpeakingStudio({ onExit }: { onExit: () => void }) {
+  const examTrack = useStore((s) => s.settings.examTrack);
+  const switchTrack = (next: ExamTrack) => store.settings({ examTrack: next });
+  if (examTrack === "tcf" || examTrack === "tef") {
+    return (
+      <Suspense
+        fallback={
+          <div className="page practice">
+            <p className="muted">加载口语考场模块中…</p>
+          </div>
+        }
+      >
+        <TrackSpeakingStudio track={examTrack} onSwitchTrack={switchTrack} onExit={onExit} />
+      </Suspense>
+    );
+  }
+  return <DelfSpeakingStudio examTrack={examTrack} onSwitchTrack={switchTrack} onExit={onExit} />;
+}
+
+function DelfSpeakingStudio({
+  examTrack,
+  onSwitchTrack,
+  onExit,
+}: {
+  examTrack: ExamTrack;
+  onSwitchTrack: (t: ExamTrack) => void;
+  onExit: () => void;
+}) {
   const ai = useAiConfig();
   const { data: grammar } = useGrammar();
   const log = (useStore((s) => s.progress.examLog) ?? []).filter((r) => r.part === "speak");
+  const sessions = useStore((s) => s.progress.speakingSessions) ?? [];
   const [phase, setPhase] = useState<Phase>("pick");
   const [drawn, setDrawn] = useState<SpeakingSubject[]>([]);
   const [subject, setSubject] = useState<SpeakingSubject | null>(null);
@@ -99,9 +87,13 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [askError, setAskError] = useState<string | null>(null);
   const [fb, setFb] = useState<SpeakingFeedback | null>(null);
   const [phono, setPhono] = useState<number | null>(null);
+  const [offlineSelf, setOfflineSelf] = useState<Record<string, number | null>>(emptyOfflineSelf);
+  const [offlineLogged, setOfflineLogged] = useState(false);
   const [talkTake, setTalkTake] = useState<Take | null>(null);
   const [strictMode, setStrictMode] = useState(false);
   const [noAuxMode, setNoAuxMode] = useState(false);
+  const [vadAutoEnd, setVadAutoEnd] = useState(false);
+  const [cutoffNotice, setCutoffNotice] = useState<string | null>(null);
   const [voiceOffset, setVoiceOffset] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [prepExpired, setPrepExpired] = useState(false);
@@ -118,18 +110,27 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const [rawMonologue, setRawMonologue] = useState("");
   const [rawTurns, setRawTurns] = useState<Record<number, string>>({});
   const [gradedLock, setGradedLock] = useState(false);
+
+  const saidValRef = useRef("");
+  saidValRef.current = said;
   const voiceWordsRef = useRef(0);
   const turnBaseRef = useRef("");
   const speechFailedRef = useRef(false);
   const rawMonologueRef = useRef("");
   const rawTurnsRef = useRef<Record<number, string>>({});
   const gradedLockRef = useRef(false);
+  const warned630Ref = useRef(false);
+  const cutoffTriggeredRef = useRef(false);
+  const monologueSttPromiseRef = useRef<Promise<PronResult | null> | null>(null);
+  const talkPronRef = useRef<PronResult | null>(null);
+  const inFlightTurnJobsRef = useRef<Record<number, Promise<void>>>({});
   const turnsRef = useRef<DebateTurn[]>(turns);
   turnsRef.current = turns;
   const turnTakesRef = useRef<Record<number, Take>>(turnTakes);
   turnTakesRef.current = turnTakes;
   const turnPronsRef = useRef<Record<number, PronResult>>(turnProns);
   turnPronsRef.current = turnProns;
+
   const recorder = useRecorder();
   const pron = useAssess();
   const stopRec = useRef<(() => void) | null>(null);
@@ -138,11 +139,25 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const micro = useTimer();
   const talk = useTimer();
   const debate = useTimer();
-  const debatePhraseGroups = useMemo(() => debatePhrases(), []);
-  const noteCues = useMemo(() => outlineKeywords(notes), [notes]);
+  const notesRef = useRef<HTMLTextAreaElement>(null);
+  const saidRef = useRef<HTMLTextAreaElement>(null);
+  const debateInputRef = useRef<HTMLTextAreaElement>(null);
+
+  useNavGuard(
+    phase === "prep" || phase === "talk" || phase === "review" || phase === "debate",
+    "口语考练正在进行中，离开将丢失当前录音与辩论进度，确定离开？",
+  );
   const MAX_TURNS = 20;
   const dictation = canDictate();
   const hasAi = ready.text(ai);
+  const azureReady = canAssess(ai);
+  const whisperReady = ready.stt(ai);
+  const neuralSttReady = canAssessOrTranscribe(ai);
+  const oralTier = oralCapabilityTier(ai);
+  const lockTranscripts = strictMode || noAuxMode;
+
+  const [lastSessionId, setLastSessionId] = useState<string | null>(null);
+  const [retellBase, setRetellBase] = useState<SpeakingSession | null>(null);
   const pointTitle = useMemo(() => new Map((grammar?.points ?? []).map((p) => [p.id, p.title])), [grammar]);
   const points = () => (grammar?.points ?? []).map((p) => ({ id: p.id, title: p.title }));
 
@@ -165,7 +180,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   useEffect(() => {
     if (phase === "prep" && prep.sec === 0 && !prep.running) setPrepExpired(true);
   }, [phase, prep.sec, prep.running]);
-  const talkPronResult = pron.state === "done" ? pron.result : null;
+
+  const talkPronResult = pron.state === "done" ? pron.result : talkPronRef.current;
   const combinedPron = useMemo(
     () => combineSpeakingProns(talkPronResult, Object.values(turnProns)),
     [talkPronResult, turnProns],
@@ -180,9 +196,10 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       ...p,
       examLog: (p.examLog ?? []).map((item) => (item.part === "speak" && item.at === loggedAt ? { ...item, score: nextScore, total: 25 } : item)),
     }));
-  }, [phase, fb, loggedAt, azurePhonoNow]);
+    if (lastSessionId) patchSpeakingSessionScore(lastSessionId, nextScore);
+  }, [phase, fb, loggedAt, azurePhonoNow, lastSessionId]);
 
-  /** Turn speech into text, appended to what `into` already holds. */
+  /** Live browser speech captions ONLY; overwritten by neural Azure/Whisper STT once each take stops. */
   const hear = (into: (text: string) => void, start = "", onVoice?: (final: string) => void, onError?: (err: string) => void) => {
     setListening(true);
     stopRec.current = dictate(
@@ -203,6 +220,8 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   };
 
   const draw = async (fromAi: boolean) => {
+    setRetellBase(null);
+    setLastSessionId(null);
     if (!fromAi) {
       setDrawn(two(SPEAKING_SUBJECTS));
       return setPhase("choose");
@@ -226,18 +245,23 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setSubject(s);
     setNotes("");
     setSaid("");
+    saidValRef.current = "";
     setInterim("");
     setTurns([]);
     setAskError(null);
     setFb(null);
     setPhono(null);
+    setOfflineSelf(emptyOfflineSelf());
+    setOfflineLogged(false);
     setTalkTake(null);
+    setCutoffNotice(null);
     setVoiceOffset(Math.floor(Math.random() * 12));
     setShowHint(false);
     setPrepExpired(false);
     setMonologueVoice(false);
     setDebateVoice(false);
     setLoggedAt(null);
+    setLastSessionId(null);
     setGradedTyped(false);
     setProbDraft("");
     setProbChecked(null);
@@ -253,6 +277,11 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     rawMonologueRef.current = "";
     rawTurnsRef.current = {};
     gradedLockRef.current = false;
+    warned630Ref.current = false;
+    cutoffTriggeredRef.current = false;
+    monologueSttPromiseRef.current = null;
+    talkPronRef.current = null;
+    inFlightTurnJobsRef.current = {};
     turnTakesRef.current = {};
     turnPronsRef.current = {};
     micro.stop();
@@ -266,13 +295,19 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
   const startTalk = async () => {
     prep.stop();
     micro.stop();
+    warned630Ref.current = false;
+    cutoffTriggeredRef.current = false;
+    setCutoffNotice(null);
     setPhase("talk");
-    // the recording first (it asks for the microphone), then start the stopwatch unconditionally and the recogniser alongside it
     if (recorder.supported) await recorder.start();
     talk.start();
     if (!dictation) return;
     hear(
-      (text) => setSaid(text.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH)),
+      (text) => {
+        const clipped = text.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH);
+        saidValRef.current = clipped;
+        setSaid(clipped);
+      },
       "",
       (final) => {
         const clipped = final.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH);
@@ -284,32 +319,104 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     );
   };
 
-  const endTalk = async () => {
+  /** Overwrite lossy Web Speech draft with verbatim neural Azure/Whisper monologue transcript. */
+  const applyNeuralMonologue = (neuralRaw: string) => {
+    const clipped = neuralRaw.trim().slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH);
+    if (!clipped) return "";
+    setMonologueVoice(true);
+    voiceWordsRef.current = Math.max(voiceWordsRef.current, countWords(clipped));
+    rawMonologueRef.current = clipped;
+    setRawMonologue(clipped);
+    saidValRef.current = clipped;
+    setSaid(clipped);
+    return clipped;
+  };
+
+  const runMonologueAssessment = async (blob: Blob): Promise<PronResult | null> => {
+    let pronRes: PronResult | null = null;
+    let neuralText = "";
+    if (canAssessOrTranscribe()) {
+      pronRes = await pron.run(blob);
+      talkPronRef.current = pronRes;
+      const candidate = (pronRes?.lexicalText || pronRes?.text || "").trim();
+      if (candidate) {
+        neuralText = applyNeuralMonologue(candidate);
+      }
+    }
+    if (!neuralText && shouldFallbackToStt({ dictationSupported: false, speechFailed: true, transcript: "", sttAvailable: ready.stt() })) {
+      setTranscribing(true);
+      try {
+        const txt = await transcribeAudio(blob);
+        if (txt.trim()) {
+          neuralText = applyNeuralMonologue(txt);
+        }
+      } catch (err) {
+        if (!strictMode) toast((err as Error).message || "Whisper 语音转写失败，可对照录音手动补充", "warn");
+      } finally {
+        setTranscribing(false);
+      }
+    }
+    return pronRes;
+  };
+
+  const endTalk = async (opts?: { fromCutoff?: boolean }) => {
     quiet();
     talk.stop();
     setSpoke(talk.sec);
+
+    if (strictMode) {
+      setAskError(null);
+      setPhase("debate");
+      debate.stop();
+      const t = await recorder.stop();
+      setTalkTake(t);
+      const sttJob = t ? runMonologueAssessment(t.blob) : Promise.resolve(null);
+      monologueSttPromiseRef.current = sttJob;
+
+      if (opts?.fromCutoff) {
+        await speakExaminer(MONOLOGUE_CUTOFF_FR, 0, voiceOffset, ai).catch(() => "stopped");
+      }
+      if (hasAi && !saidValRef.current.trim() && t && canAssessOrTranscribe()) {
+        setAsking(true);
+        await sttJob.catch(() => null);
+      }
+      void ask([]);
+      return;
+    }
+
     setPhase("review");
     const t = await recorder.stop();
     setTalkTake(t);
-    if (!t || !pron.available) return;
-    const r = await pron.run(t.blob);
-    // no recogniser in this browser (Safari on iOS, the app): Azure's transcript stands in for the AI marking
-    if (r?.text?.trim()) {
-      const clipped = r.text.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH);
-      setMonologueVoice(true);
-      voiceWordsRef.current = Math.max(voiceWordsRef.current, countWords(clipped));
-      if (!rawMonologueRef.current.trim()) {
-        rawMonologueRef.current = clipped;
-        setRawMonologue(clipped);
-      }
-      setSaid((s) => (s.trim() ? s.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH) : clipped));
-    }
+    if (!t) return;
+    const sttJob = runMonologueAssessment(t.blob);
+    monologueSttPromiseRef.current = sttJob;
+    await sttJob;
   };
 
-  /** Start recording (and browser dictation when available) for debate turn `turnIdx`. */
+  // 6:30 amber warning + 7:15 polite examiner cutoff in strictMode
+  useEffect(() => {
+    if (phase !== "talk") return;
+    if (talk.sec >= MONOLOGUE_WARN_SEC && !warned630Ref.current) {
+      warned630Ref.current = true;
+      toast(
+        strictMode
+          ? "独白已达 6:30（黄灯提醒），请尽快收束结论；7:15 考官将礼貌打断进入辩论。"
+          : "独白已达 6:30，建议在 7:00 前收束结论进入辩论。",
+        "warn",
+      );
+    }
+    if (strictMode && talk.sec >= MONOLOGUE_CUTOFF_SEC && !cutoffTriggeredRef.current) {
+      cutoffTriggeredRef.current = true;
+      setCutoffNotice(MONOLOGUE_CUTOFF_FR);
+      void endTalk({ fromCutoff: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, talk.sec, strictMode]);
+
+  /** Start recording (and browser live captions when available) for debate turn `turnIdx`. */
   const beginDebateAnswer = async (turnIdx: number, existingText: string) => {
     stopAudio();
-    const baseText = (noAuxMode && rawTurnsRef.current[turnIdx]?.trim() ? rawTurnsRef.current[turnIdx] : existingText).trim();
+    const baseText = (lockTranscripts && rawTurnsRef.current[turnIdx]?.trim() ? rawTurnsRef.current[turnIdx] : existingText).trim();
     turnBaseRef.current = baseText;
     if (recorder.supported && !recorder.on) await recorder.start();
     if (dictation && !speechFailedRef.current) {
@@ -326,73 +433,127 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         (err) => {
           speechFailedRef.current = true;
           setSpeechFailed(true);
-          toast(`${err}${canAssess() ? "（已继续录音，停止后将自动用 Azure 转写）" : "（已继续录音，停止后可回放补全文字）"}`, "warn");
+          toast(`${err}${canAssessOrTranscribe() ? "（已继续录音，停止后将自动覆盖为高保真语音转写）" : "（已继续录音，停止后可回放补全文字）"}`, "warn");
         },
       );
     }
   };
 
-  /** Stop debate recording/dictation for `turnIdx` and fall back to Azure STT when speech recognition failed/missing. */
+  /**
+   * Stop debate recording/captions for `turnIdx` and assess the turn asynchronously via Azure Tier-1 or Whisper Tier-2,
+   * overwriting the lossy Web Speech draft in `rawTurns[turnIdx]` and `turns[turnIdx].a`.
+   */
   const stopDebateAnswer = async (turnIdx: number): Promise<DebateTurn[]> => {
     stopRec.current?.();
     stopRec.current = null;
     setListening(false);
     setInterim("");
+    const base = turnBaseRef.current;
     const take = recorder.on ? await recorder.stop() : null;
     if (take) {
       const nextTakes = { ...turnTakesRef.current, [turnIdx]: take };
       turnTakesRef.current = nextTakes;
       setTurnTakes(nextTakes);
     }
-    const curTurn = turnsRef.current[turnIdx];
-    const curText = curTurn?.a ?? "";
-    if (take && shouldFallbackToAzureStt({ dictationSupported: dictation, speechFailed: speechFailedRef.current, transcript: curText, azureAvailable: canAssess() })) {
-      setTranscribing(true);
-      try {
-        const pr = await assessRecording(take.blob);
-        if (pr) {
-          const nextProns = { ...turnPronsRef.current, [turnIdx]: pr };
-          turnPronsRef.current = nextProns;
-          setTurnProns(nextProns);
-          if (pr.text.trim()) {
-            setDebateVoice(true);
-            const base = turnBaseRef.current;
-            const merged = curText.trim() && !speechFailedRef.current ? curText : base ? `${base} ${pr.text.trim()}` : pr.text.trim();
-            const nextRaw = { ...rawTurnsRef.current, [turnIdx]: merged };
-            rawTurnsRef.current = nextRaw;
-            setRawTurns(nextRaw);
-            const next = turnsRef.current.map((t, k) => (k === turnIdx ? { ...t, a: merged } : t));
-            turnsRef.current = next;
-            setTurns(next);
-            return next;
+    const curText = turnsRef.current[turnIdx]?.a ?? "";
+
+    const applyTurnNeural = (neuralRaw: string) => {
+      const trimmed = neuralRaw.trim();
+      if (!trimmed) return;
+      setDebateVoice(true);
+      const merged = base ? `${base} ${trimmed}` : trimmed;
+      const nextRaw = { ...rawTurnsRef.current, [turnIdx]: merged };
+      rawTurnsRef.current = nextRaw;
+      setRawTurns(nextRaw);
+      setTurns((prev) => {
+        const next = prev.map((t, k) => (k === turnIdx ? { ...t, a: merged } : t));
+        turnsRef.current = next;
+        return next;
+      });
+    };
+
+    if (take && canAssessOrTranscribe()) {
+      const needBlockingText = !curText.trim();
+      if (needBlockingText) setTranscribing(true);
+      const job = (async () => {
+        try {
+          const pr = await assessRecording(take.blob);
+          if (pr) {
+            const nextProns = { ...turnPronsRef.current, [turnIdx]: pr };
+            turnPronsRef.current = nextProns;
+            setTurnProns(nextProns);
+            const neural = (pr.lexicalText || pr.text || "").trim();
+            if (neural) {
+              applyTurnNeural(neural);
+              return;
+            }
+          }
+        } catch (err) {
+          if (!ready.stt() && needBlockingText) {
+            toast((err as Error).message || "语音转写失败，可回放下方录音补充文字", "warn");
           }
         }
-      } catch (err) {
-        toast((err as Error).message || "Azure 转写失败，可回放下方录音手动补充文字", "warn");
-      } finally {
-        setTranscribing(false);
+        if (ready.stt() && canAssess()) {
+          try {
+            const txt = await transcribeAudio(take.blob);
+            if (txt.trim()) applyTurnNeural(txt);
+          } catch (err) {
+            if (needBlockingText) toast((err as Error).message || "Whisper 转写失败，可回放下方录音补充文字", "warn");
+          }
+        }
+      })().finally(() => {
+        delete inFlightTurnJobsRef.current[turnIdx];
+        if (needBlockingText) setTranscribing(false);
+      });
+
+      inFlightTurnJobsRef.current[turnIdx] = job;
+      if (needBlockingText) {
+        await job;
       }
     }
     return turnsRef.current;
   };
 
-  /** Ask the examiner's next question and read it aloud. */
+  /** Ask the examiner's next question and read it aloud (AI or built-in offline preset). */
   const ask = async (so: DebateTurn[]) => {
     if (!subject) return;
+    stopRec.current?.();
+    stopRec.current = null;
+    setListening(false);
+    setInterim("");
     const c = new AbortController();
     ctrl.current = c;
-    setAsking(true);
     setAskError(null);
+    if (!hasAi) {
+      const followUps = speakingPresetOf(subject.id)?.followUps ?? [];
+      const item = followUps[so.length];
+      if (!item) {
+        debate.stop();
+        setPhase("result");
+        return;
+      }
+      if (so.length === 0 && !debate.running) debate.start();
+      const next = [...so, { q: item.q, a: "" }];
+      turnsRef.current = next;
+      setTurns(next);
+      const r = await speakExaminer(item.q, so.length, voiceOffset, ai, c.signal);
+      if (r !== "stopped" && !stopRec.current && !c.signal.aborted) void beginDebateAnswer(so.length, "");
+      return;
+    }
+    setAsking(true);
     try {
       const resolvedForAsk = resolveLockedTranscripts({
-        noAuxMode,
-        said,
+        noAuxMode: lockTranscripts,
+        said: saidValRef.current,
         rawSaid: rawMonologueRef.current,
         turns: so,
         rawTurns: rawTurnsRef.current,
       });
+      const monologueForPrompt =
+        resolvedForAsk.transcript.trim() ||
+        "（考生已完成口头陈述，当前未配置实时语音转写接口，请围绕题目材料核心争议发起追问。）";
       const q = await debateQuestion(
-        { subject, monologue: resolvedForAsk.transcript, turns: resolvedForAsk.turns, minutes: Math.floor(debate.sec / 60), strict: strictMode },
+        { subject, monologue: monologueForPrompt, turns: resolvedForAsk.turns, minutes: Math.floor(debate.sec / 60), strict: strictMode },
         c.signal,
       );
       if (c.signal.aborted) return;
@@ -402,7 +563,6 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       setTurns(next);
       setAsking(false);
       const r = await speakExaminer(q, so.length, voiceOffset, ai, c.signal);
-      // as in the room: the examiner stops, the candidate answers (recording + dictation/Azure fallback)
       if (r !== "stopped" && !stopRec.current && !c.signal.aborted) void beginDebateAnswer(so.length, "");
     } catch (err) {
       if (c.signal.aborted) return;
@@ -413,10 +573,23 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     }
   };
 
+  const endDebate = (so: DebateTurn[]) => {
+    if (hasAi) {
+      void assess(so);
+      return;
+    }
+    quiet();
+    debate.stop();
+    if (azurePhonoNow !== null && offlineSelf.phono === null) {
+      setOfflineSelf((cur) => ({ ...cur, phono: azurePhonoNow }));
+    }
+    setPhase("result");
+  };
+
   const startDebate = () => {
-    if (noAuxMode && !rawMonologueRef.current.trim() && said.trim()) {
-      rawMonologueRef.current = said;
-      setRawMonologue(said);
+    if (lockTranscripts && !rawMonologueRef.current.trim() && saidValRef.current.trim()) {
+      rawMonologueRef.current = saidValRef.current;
+      setRawMonologue(saidValRef.current);
     }
     setAskError(null);
     setPhase("debate");
@@ -428,10 +601,23 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
     setTurns((ts) =>
       ts.map((t, k) => {
         if (k !== ts.length - 1) return t;
+        if (strictMode) return t;
         if (noAuxMode && (gradedLockRef.current || !!rawTurnsRef.current[k]?.trim())) return t;
         return { ...t, a };
       }),
     );
+
+  const startRetell = (sess: SpeakingSession) => {
+    const matched = SPEAKING_SUBJECTS.find((s) => s.id === sess.subjectId) ?? {
+      id: sess.subjectId,
+      topic: sess.topic || "travail",
+      title: sess.title,
+      doc: sess.transcript ? sess.transcript.slice(0, 260) : sess.title,
+      ask: "请重新组织论证结构并优化语调节奏后二稿陈述。",
+    };
+    choose(matched);
+    setRetellBase(sess);
+  };
 
   const selectPhono = (v: number) => {
     setPhono(v);
@@ -441,33 +627,124 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       ...p,
       examLog: (p.examLog ?? []).map((item) => (item.part === "speak" && item.at === loggedAt ? { ...item, score: nextScore, total: 25 } : item)),
     }));
+    if (lastSessionId) patchSpeakingSessionScore(lastSessionId, nextScore);
   };
 
+  const advanceDebateTurn = async (turnIdx: number) => {
+    const latest = await stopDebateAnswer(turnIdx);
+    quiet();
+    const ans = latest[turnIdx]?.a;
+    if (lockTranscripts && ans?.trim() && !rawTurnsRef.current[turnIdx]?.trim()) {
+      const nextRaw = { ...rawTurnsRef.current, [turnIdx]: ans };
+      rawTurnsRef.current = nextRaw;
+      setRawTurns(nextRaw);
+    }
+    if (!hasAi || ans?.trim() || !!turnTakesRef.current[turnIdx]) void ask(latest);
+  };
+
+  const finishDebate = async (turnIdx: number) => {
+    const latest = await stopDebateAnswer(turnIdx);
+    endDebate(latest);
+  };
+
+  const preset = subject ? speakingPresetOf(subject.id) : undefined;
+  const allPresetAsked = !hasAi && !!preset && turns.length >= preset.followUps.length;
+  const currentTurnIdx = turns.length - 1;
+  const currentTurnSpeechText = currentTurnIdx >= 0 ? `${turns[currentTurnIdx]?.a ?? ""} ${interim}`.trim() : "";
+
+  useSilenceVad({
+    enabled: vadAutoEnd && phase === "debate",
+    active: phase === "debate" && !asking && !transcribing && currentTurnIdx >= 0 && (recorder.on || listening),
+    speechText: currentTurnSpeechText,
+    silenceMs: VAD_SILENCE_MS,
+    onSilence: () => {
+      if (currentTurnIdx < 0) return;
+      if (debate.sec < SPEAK_TIMES.debate[1] && turnsRef.current.length < MAX_TURNS && !allPresetAsked) {
+        void advanceDebateTurn(currentTurnIdx);
+      } else {
+        void finishDebate(currentTurnIdx);
+      }
+    },
+  });
+
   const assess = async (so: DebateTurn[]) => {
-    if (!subject || !said.trim()) return;
-    if (noAuxMode && gradedLockRef.current) return;
+    if (!subject) return;
+    if (lockTranscripts && gradedLockRef.current) return;
     quiet();
     debate.stop();
-    const resolved = resolveLockedTranscripts({
-      noAuxMode,
-      said,
-      rawSaid: rawMonologueRef.current,
-      turns: so,
-      rawTurns: rawTurnsRef.current,
-    });
-    if (noAuxMode) {
-      if (!rawMonologueRef.current.trim() && resolved.transcript.trim()) {
-        rawMonologueRef.current = resolved.transcript;
-        setRawMonologue(resolved.transcript);
-      }
-      setSaid(resolved.transcript);
-      turnsRef.current = resolved.turns;
-      setTurns(resolved.turns);
-    }
+
     const c = new AbortController();
     ctrl.current = c;
     setPhase("grading");
+
     try {
+      // Wait for any in-flight neural monologue or per-turn debate assessments before resolving transcripts & acoustics
+      await Promise.allSettled([
+        ...(monologueSttPromiseRef.current ? [monologueSttPromiseRef.current] : []),
+        ...Object.values(inFlightTurnJobsRef.current),
+      ]);
+      if (c.signal.aborted) return;
+
+      const latestTurns = so.length > 0 ? turnsRef.current : so;
+      const resolved = resolveLockedTranscripts({
+        noAuxMode: lockTranscripts,
+        said: saidValRef.current,
+        rawSaid: rawMonologueRef.current,
+        turns: latestTurns,
+        rawTurns: rawTurnsRef.current,
+      });
+
+      if (!resolved.transcript.trim()) {
+        toast("未能获取独白文字，请先配置 Azure/Whisper 语音接口或在陪练模式补充独白内容", "warn");
+        setPhase(latestTurns.length ? "debate" : "review");
+        return;
+      }
+
+      if (lockTranscripts) {
+        if (!rawMonologueRef.current.trim() && resolved.transcript.trim()) {
+          rawMonologueRef.current = resolved.transcript;
+          setRawMonologue(resolved.transcript);
+        }
+        saidValRef.current = resolved.transcript;
+        setSaid(resolved.transcript);
+        turnsRef.current = resolved.turns;
+        setTurns(resolved.turns);
+      }
+
+      const assessDebateSamples = async (): Promise<Record<number, PronResult>> => {
+        const latestProns = turnPronsRef.current;
+        if (!canAssessOrTranscribe()) return latestProns;
+        const missing = pendingDebateSamples(resolved.turns, turnTakesRef.current, latestProns, 4);
+        if (!missing.length) return latestProns;
+        const nextMap: Record<number, PronResult> = { ...latestProns };
+        for (const [k, take] of missing) {
+          if (c.signal.aborted) break;
+          try {
+            const pr = await assessRecording(take.blob, undefined, c.signal);
+            if (pr) nextMap[k] = pr;
+          } catch {
+            /* skip silent or failed debate sample without blocking grading */
+          }
+        }
+        return nextMap;
+      };
+
+      const updatedTurnProns = await assessDebateSamples();
+      if (c.signal.aborted) return;
+      turnPronsRef.current = updatedTurnProns;
+      setTurnProns(updatedTurnProns);
+
+      const talkPron = talkPronRef.current ?? (pron.state === "done" ? pron.result : null);
+      const freshCombined = combineSpeakingProns(talkPron, Object.values(updatedTurnProns));
+      const monoAcoustics = summarizeAcoustics(talkPron, notes);
+      const mergedAcoustics = summarizeAcoustics(freshCombined, notes);
+      const acoustics = mergedAcoustics
+        ? {
+            ...mergedAcoustics,
+            ...(monoAcoustics?.likelyReadAloud ? { likelyReadAloud: true } : {}),
+          }
+        : monoAcoustics ?? undefined;
+
       const answered = resolved.turns.filter((t) => t.a.trim());
       const spokenWords = countWords(resolved.transcript);
       const monoSec = Math.max(spoke, talkTake?.seconds ?? 0);
@@ -487,33 +764,14 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         monologueSec: monoSec,
         debateSec: debate.sec,
         typed: isTyped,
+        ...(acoustics ? { acoustics } : {}),
       };
-      const assessDebateSamples = async (): Promise<Record<number, PronResult>> => {
-        const latestProns = turnPronsRef.current;
-        if (!canAssess()) return latestProns;
-        const missing = pendingDebateSamples(resolved.turns, turnTakesRef.current, latestProns, 4);
-        if (!missing.length) return latestProns;
-        const nextMap: Record<number, PronResult> = { ...latestProns };
-        for (const [k, take] of missing) {
-          if (c.signal.aborted) break;
-          try {
-            const pr = await assessRecording(take.blob, undefined, c.signal);
-            if (pr) nextMap[k] = pr;
-          } catch {
-            /* skip silent or failed debate sample without blocking grading */
-          }
-        }
-        return nextMap;
-      };
-      const [r, updatedTurnProns] = await Promise.all([gradeSpeaking(payload, c.signal), assessDebateSamples()]);
+
+      const r = await gradeSpeaking(payload as Parameters<typeof gradeSpeaking>[0], c.signal);
       if (c.signal.aborted) return;
-      turnPronsRef.current = updatedTurnProns;
-      setTurnProns(updatedTurnProns);
       setFb(r);
       if (r.corrections.length) saveSpeakingCorrections(subject.title, r.corrections);
       setGradedTyped(isTyped);
-      const talkPron = pron.state === "done" ? pron.result : null;
-      const freshCombined = combineSpeakingProns(talkPron, Object.values(updatedTurnProns));
       const currentAzure = phonoLevel(freshCombined);
       const effectivePhono = currentAzure ?? phono;
       const hasProno = effectivePhono !== null;
@@ -524,19 +782,60 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
       setLoggedAt(at);
       store.progress((p) => ({
         ...p,
-        examLog: [{ part: "speak" as const, what, score, total, ...(isTyped ? { typed: true } : {}), at }, ...(p.examLog ?? [])].slice(0, MAX_EXAM_LOG),
+        examLog: [{ part: "speak" as const, what, score, total, level: "B2" as const, scope: "full" as const, ...(isTyped ? { typed: true } : {}), at }, ...(p.examLog ?? [])].slice(0, MAX_EXAM_LOG),
       }));
+      const savedTakeId = talkTake
+        ? await keepRecording({ label: subject.title, blob: talkTake.blob, seconds: talkTake.seconds, bucket: "exam" }).catch(() => null)
+        : null;
+      const draftNo = sessions.filter((s) => s.subjectId === subject.id).length + 1;
+      const sid = saveSpeakingSession({
+        at,
+        subjectId: subject.id,
+        title: subject.title,
+        topic: subject.topic,
+        monologueWords: spokenWords,
+        monologueSec: monoSec,
+        debateTurns: answered.length,
+        debateSec: debate.sec,
+        total25: hasProno ? score : null,
+        ...(isTyped ? { typed: true } : {}),
+        draft: draftNo,
+        ...(freshCombined
+          ? {
+              pron: {
+                pron: freshCombined.pron,
+                accuracy: freshCombined.accuracy,
+                fluency: freshCombined.fluency,
+                prosody: freshCombined.prosody,
+                completeness: freshCombined.completeness,
+              },
+            }
+          : {}),
+        transcript: resolved.transcript,
+        turns: answered.map((t) => ({ q: t.q, a: t.a })),
+        ...(savedTakeId ? { takeId: savedTakeId } : {}),
+      });
+      setLastSessionId(sid);
       gradedLockRef.current = true;
       setGradedLock(true);
       setPhase("result");
     } catch (err) {
       if (c.signal.aborted) return;
       toast((err as Error).message || "批改失败", "warn");
-      setPhase(so.length ? "debate" : "review");
+      setPhase(so.length || strictMode ? "debate" : "review");
     }
   };
 
-  const leave = () => {
+  const leave = async () => {
+    if (phase === "prep" || phase === "talk" || phase === "review" || phase === "debate") {
+      const ok = await confirmAction({
+        title: "放弃本次口语练习？",
+        message: "口语考练正在进行中，离开将丢失当前录音、转写和辩论进度，确定放弃？",
+        confirmLabel: "确定放弃",
+        danger: true,
+      });
+      if (!ok) return;
+    }
     quiet();
     void recorder.stop();
     pron.reset();
@@ -552,147 +851,65 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
 
   if (phase === "pick" || phase === "drawing" || phase === "choose" || !subject) {
     return (
-      <div className="page practice">
-        <header className="page-head">
-          <button className="link deck-back" onClick={onExit}>
-            <ArrowLeft size={16} /> 返回练习
-          </button>
-          <p className="eyebrow">口语 · Production orale</p>
-          <h1 className="display">想清楚，再开口。</h1>
-          <p className="lede">和考试一样：抽两个题选一个，准备 30 分钟，先连续说 5–7 分钟（指出材料提出的问题，表明并论证自己的看法），再和考官辩论 10–13 分钟。这里由 AI 扮考官：它把问题说出来，你开口回答，它接着你的话追问，直到你结束。</p>
-          <p className="muted">
-            批改用官方评分表：独白、互动、词汇、语法由 AI 根据文字打分（每项 0／1／3／5，共 20 分）；第五项发音由 Azure 语音评测或你对照标准自评（5 分）。未评第五项时仅显示「不含发音 20 分制」，不会按比例折算 25 分；纯键盘输入不计入 25 分口语曲线。
-            {dictation ? "语音识别在浏览器里完成，需要联网和麦克风权限。" : "这个浏览器不支持语音识别：可以对着计时说，然后把说的内容打出来（设置了 Azure 语音会用它听出的文字）；用 Chrome、Edge 或 Safari 可以自动转文字。"}
-            {recorder.supported ? "独白会录音，只留在这次练习里，可以回放；设置了 Azure 语音还能给发音、流利度和语调打分，代替自评。" : ""}
-          </p>
-          {!hasAi && (
-            <p className="muted">
-              还没有设置 AI 接口：可以照常抽题、准备和开口，但没有辩论和批改。到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置。
-            </p>
-          )}
-        </header>
-        {phase === "choose" ? (
-          <>
-            <h3 className="eyebrow">抽到这两个题，选一个</h3>
-            <div className="essay-tasks exam-draw">
-              {drawn.map((s) => (
-                <button key={s.id} className="essay-task" onClick={() => choose(s)}>
-                  <span className="chip">{topicOf(s.topic)?.zh}</span>
-                  <b lang="fr">{s.title}</b>
-                  <small lang="fr">{s.doc}</small>
-                  {s.source && (
-                    <small className="muted" lang="fr">
-                      {s.source}
-                    </small>
-                  )}
-                </button>
-              ))}
-            </div>
-            <div className="writing-actions">
-              <button className="btn btn-ghost" onClick={() => setPhase("pick")}>
-                重新抽
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="writing-actions exam-draw-actions">
-            {phase === "drawing" ? (
-              <>
-                <p className="muted">AI 出题中（约 20–40 秒）…</p>
-                <button className="btn btn-ghost" onClick={leave}>
-                  取消
-                </button>
-              </>
-            ) : (
-              <>
-                <label className="field toggle" style={{ width: "100%" }}>
-                  <div>
-                    <b>严格模考模式</b>
-                    <small>禁止跳过辩论；辩论须满 10 分钟或完成 ≥6 轮有效回答，考官会连续追问施压。</small>
-                  </div>
-                  <input type="checkbox" role="switch" checked={strictMode} onChange={(e) => setStrictMode(e.target.checked)} />
-                  <span className="switch" aria-hidden="true" />
-                </label>
-                <label className="field toggle" style={{ width: "100%" }}>
-                  <div>
-                    <b>考场脱稿无辅助模式</b>
-                    <small>隐藏准备期模板/词汇与思路提示，发言期隐藏完整笔记仅留关键词提纲，且锁定原始转写禁止考前篡改后重评。</small>
-                  </div>
-                  <input type="checkbox" role="switch" checked={noAuxMode} onChange={(e) => setNoAuxMode(e.target.checked)} />
-                  <span className="switch" aria-hidden="true" />
-                </label>
-                {hasAi ? (
-                  <>
-                    <button className="btn btn-primary btn-xl" onClick={() => void draw(true)}>
-                      <Sparkles size={18} /> 抽两个新题（AI 按真题长度出题）
-                    </button>
-                    <button className="btn btn-ghost" onClick={() => void draw(false)}>
-                      <Shuffle size={16} /> 抽内置题库（{SPEAKING_SUBJECTS.length} 题，真题长度）
-                    </button>
-                  </>
-                ) : (
-                  <button className="btn btn-primary btn-xl" onClick={() => void draw(false)}>
-                    <Shuffle size={18} /> 抽两个题（内置 {SPEAKING_SUBJECTS.length} 题）
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        )}
-        {log.length > 0 && phase === "pick" && (() => {
-          const realScores = log.map(realScore25).filter((x): x is number => x !== null);
-          const avg25 = realScores.length ? (realScores.reduce((a, b) => a + b, 0) / realScores.length).toFixed(1) : null;
-          return (
-            <section className="essay-level">
-              <h3 className="eyebrow">
-                最近的成绩{avg25 !== null ? `（真实 25 分制均分 ${avg25}/25）` : "（不含发音的 20 分制与打字记录不计入 25 分制）"}
-              </h3>
-              <ul className="essay-history">
-                {log.slice(0, 8).map((r, k) => {
-                  const s25 = realScore25(r);
-                  return (
-                    <li key={k}>
-                      <span>
-                        {day(r.at)} · {SPEAKING_SUBJECTS.find((s) => s.id === r.what)?.title ?? topicOf(r.what)?.zh ?? r.what}
-                      </span>
-                      <span className="muted">
-                        {s25 !== null ? `${s25}/25` : r.typed ? `${r.score}/${r.total} · 打字（不计入 25 分制）` : `${r.score}/20 · 不含发音 20 分制`}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          );
-        })()}
-      </div>
+      <SpeakingSetup
+        phase={phase}
+        examTrack={examTrack}
+        onSwitchTrack={onSwitchTrack}
+        oralTier={oralTier}
+        hasAi={hasAi}
+        neuralSttReady={neuralSttReady}
+        azureReady={azureReady}
+        whisperReady={whisperReady}
+        dictation={dictation}
+        recorderSupported={recorder.supported}
+        drawn={drawn}
+        strictMode={strictMode}
+        setStrictMode={setStrictMode}
+        noAuxMode={noAuxMode}
+        setNoAuxMode={setNoAuxMode}
+        pointTitle={pointTitle}
+        sessions={sessions}
+        log={log}
+        onExit={onExit}
+        onLeave={() => void leave()}
+        onDraw={(fromAi) => void draw(fromAi)}
+        onChoose={choose}
+        onResetPhasePick={() => setPhase("pick")}
+        onStartRetell={startRetell}
+      />
     );
   }
 
   const topic = topicOf(subject.topic);
   const words = countWords(said);
-  const turn = turns[turns.length - 1];
-  const answeredTurns = turns.filter((t) => t.a.trim()).length;
-  const canEndDebate = !strictMode || debate.sec >= SPEAK_TIMES.debate[0] || answeredTurns >= 6;
-  const escalation = assessDebateEscalation(turns, Math.floor(debate.sec / 60), strictMode);
+  const answeredTurns = turns.filter((t, idx) => t.a.trim() || !!turnTakes[idx]).length;
+  const canEndDebate = !strictMode || debate.sec >= SPEAK_TIMES.debate[0] || answeredTurns >= 6 || allPresetAsked;
   const [min, max] = SPEAK_TIMES.monologue;
-  /** The fifth criterion from Azure's combined monologue+debate assessment, when available; else self-assessed. */
+  /** The fifth criterion from Azure's combined monologue+debate assessment (0.5-point steps), when available; else self-assessed. */
   const azurePhono = phonoLevel(combinedPron);
+  const talkClockClass =
+    talk.sec > max
+      ? "is-over"
+      : talk.sec >= MONOLOGUE_WARN_SEC
+        ? "is-amber"
+        : talk.sec >= min
+          ? "is-ok"
+          : "";
 
   return (
     <div className="page practice">
       <section className="essay-stage">
         <header className="exam-top">
-          <button className="btn btn-ghost" onClick={leave}>
+          <button className="btn btn-ghost" onClick={() => void leave()}>
             {phase === "result" ? "再抽一次" : "放弃这题"}
           </button>
           <span className="eyebrow">
             口语 · {topic?.zh}
-            {strictMode ? " · 严格模考" : ""}
+            {strictMode ? " · 全真考场" : " · 教练陪练"}
             {noAuxMode ? " · 脱稿无辅助" : ""}
           </span>
           {phase === "prep" && <span className={`exam-clock ${prep.sec === 0 ? "is-over" : ""}`}>{prep.sec === 0 ? "准备时间到" : `准备 ${clock(prep.sec)}`}</span>}
-          {phase === "talk" && <span className={`exam-clock ${talk.sec > max ? "is-over" : talk.sec >= min ? "is-ok" : ""}`}>{clock(talk.sec)} · 目标 5–7 分钟</span>}
+          {phase === "talk" && <span className={`exam-clock ${talkClockClass}`}>{clock(talk.sec)} · 目标 5–7 分钟</span>}
           {phase === "debate" && <span className={`exam-clock ${debate.sec > SPEAK_TIMES.debate[1] ? "is-over" : debate.sec >= SPEAK_TIMES.debate[0] ? "is-ok" : ""}`}>辩论 {clock(debate.sec)} · 考试是 10–13 分钟</span>}
         </header>
         <h2 className="essay-title" lang="fr">
@@ -709,7 +926,7 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
         <p className="essay-situation" lang="fr">
           {PO_STANDARD_CONSIGNE}
         </p>
-        {showHint || (prepExpired && !noAuxMode) ? (
+        {showHint || (prepExpired && !noAuxMode && !strictMode) ? (
           <p className="muted small">
             <strong>思路提示：</strong>
             {subject.ask}
@@ -724,473 +941,137 @@ export function SpeakingStudio({ onExit }: { onExit: () => void }) {
           )
         )}
 
-        {phase === "prep" && (
-          <>
-            {!strictMode && !noAuxMode && (
-              <div className="essay-box">
-                <p className="eyebrow">1 分钟审题微训 · 提炼 problématique（核心矛盾）</p>
-                <ol className="essay-check">
-                  {PROBLEMATIQUE_TIPS.map((tip, k) => (
-                    <li key={k}>{tip}</li>
-                  ))}
-                </ol>
-                <div className="writing-actions">
-                  <button className="btn btn-ghost" type="button" onClick={() => micro.start(60)}>
-                    {micro.running ? `微训倒计时 ${clock(micro.sec)}` : micro.sec === 0 && probDraft ? "重新计时 1:00" : "开始 1 分钟提炼计时"}
-                  </button>
-                  {micro.running && <span className={`exam-clock ${micro.sec <= 10 ? "is-over" : ""}`}>{clock(micro.sec)}</span>}
-                </div>
-                <input
-                  className="writing-input"
-                  lang="fr"
-                  value={probDraft}
-                  onChange={(e) => {
-                    setProbDraft(e.target.value);
-                    setProbChecked(null);
-                  }}
-                  placeholder="试着不用原句，写出一句法语 problématique（例如：Comment concilier… ?）"
-                  spellCheck={false}
-                  aria-label="problématique 提炼"
-                />
-                <div className="writing-actions">
-                  <button className="btn btn-ghost" type="button" disabled={!probDraft.trim()} onClick={() => setProbChecked(checkProblematiqueDraft(probDraft, subject.doc))}>
-                    检查提炼是否合格
-                  </button>
-                  <button
-                    className="link"
-                    type="button"
-                    disabled={!probDraft.trim()}
-                    onClick={() => setNotes((n) => (n.trim() ? `${probDraft.trim()}\n\n${n}` : probDraft.trim()))}
-                  >
-                    填入准备笔记
-                  </button>
-                </div>
-                {probChecked && (
-                  <p className="muted small">
-                    {probChecked.ok ? "提炼清晰：包含了开放性问题且避免直接照抄原文。" : probChecked.notes.join(" ")}
-                  </p>
-                )}
-              </div>
-            )}
-            {!noAuxMode ? (
-              <div className="essay-help">
-                <details open>
-                  <summary>怎么组织这段话</summary>
-                  <ol className="essay-plan">
-                    {TALK_PLAN.map((p, k) => (
-                      <li key={k}>
-                        <b>{p.zh}</b>
-                        <span lang="fr">{p.fr}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </details>
-                <details>
-                  <summary>评分表看什么</summary>
-                  <ul className="essay-check essay-box-list">
-                    {["monologue", "interaction", "lexique", "morpho", "phono"].map((c) => (
-                      <li key={c}>
-                        <b>{CRITERION_LABEL[c]}</b> {CRITERION_CHECK[c]}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-                {topic && (
-                  <details>
-                    <summary>话题词汇：{topic.zh}</summary>
-                    <ul className="essay-phrases">
-                      {topic.vocab.map(([fr, zh], k) => (
-                        <li key={k}>
-                          <span lang="fr">{fr}</span>
-                          <small>{zh}</small>
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
-                )}
-                <details>
-                  <summary>衔接语</summary>
-                  <dl className="essay-links">
-                    {CONNECTORS.map((g) => (
-                      <div key={g.zh}>
-                        <dt>{g.zh}</dt>
-                        <dd lang="fr">{g.fr.join(" · ")}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </details>
-              </div>
-            ) : (
-              <p className="muted small">脱稿无辅助模式已开启：准备期已隐藏模板、评分提示、话题词汇与衔接语，发言期仅保留关键词提纲。</p>
-            )}
-            <textarea className="writing-input essay-notes" lang="fr" rows={6} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="准备时记关键词和提纲（考试时可以看笔记，但不能念稿）" spellCheck={false} aria-label="准备笔记" />
-            <div className="writing-actions">
-              <button className="btn btn-primary btn-xl" onClick={() => void startTalk()}>
-                <Mic size={18} /> 准备好了，开始说
-              </button>
-            </div>
-          </>
-        )}
-
-        {phase === "talk" && (
-          <>
-            {notes.trim() && (
-              noAuxMode ? (
-                <div className="essay-box">
-                  <p className="eyebrow">关键词提纲（脱稿模式，已隐藏完整笔记）</p>
-                  <ul className="essay-check">
-                    {noteCues.map((cue, k) => (
-                      <li key={k} lang="fr">
-                        {cue}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : (
-                <div className="essay-box">
-                  <p className="eyebrow">你的笔记</p>
-                  <p className="essay-text">{notes}</p>
-                </div>
-              )
-            )}
-            {dictation ? (
-              <div className={`exam-live ${listening ? "is-on" : ""}`} aria-live="polite">
-                <p className="eyebrow">{listening ? "正在听……" : "识别已停止"}</p>
-                <p className="essay-text" lang="fr">
-                  {said}
-                  <i>{interim}</i>
-                  {!said && !interim && <span className="muted">开口说法语，这里会出现文字。</span>}
-                </p>
-              </div>
-            ) : (
-              <p className="muted">对着计时说 5–7 分钟，说完点下面的按钮，再把说的内容打出来。</p>
-            )}
-            <div className="writing-actions">
-              <span className="essay-count">{words} 词</span>
-              {recorder.on && (
-                <span className="muted small">
-                  <i className="rec-dot" aria-hidden="true" />
-                  录音中
-                </span>
-              )}
-              <button className="btn btn-primary btn-xl" onClick={() => void endTalk()}>
-                <Square size={16} /> 说完了
-              </button>
-            </div>
-          </>
-        )}
-
-        {phase === "review" && (() => {
-          const monoLocked = noAuxMode && (gradedLock || !!rawMonologue.trim());
-          return (
-            <>
-              <p className="muted">
-                {spoke > 0 ? `说了 ${clock(spoke)}。` : ""}
-                {monoLocked
-                  ? "脱稿无辅助模式已锁定原始语音转写：禁止在评审前修改独白原文后重评。"
-                  : dictation
-                    ? "识别难免有错：把听错的词改回你实际说的话，但不要趁机改语法，否则批改就不准了。"
-                    : "请把刚才说的独白内容完整打出来，供 AI 批改与辩论追问。"}
-              </p>
-              <TakePlayer take={talkTake} label="听自己的独白" />
-              {talkTake && (pron.available ? <AssessStatus a={pron} /> : <AssessHint />)}
-              {pron.state === "done" && pron.result && <PronReport result={pron.result} />}
-              <textarea
-                className="writing-input essay-input"
-                lang="fr"
-                rows={10}
-                maxLength={MAX_SPEAKING_MONOLOGUE_LENGTH}
-                value={said}
-                readOnly={monoLocked}
-                onChange={(e) => {
-                  if (!monoLocked) setSaid(e.target.value.slice(0, MAX_SPEAKING_MONOLOGUE_LENGTH));
-                }}
-                placeholder="你说的内容"
-                spellCheck={false}
-                aria-label="你说的内容"
-              />
-              <div className="writing-actions">
-                <span className={`essay-count ${words >= 450 ? "is-ok" : ""}`}>
-                  {words} 词 · 5 分钟大约 450 词以上
-                  {said.length >= MAX_SPEAKING_MONOLOGUE_LENGTH ? ` · 已达 ${MAX_SPEAKING_MONOLOGUE_LENGTH} 字符上限` : ""}
-                </span>
-                {hasAi ? (
-                  <>
-                    {!strictMode && !noAuxMode ? (
-                      <button className="btn btn-ghost" onClick={() => void assess([])} disabled={!said.trim() || gradedLock}>
-                        跳过辩论，直接批改
-                      </button>
-                    ) : (
-                      <span className="muted small">{strictMode ? "严格模考中不可跳过辩论" : "脱稿无辅助模式中请完整完成辩论"}</span>
-                    )}
-                    <button className="btn btn-primary btn-xl" onClick={startDebate} disabled={!said.trim()}>
-                      进入辩论 <ArrowRight size={18} />
-                    </button>
-                  </>
-                ) : (
-                  <span className="muted">没有设置 AI 接口，没有辩论和批改。对照准备时的评分要点自己检查。</span>
-                )}
-              </div>
-            </>
-          );
-        })()}
-
-        {phase === "debate" && (
-          <>
-            <ol className="exam-debate">
-              {turns.slice(0, -1).map((t, k) => (
-                <li key={k}>
-                  <p className="exam-q" lang="fr">
-                    {t.q}
-                  </p>
-                  <p className="essay-text" lang="fr">
-                    {t.a || "（没有回答）"}
-                  </p>
-                  <TakePlayer take={turnTakes[k]} label={`听第 ${k + 1} 轮回答`} />
-                </li>
-              ))}
-            </ol>
-            {asking && <p className="muted">考官在想下一个问题…</p>}
-            {!asking && turns.length === 0 && (
-              <div className="essay-box">
-                <p className="eyebrow">考官提问暂未成功</p>
-                <p className="muted small">{askError || "考官第 1 问请求失败，你可以重试提问或跳过辩论直接批改独白。"}</p>
-                <div className="writing-actions">
-                  <button className="btn btn-primary" onClick={() => void ask([])}>
-                    重试提问
-                  </button>
-                  <button className="btn btn-ghost" disabled={!said.trim() || gradedLock} onClick={() => void assess([])}>
-                    跳过辩论，直接批改独白
-                  </button>
-                </div>
-              </div>
-            )}
-            {turn && !asking && (() => {
-              const turnIdx = turns.length - 1;
-              const curTake = turnTakes[turnIdx];
-              const azureOn = canAssess();
-              const turnLocked = noAuxMode && (gradedLock || !!rawTurns[turnIdx]?.trim());
-              return (
-                <div className={`exam-live ${listening || recorder.on ? "is-on" : ""}`} aria-live="polite">
-                  <p className="eyebrow">
-                    考官 {((Math.max(0, turnIdx) + voiceOffset) % 2) + 1} 问
-                    {escalation.level >= 2 ? ` · 追问升级 L${escalation.level}` : ""}
-                  </p>
-                  <p className="exam-q" lang="fr">
-                    {turn.q}
-                  </p>
-                  {(!dictation || speechFailed) && (
-                    <p className="muted small">
-                      {azureOn
-                        ? "当前使用麦克风录音 + Azure 语音自动转写；停止录音后将自动填入文字。"
-                        : "当前浏览器离线或不支持语音识别：已启用本地录音兜底，停止后可回放录音并对照补全文字。"}
-                    </p>
-                  )}
-                  <textarea className="writing-input essay-notes" lang="fr" rows={4} value={turn.a + (listening ? interim : "")} readOnly={listening || transcribing || turnLocked} onChange={(e) => setAnswer(e.target.value)} placeholder={dictation && !speechFailed ? "点「开口回答」，或直接打字" : recorder.supported ? "用麦克风录音回答，或直接打字" : "把你的回答打出来"} spellCheck={false} aria-label="你的回答" />
-                  {turnLocked && <p className="muted small">脱稿无辅助模式已锁定本轮原始语音转写。</p>}
-                  {transcribing && <p className="muted small">Azure 语音转写中…</p>}
-                  {turnProns[turnIdx] && <p className="muted small">已通过 Azure 转写本轮回答（可用于发音综合评测）。</p>}
-                  <TakePlayer take={curTake} label="听这一轮录音" />
-                  {askError && <p className="warn-text">{askError}</p>}
-                  <div className="writing-actions">
-                    <button
-                      className="link"
-                      onClick={() => {
-                        void stopDebateAnswer(turnIdx);
-                        quiet();
-                        void speakExaminer(turn.q, Math.max(0, turnIdx), voiceOffset, ai);
-                      }}
-                    >
-                      再听一遍问题
-                    </button>
-                    {(listening || recorder.on) ? (
-                      <>
-                        <span className="muted small">
-                          <i className="rec-dot" aria-hidden="true" />
-                          {listening ? "正在听写并录音" : "录音中"}
-                        </span>
-                        <button className="btn btn-ghost" onClick={() => void stopDebateAnswer(turnIdx)} disabled={transcribing}>
-                          <Square size={15} /> {azureOn && (!dictation || speechFailed) ? "停止并转写" : "停止录音"}
-                        </button>
-                      </>
-                    ) : (
-                      (dictation || recorder.supported) && (
-                        <button
-                          className="btn btn-ghost"
-                          disabled={transcribing}
-                          onClick={() => void beginDebateAnswer(turnIdx, turn.a)}
-                        >
-                          <Mic size={16} /> {turn.a ? "接着说" : !dictation || speechFailed ? "录音回答" : "开口回答"}
-                        </button>
-                      )
-                    )}
-                    {debate.sec < SPEAK_TIMES.debate[1] && turns.length < MAX_TURNS ? (
-                      <button
-                        className="btn btn-primary"
-                        disabled={transcribing || (!turn.a.trim() && !interim && !recorder.on)}
-                        onClick={async () => {
-                          const latest = await stopDebateAnswer(turnIdx);
-                          quiet();
-                          const ans = latest[turnIdx]?.a;
-                          if (noAuxMode && ans?.trim() && !rawTurnsRef.current[turnIdx]?.trim()) {
-                            const nextRaw = { ...rawTurnsRef.current, [turnIdx]: ans };
-                            rawTurnsRef.current = nextRaw;
-                            setRawTurns(nextRaw);
-                          }
-                          if (ans?.trim()) void ask(latest);
-                        }}
-                      >
-                        答完了，下一个问题 <ArrowRight size={16} />
-                      </button>
-                    ) : (
-                      <button
-                        className="btn btn-primary"
-                        disabled={transcribing || gradedLock}
-                        onClick={async () => {
-                          const latest = await stopDebateAnswer(turnIdx);
-                          void assess(latest);
-                        }}
-                      >
-                        时间到，结束辩论并批改 <ArrowRight size={16} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })()}
-            {!asking && turns.length > 0 && debate.sec < SPEAK_TIMES.debate[1] && (
-              <div className="writing-actions">
-                <span className="muted small">
-                  {!canEndDebate
-                    ? `严格模考：需满 10:00 或完成至少 6 轮有效回答才可交卷（已答 ${answeredTurns}/6 轮）`
-                    : debate.sec < SPEAK_TIMES.debate[0]
-                      ? "考官会一直追问到你结束为止；考试里这一段有 10–13 分钟，尽量撑到 10 分钟。"
-                      : "已经到 10 分钟，可以结束了。"}
-                </span>
-                <button
-                  className="link"
-                  disabled={!canEndDebate || transcribing || gradedLock}
-                  onClick={async () => {
-                    const latest = await stopDebateAnswer(turns.length - 1);
-                    void assess(latest);
-                  }}
-                >
-                  结束辩论，批改
-                </button>
-              </div>
-            )}
-            {!strictMode && !noAuxMode ? (
-              <details className="essay-fold">
-                <summary>辩论话术速查（反驳 / 让步 / 澄清 / 填充语，{debatePhraseGroups.reduce((n, [, xs]) => n + xs.length, 0)} 句）</summary>
-                {debatePhraseGroups.map(([fn, xs]) => (
-                  <div key={fn} className="essay-box">
-                    <p className="eyebrow">{fn}</p>
-                    <ul className="essay-phrases">
-                      {xs.map((e) => (
-                        <li key={e.id}>
-                          <span lang="fr">{e.fr}</span>
-                          <small>{e.zh}</small>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </details>
-            ) : (
-              <p className="muted small">{strictMode ? "严格模考中已隐藏辩论话术速查。" : "脱稿无辅助模式中已隐藏辩论话术速查。"}</p>
-            )}
-          </>
-        )}
-
-        {phase === "grading" && (
-          <div className="writing-actions">
-            <p className="muted">AI 批改中（约 20–60 秒）…</p>
-            <button
-              className="btn btn-ghost"
-              onClick={() => {
-                ctrl.current?.abort();
-                setPhase(turns.length ? "debate" : "review");
-              }}
-            >
-              取消
-            </button>
-          </div>
-        )}
-
-        {phase === "result" && fb && (
-          <>
-            <Marking fb={fb} pointTitle={pointTitle} from={`口语 · ${subject.title}`} extra={{ key: "phono", score: azurePhono ?? phono }} />
-            {(azurePhono ?? phono) === null && (
-              <p className="muted small">
-                当前为「不含发音 20 分制」（未按比例折算 25 分，也不会混入 25 分制曲线）；完成下方第 5 项发音自评后计入 25 分总分。
-              </p>
-            )}
-            {gradedTyped && <p className="muted small">本次练习含纯键盘输入，已标记为「打字」，不计入 25 分口语成绩曲线。</p>}
-            {combinedPron && (
-              <PronReport
-                result={combinedPron}
-                title={
-                  Object.keys(turnProns).length
-                    ? `发音和语调（第五项，独白 + 辩论 ${Object.keys(turnProns).length} 轮抽样加权）`
-                    : "发音和语调（第五项，Azure 评测）"
-                }
-              />
-            )}
-            {azurePhono === null && (
-              <div className="essay-box">
-                <p className="eyebrow">发音和语调：自己评（第五项，AI 听不到）</p>
-                <p className="muted small">{CRITERION_CHECK.phono} 官方标准：低于 B2 是「大体听得懂，语调和重音还有不自然」；B2 是「语调、重音、发音清楚，偶尔的问题不影响交流」；B2+ 是「能变化语调来表达意思，能自己纠正」。</p>
-                <div className="segmented">
-                  {LEVELS.map((v) => (
-                    <button key={v} className={phono === v ? "is-on" : ""} onClick={() => selectPhono(v)} aria-pressed={phono === v}>
-                      {v} · {LEVEL_LABEL[v]}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            <TakePlayer take={talkTake} label="听自己的独白" />
-            {turns.some((t) => t.a.trim()) && (
-              <div className="essay-box">
-                <p className="eyebrow">辩论</p>
-                <ol className="exam-debate">
-                  {turns.map((t, k) => (
-                    <li key={k}>
-                      <p className="exam-q" lang="fr">
-                        {t.q}
-                      </p>
-                      <p className="essay-text" lang="fr">
-                        {t.a || "（没有回答）"}
-                      </p>
-                      <TakePlayer take={turnTakes[k]} label={`听第 ${k + 1} 轮回答`} />
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-            <div className="essay-cols">
-              <div className="essay-box">
-                <p className="eyebrow">你的独白（{words} 词）</p>
-                <p className="essay-text" lang="fr">
-                  {said}
-                </p>
-              </div>
-              {fb.rewrite && (
-                <div className="essay-box">
-                  <p className="eyebrow">可以这样说</p>
-                  <p className="essay-text" lang="fr">
-                    {fb.rewrite}
-                  </p>
-                </div>
-              )}
-            </div>
-            <p className="muted small">AI 只看文字，它的分数可能有偏差；真正的考试由两位考官现场评分。</p>
-            <div className="writing-actions">
-              <button className="btn btn-primary" onClick={() => choose(subject)}>
-                同一题再说一遍
-              </button>
-            </div>
-          </>
+        {phase !== "result" ? (
+          <SpeakingWork
+            phase={phase}
+            subject={subject}
+            topic={topic}
+            preset={preset}
+            strictMode={strictMode}
+            noAuxMode={noAuxMode}
+            hasAi={hasAi}
+            sttReady={whisperReady}
+            dictation={dictation}
+            listening={listening}
+            interim={interim}
+            speechFailed={speechFailed}
+            transcribing={transcribing}
+            talkSec={talk.sec}
+            cutoffNotice={cutoffNotice}
+            vadAutoEnd={vadAutoEnd}
+            setVadAutoEnd={setVadAutoEnd}
+            notes={notes}
+            setNotes={setNotes}
+            notesRef={notesRef}
+            retellBase={retellBase}
+            probDraft={probDraft}
+            setProbDraft={setProbDraft}
+            probChecked={probChecked}
+            setProbChecked={setProbChecked}
+            micro={micro}
+            debate={debate}
+            recorder={recorder}
+            pron={pron}
+            said={said}
+            setSaid={(v) => {
+              saidValRef.current = v;
+              setSaid(v);
+            }}
+            saidRef={saidRef}
+            words={words}
+            spoke={spoke}
+            talkTake={talkTake}
+            rawMonologue={rawMonologue}
+            gradedLock={gradedLock}
+            turns={turns}
+            turnTakes={turnTakes}
+            turnProns={turnProns}
+            rawTurns={rawTurns}
+            asking={asking}
+            askError={askError}
+            voiceOffset={voiceOffset}
+            debateInputRef={debateInputRef}
+            canEndDebate={canEndDebate}
+            answeredTurns={answeredTurns}
+            allPresetAsked={allPresetAsked}
+            maxTurns={MAX_TURNS}
+            onStartTalk={() => void startTalk()}
+            onEndTalk={() => void endTalk()}
+            onStartDebate={startDebate}
+            onEnterOfflineResult={() => setPhase("result")}
+            onAssess={(so) => void assess(so)}
+            onAsk={(so) => void ask(so)}
+            onSetAnswer={setAnswer}
+            onReplayQuestion={(q, idx) => void speakExaminer(q, idx, voiceOffset, ai)}
+            onBeginDebateAnswer={(idx, txt) => void beginDebateAnswer(idx, txt)}
+            onStopDebateAnswer={stopDebateAnswer}
+            onAdvanceDebateTurn={(turnIdx) => void advanceDebateTurn(turnIdx)}
+            onFinishDebate={(turnIdx) => void finishDebate(turnIdx)}
+            onCancelGrading={() => {
+              ctrl.current?.abort();
+              setPhase(turns.length || strictMode ? "debate" : "review");
+            }}
+          />
+        ) : (
+          <SpeakingResult
+            subject={subject}
+            preset={preset}
+            fb={fb}
+            pointTitle={pointTitle}
+            retellBase={retellBase}
+            words={words}
+            spoke={spoke}
+            talkTake={talkTake}
+            talkPron={talkPronResult}
+            turns={turns}
+            turnTakes={turnTakes}
+            turnProns={turnProns}
+            said={said}
+            combinedPron={combinedPron}
+            azurePhono={azurePhono}
+            phono={phono}
+            gradedTyped={gradedTyped}
+            onSelectPhono={selectPhono}
+            offlineSelf={offlineSelf}
+            setOfflineSelf={setOfflineSelf}
+            offlineLogged={offlineLogged}
+            onSaveOffline={async (sum25) => {
+              logExam({ part: "speak", what: subject.id, score: sum25, total: 25, level: "B2", scope: "full" });
+              const savedTakeId = talkTake
+                ? await keepRecording({ label: subject.title, blob: talkTake.blob, seconds: talkTake.seconds, bucket: "exam" }).catch(() => null)
+                : null;
+              const sid = saveSpeakingSession({
+                at: Date.now(),
+                subjectId: subject.id,
+                title: subject.title,
+                topic: subject.topic,
+                monologueWords: words,
+                monologueSec: Math.max(spoke, talkTake?.seconds ?? 0),
+                debateTurns: answeredTurns,
+                debateSec: debate.sec,
+                total25: sum25,
+                draft: sessions.filter((s) => s.subjectId === subject.id).length + 1,
+                ...(combinedPron
+                  ? {
+                      pron: {
+                        pron: combinedPron.pron,
+                        accuracy: combinedPron.accuracy,
+                        fluency: combinedPron.fluency,
+                        prosody: combinedPron.prosody,
+                        completeness: combinedPron.completeness,
+                      },
+                    }
+                  : {}),
+                transcript: said,
+                turns: turns.filter((t) => t.a.trim()).map((t) => ({ q: t.q, a: t.a })),
+                ...(savedTakeId ? { takeId: savedTakeId } : {}),
+              });
+              setLastSessionId(sid);
+              setOfflineLogged(true);
+              toast(`已记入 DELF B2 口语成绩（${sum25}/25）`, "ok");
+            }}
+            onRetrySubject={() => choose(subject)}
+          />
         )}
       </section>
     </div>

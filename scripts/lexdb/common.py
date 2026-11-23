@@ -2,6 +2,8 @@
 """Shared normalization, shard-key, POS, and path helpers for LexDB scripts."""
 from __future__ import annotations
 
+import ctypes
+import ctypes.util
 import json
 import re
 import subprocess
@@ -121,12 +123,14 @@ def lexdb_base_key(folded: str) -> str:
 
 
 def lexdb_key(folded: str, splits: set[str] | None = None) -> str:
-    """Shard key matching src/lib/lexdb/types.ts `lexdbKey`."""
-    base = lexdb_base_key(folded)
-    if not splits or base not in splits:
-        return base
+    """Shard key matching src/lib/lexdb/types.ts `lexdbKey` (2 -> 3 -> 4 letter prefix splits)."""
+    key = lexdb_base_key(folded)
+    if key == "__" or not splits:
+        return key
     letters = re.sub(r"[^a-z]", "", folded)
-    return (letters + "__")[:3]
+    while len(key) < 4 and key in splits:
+        key = (letters + "___")[: len(key) + 1]
+    return key
 
 
 def zh_bucket(term: str) -> int:
@@ -157,6 +161,42 @@ def parse_num(x: str) -> float:
         return 0.0
 
 
+_CF = None
+_CF_TRANS_ID = None
+try:
+    _cf_lib = ctypes.util.find_library("CoreFoundation")
+    if _cf_lib:
+        _cf = ctypes.CDLL(_cf_lib)
+        _CF_UTF8 = 0x08000100
+        _cf.CFStringCreateWithCString.restype = ctypes.c_void_p
+        _cf.CFStringCreateWithCString.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_uint32]
+        _cf.CFStringCreateMutableCopy.restype = ctypes.c_void_p
+        _cf.CFStringCreateMutableCopy.argtypes = [ctypes.c_void_p, ctypes.c_long, ctypes.c_void_p]
+        _cf.CFStringTransform.restype = ctypes.c_bool
+        _cf.CFStringTransform.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_bool]
+        _cf.CFStringGetCString.restype = ctypes.c_bool
+        _cf.CFStringGetCString.argtypes = [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_long, ctypes.c_uint32]
+        _cf.CFRelease.argtypes = [ctypes.c_void_p]
+        _CF_TRANS_ID = _cf.CFStringCreateWithCString(None, b"Traditional-Simplified", _CF_UTF8)
+        if _CF_TRANS_ID:
+            _CF = _cf
+except Exception:
+    _CF = None
+    _CF_TRANS_ID = None
+
+_TO_SIMP_CACHE: dict[str, str] = {}
+_SIMP_PRESERVE_RE = re.compile(
+    r"瞭望|瞭哨|显著|(?<!谈)论著|专著|巨著|原著|名著|编著|译著|合著|遗著|撰著|新著|卓著|昭著|著称|著述|著名|著作|土著|剃发|苎麻"
+)
+_POST_T2S_FIXES = (
+    ("显着", "显著"),
+    ("专着", "专著"),
+    ("着称", "著称"),
+    ("剃髮", "剃发"),
+    ("苧麻", "苎麻"),
+)
+
+
 def load_trad_simp() -> tuple[dict[str, str], set[str]]:
     p = resolve_ref("references/wiktionary/trad-simp.json")
     if not p.exists():
@@ -167,8 +207,41 @@ def load_trad_simp() -> tuple[dict[str, str], set[str]]:
     return trad, trad_only
 
 
-def to_simp(text: str, trad_map: dict[str, str]) -> str:
-    if not trad_map or not text:
+def to_simp(text: str, trad_map: dict[str, str] | None = None) -> str:
+    if not text or not has_cjk(text):
+        return text
+    if _CF is not None and _CF_TRANS_ID is not None:
+        cached = _TO_SIMP_CACHE.get(text)
+        if cached is not None:
+            return cached
+        saved: list[str] = []
+
+        def _hold(m: re.Match[str]) -> str:
+            idx = len(saved)
+            saved.append(m.group(0))
+            return f"\ue000S{idx}\ue001"
+
+        masked = _SIMP_PRESERVE_RE.sub(_hold, text)
+        src = _CF.CFStringCreateWithCString(None, masked.encode("utf-8"), _CF_UTF8)
+        out = masked
+        if src:
+            mut = _CF.CFStringCreateMutableCopy(None, 0, src)
+            if mut:
+                _CF.CFStringTransform(mut, None, _CF_TRANS_ID, False)
+                buf = ctypes.create_string_buffer(len(masked.encode("utf-8")) * 4 + 64)
+                if _CF.CFStringGetCString(mut, buf, len(buf), _CF_UTF8):
+                    out = buf.value.decode("utf-8")
+                _CF.CFRelease(mut)
+            _CF.CFRelease(src)
+        for idx, tok in enumerate(saved):
+            out = out.replace(f"\ue000S{idx}\ue001", tok)
+        for bad, good in _POST_T2S_FIXES:
+            if bad in out:
+                out = out.replace(bad, good)
+        if len(_TO_SIMP_CACHE) < 200_000:
+            _TO_SIMP_CACHE[text] = out
+        return out
+    if not trad_map:
         return text
     return "".join(trad_map.get(c, c) for c in text)
 

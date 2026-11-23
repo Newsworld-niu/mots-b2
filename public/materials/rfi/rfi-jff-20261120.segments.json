@@ -1,0 +1,590 @@
+{
+  "id": "rfi-jff-20261120",
+  "audio": "materials/rfi/rfi-jff-20261120.mp3",
+  "duration": 600.11,
+  "method": "ffmpeg-silence-align",
+  "segments": [
+    {
+      "idx": 0,
+      "start": 0,
+      "end": 2.76,
+      "text": "Bienvenue sur RFI si vous nous rejoignez."
+    },
+    {
+      "idx": 1,
+      "start": 2.76,
+      "end": 5.18,
+      "text": "Nous sommes le vendredi 20 novembre."
+    },
+    {
+      "idx": 2,
+      "start": 5.18,
+      "end": 8.61,
+      "text": "Il est 17 heures à Paris, une heure de plus à Kiev."
+    },
+    {
+      "idx": 3,
+      "start": 8.61,
+      "end": 10.62,
+      "text": "Le Journal en français facile."
+    },
+    {
+      "idx": 4,
+      "start": 10.62,
+      "end": 11.5,
+      "text": "Diane Berger."
+    },
+    {
+      "idx": 5,
+      "start": 11.5,
+      "end": 15.66,
+      "text": "Les enfants d'Ukraine devraient apprendre à lire ou à compter."
+    },
+    {
+      "idx": 6,
+      "start": 15.66,
+      "end": 19.83,
+      "text": "Ils apprennent, à la place, à reconnaître le bruit des drones."
+    },
+    {
+      "idx": 7,
+      "start": 19.83,
+      "end": 29.92,
+      "text": "C'est l'alerte lancée aujourd'hui par l'Unicef, alors que leur pays a subi, encore une fois, une série d'attaques russes meurtrières la nuit dernière."
+    },
+    {
+      "idx": 8,
+      "start": 29.92,
+      "end": 37.78,
+      "text": "On ira, également, dans ce journal à Bruxelles, où le Royaume-Uni et l'Union européenne célèbrent leur rapprochement."
+    },
+    {
+      "idx": 9,
+      "start": 37.78,
+      "end": 43.23,
+      "text": "Ils viennent de conclure un nouvel accord, dix ans après le référendum du Brexit."
+    },
+    {
+      "idx": 10,
+      "start": 43.23,
+      "end": 48.47,
+      "text": "Et puis les négociations patinent – elles traînent – à la COP31 sur le climat."
+    },
+    {
+      "idx": 11,
+      "start": 48.47,
+      "end": 53.65,
+      "text": "Plusieurs pays africains se disent déçus du manque d'efforts des pays riches."
+    },
+    {
+      "idx": 12,
+      "start": 53.65,
+      "end": 58.69,
+      "text": "C'est ceux qui ont le plus pollué qui doivent le plus nettoyer, disent-ils."
+    },
+    {
+      "idx": 13,
+      "start": 58.69,
+      "end": 64.88,
+      "text": "C'est une pluie de 110 missiles et 400 drones qui est tombée sur l'Ukraine la nuit dernière."
+    },
+    {
+      "idx": 14,
+      "start": 64.88,
+      "end": 66.69,
+      "text": "Il y a au moins neuf morts."
+    },
+    {
+      "idx": 15,
+      "start": 66.69,
+      "end": 70.86,
+      "text": "Des ponts de Kiev – la capitale – ont, également, été touchés."
+    },
+    {
+      "idx": 16,
+      "start": 70.86,
+      "end": 86.53,
+      "text": "La France exige, en réaction, une réunion urgente du Conseil de sécurité de l'ONU, car ça a été l'une des attaques les plus massives – les plus importantes – depuis le début de la guerre, lancée par la Russie il y a bientôt cinq ans."
+    },
+    {
+      "idx": 17,
+      "start": 86.53,
+      "end": 89.08,
+      "text": "Des attaques qui touchent les enfants."
+    },
+    {
+      "idx": 18,
+      "start": 89.08,
+      "end": 95.81,
+      "text": "Le nombre de victimes chez les plus jeunes est en hausse depuis le début de l'année, Jérémie Lanche."
+    },
+    {
+      "idx": 19,
+      "start": 95.81,
+      "end": 106.97,
+      "text": "Oui. D'après une porte-parole de l'Unicef, Louise Wateridge, 2026 n'est pas encore terminée que, déjà, on compte 20 % d'enfants tués en plus par rapport à l'an passé."
+    },
+    {
+      "idx": 20,
+      "start": 106.97,
+      "end": 109.45,
+      "text": "+60 % en ce qui concerne les blessés."
+    },
+    {
+      "idx": 21,
+      "start": 109.45,
+      "end": 114.29,
+      "text": "Un niveau de violence qu'on n'avait pas vu depuis le début de la guerre."
+    },
+    {
+      "idx": 22,
+      "start": 114.29,
+      "end": 119.87,
+      "text": "« On n'a jamais eu autant de victimes enfants depuis presque quatre ans en Ukraine."
+    },
+    {
+      "idx": 23,
+      "start": 119.87,
+      "end": 124.71,
+      "text": "Au moins 1 144 enfants ont été tués ou blessés entre janvier et octobre."
+    },
+    {
+      "idx": 24,
+      "start": 124.71,
+      "end": 127.94,
+      "text": "C'est plus de trois enfants chaque jour. »"
+    },
+    {
+      "idx": 25,
+      "start": 127.94,
+      "end": 136.21,
+      "text": "Pour l'Unicef, c'est la preuve que les drones et les missiles russes ciblent de plus en plus des endroits comme les écoles."
+    },
+    {
+      "idx": 26,
+      "start": 136.21,
+      "end": 143.27,
+      "text": "La porte-parole s'exprime depuis une crèche à Kiev, réduite en cendres par une frappe ces derniers jours."
+    },
+    {
+      "idx": 27,
+      "start": 143.27,
+      "end": 148.99,
+      "text": "« Les enfants ukrainiens devraient apprendre les lettres, les chiffres, les couleurs."
+    },
+    {
+      "idx": 28,
+      "start": 148.99,
+      "end": 156.65,
+      "text": "À la place, ils apprennent à reconnaître le bruit des drones, à fuir dans un abri et à vivre avec la peur. »"
+    },
+    {
+      "idx": 29,
+      "start": 156.65,
+      "end": 163.04,
+      "text": "Les enfants ukrainiens de plus en plus pris pour cible, les infrastructures énergétiques aussi."
+    },
+    {
+      "idx": 30,
+      "start": 163.04,
+      "end": 180.72,
+      "text": "Le nombre d'attaques contre les centrales électriques ou les stations de pompage [a] explosé de quasiment 80 % cette année, laissant les Ukrainiens sans courant entre quatre et 18 heures par jour désormais."
+    },
+    {
+      "idx": 31,
+      "start": 180.72,
+      "end": 181.17,
+      "text": "Jérémie Lanche, Genève, RFI."
+    },
+    {
+      "idx": 32,
+      "start": 181.17,
+      "end": 186.03,
+      "text": "Et pour revenir à ce qui s'est passé la nuit dernière, deux missiles russes sont tombés sur le sol polonais."
+    },
+    {
+      "idx": 33,
+      "start": 186.03,
+      "end": 190.94,
+      "text": "Plusieurs pays d'Europe dénoncent une nouvelle « provocation » de Moscou."
+    },
+    {
+      "idx": 34,
+      "start": 190.94,
+      "end": 197.93,
+      "text": "La guerre entre la Russie et l'Ukraine déborde, parfois, sur le reste de l'Europe par d'autres manières."
+    },
+    {
+      "idx": 35,
+      "start": 197.93,
+      "end": 205.53,
+      "text": "Ainsi, le Danemark annonce aujourd'hui soupçonner la Russie d'avoir planifié l'assassinat d'un rappeur ukrainien."
+    },
+    {
+      "idx": 36,
+      "start": 205.53,
+      "end": 212.05,
+      "text": "Un assassinat qui aurait dû avoir lieu lors d'un concert près de Copenhague, la capitale danoise."
+    },
+    {
+      "idx": 37,
+      "start": 212.05,
+      "end": 214.4,
+      "text": "Toujours sur le continent européen."
+    },
+    {
+      "idx": 38,
+      "start": 214.4,
+      "end": 218.03,
+      "text": "Ils ne s'étaient pas dit : « Rendez-vous dans dix ans. »"
+    },
+    {
+      "idx": 39,
+      "start": 218.03,
+      "end": 221.06,
+      "text": "Et, pourtant, ils viennent de se retrouver."
+    },
+    {
+      "idx": 40,
+      "start": 221.06,
+      "end": 227.78,
+      "text": "Londres et Bruxelles viennent de signer un accord historique, dix ans après le référendum du Brexit."
+    },
+    {
+      "idx": 41,
+      "start": 227.78,
+      "end": 238.13,
+      "text": "Le texte prévoit une série de mesures concrètes pour rendre plus faciles, par exemple, les exportations de nourriture britannique vers l'Union européenne."
+    },
+    {
+      "idx": 42,
+      "start": 238.13,
+      "end": 242.57,
+      "text": "Le Premier ministre britannique, Andy Burnham, est très satisfait."
+    },
+    {
+      "idx": 43,
+      "start": 242.57,
+      "end": 246.07,
+      "text": "« Il y a, donc, énormément de choses à célébrer ici."
+    },
+    {
+      "idx": 44,
+      "start": 246.07,
+      "end": 258.51,
+      "text": "Je pense que nous travaillons ensemble dans un monde qui change autour de nous pour nous rapprocher à nouveau et, ce faisant, nous rendre plus forts, nos économies comme notre sécurité."
+    },
+    {
+      "idx": 45,
+      "start": 258.51,
+      "end": 259.85,
+      "text": "Et c'est un plaisir."
+    },
+    {
+      "idx": 46,
+      "start": 259.85,
+      "end": 270.14,
+      "text": "Je parle au nom de tous ceux qui sont de ce côté de la table : c'est un plaisir d'être avec vous aujourd'hui pour conclure cet accord historique. »"
+    },
+    {
+      "idx": 47,
+      "start": 270.14,
+      "end": 272.96,
+      "text": "Andy Burnham qui ne veut pas s'arrêter là."
+    },
+    {
+      "idx": 48,
+      "start": 272.96,
+      "end": 283.65,
+      "text": "Après cet accord, il propose de lancer, l'an prochain, une nouvelle « réflexion » avec l'Union européenne sur les relations à long terme de son pays et des 27."
+    },
+    {
+      "idx": 49,
+      "start": 283.65,
+      "end": 291.18,
+      "text": "Au Royaume-Uni, mais aussi en Espagne, au Portugal, en Grèce ou encore en France, ils disent non à la vie chère."
+    },
+    {
+      "idx": 50,
+      "start": 291.18,
+      "end": 302.41,
+      "text": "Des syndicats et des associations organisent une vague de mobilisation simultanée – en même temps – à partir d'aujourd'hui et tout ce week-end dans sept pays d'Europe."
+    },
+    {
+      "idx": 51,
+      "start": 302.41,
+      "end": 304.43,
+      "text": "Le Journal en français facile."
+    },
+    {
+      "idx": 52,
+      "start": 304.43,
+      "end": 306.17,
+      "text": "Vous écoutez toujours RFI."
+    },
+    {
+      "idx": 53,
+      "start": 306.17,
+      "end": 314.85,
+      "text": "Il est maintenant 19 h 05 à Antalya, en Turquie, où la COP31 sur le climat aurait dû se terminer officiellement il y a une heure."
+    },
+    {
+      "idx": 54,
+      "start": 314.85,
+      "end": 318.14,
+      "text": "Mais les discussions ne sont toujours pas finies."
+    },
+    {
+      "idx": 55,
+      "start": 318.14,
+      "end": 330.11,
+      "text": "Un groupe de pays – qui inclut, notamment, le Panama, la France et la Côte d'Ivoire – demande que le texte final parle clairement d'une « transition hors des énergies fossiles »."
+    },
+    {
+      "idx": 56,
+      "start": 330.11,
+      "end": 333.33,
+      "text": "Cette référence avait été enlevée du texte hier."
+    },
+    {
+      "idx": 57,
+      "start": 333.33,
+      "end": 342.81,
+      "text": "Les pays africains se mobilisent, également, ensemble pour réclamer plus d'efforts de la part des pays les plus développés – les plus riches."
+    },
+    {
+      "idx": 58,
+      "start": 342.81,
+      "end": 347.39,
+      "text": "Écoutez le ministre sénégalais de l'Environnement, Aliou Gori Diouf."
+    },
+    {
+      "idx": 59,
+      "start": 347.39,
+      "end": 350.75,
+      "text": "« Vous venez dans une brousse, vous mettez le feu."
+    },
+    {
+      "idx": 60,
+      "start": 350.75,
+      "end": 352.63,
+      "text": "Vous avez des tankers d'eau."
+    },
+    {
+      "idx": 61,
+      "start": 352.63,
+      "end": 354.65,
+      "text": "Moi, je n'ai qu'un seau d'eau."
+    },
+    {
+      "idx": 62,
+      "start": 354.65,
+      "end": 360.56,
+      "text": "Et vous me demandez de prendre mon seau d'eau pour éteindre le feu que vous avez allumé."
+    },
+    {
+      "idx": 63,
+      "start": 360.56,
+      "end": 363.45,
+      "text": "C'est inacceptable pour les pays africains."
+    },
+    {
+      "idx": 64,
+      "start": 363.45,
+      "end": 366.88,
+      "text": "Cette injustice climatique devrait prendre fin ici."
+    },
+    {
+      "idx": 65,
+      "start": 366.88,
+      "end": 373.07,
+      "text": "Les pays développés ont l'obligation de fournir l'appui financier aux pays en développement."
+    },
+    {
+      "idx": 66,
+      "start": 373.07,
+      "end": 376.09,
+      "text": "C'est consigné, c'est une obligation. »"
+    },
+    {
+      "idx": 67,
+      "start": 376.09,
+      "end": 390.75,
+      "text": "Le ministre sénégalais de l'Environnement, Aliou Gori Diouf, au micro de Jeanne Richard ; le ministre sénégalais de l'Environnement en colère, donc, contre les pays du Nord, qui ne font pas assez d'efforts à cette COP."
+    },
+    {
+      "idx": 68,
+      "start": 390.75,
+      "end": 403.05,
+      "text": "En France, on attend la décision du tribunal au procès de l'agression de Michel Zecler, ce producteur de musique noir et frappé violemment par trois policiers à Paris, il y a six ans."
+    },
+    {
+      "idx": 69,
+      "start": 403.05,
+      "end": 405,
+      "text": "L'agression avait été filmée."
+    },
+    {
+      "idx": 70,
+      "start": 405,
+      "end": 414.15,
+      "text": "Les agents de police avaient, ensuite, rédigé un faux procès-verbal, un document pour accuser leur victime d'être l'auteur de violences."
+    },
+    {
+      "idx": 71,
+      "start": 414.15,
+      "end": 417.84,
+      "text": "Ils ont, à nouveau, présenté leurs excuses aujourd'hui."
+    },
+    {
+      "idx": 72,
+      "start": 417.84,
+      "end": 424.1,
+      "text": "Ils risquent de la prison ferme pour cette agression qui avait profondément choqué la France."
+    },
+    {
+      "idx": 73,
+      "start": 424.1,
+      "end": 427.32,
+      "text": "Le chanteur d'opéra Anas Séguin prend la parole."
+    },
+    {
+      "idx": 74,
+      "start": 427.32,
+      "end": 440.23,
+      "text": "Il dénonce une « banalisation du racisme » après une critique faite par le magazine français Le Point consacrée à l'opéra Don Giovanni, de Mozart, dans lequel l'artiste joue le rôle principal."
+    },
+    {
+      "idx": 75,
+      "start": 440.23,
+      "end": 443.73,
+      "text": "Alors, qu'est-ce qui provoque exactement sa colère ?"
+    },
+    {
+      "idx": 76,
+      "start": 443.73,
+      "end": 445.88,
+      "text": "Explications de Carlotta Morteo."
+    },
+    {
+      "idx": 77,
+      "start": 445.88,
+      "end": 455.7,
+      "text": "La phrase qui a fait bondir, la voici : « Le baryton a une telle prestance et une autorité si naturelle que l'on oublie totalement qu'il est noir. »"
+    },
+    {
+      "idx": 78,
+      "start": 455.7,
+      "end": 464.85,
+      "text": "Derrière le compliment, un sous-entendu lourd de préjugés."
+    },
+    {
+      "idx": 79,
+      "start": 464.85,
+      "end": 472.91,
+      "text": "Une phrase qui a « échappé au processus de validation », s'excuse Le Point, qui a très rapidement modifié l'article, écrit par le chroniqueur Olivier Bellamy, qui a, lui aussi, fait son mea culpa."
+    },
+    {
+      "idx": 80,
+      "start": 472.91,
+      "end": 480.17,
+      "text": "Mais cette histoire a suscité l'indignation générale dans le petit cercle de la musique classique française."
+    },
+    {
+      "idx": 81,
+      "start": 480.17,
+      "end": 496.3,
+      "text": "Le directeur de la filiale spectacles du Château de Versailles, Laurent Brunner, a d'ailleurs immédiatement apporté son soutien au baryton, à ses côtés sur la scène de l'Opéra Royal à la fin de la représentation de Don Giovanni ce week-end."
+    },
+    {
+      "idx": 82,
+      "start": 496.3,
+      "end": 501.01,
+      "text": "« La question n'est pas la couleur de peau du rôle-titre de cet opéra."
+    },
+    {
+      "idx": 83,
+      "start": 501.01,
+      "end": 507.33,
+      "text": "Je t'ai proposé ce rôle mythique, cher Anas, car tu incarnes à merveille Don Giovanni. »"
+    },
+    {
+      "idx": 84,
+      "start": 509.21,
+      "end": 514.26,
+      "text": "À 36 ans, Anas Séguin est l'une des grandes voix lyriques de sa génération."
+    },
+    {
+      "idx": 85,
+      "start": 514.26,
+      "end": 523.4,
+      "text": "Après plusieurs jours de silence, il dit son inquiétude de voir le racisme, je cite, « s'ancrer peu à peu comme une pensée acceptable »."
+    },
+    {
+      "idx": 86,
+      "start": 523.4,
+      "end": 533.42,
+      "text": "Et il rappelle l'essentiel : « J'aspire à ce que chacun puisse exercer son art sans être réduit à sa couleur de peau ou à ses origines. »"
+    },
+    {
+      "idx": 87,
+      "start": 535.3,
+      "end": 541.75,
+      "text": "Don Giovanni, de Mozart, et des explications signées Carlotta Morteo, du service culture de RFI."
+    },
+    {
+      "idx": 88,
+      "start": 541.75,
+      "end": 548.27,
+      "text": "L'ancienne légende du cinéma français Gérard Depardieu à nouveau visé par des accusations graves."
+    },
+    {
+      "idx": 89,
+      "start": 548.27,
+      "end": 553.79,
+      "text": "La justice a lancé une enquête contre lui et contre l'écrivain Michel Houellebecq."
+    },
+    {
+      "idx": 90,
+      "start": 553.79,
+      "end": 556.48,
+      "text": "C'est une affaire révélée par Mediapart."
+    },
+    {
+      "idx": 91,
+      "start": 556.48,
+      "end": 558.76,
+      "text": "Une comédienne les accuse de viol."
+    },
+    {
+      "idx": 92,
+      "start": 558.76,
+      "end": 564.61,
+      "text": "Une agression qui aurait eu lieu sur le tournage d'un film, Thalasso, en décembre 2018."
+    },
+    {
+      "idx": 93,
+      "start": 564.61,
+      "end": 568.24,
+      "text": "Le réalisateur est, lui, mis en cause pour complicité."
+    },
+    {
+      "idx": 94,
+      "start": 568.24,
+      "end": 572.07,
+      "text": "Enfin, pas de chance pour l'équipe de France de football."
+    },
+    {
+      "idx": 95,
+      "start": 572.07,
+      "end": 587.54,
+      "text": "Les tirages au sort viennent d'avoir lieu pour les quarts de finale de la Ligue des nations, et les Bleus de Zinédine Zidane vont affronter, dès les quarts de finale, leur plus gros rival : l'Espagne, championne du monde en titre."
+    },
+    {
+      "idx": 96,
+      "start": 587.54,
+      "end": 590.63,
+      "text": "C'est la fin de ce Journal en français facile."
+    }
+  ]
+}

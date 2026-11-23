@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { addDrill, DRILL_QUESTIONS, drawQuestion, sanitizeDrillDays } from "./drill.ts";
+import { DRILL_QUESTIONS_COUNT } from "./drill-schema.ts";
 import { TOPICS } from "./exam.ts";
 
 test("drill questions have unique ids and known topics", () => {
   assert.equal(new Set(DRILL_QUESTIONS.map((q) => q.id)).size, DRILL_QUESTIONS.length);
+  assert.equal(DRILL_QUESTIONS_COUNT, DRILL_QUESTIONS.length);
   for (const q of DRILL_QUESTIONS) assert.ok(TOPICS.some((t) => t.id === q.topic), q.id);
 });
 

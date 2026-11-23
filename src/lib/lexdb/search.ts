@@ -16,9 +16,11 @@ import {
   loadFormsShard,
   loadMeta,
   loadSuggest,
+  loadSuggestShard,
   loadZhShard,
+  suggestBucket,
 } from "./load";
-import { lexdbFold, lexdbKey, zhBucket, type LexEntry, type LexSuggestRow } from "./types";
+import { lexdbFold, lexdbKey, zhBucket, type LexEntry, type LexMeta, type LexSuggestRow } from "./types";
 
 export interface ResolveResult {
   entries: LexEntry[];
@@ -62,12 +64,38 @@ export function isCjkQuery(q: string): boolean {
 const cleanQuery = (q: string) => q.trim().replace(/[’‘]/g, "'").replace(/\s+/g, " ");
 const rankOf = (e: { rank?: number }) => (typeof e.rank === "number" ? e.rank : UNRANKED);
 
-/** Prefix-first, then substring suggestions over suggest.json sorted by rank ascending. */
+async function loadSuggestForQuery(folded: string, meta: LexMeta | null): Promise<LexSuggestRow[] | null> {
+  if (!meta?.suggestShards) return loadSuggest();
+  if (folded.length === 1 && meta.suggestSplits?.includes(folded)) {
+    return loadSuggestShard("top");
+  }
+  if (folded.length === 2 && meta.suggestSplits?.includes(folded)) {
+    const [top, exactBucket] = await Promise.all([
+      loadSuggestShard("top"),
+      loadSuggestShard(suggestBucket(folded, meta.suggestSplits)),
+    ]);
+    if (!top && !exactBucket) return null;
+    const seen = new Set<string>();
+    const merged: LexSuggestRow[] = [];
+    for (const row of [...(top ?? []), ...(exactBucket ?? [])]) {
+      const k = `${row[0]}|${row[1]}`;
+      if (!seen.has(k)) {
+        seen.add(k);
+        merged.push(row);
+      }
+    }
+    return merged;
+  }
+  return loadSuggestShard(suggestBucket(folded, meta.suggestSplits));
+}
+
+/** Prefix-first, then substring suggestions over suggest data sorted by rank ascending. */
 export async function suggest(q: string, limit = 20): Promise<LexSuggestRow[]> {
   const raw = cleanQuery(q);
   const f = lexdbFold(raw);
   if (!f || limit <= 0) return [];
-  const rows = await loadSuggest();
+  const meta = await loadMeta();
+  const rows = await loadSuggestForQuery(f, meta);
   if (!rows?.length) return [];
 
   const typedLower = raw.toLowerCase();
@@ -122,7 +150,11 @@ async function resolveFormLemmas(folded: string, splits?: readonly string[]): Pr
   return out;
 }
 
-async function resolvePhraseEntries(folded: string, splits?: readonly string[]): Promise<LexEntry[]> {
+async function resolvePhraseEntries(
+  folded: string,
+  splits?: readonly string[],
+  meta?: LexMeta | null,
+): Promise<LexEntry[]> {
   const rawTokens = folded
     .split(/[\s'-]+/)
     .map((t) => t.replace(/[^a-z]/g, ""))
@@ -193,8 +225,10 @@ async function resolvePhraseEntries(folded: string, splits?: readonly string[]):
     return partialMatches;
   }
 
-  // Fallback: standalone phrase row present in suggest.json without a shard entry
-  const suggestRows = await loadSuggest();
+  // Fallback: standalone phrase row present in suggest without a shard entry
+  const suggestRows = await (meta?.suggestShards
+    ? loadSuggestShard(suggestBucket(folded, meta.suggestSplits))
+    : loadSuggest());
   const row = suggestRows?.find((r) => r[0] === folded && r[3]);
   if (row) {
     return [
@@ -267,7 +301,7 @@ export async function resolve(q: string): Promise<ResolveResult> {
   }
 
   if (/[\s'-]/.test(folded)) {
-    const phraseEntries = await resolvePhraseEntries(folded, splits);
+    const phraseEntries = await resolvePhraseEntries(folded, splits, meta);
     if (phraseEntries.length > 0) {
       return { entries: phraseEntries, matchedVia: "phrase" };
     }
@@ -323,37 +357,41 @@ function getSuggestIndex(rows: LexSuggestRow[]): SuggestIndex {
   return index;
 }
 
-/** Chinese reverse lookup via zh/<bucket>.json, falling back to suggest.json shortZh when shard misses. */
+/** Chinese reverse lookup via zh/<bucket>.json, falling back to suggest shortZh when shard misses. */
 export async function zhLookup(q: string, limit = 30): Promise<ZhHit[]> {
   const term = q.trim();
   if (!term || limit <= 0) return [];
 
-  const [shard, suggestRows] = await Promise.all([loadZhShard(zhBucket(term)), loadSuggest()]);
-  const byId = suggestRows?.length ? getSuggestIndex(suggestRows).byId : null;
+  const meta = await loadMeta();
+  const sharded = !!meta?.suggestShards;
+  const [shard, suggestRows] = await Promise.all([
+    loadZhShard(zhBucket(term)),
+    sharded ? Promise.resolve(null) : loadSuggest(),
+  ]);
 
-  const toHit = (id: string, rank: number, matchedTerm: string): ZhHit => {
-    const row = byId?.get(id) ?? byId?.get(id.replace(/#\d+$/, ""));
-    return {
-      id,
-      rank,
-      term: matchedTerm,
-      ...(row ? { w: row[1], shortZh: row[3] } : {}),
-    };
+  const byId = new Map<string, LexSuggestRow>();
+  const addSuggestRows = (rows: LexSuggestRow[] | null) => {
+    if (!rows?.length) return;
+    for (const row of rows) {
+      const prev = byId.get(row[0]);
+      if (!prev || row[2] < prev[2]) byId.set(row[0], row);
+    }
   };
+  addSuggestRows(suggestRows);
 
   const hits: ZhHit[] = [];
   const seen = new Set<string>();
-  const pushHit = (hit: ZhHit) => {
-    if (seen.has(hit.id)) return;
-    seen.add(hit.id);
-    hits.push(hit);
+  const pushHit = (id: string, rank: number, matchedTerm: string, w?: string, shortZh?: string) => {
+    if (seen.has(id)) return;
+    seen.add(id);
+    hits.push({ id, rank, term: matchedTerm, ...(w ? { w } : {}), ...(shortZh ? { shortZh } : {}) });
   };
 
   const exactShardRows = shard?.[term];
   if (shard) {
     if (exactShardRows?.length) {
       const sorted = [...exactShardRows].sort((a, b) => a[1] - b[1]);
-      for (const [id, rank] of sorted) pushHit(toHit(id, rank, term));
+      for (const [id, rank] of sorted) pushHit(id, rank, term);
     }
 
     const prefixEntries: { id: string; rank: number; k: string }[] = [];
@@ -368,16 +406,22 @@ export async function zhLookup(q: string, limit = 30): Promise<ZhHit[]> {
     }
     prefixEntries.sort((a, b) => a.rank - b.rank);
     subEntries.sort((a, b) => a.rank - b.rank);
-    for (const item of prefixEntries) pushHit(toHit(item.id, item.rank, item.k));
-    for (const item of subEntries) pushHit(toHit(item.id, item.rank, item.k));
+    for (const item of prefixEntries) pushHit(item.id, item.rank, item.k);
+    for (const item of subEntries) pushHit(item.id, item.rank, item.k);
   }
 
-  if (!exactShardRows?.length && suggestRows?.length && hits.length < limit) {
+  let fallbackRows = suggestRows;
+  if (!exactShardRows?.length && hits.length < limit && sharded) {
+    fallbackRows = await loadSuggestShard("top");
+    addSuggestRows(fallbackRows);
+  }
+
+  if (!exactShardRows?.length && fallbackRows?.length && hits.length < limit) {
     const segExact: ZhHit[] = [];
     const segPrefix: ZhHit[] = [];
     const segSub: ZhHit[] = [];
 
-    for (const row of suggestRows) {
+    for (const row of fallbackRows) {
       const [id, w, rank, shortZh] = row;
       if (!shortZh || seen.has(id) || !shortZh.includes(term)) continue;
       const segs = shortZh
@@ -398,12 +442,34 @@ export async function zhLookup(q: string, limit = 30): Promise<ZhHit[]> {
     segPrefix.sort(byRank);
     segSub.sort(byRank);
 
-    for (const h of segExact) pushHit(h);
-    for (const h of segPrefix) pushHit(h);
-    for (const h of segSub) pushHit(h);
+    for (const h of segExact) pushHit(h.id, h.rank, h.term, h.w, h.shortZh);
+    for (const h of segPrefix) pushHit(h.id, h.rank, h.term, h.w, h.shortZh);
+    for (const h of segSub) pushHit(h.id, h.rank, h.term, h.w, h.shortZh);
   }
 
-  return hits.slice(0, limit);
+  const sliced = hits.slice(0, limit);
+  if (sharded && sliced.some((h) => !h.w)) {
+    addSuggestRows(await loadSuggestShard("top"));
+    const neededBuckets = new Set<string>();
+    for (const h of sliced) {
+      if (h.w) continue;
+      const clean = h.id.replace(/#\d+$/, "");
+      if (!byId.has(h.id) && !byId.has(clean)) {
+        neededBuckets.add(suggestBucket(lexdbFold(clean), meta?.suggestSplits));
+      }
+    }
+    if (neededBuckets.size > 0) {
+      const extras = await Promise.all([...neededBuckets].map((b) => loadSuggestShard(b)));
+      for (const list of extras) addSuggestRows(list);
+    }
+  }
+
+  return sliced.map((h) => {
+    if (h.w) return h;
+    const clean = h.id.replace(/#\d+$/, "");
+    const row = byId.get(h.id) ?? byId.get(clean);
+    return row ? { ...h, w: row[1], shortZh: row[3] } : h;
+  });
 }
 
 const DL_SCRATCH_CAP = 64;
@@ -464,7 +530,29 @@ export function damerauLevenshtein(a: string, b: string, maxDist = 2): number {
 export async function didYouMean(q: string, limit = 5): Promise<LexSuggestRow[]> {
   const f = lexdbFold(q);
   if (f.length < 2 || limit <= 0) return [];
-  const rows = await loadSuggest();
+  const meta = await loadMeta();
+  let rows: LexSuggestRow[] | null;
+  if (meta?.suggestShards) {
+    const splits = meta.suggestSplits;
+    const buckets = new Set<string>(["top", suggestBucket(f, splits)]);
+    if (f.length >= 2) buckets.add(suggestBucket(f.slice(1), splits));
+    const chunks = await Promise.all([...buckets].map((b) => loadSuggestShard(b)));
+    const combined: LexSuggestRow[] = [];
+    const seenRow = new Set<string>();
+    for (const list of chunks) {
+      if (!list) continue;
+      for (const r of list) {
+        const key = `${r[0]}|${r[1]}`;
+        if (!seenRow.has(key)) {
+          seenRow.add(key);
+          combined.push(r);
+        }
+      }
+    }
+    rows = combined;
+  } else {
+    rows = await loadSuggest();
+  }
   if (!rows?.length) return [];
 
   const index = getSuggestIndex(rows);

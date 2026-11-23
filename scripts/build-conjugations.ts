@@ -58,6 +58,11 @@ const agreeForms = (pp: string) => (/[sx]$/.test(pp) ? [pp, pp + "e", pp + "es"]
 type Status = "verified" | "partial" | "unattested" | "mismatch" | "unsupported";
 interface Mismatch { tense: string; person: string; ours: string[]; lexique: string[] }
 
+const SUPPLETIVE_MODELS = new Set([
+  "être", "avoir", "aller", "faire", "pouvoir", "vouloir", "savoir", "valoir", "falloir",
+  "devoir", "mouvoir", "mourir", "boire", "venir", "asseoir", "pleuvoir", "voir", "envoyer", "acquérir",
+]);
+
 function check(c: Conjugation) {
   const byTag = attested.get(lx(c.inf));
   const mismatches: Mismatch[] = [];
@@ -66,8 +71,13 @@ function check(c: Conjugation) {
     for (const t of SIMPLE_TENSES)
       c.forms[t].forEach((form, i) => {
         if (!form) return;
-        // the infinitive itself tagged as a finite form is noise in Lexique (fondre, accoupler)
-        const set = new Set([...(byTag.get(`${TAG[t]}:${PERSON[i]}`) ?? [])].filter((f) => f !== lx(c.inf) && f.slice(0, 2) === lx(c.inf).slice(0, 2)));
+        // the infinitive itself tagged as a finite form is noise in Lexique (fondre, accoupler);
+        // byTag is already matched by c_lemme === lx(c.inf), so suppletive verbs (être/aller/avoir/…) keep all c_lemme forms.
+        const set = new Set(
+          [...(byTag.get(`${TAG[t]}:${PERSON[i]}`) ?? [])].filter(
+            (f) => f !== lx(c.inf) && (SUPPLETIVE_MODELS.has(c.model) || f.slice(0, 2) === lx(c.inf).slice(0, 2)),
+          ),
+        );
         if (!set.size || LEXIQUE_ERRORS[`${c.inf} ${t}:${PERSON[i]}`]) return;
         checked++;
         const ours = [form, ...(c.alt?.[`${t}:${i}`] ?? [])];

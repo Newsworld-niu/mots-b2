@@ -12,7 +12,13 @@ export const PRACTICE_SOURCES: [PracticeSource, string][] = [
 ];
 
 /** Candidate words before a particular exercise filters for supported words. */
-export function sourceWordIds(atlas: Atlas, p: Progress, source: PracticeSource, startLevel: number, decks: readonly string[] = []) {
+export function sourceWordIds(
+  atlas: Atlas,
+  p: Pick<Progress, "cards" | "mistakes" | "bookmarks" | "decks" | "hidden" | "coreMigrated">,
+  source: PracticeSource,
+  startLevel: number,
+  decks: readonly string[] = [],
+) {
   const ids = source === "recent"
     ? Object.entries(p.cards).sort((a, b) => (b[1].last ?? 0) - (a[1].last ?? 0)).map(([id]) => id)
     : source === "mistakes" ? p.mistakes

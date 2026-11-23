@@ -6,6 +6,7 @@ import App from "./App";
 import { DATASET_ID } from "./config";
 import { initNative, isNative } from "./lib/native";
 import { migrateLegacy } from "./store/legacy";
+import { ErrorBoundary } from "./ui/ErrorBoundary";
 import "./styles/app.css";
 
 // Carry over progress from the first prototype before the store reads it.
@@ -13,7 +14,9 @@ migrateLegacy(localStorage, DATASET_ID, "word-atlas:settings", (id) => `word-atl
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>,
 );
 

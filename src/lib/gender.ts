@@ -22,3 +22,11 @@ export function articleTone(art: string | undefined) {
 
 /** What the spelling question asks for: a quizzed noun is typed with its article ("une maison"), anything else alone. */
 export const spellTarget = (e: { w: string; art?: string; g?: Gender }) => (e.g && (e.art === "un" || e.art === "une") ? `${e.art} ${e.w}` : e.w);
+
+/** True when a headword is compact and clean enough for typing/spelling/dictation quizzes (<= 4 words, no variant slashes/placeholders). */
+export function isSpellableHeadword(word: string): boolean {
+  const cleaned = word.replace(/\([^)]*\)/g, " ").replace(/\s+/g, " ").trim();
+  if (!cleaned) return false;
+  if (/[/=€+…«»]/.test(cleaned)) return false;
+  return cleaned.split(/\s+/).length <= 4;
+}

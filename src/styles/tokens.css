@@ -1,0 +1,108 @@
+/* Responsive canonical breakpoints: sm 560px (max 559px) · md 760px (max 759px) · lg 960px (max 959px) · xl 1200px (max 1199px) */
+/* Word Atlas — design system
+   Paper, ink and four field-guide pigments, matched to the illustration palette. */
+
+:root {
+  /* Light: bright ivory paper lit from above; gold is the colour of "light". */
+  --paper: #f6f1e7;
+  --paper-2: #eee7d9;
+  --paper-3: #e4dac8;
+  --card: #fffdf8;
+  --card-2: #faf5ec;
+  --ink: #1a2035;
+  --ink-2: #434b65;
+  --ink-3: #565a6a;
+  --ink-4: #6e6c67;
+  --line: rgba(26, 32, 53, 0.1);
+  --line-strong: rgba(26, 32, 53, 0.15);
+  --terra: #c4573a;
+  --terra-ink: #a8432a;
+  --terra-soft: #f5ddd1;
+  --ochre: #cb922c;
+  --ochre-soft: #f7e7c4;
+  --sage: #6a8c63;
+  --sage-ink: #4b6b45;
+  --sage-soft: #dfe9d8;
+  --sky: #5f88a8;
+  --sky-soft: #dde8f0;
+  --plum: #9a6283;
+  --glow: rgba(255, 200, 110, 0.26);
+  --mark: rgba(211, 154, 47, 0.32);
+  --shadow-sm: 0 1px 2px rgba(30, 38, 64, 0.06), 0 2px 6px -2px rgba(30, 38, 64, 0.06);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 1px 2px rgba(30, 38, 64, 0.05), 0 18px 40px -24px rgba(30, 38, 64, 0.28);
+  --shadow-lg: 0 30px 80px -30px rgba(20, 26, 46, 0.45), 0 8px 24px -12px rgba(20, 26, 46, 0.2);
+  --serif: "Fraunces Variable", "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Segoe UI", "Microsoft YaHei", "Noto Sans SC", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --r-sm: 10px;
+  --r: 16px;
+  --r-lg: 24px;
+  --r-xl: 32px;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+  --top: 68px;
+  --tab: 0px;
+  --gutter: 20px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0d1120;
+    --paper-2: #151b2d;
+    --paper-3: #1e263b;
+    --card: #131a2b;
+    --card-2: #19213a;
+    --ink: #f2ebdd;
+    --ink-2: #c8c1b3;
+    --ink-3: #a1a0aa;
+    --ink-4: #858a9c;
+    --line: rgba(242, 235, 221, 0.08);
+    --line-strong: rgba(242, 235, 221, 0.14);
+    --terra: #e57c5a;
+    --terra-ink: #f29a7b;
+    --terra-soft: rgba(229, 124, 90, 0.16);
+    --ochre: #e8b65a;
+    --ochre-soft: rgba(232, 182, 90, 0.15);
+    --sage: #97b88e;
+    --sage-ink: #b5d1ac;
+    --sage-soft: rgba(151, 184, 142, 0.15);
+    --sky: #8fb2cc;
+    --sky-soft: rgba(143, 178, 204, 0.15);
+    --glow: rgba(232, 182, 90, 0.14);
+    --mark: rgba(232, 182, 90, 0.28);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 20px 40px -24px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, 0.75);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0d1120;
+  --paper-2: #151b2d;
+  --paper-3: #1e263b;
+  --card: #131a2b;
+  --card-2: #19213a;
+  --ink: #f2ebdd;
+  --ink-2: #c8c1b3;
+  --ink-3: #a1a0aa;
+  --ink-4: #858a9c;
+  --line: rgba(242, 235, 221, 0.08);
+  --line-strong: rgba(242, 235, 221, 0.14);
+  --terra: #e57c5a;
+  --terra-ink: #f29a7b;
+  --terra-soft: rgba(229, 124, 90, 0.16);
+  --ochre: #e8b65a;
+  --ochre-soft: rgba(232, 182, 90, 0.15);
+  --sage: #97b88e;
+  --sage-ink: #b5d1ac;
+  --sage-soft: rgba(151, 184, 142, 0.15);
+  --sky: #8fb2cc;
+  --sky-soft: rgba(143, 178, 204, 0.15);
+  --glow: rgba(232, 182, 90, 0.14);
+  --mark: rgba(232, 182, 90, 0.28);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 20px 40px -24px rgba(0, 0, 0, 0.7);
+  --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, 0.75);
+  color-scheme: dark;
+}

@@ -81,6 +81,10 @@ export interface LexMeta {
   licenses: string[];
   /** 2-letter prefixes split into 3-letter shards under e/ and forms/. */
   splits: string[];
+  /** True when suggest rows are sharded under suggest/<bucket>.json + suggest/top.json. */
+  suggestShards?: boolean;
+  /** 1-letter suggest prefixes split into 2-letter shards under suggest/. */
+  suggestSplits?: string[];
   counts: {
     lemmas: number;
     withZh: number;
@@ -91,7 +95,7 @@ export interface LexMeta {
   };
 }
 
-/** Folded spelling, matching scripts/build-dict.py and src/lib/dict.ts. */
+/** Folded spelling, matching src/lib/dict.ts normalization. */
 export const lexdbFold = (s: string) =>
   foldAccents(s.trim().replace(/[’‘]/g, "'").replace(/\s+/g, " "));
 
@@ -102,13 +106,17 @@ export function lexdbBaseKey(folded: string): string {
   return (letters + "_").slice(0, 2);
 }
 
-/** Resolve actual shard key taking 3-letter prefix splits from meta.json into account. */
+/** Resolve actual shard key taking 2->3->4-letter prefix splits from meta.json into account. */
 export function lexdbKey(folded: string, splits?: ReadonlySet<string> | readonly string[]): string {
-  const base = lexdbBaseKey(folded);
+  let key = lexdbBaseKey(folded);
+  if (key === "__") return key;
   const splitSet = splits instanceof Set ? splits : splits ? new Set(splits) : null;
-  if (!splitSet || !splitSet.has(base)) return base;
+  if (!splitSet) return key;
   const letters = folded.replace(/[^a-z]/g, "");
-  return (letters + "__").slice(0, 3);
+  while (key.length < 4 && splitSet.has(key)) {
+    key = (letters + "___").slice(0, key.length + 1);
+  }
+  return key;
 }
 
 /** Shard bucket (0..63) for Chinese reverse lookup terms. */

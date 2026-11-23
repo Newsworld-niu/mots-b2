@@ -4,9 +4,10 @@
  * based on exam countdown and weakest skills from `examLog`, essays, and placement.
  * When the exam is under 6 months away, vocabulary time share is capped at <= 25%.
  */
-import { totalScore } from "./essay";
-import { outOf25 } from "./exam";
-import type { Progress, Settings } from "../store/store";
+import { B1_ESSAY_IDS, totalScore } from "./essay-schema";
+import { isOfficialB2Exam, outOf25 } from "./exam-schema";
+import { CAUSE_LABEL, missStats } from "./listening";
+import { dayKey, type Progress, type Settings } from "../store/store";
 
 export type ExamSkill = "listen" | "read" | "essay" | "speak";
 export type PrepKind = ExamSkill | "grammar" | "vocab";
@@ -45,6 +46,7 @@ export interface PrepSchedule {
   vocabSharePct: number;
   vocabOverCap: boolean;
   suggestedDailyNew: number;
+  weakGramTagsCount: number;
   tasks: PrepTask[];
 }
 
@@ -79,11 +81,11 @@ export function addMonthsDate(months: number, now = new Date()): string {
 const avg = (nums: number[]) => (nums.length ? Math.round((nums.reduce((a, b) => a + b, 0) / nums.length) * 10) / 10 : null);
 
 /** Compute per-skill recent /25 averages from examLog, essays, and placement fallback. */
-export function analyzePrepSkills(p: Pick<Progress, "examLog" | "essays" | "placement">): Record<ExamSkill, SkillStatus> {
+export function analyzePrepSkills(p: Pick<Progress, "examLog" | "essays" | "placement"> & { essayTasks?: Progress["essayTasks"] }): Record<ExamSkill, SkillStatus> {
   const log = p.examLog ?? [];
   const collectLog = (part: string) =>
     log
-      .filter((r) => (r.part as string) === part && !(r as { typed?: boolean }).typed && !(r.part === "speak" && r.total !== 25))
+      .filter((r) => (r.part as string) === part && isOfficialB2Exam(r))
       .slice(0, 3)
       .map((r) => outOf25(r));
 
@@ -91,8 +93,9 @@ export function analyzePrepSkills(p: Pick<Progress, "examLog" | "essays" | "plac
   const readScores = collectLog("read");
   const speakScores = collectLog("speak");
   const essayLogScores = collectLog("essay");
+  const aiB1 = new Set((p.essayTasks ?? []).filter((t) => t.level === "B1").map((t) => t.id));
   const essayDraftScores = (p.essays ?? [])
-    .filter((e) => e.fb)
+    .filter((e) => e.fb && !B1_ESSAY_IDS.has(e.task) && !aiB1.has(e.task))
     .slice(0, 3)
     .map((e) => Math.round(totalScore(e.rev?.fb ?? e.fb!) * 10) / 10);
   const essayScores = essayLogScores.length ? essayLogScores : essayDraftScores;
@@ -128,8 +131,8 @@ export function analyzePrepSkills(p: Pick<Progress, "examLog" | "essays" | "plac
 }
 
 export interface PrepInput {
-  progress: Pick<Progress, "examLog" | "essays" | "placement" | "gram" | "gramTags" | "compMisses">;
-  settings: Pick<Settings, "examDate" | "targetScore" | "dailyNew" | "startLevel">;
+  progress: Pick<Progress, "examLog" | "essays" | "placement" | "gram" | "gramTags" | "compMisses"> & { essayTasks?: Progress["essayTasks"] };
+  settings: Pick<Settings, "examDate" | "targetScore" | "dailyNew" | "startLevel" | "dailyMinutes">;
   vocabMinutes: number;
   dueCount: number;
   freshCount: number;
@@ -155,6 +158,16 @@ export function buildPrepSchedule(input: PrepInput): PrepSchedule {
   let weakest: ExamSkill;
   let weakReason: string;
 
+  const compMisses = input.progress.compMisses ?? [];
+  const listenMisses = compMisses.filter((m) => m.part === "listen");
+  const readMisses = compMisses.filter((m) => m.part === "read");
+  const listenTopMiss = missStats(compMisses, "listen")[0];
+  const readTopMiss = missStats(compMisses, "read")[0];
+  const missSuffixFor = (part: ExamSkill) => {
+    const top = part === "listen" ? listenTopMiss : part === "read" ? readTopMiss : undefined;
+    return top ? ` · 近错多为「${CAUSE_LABEL[top.cause]}」（${top.n} 题）` : "";
+  };
+
   if (tested.length) {
     const lowestTested = [...tested].sort((a, b) => (a.score25 ?? 25) - (b.score25 ?? 25))[0];
     if ((lowestTested.score25 ?? 25) < targetPerPart || !untested.length) {
@@ -177,6 +190,10 @@ export function buildPrepSchedule(input: PrepInput): PrepSchedule {
       weakest = input.progress.placement.weak.includes("grammar") ? "essay" : SKILL_ORDER[dayIndex % SKILL_ORDER.length];
       weakReason = "摸底显示语法/输出待加强，建议通过写作/口语输出巩固";
     }
+  } else if (listenMisses.length >= 2 || readMisses.length >= 2) {
+    weakest = listenMisses.length >= readMisses.length ? "listen" : "read";
+    const top = weakest === "listen" ? listenTopMiss : readTopMiss;
+    weakReason = `近期听读错题集中于${SKILL_META[weakest].label}${top ? `（「${CAUSE_LABEL[top.cause]}」${top.n} 次）` : ""}，优先专项纠错`;
   } else {
     weakest = SKILL_ORDER[dayIndex % SKILL_ORDER.length];
     weakReason = "尚未完成模考或定级，建议先按四科轮换练起并建立基线";
@@ -191,11 +208,13 @@ export function buildPrepSchedule(input: PrepInput): PrepSchedule {
   });
   const secondary = others[0];
 
-  // Time budget: <6 months = 60 min/day with strict <=25% (15 min) vocab cap; steady = 45 min/day with 33% vocab cap.
-  const totalMinutes = underSixMonths ? 60 : 45;
-  const vocabCapPct = underSixMonths ? 25 : 33;
-  const vocabCapMinutes = Math.floor((totalMinutes * vocabCapPct) / 100); // 15 min for 60 min (<6 mo) or 14 min for 45 min
-  const nonVocabMinutes = totalMinutes - vocabCapMinutes; // 45 min (<6 mo) or 31 min
+  // Time budget: user override (20..180 min) or automatic (urgent <=30d = 75 min/day, sprint <6 mo = 60 min/day, steady = 45 min/day).
+  const isUrgent = phase === "urgent";
+  const customMin = typeof input.settings.dailyMinutes === "number" && input.settings.dailyMinutes >= 20 && input.settings.dailyMinutes <= 180 ? Math.round(input.settings.dailyMinutes) : null;
+  const totalMinutes = customMin ?? (isUrgent ? 75 : underSixMonths ? 60 : 45);
+  const vocabCapPct = isUrgent ? 15 : underSixMonths ? 25 : 33;
+  const vocabCapMinutes = Math.floor((totalMinutes * vocabCapPct) / 100);
+  const nonVocabMinutes = totalMinutes - vocabCapMinutes;
 
   const rawVocab = input.dueCount + input.freshCount > 0 ? Math.max(0, input.vocabMinutes) : 0;
   const effectiveTotal = rawVocab + nonVocabMinutes;
@@ -204,31 +223,41 @@ export function buildPrepSchedule(input: PrepInput): PrepSchedule {
 
   // Max new words per day that fits inside `vocabCapMinutes` alongside today's due reviews.
   const dueCost = input.dueCount * 0.25;
-  const suggestedDailyNew = Math.max(0, Math.min(15, Math.floor(Math.max(0, vocabCapMinutes - dueCost) / 0.9)));
+  const suggestedDailyNew = Math.max(0, Math.min(isUrgent ? 5 : 15, Math.floor(Math.max(0, vocabCapMinutes - dueCost) / 0.9)));
 
   const plannedVocabMinutes = Math.min(rawVocab, vocabCapMinutes);
   const remaining = totalMinutes - plannedVocabMinutes;
 
-  const primaryMin = underSixMonths ? Math.round(remaining * 0.56) : Math.round(remaining * 0.45);
-  const secondaryMin = underSixMonths ? Math.round(remaining * 0.27) : Math.round(remaining * 0.3);
-  const grammarMin = Math.max(5, remaining - primaryMin - secondaryMin);
-
+  const weakGramTags = Object.entries(input.progress.gramTags ?? {}).filter(([, t]) => t.n >= 2 && t.w / t.n >= 0.35);
+  const weakGramTagsCount = weakGramTags.length;
+  const weakGramPointsCount = new Set(weakGramTags.map(([k]) => k.split("|")[0])).size;
   const gDue = input.grammarDueCount ?? 0;
   const gErr = input.grammarUntouchedErrors ?? 0;
+  const grammarBoost = weakGramTagsCount >= 3 || gErr > 0 ? 0.05 : 0;
+
+  const primaryMin = isUrgent ? Math.round(remaining * (0.6 - grammarBoost / 2)) : underSixMonths ? Math.round(remaining * (0.56 - grammarBoost / 2)) : Math.round(remaining * (0.45 - grammarBoost / 2));
+  const secondaryMin = isUrgent ? Math.round(remaining * (0.28 - grammarBoost / 2)) : underSixMonths ? Math.round(remaining * (0.27 - grammarBoost / 2)) : Math.round(remaining * (0.3 - grammarBoost / 2));
+  const grammarMin = Math.max(5, remaining - primaryMin - secondaryMin);
+
+  const weakTagSuffix = weakGramTagsCount > 0 ? ` · ${weakGramTagsCount} 项语法细则失分偏高（${weakGramPointsCount} 个语法点）` : "";
   const grammarReason =
     gErr > 0
-      ? `有 ${gErr} 个作文错句关联语法点未练`
+      ? `有 ${gErr} 个作文错句关联语法点未练${weakTagSuffix}`
       : gDue > 0
-        ? `${gDue} 个语法点到期需复习`
-        : input.progress.placement?.weak.includes("grammar")
-          ? "摸底显示语法薄弱，重点巩固复合时态与虚拟式"
-          : "强化 B1/B2 语法点、动词变位与论证表达";
+        ? `${gDue} 个语法点到期需复习${weakTagSuffix}`
+        : weakGramTagsCount > 0
+          ? `检测到 ${weakGramTagsCount} 个高频失分语法细项，建议专项巩固`
+          : input.progress.placement?.weak.includes("grammar")
+            ? "摸底显示语法薄弱，重点巩固复合时态与虚拟式"
+            : "强化 B1/B2 语法点、动词变位与论证表达";
 
-  const vocabReason = underSixMonths
-    ? `距考不足 6 个月，背词严控 ≤${vocabCapPct}%（上限 ${vocabCapMinutes} 分钟）；建议聚焦 B1/B2 高频词`
-    : input.dueCount + input.freshCount > 0
-      ? `今日复习 ${input.dueCount} · 新词 ${input.freshCount}（控制节奏，留足时间练听说读写）`
-      : "今日词汇已完成，可专注真题输入输出";
+  const vocabReason = isUrgent
+    ? `考前 ${daysLeft} 天冲刺：背词严控 ≤${vocabCapPct}%（上限 ${vocabCapMinutes} 分钟，新词建议 ≤5 个）；全力投入真题限时输出与复盘`
+    : underSixMonths
+      ? `距考不足 6 个月，背词严控 ≤${vocabCapPct}%（上限 ${vocabCapMinutes} 分钟）；建议聚焦 B1/B2 高频词`
+      : input.dueCount + input.freshCount > 0
+        ? `今日复习 ${input.dueCount} · 新词 ${input.freshCount}（控制节奏，留足时间练听说读写）`
+        : "今日词汇已完成，可专注真题输入输出";
 
   const pctOf = (m: number) => Math.round((m / totalMinutes) * 100);
 
@@ -238,7 +267,7 @@ export function buildPrepSchedule(input: PrepInput): PrepSchedule {
       title: `主攻${SKILL_META[weakest].label}（${SKILL_META[weakest].code}）：${SKILL_META[weakest].taskTitle}`,
       minutes: primaryMin,
       sharePct: pctOf(primaryMin),
-      reason: weakReason,
+      reason: `${weakReason}${tested.length || input.progress.placement ? missSuffixFor(weakest) : ""}`,
       cta: SKILL_META[weakest].cta,
     },
     {
@@ -246,7 +275,7 @@ export function buildPrepSchedule(input: PrepInput): PrepSchedule {
       title: `搭配${SKILL_META[secondary.part].label}（${SKILL_META[secondary.part].code}）：${SKILL_META[secondary.part].taskTitle}`,
       minutes: secondaryMin,
       sharePct: pctOf(secondaryMin),
-      reason: secondary.score25 !== null ? `当前参考 ${secondary.score25}/25，保持四科均衡` : "尚无测试记录，轮换保持题感",
+      reason: `${secondary.score25 !== null ? `当前参考 ${secondary.score25}/25，保持四科均衡` : "尚无测试记录，轮换保持题感"}${missSuffixFor(secondary.part)}`,
       cta: SKILL_META[secondary.part].cta,
     },
     {
@@ -282,6 +311,52 @@ export function buildPrepSchedule(input: PrepInput): PrepSchedule {
     vocabSharePct,
     vocabOverCap,
     suggestedDailyNew,
+    weakGramTagsCount,
     tasks,
   };
+}
+
+/** Reconcile today's actual activity across all modules against each generated PrepTask kind. */
+export function reconcileDailyTasks(
+  tasks: readonly PrepTask[],
+  p: Pick<Progress, "days" | "gramDays" | "conjDays" | "expr" | "drillDays" | "examLog" | "listenSources" | "texts" | "essays" | "speakingSessions">,
+  now = new Date(),
+): Record<PrepKind, { done: boolean; detail: string }> {
+  const dk = dayKey(now);
+  const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const vocabR = p.days[dk]?.r ?? 0;
+  const vocabN = p.days[dk]?.n ?? 0;
+  const gramR = (p.gramDays?.[dk]?.r ?? 0) + (p.conjDays?.[dk]?.r ?? 0);
+  const exprDone = Object.values(p.expr ?? {}).some((c) => (c.last ?? 0) >= dayStart);
+  const drillToday = p.drillDays?.[dk] ?? 0;
+  const listenDone =
+    (p.examLog ?? []).some((e) => e.part === "listen" && e.at >= dayStart) ||
+    (p.listenSources ?? []).some((s) => (s.done ?? 0) >= dayStart);
+  const readDone =
+    (p.examLog ?? []).some((e) => e.part === "read" && e.at >= dayStart) ||
+    (p.texts ?? []).some((t) => (t.read ?? 0) >= dayStart);
+  const essayDone =
+    (p.examLog ?? []).some((e) => e.part === "essay" && e.at >= dayStart) ||
+    (p.essays ?? []).some((e) => e.created >= dayStart || (e.rev?.at ?? 0) >= dayStart) ||
+    drillToday > 0;
+  const speakDone =
+    (p.examLog ?? []).some((e) => e.part === "speak" && e.at >= dayStart) ||
+    (p.speakingSessions ?? []).some((s) => s.at >= dayStart) ||
+    drillToday > 0;
+
+  const out: Record<PrepKind, { done: boolean; detail: string }> = {
+    listen: { done: listenDone, detail: listenDone ? "今日已完成听力或精听训练" : "今日待练" },
+    read: { done: readDone, detail: readDone ? "今日已完成阅读或精读记录" : "今日待练" },
+    essay: { done: essayDone, detail: essayDone ? "今日已写入/精修作文或微练习" : "今日待练" },
+    speak: { done: speakDone, detail: speakDone ? "今日已完成口语练说或评分" : "今日待练" },
+    grammar: { done: gramR > 0 || exprDone, detail: gramR > 0 || exprDone ? `今日已练语法/表达` : "今日待练" },
+    vocab: {
+      done: vocabR > 0 || vocabN > 0,
+      detail: vocabR > 0 || vocabN > 0 ? `今日已复习 ${vocabR} · 新词 ${vocabN}` : "今日待开始",
+    },
+  };
+  for (const t of tasks) {
+    if (!out[t.kind]) out[t.kind] = { done: false, detail: "今日待练" };
+  }
+  return out;
 }

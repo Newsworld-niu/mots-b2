@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { describe, it } from "node:test";
-import { handleRequest, type HandlerEnv } from "./handlers.js";
+import { readFile } from "node:fs/promises";
+import { beforeEach, describe, it } from "node:test";
+import { readBodyWithLimit } from "./body-limit.js";
+import { clientIpKey, handleRequest, MAX_CONTROL_BYTES, MAX_RATE_BUCKETS, rateBucketCountForTest, resetRateLimits, type HandlerEnv } from "./handlers.js";
 import { MemoryObjStore, PreconditionFailedError } from "./store.js";
 
 const ENV: HandlerEnv = {
@@ -60,6 +62,10 @@ async function createInviteAndRegister(
 }
 
 describe("sync handlers", () => {
+  beforeEach(() => {
+    resetRateLimits();
+  });
+
   it("normalizes /api and non-/api health paths", async () => {
     const store = new MemoryObjStore();
     const r1 = await handleRequest({ method: "GET", path: "/api/health" }, store, ENV);
@@ -678,5 +684,288 @@ describe("sync handlers", () => {
     );
     assert.equal(raceRes.status, 412);
     assert.equal((await baseStore.list(`users/${ns}/${DATASET_ID}/history/`)).length, 0);
+  });
+
+  it("allows default preview and localhost origins including 5191 and localhost:5188", async () => {
+    const store = new MemoryObjStore();
+    for (const origin of ["http://127.0.0.1:5191", "http://localhost:5191", "http://localhost:5188"]) {
+      const res = await handleRequest(
+        { method: "OPTIONS", path: `/api/sync/${DATASET_ID}`, headers: { Origin: origin } },
+        store,
+        { ADMIN_KEY: ENV.ADMIN_KEY },
+      );
+      assert.equal(res.status, 204);
+      assert.equal(res.headers["Access-Control-Allow-Origin"], origin);
+    }
+  });
+
+  it("accepts E2EE aes-gcm-v1 envelopes for matching datasetId and rejects mismatched datasetId or short ciphertexts", async () => {
+    const store = new MemoryObjStore();
+    const { syncCode } = await createInviteAndRegister(store);
+    const auth = { Authorization: `Bearer ${syncCode}` };
+
+    const e2eeBody = JSON.stringify({
+      app: "word-atlas",
+      version: 2,
+      enc: "aes-gcm-v1",
+      datasetId: DATASET_ID,
+      iv: "AAAAAAAAAAAAAAAA",
+      ct: "BBBBBBBBBBBBBBBBBBBBBBBB",
+    });
+    const ok = await handleRequest(
+      { method: "PUT", path: `/api/sync/${DATASET_ID}`, headers: { ...auth, "If-None-Match": "*" }, body: e2eeBody },
+      store,
+      ENV,
+    );
+    assert.equal(ok.status, 200);
+
+    const mismatch = await handleRequest(
+      {
+        method: "PUT",
+        path: `/api/sync/${DATASET_ID}`,
+        headers: { ...auth, "If-Match": JSON.parse(ok.body!).etag },
+        body: JSON.stringify({ ...JSON.parse(e2eeBody), datasetId: "other-dataset" }),
+      },
+      store,
+      ENV,
+    );
+    assert.equal(mismatch.status, 400);
+  });
+
+  it("enforces rate limiting with 429 and Retry-After on registration burst", async () => {
+    const store = new MemoryObjStore();
+    const headers = { "x-forwarded-for": "203.0.113.9" };
+    for (let i = 0; i < 10; i++) {
+      const res = await handleRequest(
+        { method: "POST", path: "/api/register", headers, body: JSON.stringify({ inviteCode: "inv_bad" }) },
+        store,
+        ENV,
+      );
+      assert.equal(res.status, 403);
+    }
+    const limited = await handleRequest(
+      { method: "POST", path: "/api/register", headers, body: JSON.stringify({ inviteCode: "inv_bad" }) },
+      store,
+      ENV,
+    );
+    assert.equal(limited.status, 429);
+    assert.ok(Number(limited.headers["Retry-After"]) >= 1);
+    assert.deepEqual(JSON.parse(limited.body!), { error: "rate_limited" });
+  });
+
+  it("readBodyWithLimit aborts oversize Content-Length and streaming overflow before reading all chunks", async () => {
+    const overHeader = await readBodyWithLimit(
+      {
+        headers: new Headers({ "content-length": "99999999" }),
+        arrayBuffer: async () => {
+          throw new Error("should not buffer");
+        },
+      },
+      1024,
+    );
+    assert.deepEqual(overHeader, { ok: false, status: 413 });
+
+    let cancelled = false;
+    let pulled = 0;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulled++;
+        controller.enqueue(new Uint8Array(600));
+      },
+      cancel() {
+        cancelled = true;
+      },
+    });
+    const overStream = await readBodyWithLimit(
+      { headers: new Headers(), body: stream, arrayBuffer: async () => new ArrayBuffer(0) },
+      1024,
+    );
+    assert.deepEqual(overStream, { ok: false, status: 413 });
+    assert.equal(cancelled, true);
+    assert.ok(pulled <= 3);
+  });
+
+  it("supports v2 authToken registration, v1->v2 upgrade alias auth, pre-body rejection, and bounded rate buckets", async () => {
+    const store = new MemoryObjStore();
+    const inv = await handleRequest(
+      { method: "POST", path: "/api/invites", headers: { "x-admin-key": ENV.ADMIN_KEY }, body: JSON.stringify({ count: 2 }) },
+      store,
+      ENV,
+    );
+    const { invites } = JSON.parse(inv.body!) as { invites: string[] };
+
+    // 1. v2 registration never sees/returns syncCode
+    const authToken = "mb2a_0123456789abcdef0123456789abcdef0123456789a";
+    const v2Reg = await handleRequest(
+      { method: "POST", path: "/api/register", body: JSON.stringify({ inviteCode: invites[0], authToken }) },
+      store,
+      ENV,
+    );
+    assert.equal(v2Reg.status, 201);
+    const v2Json = JSON.parse(v2Reg.body!) as Record<string, unknown>;
+    assert.equal(v2Json.authVersion, 2);
+    assert.equal(v2Json.syncCode, undefined);
+
+    const putV2 = await handleRequest(
+      { method: "PUT", path: `/api/sync/${DATASET_ID}`, headers: { Authorization: `Bearer ${authToken}`, "If-None-Match": "*" }, body: makeBackup() },
+      store,
+      ENV,
+    );
+    assert.equal(putV2.status, 200);
+
+    // 2. v1 -> v2 upgrade via /api/auth/upgrade + alias lookup
+    const { syncCode: v1Code } = await createInviteAndRegister(store);
+    const putV1 = await handleRequest(
+      { method: "PUT", path: `/api/sync/${DATASET_ID}`, headers: { Authorization: `Bearer ${v1Code}`, "If-None-Match": "*" }, body: makeBackup(DATASET_ID, 7) },
+      store,
+      ENV,
+    );
+    assert.equal(putV1.status, 200);
+    const newAlias = "mb2a_fedcba9876543210fedcba9876543210fedcba98765";
+    const up = await handleRequest(
+      { method: "POST", path: "/api/auth/upgrade", headers: { Authorization: `Bearer ${v1Code}` }, body: JSON.stringify({ newAuthToken: newAlias }) },
+      store,
+      ENV,
+    );
+    assert.equal(up.status, 200);
+    const getViaAlias = await handleRequest(
+      { method: "GET", path: `/api/sync/${DATASET_ID}`, headers: { Authorization: `Bearer ${newAlias}` } },
+      store,
+      ENV,
+    );
+    assert.equal(getViaAlias.status, 200);
+    assert.ok(getViaAlias.body?.includes('"reps":7'));
+
+    const delAlias = await handleRequest(
+      { method: "DELETE", path: "/api/account", headers: { Authorization: `Bearer ${newAlias}` } },
+      store,
+      ENV,
+    );
+    assert.equal(delAlias.status, 204);
+    const afterDel = await handleRequest(
+      { method: "GET", path: `/api/sync/${DATASET_ID}`, headers: { Authorization: `Bearer ${newAlias}` } },
+      store,
+      ENV,
+    );
+    assert.equal(afterDel.status, 401);
+
+    // 3. Unauthorized PUT never invokes readBody
+    let readCalled = false;
+    const unauthPut = await handleRequest(
+      {
+        method: "PUT",
+        path: `/api/sync/${DATASET_ID}`,
+        readBody: async () => {
+          readCalled = true;
+          return { ok: true, body: new Uint8Array(0) };
+        },
+      },
+      store,
+      ENV,
+    );
+    assert.equal(unauthPut.status, 401);
+    assert.equal(readCalled, false);
+
+    // 4. Control endpoint (>64 KB) returns 413 payload_too_large
+    const bigReg = await handleRequest(
+      { method: "POST", path: "/api/register", headers: { "x-azure-clientip": "198.51.100.8" }, body: "x".repeat(MAX_CONTROL_BYTES + 10) },
+      store,
+      ENV,
+    );
+    assert.equal(bigReg.status, 413);
+
+    // 5. clientIpKey prioritizes x-azure-clientip and rightmost XFF
+    assert.equal(clientIpKey({ headers: { "x-forwarded-for": "1.1.1.1, 2.2.2.2", "x-azure-clientip": "9.9.9.9" } }), "9.9.9.9");
+    assert.equal(clientIpKey({ headers: { "x-forwarded-for": "1.1.1.1, 2.2.2.2" } }), "2.2.2.2");
+
+    // 6. Rate bucket map stays bounded <= MAX_RATE_BUCKETS
+    resetRateLimits();
+    for (let i = 0; i < MAX_RATE_BUCKETS + 50; i++) {
+      await handleRequest(
+        { method: "POST", path: "/api/register", headers: { "x-azure-clientip": `10.0.${Math.floor(i / 256)}.${i % 256}` }, body: "{}" },
+        store,
+        ENV,
+      );
+    }
+    assert.ok(rateBucketCountForTest() <= MAX_RATE_BUCKETS);
+  });
+
+  it("verifies /auth/upgrade route behavior and api.ts registration without server-side AI routes", async () => {
+    const apiSource = await readFile(new URL("../../src/functions/api.ts", import.meta.url), "utf8");
+    assert.match(apiSource, /app\.http\(\s*"authUpgrade"/);
+    assert.match(apiSource, /route:\s*"auth\/upgrade"/);
+    assert.doesNotMatch(apiSource, /speech|whisper|pronunciation|openai/i);
+
+    const store = new MemoryObjStore();
+    const { syncCode } = await createInviteAndRegister(store);
+
+    // Non-POST rejected with 405
+    const wrongMethod = await handleRequest(
+      { method: "GET", path: "/auth/upgrade", headers: { Authorization: `Bearer ${syncCode}` } },
+      store,
+      ENV,
+    );
+    assert.equal(wrongMethod.status, 405);
+
+    // Missing / invalid bearer rejected with 401
+    const unauth = await handleRequest(
+      {
+        method: "POST",
+        path: "/auth/upgrade",
+        body: JSON.stringify({ newAuthToken: "mb2a_0123456789abcdef0123456789abcdef0123456789a" }),
+      },
+      store,
+      ENV,
+    );
+    assert.equal(unauth.status, 401);
+
+    // Invalid JSON or malformed newAuthToken rejected with 400
+    const badJson = await handleRequest(
+      { method: "POST", path: "/auth/upgrade", headers: { Authorization: `Bearer ${syncCode}` }, body: "{not-json" },
+      store,
+      ENV,
+    );
+    assert.equal(badJson.status, 400);
+
+    const badToken = await handleRequest(
+      {
+        method: "POST",
+        path: "/auth/upgrade",
+        headers: { Authorization: `Bearer ${syncCode}` },
+        body: JSON.stringify({ newAuthToken: syncCode }), // v1 prefix instead of mb2a_
+      },
+      store,
+      ENV,
+    );
+    assert.equal(badToken.status, 400);
+    assert.deepEqual(JSON.parse(badToken.body!), { error: "invalid_auth_token" });
+
+    // Bare /auth/upgrade route (matching Azure Functions routePrefix="api" stripped path) upgrades cleanly
+    const upgradedToken = "mb2a_abcdef0123456789abcdef0123456789abcdef01234";
+    const ok = await handleRequest(
+      {
+        method: "POST",
+        path: "/auth/upgrade",
+        headers: { Authorization: `Bearer ${syncCode}` },
+        body: JSON.stringify({ newAuthToken: upgradedToken }),
+      },
+      store,
+      ENV,
+    );
+    assert.equal(ok.status, 200);
+    assert.deepEqual(JSON.parse(ok.body!), { ok: true, authVersion: 2 });
+
+    // Upgraded v2 token writes/reads the same user namespace
+    const putViaV2 = await handleRequest(
+      {
+        method: "PUT",
+        path: `/sync/${DATASET_ID}`,
+        headers: { Authorization: `Bearer ${upgradedToken}`, "If-None-Match": "*" },
+        body: makeBackup(DATASET_ID, 11),
+      },
+      store,
+      ENV,
+    );
+    assert.equal(putViaV2.status, 200);
   });
 });
