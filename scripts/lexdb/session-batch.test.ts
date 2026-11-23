@@ -244,9 +244,25 @@ test("session-batch claim, apply (with trad->simp & missing reset), review, and 
   }
 });
 
-test("toSimp converts traditional characters without corrupting common simplified chars", () => {
-  setTradMap(null);
+test("toSimp converts traditional characters without corrupting common simplified chars", async () => {
+  const { cleanTradMap } = await import("./session-batch.ts");
+  setTradMap(
+    cleanTradMap({
+      类: "西",
+      强: "强",
+      转: "转",
+      层: "层",
+      喜: "西",
+      甚: "什",
+      著: "着",
+      傳: "传",
+      統: "统",
+      鷄: "鸡",
+    }),
+  );
   try {
+    assert.equal(toSimp("喜欢甚至著名显著转层类强傳統鷄"), "喜欢甚至著名显著转层类强传统鸡");
+    setTradMap(null);
     assert.equal(toSimp("喜欢甚至著名显著转层类强傳統"), "喜欢甚至著名显著转层类强传统");
   } finally {
     setTradMap(null);

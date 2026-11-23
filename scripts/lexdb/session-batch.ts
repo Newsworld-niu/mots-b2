@@ -122,19 +122,37 @@ const tierSql = (tier: Tier) =>
       : "(l.rank IS NULL OR l.rank > 15000)";
 
 const BAD_TRAD_KEYS = new Set(["类", "强", "转", "层", "喜", "甚", "著", "乾", "徵"]);
+const FALLBACK_TRAD: Record<string, string> = {
+  傳: "传",
+  統: "统",
+  語: "语",
+  學: "学",
+  國: "国",
+  體: "体",
+  轉: "转",
+  層: "层",
+  類: "类",
+  強: "强",
+  鷄: "鸡",
+};
 let tradMap: Record<string, string> | null = null;
 export function setTradMap(m: Record<string, string> | null) {
   tradMap = m;
 }
-function loadTrad(): Record<string, string> {
-  if (tradMap) return tradMap;
-  const raw = existsSync(TRAD_SIMP) ? (JSON.parse(readFileSync(TRAD_SIMP, "utf8")) as Record<string, string>) : {};
+export function cleanTradMap(raw: Record<string, string>): Record<string, string> {
   const clean: Record<string, string> = {};
   for (const [k, v] of Object.entries(raw)) {
     if (BAD_TRAD_KEYS.has(k) || raw[v] === k) continue;
     clean[k] = k === "鷄" ? "鸡" : v;
   }
-  tradMap = clean;
+  return clean;
+}
+function loadTrad(): Record<string, string> {
+  if (tradMap) return tradMap;
+  const raw = existsSync(TRAD_SIMP)
+    ? (JSON.parse(readFileSync(TRAD_SIMP, "utf8")) as Record<string, string>)
+    : FALLBACK_TRAD;
+  tradMap = cleanTradMap(raw);
   return tradMap;
 }
 export function toSimp(s: string): string {

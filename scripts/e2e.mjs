@@ -252,7 +252,7 @@ const sent = (name, k = 0) => aiCalls.filter((c) => c.name === name)[k]?.input;
 const marks = (scores, corrections, rewrite) => ({ scores, comment: "整体清楚，时态还要注意。", strengths: ["回应了邀请"], todo: ["注意过去时的配合"], corrections, rewrite });
 const ERR = { wrong: "il fait beau", right: "il faisait beau", type: "tense", why: "过去的背景用未完成过去时。", point: "imparfait" };
 const SAY = "Je pense que les écrans prennent trop de place dans la vie des enfants. D'abord, ils dorment moins. Ensuite, ils bougent moins. Cependant, les outils numériques peuvent aussi aider à apprendre.";
-const longDoc = (n) => `Document ${n}. ` + "Selon une étude récente, de plus en plus de jeunes Français choisissent de travailler à distance, mais beaucoup regrettent le manque de contacts avec leurs collègues. ".repeat(3);
+const longDoc = (n) => `Document ${n}. ` + "Selon une étude récente, de plus en plus de jeunes Français choisissent de travailler à distance, mais beaucoup regrettent le manque de contacts avec leurs collègues. ".repeat(5);
 const QS = (doc) => [0, 1, 2].map((a) => ({ doc, q: `Selon le document, la question ${a + 1}…`, options: ["augmente", "diminue", "reste stable"], answer: a, why: "见第一段。", difficulty: a + 1 }));
 const MOCK = {
   essay_marking: (k) => (k === 0 ? marks({ task: 3, coherence: 3, socio: 3, lexique: 3, morpho: 3 }, [ERR], LETTER.replace("il fait beau", "il faisait beau")) : marks({ task: 3, coherence: 3, socio: 3, lexique: 5, morpho: 3 }, [], "")),
@@ -262,6 +262,14 @@ const MOCK = {
     input.form === "short"
       ? { intro: "Vous écoutez trois enregistrements.", title: "Le travail", docs: [1, 2, 3].map((n) => ({ text: longDoc(n), zh: "译文" })), questions: [0, 0, 1, 1, 2, 2].map((d, j) => ({ ...QS(d)[j % 2 === 0 ? 0 : 1], doc: d })) }
       : { intro: "Vous lisez l'opinion de ces trois personnes sur un forum…", title: "Faut-il travailler à distance ?", docs: [{ text: `Léa\n${longDoc(1)}\nMarc\n${longDoc(2)}\nSonia\n${longDoc(3)}`, zh: "译文" }], questions: [0, 1, 2, 0, 1, 2].map((a, j) => ({ doc: 0, q: `Point de vue ${j + 1}`, options: ["Léa", "Marc", "Sonia"], answer: a, why: "见原文。", difficulty: 3 })) },
+  comprehension_blind_solver: (_k, input) => ({
+    items: (input.questions ?? []).map((q, i) => ({
+      index: q.index ?? i,
+      answer: q.options?.[0] === "Léa" ? i % 3 : i % 2 === 0 ? 0 : 1,
+      ambiguousDistractor: false,
+      reason: "见原文。",
+    })),
+  }),
   debate_question: (k) => ({ question: k === 0 ? "Vous dites que les enfants dorment moins : avez-vous un exemple concret ?" : "Certains diraient que l'école doit utiliser les écrans. Qu'en pensez-vous ?" }),
   speaking_assessment: () => marks({ monologue: 3, interaction: 3, lexique: 3, morpho: 1 }, [{ wrong: "ils bougent moins", right: "ils bougent moins", type: "other", why: "", point: "" }], "Je suis convaincu que…"),
 };
