@@ -8,11 +8,13 @@ export const TARGET_LANG = "fr-FR";
 export const DATASET_ID = "francais-b2-lexicon";
 
 /** Optional cloud sync server base URL (e.g. https://...azurewebsites.net). */
-export const SYNC_API_URL: string =
-  (typeof import.meta !== "undefined" && import.meta.env
-    ? ((import.meta.env.VITE_SYNC_URL as string | undefined) ?? (import.meta.env.VITE_SYNC_API_URL as string | undefined))
-    : undefined) ??
-  "https://mots-b2-sync-e12d4e.azurewebsites.net";
+const envSyncUrl =
+  typeof import.meta !== "undefined" && import.meta.env
+    ? ((import.meta.env.VITE_SYNC_URL as string | undefined)?.trim() ||
+      (import.meta.env.VITE_SYNC_API_URL as string | undefined)?.trim())
+    : undefined;
+
+export const SYNC_API_URL: string = envSyncUrl || "https://mots-b2-sync-e12d4e.azurewebsites.net";
 
 /** Optional Azure Blob Storage media base URL (e.g. https://motsb2media....blob.core.windows.net/media). */
 export const MEDIA_BASE_URL: string =
