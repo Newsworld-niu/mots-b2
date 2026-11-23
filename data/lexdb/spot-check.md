@@ -1,6 +1,6 @@
 # LexDB Atlas Spot Check (conf <= 1)
 
-Generated: 2026-11-23 | Rows: 28997 (atlas entries with uncorroborated or AI-reviewed extra senses/phrases where `conf <= 1`).
+Generated: 2026-11-23 | Rows: 31067 (atlas entries with uncorroborated or AI-reviewed extra senses/phrases where `conf <= 1`).
 
 | Rank | ID | Lemma | Atlas ID | Level | Conf | Sources | Gloss / Phrase |
 |---:|---|---|---|---|---:|---|---|
@@ -456,7 +456,7 @@ Generated: 2026-11-23 | Rows: 28997 (atlas entries with uncorroborated or AI-rev
 | 90 | `grand` | grand | `grand` | A1 | 1 | ai-reviewed | 极端的；遥远的 |
 | 90 | `grand` | grand | `grand` | A1 | 1 | ai-reviewed | [phrase] grand-mère = 祖母；外婆 |
 | 90 | `grand` | grand | `grand` | A1 | 1 | ai-reviewed | [phrase] grand-père = 祖父；外公 |
-| 90 | `grand` | grand | `grand` | A1 | 1 | ai-reviewed | [phrase] grand frère = 哥哥（非正式可用“grand frère”或“grand frère”视上下文） |
+| 90 | `grand` | grand | `grand` | A1 | 1 | ai-reviewed | [phrase] grand frère = 哥哥；兄长 |
 | 90 | `grand` | grand | `grand` | A1 | 1 | ai-reviewed | [phrase] grand-chose = 重要的事；很多（用于否定句） |
 | 91 | `vie` | vie | `vie` | A1 | 1 | ai-reviewed | 生命活动；生机 |
 | 91 | `vie` | vie | `vie` | A1 | 1 | ai-reviewed | 人类活动 |
@@ -28772,128 +28772,2198 @@ Generated: 2026-11-23 | Rows: 28997 (atlas entries with uncorroborated or AI-rev
 | 14976 | `polar` | polar | `polar` | B2 | 1 | ai-reviewed | [phrase] polar noir = 黑色犯罪小说（或电影） |
 | 14976 | `polar` | polar | `polar` | B2 | 1 | ai-reviewed | [phrase] auteur de polars = 侦探小说作家 |
 | 15007 | `congelateur` | congélateur | `congelateur` | A2 | 1 | wikt-zh | n.m. 冷冻机 |
+| 15007 | `congelateur` | congélateur | `congelateur` | A2 | 1 | ai-reviewed | [phrase] mettre au congélateur = 放进冷冻室；放入冰柜 |
+| 15007 | `congelateur` | congélateur | `congelateur` | A2 | 1 | ai-reviewed | [phrase] congélateur coffre = 卧式冰柜 |
+| 15007 | `congelateur` | congélateur | `congelateur` | A2 | 1 | ai-reviewed | [phrase] sortir du congélateur = 从冷冻室取出 |
+| 15008 | `web` | web | `web` | B1 | 1 | ai-reviewed | [phrase] site web = 网站 |
+| 15008 | `web` | web | `web` | B1 | 1 | ai-reviewed | [phrase] surfer sur le web = 上网冲浪；浏览网页 |
+| 15008 | `web` | web | `web` | B1 | 1 | ai-reviewed | [phrase] page web = 网页 |
+| 15009 | `capuche` | capuche | `capuche` | B1 | 1 | ai-reviewed | [phrase] sweat à capuche = 连帽卫衣 |
+| 15009 | `capuche` | capuche | `capuche` | B1 | 1 | ai-reviewed | [phrase] mettre sa capuche = 戴上兜帽 |
+| 15009 | `capuche` | capuche | `capuche` | B1 | 1 | ai-reviewed | [phrase] veste à capuche = 连帽外套 |
+| 15010 | `recoiffer` | recoiffer | `recoiffer` | B2 | 1 | ai-reviewed | 重新戴上帽子 |
+| 15010 | `recoiffer` | recoiffer | `recoiffer` | B2 | 1 | ai-reviewed | [phrase] se recoiffer devant le miroir = 对着镜子重新梳头 |
 | 15011 | `mouvemente` | mouvementé | `mouvemente` | B2 | 1 | wikt-zh | 多变故的；动荡的 |
+| 15011 | `mouvemente` | mouvementé | `mouvemente` | B2 | 1 | ai-reviewed | （地形）高低起伏的；（画面、风格等）富有动感的 |
+| 15011 | `mouvemente` | mouvementé | `mouvemente` | B2 | 1 | ai-reviewed | [phrase] une vie mouvementée = 跌宕起伏的人生；动荡多变的生活 |
+| 15011 | `mouvemente` | mouvementé | `mouvemente` | B2 | 1 | ai-reviewed | [phrase] un terrain mouvementé = 起伏不平的地形 |
+| 15011 | `mouvemente` | mouvementé | `mouvemente` | B2 | 1 | ai-reviewed | [phrase] une séance mouvementée = 风波不断的会议；喧闹激烈的会议 |
+| 15034 | `bulgare` | bulgare | `bulgare` | A2 | 1 | ai-reviewed | [phrase] parler bulgare = 说保加利亚语 |
+| 15034 | `bulgare` | bulgare | `bulgare` | A2 | 1 | ai-reviewed | [phrase] yaourt bulgare = 保加利亚酸奶 |
+| 15035 | `commemorer` | commémorer | `commemorer` | B2 | 1 | ai-reviewed | [phrase] commémorer un événement = 纪念某事件 |
+| 15035 | `commemorer` | commémorer | `commemorer` | B2 | 1 | ai-reviewed | [phrase] commémorer la victoire = 纪念胜利 |
+| 15035 | `commemorer` | commémorer | `commemorer` | B2 | 1 | ai-reviewed | [phrase] commémorer un anniversaire = 纪念某周年；举行周年纪念 |
+| 15036 | `mediatique` | médiatique | `mediatique` | B2 | 1 | ai-reviewed | 常上媒体的；靠媒体造势的（含贬义） |
+| 15036 | `mediatique` | médiatique | `mediatique` | B2 | 1 | ai-reviewed | [phrase] couverture médiatique = 媒体报道 |
+| 15036 | `mediatique` | médiatique | `mediatique` | B2 | 1 | ai-reviewed | [phrase] tapage médiatique = 媒体炒作；舆论喧嚣 |
+| 15036 | `mediatique` | médiatique | `mediatique` | B2 | 1 | ai-reviewed | [phrase] campagne médiatique = 媒体宣传活动 |
+| 15093 | `prospecter` | prospecter | `prospecter` | B1 | 1 | ai-reviewed | [phrase] prospecter de nouveaux clients = 开发新客户；开拓潜在客户 |
+| 15093 | `prospecter` | prospecter | `prospecter` | B1 | 1 | ai-reviewed | [phrase] prospecter un marché = 开拓市场；进行市场调研 |
+| 15093 | `prospecter` | prospecter | `prospecter` | B1 | 1 | ai-reviewed | [phrase] prospecter un gisement = 勘探矿藏 |
 | 15094 | `saliere` | salière | `saliere` | B1 | 1 | wikt-zh | 深陷的锁骨上窝；马的眼窝 |
+| 15094 | `saliere` | salière | `saliere` | B1 | 1 | ai-reviewed | （挂在炉壁旁的）厨房木制盐盒 |
+| 15094 | `saliere` | salière | `saliere` | B1 | 1 | ai-reviewed | [phrase] passer la salière = 把盐瓶递过来 |
+| 15094 | `saliere` | salière | `saliere` | B1 | 1 | ai-reviewed | [phrase] salière et poivrière = 盐瓶和胡椒瓶 |
+| 15094 | `saliere` | salière | `saliere` | B1 | 1 | ai-reviewed | [phrase] avoir les salières creuses = 锁骨窝深陷（形容消瘦） |
+| 15095 | `espiegle` | espiègle | `espiegle` | B2 | 1 | ai-reviewed | [phrase] regard espiègle = 顽皮的眼神；淘气的目光 |
+| 15095 | `espiegle` | espiègle | `espiegle` | B2 | 1 | ai-reviewed | [phrase] sourire espiègle = 调皮的微笑；俏皮的笑容 |
+| 15095 | `espiegle` | espiègle | `espiegle` | B2 | 1 | ai-reviewed | [phrase] air espiègle = 调皮的神情；顽皮的样子 |
+| 15120 | `copieux` | copieux | `copieux` | B1 | 1 | ai-reviewed | 模仿并嘲弄外国人的人 |
+| 15120 | `copieux` | copieux | `copieux` | B1 | 1 | ai-reviewed | [phrase] repas copieux = 丰盛的一餐 |
+| 15120 | `copieux` | copieux | `copieux` | B1 | 1 | ai-reviewed | [phrase] petit déjeuner copieux = 丰盛的早餐 |
+| 15120 | `copieux` | copieux | `copieux` | B1 | 1 | ai-reviewed | [phrase] dîner copieux = 丰盛的晚餐 |
+| 15121 | `beau-fils` | beau-fils | `beau-fils` | B1 | 1 | ai-reviewed | [phrase] mon beau-fils = 我的女婿；我的继子 |
+| 15121 | `beau-fils` | beau-fils | `beau-fils` | B1 | 1 | ai-reviewed | [phrase] présenter son beau-fils = 介绍自己的女婿（或继子） |
+| 15121 | `beau-fils` | beau-fils | `beau-fils` | B1 | 1 | ai-reviewed | [phrase] s'entendre avec son beau-fils = 与女婿（或继子）相处融洽 |
+| 15148 | `bulbe` | bulbe | `bulbe` | B2 | 1 | ai-reviewed | （航海）龙骨球形压载物 |
+| 15148 | `bulbe` | bulbe | `bulbe` | B2 | 1 | ai-reviewed | [phrase] bulbe rachidien = （解剖）延髓 |
+| 15148 | `bulbe` | bulbe | `bulbe` | B2 | 1 | ai-reviewed | [phrase] bulbe pileux = 毛球；毛囊球 |
+| 15148 | `bulbe` | bulbe | `bulbe` | B2 | 1 | ai-reviewed | [phrase] planter des bulbes = 种植球茎（花卉） |
+| 15149 | `inegalite` | inégalité | `inegalite` | B2 | 1 | ai-reviewed | （情绪、性情的）反复无常；喜怒无常 |
+| 15149 | `inegalite` | inégalité | `inegalite` | B2 | 1 | ai-reviewed | 不平整；凹凸不平；不均匀；参差不齐 |
+| 15149 | `inegalite` | inégalité | `inegalite` | B2 | 1 | ai-reviewed | [phrase] les inégalités sociales = 社会不平等 |
+| 15149 | `inegalite` | inégalité | `inegalite` | B2 | 1 | ai-reviewed | [phrase] lutter contre les inégalités = 消除不平等现象；反对不平等 |
+| 15149 | `inegalite` | inégalité | `inegalite` | B2 | 1 | ai-reviewed | [phrase] inégalité des chances = 机会不均等 |
+| 15175 | `intolerance` | intolérance | `intolerance` | A2 | 1 | ai-reviewed | （对食物、药物等的）不耐受；不耐症 |
+| 15175 | `intolerance` | intolérance | `intolerance` | A2 | 1 | ai-reviewed | [phrase] intolérance au lactose = 乳糖不耐受 |
+| 15175 | `intolerance` | intolérance | `intolerance` | A2 | 1 | ai-reviewed | [phrase] intolérance au gluten = 麸质不耐受 |
+| 15175 | `intolerance` | intolérance | `intolerance` | A2 | 1 | ai-reviewed | [phrase] intolérance religieuse = 宗教不宽容；宗教排他主义 |
+| 15176 | `rallye` | rallye | `rallye` | B1 | 1 | ai-reviewed | 撒纸追踪游戏；越野寻踪赛 |
+| 15176 | `rallye` | rallye | `rallye` | B1 | 1 | ai-reviewed | （私人举办的）社交舞会；青年联谊舞会 |
+| 15176 | `rallye` | rallye | `rallye` | B1 | 1 | ai-reviewed | [phrase] rallye automobile = 汽车拉力赛 |
+| 15176 | `rallye` | rallye | `rallye` | B1 | 1 | ai-reviewed | [phrase] pilote de rallye = 拉力赛车手 |
+| 15176 | `rallye` | rallye | `rallye` | B1 | 1 | ai-reviewed | [phrase] rallye pédestre = 徒步定向越野赛 |
+| 15200 | `photocopieuse` | photocopieuse | `photocopieuse` | A2 | 1 | ai-reviewed | [phrase] photocopieuse couleur = 彩色复印机 |
+| 15200 | `photocopieuse` | photocopieuse | `photocopieuse` | A2 | 1 | ai-reviewed | [phrase] utiliser la photocopieuse = 使用复印机 |
+| 15200 | `photocopieuse` | photocopieuse | `photocopieuse` | A2 | 1 | ai-reviewed | [phrase] faire une copie à la photocopieuse = 用复印机复印一份 |
+| 15208 | `spatule` | spatule | `spatule` | B1 | 1 | ai-reviewed | （药学、化学）药匙；调药铲 |
+| 15208 | `spatule` | spatule | `spatule` | B1 | 1 | ai-reviewed | （医学）压舌板 |
+| 15208 | `spatule` | spatule | `spatule` | B1 | 1 | ai-reviewed | [phrase] spatule de cuisine = 厨房刮刀；锅铲 |
+| 15208 | `spatule` | spatule | `spatule` | B1 | 1 | ai-reviewed | [phrase] spatule en silicone = 硅胶刮刀 |
+| 15208 | `spatule` | spatule | `spatule` | B1 | 1 | ai-reviewed | [phrase] mélanger à la spatule = 用刮刀搅拌 |
+| 15209 | `tutoiement` | tutoiement | `tutoiement` | B1 | 1 | ai-reviewed | [phrase] passer au tutoiement = 改用“tu”相称；改以“你”称呼 |
+| 15209 | `tutoiement` | tutoiement | `tutoiement` | B1 | 1 | ai-reviewed | [phrase] tutoiement facile = 习惯用“tu”称呼；动辄以“你”相称 |
+| 15209 | `tutoiement` | tutoiement | `tutoiement` | B1 | 1 | ai-reviewed | [phrase] éviter le tutoiement = 避免使用“tu”称呼 |
+| 15210 | `ralentissement` | ralentissement | `ralentissement` | B2 | 1 | ai-reviewed | （物理学）中子慢化；中子减速 |
+| 15210 | `ralentissement` | ralentissement | `ralentissement` | B2 | 1 | ai-reviewed | [phrase] ralentissement économique = 经济放缓 |
+| 15210 | `ralentissement` | ralentissement | `ralentissement` | B2 | 1 | ai-reviewed | [phrase] ralentissement de la circulation = 交通缓行；车流减速 |
+| 15210 | `ralentissement` | ralentissement | `ralentissement` | B2 | 1 | ai-reviewed | [phrase] zone de ralentissement = 减速区；缓行路段 |
 | 15211 | `loueur` | loueur | `loueur` | B2 | 1 | wikt-zh | 赞扬者；出租者 |
+| 15211 | `loueur` | loueur | `loueur` | B2 | 1 | ai-reviewed | 阿谀奉承者；一味吹捧的人 |
+| 15211 | `loueur` | loueur | `loueur` | B2 | 1 | ai-reviewed | [phrase] loueur de voitures = 汽车租赁商；租车行 |
+| 15211 | `loueur` | loueur | `loueur` | B2 | 1 | ai-reviewed | [phrase] loueur en meublé = 带家具房屋出租人 |
+| 15211 | `loueur` | loueur | `loueur` | B2 | 1 | ai-reviewed | [phrase] loueur de vélos = 自行车出租商 |
+| 15212 | `layette` | layette | `layette` | B2 | 1 | ai-reviewed | （旧时存放文件的）轻便小木匣；文件盒 |
+| 15212 | `layette` | layette | `layette` | B2 | 1 | ai-reviewed | （旧时存放档案的）档案箱；文书匣 |
+| 15212 | `layette` | layette | `layette` | B2 | 1 | ai-reviewed | 柜内小抽屉；小匣子 |
+| 15212 | `layette` | layette | `layette` | B2 | 1 | ai-reviewed | [phrase] préparer la layette = 准备婴儿衣物 |
+| 15212 | `layette` | layette | `layette` | B2 | 1 | ai-reviewed | [phrase] layette de naissance = 新生儿衣物 |
+| 15212 | `layette` | layette | `layette` | B2 | 1 | ai-reviewed | [phrase] tricoter de la layette = 编织婴儿毛衣（或衣物） |
 | 15213 | `flore` | flore | `flore` | B2 | 1 | wikt-zh | 植物志 花神。意义同英文的 flora。 如塞纳河左岸著名Le café de Flore 花神咖啡，即以此为名。；佛洛拉；女性人名，等价于英语Flora |
+| 15213 | `flore` | flore | `flore` | B2 | 1 | ai-reviewed | 植物纹饰；植物花卉浮雕装饰 |
+| 15213 | `flore` | flore | `flore` | B2 | 1 | ai-reviewed | （航海）船底涂脂；涂抹船壳用的牛羊脂 |
+| 15213 | `flore` | flore | `flore` | B2 | 1 | ai-reviewed | [phrase] la faune et la flore = 动植物群 |
+| 15213 | `flore` | flore | `flore` | B2 | 1 | ai-reviewed | [phrase] flore intestinale = 肠道菌群 |
+| 15213 | `flore` | flore | `flore` | B2 | 1 | ai-reviewed | [phrase] flore alpine = 高山植物群 |
+| 15214 | `radiophonique` | radiophonique | `radiophonique-adj` | B2 | 1 | ai-reviewed | 通过无线电广播播送的；电台播出的 |
+| 15214 | `radiophonique` | radiophonique | `radiophonique-adj` | B2 | 1 | ai-reviewed | [phrase] émission radiophonique = 广播节目 |
+| 15214 | `radiophonique` | radiophonique | `radiophonique-adj` | B2 | 1 | ai-reviewed | [phrase] pièce radiophonique = 广播剧 |
+| 15214 | `radiophonique` | radiophonique | `radiophonique-adj` | B2 | 1 | ai-reviewed | [phrase] journal radiophonique = 广播新闻 |
+| 15215 | `foncierement` | foncièrement | `foncierement` | B2 | 1 | ai-reviewed | 彻底地；透彻地；深入地 |
+| 15215 | `foncierement` | foncièrement | `foncierement` | B2 | 1 | ai-reviewed | [phrase] foncièrement honnête = 本质上诚实；骨子里正直 |
+| 15215 | `foncierement` | foncièrement | `foncierement` | B2 | 1 | ai-reviewed | [phrase] foncièrement bon = 天性善良；本质善良 |
+| 15215 | `foncierement` | foncièrement | `foncierement` | B2 | 1 | ai-reviewed | [phrase] être foncièrement opposé à = 从根本上反对 |
+| 15252 | `pendentif` | pendentif | `pendentif` | B1 | 1 | ai-reviewed | 帆拱；穹隅 |
+| 15252 | `pendentif` | pendentif | `pendentif` | B1 | 1 | ai-reviewed | 耳坠 |
+| 15252 | `pendentif` | pendentif | `pendentif` | B1 | 1 | ai-reviewed | [phrase] pendentif en or = 金吊坠 |
+| 15252 | `pendentif` | pendentif | `pendentif` | B1 | 1 | ai-reviewed | [phrase] porter un pendentif = 佩戴吊坠 |
+| 15252 | `pendentif` | pendentif | `pendentif` | B1 | 1 | ai-reviewed | [phrase] voûte sur pendentifs = 帆拱穹顶 |
+| 15274 | `repose` | reposé | `repose` | B2 | 1 | ai-reviewed | [phrase] à tête reposée = 静下心来；冷静仔细地 |
+| 15274 | `repose` | reposé | `repose` | B2 | 1 | ai-reviewed | [phrase] avoir l'air reposé = 看起来精神饱满（休息得很好） |
+| 15274 | `repose` | reposé | `repose` | B2 | 1 | ai-reviewed | [phrase] visage reposé = 精神饱满的面容；休息充分的面容 |
+| 15275 | `diffamation` | diffamation | `diffamation` | B2 | 1 | ai-reviewed | [phrase] porter plainte pour diffamation = 以诽谤罪提起诉讼 |
+| 15275 | `diffamation` | diffamation | `diffamation` | B2 | 1 | ai-reviewed | [phrase] campagne de diffamation = 诽谤抹黑行动；恶意中伤运动 |
+| 15275 | `diffamation` | diffamation | `diffamation` | B2 | 1 | ai-reviewed | [phrase] diffamation publique = 公开诽谤 |
 | 15305 | `photocopier` | photocopier | `photocopier` | B2 | 1 | wikt-zh | 影印 |
+| 15305 | `photocopier` | photocopier | `photocopier` | B2 | 1 | ai-reviewed | [phrase] photocopier un document = 复印文件 |
+| 15305 | `photocopier` | photocopier | `photocopier` | B2 | 1 | ai-reviewed | [phrase] photocopier en recto verso = 双面复印 |
+| 15305 | `photocopier` | photocopier | `photocopier` | B2 | 1 | ai-reviewed | [phrase] photocopier une page = 复印一页 |
+| 15326 | `tatillon` | tatillon | `tatillon` | B2 | 1 | ai-reviewed | [phrase] un esprit tatillon = 吹毛求疵的性格；斤斤计较的心态 |
+| 15326 | `tatillon` | tatillon | `tatillon` | B2 | 1 | ai-reviewed | [phrase] une administration tatillonne = 繁琐苛刻的行政机构 |
+| 15326 | `tatillon` | tatillon | `tatillon` | B2 | 1 | ai-reviewed | [phrase] être tatillon sur les détails = 在细节上过分挑剔 |
+| 15356 | `cremaillere` | crémaillère | `cremaillere` | A2 | 1 | ai-reviewed | 棘齿条；卡齿调节杆 |
+| 15356 | `cremaillere` | crémaillère | `cremaillere` | A2 | 1 | ai-reviewed | （机械）齿条；齿轮齿条机构；齿轨 |
+| 15356 | `cremaillere` | crémaillère | `cremaillere` | A2 | 1 | ai-reviewed | [phrase] pendre la crémaillère = 举行乔迁宴；庆祝迁入新居 |
+| 15356 | `cremaillere` | crémaillère | `cremaillere` | A2 | 1 | ai-reviewed | [phrase] chemin de fer à crémaillère = 齿轨铁路 |
+| 15356 | `cremaillere` | crémaillère | `cremaillere` | A2 | 1 | ai-reviewed | [phrase] direction à crémaillère = 齿轮齿条式转向器 |
 | 15357 | `degarni` | dégarni | `degarni` | B1 | 1 | wikt-zh | 光秃的 |
+| 15357 | `degarni` | dégarni | `degarni` | B1 | 1 | ai-reviewed | 空荡的；无陈设的；缺乏饰物（或货品、兵力）的 |
+| 15357 | `degarni` | dégarni | `degarni` | B1 | 1 | ai-reviewed | [phrase] avoir le front dégarni = 前额头发稀疏；发际线后移 |
+| 15357 | `degarni` | dégarni | `degarni` | B1 | 1 | ai-reviewed | [phrase] des rayons dégarnis = 空空如也的货架 |
+| 15357 | `degarni` | dégarni | `degarni` | B1 | 1 | ai-reviewed | [phrase] dégarni de meubles = 没有家具的；空荡荡的 |
+| 15358 | `supplanter` | supplanter | `supplanter` | B2 | 1 | ai-reviewed | [phrase] supplanter un rival = 排挤掉竞争对手；取代对手 |
+| 15358 | `supplanter` | supplanter | `supplanter` | B2 | 1 | ai-reviewed | [phrase] être supplanté par = 被……取代；被……挤下台 |
+| 15358 | `supplanter` | supplanter | `supplanter` | B2 | 1 | ai-reviewed | [phrase] tenter de supplanter quelqu'un = 企图排挤并取代某人 |
+| 15359 | `reboucher` | reboucher | `reboucher` | B2 | 1 | ai-reviewed | 填补；修补（洞、裂缝等） |
+| 15359 | `reboucher` | reboucher | `reboucher` | B2 | 1 | ai-reviewed | [phrase] reboucher une bouteille = 重新盖好瓶塞；把瓶子塞好 |
+| 15359 | `reboucher` | reboucher | `reboucher` | B2 | 1 | ai-reviewed | [phrase] reboucher un trou = 填补洞口；补上窟窿 |
+| 15359 | `reboucher` | reboucher | `reboucher` | B2 | 1 | ai-reviewed | [phrase] reboucher une fissure = 修补裂缝 |
+| 15360 | `papillote` | papillote | `papillote` | B2 | 1 | ai-reviewed | 卷发纸；发卷 |
+| 15360 | `papillote` | papillote | `papillote` | B2 | 1 | ai-reviewed | （正统派犹太男子的）颊边长鬓卷发 |
+| 15360 | `papillote` | papillote | `papillote` | B2 | 1 | ai-reviewed | [phrase] cuire en papillote = 用锡纸（或烘焙纸）包裹烤制 |
+| 15360 | `papillote` | papillote | `papillote` | B2 | 1 | ai-reviewed | [phrase] poisson en papillote = 纸包鱼；锡纸烤鱼 |
+| 15360 | `papillote` | papillote | `papillote` | B2 | 1 | ai-reviewed | [phrase] mettre des papillotes = 上卷发纸；打发卷 |
+| 15395 | `surmener` | surmener | `surmener` | B2 | 1 | ai-reviewed | [phrase] se surmener au travail = 在工作中操劳过度 |
+| 15395 | `surmener` | surmener | `surmener` | B2 | 1 | ai-reviewed | [phrase] éviter de se surmener = 避免过度劳累 |
+| 15395 | `surmener` | surmener | `surmener` | B2 | 1 | ai-reviewed | [phrase] surmener son organisme = 使身体过度负荷 |
+| 15396 | `perversite` | perversité | `perversite` | B2 | 1 | ai-reviewed | [phrase] par pure perversité = 纯粹出于恶意；存心作恶 |
+| 15396 | `perversite` | perversité | `perversite` | B2 | 1 | ai-reviewed | [phrase] la perversité d'un système = 体制的恶性；制度的弊端 |
+| 15396 | `perversite` | perversité | `perversite` | B2 | 1 | ai-reviewed | [phrase] faire preuve de perversité = 表现出邪恶；显露卑劣用心 |
+| 15418 | `capes` | CAPES | `capes` | B2 | 1 | ai-reviewed | [phrase] passer le CAPES = 参加中学教师资格会考 |
+| 15418 | `capes` | CAPES | `capes` | B2 | 1 | ai-reviewed | [phrase] obtenir le CAPES = 考取中学教师资格证 |
+| 15418 | `capes` | CAPES | `capes` | B2 | 1 | ai-reviewed | [phrase] préparer le CAPES = 备考中学教师资格会考 |
+| 15459 | `debardeur` | débardeur | `debardeur` | B1 | 1 | ai-reviewed | （林场或采石场的）木石搬运工；原木集运工 |
+| 15459 | `debardeur` | débardeur | `debardeur` | B1 | 1 | ai-reviewed | 集材机；原木拖运机 |
+| 15459 | `debardeur` | débardeur | `debardeur` | B1 | 1 | ai-reviewed | 码头搬运工；码头装卸工 |
+| 15459 | `debardeur` | débardeur | `debardeur` | B1 | 1 | ai-reviewed | [phrase] porter un débardeur = 穿无袖背心；穿背心 |
+| 15459 | `debardeur` | débardeur | `debardeur` | B1 | 1 | ai-reviewed | [phrase] un débardeur en coton = 纯棉背心；纯棉无袖上衣 |
+| 15459 | `debardeur` | débardeur | `debardeur` | B1 | 1 | ai-reviewed | [phrase] métier de débardeur = 木材集运工（或码头装卸工）职业 |
 | 15460 | `dragueur` | dragueur | `dragueur` | B2 | 1 | wikt-zh | 挖泥船；疏浚工人；拖网渔船；搭讪者，调情者 |
+| 15460 | `dragueur` | dragueur | `dragueur` | B2 | 1 | ai-reviewed | 钻探设备；钻孔器具 |
+| 15460 | `dragueur` | dragueur | `dragueur` | B2 | 1 | ai-reviewed | 扫雷舰；扫雷艇 |
+| 15460 | `dragueur` | dragueur | `dragueur` | B2 | 1 | ai-reviewed | [phrase] dragueur de mines = 扫雷舰 |
+| 15460 | `dragueur` | dragueur | `dragueur` | B2 | 1 | ai-reviewed | [phrase] un dragueur invétéré = 惯于搭讪的人；情场搭讪老手 |
+| 15460 | `dragueur` | dragueur | `dragueur` | B2 | 1 | ai-reviewed | [phrase] bateau dragueur = 挖泥船；疏浚船 |
 | 15461 | `commemoratif` | commémoratif | `commemoratif` | B2 | 1 | wikt-zh | adj. 纪念的monument ~ 纪念碑 |
+| 15461 | `commemoratif` | commémoratif | `commemoratif` | B2 | 1 | ai-reviewed | [phrase] plaque commémorative = 纪念牌匾 |
+| 15461 | `commemoratif` | commémoratif | `commemoratif` | B2 | 1 | ai-reviewed | [phrase] monument commémoratif = 纪念碑 |
+| 15461 | `commemoratif` | commémoratif | `commemoratif` | B2 | 1 | ai-reviewed | [phrase] timbre commémoratif = 纪念邮票 |
+| 15462 | `eczema` | eczéma | `eczema` | B2 | 1 | ai-reviewed | [phrase] eczéma atopique = 特应性湿疹 |
+| 15462 | `eczema` | eczéma | `eczema` | B2 | 1 | ai-reviewed | [phrase] poussée d’eczéma = 湿疹发作 |
+| 15462 | `eczema` | eczéma | `eczema` | B2 | 1 | ai-reviewed | [phrase] traiter un eczéma = 治疗湿疹 |
+| 15463 | `rechauffe` | réchauffé | `rechauffe` | B2 | 1 | ai-reviewed | 暖和过来的；不再发冷的 |
+| 15463 | `rechauffe` | réchauffé | `rechauffe` | B2 | 1 | ai-reviewed | 不怕冷的；感觉不到冷的 |
+| 15463 | `rechauffe` | réchauffé | `rechauffe` | B2 | 1 | ai-reviewed | 重新加热的食物；回锅菜 |
+| 15463 | `rechauffe` | réchauffé | `rechauffe` | B2 | 1 | ai-reviewed | [phrase] un plat réchauffé = 回锅菜；重新加热的菜肴 |
+| 15463 | `rechauffe` | réchauffé | `rechauffe` | B2 | 1 | ai-reviewed | [phrase] c’est du réchauffé = 这是老调重弹；这是在炒冷饭 |
+| 15463 | `rechauffe` | réchauffé | `rechauffe` | B2 | 1 | ai-reviewed | [phrase] un repas réchauffé = 加热过的饭菜 |
+| 15514 | `indiscipline` | indiscipliné | `indiscipline` | B1 | 1 | ai-reviewed | 不守纪律的人；违纪者 |
+| 15514 | `indiscipline` | indiscipliné | `indiscipline` | B1 | 1 | ai-reviewed | [phrase] un élève indiscipliné = 不守纪律的学生 |
+| 15514 | `indiscipline` | indiscipliné | `indiscipline` | B1 | 1 | ai-reviewed | [phrase] une troupe indisciplinée = 散漫的队伍；缺乏纪律的部队 |
+| 15514 | `indiscipline` | indiscipliné | `indiscipline` | B1 | 1 | ai-reviewed | [phrase] un enfant indiscipliné = 不听话的孩子；不守规矩的孩子 |
 | 15515 | `baragouiner` | baragouiner | `baragouiner` | B2 | 1 | wikt-zh | 叽哩咕噜地讲；含混不清地说；蹩脚地讲（一种语言） |
+| 15515 | `baragouiner` | baragouiner | `baragouiner` | B2 | 1 | ai-reviewed | 在听不懂的人面前说外语 |
+| 15515 | `baragouiner` | baragouiner | `baragouiner` | B2 | 1 | ai-reviewed | [phrase] baragouiner quelques mots = 蹩脚地说几个词 |
+| 15515 | `baragouiner` | baragouiner | `baragouiner` | B2 | 1 | ai-reviewed | [phrase] baragouiner l’anglais = 蹩脚地讲英语 |
+| 15515 | `baragouiner` | baragouiner | `baragouiner` | B2 | 1 | ai-reviewed | [phrase] baragouiner dans sa barbe = 小声咕哝；含糊嘟囔 |
 | 15516 | `barbant` | barbant | `barbant` | B2 | 1 | wikt-zh | adj. 〈俗〉令人厌烦的，使人讨厌的 |
+| 15516 | `barbant` | barbant | `barbant` | B2 | 1 | ai-reviewed | [phrase] un cours barbant = 一门无聊透顶的课 |
+| 15516 | `barbant` | barbant | `barbant` | B2 | 1 | ai-reviewed | [phrase] un film barbant = 一部枯燥乏味的电影 |
+| 15516 | `barbant` | barbant | `barbant` | B2 | 1 | ai-reviewed | [phrase] être carrément barbant = 真是烦透了；极其乏味 |
 | 15543 | `depliant` | dépliant | `depliant` | B1 | 1 | wikt-zh | 折叠式的传单、册子 |
+| 15543 | `depliant` | dépliant | `depliant` | B1 | 1 | ai-reviewed | （书刊的）折叠插页；拉页 |
 | 15543 | `depliant` | dépliant | `depliant` | B1 | 1 | wikt-zh | 可折叠的 |
+| 15543 | `depliant` | dépliant | `depliant` | B1 | 1 | ai-reviewed | [phrase] un dépliant publicitaire = 广告折页；宣传折页 |
+| 15543 | `depliant` | dépliant | `depliant` | B1 | 1 | ai-reviewed | [phrase] un dépliant touristique = 旅游折页；景点指南折页 |
+| 15543 | `depliant` | dépliant | `depliant` | B1 | 1 | ai-reviewed | [phrase] une table dépliante = 折叠桌；可展开的桌子 |
+| 15544 | `tergiverser` | tergiverser | `tergiverser` | B2 | 1 | ai-reviewed | [phrase] sans tergiverser = 毫不拖延地；干脆利落地 |
+| 15544 | `tergiverser` | tergiverser | `tergiverser` | B2 | 1 | ai-reviewed | [phrase] cesser de tergiverser = 停止支吾推诿；别再犹豫拖延 |
+| 15544 | `tergiverser` | tergiverser | `tergiverser` | B2 | 1 | ai-reviewed | [phrase] tergiverser longtemps = 久久拖延；一再敷衍 |
+| 15545 | `coloration` | coloration | `coloration` | B2 | 1 | ai-reviewed | 染发；染上的发色 |
+| 15545 | `coloration` | coloration | `coloration` | B2 | 1 | ai-reviewed | 色泽；色调；色彩 |
+| 15545 | `coloration` | coloration | `coloration` | B2 | 1 | ai-reviewed | （木材未受损时的）变色 |
+| 15545 | `coloration` | coloration | `coloration` | B2 | 1 | ai-reviewed | [phrase] faire une coloration = 染发；进行染色 |
+| 15545 | `coloration` | coloration | `coloration` | B2 | 1 | ai-reviewed | [phrase] une coloration naturelle = 天然着色；自然发色 |
+| 15545 | `coloration` | coloration | `coloration` | B2 | 1 | ai-reviewed | [phrase] une coloration capillaire = 染发；头发染色 |
+| 15546 | `tiers-monde` | tiers-monde | `tiers-monde-m` | B2 | 1 | ai-reviewed | [phrase] les pays du tiers-monde = 第三世界国家 |
+| 15546 | `tiers-monde` | tiers-monde | `tiers-monde-m` | B2 | 1 | ai-reviewed | [phrase] la dette du tiers-monde = 第三世界债务 |
+| 15546 | `tiers-monde` | tiers-monde | `tiers-monde-m` | B2 | 1 | ai-reviewed | [phrase] l’aide au tiers-monde = 对第三世界的援助 |
+| 15586 | `tatonnement` | tâtonnement | `tatonnement` | B2 | 1 | ai-reviewed | [phrase] procéder par tâtonnements = 逐步摸索；通过反复试错进行 |
+| 15586 | `tatonnement` | tâtonnement | `tatonnement` | B2 | 1 | ai-reviewed | [phrase] après bien des tâtonnements = 经过反复摸索之后；几经摸索之后 |
+| 15586 | `tatonnement` | tâtonnement | `tatonnement` | B2 | 1 | ai-reviewed | [phrase] une période de tâtonnements = 摸索阶段；试错期 |
 | 15587 | `epuration` | épuration | `epuration` | B2 | 1 | wikt-zh | 清理，净化；清洗 |
+| 15587 | `epuration` | épuration | `epuration` | B2 | 1 | ai-reviewed | [phrase] station d’épuration = 污水处理厂 |
+| 15587 | `epuration` | épuration | `epuration` | B2 | 1 | ai-reviewed | [phrase] épuration politique = 政治清洗 |
+| 15587 | `epuration` | épuration | `epuration` | B2 | 1 | ai-reviewed | [phrase] épuration des eaux usées = 废水净化处理 |
+| 15614 | `remontee` | remontée | `remontee` | A2 | 1 | ai-reviewed | 上升；回升；攀登；提升；反超 |
+| 15614 | `remontee` | remontée | `remontee` | A2 | 1 | ai-reviewed | （地下水等）水位上涨；涌升；冒出地面 |
+| 15614 | `remontee` | remontée | `remontee` | A2 | 1 | ai-reviewed | （矿井）上山；倾斜上升巷道 |
+| 15614 | `remontee` | remontée | `remontee` | A2 | 1 | ai-reviewed | [phrase] remontée des eaux = 水位上涨；地下水回涌 |
+| 15614 | `remontee` | remontée | `remontee` | A2 | 1 | ai-reviewed | [phrase] spectaculaire remontée = 惊人的回升；强势逆转 |
+| 15615 | `vouvoyer` | vouvoyer | `vouvoyer` | B1 | 1 | ai-reviewed | [phrase] vouvoyer quelqu'un = 用“vous”称呼某人；对某人用敬称 |
+| 15615 | `vouvoyer` | vouvoyer | `vouvoyer` | B1 | 1 | ai-reviewed | [phrase] se vouvoyer = 彼此以“vous”相称 |
+| 15615 | `vouvoyer` | vouvoyer | `vouvoyer` | B1 | 1 | ai-reviewed | [phrase] tutoyer ou vouvoyer = 用“你”还是用“您”称呼 |
+| 15616 | `hematome` | hématome | `hematome` | B2 | 1 | ai-reviewed | [phrase] hématome sous-dural = 硬膜下血肿 |
+| 15616 | `hematome` | hématome | `hematome` | B2 | 1 | ai-reviewed | [phrase] résorber un hématome = 使血肿消退吸收 |
+| 15616 | `hematome` | hématome | `hematome` | B2 | 1 | ai-reviewed | [phrase] avoir un hématome = 身上有瘀伤；出现血肿 |
+| 15617 | `filiale` | filiale | `filiale` | B2 | 1 | ai-reviewed | [phrase] filiale à l'étranger = 海外子公司 |
+| 15617 | `filiale` | filiale | `filiale` | B2 | 1 | ai-reviewed | [phrase] créer une filiale = 设立子公司；创办子公司 |
+| 15617 | `filiale` | filiale | `filiale` | B2 | 1 | ai-reviewed | [phrase] filiale à 100 % = 全资子公司 |
+| 15618 | `monteur` | monteur | `monteur` | B2 | 1 | ai-reviewed | [phrase] monteur vidéo = 视频剪辑师 |
+| 15618 | `monteur` | monteur | `monteur` | B2 | 1 | ai-reviewed | [phrase] monteur en chef = 主剪辑师；首席剪辑师 |
+| 15618 | `monteur` | monteur | `monteur` | B2 | 1 | ai-reviewed | [phrase] monteur électricien = 电气安装工 |
+| 15644 | `discotheque` | discothèque | `discotheque` | A2 | 1 | ai-reviewed | 唱片收藏；个人藏片 |
+| 15644 | `discotheque` | discothèque | `discotheque` | A2 | 1 | ai-reviewed | 唱片柜；唱片架 |
+| 15644 | `discotheque` | discothèque | `discotheque` | A2 | 1 | ai-reviewed | [phrase] aller en discothèque = 去迪斯科舞厅；去夜店 |
+| 15644 | `discotheque` | discothèque | `discotheque` | A2 | 1 | ai-reviewed | [phrase] sortir en discothèque = 去迪斯科舞厅消遣 |
+| 15644 | `discotheque` | discothèque | `discotheque` | A2 | 1 | ai-reviewed | [phrase] une discothèque bien fournie = 藏品丰富的唱片收藏；藏片丰富的唱片馆 |
+| 15678 | `judo` | judo | `judo` | B1 | 1 | ai-reviewed | [phrase] faire du judo = 练柔道 |
+| 15678 | `judo` | judo | `judo` | B1 | 1 | ai-reviewed | [phrase] cours de judo = 柔道课 |
+| 15678 | `judo` | judo | `judo` | B1 | 1 | ai-reviewed | [phrase] ceinture noire de judo = 柔道黑带 |
+| 15679 | `perpendiculaire` | perpendiculaire | `perpendiculaire` | B2 | 1 | ai-reviewed | [phrase] perpendiculaire à = 垂直于…… |
+| 15679 | `perpendiculaire` | perpendiculaire | `perpendiculaire` | B2 | 1 | ai-reviewed | [phrase] droite perpendiculaire = 垂直线；垂线 |
+| 15679 | `perpendiculaire` | perpendiculaire | `perpendiculaire` | B2 | 1 | ai-reviewed | [phrase] abaisser une perpendiculaire = 作一条垂线 |
+| 15680 | `periodique` | périodique | `periodique` | B2 | 1 | ai-reviewed | 定期出版的；定期发行的 |
+| 15680 | `periodique` | périodique | `periodique` | B2 | 1 | ai-reviewed | [phrase] tableau périodique des éléments = 元素周期表 |
+| 15680 | `periodique` | périodique | `periodique` | B2 | 1 | ai-reviewed | [phrase] publication périodique = 定期出版物；期刊 |
+| 15680 | `periodique` | périodique | `periodique` | B2 | 1 | ai-reviewed | [phrase] contrôle périodique = 定期检查 |
+| 15711 | `standardiste` | standardiste | `standardiste` | A2 | 1 | ai-reviewed | [phrase] standardiste d'accueil = 前台接线员 |
+| 15711 | `standardiste` | standardiste | `standardiste` | A2 | 1 | ai-reviewed | [phrase] poste de standardiste = 接线员岗位 |
+| 15711 | `standardiste` | standardiste | `standardiste` | A2 | 1 | ai-reviewed | [phrase] demander à la standardiste = 向接线员询问；请接线员转接 |
+| 15720 | `appoint` | appoint | `appoint` | B1 | 1 | ai-reviewed | 补充；辅助；增援 |
+| 15720 | `appoint` | appoint | `appoint` | B1 | 1 | ai-reviewed | [phrase] chauffage d'appoint = 辅助供暖设备；临时取暖器 |
+| 15720 | `appoint` | appoint | `appoint` | B1 | 1 | ai-reviewed | [phrase] force d'appoint = 增援力量；辅助部队 |
+| 15721 | `patineur` | patineur | `patineur` | B1 | 1 | ai-reviewed | [phrase] patineur artistique = 花样滑冰运动员 |
+| 15721 | `patineur` | patineur | `patineur` | B1 | 1 | ai-reviewed | [phrase] patineur de vitesse = 速度滑冰运动员 |
+| 15721 | `patineur` | patineur | `patineur` | B1 | 1 | ai-reviewed | [phrase] patineur sur glace = 滑冰选手；冰上溜冰者 |
 | 15722 | `revendeur` | revendeur | `revendeur` | B2 | 1 | wikt-zh | 转卖者；零售商 |
+| 15722 | `revendeur` | revendeur | `revendeur` | B2 | 1 | ai-reviewed | [phrase] revendeur agréé = 授权经销商 |
+| 15722 | `revendeur` | revendeur | `revendeur` | B2 | 1 | ai-reviewed | [phrase] revendeur de billets = 票贩子；黄牛 |
+| 15722 | `revendeur` | revendeur | `revendeur` | B2 | 1 | ai-reviewed | [phrase] revendeur de drogue = 毒贩 |
+| 15723 | `cotisation` | cotisation | `cotisation-f` | B2 | 1 | ai-reviewed | [phrase] cotisation sociale = 社会保险缴款；社保缴费 |
+| 15723 | `cotisation` | cotisation | `cotisation-f` | B2 | 1 | ai-reviewed | [phrase] cotisation annuelle = 年会费；年度缴费 |
+| 15723 | `cotisation` | cotisation | `cotisation-f` | B2 | 1 | ai-reviewed | [phrase] payer sa cotisation = 缴纳会费 |
+| 15748 | `sorbet` | sorbet | `sorbet` | A2 | 1 | ai-reviewed | 碎冰果汁酒饮；果味冰沙饮品 |
+| 15748 | `sorbet` | sorbet | `sorbet` | A2 | 1 | ai-reviewed | [phrase] sorbet aux fruits = 水果雪葩；水果冰沙 |
+| 15748 | `sorbet` | sorbet | `sorbet` | A2 | 1 | ai-reviewed | [phrase] sorbet au citron = 柠檬雪葩；柠檬冰糕 |
+| 15748 | `sorbet` | sorbet | `sorbet` | A2 | 1 | ai-reviewed | [phrase] une boule de sorbet = 一球雪葩；一球果子冰 |
+| 15749 | `incineration` | incinération | `incineration` | B1 | 1 | ai-reviewed | [phrase] incinération des déchets = 垃圾焚烧 |
+| 15749 | `incineration` | incinération | `incineration` | B1 | 1 | ai-reviewed | [phrase] centre d’incinération = 火葬场；垃圾焚烧厂 |
+| 15749 | `incineration` | incinération | `incineration` | B1 | 1 | ai-reviewed | [phrase] demander l’incinération = 要求火葬 |
+| 15750 | `genetiquement` | génétiquement | `genetiquement` | B1 | 1 | ai-reviewed | [phrase] génétiquement modifié = 转基因的 |
+| 15750 | `genetiquement` | génétiquement | `genetiquement` | B1 | 1 | ai-reviewed | [phrase] organisme génétiquement modifié = 转基因生物 |
+| 15750 | `genetiquement` | génétiquement | `genetiquement` | B1 | 1 | ai-reviewed | [phrase] génétiquement prédisposé = 具基因易感性的；有遗传倾向的 |
+| 15751 | `reconforte` | réconforté | `reconforte` | B2 | 1 | ai-reviewed | [phrase] se sentir réconforté = 感到宽慰；得到安慰 |
+| 15751 | `reconforte` | réconforté | `reconforte` | B2 | 1 | ai-reviewed | [phrase] être réconforté par quelqu’un = 得到某人的安慰 |
+| 15751 | `reconforte` | réconforté | `reconforte` | B2 | 1 | ai-reviewed | [phrase] réconforté et rassuré = 得到安慰并放下心来 |
+| 15787 | `deux-pieces` | deux-pièces | `deux-pieces` | A2 | 1 | ai-reviewed | 两件式女式泳衣；分体式泳衣 |
+| 15787 | `deux-pieces` | deux-pièces | `deux-pieces` | A2 | 1 | ai-reviewed | [phrase] louer un deux-pièces = 租一套两居室公寓 |
+| 15787 | `deux-pieces` | deux-pièces | `deux-pieces` | A2 | 1 | ai-reviewed | [phrase] maillot deux-pièces = 两件式泳衣；分体泳衣 |
+| 15787 | `deux-pieces` | deux-pièces | `deux-pieces` | A2 | 1 | ai-reviewed | [phrase] vivre dans un deux-pièces = 住在两居室里 |
+| 15788 | `peage` | péage | `peage` | B1 | 1 | ai-reviewed | 通行税；关卡税；过桥渡费 |
+| 15788 | `peage` | péage | `peage` | B1 | 1 | ai-reviewed | [phrase] barrière de péage = 收费站闸口；高速公路收费站 |
+| 15788 | `peage` | péage | `peage` | B1 | 1 | ai-reviewed | [phrase] payer le péage = 缴纳过路费；缴纳通行费 |
+| 15788 | `peage` | péage | `peage` | B1 | 1 | ai-reviewed | [phrase] autoroute à péage = 收费高速公路 |
 | 15789 | `virement` | virement | `virement` | B1 | 1 | wikt-zh | 转帐；票据交换 |
+| 15789 | `virement` | virement | `virement` | B1 | 1 | ai-reviewed | 转动；旋转；转向 |
+| 15789 | `virement` | virement | `virement` | B1 | 1 | ai-reviewed | （航海）调转船头；换舷转向 |
+| 15789 | `virement` | virement | `virement` | B1 | 1 | ai-reviewed | [phrase] virement bancaire = 银行转账 |
+| 15789 | `virement` | virement | `virement` | B1 | 1 | ai-reviewed | [phrase] virement de bord = （航海）换舷转向；（转）态度大转变 |
+| 15789 | `virement` | virement | `virement` | B1 | 1 | ai-reviewed | [phrase] faire un virement = 办理转账；转账 |
+| 15790 | `ras-le-bol` | ras-le-bol | `ras-le-bol` | B2 | 1 | ai-reviewed | （口）厌烦；极度不满；忍无可忍 |
+| 15790 | `ras-le-bol` | ras-le-bol | `ras-le-bol` | B2 | 1 | ai-reviewed | [phrase] en avoir ras le bol = （口）受够了；忍无可忍 |
+| 15790 | `ras-le-bol` | ras-le-bol | `ras-le-bol` | B2 | 1 | ai-reviewed | [phrase] un ras-le-bol général = 普遍的不满；普遍的厌烦情绪 |
+| 15790 | `ras-le-bol` | ras-le-bol | `ras-le-bol` | B2 | 1 | ai-reviewed | [phrase] exprimer son ras-le-bol = 表达厌烦；宣泄不满 |
 | 15791 | `casse-pieds` | casse-pieds | `casse-pieds` | B2 | 1 | wikt-zh | n.inv. et adj.inv. 〈俗〉讨厌的（人），令人厌烦的（人）；adj.inv. 使人厌倦的，使人烦恼的 |
+| 15791 | `casse-pieds` | casse-pieds | `casse-pieds` | B2 | 1 | ai-reviewed | [phrase] être casse-pieds = （俗）讨厌；烦人；磨人 |
+| 15791 | `casse-pieds` | casse-pieds | `casse-pieds` | B2 | 1 | ai-reviewed | [phrase] un client casse-pieds = （俗）难缠的顾客；讨厌的客户 |
+| 15791 | `casse-pieds` | casse-pieds | `casse-pieds` | B2 | 1 | ai-reviewed | [phrase] quelqu'un de casse-pieds = （俗）讨厌的家伙；令人烦恼的人 |
+| 15792 | `annule` | annulé | `annule-adj` | B2 | 1 | ai-reviewed | 值为零的；归零的 |
+| 15792 | `annule` | annulé | `annule-adj` | B2 | 1 | ai-reviewed | 作废的；失效的 |
+| 15792 | `annule` | annulé | `annule-adj` | B2 | 1 | ai-reviewed | [phrase] vol annulé = 已取消的航班 |
+| 15792 | `annule` | annulé | `annule-adj` | B2 | 1 | ai-reviewed | [phrase] commande annulée = 已取消的订单 |
+| 15792 | `annule` | annulé | `annule-adj` | B2 | 1 | ai-reviewed | [phrase] contrat annulé = 作废的合同；被撤销的合同 |
 | 15823 | `argentine` | Argentine | `argentine` | A2 | 1 | wikt-zh | Argentin的阴性形式。 |
+| 15823 | `argentine` | Argentine | `argentine` | A2 | 1 | ai-reviewed | 鹅绒委陵菜；蕨麻 |
+| 15823 | `argentine` | Argentine | `argentine` | A2 | 1 | ai-reviewed | 银方解石 |
+| 15823 | `argentine` | Argentine | `argentine` | A2 | 1 | ai-reviewed | 水珍鱼 |
+| 15823 | `argentine` | Argentine | `argentine` | A2 | 1 | ai-reviewed | [phrase] en Argentine = 在阿根廷；去阿根廷 |
+| 15823 | `argentine` | Argentine | `argentine` | A2 | 1 | ai-reviewed | [phrase] la République argentine = 阿根廷共和国 |
+| 15823 | `argentine` | Argentine | `argentine` | A2 | 1 | ai-reviewed | [phrase] d'origine argentine = 阿根廷裔的；产自阿根廷的 |
+| 15824 | `decontracte` | décontracté | `decontracte` | B1 | 1 | ai-reviewed | [phrase] une tenue décontractée = 休闲装；便装 |
+| 15824 | `decontracte` | décontracté | `decontracte` | B1 | 1 | ai-reviewed | [phrase] un style décontracté = 休闲风格；轻松随性的风格 |
+| 15824 | `decontracte` | décontracté | `decontracte` | B1 | 1 | ai-reviewed | [phrase] avoir l'air décontracté = 看起来很放松；神态自若 |
+| 15825 | `deballage` | déballage | `deballage` | B2 | 1 | ai-reviewed | 拆包展销的货物；摊售商品 |
+| 15825 | `deballage` | déballage | `deballage` | B2 | 1 | ai-reviewed | 全盘道出；抖露（消息、情况等） |
+| 15825 | `deballage` | déballage | `deballage` | B2 | 1 | ai-reviewed | 公开揭露；大肆曝光 |
+| 15825 | `deballage` | déballage | `deballage` | B2 | 1 | ai-reviewed | [phrase] faire un déballage = 拆包；全盘抖出 |
+| 15825 | `deballage` | déballage | `deballage` | B2 | 1 | ai-reviewed | [phrase] vidéo de déballage = 开箱视频 |
+| 15825 | `deballage` | déballage | `deballage` | B2 | 1 | ai-reviewed | [phrase] un déballage médiatique = 媒体大曝光；公开揭底 |
+| 15826 | `surdoue` | surdoué | `surdoue-adj` | B2 | 1 | ai-reviewed | 神童；天才；智力超常者 |
+| 15826 | `surdoue` | surdoué | `surdoue-adj` | B2 | 1 | ai-reviewed | [phrase] un enfant surdoué = 神童；超常儿童 |
+| 15826 | `surdoue` | surdoué | `surdoue-adj` | B2 | 1 | ai-reviewed | [phrase] un élève surdoué = 天才学生；资优生 |
+| 15826 | `surdoue` | surdoué | `surdoue-adj` | B2 | 1 | ai-reviewed | [phrase] être surdoué en = 在……方面天赋超群 |
+| 15850 | `regression` | régression | `regression` | B2 | 1 | ai-reviewed | （软件更新引起的）功能回退；回归缺陷 |
+| 15850 | `regression` | régression | `regression` | B2 | 1 | ai-reviewed | （统计学）回归；回归分析 |
+| 15850 | `regression` | régression | `regression` | B2 | 1 | ai-reviewed | [phrase] être en régression = 处于倒退状态；呈下降趋势 |
+| 15850 | `regression` | régression | `regression` | B2 | 1 | ai-reviewed | [phrase] régression linéaire = 线性回归 |
+| 15850 | `regression` | régression | `regression` | B2 | 1 | ai-reviewed | [phrase] test de régression = 回归测试 |
+| 15862 | `occident` | occident | `occident` | A2 | 1 | ai-reviewed | 正西；西边；日落方向 |
+| 15862 | `occident` | occident | `occident` | A2 | 1 | ai-reviewed | [phrase] à l'occident = 在西边；向西方 |
+| 15862 | `occident` | occident | `occident` | A2 | 1 | ai-reviewed | [phrase] d'Orient en Occident = 从东方到西方 |
+| 15862 | `occident` | occident | `occident` | A2 | 1 | ai-reviewed | [phrase] l'Occident = 西方世界；西方国家 |
+| 15863 | `strapontin` | strapontin | `strapontin` | B2 | 1 | ai-reviewed | （组织或机构中的）次要职位；陪衬角色 |
+| 15863 | `strapontin` | strapontin | `strapontin` | B2 | 1 | ai-reviewed | [phrase] baisser le strapontin = 放下折叠座椅 |
+| 15863 | `strapontin` | strapontin | `strapontin` | B2 | 1 | ai-reviewed | [phrase] être assis sur un strapontin = 坐在折叠椅上 |
+| 15863 | `strapontin` | strapontin | `strapontin` | B2 | 1 | ai-reviewed | [phrase] obtenir un strapontin = 谋得一个次要职位 |
+| 15864 | `intitule` | intitulé | `intitule` | B2 | 1 | ai-reviewed | （公文、法律文书开头的）首部格式；正式抬头 |
+| 15864 | `intitule` | intitulé | `intitule` | B2 | 1 | ai-reviewed | [phrase] l'intitulé du poste = 职位名称 |
+| 15864 | `intitule` | intitulé | `intitule` | B2 | 1 | ai-reviewed | [phrase] l'intitulé du cours = 课程名称 |
+| 15864 | `intitule` | intitulé | `intitule` | B2 | 1 | ai-reviewed | [phrase] un ouvrage intitulé = 一部题为……的著作 |
 | 15881 | `promulguer` | promulguer | `promulguer` | B2 | 1 | wikt-zh | 颁布，公布 |
+| 15881 | `promulguer` | promulguer | `promulguer` | B2 | 1 | ai-reviewed | 公开宣称；宣扬 |
+| 15881 | `promulguer` | promulguer | `promulguer` | B2 | 1 | ai-reviewed | [phrase] promulguer une loi = 颁布法律 |
+| 15881 | `promulguer` | promulguer | `promulguer` | B2 | 1 | ai-reviewed | [phrase] promulguer un décret = 颁布法令 |
+| 15881 | `promulguer` | promulguer | `promulguer` | B2 | 1 | ai-reviewed | [phrase] promulguer une constitution = 颁布宪法 |
+| 15882 | `refractaire` | réfractaire | `refractaire-adj` | B2 | 1 | ai-reviewed | 不适宜的；不利的 |
+| 15882 | `refractaire` | réfractaire | `refractaire-adj` | B2 | 1 | ai-reviewed | （法国大革命时期）拒绝向《教士公民组织法》宣誓的 |
+| 15882 | `refractaire` | réfractaire | `refractaire-adj` | B2 | 1 | ai-reviewed | [phrase] être réfractaire à = 抗拒……；对……有抵触 |
+| 15882 | `refractaire` | réfractaire | `refractaire-adj` | B2 | 1 | ai-reviewed | [phrase] brique réfractaire = 耐火砖 |
+| 15882 | `refractaire` | réfractaire | `refractaire-adj` | B2 | 1 | ai-reviewed | [phrase] matériau réfractaire = 耐火材料 |
 | 15945 | `amuse-gueule` | amuse-gueule | `amuse-gueule` | B1 | 1 | wikt-zh | n.m. 〈俗〉（喝开胃酒用的）小点心 |
+| 15945 | `amuse-gueule` | amuse-gueule | `amuse-gueule` | B1 | 1 | ai-reviewed | [phrase] servir des amuse-gueules = 端上开胃小点心 |
+| 15945 | `amuse-gueule` | amuse-gueule | `amuse-gueule` | B1 | 1 | ai-reviewed | [phrase] préparer des amuse-gueules = 准备餐前开胃小吃 |
+| 15945 | `amuse-gueule` | amuse-gueule | `amuse-gueule` | B1 | 1 | ai-reviewed | [phrase] grignoter des amuse-gueules = 吃点开胃小零食 |
+| 15946 | `demaquiller` | démaquiller | `demaquiller` | B1 | 1 | ai-reviewed | [phrase] démaquiller les yeux = 卸除眼妆 |
+| 15946 | `demaquiller` | démaquiller | `demaquiller` | B1 | 1 | ai-reviewed | [phrase] lait à démaquiller = 卸妆乳 |
+| 15947 | `carie` | carie | `carie` | B2 | 1 | ai-reviewed | （林木的）木质腐朽病 |
+| 15947 | `carie` | carie | `carie` | B2 | 1 | ai-reviewed | [phrase] carie dentaire = 龋齿；蛀牙 |
+| 15947 | `carie` | carie | `carie` | B2 | 1 | ai-reviewed | [phrase] soigner une carie = 治疗蛀牙；补牙 |
+| 15947 | `carie` | carie | `carie` | B2 | 1 | ai-reviewed | [phrase] avoir une carie = 长蛀牙；有龋齿 |
 | 15980 | `repartie` | repartie | `repartie` | B2 | 1 | wikt-zh | 机敏的回答，巧妙的应答 |
+| 15980 | `repartie` | repartie | `repartie` | B2 | 1 | ai-reviewed | [phrase] avoir de la repartie = 善于机敏应答；反应敏捷；妙语回击 |
+| 15980 | `repartie` | repartie | `repartie` | B2 | 1 | ai-reviewed | [phrase] être prompt à la repartie = 对答如流；反驳敏捷 |
+| 15980 | `repartie` | repartie | `repartie` | B2 | 1 | ai-reviewed | [phrase] le sens de la repartie = 机智应答的能力；敏捷的应变口才 |
+| 16005 | `d'affilee` | d'affilée | `d-affilee-loc-adv` | B1 | 1 | ai-reviewed | [phrase] trois jours d’affilée = 连续三天 |
+| 16005 | `d'affilee` | d'affilée | `d-affilee-loc-adv` | B1 | 1 | ai-reviewed | [phrase] deux fois d’affilée = 连续两次；接连两次 |
+| 16005 | `d'affilee` | d'affilée | `d-affilee-loc-adv` | B1 | 1 | ai-reviewed | [phrase] travailler plusieurs heures d’affilée = 连续工作好几个小时 |
 | 16053 | `manipulateur` | manipulateur | `manipulateur` | B2 | 1 | wikt-zh | 技术员，操作员；操偶师 |
+| 16053 | `manipulateur` | manipulateur | `manipulateur` | B2 | 1 | ai-reviewed | （电报）电键，发报键 |
+| 16053 | `manipulateur` | manipulateur | `manipulateur` | B2 | 1 | ai-reviewed | 操纵的；工于心计的；操控他人的 |
+| 16053 | `manipulateur` | manipulateur | `manipulateur` | B2 | 1 | ai-reviewed | [phrase] bras manipulateur = 机械手；操作臂 |
+| 16053 | `manipulateur` | manipulateur | `manipulateur` | B2 | 1 | ai-reviewed | [phrase] pervers manipulateur = 恶意操控者；阴险的操纵狂 |
+| 16053 | `manipulateur` | manipulateur | `manipulateur` | B2 | 1 | ai-reviewed | [phrase] manipulateur morse = 莫尔斯电码发报键 |
+| 16109 | `diapason` | diapason | `diapason` | B2 | 1 | ai-reviewed | （钟表的）音叉振荡器 |
+| 16109 | `diapason` | diapason | `diapason` | B2 | 1 | ai-reviewed | 基调；步调；格调 |
+| 16109 | `diapason` | diapason | `diapason` | B2 | 1 | ai-reviewed | [phrase] se mettre au diapason = 保持步调一致；顺应潮流；合拍 |
+| 16109 | `diapason` | diapason | `diapason` | B2 | 1 | ai-reviewed | [phrase] être au diapason de = 与……步调一致；与……想法相合 |
+| 16109 | `diapason` | diapason | `diapason` | B2 | 1 | ai-reviewed | [phrase] donner le diapason = 定音高；定调子 |
+| 16110 | `hexagonal` | hexagonal | `hexagonal` | B2 | 1 | ai-reviewed | 法国的；法兰西的 |
+| 16110 | `hexagonal` | hexagonal | `hexagonal` | B2 | 1 | ai-reviewed | 学究腔法语；故作高深的现代法语（滥用生僻词或政治委婉语） |
+| 16110 | `hexagonal` | hexagonal | `hexagonal` | B2 | 1 | ai-reviewed | [phrase] forme hexagonale = 六边形；六角形 |
+| 16110 | `hexagonal` | hexagonal | `hexagonal` | B2 | 1 | ai-reviewed | [phrase] la scène politique hexagonale = 法国政坛 |
+| 16110 | `hexagonal` | hexagonal | `hexagonal` | B2 | 1 | ai-reviewed | [phrase] le marché hexagonal = 法国本土市场 |
 | 16111 | `terroir` | terroir | `terroir` | B2 | 1 | wikt-zh | 土壤；土地，地形，国家 |
+| 16111 | `terroir` | terroir | `terroir` | B2 | 1 | ai-reviewed | 家乡；乡土；故乡 |
+| 16111 | `terroir` | terroir | `terroir` | B2 | 1 | ai-reviewed | 乡区；村镇辖区 |
+| 16111 | `terroir` | terroir | `terroir` | B2 | 1 | ai-reviewed | [phrase] produit du terroir = 地方特产；风土特产 |
+| 16111 | `terroir` | terroir | `terroir` | B2 | 1 | ai-reviewed | [phrase] cuisine du terroir = 地方风味菜；乡土美食 |
+| 16111 | `terroir` | terroir | `terroir` | B2 | 1 | ai-reviewed | [phrase] accent du terroir = 乡音；地方口音 |
+| 16112 | `climatisation` | climatisation | `climatisation` | B2 | 1 | ai-reviewed | 空气调节；空调制冷 |
+| 16112 | `climatisation` | climatisation | `climatisation` | B2 | 1 | ai-reviewed | [phrase] mettre la climatisation = 开空调 |
+| 16112 | `climatisation` | climatisation | `climatisation` | B2 | 1 | ai-reviewed | [phrase] climatisation réversible = 冷暖两用空调 |
+| 16112 | `climatisation` | climatisation | `climatisation` | B2 | 1 | ai-reviewed | [phrase] système de climatisation = 空调系统 |
+| 16113 | `etourderie` | étourderie | `etourderie` | B2 | 1 | ai-reviewed | [phrase] par étourderie = 出于粗心；一时大意 |
+| 16113 | `etourderie` | étourderie | `etourderie` | B2 | 1 | ai-reviewed | [phrase] commettre une étourderie = 一时疏忽犯错；做出粗心之举 |
+| 16113 | `etourderie` | étourderie | `etourderie` | B2 | 1 | ai-reviewed | [phrase] une erreur d'étourderie = 粗心造成的错误 |
+| 16146 | `arbitrer` | arbitrer | `arbitrer` | B2 | 1 | ai-reviewed | [phrase] arbitrer un match = 担任比赛裁判；执法比赛 |
+| 16146 | `arbitrer` | arbitrer | `arbitrer` | B2 | 1 | ai-reviewed | [phrase] arbitrer un conflit = 仲裁冲突；调解纠纷 |
+| 16146 | `arbitrer` | arbitrer | `arbitrer` | B2 | 1 | ai-reviewed | [phrase] arbitrer un différend = 公断争议；仲裁分歧 |
+| 16147 | `meduse#2` | médusé | `meduse` | B2 | 1 | ai-reviewed | [phrase] rester médusé = 呆若木鸡；惊得目瞪口呆 |
+| 16147 | `meduse#2` | médusé | `meduse` | B2 | 1 | ai-reviewed | [phrase] être médusé par quelque chose = 被某事惊得呆住 |
+| 16147 | `meduse#2` | médusé | `meduse` | B2 | 1 | ai-reviewed | [phrase] regard médusé = 惊愕呆滞的目光 |
+| 16148 | `pedant` | pédant | `pedant` | B2 | 1 | ai-reviewed | 〈旧，贬〉教书先生；教师 |
+| 16148 | `pedant` | pédant | `pedant` | B2 | 1 | ai-reviewed | 卖弄学问的人；学究 |
+| 16148 | `pedant` | pédant | `pedant` | B2 | 1 | ai-reviewed | 好为人师者；动辄教训别人的人 |
+| 16148 | `pedant` | pédant | `pedant` | B2 | 1 | ai-reviewed | [phrase] ton pédant = 学究气十足的腔调；好为人师的语气 |
+| 16148 | `pedant` | pédant | `pedant` | B2 | 1 | ai-reviewed | [phrase] air pédant = 自命不凡的学究神态 |
+| 16148 | `pedant` | pédant | `pedant` | B2 | 1 | ai-reviewed | [phrase] faire le pédant = 卖弄学问；摆出学究架子 |
+| 16149 | `bureaucratie` | bureaucratie | `bureaucratie` | B2 | 1 | ai-reviewed | 繁文缛节；文牍主义 |
+| 16149 | `bureaucratie` | bureaucratie | `bureaucratie` | B2 | 1 | ai-reviewed | 行政管理事务；文职工作 |
+| 16149 | `bureaucratie` | bureaucratie | `bureaucratie` | B2 | 1 | ai-reviewed | [phrase] lourdeur de la bureaucratie = 官僚机构的繁琐低效 |
+| 16149 | `bureaucratie` | bureaucratie | `bureaucratie` | B2 | 1 | ai-reviewed | [phrase] lutter contre la bureaucratie = 反对官僚主义 |
+| 16149 | `bureaucratie` | bureaucratie | `bureaucratie` | B2 | 1 | ai-reviewed | [phrase] bureaucratie administrative = 行政官僚机构；行政繁文缛节 |
+| 16173 | `melo` | mélo | `melo` | B2 | 1 | ai-reviewed | 〈俗〉情节剧式的；煽情的；夸张感伤的 |
+| 16173 | `melo` | mélo | `melo` | B2 | 1 | ai-reviewed | [phrase] scène de mélo = 〈俗〉煽情戏码；情节剧场面 |
+| 16173 | `melo` | mélo | `melo` | B2 | 1 | ai-reviewed | [phrase] côté mélo = 〈俗〉煽情的一面；狗血色彩 |
+| 16173 | `melo` | mélo | `melo` | B2 | 1 | ai-reviewed | [phrase] film mélo = 〈俗〉煽情片；苦情电影 |
+| 16175 | `penalty` | penalty | `penalty` | B2 | 1 | ai-reviewed | （赛马中）稳操胜券的马；夺冠大热门 |
+| 16175 | `penalty` | penalty | `penalty` | B2 | 1 | ai-reviewed | [phrase] tirer un penalty = 罚点球 |
+| 16175 | `penalty` | penalty | `penalty` | B2 | 1 | ai-reviewed | [phrase] siffler un penalty = 判罚点球 |
+| 16175 | `penalty` | penalty | `penalty` | B2 | 1 | ai-reviewed | [phrase] arrêter un penalty = 扑出点球 |
+| 16200 | `finlandais` | finlandais | `finlandais` | A2 | 1 | ai-reviewed | [phrase] parler finlandais = 说芬兰语 |
+| 16200 | `finlandais` | finlandais | `finlandais` | A2 | 1 | ai-reviewed | [phrase] sauna finlandais = 芬兰桑拿 |
+| 16200 | `finlandais` | finlandais | `finlandais` | A2 | 1 | ai-reviewed | [phrase] citoyen finlandais = 芬兰公民 |
+| 16201 | `consultant` | consultant | `consultant` | B1 | 1 | ai-reviewed | 求诊者；就医者；咨询者 |
+| 16201 | `consultant` | consultant | `consultant` | B1 | 1 | ai-reviewed | [phrase] médecin consultant = 会诊医生；顾问医生 |
+| 16201 | `consultant` | consultant | `consultant` | B1 | 1 | ai-reviewed | [phrase] avocat consultant = 咨询律师；法律顾问 |
+| 16201 | `consultant` | consultant | `consultant` | B1 | 1 | ai-reviewed | [phrase] cabinet de consultants = 顾问事务所；咨询公司 |
+| 16202 | `compulser` | compulser | `compulser` | B2 | 1 | ai-reviewed | [phrase] compulser un dossier = 查阅卷宗；调阅档案 |
+| 16202 | `compulser` | compulser | `compulser` | B2 | 1 | ai-reviewed | [phrase] compulser des archives = 翻阅档案资料 |
+| 16202 | `compulser` | compulser | `compulser` | B2 | 1 | ai-reviewed | [phrase] compulser un registre = 查阅登记簿；翻查名册 |
+| 16251 | `cessez-le-feu` | cessez-le-feu | `cessez-le-feu` | B2 | 1 | ai-reviewed | [phrase] accord de cessez-le-feu = 停火协议 |
+| 16251 | `cessez-le-feu` | cessez-le-feu | `cessez-le-feu` | B2 | 1 | ai-reviewed | [phrase] négocier un cessez-le-feu = 就停火进行谈判；谈判停火 |
+| 16251 | `cessez-le-feu` | cessez-le-feu | `cessez-le-feu` | B2 | 1 | ai-reviewed | [phrase] violer le cessez-le-feu = 违反停火协议 |
+| 16252 | `contestable` | contestable | `contestable` | B2 | 1 | ai-reviewed | [phrase] décision contestable = 有争议的决定；值得商榷的决定 |
+| 16252 | `contestable` | contestable | `contestable` | B2 | 1 | ai-reviewed | [phrase] affirmation contestable = 可质疑的论断 |
+| 16252 | `contestable` | contestable | `contestable` | B2 | 1 | ai-reviewed | [phrase] être hautement contestable = 极具争议；大可质疑 |
+| 16275 | `proportionnel` | proportionnel | `proportionnel` | B2 | 1 | ai-reviewed | [phrase] être proportionnel à = 与……成比例；与……成正比 |
+| 16275 | `proportionnel` | proportionnel | `proportionnel` | B2 | 1 | ai-reviewed | [phrase] impôt proportionnel = 比例税 |
+| 16275 | `proportionnel` | proportionnel | `proportionnel` | B2 | 1 | ai-reviewed | [phrase] représentation proportionnelle = 比例代表制 |
+| 16276 | `favorise` | favorisé | `favorise-adj` | B2 | 1 | ai-reviewed | 受优待者；幸运儿；境遇优渥的人 |
+| 16276 | `favorise` | favorisé | `favorise-adj` | B2 | 1 | ai-reviewed | [phrase] classes favorisées = 优势阶层；富裕阶层；受优待阶层 |
+| 16276 | `favorise` | favorisé | `favorise-adj` | B2 | 1 | ai-reviewed | [phrase] quartier favorisé = 条件优越的街区；富裕社区 |
+| 16276 | `favorise` | favorisé | `favorise-adj` | B2 | 1 | ai-reviewed | [phrase] les plus favorisés = 最受优待的群体；境遇最优越的人 |
+| 16277 | `retarde` | retardé | `retarde-adj` | B2 | 1 | ai-reviewed | 减速的 |
+| 16277 | `retarde` | retardé | `retarde-adj` | B2 | 1 | ai-reviewed | 发育迟缓的；智力迟钝的 |
+| 16277 | `retarde` | retardé | `retarde-adj` | B2 | 1 | ai-reviewed | 智力发育迟缓者；智力低下的人 |
+| 16277 | `retarde` | retardé | `retarde-adj` | B2 | 1 | ai-reviewed | [phrase] vol retardé = 延误的航班 |
+| 16277 | `retarde` | retardé | `retarde-adj` | B2 | 1 | ai-reviewed | [phrase] livraison retardée = 延迟交货；交货延误 |
+| 16277 | `retarde` | retardé | `retarde-adj` | B2 | 1 | ai-reviewed | [phrase] mouvement uniformément retardé = 匀减速运动 |
+| 16306 | `linguistique` | linguistique | `linguistique` | A2 | 1 | ai-reviewed | [phrase] linguistique appliquée = 应用语言学 |
+| 16306 | `linguistique` | linguistique | `linguistique` | A2 | 1 | ai-reviewed | [phrase] diversité linguistique = 语言多样性 |
+| 16306 | `linguistique` | linguistique | `linguistique` | A2 | 1 | ai-reviewed | [phrase] compétence linguistique = 语言能力 |
+| 16323 | `continental` | continental | `continental` | B1 | 1 | ai-reviewed | 法国大陆居民（相对于科西嘉或海外省而言） |
+| 16323 | `continental` | continental | `continental` | B1 | 1 | ai-reviewed | [phrase] climat continental = 大陆性气候 |
+| 16323 | `continental` | continental | `continental` | B1 | 1 | ai-reviewed | [phrase] plateau continental = 大陆架 |
+| 16323 | `continental` | continental | `continental` | B1 | 1 | ai-reviewed | [phrase] petit déjeuner continental = 欧陆式早餐 |
 | 16324 | `belle-famille` | belle-famille | `belle-famille` | B1 | 1 | wikt-zh | n.f.（pl.~s-~s） 岳父母家，公婆家 |
+| 16324 | `belle-famille` | belle-famille | `belle-famille` | B1 | 1 | ai-reviewed | [phrase] rencontrer la belle-famille = 见对方家长；拜访姻亲 |
+| 16324 | `belle-famille` | belle-famille | `belle-famille` | B1 | 1 | ai-reviewed | [phrase] repas de belle-famille = 姻亲家宴；和公婆或岳父母聚餐 |
+| 16324 | `belle-famille` | belle-famille | `belle-famille` | B1 | 1 | ai-reviewed | [phrase] s'entendre avec sa belle-famille = 与夫家或妻家相处融洽 |
 | 16344 | `onereux` | onéreux | `onereux-adj` | B2 | 1 | wikt-zh | 繁重的，代价沉重的；昂贵的 |
+| 16344 | `onereux` | onéreux | `onereux-adj` | B2 | 1 | ai-reviewed | 有偿的；需付费的 |
+| 16344 | `onereux` | onéreux | `onereux-adj` | B2 | 1 | ai-reviewed | [phrase] à titre onéreux = 有偿地；以收费方式 |
+| 16344 | `onereux` | onéreux | `onereux-adj` | B2 | 1 | ai-reviewed | [phrase] contrat à titre onéreux = 有偿合同 |
+| 16344 | `onereux` | onéreux | `onereux-adj` | B2 | 1 | ai-reviewed | [phrase] trop onéreux = 过于昂贵的；开销过大的 |
+| 16345 | `boitier` | boîtier | `boitier` | B2 | 1 | ai-reviewed | 表壳 |
+| 16345 | `boitier` | boîtier | `boitier` | B2 | 1 | ai-reviewed | 制盒人；箱盒商 |
+| 16345 | `boitier` | boîtier | `boitier` | B2 | 1 | ai-reviewed | [phrase] boîtier de montre = 手表表壳 |
+| 16345 | `boitier` | boîtier | `boitier` | B2 | 1 | ai-reviewed | [phrase] boîtier d'ordinateur = 电脑机箱 |
+| 16345 | `boitier` | boîtier | `boitier` | B2 | 1 | ai-reviewed | [phrase] boîtier nu = 单机身；空机箱 |
+| 16346 | `astronomie` | astronomie | `astronomie` | B2 | 1 | ai-reviewed | [phrase] astronomie d'observation = 观测天文学 |
+| 16346 | `astronomie` | astronomie | `astronomie` | B2 | 1 | ai-reviewed | [phrase] club d'astronomie = 天文社团；天文爱好者协会 |
+| 16346 | `astronomie` | astronomie | `astronomie` | B2 | 1 | ai-reviewed | [phrase] passionné d'astronomie = 天文迷；天文学爱好者 |
+| 16347 | `artisanat` | artisanat | `artisanat-m` | B2 | 1 | ai-reviewed | 手工艺；手工技艺 |
+| 16347 | `artisanat` | artisanat | `artisanat-m` | B2 | 1 | ai-reviewed | [phrase] artisanat d'art = 工艺美术；艺术手工艺 |
+| 16347 | `artisanat` | artisanat | `artisanat-m` | B2 | 1 | ai-reviewed | [phrase] artisanat local = 地方手工艺；当地手工业 |
+| 16347 | `artisanat` | artisanat | `artisanat-m` | B2 | 1 | ai-reviewed | [phrase] produits de l'artisanat = 手工艺品 |
+| 16348 | `graphique` | graphique | `graphique` | B2 | 1 | ai-reviewed | 图形的；图示的；图解的 |
+| 16348 | `graphique` | graphique | `graphique` | B2 | 1 | ai-reviewed | 造型艺术的；平面的；绘画设计的 |
+| 16348 | `graphique` | graphique | `graphique` | B2 | 1 | ai-reviewed | 书写的；文字的；字形的 |
+| 16348 | `graphique` | graphique | `graphique` | B2 | 1 | ai-reviewed | [phrase] arts graphiques = 平面艺术；造型艺术 |
+| 16348 | `graphique` | graphique | `graphique` | B2 | 1 | ai-reviewed | [phrase] design graphique = 平面设计 |
+| 16348 | `graphique` | graphique | `graphique` | B2 | 1 | ai-reviewed | [phrase] interface graphique = 图形界面 |
+| 16369 | `kir` | kir | `kir` | B1 | 1 | ai-reviewed | 〈地质〉天然焦油浸渍土；含沥青土 |
+| 16369 | `kir` | kir | `kir` | B1 | 1 | ai-reviewed | [phrase] kir royal = 皇家基尔酒（黑加仑利口酒配香槟） |
+| 16369 | `kir` | kir | `kir` | B1 | 1 | ai-reviewed | [phrase] prendre un kir = 喝一杯基尔酒 |
+| 16369 | `kir` | kir | `kir` | B1 | 1 | ai-reviewed | [phrase] kir à la mûre = 黑莓味基尔酒 |
+| 16370 | `retourne#2` | retourné | `retourne` | B2 | 1 | ai-reviewed | 〈纹章〉转向左侧的；反向的 |
+| 16370 | `retourne#2` | retourné | `retourne` | B2 | 1 | ai-reviewed | （足球）倒钩射门；倒挂金钩 |
+| 16370 | `retourne#2` | retourné | `retourne` | B2 | 1 | ai-reviewed | [phrase] retourné acrobatique = 倒挂金钩；倒钩射门 |
+| 16370 | `retourne#2` | retourné | `retourne` | B2 | 1 | ai-reviewed | [phrase] être tout retourné = 深受触动；心烦意乱；惊魂未定 |
+| 16370 | `retourne#2` | retourné | `retourne` | B2 | 1 | ai-reviewed | [phrase] col retourné = 翻领 |
 | 16400 | `neurologue` | neurologue | `neurologue` | B2 | 1 | wikt-zh | 神经学家 |
+| 16400 | `neurologue` | neurologue | `neurologue` | B2 | 1 | ai-reviewed | [phrase] consulter un neurologue = 看神经科医生；向神经科医生就诊 |
+| 16400 | `neurologue` | neurologue | `neurologue` | B2 | 1 | ai-reviewed | [phrase] avis d’un neurologue = 神经科医生的诊断意见 |
+| 16400 | `neurologue` | neurologue | `neurologue` | B2 | 1 | ai-reviewed | [phrase] neurologue pédiatrique = 小儿神经科医生 |
 | 16405 | `frimeur` | frimeur | `frimeur` | B2 | 1 | wikt-zh | 冒充的人 |
+| 16405 | `frimeur` | frimeur | `frimeur` | B2 | 1 | ai-reviewed | 爱炫耀的；爱摆谱的；装腔作势的 |
+| 16405 | `frimeur` | frimeur | `frimeur` | B2 | 1 | ai-reviewed | [phrase] un vrai frimeur = 十足的爱炫耀之人；真会摆谱的人 |
+| 16405 | `frimeur` | frimeur | `frimeur` | B2 | 1 | ai-reviewed | [phrase] faire le frimeur = 摆谱；爱显摆；装腔作势 |
+| 16405 | `frimeur` | frimeur | `frimeur` | B2 | 1 | ai-reviewed | [phrase] un air frimeur = 一副爱炫耀的神气 |
+| 16435 | `quiche` | quiche | `quiche` | A2 | 1 | ai-reviewed | 馅饼；（尤指法国东部的）果馅饼 |
+| 16435 | `quiche` | quiche | `quiche` | A2 | 1 | ai-reviewed | （俗）笨蛋；脑筋不灵光的人；笨手笨脚的人 |
+| 16435 | `quiche` | quiche | `quiche` | A2 | 1 | ai-reviewed | （俗）耳光；巴掌；一击 |
+| 16435 | `quiche` | quiche | `quiche` | A2 | 1 | ai-reviewed | [phrase] être une quiche en qch = （俗）对某事一窍不通；在某方面很笨拙 |
+| 16435 | `quiche` | quiche | `quiche` | A2 | 1 | ai-reviewed | [phrase] pâte à quiche = 咸派酥皮 |
+| 16436 | `technologique` | technologique | `technologique` | B1 | 1 | ai-reviewed | [phrase] progrès technologique = 技术进步；科技进步 |
+| 16436 | `technologique` | technologique | `technologique` | B1 | 1 | ai-reviewed | [phrase] innovation technologique = 技术创新；科技创新 |
+| 16436 | `technologique` | technologique | `technologique` | B1 | 1 | ai-reviewed | [phrase] révolution technologique = 技术革命；科技革命 |
+| 16437 | `ozone` | ozone | `ozone` | B2 | 1 | ai-reviewed | [phrase] couche d'ozone = 臭氧层 |
+| 16437 | `ozone` | ozone | `ozone` | B2 | 1 | ai-reviewed | [phrase] trou dans la couche d'ozone = 臭氧层空洞 |
+| 16437 | `ozone` | ozone | `ozone` | B2 | 1 | ai-reviewed | [phrase] pic d'ozone = 臭氧峰值；臭氧污染高峰 |
+| 16438 | `debiteur` | débiteur | `debiteur` | A2 | 1 | ai-reviewed | 有流量的；供料的；排出的 |
+| 16438 | `debiteur` | débiteur | `debiteur` | A2 | 1 | ai-reviewed | 债务人；欠债者 |
+| 16438 | `debiteur` | débiteur | `debiteur` | A2 | 1 | ai-reviewed | 散播（消息、谣言等）的人；喋喋不休说话的人 |
+| 16438 | `debiteur` | débiteur | `debiteur` | A2 | 1 | ai-reviewed | 供料器；给料装置 |
+| 16438 | `debiteur` | débiteur | `debiteur` | A2 | 1 | ai-reviewed | [phrase] solde débiteur = 借方余额；透支余额 |
+| 16438 | `debiteur` | débiteur | `debiteur` | A2 | 1 | ai-reviewed | [phrase] débiteur principal = 主债务人 |
 | 16459 | `parfumerie` | parfumerie | `parfumerie` | B1 | 1 | wikt-zh | 香水产品；制香水业 |
+| 16459 | `parfumerie` | parfumerie | `parfumerie` | B1 | 1 | ai-reviewed | [phrase] parfumerie de luxe = 高档香水店；高端香水业 |
+| 16459 | `parfumerie` | parfumerie | `parfumerie` | B1 | 1 | ai-reviewed | [phrase] rayon parfumerie = 香水化妆品专柜 |
+| 16459 | `parfumerie` | parfumerie | `parfumerie` | B1 | 1 | ai-reviewed | [phrase] articles de parfumerie = 香水及洗漱化妆品 |
+| 16470 | `spherique` | sphérique | `spherique` | B2 | 1 | ai-reviewed | 球形气球；球状航空器 |
+| 16470 | `spherique` | sphérique | `spherique` | B2 | 1 | ai-reviewed | [phrase] forme sphérique = 球形 |
+| 16470 | `spherique` | sphérique | `spherique` | B2 | 1 | ai-reviewed | [phrase] trigonométrie sphérique = 球面三角学 |
+| 16470 | `spherique` | sphérique | `spherique` | B2 | 1 | ai-reviewed | [phrase] miroir sphérique = 球面镜 |
 | 16477 | `generaliser` | généraliser | `generaliser` | B2 | 1 | wikt-zh | 泛论；推断；归纳，概括；变得普遍、标准、广泛流传 |
+| 16477 | `generaliser` | généraliser | `generaliser` | B2 | 1 | ai-reviewed | [phrase] se généraliser = 普及；普遍化；流传开来 |
+| 16477 | `generaliser` | généraliser | `generaliser` | B2 | 1 | ai-reviewed | [phrase] il ne faut pas généraliser = 不能一概而论 |
+| 16477 | `generaliser` | généraliser | `generaliser` | B2 | 1 | ai-reviewed | [phrase] généraliser une pratique = 推广一种做法 |
+| 16498 | `bourgogne` | bourgogne | `bourgogne` | B1 | 1 | ai-reviewed | 勃艮第红；深酒红色 |
+| 16498 | `bourgogne` | bourgogne | `bourgogne` | B1 | 1 | ai-reviewed | [phrase] un verre de bourgogne = 一杯勃艮第葡萄酒 |
+| 16498 | `bourgogne` | bourgogne | `bourgogne` | B1 | 1 | ai-reviewed | [phrase] du vieux bourgogne = 陈年勃艮第葡萄酒 |
+| 16498 | `bourgogne` | bourgogne | `bourgogne` | B1 | 1 | ai-reviewed | [phrase] rouge bourgogne = 勃艮第酒红色 |
+| 16499 | `doper` | doper | `doper` | B1 | 1 | ai-reviewed | 用不正当手段提升；暗中提高（性能、数据等） |
+| 16499 | `doper` | doper | `doper` | B1 | 1 | ai-reviewed | 对（半导体）进行掺杂 |
+| 16499 | `doper` | doper | `doper` | B1 | 1 | ai-reviewed | 刺激；提振；促进 |
+| 16499 | `doper` | doper | `doper` | B1 | 1 | ai-reviewed | [phrase] doper les ventes = 刺激销量；拉动销售 |
+| 16499 | `doper` | doper | `doper` | B1 | 1 | ai-reviewed | [phrase] doper l'économie = 提振经济 |
+| 16499 | `doper` | doper | `doper` | B1 | 1 | ai-reviewed | [phrase] se doper = 服用兴奋剂 |
+| 16500 | `astrologue` | astrologue | `astrologue-m` | B2 | 1 | ai-reviewed | [phrase] consulter un astrologue = 向占星家请教；找占星师算命 |
+| 16500 | `astrologue` | astrologue | `astrologue-m` | B2 | 1 | ai-reviewed | [phrase] prédiction d'un astrologue = 占星家的预言 |
+| 16500 | `astrologue` | astrologue | `astrologue-m` | B2 | 1 | ai-reviewed | [phrase] astrologue de cour = 宫廷占星师 |
+| 16501 | `royaute` | royauté | `royaute` | B2 | 1 | ai-reviewed | 至高地位；支配性影响；主导权 |
+| 16501 | `royaute` | royauté | `royaute` | B2 | 1 | ai-reviewed | [phrase] abolir la royauté = 废除君主制 |
+| 16501 | `royaute` | royauté | `royaute` | B2 | 1 | ai-reviewed | [phrase] rétablir la royauté = 恢复君主制 |
+| 16501 | `royaute` | royauté | `royaute` | B2 | 1 | ai-reviewed | [phrase] symbole de la royauté = 王权的象征 |
+| 16558 | `post-it` | post-it | `post-it` | B2 | 1 | ai-reviewed | 桌面电子便签；虚拟便利贴 |
+| 16558 | `post-it` | post-it | `post-it` | B2 | 1 | ai-reviewed | [phrase] coller un post-it = 贴一张便利贴 |
+| 16558 | `post-it` | post-it | `post-it` | B2 | 1 | ai-reviewed | [phrase] noter sur un post-it = 记在便利贴上 |
+| 16558 | `post-it` | post-it | `post-it` | B2 | 1 | ai-reviewed | [phrase] un post-it jaune = 黄色便利贴 |
 | 16559 | `bachelier` | bachelier | `bachelier-m` | B2 | 1 | wikt-zh | n. 法国中学毕业会考及格者，业士 |
+| 16559 | `bachelier` | bachelier | `bachelier-m` | B2 | 1 | ai-reviewed | 学士；学士学位（比利时、加拿大法语区等的大学本科文凭） |
+| 16559 | `bachelier` | bachelier | `bachelier-m` | B2 | 1 | ai-reviewed | 见习骑士；未受封采邑的年轻贵族 |
+| 16559 | `bachelier` | bachelier | `bachelier-m` | B2 | 1 | ai-reviewed | 〈旧〉小伙子；未婚青年男子 |
+| 16559 | `bachelier` | bachelier | `bachelier-m` | B2 | 1 | ai-reviewed | [phrase] jeune bachelier = 新科业士；刚通过中学毕业会考的学生 |
+| 16559 | `bachelier` | bachelier | `bachelier-m` | B2 | 1 | ai-reviewed | [phrase] bachelier ès lettres = 文科业士；文学学士 |
+| 16559 | `bachelier` | bachelier | `bachelier-m` | B2 | 1 | ai-reviewed | [phrase] bachelier ès sciences = 理科业士；理学学士 |
+| 16598 | `camomille` | camomille | `camomille` | A2 | 1 | ai-reviewed | 洋甘菊茶；洋甘菊花茶 |
+| 16598 | `camomille` | camomille | `camomille` | A2 | 1 | ai-reviewed | [phrase] infusion de camomille = 洋甘菊花茶 |
+| 16598 | `camomille` | camomille | `camomille` | A2 | 1 | ai-reviewed | [phrase] tisane à la camomille = 洋甘菊草本茶 |
+| 16598 | `camomille` | camomille | `camomille` | A2 | 1 | ai-reviewed | [phrase] boire une camomille = 喝一杯洋甘菊茶 |
+| 16621 | `vomissements` | vomissements | `vomissements` | B2 | 1 | ai-reviewed | [phrase] nausées et vomissements = 恶心与呕吐 |
+| 16621 | `vomissements` | vomissements | `vomissements` | B2 | 1 | ai-reviewed | [phrase] avoir des vomissements = 出现呕吐症状；呕吐 |
+| 16621 | `vomissements` | vomissements | `vomissements` | B2 | 1 | ai-reviewed | [phrase] calmer les vomissements = 止吐 |
 | 16672 | `briguer` | briguer | `briguer` | B2 | 1 | wikt-zh | 用阴谋，施诡计；寻求，谋求，渴求，设法获得 |
+| 16672 | `briguer` | briguer | `briguer` | B2 | 1 | ai-reviewed | [phrase] briguer un poste = 谋求某个职位 |
+| 16672 | `briguer` | briguer | `briguer` | B2 | 1 | ai-reviewed | [phrase] briguer un mandat = 谋求公职任期；竞选席位 |
+| 16672 | `briguer` | briguer | `briguer` | B2 | 1 | ai-reviewed | [phrase] briguer la présidence = 角逐总统职位 |
+| 16711 | `obesite` | obésité | `obesite` | B2 | 1 | ai-reviewed | [phrase] lutter contre l'obésité = 抗击肥胖；防治肥胖症 |
+| 16711 | `obesite` | obésité | `obesite` | B2 | 1 | ai-reviewed | [phrase] taux d'obésité = 肥胖率 |
+| 16711 | `obesite` | obésité | `obesite` | B2 | 1 | ai-reviewed | [phrase] obésité morbide = 病态肥胖；重度肥胖 |
 | 16748 | `auto-stop` | auto-stop | `auto-stop` | B1 | 1 | wikt-zh | 搭顺风车 |
+| 16748 | `auto-stop` | auto-stop | `auto-stop` | B1 | 1 | ai-reviewed | [phrase] faire de l'auto-stop = 搭便车；招手搭顺风车 |
+| 16748 | `auto-stop` | auto-stop | `auto-stop` | B1 | 1 | ai-reviewed | [phrase] voyager en auto-stop = 搭便车旅行 |
+| 16748 | `auto-stop` | auto-stop | `auto-stop` | B1 | 1 | ai-reviewed | [phrase] partir en auto-stop = 搭便车出发 |
+| 16749 | `stockage` | stockage | `stockage` | B2 | 1 | ai-reviewed | 存储器；存储容量 |
+| 16749 | `stockage` | stockage | `stockage` | B2 | 1 | ai-reviewed | [phrase] espace de stockage = 存储空间；储藏空间 |
+| 16749 | `stockage` | stockage | `stockage` | B2 | 1 | ai-reviewed | [phrase] stockage de données = 数据存储 |
+| 16749 | `stockage` | stockage | `stockage` | B2 | 1 | ai-reviewed | [phrase] stockage d'énergie = 能量储存；储能 |
+| 16750 | `falot` | falot | `falot` | B2 | 1 | ai-reviewed | 模糊的；隐约可见的；黯淡的 |
+| 16750 | `falot` | falot | `falot` | B2 | 1 | ai-reviewed | （旧）滑稽的；可笑的 |
+| 16750 | `falot` | falot | `falot` | B2 | 1 | ai-reviewed | 大灯笼；手提灯 |
+| 16750 | `falot` | falot | `falot` | B2 | 1 | ai-reviewed | [phrase] un personnage falot = 一个平庸无奇的人物 |
+| 16750 | `falot` | falot | `falot` | B2 | 1 | ai-reviewed | [phrase] une lueur falote = 微弱模糊的光亮 |
+| 16750 | `falot` | falot | `falot` | B2 | 1 | ai-reviewed | [phrase] une existence falote = 平淡无奇的生活 |
 | 16751 | `discutable` | discutable | `discutable` | B2 | 1 | wikt-zh | 有争议的；成问题的 |
+| 16751 | `discutable` | discutable | `discutable` | B2 | 1 | ai-reviewed | [phrase] une décision discutable = 有争议的决定；值得商榷的决策 |
+| 16751 | `discutable` | discutable | `discutable` | B2 | 1 | ai-reviewed | [phrase] d'une utilité discutable = 作用存疑的；实用性值得商榷的 |
+| 16751 | `discutable` | discutable | `discutable` | B2 | 1 | ai-reviewed | [phrase] un goût discutable = 不敢恭维的品位；有待商榷的品位 |
+| 16823 | `patinoire` | patinoire | `patinoire` | B1 | 1 | ai-reviewed | （即兴戏剧比赛的）表演场地；赛场 |
+| 16823 | `patinoire` | patinoire | `patinoire` | B1 | 1 | ai-reviewed | [phrase] aller à la patinoire = 去溜冰场 |
+| 16823 | `patinoire` | patinoire | `patinoire` | B1 | 1 | ai-reviewed | [phrase] patinoire couverte = 室内溜冰场；滑冰馆 |
+| 16823 | `patinoire` | patinoire | `patinoire` | B1 | 1 | ai-reviewed | [phrase] patinoire en plein air = 露天溜冰场 |
+| 16824 | `prolongation` | prolongation | `prolongation` | B2 | 1 | ai-reviewed | [phrase] en prolongation = （体育）在加时赛中 |
+| 16824 | `prolongation` | prolongation | `prolongation` | B2 | 1 | ai-reviewed | [phrase] demander une prolongation = 申请延期；要求延长 |
+| 16824 | `prolongation` | prolongation | `prolongation` | B2 | 1 | ai-reviewed | [phrase] prolongation de contrat = 合同续约；合同延长 |
+| 16825 | `teloche` | téloche | `teloche` | B2 | 1 | ai-reviewed | [phrase] regarder la téloche = 看电视 |
+| 16825 | `teloche` | téloche | `teloche` | B2 | 1 | ai-reviewed | [phrase] allumer la téloche = 打开电视 |
+| 16825 | `teloche` | téloche | `teloche` | B2 | 1 | ai-reviewed | [phrase] éteindre la téloche = 关掉电视 |
+| 16826 | `euphorique` | euphorique | `euphorique` | B2 | 1 | ai-reviewed | [phrase] être euphorique = 欣喜若狂；异常兴奋 |
+| 16826 | `euphorique` | euphorique | `euphorique` | B2 | 1 | ai-reviewed | [phrase] ambiance euphorique = 欢欣鼓舞的气氛；热烈兴奋的氛围 |
+| 16826 | `euphorique` | euphorique | `euphorique` | B2 | 1 | ai-reviewed | [phrase] humeur euphorique = 兴高采烈的心情；欣快情绪 |
+| 16866 | `valider` | valider | `valider` | A2 | 1 | ai-reviewed | [phrase] valider son titre de transport = 刷卡验票；打卡使车票生效 |
+| 16866 | `valider` | valider | `valider` | A2 | 1 | ai-reviewed | [phrase] valider un examen = 通过考试（取得学分） |
+| 16866 | `valider` | valider | `valider` | A2 | 1 | ai-reviewed | [phrase] valider une commande = 确认订单 |
+| 16867 | `pique-niquer` | pique-niquer | `pique-niquer` | A2 | 1 | ai-reviewed | （在室内等处）随手吃一顿；临时凑合用餐 |
+| 16867 | `pique-niquer` | pique-niquer | `pique-niquer` | A2 | 1 | ai-reviewed | [phrase] aller pique-niquer = 去野餐 |
+| 16867 | `pique-niquer` | pique-niquer | `pique-niquer` | A2 | 1 | ai-reviewed | [phrase] pique-niquer sur l’herbe = 在草地上野餐 |
+| 16867 | `pique-niquer` | pique-niquer | `pique-niquer` | A2 | 1 | ai-reviewed | [phrase] pique-niquer en plein air = 在户外野餐 |
+| 16868 | `routinier` | routinier | `routinier` | A2 | 1 | ai-reviewed | 墨守成规者；因循守旧的人 |
+| 16868 | `routinier` | routinier | `routinier` | A2 | 1 | ai-reviewed | [phrase] travail routinier = 日常例行工作 |
+| 16868 | `routinier` | routinier | `routinier` | A2 | 1 | ai-reviewed | [phrase] geste routinier = 习以为常的例行动作 |
+| 16868 | `routinier` | routinier | `routinier` | A2 | 1 | ai-reviewed | [phrase] esprit routinier = 墨守成规的思想；因循守旧的心态 |
+| 16869 | `grillade` | grillade | `grillade` | B1 | 1 | ai-reviewed | 烤制；烧烤烹调 |
+| 16869 | `grillade` | grillade | `grillade` | B1 | 1 | ai-reviewed | （旧，谑）火烤（人）；火刑 |
+| 16869 | `grillade` | grillade | `grillade` | B1 | 1 | ai-reviewed | [phrase] faire des grillades = 做烧烤；烤肉吃 |
+| 16869 | `grillade` | grillade | `grillade` | B1 | 1 | ai-reviewed | [phrase] grillades au feu de bois = 柴火烧烤 |
+| 16869 | `grillade` | grillade | `grillade` | B1 | 1 | ai-reviewed | [phrase] plateau de grillades = 烤肉拼盘 |
+| 16870 | `retransmettre` | retransmettre | `retransmettre` | B2 | 1 | ai-reviewed | [phrase] retransmettre en direct = 现场直播；实况转播 |
+| 16870 | `retransmettre` | retransmettre | `retransmettre` | B2 | 1 | ai-reviewed | [phrase] retransmettre un match = 转播比赛 |
+| 16870 | `retransmettre` | retransmettre | `retransmettre` | B2 | 1 | ai-reviewed | [phrase] retransmettre un message = 转达消息；转发信息 |
+| 16871 | `impair` | impair | `impair` | B2 | 1 | ai-reviewed | （数，指函数）奇的；奇函数的 |
+| 16871 | `impair` | impair | `impair` | B2 | 1 | ai-reviewed | 奇数音节诗行 |
+| 16871 | `impair` | impair | `impair` | B2 | 1 | ai-reviewed | 失言；不得体的举动；失礼之举 |
+| 16871 | `impair` | impair | `impair` | B2 | 1 | ai-reviewed | [phrase] nombre impair = 奇数；单数 |
+| 16871 | `impair` | impair | `impair` | B2 | 1 | ai-reviewed | [phrase] commettre un impair = 失言；做出不得体的举动 |
+| 16871 | `impair` | impair | `impair` | B2 | 1 | ai-reviewed | [phrase] côté impair = （街道的）单号一侧 |
+| 16915 | `cotiser` | cotiser | `cotiser-v` | B2 | 1 | ai-reviewed | 共同出力；齐心协力；各自尽一份力 |
+| 16915 | `cotiser` | cotiser | `cotiser-v` | B2 | 1 | ai-reviewed | [phrase] cotiser pour la retraite = 缴纳养老保险费 |
+| 16915 | `cotiser` | cotiser | `cotiser-v` | B2 | 1 | ai-reviewed | [phrase] se cotiser pour acheter un cadeau = 大家凑钱买一份礼物 |
+| 16915 | `cotiser` | cotiser | `cotiser-v` | B2 | 1 | ai-reviewed | [phrase] cotiser à une association = 向协会缴纳会费 |
 | 16916 | `binette` | binette | `binette` | B2 | 1 | wikt-zh | n.f. 中耕锄，锄，镢子；n.f. 脸，面孔 |
+| 16916 | `binette` | binette | `binette` | B2 | 1 | ai-reviewed | （网络用语）表情符号；颜文字 |
+| 16916 | `binette` | binette | `binette` | B2 | 1 | ai-reviewed | [phrase] passer la binette = 用小锄头松土除草 |
+| 16916 | `binette` | binette | `binette` | B2 | 1 | ai-reviewed | [phrase] avoir une drôle de binette = 长着一张滑稽的脸；面相古怪 |
+| 16916 | `binette` | binette | `binette` | B2 | 1 | ai-reviewed | [phrase] faire une drôle de binette = 露出一副怪表情；扮鬼脸 |
 | 16917 | `exterioriser` | extérioriser | `exterioriser` | B2 | 1 | wikt-zh | 具体化，赋予形体；展示，表达，显露 |
+| 16917 | `exterioriser` | extérioriser | `exterioriser` | B2 | 1 | ai-reviewed | （思想上）跳出自我；脱离自身 |
+| 16917 | `exterioriser` | extérioriser | `exterioriser` | B2 | 1 | ai-reviewed | [phrase] extérioriser ses sentiments = 流露情感；表达感情 |
+| 16917 | `exterioriser` | extérioriser | `exterioriser` | B2 | 1 | ai-reviewed | [phrase] extérioriser sa colère = 发泄愤怒 |
+| 16917 | `exterioriser` | extérioriser | `exterioriser` | B2 | 1 | ai-reviewed | [phrase] avoir du mal à s’extérioriser = 难以敞开心扉；不善于表达内心 |
+| 16918 | `maghrebin` | maghrébin | `maghrebin` | B1 | 1 | ai-reviewed | [phrase] cuisine maghrébine = 北非菜肴；马格里布美食 |
+| 16918 | `maghrebin` | maghrébin | `maghrebin` | B1 | 1 | ai-reviewed | [phrase] pays maghrébins = 马格里布国家 |
+| 16918 | `maghrebin` | maghrébin | `maghrebin` | B1 | 1 | ai-reviewed | [phrase] culture maghrébine = 马格里布文化 |
+| 16960 | `sauternes` | sauternes | `sauternes` | B1 | 1 | ai-reviewed | [phrase] un verre de sauternes = 一杯苏玳甜白葡萄酒 |
+| 16960 | `sauternes` | sauternes | `sauternes` | B1 | 1 | ai-reviewed | [phrase] bouteille de sauternes = 一瓶苏玳甜白葡萄酒 |
+| 16960 | `sauternes` | sauternes | `sauternes` | B1 | 1 | ai-reviewed | [phrase] foie gras au sauternes = 苏玳甜酒鹅肝 |
+| 16961 | `emigration` | émigration | `emigration` | B2 | 1 | ai-reviewed | （法国大革命期间的）贵族外逃；贵族流亡 |
+| 16961 | `emigration` | émigration | `emigration` | B2 | 1 | ai-reviewed | 流亡贵族（总称） |
+| 16961 | `emigration` | émigration | `emigration` | B2 | 1 | ai-reviewed | [phrase] émigration massive = 大规模移民；大举外迁 |
+| 16961 | `emigration` | émigration | `emigration` | B2 | 1 | ai-reviewed | [phrase] pays d'émigration = 移民输出国；人口外流国 |
+| 16961 | `emigration` | émigration | `emigration` | B2 | 1 | ai-reviewed | [phrase] émigration clandestine = 偷渡；非法移居国外 |
 | 16962 | `exacerber` | exacerber | `exacerber` | B2 | 1 | wikt-zh | 加剧，加重；激怒，惹怒 |
+| 16962 | `exacerber` | exacerber | `exacerber` | B2 | 1 | ai-reviewed | 使更强烈；使愈发浓烈（指感受、情绪等） |
+| 16962 | `exacerber` | exacerber | `exacerber` | B2 | 1 | ai-reviewed | [phrase] exacerber les tensions = 加剧紧张局势 |
+| 16962 | `exacerber` | exacerber | `exacerber` | B2 | 1 | ai-reviewed | [phrase] exacerber les passions = 激起强烈情绪；使情绪激化 |
+| 16962 | `exacerber` | exacerber | `exacerber` | B2 | 1 | ai-reviewed | [phrase] exacerber la douleur = 使疼痛加剧 |
 | 17005 | `remunerer` | rémunérer | `remunerer` | B2 | 1 | wikt-zh | 酬劳，酬报 |
+| 17005 | `remunerer` | rémunérer | `remunerer` | B2 | 1 | ai-reviewed | [phrase] rémunérer un service = 为服务支付报酬 |
+| 17005 | `remunerer` | rémunérer | `remunerer` | B2 | 1 | ai-reviewed | [phrase] rémunérer un employé = 给雇员发薪 |
+| 17005 | `remunerer` | rémunérer | `remunerer` | B2 | 1 | ai-reviewed | [phrase] être bien rémunéré = 报酬丰厚；待遇优厚 |
 | 17006 | `gazouiller` | gazouiller | `gazouiller` | B2 | 1 | wikt-zh | 鸣叫，叽叽喳喳；牙牙学语；发推文 |
+| 17006 | `gazouiller` | gazouiller | `gazouiller` | B2 | 1 | ai-reviewed | （小溪等）潺潺作响；淙淙流淌 |
+| 17006 | `gazouiller` | gazouiller | `gazouiller` | B2 | 1 | ai-reviewed | [phrase] les oiseaux gazouillent = 鸟儿啁啾鸣叫 |
+| 17006 | `gazouiller` | gazouiller | `gazouiller` | B2 | 1 | ai-reviewed | [phrase] un bébé qui gazouille = 牙牙学语的婴儿 |
+| 17006 | `gazouiller` | gazouiller | `gazouiller` | B2 | 1 | ai-reviewed | [phrase] le ruisseau gazouille = 溪水潺潺流淌 |
 | 17041 | `messagerie` | messagerie | `messagerie` | A2 | 1 | wikt-zh | 通讯软件；执行运输、托运的服务、公司或行业；电话留言 |
+| 17041 | `messagerie` | messagerie | `messagerie` | A2 | 1 | ai-reviewed | [phrase] messagerie instantanée = 即时通讯 |
+| 17041 | `messagerie` | messagerie | `messagerie` | A2 | 1 | ai-reviewed | [phrase] messagerie vocale = 语音信箱；语音留言 |
 | 17042 | `mensualite` | mensualité | `mensualite` | B1 | 1 | wikt-zh | 按月支付的款项；月薪 |
+| 17042 | `mensualite` | mensualité | `mensualite` | B1 | 1 | ai-reviewed | [phrase] verser une mensualité = 支付月供；缴纳月付款 |
+| 17042 | `mensualite` | mensualité | `mensualite` | B1 | 1 | ai-reviewed | [phrase] rembourser par mensualités = 按月分期偿还 |
+| 17042 | `mensualite` | mensualité | `mensualite` | B1 | 1 | ai-reviewed | [phrase] mensualité constante = 等额月供 |
+| 17043 | `regresser` | régresser | `regresser` | B2 | 1 | ai-reviewed | （海平面）下降；海退 |
+| 17043 | `regresser` | régresser | `regresser` | B2 | 1 | ai-reviewed | [phrase] régresser rapidement = 迅速退化；急剧倒退 |
+| 17043 | `regresser` | régresser | `regresser` | B2 | 1 | ai-reviewed | [phrase] faire régresser = 使倒退；使减退 |
+| 17043 | `regresser` | régresser | `regresser` | B2 | 1 | ai-reviewed | [phrase] régresser dans le classement = 在排名中下滑 |
+| 17044 | `entete` | entêté | `entete` | B2 | 1 | ai-reviewed | 固执的人；执拗者 |
+| 17044 | `entete` | entêté | `entete` | B2 | 1 | ai-reviewed | [phrase] être entêté comme une mule = 像骡子一样固执；极其执拗 |
+| 17044 | `entete` | entêté | `entete` | B2 | 1 | ai-reviewed | [phrase] caractère entêté = 固执的性格 |
+| 17044 | `entete` | entêté | `entete` | B2 | 1 | ai-reviewed | [phrase] enfant entêté = 倔强的孩子 |
 | 17045 | `malleable` | malléable | `malleable` | B2 | 1 | wikt-zh | 有展性的 |
+| 17045 | `malleable` | malléable | `malleable` | B2 | 1 | ai-reviewed | [phrase] métal malléable = 有延展性的金属 |
+| 17045 | `malleable` | malléable | `malleable` | B2 | 1 | ai-reviewed | [phrase] esprit malléable = 易受影响的头脑；可塑性强的心智 |
+| 17045 | `malleable` | malléable | `malleable` | B2 | 1 | ai-reviewed | [phrase] matière malléable = 可塑性材料 |
+| 17083 | `baraque#2` | baraqué | `baraque` | B2 | 1 | ai-reviewed | 体格魁梧的人；大块头；壮汉 |
+| 17083 | `baraque#2` | baraqué | `baraque` | B2 | 1 | ai-reviewed | [phrase] être bien baraqué = 身材很魁梧；体格非常壮实 |
+| 17083 | `baraque#2` | baraqué | `baraque` | B2 | 1 | ai-reviewed | [phrase] un mec baraqué = 壮实的男人；大块头 |
+| 17083 | `baraque#2` | baraqué | `baraque` | B2 | 1 | ai-reviewed | [phrase] avoir un physique baraqué = 体格健壮魁梧 |
+| 17089 | `insomniaque` | insomniaque | `insomniaque` | B2 | 1 | ai-reviewed | 辗转难眠的；因失眠而断断续续的 |
+| 17089 | `insomniaque` | insomniaque | `insomniaque` | B2 | 1 | ai-reviewed | 引起失眠的；使人睡不着的 |
+| 17089 | `insomniaque` | insomniaque | `insomniaque` | B2 | 1 | ai-reviewed | [phrase] nuit insomniaque = 失眠之夜；不眠之夜 |
+| 17089 | `insomniaque` | insomniaque | `insomniaque` | B2 | 1 | ai-reviewed | [phrase] devenir insomniaque = 患上失眠症；变得经常失眠 |
+| 17089 | `insomniaque` | insomniaque | `insomniaque` | B2 | 1 | ai-reviewed | [phrase] être un grand insomniaque = 是个严重失眠的人 |
+| 17090 | `affaiblissement` | affaiblissement | `affaiblissement` | B2 | 1 | ai-reviewed | （电、声、电磁波等的）衰减 |
+| 17090 | `affaiblissement` | affaiblissement | `affaiblissement` | B2 | 1 | ai-reviewed | 衰减量；衰减度 |
+| 17090 | `affaiblissement` | affaiblissement | `affaiblissement` | B2 | 1 | ai-reviewed | [phrase] affaiblissement du système immunitaire = 免疫系统功能减弱；免疫力下降 |
+| 17090 | `affaiblissement` | affaiblissement | `affaiblissement` | B2 | 1 | ai-reviewed | [phrase] affaiblissement économique = 经济衰退；经济疲软 |
+| 17090 | `affaiblissement` | affaiblissement | `affaiblissement` | B2 | 1 | ai-reviewed | [phrase] affaiblissement du signal = 信号衰减 |
+| 17091 | `martiniquais` | martiniquais | `martiniquais` | A2 | 1 | ai-reviewed | 马提尼克人；原籍马提尼克的人 |
+| 17091 | `martiniquais` | martiniquais | `martiniquais` | A2 | 1 | ai-reviewed | [phrase] rhum martiniquais = 马提尼克朗姆酒 |
+| 17091 | `martiniquais` | martiniquais | `martiniquais` | A2 | 1 | ai-reviewed | [phrase] cuisine martiniquaise = 马提尼克风味菜肴 |
+| 17091 | `martiniquais` | martiniquais | `martiniquais` | A2 | 1 | ai-reviewed | [phrase] d’origine martiniquaise = 马提尼克裔的；原籍马提尼克的 |
+| 17126 | `enrhume` | enrhumé | `enrhume` | A2 | 1 | ai-reviewed | 憋闷的；窒塞的；沉闷的 |
+| 17126 | `enrhume` | enrhumé | `enrhume` | A2 | 1 | ai-reviewed | [phrase] être enrhumé = 感冒；患伤风 |
+| 17126 | `enrhume` | enrhumé | `enrhume` | A2 | 1 | ai-reviewed | [phrase] avoir la voix enrhumée = 因感冒而带鼻音；说话鼻音重 |
+| 17126 | `enrhume` | enrhumé | `enrhume` | A2 | 1 | ai-reviewed | [phrase] être enrhumé du cerveau = 患重伤风；鼻塞流涕 |
+| 17127 | `exporter` | exporter | `exporter` | B1 | 1 | ai-reviewed | [phrase] exporter des marchandises = 出口商品 |
+| 17127 | `exporter` | exporter | `exporter` | B1 | 1 | ai-reviewed | [phrase] exporter à l'étranger = 向国外出口 |
+| 17127 | `exporter` | exporter | `exporter` | B1 | 1 | ai-reviewed | [phrase] exporter des données = 导出数据 |
+| 17128 | `liberalisme` | libéralisme | `liberalisme` | B2 | 1 | ai-reviewed | [phrase] libéralisme économique = 经济自由主义 |
+| 17128 | `liberalisme` | libéralisme | `liberalisme` | B2 | 1 | ai-reviewed | [phrase] libéralisme politique = 政治自由主义 |
+| 17128 | `liberalisme` | libéralisme | `liberalisme` | B2 | 1 | ai-reviewed | [phrase] adepte du libéralisme = 自由主义信奉者 |
+| 17172 | `surmene` | surmené | `surmene-adj` | B2 | 1 | ai-reviewed | [phrase] être complètement surmené = 完全累垮了；过度操劳 |
+| 17172 | `surmene` | surmené | `surmene-adj` | B2 | 1 | ai-reviewed | [phrase] un cadre surmené = 过度劳累的管理人员；操劳过度的主管 |
+| 17172 | `surmene` | surmené | `surmene-adj` | B2 | 1 | ai-reviewed | [phrase] cerveau surmené = 过度疲劳的大脑 |
+| 17173 | `quittance` | quittance | `quittance` | B2 | 1 | ai-reviewed | [phrase] quittance de loyer = 房租收据 |
+| 17173 | `quittance` | quittance | `quittance` | B2 | 1 | ai-reviewed | [phrase] donner quittance = 开具收据；出具结清证明 |
+| 17173 | `quittance` | quittance | `quittance` | B2 | 1 | ai-reviewed | [phrase] demander une quittance = 索要收据 |
 | 17216 | `interviewer` | interviewer | `interviewer` | B1 | 1 | wikt-zh | 采访，访谈，访问 |
 | 17216 | `interviewer` | interviewer | `interviewer` | B1 | 1 | wikt-zh | 接见者，采访者 |
+| 17216 | `interviewer` | interviewer | `interviewer` | B1 | 1 | ai-reviewed | [phrase] interviewer un témoin = 采访目击者 |
+| 17216 | `interviewer` | interviewer | `interviewer` | B1 | 1 | ai-reviewed | [phrase] interviewer un candidat = 采访（或面试）候选人 |
+| 17216 | `interviewer` | interviewer | `interviewer` | B1 | 1 | ai-reviewed | [phrase] se faire interviewer = 接受采访 |
 | 17217 | `jardiner` | jardiner | `jardiner` | B1 | 1 | wikt-zh | 从事园艺 |
+| 17217 | `jardiner` | jardiner | `jardiner` | B1 | 1 | ai-reviewed | [phrase] aimer jardiner = 喜欢做园艺 |
+| 17217 | `jardiner` | jardiner | `jardiner` | B1 | 1 | ai-reviewed | [phrase] jardiner son potager = 打理自己的菜园 |
+| 17217 | `jardiner` | jardiner | `jardiner` | B1 | 1 | ai-reviewed | [phrase] jardiner le week-end = 周末打理花园 |
+| 17218 | `limitation` | limitation | `limitation` | B1 | 1 | ai-reviewed | [phrase] limitation des naissances = 节制生育；计划生育 |
+| 17218 | `limitation` | limitation | `limitation` | B1 | 1 | ai-reviewed | [phrase] sans limitation de durée = 无期限限制；不限时间 |
+| 17219 | `arpege` | arpège | `arpege` | B2 | 1 | ai-reviewed | 一连串悦耳的乐音；和谐的音序 |
+| 17219 | `arpege` | arpège | `arpege` | B2 | 1 | ai-reviewed | [phrase] jouer un arpège = 弹奏琶音 |
+| 17219 | `arpege` | arpège | `arpege` | B2 | 1 | ai-reviewed | [phrase] en arpège = 以琶音形式；逐音弹奏地 |
+| 17219 | `arpege` | arpège | `arpege` | B2 | 1 | ai-reviewed | [phrase] accord en arpège = 琶音和弦；分解和弦 |
+| 17220 | `accroissement` | accroissement | `accroissement` | B2 | 1 | ai-reviewed | （法律）添附权；份额增归权 |
+| 17220 | `accroissement` | accroissement | `accroissement` | B2 | 1 | ai-reviewed | [phrase] accroissement de la population = 人口增长 |
+| 17220 | `accroissement` | accroissement | `accroissement` | B2 | 1 | ai-reviewed | [phrase] accroissement naturel = 自然增长（尤指人口自然增长） |
+| 17220 | `accroissement` | accroissement | `accroissement` | B2 | 1 | ai-reviewed | [phrase] droit d'accroissement = 添附权；份额增归权 |
+| 17255 | `hi-fi` | hi-fi | `hi-fi` | A2 | 1 | ai-reviewed | [phrase] chaîne hi-fi = 高保真组合音响 |
+| 17255 | `hi-fi` | hi-fi | `hi-fi` | A2 | 1 | ai-reviewed | [phrase] son hi-fi = 高保真音质 |
+| 17255 | `hi-fi` | hi-fi | `hi-fi` | A2 | 1 | ai-reviewed | [phrase] matériel hi-fi = 高保真音响设备 |
+| 17256 | `anesthesiste` | anesthésiste | `anesthesiste` | B2 | 1 | ai-reviewed | [phrase] médecin anesthésiste = 麻醉科医生 |
+| 17256 | `anesthesiste` | anesthésiste | `anesthesiste` | B2 | 1 | ai-reviewed | [phrase] infirmier anesthésiste = 麻醉科护士 |
+| 17256 | `anesthesiste` | anesthésiste | `anesthesiste` | B2 | 1 | ai-reviewed | [phrase] voir l’anesthésiste = 去看麻醉师；接受麻醉师会诊 |
+| 17257 | `differe` | différé | `differe` | B2 | 1 | ai-reviewed | （贷款）宽限期；延期还款期 |
+| 17257 | `differe` | différé | `differe` | B2 | 1 | ai-reviewed | [phrase] en différé = 录播；非现场直播；延时地 |
+| 17257 | `differe` | différé | `differe` | B2 | 1 | ai-reviewed | [phrase] diffusion en différé = 延后播出；录播 |
+| 17257 | `differe` | différé | `differe` | B2 | 1 | ai-reviewed | [phrase] paiement différé = 延期付款；延后支付 |
+| 17289 | `commemoration` | commémoration | `commemoration` | B2 | 1 | ai-reviewed | （宗教）追思仪式；追思节；（弥撒中对亡者的）追念 |
+| 17289 | `commemoration` | commémoration | `commemoration` | B2 | 1 | ai-reviewed | [phrase] en commémoration de = 为了纪念…… |
+| 17289 | `commemoration` | commémoration | `commemoration` | B2 | 1 | ai-reviewed | [phrase] cérémonie de commémoration = 纪念仪式；追思仪式 |
+| 17289 | `commemoration` | commémoration | `commemoration` | B2 | 1 | ai-reviewed | [phrase] commémoration officielle = 官方纪念活动 |
 | 17290 | `remanier` | remanier | `remanter` | B2 | 1 | wikt-zh | 重组，重整；修改 |
+| 17290 | `remanier` | remanier | `remanter` | B2 | 1 | ai-reviewed | 重新触摸；再三摆弄 |
+| 17290 | `remanier` | remanier | `remanter` | B2 | 1 | ai-reviewed | （印刷）重排版；改排 |
+| 17290 | `remanier` | remanier | `remanter` | B2 | 1 | ai-reviewed | [phrase] remanier le gouvernement = 改组政府（内阁） |
+| 17290 | `remanier` | remanier | `remanter` | B2 | 1 | ai-reviewed | [phrase] remanier un texte = 修改文稿；改写文本 |
+| 17290 | `remanier` | remanier | `remanter` | B2 | 1 | ai-reviewed | [phrase] remanier un projet = 重新调整方案 |
+| 17325 | `ouvrable` | ouvrable | `ouvrable` | A2 | 1 | ai-reviewed | 可加工的；可打造的 |
+| 17325 | `ouvrable` | ouvrable | `ouvrable` | A2 | 1 | ai-reviewed | 可打开的；可开启的 |
+| 17325 | `ouvrable` | ouvrable | `ouvrable` | A2 | 1 | ai-reviewed | [phrase] jour ouvrable = 工作日 |
+| 17325 | `ouvrable` | ouvrable | `ouvrable` | A2 | 1 | ai-reviewed | [phrase] heures ouvrables = 工作时间；办公时间 |
+| 17325 | `ouvrable` | ouvrable | `ouvrable` | A2 | 1 | ai-reviewed | [phrase] matériau ouvrable = 可加工材料 |
+| 17348 | `secateur` | sécateur | `secateur` | B2 | 1 | ai-reviewed | 切禽剪；家禽剪 |
+| 17348 | `secateur` | sécateur | `secateur` | B2 | 1 | ai-reviewed | [phrase] coup de sécateur = 用修枝剪剪一下 |
+| 17348 | `secateur` | sécateur | `secateur` | B2 | 1 | ai-reviewed | [phrase] tailler au sécateur = 用修枝剪修剪 |
+| 17348 | `secateur` | sécateur | `secateur` | B2 | 1 | ai-reviewed | [phrase] sécateur électrique = 电动修枝剪 |
+| 17349 | `judaisme` | judaïsme | `juda-isme` | B2 | 1 | ai-reviewed | [phrase] se convertir au judaïsme = 皈依犹太教 |
+| 17349 | `judaisme` | judaïsme | `juda-isme` | B2 | 1 | ai-reviewed | [phrase] judaïsme orthodoxe = 正统犹太教 |
+| 17349 | `judaisme` | judaïsme | `juda-isme` | B2 | 1 | ai-reviewed | [phrase] judaïsme réformé = 改革派犹太教 |
+| 17375 | `courgette` | courgette | `courgette` | A2 | 1 | ai-reviewed | [phrase] courgettes farcies = 酿西葫芦；西葫芦酿肉 |
+| 17375 | `courgette` | courgette | `courgette` | A2 | 1 | ai-reviewed | [phrase] gratin de courgettes = 奶酪焗西葫芦 |
+| 17375 | `courgette` | courgette | `courgette` | A2 | 1 | ai-reviewed | [phrase] fleur de courgette = 西葫芦花 |
+| 17413 | `muscat` | muscat | `muscat` | A2 | 1 | ai-reviewed | 麝香葡萄（品种及果实） |
+| 17413 | `muscat` | muscat | `muscat` | A2 | 1 | ai-reviewed | 麝香梨（一种香梨品种） |
+| 17413 | `muscat` | muscat | `muscat` | A2 | 1 | ai-reviewed | 具麝香味的；麝香葡萄风味的 |
+| 17413 | `muscat` | muscat | `muscat` | A2 | 1 | ai-reviewed | [phrase] un verre de muscat = 一杯麝香葡萄酒 |
+| 17413 | `muscat` | muscat | `muscat` | A2 | 1 | ai-reviewed | [phrase] raisin muscat = 麝香葡萄 |
+| 17413 | `muscat` | muscat | `muscat` | A2 | 1 | ai-reviewed | [phrase] muscat blanc = 白麝香葡萄酒；白麝香葡萄 |
+| 17414 | `mathematicien` | mathématicien | `mathematicien` | B2 | 1 | ai-reviewed | [phrase] un grand mathématicien = 一位伟大的数学家 |
+| 17414 | `mathematicien` | mathématicien | `mathematicien` | B2 | 1 | ai-reviewed | [phrase] mathématicien de génie = 天才数学家 |
+| 17414 | `mathematicien` | mathématicien | `mathematicien` | B2 | 1 | ai-reviewed | [phrase] être mathématicien de formation = 数学科班出身 |
+| 17453 | `ulcere#2` | ulcéré | `ulcere` | B2 | 1 | ai-reviewed | 严重受损的；残破不堪的 |
+| 17453 | `ulcere#2` | ulcéré | `ulcere` | B2 | 1 | ai-reviewed | [phrase] être ulcéré par quelque chose = 对某事感到愤慨 |
+| 17453 | `ulcere#2` | ulcéré | `ulcere` | B2 | 1 | ai-reviewed | [phrase] un cœur ulcéré = 备受创痛的心；怨愤的心 |
+| 17453 | `ulcere#2` | ulcéré | `ulcere` | B2 | 1 | ai-reviewed | [phrase] une muqueuse ulcérée = 发生溃疡的黏膜 |
+| 17454 | `entrefilet` | entrefilet | `entrefilet` | B2 | 1 | ai-reviewed | [phrase] un entrefilet dans la presse = 报刊上的一则简讯 |
+| 17454 | `entrefilet` | entrefilet | `entrefilet` | B2 | 1 | ai-reviewed | [phrase] publier un entrefilet = 刊登一则简讯；发表短评 |
+| 17454 | `entrefilet` | entrefilet | `entrefilet` | B2 | 1 | ai-reviewed | [phrase] lire un entrefilet = 阅读一则短讯 |
+| 17468 | `biographe` | biographe | `biographe` | B2 | 1 | ai-reviewed | [phrase] un biographe officiel = 官方传记作者 |
+| 17468 | `biographe` | biographe | `biographe` | B2 | 1 | ai-reviewed | [phrase] le biographe d’un écrivain = 作家的传记作者 |
+| 17468 | `biographe` | biographe | `biographe` | B2 | 1 | ai-reviewed | [phrase] d’après ses biographes = 据他的传记作者记述 |
+| 17494 | `usager` | usager | `usager-m` | B2 | 1 | ai-reviewed | 常用的；日常使用的 |
+| 17494 | `usager` | usager | `usager-m` | B2 | 1 | ai-reviewed | [phrase] usager de la route = 道路使用者；行人及驾乘人员 |
+| 17494 | `usager` | usager | `usager-m` | B2 | 1 | ai-reviewed | [phrase] usagers des transports en commun = 公共交通乘客 |
+| 17494 | `usager` | usager | `usager-m` | B2 | 1 | ai-reviewed | [phrase] droits des usagers = 用户权利；使用者权益 |
+| 17561 | `oreillons` | oreillons | `oreillons` | B2 | 1 | ai-reviewed | [phrase] avoir les oreillons = 得腮腺炎 |
+| 17561 | `oreillons` | oreillons | `oreillons` | B2 | 1 | ai-reviewed | [phrase] vaccin contre les oreillons = 腮腺炎疫苗 |
+| 17561 | `oreillons` | oreillons | `oreillons` | B2 | 1 | ai-reviewed | [phrase] attraper les oreillons = 染上腮腺炎 |
+| 17562 | `excedent` | excédent | `excedent` | B2 | 1 | ai-reviewed | [phrase] excédent commercial = 贸易顺差 |
+| 17562 | `excedent` | excédent | `excedent` | B2 | 1 | ai-reviewed | [phrase] excédent budgétaire = 预算盈余 |
+| 17562 | `excedent` | excédent | `excedent` | B2 | 1 | ai-reviewed | [phrase] excédent de bagages = 超重行李 |
 | 17576 | `fanfaron` | fanfaron | `fanfaron` | B2 | 1 | wikt-zh | 自夸者 |
 | 17576 | `fanfaron` | fanfaron | `fanfaron` | B2 | 1 | wikt-zh | 自夸的 |
+| 17576 | `fanfaron` | fanfaron | `fanfaron` | B2 | 1 | ai-reviewed | [phrase] air fanfaron = 吹嘘的神气；虚张声势的样子 |
+| 17576 | `fanfaron` | fanfaron | `fanfaron` | B2 | 1 | ai-reviewed | [phrase] faire le fanfaron = 吹牛；自夸；虚张声势 |
+| 17576 | `fanfaron` | fanfaron | `fanfaron` | B2 | 1 | ai-reviewed | [phrase] ton fanfaron = 吹嘘的语气；大言不惭的口吻 |
+| 17593 | `polytechnicien` | polytechnicien | `polytechnicien` | B2 | 1 | ai-reviewed | （法国）综合理工学院的 |
+| 17593 | `polytechnicien` | polytechnicien | `polytechnicien` | B2 | 1 | ai-reviewed | [phrase] ingénieur polytechnicien = 综合理工学院毕业的工程师 |
+| 17593 | `polytechnicien` | polytechnicien | `polytechnicien` | B2 | 1 | ai-reviewed | [phrase] formation polytechnicienne = 综合理工学院式培养；综合理工学院的教育 |
+| 17593 | `polytechnicien` | polytechnicien | `polytechnicien` | B2 | 1 | ai-reviewed | [phrase] réseau polytechnicien = 综合理工学院校友网络 |
 | 17623 | `poissonnier` | poissonnier | `poissonnier` | A2 | 1 | wikt-zh | 鱼贩 |
+| 17623 | `poissonnier` | poissonnier | `poissonnier` | A2 | 1 | ai-reviewed | （鸟类）䴙䴘；小䴙䴘 |
+| 17623 | `poissonnier` | poissonnier | `poissonnier` | A2 | 1 | ai-reviewed | 鱼类的；水产的；与鱼有关的 |
+| 17623 | `poissonnier` | poissonnier | `poissonnier` | A2 | 1 | ai-reviewed | [phrase] marché poissonnier = 鱼类市场；水产品市场 |
+| 17623 | `poissonnier` | poissonnier | `poissonnier` | A2 | 1 | ai-reviewed | [phrase] aller chez le poissonnier = 去鱼店买鱼；去鱼贩那里 |
+| 17623 | `poissonnier` | poissonnier | `poissonnier` | A2 | 1 | ai-reviewed | [phrase] industrie poissonnière = 鱼类加工业；水产业 |
+| 17624 | `scrabble` | scrabble | `scrabble-m` | A2 | 1 | ai-reviewed | （拼字游戏中）一回合出完七张字母牌；七字母满拼 |
+| 17624 | `scrabble` | scrabble | `scrabble-m` | A2 | 1 | ai-reviewed | [phrase] jouer au Scrabble = 玩拼字游戏 |
+| 17624 | `scrabble` | scrabble | `scrabble-m` | A2 | 1 | ai-reviewed | [phrase] faire un scrabble = （拼字游戏中）一回合打完七个字母 |
+| 17624 | `scrabble` | scrabble | `scrabble-m` | A2 | 1 | ai-reviewed | [phrase] une partie de Scrabble = 一局拼字游戏 |
+| 17625 | `gouache` | gouache | `gouache` | B2 | 1 | ai-reviewed | 水粉颜料；不透明水彩 |
+| 17625 | `gouache` | gouache | `gouache` | B2 | 1 | ai-reviewed | （俗）活力；干劲；好精神 |
+| 17625 | `gouache` | gouache | `gouache` | B2 | 1 | ai-reviewed | [phrase] peindre à la gouache = 画水粉画；用水粉颜料画 |
+| 17625 | `gouache` | gouache | `gouache` | B2 | 1 | ai-reviewed | [phrase] avoir la gouache = （俗）精力充沛；干劲十足 |
+| 17625 | `gouache` | gouache | `gouache` | B2 | 1 | ai-reviewed | [phrase] tube de gouache = 管装水粉颜料 |
+| 17626 | `rondouillard` | rondouillard | `rondouillard` | B2 | 1 | ai-reviewed | （口）胖乎乎的人；圆滚滚的人 |
+| 17626 | `rondouillard` | rondouillard | `rondouillard` | B2 | 1 | ai-reviewed | [phrase] un homme rondouillard = 胖乎乎的男人 |
+| 17626 | `rondouillard` | rondouillard | `rondouillard` | B2 | 1 | ai-reviewed | [phrase] des joues rondouillardes = 圆鼓鼓的脸颊 |
+| 17626 | `rondouillard` | rondouillard | `rondouillard` | B2 | 1 | ai-reviewed | [phrase] une silhouette rondouillarde = 圆墩墩的身材；圆胖的体态 |
+| 17627 | `partial` | partial | `partial` | B2 | 1 | ai-reviewed | [phrase] un juge partial = 偏袒的法官；有偏私的裁判 |
+| 17627 | `partial` | partial | `partial` | B2 | 1 | ai-reviewed | [phrase] être partial envers quelqu’un = 偏袒某人 |
+| 17627 | `partial` | partial | `partial` | B2 | 1 | ai-reviewed | [phrase] un jugement partial = 有偏见的评判；不公的裁决 |
 | 17648 | `consomme` | consommé | `consomme-m` | B2 | 1 | wikt-zh | adj. 〈雅〉熟练的，老练的，有经验的，完美的，完善的consommé；n.m. 清炖肉汤 |
+| 17648 | `consomme` | consommé | `consomme-m` | B2 | 1 | ai-reviewed | [phrase] consommé de bœuf = 清炖牛肉汤 |
+| 17648 | `consomme` | consommé | `consomme-m` | B2 | 1 | ai-reviewed | [phrase] un artiste consommé = 技艺精湛的艺术家 |
+| 17648 | `consomme` | consommé | `consomme-m` | B2 | 1 | ai-reviewed | [phrase] une habileté consommée = 炉火纯青的技巧；老练娴熟的本领 |
 | 17665 | `lessive#2` | lessivé | `lessive-adj` | B1 | 1 | wikt-zh | 洗过的；筋疲力尽的 |
+| 17665 | `lessive#2` | lessivé | `lessive-adj` | B1 | 1 | ai-reviewed | （农，地）淋溶的；被雨水冲刷流失的 |
+| 17665 | `lessive#2` | lessivé | `lessive-adj` | B1 | 1 | ai-reviewed | [phrase] être complètement lessivé = 累得筋疲力尽；累垮了（俗） |
+| 17665 | `lessive#2` | lessivé | `lessive-adj` | B1 | 1 | ai-reviewed | [phrase] un sol lessivé = 淋溶土；肥力流失的土壤 |
+| 17665 | `lessive#2` | lessivé | `lessive-adj` | B1 | 1 | ai-reviewed | [phrase] se sentir lessivé = 感到精疲力竭（俗） |
+| 17666 | `volley` | volley | `volley` | B1 | 1 | ai-reviewed | 排球赛；一场排球 |
+| 17666 | `volley` | volley | `volley` | B1 | 1 | ai-reviewed | （网球等的）凌空截击 |
+| 17666 | `volley` | volley | `volley` | B1 | 1 | ai-reviewed | [phrase] jouer au volley = 打排球 |
+| 17666 | `volley` | volley | `volley` | B1 | 1 | ai-reviewed | [phrase] un match de volley = 一场排球比赛 |
+| 17666 | `volley` | volley | `volley` | B1 | 1 | ai-reviewed | [phrase] un terrain de volley = 排球场 |
+| 17667 | `diverger` | diverger | `diverger` | B2 | 1 | ai-reviewed | 分叉；岔开；逐渐偏离 |
+| 17667 | `diverger` | diverger | `diverger` | B2 | 1 | ai-reviewed | （核）达到临界；开始自持链式反应 |
+| 17667 | `diverger` | diverger | `diverger` | B2 | 1 | ai-reviewed | （数）发散；不收敛 |
+| 17667 | `diverger` | diverger | `diverger` | B2 | 1 | ai-reviewed | [phrase] nos avis divergent = 我们的意见存在分歧 |
+| 17667 | `diverger` | diverger | `diverger` | B2 | 1 | ai-reviewed | [phrase] des points de vue qui divergent = 相左的观点；存在分歧的看法 |
+| 17667 | `diverger` | diverger | `diverger` | B2 | 1 | ai-reviewed | [phrase] diverger d’opinion = 意见相左；看法不一 |
+| 17701 | `lituanien` | lituanien | `lituanien` | A2 | 1 | ai-reviewed | [phrase] le peuple lituanien = 立陶宛人民 |
+| 17701 | `lituanien` | lituanien | `lituanien` | A2 | 1 | ai-reviewed | [phrase] parler lituanien = 说立陶宛语 |
+| 17701 | `lituanien` | lituanien | `lituanien` | A2 | 1 | ai-reviewed | [phrase] de nationalité lituanienne = 立陶宛国籍的 |
+| 17702 | `archeologique` | archéologique | `archeologique` | B2 | 1 | ai-reviewed | [phrase] site archéologique = 考古遗址 |
+| 17702 | `archeologique` | archéologique | `archeologique` | B2 | 1 | ai-reviewed | [phrase] fouilles archéologiques = 考古发掘 |
+| 17702 | `archeologique` | archéologique | `archeologique` | B2 | 1 | ai-reviewed | [phrase] musée archéologique = 考古博物馆 |
+| 17734 | `tempere` | tempéré | `tempere` | B1 | 1 | ai-reviewed | 适度的；稳重的；有节制的 |
+| 17734 | `tempere` | tempéré | `tempere` | B1 | 1 | ai-reviewed | （修辞）平易典雅的；中和的 |
+| 17734 | `tempere` | tempéré | `tempere` | B1 | 1 | ai-reviewed | [phrase] climat tempéré = 温带气候；温和气候 |
+| 17734 | `tempere` | tempéré | `tempere` | B1 | 1 | ai-reviewed | [phrase] zone tempérée = 温带 |
+| 17734 | `tempere` | tempéré | `tempere` | B1 | 1 | ai-reviewed | [phrase] eau tempérée = 温水 |
+| 17735 | `reveillonner` | réveillonner | `reveillonner` | B1 | 1 | ai-reviewed | [phrase] réveillonner en famille = 与家人共进守夜大餐 |
+| 17735 | `reveillonner` | réveillonner | `reveillonner` | B1 | 1 | ai-reviewed | [phrase] réveillonner pour Noël = 在平安夜守夜聚餐 |
+| 17735 | `reveillonner` | réveillonner | `reveillonner` | B1 | 1 | ai-reviewed | [phrase] aller réveillonner = 去吃守夜大餐；去参加跨年聚餐 |
+| 17736 | `debourser` | débourser | `debourser` | B2 | 1 | ai-reviewed | [phrase] sans rien débourser = 不掏一分钱；分文未花 |
+| 17736 | `debourser` | débourser | `debourser` | B2 | 1 | ai-reviewed | [phrase] débourser une grosse somme = 支付一大笔钱 |
+| 17736 | `debourser` | débourser | `debourser` | B2 | 1 | ai-reviewed | [phrase] devoir débourser = 不得不掏钱；需支付 |
+| 17737 | `dogue` | dogue | `dogue` | B2 | 1 | ai-reviewed | （体育）里尔足球具乐部球员的绰号 |
+| 17737 | `dogue` | dogue | `dogue` | B2 | 1 | ai-reviewed | [phrase] dogue allemand = 大丹犬 |
+| 17737 | `dogue` | dogue | `dogue` | B2 | 1 | ai-reviewed | [phrase] dogue de Bordeaux = 波尔多獒犬；法国波尔多犬 |
+| 17737 | `dogue` | dogue | `dogue` | B2 | 1 | ai-reviewed | [phrase] méchant comme un dogue = 像恶犬一样凶猛 |
 | 17798 | `chou-fleur` | chou-fleur | `chou-fleur` | A2 | 1 | wikt-zh,wikt-fr | 花菜；菜花 |
+| 17798 | `chou-fleur` | chou-fleur | `chou-fleur` | A2 | 1 | ai-reviewed | （法国校园课间玩的）“菜花”接脚游戏 |
+| 17798 | `chou-fleur` | chou-fleur | `chou-fleur` | A2 | 1 | ai-reviewed | 绣球菌（一种真菌） |
+| 17798 | `chou-fleur` | chou-fleur | `chou-fleur` | A2 | 1 | ai-reviewed | [phrase] gratin de chou-fleur = 奶酪焗花椰菜 |
+| 17798 | `chou-fleur` | chou-fleur | `chou-fleur` | A2 | 1 | ai-reviewed | [phrase] velouté de chou-fleur = 花椰菜浓汤 |
+| 17798 | `chou-fleur` | chou-fleur | `chou-fleur` | A2 | 1 | ai-reviewed | [phrase] oreille en chou-fleur = 菜花耳 |
+| 17799 | `lorrain` | lorrain | `lorrain` | B1 | 1 | ai-reviewed | 洛林语 |
+| 17799 | `lorrain` | lorrain | `lorrain` | B1 | 1 | ai-reviewed | 洛林人 |
+| 17799 | `lorrain` | lorrain | `lorrain` | B1 | 1 | ai-reviewed | [phrase] la croix de Lorraine = 洛林十字 |
+| 17799 | `lorrain` | lorrain | `lorrain` | B1 | 1 | ai-reviewed | [phrase] la quiche lorraine = 洛林咸派 |
+| 17799 | `lorrain` | lorrain | `lorrain` | B1 | 1 | ai-reviewed | [phrase] le dialecte lorrain = 洛林方言 |
+| 17800 | `ambitionner` | ambitionner | `ambitionner` | B2 | 1 | ai-reviewed | [phrase] ambitionner un poste = 谋求某职位；渴望担任某个职位 |
+| 17800 | `ambitionner` | ambitionner | `ambitionner` | B2 | 1 | ai-reviewed | [phrase] ambitionner de réussir = 立志获得成功；渴望成功 |
+| 17800 | `ambitionner` | ambitionner | `ambitionner` | B2 | 1 | ai-reviewed | [phrase] ambitionner le pouvoir = 觊觎权力；谋求掌权 |
+| 17801 | `fluorescent` | fluorescent | `fluorescent` | B2 | 1 | ai-reviewed | 荧光色的；鲜艳亮眼的 |
+| 17801 | `fluorescent` | fluorescent | `fluorescent` | B2 | 1 | ai-reviewed | [phrase] tube fluorescent = 荧光灯管；日光灯管 |
+| 17801 | `fluorescent` | fluorescent | `fluorescent` | B2 | 1 | ai-reviewed | [phrase] gilet fluorescent = 荧光背心；反光背心 |
+| 17801 | `fluorescent` | fluorescent | `fluorescent` | B2 | 1 | ai-reviewed | [phrase] marqueur fluorescent = 荧光笔 |
+| 17858 | `precarite` | précarité | `precarite` | B2 | 1 | ai-reviewed | （法）暂时持有性；非所有权式占有 |
+| 17858 | `precarite` | précarité | `precarite` | B2 | 1 | ai-reviewed | [phrase] précarité de l'emploi = 就业不稳定 |
+| 17858 | `precarite` | précarité | `precarite` | B2 | 1 | ai-reviewed | [phrase] vivre dans la précarité = 生活在朝不保夕之中；生活困顿无保障 |
+| 17858 | `precarite` | précarité | `precarite` | B2 | 1 | ai-reviewed | [phrase] sortir de la précarité = 摆脱不安定状况；摆脱贫困脆弱境地 |
+| 17859 | `dirige` | dirigé | `dirige` | B2 | 1 | ai-reviewed | 被领导者；下属 |
+| 17859 | `dirige` | dirigé | `dirige` | B2 | 1 | ai-reviewed | （宗教）受神师指导者 |
+| 17859 | `dirige` | dirigé | `dirige` | B2 | 1 | ai-reviewed | [phrase] économie dirigée = 计划经济；统制经济 |
+| 17859 | `dirige` | dirigé | `dirige` | B2 | 1 | ai-reviewed | [phrase] entretien dirigé = 引导式面谈；定向访谈 |
+| 17860 | `attaquant` | attaquant | `attaquant` | B2 | 1 | ai-reviewed | 好批评的；抨击性的 |
+| 17860 | `attaquant` | attaquant | `attaquant` | B2 | 1 | ai-reviewed | [phrase] attaquant de pointe = （足球）中锋；突前前锋 |
+| 17860 | `attaquant` | attaquant | `attaquant` | B2 | 1 | ai-reviewed | [phrase] repousser un attaquant = 击退袭击者 |
+| 17860 | `attaquant` | attaquant | `attaquant` | B2 | 1 | ai-reviewed | [phrase] jeu d'attaquant = 前锋式打法；进攻球员的踢法 |
+| 17861 | `ecolo` | écolo | `ecolo` | B2 | 1 | ai-reviewed | [phrase] parti écolo = 环保政党；绿党 |
+| 17861 | `ecolo` | écolo | `ecolo` | B2 | 1 | ai-reviewed | [phrase] mode de vie écolo = 环保生活方式 |
+| 17861 | `ecolo` | écolo | `ecolo` | B2 | 1 | ai-reviewed | [phrase] militant écolo = 环保积极分子 |
+| 17862 | `propagation` | propagation | `propagation` | B2 | 1 | ai-reviewed | 繁殖；繁衍；增殖 |
+| 17862 | `propagation` | propagation | `propagation` | B2 | 1 | ai-reviewed | [phrase] propagation d'une maladie = 疾病的传播 |
+| 17862 | `propagation` | propagation | `propagation` | B2 | 1 | ai-reviewed | [phrase] propagation des ondes = 波的传播 |
+| 17862 | `propagation` | propagation | `propagation` | B2 | 1 | ai-reviewed | [phrase] freiner la propagation = 遏制传播；抑制扩散 |
+| 17935 | `geo` | géo | `geo` | B1 | 1 | ai-reviewed | [phrase] cours de géo = 地理课（口） |
+| 17935 | `geo` | géo | `geo` | B1 | 1 | ai-reviewed | [phrase] prof de géo = 地理老师（口） |
+| 17935 | `geo` | géo | `geo` | B1 | 1 | ai-reviewed | [phrase] histoire-géo = 历史与地理（学科合称，口） |
+| 17936 | `circonference` | circonférence | `circonference` | B2 | 1 | ai-reviewed | 周角（等于360度的平面角单位） |
+| 17936 | `circonference` | circonférence | `circonference` | B2 | 1 | ai-reviewed | （图论）周长 |
+| 17936 | `circonference` | circonférence | `circonference` | B2 | 1 | ai-reviewed | [phrase] calculer la circonférence = 计算周长 |
+| 17936 | `circonference` | circonférence | `circonference` | B2 | 1 | ai-reviewed | [phrase] circonférence d'un cercle = 圆的周长；圆周 |
+| 17936 | `circonference` | circonférence | `circonference` | B2 | 1 | ai-reviewed | [phrase] à la circonférence de = 在……的圆周上；在……的边缘 |
 | 17937 | `circonscription` | circonscription | `circonscription-f` | B2 | 1 | wikt-zh | n.f. 区，区域，区划 |
+| 17937 | `circonscription` | circonscription | `circonscription-f` | B2 | 1 | ai-reviewed | 划界；限定 |
+| 17937 | `circonscription` | circonscription | `circonscription-f` | B2 | 1 | ai-reviewed | （几何）外切；作外切图形 |
+| 17937 | `circonscription` | circonscription | `circonscription-f` | B2 | 1 | ai-reviewed | [phrase] circonscription électorale = 选区 |
+| 17937 | `circonscription` | circonscription | `circonscription-f` | B2 | 1 | ai-reviewed | [phrase] circonscription administrative = 行政区划 |
+| 17937 | `circonscription` | circonscription | `circonscription-f` | B2 | 1 | ai-reviewed | [phrase] dans sa circonscription = 在自己的选区内；在自己的辖区内 |
+| 17975 | `estragon` | estragon | `estragon` | A2 | 1 | ai-reviewed | [phrase] vinaigre à l’estragon = 龙蒿风味醋 |
+| 17975 | `estragon` | estragon | `estragon` | A2 | 1 | ai-reviewed | [phrase] poulet à l’estragon = 龙蒿焖鸡；龙蒿鸡 |
+| 17975 | `estragon` | estragon | `estragon` | A2 | 1 | ai-reviewed | [phrase] sauce à l’estragon = 龙蒿酱汁 |
 | 17976 | `inclus` | inclus | `inclus` | A2 | 1 | wikt-zh | 包含的；封入的 |
+| 17976 | `inclus` | inclus | `inclus` | A2 | 1 | ai-reviewed | （集合）包含于……的 |
+| 17976 | `inclus` | inclus | `inclus` | A2 | 1 | ai-reviewed | [phrase] tout inclus = 全包；一价全包 |
+| 17976 | `inclus` | inclus | `inclus` | A2 | 1 | ai-reviewed | [phrase] TVA incluse = 含增值税 |
+| 17976 | `inclus` | inclus | `inclus` | A2 | 1 | ai-reviewed | [phrase] ci-inclus = 随信附上；附于此处 |
+| 17977 | `passable` | passable | `passable` | B1 | 1 | ai-reviewed | [phrase] mention passable = 及格等级；“及格”等第 |
+| 17977 | `passable` | passable | `passable` | B1 | 1 | ai-reviewed | [phrase] d’une qualité passable = 质量尚可；品质过得去 |
+| 17977 | `passable` | passable | `passable` | B1 | 1 | ai-reviewed | [phrase] dans un état passable = 状况尚可；状态过得去 |
+| 17978 | `metronome` | métronome | `metronome` | B2 | 1 | ai-reviewed | [phrase] régulier comme un métronome = 像节拍器一样精准规律 |
+| 17978 | `metronome` | métronome | `metronome` | B2 | 1 | ai-reviewed | [phrase] régler le métronome = 调节节拍器 |
+| 17978 | `metronome` | métronome | `metronome` | B2 | 1 | ai-reviewed | [phrase] travailler au métronome = 跟着节拍器练习 |
+| 17979 | `parution` | parution | `parution` | B2 | 1 | ai-reviewed | 出版日期；发行期；出版物；新书刊 |
+| 17979 | `parution` | parution | `parution` | B2 | 1 | ai-reviewed | [phrase] date de parution = 出版日期；发行日期 |
+| 17979 | `parution` | parution | `parution` | B2 | 1 | ai-reviewed | [phrase] dès sa parution = 一经出版；刚一问世 |
+| 17979 | `parution` | parution | `parution` | B2 | 1 | ai-reviewed | [phrase] nouvelles parutions = 新书；最新出版物 |
+| 18015 | `informaticien` | informaticien | `informaticien-n` | A2 | 1 | ai-reviewed | [phrase] ingénieur informaticien = 计算机工程师 |
+| 18015 | `informaticien` | informaticien | `informaticien-n` | A2 | 1 | ai-reviewed | [phrase] faire appel à un informaticien = 请计算机技术人员协助 |
+| 18015 | `informaticien` | informaticien | `informaticien-n` | A2 | 1 | ai-reviewed | [phrase] devenir informaticien = 成为计算机技术人员 |
+| 18016 | `cardiologue` | cardiologue | `cardiologue` | B2 | 1 | ai-reviewed | [phrase] consulter un cardiologue = 看心脏科医生 |
+| 18016 | `cardiologue` | cardiologue | `cardiologue` | B2 | 1 | ai-reviewed | [phrase] prendre rendez-vous chez le cardiologue = 预约心脏科医生 |
+| 18016 | `cardiologue` | cardiologue | `cardiologue` | B2 | 1 | ai-reviewed | [phrase] un bilan chez le cardiologue = 心脏科检查 |
+| 18017 | `conteste#2` | contesté | `conteste` | B2 | 1 | ai-reviewed | [phrase] une décision contestée = 有争议的决定 |
+| 18017 | `conteste#2` | contesté | `conteste` | B2 | 1 | ai-reviewed | [phrase] un résultat contesté = 遭质疑的结果 |
+| 18017 | `conteste#2` | contesté | `conteste` | B2 | 1 | ai-reviewed | [phrase] une élection contestée = 存在争议的选举 |
+| 18087 | `palmares` | palmarès | `palmares` | B2 | 1 | ai-reviewed | （个人或作品的）战绩；成绩单；获奖记录 |
+| 18087 | `palmares` | palmarès | `palmares` | B2 | 1 | ai-reviewed | [phrase] figurer au palmarès = 榜上有名；登上获奖名单 |
+| 18087 | `palmares` | palmarès | `palmares` | B2 | 1 | ai-reviewed | [phrase] avoir un beau palmarès = 拥有辉煌战绩；获奖履历骄人 |
+| 18087 | `palmares` | palmarès | `palmares` | B2 | 1 | ai-reviewed | [phrase] dévoiler le palmarès = 揭晓获奖名单；公布排行榜 |
+| 18123 | `demi-litre` | demi-litre | `demi-litre` | A2 | 1 | ai-reviewed | [phrase] un demi-litre d’eau = 半升水 |
+| 18123 | `demi-litre` | demi-litre | `demi-litre` | A2 | 1 | ai-reviewed | [phrase] une bouteille d’un demi-litre = 半升装的瓶子 |
+| 18123 | `demi-litre` | demi-litre | `demi-litre` | A2 | 1 | ai-reviewed | [phrase] un demi-litre de lait = 半升牛奶 |
+| 18124 | `graveur` | graveur | `graveur` | A2 | 1 | ai-reviewed | [phrase] graveur de CD = CD刻录机 |
+| 18124 | `graveur` | graveur | `graveur` | A2 | 1 | ai-reviewed | [phrase] graveur sur bois = 木刻版画师 |
+| 18124 | `graveur` | graveur | `graveur` | A2 | 1 | ai-reviewed | [phrase] graveur de sceaux = 印章雕刻师；篆刻师 |
+| 18159 | `subventionner` | subventionner | `subventionner` | B2 | 1 | ai-reviewed | [phrase] subventionner un projet = 资助一个项目；补贴某项目 |
+| 18159 | `subventionner` | subventionner | `subventionner` | B2 | 1 | ai-reviewed | [phrase] subventionner une association = 资助一个协会 |
+| 18159 | `subventionner` | subventionner | `subventionner` | B2 | 1 | ai-reviewed | [phrase] être subventionné par l’État = 由国家资助；获得政府补贴 |
 | 18173 | `autoradio` | autoradio | `autoradio` | B1 | 1 | wikt-zh | n.m. 汽车收音机 |
+| 18173 | `autoradio` | autoradio | `autoradio` | B1 | 1 | ai-reviewed | [phrase] allumer l’autoradio = 打开车载收音机 |
+| 18173 | `autoradio` | autoradio | `autoradio` | B1 | 1 | ai-reviewed | [phrase] installer un autoradio = 安装车载收音机 |
+| 18173 | `autoradio` | autoradio | `autoradio` | B1 | 1 | ai-reviewed | [phrase] monter le son de l’autoradio = 调大车载收音机音量 |
+| 18174 | `disproportionne` | disproportionné | `disproportionne` | B2 | 1 | ai-reviewed | [phrase] une réaction disproportionnée = 反应过度；不相称的反应 |
+| 18174 | `disproportionne` | disproportionné | `disproportionne` | B2 | 1 | ai-reviewed | [phrase] des moyens disproportionnés = 不成比例的手段 |
+| 18174 | `disproportionne` | disproportionné | `disproportionne` | B2 | 1 | ai-reviewed | [phrase] être disproportionné par rapport à = 与……不成比例 |
 | 18175 | `agrege` | agrégé | `agrege` | B2 | 1 | wikt-zh | n. et adj. 通过会考取得大学或高中教师职衔的（人） |
+| 18175 | `agrege` | agrégé | `agrege` | B2 | 1 | ai-reviewed | 聚合体；集合物 |
+| 18175 | `agrege` | agrégé | `agrege` | B2 | 1 | ai-reviewed | 聚生的；簇生的 |
+| 18175 | `agrege` | agrégé | `agrege` | B2 | 1 | ai-reviewed | 胶结的；聚合的 |
+| 18175 | `agrege` | agrégé | `agrege` | B2 | 1 | ai-reviewed | [phrase] professeur agrégé = 高级教师（通过教师资格会考者） |
+| 18175 | `agrege` | agrégé | `agrege` | B2 | 1 | ai-reviewed | [phrase] agrégé de lettres = 文学高级教师资格获得者 |
+| 18175 | `agrege` | agrégé | `agrege` | B2 | 1 | ai-reviewed | [phrase] agrégé d’histoire = 历史科高级教师资格获得者 |
+| 18176 | `salarie` | salarié | `salarie` | B2 | 1 | ai-reviewed | [phrase] un travailleur salarié = 工薪劳动者；受薪工人 |
+| 18176 | `salarie` | salarié | `salarie` | B2 | 1 | ai-reviewed | [phrase] les salariés d’une entreprise = 企业员工 |
+| 18176 | `salarie` | salarié | `salarie` | B2 | 1 | ai-reviewed | [phrase] une activité salariée = 有薪工作；受薪职业活动 |
+| 18177 | `preservation` | préservation | `preservation` | B2 | 1 | ai-reviewed | [phrase] la préservation de l’environnement = 环境保护 |
+| 18177 | `preservation` | préservation | `preservation` | B2 | 1 | ai-reviewed | [phrase] la préservation du patrimoine = 遗产保护 |
+| 18177 | `preservation` | préservation | `preservation` | B2 | 1 | ai-reviewed | [phrase] la préservation de la paix = 维护和平 |
 | 18178 | `boursier` | boursier | `boursier` | B2 | 1 | wikt-zh | adj. et n. 享受助学金的（学生）；adj. 交易所的，政权交易的；n. 交易所经纪人，证券投机商 |
+| 18178 | `boursier` | boursier | `boursier` | B2 | 1 | ai-reviewed | 制售钱袋的手艺人 |
+| 18178 | `boursier` | boursier | `boursier` | B2 | 1 | ai-reviewed | [phrase] les marchés boursiers = 证券市场；股票市场 |
+| 18178 | `boursier` | boursier | `boursier` | B2 | 1 | ai-reviewed | [phrase] un indice boursier = 股市指数 |
+| 18178 | `boursier` | boursier | `boursier` | B2 | 1 | ai-reviewed | [phrase] un étudiant boursier = 领奖（助）学金的学生 |
+| 18215 | `doudoune` | doudoune | `doudoune` | B1 | 1 | ai-reviewed | [phrase] porter une doudoune = 穿羽绒服 |
+| 18215 | `doudoune` | doudoune | `doudoune` | B1 | 1 | ai-reviewed | [phrase] doudoune à capuche = 带帽羽绒服 |
+| 18215 | `doudoune` | doudoune | `doudoune` | B1 | 1 | ai-reviewed | [phrase] doudoune sans manches = 羽绒马甲；无袖羽绒服 |
+| 18216 | `dramaturge` | dramaturge | `dramaturge` | B2 | 1 | ai-reviewed | 戏剧构作；剧团文学顾问 |
+| 18216 | `dramaturge` | dramaturge | `dramaturge` | B2 | 1 | ai-reviewed | [phrase] un grand dramaturge = 伟大的剧作家 |
+| 18216 | `dramaturge` | dramaturge | `dramaturge` | B2 | 1 | ai-reviewed | [phrase] dramaturge contemporain = 当代剧作家 |
+| 18216 | `dramaturge` | dramaturge | `dramaturge` | B2 | 1 | ai-reviewed | [phrase] métier de dramaturge = 剧作家职业；戏剧构作工作 |
+| 18256 | `concubinage` | concubinage | `concubinage` | B1 | 1 | ai-reviewed | [phrase] vivre en concubinage = 未婚同居；非婚同居 |
+| 18256 | `concubinage` | concubinage | `concubinage` | B1 | 1 | ai-reviewed | [phrase] certificat de concubinage = 同居证明 |
+| 18256 | `concubinage` | concubinage | `concubinage` | B1 | 1 | ai-reviewed | [phrase] concubinage notoire = 公开同居 |
 | 18266 | `ile#2` | ile | `ile` | A2 | 1 | wikt-zh | île的另一种拼写法 |
+| 18266 | `ile#2` | ile | `ile` | A2 | 1 | ai-reviewed | 绿洲；一方净土；避风港 |
+| 18266 | `ile#2` | ile | `ile` | A2 | 1 | ai-reviewed | （四周临街的）街区；一片房屋 |
+| 18266 | `ile#2` | ile | `ile` | A2 | 1 | ai-reviewed | [phrase] une ile déserte = 荒岛；无人岛 |
+| 18266 | `ile#2` | ile | `ile` | A2 | 1 | ai-reviewed | [phrase] une ile tropicale = 热带岛屿 |
+| 18266 | `ile#2` | ile | `ile` | A2 | 1 | ai-reviewed | [phrase] vivre sur une ile = 居住在岛上 |
+| 18296 | `utilisateur` | utilisateur | `utilisateur` | B2 | 1 | ai-reviewed | [phrase] interface utilisateur = 用户界面 |
+| 18296 | `utilisateur` | utilisateur | `utilisateur` | B2 | 1 | ai-reviewed | [phrase] compte utilisateur = 用户账号；用户账户 |
+| 18296 | `utilisateur` | utilisateur | `utilisateur` | B2 | 1 | ai-reviewed | [phrase] expérience utilisateur = 用户体验 |
+| 18297 | `suppositoire` | suppositoire | `suppositoire` | B2 | 1 | ai-reviewed | 〈喻〉长条状物；锥弹形物体 |
+| 18297 | `suppositoire` | suppositoire | `suppositoire` | B2 | 1 | ai-reviewed | [phrase] mettre un suppositoire = 塞入栓剂；使用栓剂 |
+| 18297 | `suppositoire` | suppositoire | `suppositoire` | B2 | 1 | ai-reviewed | [phrase] suppositoire à la glycérine = 甘油栓剂 |
+| 18297 | `suppositoire` | suppositoire | `suppositoire` | B2 | 1 | ai-reviewed | [phrase] administrer un suppositoire = 用栓剂给药；给予栓剂 |
+| 18298 | `molette` | molette | `molette` | B2 | 1 | ai-reviewed | （马刺上的）星形刺轮；刺轮 |
+| 18298 | `molette` | molette | `molette` | B2 | 1 | ai-reviewed | 研杵；磨石；研磨轮 |
+| 18298 | `molette` | molette | `molette` | B2 | 1 | ai-reviewed | [phrase] la molette de la souris = 鼠标滚轮 |
+| 18298 | `molette` | molette | `molette` | B2 | 1 | ai-reviewed | [phrase] éperons à molettes = 带刺轮的马刺 |
+| 18298 | `molette` | molette | `molette` | B2 | 1 | ai-reviewed | [phrase] molette de réglage = 调节滚轮；微调旋钮 |
 | 18324 | `perfore` | perforé | `perfore` | B1 | 1 | wikt-zh | 穿孔的 |
+| 18324 | `perfore` | perforé | `perfore` | B1 | 1 | ai-reviewed | 〈解〉被穿肌（肌腱被另一肌肉的肌腱穿过的肌肉） |
+| 18324 | `perfore` | perforé | `perfore` | B1 | 1 | ai-reviewed | [phrase] carte perforée = 穿孔卡 |
+| 18324 | `perfore` | perforé | `perfore` | B1 | 1 | ai-reviewed | [phrase] tôle perforée = 穿孔金属板；冲孔板 |
+| 18324 | `perfore` | perforé | `perfore` | B1 | 1 | ai-reviewed | [phrase] ulcère perforé = 穿孔性溃疡 |
+| 18342 | `marasme` | marasme | `marasme` | B2 | 1 | ai-reviewed | 精神萎靡；消沉；体衰 |
+| 18342 | `marasme` | marasme | `marasme` | B2 | 1 | ai-reviewed | 消瘦症（重度能量营养不良症） |
+| 18342 | `marasme` | marasme | `marasme` | B2 | 1 | ai-reviewed | 小皮伞（真菌） |
+| 18342 | `marasme` | marasme | `marasme` | B2 | 1 | ai-reviewed | [phrase] marasme économique = 经济萧条 |
+| 18342 | `marasme` | marasme | `marasme` | B2 | 1 | ai-reviewed | [phrase] sortir du marasme = 走出萧条；摆脱低迷 |
+| 18342 | `marasme` | marasme | `marasme` | B2 | 1 | ai-reviewed | [phrase] plonger dans le marasme = 陷入萧条；陷入低迷 |
+| 18343 | `jacinthe` | jacinthe | `jacinthe` | B2 | 1 | ai-reviewed | [phrase] oignon de jacinthe = 风信子球茎 |
+| 18343 | `jacinthe` | jacinthe | `jacinthe` | B2 | 1 | ai-reviewed | [phrase] jacinthe d'eau = 水葫芦；凤眼莲 |
+| 18343 | `jacinthe` | jacinthe | `jacinthe` | B2 | 1 | ai-reviewed | [phrase] jacinthe des bois = 蓝铃花；野风信子 |
 | 18344 | `atterre` | atterré | `atterre` | B2 | 1 | wikt-zh | 震惊的，惊讶的 |
+| 18344 | `atterre` | atterré | `atterre` | B2 | 1 | ai-reviewed | 倒地的；被击倒在地的；一蹶不振的 |
+| 18344 | `atterre` | atterré | `atterre` | B2 | 1 | ai-reviewed | [phrase] être atterré par une nouvelle = 因某个消息而震惊不已 |
+| 18344 | `atterre` | atterré | `atterre` | B2 | 1 | ai-reviewed | [phrase] rester atterré = 目瞪口呆；惊愕得说不出话 |
+| 18344 | `atterre` | atterré | `atterre` | B2 | 1 | ai-reviewed | [phrase] d'un air atterré = 神情愕然地；沮丧茫然地 |
 | 18380 | `amerique` | amérique | `amerique` | A2 | 1 | wikt-zh | 美国（États-Unis d'Amérique 的简称） |
+| 18380 | `amerique` | amérique | `amerique` | A2 | 1 | ai-reviewed | [phrase] Amérique du Nord = 北美洲 |
+| 18380 | `amerique` | amérique | `amerique` | A2 | 1 | ai-reviewed | [phrase] Amérique latine = 拉丁美洲 |
+| 18380 | `amerique` | amérique | `amerique` | A2 | 1 | ai-reviewed | [phrase] découvrir l'Amérique = 发现美洲；〈喻〉发现新大陆（嘲讽人宣布众所周知的事） |
+| 18381 | `biologiste` | biologiste | `biologiste` | B2 | 1 | ai-reviewed | [phrase] biologiste marin = 海洋生物学家 |
+| 18381 | `biologiste` | biologiste | `biologiste` | B2 | 1 | ai-reviewed | [phrase] biologiste moléculaire = 分子生物学家 |
+| 18381 | `biologiste` | biologiste | `biologiste` | B2 | 1 | ai-reviewed | [phrase] biologiste médical = 医学检验医师；临床检验专家 |
+| 18393 | `entrecote` | entrecôte | `entrecote` | A2 | 1 | ai-reviewed | [phrase] entrecôte grillée = 烤肋骨牛排；煎烤肋骨牛排 |
+| 18393 | `entrecote` | entrecôte | `entrecote` | A2 | 1 | ai-reviewed | [phrase] entrecôte sauce au poivre = 黑椒汁肋骨牛排 |
+| 18393 | `entrecote` | entrecôte | `entrecote` | A2 | 1 | ai-reviewed | [phrase] entrecôte frites = 肋骨牛排配炸薯条 |
+| 18394 | `immangeable` | immangeable | `immangeable` | B1 | 1 | ai-reviewed | 不能吃的；不可食用的；忌食的 |
+| 18394 | `immangeable` | immangeable | `immangeable` | B1 | 1 | ai-reviewed | [phrase] plat immangeable = 难以下咽的菜肴 |
+| 18394 | `immangeable` | immangeable | `immangeable` | B1 | 1 | ai-reviewed | [phrase] viande immangeable = 不能吃的肉；难以下咽的肉 |
+| 18394 | `immangeable` | immangeable | `immangeable` | B1 | 1 | ai-reviewed | [phrase] rendre immangeable = 使变得无法食用；使难以下咽 |
+| 18395 | `inflammation` | inflammation | `inflammation` | B2 | 1 | ai-reviewed | 起火；着火；燃烧 |
+| 18395 | `inflammation` | inflammation | `inflammation` | B2 | 1 | ai-reviewed | [phrase] inflammation chronique = 慢性炎症 |
+| 18395 | `inflammation` | inflammation | `inflammation` | B2 | 1 | ai-reviewed | [phrase] point d'inflammation = 燃点；闪点 |
+| 18395 | `inflammation` | inflammation | `inflammation` | B2 | 1 | ai-reviewed | [phrase] risque d'inflammation = 起火风险；着火危险；发炎风险 |
 | 18459 | `empote` | empoté | `empote` | B2 | 1 | wikt-zh | 丢三落四的人，笨拙的人 |
+| 18459 | `empote` | empoté | `empote` | B2 | 1 | ai-reviewed | [phrase] avoir l'air empoté = 显得笨手笨脚 |
+| 18459 | `empote` | empoté | `empote` | B2 | 1 | ai-reviewed | [phrase] être complètement empoté = 笨手笨脚到了极点；笨拙透顶 |
+| 18459 | `empote` | empoté | `empote` | B2 | 1 | ai-reviewed | [phrase] un grand empoté = 大笨伯；笨手笨脚的家伙 |
 | 18510 | `armagnac` | armagnac | `armagnac` | A2 | 1 | wikt-zh | n.m. 〈法国〉阿尔马尼亚克烧酒 |
+| 18510 | `armagnac` | armagnac | `armagnac` | A2 | 1 | ai-reviewed | （法国百年战争时期的）阿马尼亚克派士兵 |
+| 18510 | `armagnac` | armagnac | `armagnac` | A2 | 1 | ai-reviewed | 阿马尼亚克地区人；阿马尼亚克居民 |
+| 18510 | `armagnac` | armagnac | `armagnac` | A2 | 1 | ai-reviewed | [phrase] verre d'armagnac = 一杯雅文邑白兰地 |
+| 18510 | `armagnac` | armagnac | `armagnac` | A2 | 1 | ai-reviewed | [phrase] bas-armagnac = 下雅文邑白兰地 |
+| 18510 | `armagnac` | armagnac | `armagnac` | A2 | 1 | ai-reviewed | [phrase] flamber à l'armagnac = 用雅文邑白兰地淋酒焰烧 |
+| 18546 | `inconstant` | inconstant | `inconstant` | B2 | 1 | ai-reviewed | 不稳定的；多变的 |
+| 18546 | `inconstant` | inconstant | `inconstant` | B2 | 1 | ai-reviewed | 反复无常的人；用情不专者 |
+| 18546 | `inconstant` | inconstant | `inconstant` | B2 | 1 | ai-reviewed | [phrase] un cœur inconstant = 一颗善变的心；用情不专之心 |
+| 18546 | `inconstant` | inconstant | `inconstant` | B2 | 1 | ai-reviewed | [phrase] un temps inconstant = 变化无常的天气 |
+| 18546 | `inconstant` | inconstant | `inconstant` | B2 | 1 | ai-reviewed | [phrase] fortune inconstante = 变幻无常的命运 |
+| 18580 | `audimat` | audimat | `audimat` | B2 | 1 | ai-reviewed | （文化作品、媒体等的）受众关注度；人气 |
+| 18580 | `audimat` | audimat | `audimat` | B2 | 1 | ai-reviewed | [phrase] faire de l'audimat = 提高收视率；博取收视率 |
+| 18580 | `audimat` | audimat | `audimat` | B2 | 1 | ai-reviewed | [phrase] record d'audimat = 收视率纪录 |
+| 18580 | `audimat` | audimat | `audimat` | B2 | 1 | ai-reviewed | [phrase] chute d'audimat = 收视率暴跌 |
 | 18581 | `elargissement` | élargissement | `elargissement` | B2 | 1 | wikt-zh | 拓宽；扩展；释放 |
+| 18581 | `elargissement` | élargissement | `elargissement` | B2 | 1 | ai-reviewed | [phrase] l'élargissement de l'Union européenne = 欧盟扩大；欧盟扩容 |
+| 18581 | `elargissement` | élargissement | `elargissement` | B2 | 1 | ai-reviewed | [phrase] l'élargissement d'une route = 道路拓宽 |
+| 18581 | `elargissement` | élargissement | `elargissement` | B2 | 1 | ai-reviewed | [phrase] l'élargissement d'un détenu = 释放囚犯；释放在押人员 |
 | 18638 | `anorak` | anorak | `anorak` | A2 | 1 | wikt-zh | 皮猴儿 |
+| 18638 | `anorak` | anorak | `anorak` | A2 | 1 | ai-reviewed | [phrase] enfiler son anorak = 穿上连帽防寒夹克 |
+| 18638 | `anorak` | anorak | `anorak` | A2 | 1 | ai-reviewed | [phrase] un anorak imperméable = 防水连帽防寒服 |
+| 18638 | `anorak` | anorak | `anorak` | A2 | 1 | ai-reviewed | [phrase] la capuche d'un anorak = 防寒夹克的兜帽 |
 | 18639 | `calvados` | calvados | `calvados` | B1 | 1 | wikt-zh | n.m. 苹果烧酒 |
+| 18639 | `calvados` | calvados | `calvados` | B1 | 1 | ai-reviewed | [phrase] un verre de calvados = 一杯卡尔瓦多斯苹果白兰地 |
+| 18639 | `calvados` | calvados | `calvados` | B1 | 1 | ai-reviewed | [phrase] flamber au calvados = 用苹果白兰地火焰烹调；淋苹果白兰地烧制 |
+| 18639 | `calvados` | calvados | `calvados` | B1 | 1 | ai-reviewed | [phrase] un vieux calvados = 陈年苹果白兰地 |
+| 18640 | `degrade` | dégradé | `degrade` | B1 | 1 | ai-reviewed | 渐变色；浓淡过渡 |
+| 18640 | `degrade` | dégradé | `degrade` | B1 | 1 | ai-reviewed | 渐次过渡；微妙变化 |
+| 18640 | `degrade` | dégradé | `degrade` | B1 | 1 | ai-reviewed | （理发）分层剪法；层次发型 |
+| 18640 | `degrade` | dégradé | `degrade` | B1 | 1 | ai-reviewed | [phrase] un dégradé de couleurs = 色彩渐变 |
+| 18640 | `degrade` | dégradé | `degrade` | B1 | 1 | ai-reviewed | [phrase] coupe en dégradé = 层次剪发 |
+| 18640 | `degrade` | dégradé | `degrade` | B1 | 1 | ai-reviewed | [phrase] en dégradé = 呈渐变地；逐层过渡地 |
+| 18641 | `amphi` | amphi | `amphi` | B2 | 1 | ai-reviewed | [phrase] aller en amphi = 去阶梯教室上课 |
+| 18641 | `amphi` | amphi | `amphi` | B2 | 1 | ai-reviewed | [phrase] cours en amphi = 阶梯教室大课；大班讲座课 |
+| 18641 | `amphi` | amphi | `amphi` | B2 | 1 | ai-reviewed | [phrase] amphi bondé = 座无虚席的阶梯教室 |
+| 18682 | `etrennes` | étrennes | `etrennes` | A2 | 1 | ai-reviewed | [phrase] donner des étrennes = 发新年红包；给节日小费 |
+| 18682 | `etrennes` | étrennes | `etrennes` | A2 | 1 | ai-reviewed | [phrase] recevoir ses étrennes = 收到新年礼物（或节日小费） |
+| 18682 | `etrennes` | étrennes | `etrennes` | A2 | 1 | ai-reviewed | [phrase] les étrennes du facteur = 给邮递员的新年小费 |
+| 18683 | `moussant` | moussant | `moussant` | A2 | 1 | ai-reviewed | [phrase] bain moussant = 泡泡浴；沐浴泡泡液 |
+| 18683 | `moussant` | moussant | `moussant` | A2 | 1 | ai-reviewed | [phrase] gel moussant = 起泡洁面啫喱；起泡沐浴露 |
 | 18684 | `hebergement` | hébergement | `hebergement` | B2 | 1 | wikt-zh | 留宿，接待，收容 |
+| 18684 | `hebergement` | hébergement | `hebergement` | B2 | 1 | ai-reviewed | [phrase] frais d'hébergement = 住宿费 |
+| 18684 | `hebergement` | hébergement | `hebergement` | B2 | 1 | ai-reviewed | [phrase] hébergement d'urgence = 紧急安置；临时收容 |
+| 18684 | `hebergement` | hébergement | `hebergement` | B2 | 1 | ai-reviewed | [phrase] capacité d'hébergement = 接待能力；住宿容量 |
+| 18685 | `wagon-restaurant` | wagon-restaurant | `wagon-restaurant` | B2 | 1 | ai-reviewed | [phrase] dîner au wagon-restaurant = 在火车餐车里吃晚饭 |
+| 18685 | `wagon-restaurant` | wagon-restaurant | `wagon-restaurant` | B2 | 1 | ai-reviewed | [phrase] se rendre au wagon-restaurant = 前往餐车 |
+| 18685 | `wagon-restaurant` | wagon-restaurant | `wagon-restaurant` | B2 | 1 | ai-reviewed | [phrase] prendre un café au wagon-restaurant = 在餐车里喝杯咖啡 |
+| 18739 | `mixeur` | mixeur | `mixeur` | B1 | 1 | ai-reviewed | 混音器；调音台；音视频混合器 |
+| 18739 | `mixeur` | mixeur | `mixeur` | B1 | 1 | ai-reviewed | 混音师 |
+| 18739 | `mixeur` | mixeur | `mixeur` | B1 | 1 | ai-reviewed | （加密货币）混币器 |
+| 18739 | `mixeur` | mixeur | `mixeur` | B1 | 1 | ai-reviewed | [phrase] mixeur plongeant = 手持式搅拌棒 |
+| 18739 | `mixeur` | mixeur | `mixeur` | B1 | 1 | ai-reviewed | [phrase] passer au mixeur = 用搅拌机打碎 |
+| 18739 | `mixeur` | mixeur | `mixeur` | B1 | 1 | ai-reviewed | [phrase] bol de mixeur = 搅拌机杯 |
+| 18740 | `cyclisme` | cyclisme | `cyclisme` | B1 | 1 | ai-reviewed | 〈哲〉循环论 |
+| 18740 | `cyclisme` | cyclisme | `cyclisme` | B1 | 1 | ai-reviewed | [phrase] cyclisme sur route = 公路自行车运动 |
+| 18740 | `cyclisme` | cyclisme | `cyclisme` | B1 | 1 | ai-reviewed | [phrase] cyclisme sur piste = 场地自行车运动 |
+| 18740 | `cyclisme` | cyclisme | `cyclisme` | B1 | 1 | ai-reviewed | [phrase] faire du cyclisme = 从事自行车运动；骑行锻炼 |
+| 18741 | `steward` | steward | `steward` | B1 | 1 | ai-reviewed | （维基媒体）全域监管员 |
+| 18741 | `steward` | steward | `steward` | B1 | 1 | ai-reviewed | [phrase] steward et hôtesse de l’air = 男空乘与空姐 |
+| 18741 | `steward` | steward | `steward` | B1 | 1 | ai-reviewed | [phrase] steward à bord = 机上（或船上）男乘务员 |
+| 18741 | `steward` | steward | `steward` | B1 | 1 | ai-reviewed | [phrase] devenir steward = 成为空中男乘务员 |
+| 18742 | `crematorium` | crématorium | `crematorium` | B1 | 1 | ai-reviewed | [phrase] crématorium municipal = 市立火葬场 |
+| 18742 | `crematorium` | crématorium | `crematorium` | B1 | 1 | ai-reviewed | [phrase] four du crématorium = 火葬场焚化炉 |
+| 18742 | `crematorium` | crématorium | `crematorium` | B1 | 1 | ai-reviewed | [phrase] cérémonie au crématorium = 火葬场告别仪式 |
+| 18743 | `budgetaire` | budgétaire | `budgetaire-adj` | B2 | 1 | ai-reviewed | [phrase] déficit budgétaire = 预算赤字 |
+| 18743 | `budgetaire` | budgétaire | `budgetaire-adj` | B2 | 1 | ai-reviewed | [phrase] rigueur budgétaire = 预算紧缩；财政紧缩 |
+| 18743 | `budgetaire` | budgétaire | `budgetaire-adj` | B2 | 1 | ai-reviewed | [phrase] exercice budgétaire = 预算年度；财政年度 |
+| 18744 | `cameraman#2` | caméraman | `cameraman-m` | B2 | 1 | ai-reviewed | [phrase] caméraman de télévision = 电视摄像师 |
+| 18744 | `cameraman#2` | caméraman | `cameraman-m` | B2 | 1 | ai-reviewed | [phrase] caméraman de terrain = 外景摄像师 |
+| 18744 | `cameraman#2` | caméraman | `cameraman-m` | B2 | 1 | ai-reviewed | [phrase] équipe de caméramans = 摄像团队 |
+| 18745 | `batailleur` | batailleur | `batailleur` | B2 | 1 | ai-reviewed | 设防的；配有防御工事的 |
+| 18745 | `batailleur` | batailleur | `batailleur` | B2 | 1 | ai-reviewed | [phrase] caractère batailleur = 好斗的性格；爱争辩的脾气 |
+| 18745 | `batailleur` | batailleur | `batailleur` | B2 | 1 | ai-reviewed | [phrase] esprit batailleur = 拼搏精神；好斗精神 |
+| 18745 | `batailleur` | batailleur | `batailleur` | B2 | 1 | ai-reviewed | [phrase] être d’un naturel batailleur = 天性好斗；生性好争 |
+| 18746 | `cohabitation` | cohabitation | `cohabitation` | B2 | 1 | ai-reviewed | [phrase] cohabitation pacifique = 和平共处 |
+| 18746 | `cohabitation` | cohabitation | `cohabitation` | B2 | 1 | ai-reviewed | [phrase] cohabitation politique = 政治共治 |
+| 18746 | `cohabitation` | cohabitation | `cohabitation` | B2 | 1 | ai-reviewed | [phrase] vivre en cohabitation = 同居；共同生活 |
 | 18803 | `illogique` | illogique | `illogique` | B2 | 1 | wikt-zh | 不合逻辑的，缺乏条理的 |
+| 18803 | `illogique` | illogique | `illogique` | B2 | 1 | ai-reviewed | [phrase] un raisonnement illogique = 不合逻辑的推理 |
+| 18803 | `illogique` | illogique | `illogique` | B2 | 1 | ai-reviewed | [phrase] une conclusion illogique = 不合逻辑的结论 |
+| 18803 | `illogique` | illogique | `illogique` | B2 | 1 | ai-reviewed | [phrase] totalement illogique = 完全不合逻辑的 |
+| 18845 | `cinematheque` | cinémathèque | `cinematheque` | B1 | 1 | ai-reviewed | [phrase] aller à la cinémathèque = 去电影资料馆 |
+| 18845 | `cinematheque` | cinémathèque | `cinematheque` | B1 | 1 | ai-reviewed | [phrase] la Cinémathèque française = 法国电影资料馆 |
+| 18845 | `cinematheque` | cinémathèque | `cinematheque` | B1 | 1 | ai-reviewed | [phrase] programmation de la cinémathèque = 电影资料馆放映排期；电影资料馆节目安排 |
+| 18846 | `enseignante` | enseignante | `enseignante-f` | B2 | 1 | ai-reviewed | [phrase] enseignante de français = 法语女教师 |
+| 18846 | `enseignante` | enseignante | `enseignante-f` | B2 | 1 | ai-reviewed | [phrase] enseignante-chercheuse = 女性高校教学科研人员（大学女教师） |
+| 18846 | `enseignante` | enseignante | `enseignante-f` | B2 | 1 | ai-reviewed | [phrase] une enseignante expérimentée = 一位经验丰富的女教师 |
+| 18847 | `pondere` | pondéré | `pondere` | B2 | 1 | ai-reviewed | [phrase] moyenne pondérée = 加权平均数 |
+| 18847 | `pondere` | pondéré | `pondere` | B2 | 1 | ai-reviewed | [phrase] vote pondéré = 加权投票 |
+| 18847 | `pondere` | pondéré | `pondere` | B2 | 1 | ai-reviewed | [phrase] un esprit pondéré = 沉稳冷静的头脑；审慎平和的性情 |
+| 18886 | `patinage` | patinage | `patinage` | B1 | 1 | ai-reviewed | [phrase] patinage de vitesse = 速度滑冰 |
+| 18886 | `patinage` | patinage | `patinage` | B1 | 1 | ai-reviewed | [phrase] patinage des roues = 车轮打滑 |
+| 18922 | `giboulee` | giboulée | `giboulee` | B1 | 1 | ai-reviewed | 一顿暴打；一顿痛殴 |
+| 18922 | `giboulee` | giboulée | `giboulee` | B1 | 1 | ai-reviewed | 骤然大批袭来之物（如疾病、辱骂等）；铺天盖地的一阵 |
+| 18922 | `giboulee` | giboulée | `giboulee` | B1 | 1 | ai-reviewed | [phrase] giboulées de mars = 三月阵雨；春季多变的骤雨 |
+| 18922 | `giboulee` | giboulée | `giboulee` | B1 | 1 | ai-reviewed | [phrase] essuyer une giboulée = 淋了一阵骤雨 |
+| 18922 | `giboulee` | giboulée | `giboulee` | B1 | 1 | ai-reviewed | [phrase] giboulée de grêle = 一阵骤降的冰雹 |
+| 18923 | `cloner` | cloner | `cloner` | B2 | 1 | ai-reviewed | [phrase] cloner un gène = 克隆基因 |
+| 18923 | `cloner` | cloner | `cloner` | B2 | 1 | ai-reviewed | [phrase] cloner un disque dur = 克隆硬盘；完整复制硬盘 |
+| 18923 | `cloner` | cloner | `cloner` | B2 | 1 | ai-reviewed | [phrase] cloner une carte bancaire = 复制银行卡 |
+| 18924 | `performant` | performant | `performant` | B2 | 1 | ai-reviewed | 表现出色的；成绩优异的；有竞争力的 |
+| 18924 | `performant` | performant | `performant` | B2 | 1 | ai-reviewed | [phrase] être très performant = 表现非常出色；性能十分卓越 |
+| 18924 | `performant` | performant | `performant` | B2 | 1 | ai-reviewed | [phrase] système performant = 高性能系统 |
+| 18924 | `performant` | performant | `performant` | B2 | 1 | ai-reviewed | [phrase] entreprise performante = 高绩效企业；有竞争力的企业 |
+| 19016 | `condiment` | condiment | `condiment` | A2 | 1 | ai-reviewed | 〈喻〉增添趣味的事物；调剂品 |
+| 19016 | `condiment` | condiment | `condiment` | A2 | 1 | ai-reviewed | [phrase] épices et condiments = 香料与调味品 |
+| 19016 | `condiment` | condiment | `condiment` | A2 | 1 | ai-reviewed | [phrase] servir avec des condiments = 佐以调味品食用 |
+| 19016 | `condiment` | condiment | `condiment` | A2 | 1 | ai-reviewed | [phrase] condiment relevé = 味道辛香浓烈的调味品 |
+| 19065 | `kine` | kiné | `kine` | B1 | 1 | ai-reviewed | 理疗；物理治疗（kinésithérapie 的口语） |
+| 19065 | `kine` | kiné | `kine` | B1 | 1 | ai-reviewed | [phrase] aller chez le kiné = 去看理疗师；去做理疗 |
+| 19065 | `kine` | kiné | `kine` | B1 | 1 | ai-reviewed | [phrase] séance de kiné = 一次理疗；一节物理治疗 |
+| 19065 | `kine` | kiné | `kine` | B1 | 1 | ai-reviewed | [phrase] kiné respiratoire = 呼吸理疗 |
+| 19066 | `viticulteur` | viticulteur | `viticulteur` | B1 | 1 | ai-reviewed | [phrase] viticulteur indépendant = 独立酒农；独立葡萄种植商 |
+| 19066 | `viticulteur` | viticulteur | `viticulteur` | B1 | 1 | ai-reviewed | [phrase] coopérative de viticulteurs = 葡萄种植者合作社 |
+| 19066 | `viticulteur` | viticulteur | `viticulteur` | B1 | 1 | ai-reviewed | [phrase] viticulteur bio = 有机葡萄种植者 |
+| 19067 | `injoignable` | injoignable | `injoignable` | B1 | 1 | ai-reviewed | [phrase] être injoignable = 联系不上；打不通电话 |
+| 19067 | `injoignable` | injoignable | `injoignable` | B1 | 1 | ai-reviewed | [phrase] rester injoignable = 一直处于失联状态；始终无法取得联系 |
+| 19067 | `injoignable` | injoignable | `injoignable` | B1 | 1 | ai-reviewed | [phrase] numéro injoignable = 无法接通的号码 |
+| 19068 | `alpinisme` | alpinisme | `alpinisme` | B1 | 1 | ai-reviewed | [phrase] faire de l’alpinisme = 从事登山运动；去攀登高山 |
+| 19068 | `alpinisme` | alpinisme | `alpinisme` | B1 | 1 | ai-reviewed | [phrase] club d’alpinisme = 登山具乐部 |
+| 19068 | `alpinisme` | alpinisme | `alpinisme` | B1 | 1 | ai-reviewed | [phrase] matériel d’alpinisme = 登山器材；登山装备 |
 | 19069 | `aerobic` | aérobic | `aerobic` | B1 | 1 | wikt-zh | n.m. 增氧健身操，增氧健身运动 |
+| 19069 | `aerobic` | aérobic | `aerobic` | B1 | 1 | ai-reviewed | [phrase] cours d’aérobic = 有氧健身操课；健美操课 |
+| 19069 | `aerobic` | aérobic | `aerobic` | B1 | 1 | ai-reviewed | [phrase] faire de l’aérobic = 跳健美操；做有氧操 |
+| 19069 | `aerobic` | aérobic | `aerobic` | B1 | 1 | ai-reviewed | [phrase] séance d’aérobic = 一节有氧健身操训练 |
+| 19070 | `impopulaire` | impopulaire | `impopulaire` | B2 | 1 | ai-reviewed | [phrase] mesure impopulaire = 不得人心的措施；不受欢迎的举措 |
+| 19070 | `impopulaire` | impopulaire | `impopulaire` | B2 | 1 | ai-reviewed | [phrase] réforme impopulaire = 遭民众反对的改革；不得人心的改革 |
+| 19070 | `impopulaire` | impopulaire | `impopulaire` | B2 | 1 | ai-reviewed | [phrase] devenir impopulaire = 失去民心；变得不受欢迎 |
 | 19071 | `polytechnique` | polytechnique | `polytechnique` | B2 | 1 | wikt-zh | 综合科技的 |
+| 19071 | `polytechnique` | polytechnique | `polytechnique` | B2 | 1 | ai-reviewed | [phrase] école polytechnique = 综合理工学院；理工科大学 |
+| 19071 | `polytechnique` | polytechnique | `polytechnique` | B2 | 1 | ai-reviewed | [phrase] institut polytechnique = 理工学院 |
+| 19071 | `polytechnique` | polytechnique | `polytechnique` | B2 | 1 | ai-reviewed | [phrase] enseignement polytechnique = 综合技术教育 |
+| 19133 | `vinaigrette` | vinaigrette | `vinaigrette` | A2 | 1 | ai-reviewed | 调味凉拌剩肉菜 |
+| 19133 | `vinaigrette` | vinaigrette | `vinaigrette` | A2 | 1 | ai-reviewed | 甜菜根俄式沙拉 |
+| 19133 | `vinaigrette` | vinaigrette | `vinaigrette` | A2 | 1 | ai-reviewed | 带轮运醋木桶 |
+| 19133 | `vinaigrette` | vinaigrette | `vinaigrette` | A2 | 1 | ai-reviewed | [phrase] sauce vinaigrette = 油醋调味汁 |
+| 19133 | `vinaigrette` | vinaigrette | `vinaigrette` | A2 | 1 | ai-reviewed | [phrase] assaisonner de vinaigrette = 用油醋汁调味 |
+| 19133 | `vinaigrette` | vinaigrette | `vinaigrette` | A2 | 1 | ai-reviewed | [phrase] salade à la vinaigrette = 油醋汁拌沙拉 |
 | 19134 | `paques` | pâques | `paques` | B2 | 1 | wikt-zh | 复活节 |
+| 19134 | `paques` | pâques | `paques` | B2 | 1 | ai-reviewed | [phrase] œufs de Pâques = 复活节彩蛋 |
+| 19134 | `paques` | pâques | `paques` | B2 | 1 | ai-reviewed | [phrase] lundi de Pâques = 复活节星期一 |
+| 19134 | `paques` | pâques | `paques` | B2 | 1 | ai-reviewed | [phrase] joyeuses Pâques = 复活节快乐 |
+| 19135 | `competitif` | compétitif | `competitif` | B2 | 1 | ai-reviewed | [phrase] prix compétitif = 有竞争力的价格 |
+| 19135 | `competitif` | compétitif | `competitif` | B2 | 1 | ai-reviewed | [phrase] rester compétitif = 保持竞争力 |
+| 19135 | `competitif` | compétitif | `competitif` | B2 | 1 | ai-reviewed | [phrase] esprit compétitif = 竞争意识；好胜心 |
 | 19136 | `ponctuellement` | ponctuellement | `ponctuellement-adv` | B2 | 1 | wikt-zh | 按时地；有时 |
+| 19136 | `ponctuellement` | ponctuellement | `ponctuellement-adv` | B2 | 1 | ai-reviewed | [phrase] arriver ponctuellement = 准时到达 |
+| 19136 | `ponctuellement` | ponctuellement | `ponctuellement-adv` | B2 | 1 | ai-reviewed | [phrase] intervenir ponctuellement = 偶尔介入；临时采取行动 |
+| 19136 | `ponctuellement` | ponctuellement | `ponctuellement-adv` | B2 | 1 | ai-reviewed | [phrase] payer ponctuellement = 按时付款 |
 | 19137 | `laic` | laïc | `la-ic` | B2 | 1 | wikt-zh | 俗人 |
+| 19137 | `laic` | laïc | `la-ic` | B2 | 1 | ai-reviewed | [phrase] État laïc = 政教分离的国家；世俗国家 |
+| 19137 | `laic` | laïc | `la-ic` | B2 | 1 | ai-reviewed | [phrase] école laïque = 世俗学校（非宗教学校） |
+| 19137 | `laic` | laïc | `la-ic` | B2 | 1 | ai-reviewed | [phrase] enseignement laïc = 世俗教育 |
 | 19173 | `generaliste` | généraliste | `generaliste` | B2 | 1 | wikt-zh | 内科医生 |
+| 19173 | `generaliste` | généraliste | `generaliste` | B2 | 1 | ai-reviewed | 一般性的；综合性的；通才的 |
+| 19173 | `generaliste` | généraliste | `generaliste` | B2 | 1 | ai-reviewed | [phrase] presse généraliste = 综合性报刊；综合类新闻媒体 |
+| 19173 | `generaliste` | généraliste | `generaliste` | B2 | 1 | ai-reviewed | [phrase] chaîne généraliste = 综合电视频道 |
+| 19174 | `secreter#2` | secréter | `secreter` | B2 | 1 | ai-reviewed | （制帽业）用硝酸汞溶液处理毛皮（以利于毡化） |
+| 19174 | `secreter#2` | secréter | `secreter` | B2 | 1 | ai-reviewed | [phrase] secréter les peaux = （制帽）用硝酸汞溶液处理毛皮 |
+| 19174 | `secreter#2` | secréter | `secreter` | B2 | 1 | ai-reviewed | [phrase] secréter une hormone = 分泌激素 |
+| 19174 | `secreter#2` | secréter | `secreter` | B2 | 1 | ai-reviewed | [phrase] secréter une substance = 分泌某种物质 |
+| 19175 | `teleobjectif` | téléobjectif | `teleobjectif` | B2 | 1 | ai-reviewed | [phrase] photographier au téléobjectif = 用长焦镜头拍摄 |
+| 19175 | `teleobjectif` | téléobjectif | `teleobjectif` | B2 | 1 | ai-reviewed | [phrase] zoom téléobjectif = 长焦变焦镜头 |
+| 19175 | `teleobjectif` | téléobjectif | `teleobjectif` | B2 | 1 | ai-reviewed | [phrase] équipé d’un téléobjectif = 装有长焦镜头的 |
+| 19176 | `gelule` | gélule | `gelule` | B2 | 1 | ai-reviewed | [phrase] avaler une gélule = 吞服一粒胶囊 |
+| 19176 | `gelule` | gélule | `gelule` | B2 | 1 | ai-reviewed | [phrase] prendre en gélules = 以胶囊形式服用 |
+| 19176 | `gelule` | gélule | `gelule` | B2 | 1 | ai-reviewed | [phrase] boîte de gélules = 一盒胶囊 |
+| 19177 | `quadrature` | quadrature | `quadrature` | B2 | 1 | ai-reviewed | （天文）方照；上下弦月位 |
+| 19177 | `quadrature` | quadrature | `quadrature` | B2 | 1 | ai-reviewed | （物理、电学）正交；四分之一周期相位差 |
+| 19177 | `quadrature` | quadrature | `quadrature` | B2 | 1 | ai-reviewed | （钟表）拨针轮系（同 cadrature） |
+| 19177 | `quadrature` | quadrature | `quadrature` | B2 | 1 | ai-reviewed | [phrase] chercher la quadrature du cercle = 企图解决不可能的难题 |
+| 19177 | `quadrature` | quadrature | `quadrature` | B2 | 1 | ai-reviewed | [phrase] en quadrature = （天体）处于方照位置；（物理）成正交相位 |
+| 19178 | `quiproquo` | quiproquo | `quiproquo` | B2 | 1 | ai-reviewed | [phrase] un drôle de quiproquo = 一场滑稽的误会 |
+| 19178 | `quiproquo` | quiproquo | `quiproquo` | B2 | 1 | ai-reviewed | [phrase] par un quiproquo = 出于一场误会；阴差阳错地 |
+| 19178 | `quiproquo` | quiproquo | `quiproquo` | B2 | 1 | ai-reviewed | [phrase] comédie de quiproquos = 误会喜剧；阴差阳错的喜剧 |
 | 19179 | `valoriser` | valoriser | `valoriser` | B2 | 1 | wikt-zh | 增值，增加价值 |
+| 19179 | `valoriser` | valoriser | `valoriser` | B2 | 1 | ai-reviewed | 估值；评估……的价值 |
+| 19179 | `valoriser` | valoriser | `valoriser` | B2 | 1 | ai-reviewed | [phrase] valoriser son image = 提升自身形象 |
+| 19179 | `valoriser` | valoriser | `valoriser` | B2 | 1 | ai-reviewed | [phrase] valoriser les compétences = 凸显技能价值；重视并发挥能力 |
+| 19179 | `valoriser` | valoriser | `valoriser` | B2 | 1 | ai-reviewed | [phrase] se valoriser = 自我增值；展现自身价值 |
+| 19210 | `recyclage` | recyclage | `recyclage` | A2 | 1 | ai-reviewed | [phrase] le recyclage des déchets = 废物回收利用 |
+| 19210 | `recyclage` | recyclage | `recyclage` | A2 | 1 | ai-reviewed | [phrase] stage de recyclage = 进修培训班；再培训课程 |
+| 19210 | `recyclage` | recyclage | `recyclage` | A2 | 1 | ai-reviewed | [phrase] bac de recyclage = 可回收垃圾桶 |
 | 19211 | `antidepresseur` | antidépresseur | `antidepresseur` | B2 | 1 | wikt-zh | adj.m. et n.m. 抗忧郁症的/抗忧郁剂，兴奋剂 |
+| 19211 | `antidepresseur` | antidépresseur | `antidepresseur` | B2 | 1 | ai-reviewed | [phrase] prendre des antidépresseurs = 服用抗抑郁药 |
+| 19211 | `antidepresseur` | antidépresseur | `antidepresseur` | B2 | 1 | ai-reviewed | [phrase] prescrire un antidépresseur = 开具抗抑郁药 |
+| 19211 | `antidepresseur` | antidépresseur | `antidepresseur` | B2 | 1 | ai-reviewed | [phrase] effet antidépresseur = 抗抑郁作用 |
+| 19212 | `pollue` | pollué | `pollue-adj` | B2 | 1 | ai-reviewed | [phrase] air pollué = 受污染的空气 |
+| 19212 | `pollue` | pollué | `pollue-adj` | B2 | 1 | ai-reviewed | [phrase] eau polluée = 受污染的水 |
+| 19212 | `pollue` | pollué | `pollue-adj` | B2 | 1 | ai-reviewed | [phrase] zone polluée = 污染区 |
+| 19272 | `torrentiel` | torrentiel | `torrentiel` | B1 | 1 | ai-reviewed | 急流冲积形成的；山洪作用造成的 |
+| 19272 | `torrentiel` | torrentiel | `torrentiel` | B1 | 1 | ai-reviewed | [phrase] averse torrentielle = 瓢泼阵雨 |
+| 19272 | `torrentiel` | torrentiel | `torrentiel` | B1 | 1 | ai-reviewed | [phrase] régime torrentiel = （河流的）暴涨暴落型水情；山洪流态 |
+| 19273 | `interimaire` | intérimaire | `interimaire` | B2 | 1 | ai-reviewed | 临时的；代理的；过渡性的 |
+| 19273 | `interimaire` | intérimaire | `interimaire` | B2 | 1 | ai-reviewed | [phrase] travailleur intérimaire = 临时工；劳务派遣工 |
+| 19273 | `interimaire` | intérimaire | `interimaire` | B2 | 1 | ai-reviewed | [phrase] président intérimaire = 临时主席；代理总统 |
+| 19273 | `interimaire` | intérimaire | `interimaire` | B2 | 1 | ai-reviewed | [phrase] mission intérimaire = 临时工作任务；劳务派遣任务 |
+| 19274 | `surmenage` | surmenage | `surmenage` | B2 | 1 | ai-reviewed | [phrase] surmenage professionnel = 职业性过劳；工作过度劳累 |
+| 19274 | `surmenage` | surmenage | `surmenage` | B2 | 1 | ai-reviewed | [phrase] être en état de surmenage = 处于过度劳累的状态 |
+| 19274 | `surmenage` | surmenage | `surmenage` | B2 | 1 | ai-reviewed | [phrase] éviter le surmenage = 避免过度劳累 |
+| 19275 | `plie` | plié | `plie` | B2 | 1 | ai-reviewed | 屈膝动作；（芭蕾舞）蹲步 |
+| 19275 | `plie` | plié | `plie` | B2 | 1 | ai-reviewed | [phrase] faire un plié = 做一个屈膝动作；（芭蕾）做蹲步 |
+| 19275 | `plie` | plié | `plie` | B2 | 1 | ai-reviewed | [phrase] grand plié = （芭蕾舞）大蹲 |
+| 19275 | `plie` | plié | `plie` | B2 | 1 | ai-reviewed | [phrase] demi-plié = （芭蕾舞）半蹲 |
+| 19318 | `deca#2` | déca | `deca` | B1 | 1 | ai-reviewed | 达菲林（Décapeptyl 品牌药物的俗称） |
+| 19318 | `deca#2` | déca | `deca` | B1 | 1 | ai-reviewed | [phrase] prendre un déca = 来一杯低因咖啡 |
+| 19318 | `deca#2` | déca | `deca` | B1 | 1 | ai-reviewed | [phrase] boire un déca = 喝杯低因咖啡 |
+| 19318 | `deca#2` | déca | `deca` | B1 | 1 | ai-reviewed | [phrase] un petit déca = 一小杯低因咖啡 |
 | 19319 | `soustraction` | soustraction | `soustraction` | B2 | 1 | wikt-zh | 诈骗；盗取 |
+| 19319 | `soustraction` | soustraction | `soustraction` | B2 | 1 | ai-reviewed | [phrase] faire une soustraction = 做减法；进行相减运算 |
+| 19319 | `soustraction` | soustraction | `soustraction` | B2 | 1 | ai-reviewed | [phrase] soustraction frauduleuse = （法）非法窃取；盗窃 |
+| 19319 | `soustraction` | soustraction | `soustraction` | B2 | 1 | ai-reviewed | [phrase] addition et soustraction = 加法与减法 |
+| 19320 | `toque#2` | toqué | `toque` | B2 | 1 | ai-reviewed | （俗）疯癫的；有点神经质的；脑子不正常的 |
+| 19320 | `toque#2` | toqué | `toque` | B2 | 1 | ai-reviewed | 戴厨师帽的；戴无檐圆帽的 |
+| 19320 | `toque#2` | toqué | `toque` | B2 | 1 | ai-reviewed | 强迫症患者 |
+| 19320 | `toque#2` | toqué | `toque` | B2 | 1 | ai-reviewed | [phrase] être un peu toqué = 有点疯疯癫癫；有点神经质 |
+| 19320 | `toque#2` | toqué | `toque` | B2 | 1 | ai-reviewed | [phrase] être toqué de quelqu’un = 迷恋某人；为某人神魂颠倒 |
+| 19320 | `toque#2` | toqué | `toque` | B2 | 1 | ai-reviewed | [phrase] un air toqué = 疯癫的神态；怪异的样子 |
+| 19385 | `allusif` | allusif | `allusif` | B2 | 1 | ai-reviewed | [phrase] propos allusif = 含沙射影的话；暗有所指的言辞 |
+| 19385 | `allusif` | allusif | `allusif` | B2 | 1 | ai-reviewed | [phrase] ton allusif = 暗示的口吻；隐晦的语气 |
+| 19385 | `allusif` | allusif | `allusif` | B2 | 1 | ai-reviewed | [phrase] style allusif = 含蓄隐晦的文风；多用典故的风格 |
 | 19439 | `brie` | brie | `brie` | A2 | 1 | wikt-zh | n.m. 布里奶酪 |
+| 19439 | `brie` | brie | `brie` | A2 | 1 | ai-reviewed | （制面包用）揉面木棒；压面木杆 |
+| 19439 | `brie` | brie | `brie` | A2 | 1 | ai-reviewed | [phrase] du brie de Meaux = 莫城布里奶酪 |
+| 19439 | `brie` | brie | `brie` | A2 | 1 | ai-reviewed | [phrase] une tranche de brie = 一片布里奶酪 |
+| 19439 | `brie` | brie | `brie` | A2 | 1 | ai-reviewed | [phrase] du brie coulant = 流心布里奶酪 |
+| 19440 | `chine` | Chine | `chine` | A2 | 1 | ai-reviewed | 中国瓷器 |
+| 19440 | `chine` | Chine | `chine` | A2 | 1 | ai-reviewed | 旧货买卖；上门收售旧货；沿街叫卖 |
+| 19440 | `chine` | Chine | `chine` | A2 | 1 | ai-reviewed | 中国纸；中国薄纸 |
+| 19440 | `chine` | Chine | `chine` | A2 | 1 | ai-reviewed | 希伯来语第二十一个字母（ש） |
+| 19440 | `chine` | Chine | `chine` | A2 | 1 | ai-reviewed | [phrase] en Chine = 在中国 |
+| 19440 | `chine` | Chine | `chine` | A2 | 1 | ai-reviewed | [phrase] encre de Chine = 中国墨；墨汁 |
+| 19440 | `chine` | Chine | `chine` | A2 | 1 | ai-reviewed | [phrase] aller à la chine = 去淘旧货；走街串巷买卖旧货 |
+| 19487 | `jonquille` | jonquille | `jonquille` | B2 | 1 | ai-reviewed | 水仙黄色；淡黄色 |
 | 19487 | `jonquille` | jonquille | `jonquille` | B2 | 1 | cfdict | 水僊 |
+| 19487 | `jonquille` | jonquille | `jonquille` | B2 | 1 | ai-reviewed | 水仙黄色的；淡黄色的 |
+| 19487 | `jonquille` | jonquille | `jonquille` | B2 | 1 | ai-reviewed | [phrase] jaune jonquille = 水仙黄；鹅黄色 |
+| 19487 | `jonquille` | jonquille | `jonquille` | B2 | 1 | ai-reviewed | [phrase] bouquet de jonquilles = 一束黄水仙 |
+| 19487 | `jonquille` | jonquille | `jonquille` | B2 | 1 | ai-reviewed | [phrase] oignon de jonquille = 黄水仙球茎 |
+| 19488 | `infrastructure` | infrastructure | `infrastructure` | B2 | 1 | ai-reviewed | 下部结构；地基结构 |
+| 19488 | `infrastructure` | infrastructure | `infrastructure` | B2 | 1 | ai-reviewed | 路基（铁路等的土石方及线下工程） |
+| 19488 | `infrastructure` | infrastructure | `infrastructure` | B2 | 1 | ai-reviewed | [phrase] infrastructure routière = 道路基础设施 |
+| 19488 | `infrastructure` | infrastructure | `infrastructure` | B2 | 1 | ai-reviewed | [phrase] infrastructure informatique = 信息基础设施；IT基础设施 |
+| 19488 | `infrastructure` | infrastructure | `infrastructure` | B2 | 1 | ai-reviewed | [phrase] développer les infrastructures = 发展基础设施 |
 | 19489 | `expatrier` | expatrier | `expatrier` | B2 | 1 | wikt-zh | 强迫……离开祖国 |
+| 19489 | `expatrier` | expatrier | `expatrier` | B2 | 1 | ai-reviewed | 背井离乡；迁居他乡（s'expatrier） |
+| 19489 | `expatrier` | expatrier | `expatrier` | B2 | 1 | ai-reviewed | [phrase] s'expatrier pour le travail = 因工作移居国外；赴海外工作 |
+| 19489 | `expatrier` | expatrier | `expatrier` | B2 | 1 | ai-reviewed | [phrase] être expatrié = 旅居国外的；派驻海外的 |
+| 19489 | `expatrier` | expatrier | `expatrier` | B2 | 1 | ai-reviewed | [phrase] décider de s'expatrier = 决定移居海外 |
+| 19490 | `trimestriel` | trimestriel | `trimestriel-adj` | B2 | 1 | ai-reviewed | [phrase] revue trimestrielle = 季刊 |
+| 19490 | `trimestriel` | trimestriel | `trimestriel-adj` | B2 | 1 | ai-reviewed | [phrase] bilan trimestriel = 季度报表；季度总结 |
+| 19490 | `trimestriel` | trimestriel | `trimestriel-adj` | B2 | 1 | ai-reviewed | [phrase] paiement trimestriel = 按季付款 |
+| 19506 | `congere` | congère | `congere` | B1 | 1 | ai-reviewed | [phrase] formation de congères = 风吹雪堆的形成 |
+| 19506 | `congere` | congère | `congere` | B1 | 1 | ai-reviewed | [phrase] bloqué par une congère = 被雪堆堵住；被积雪困住 |
+| 19506 | `congere` | congère | `congere` | B1 | 1 | ai-reviewed | [phrase] s'enfoncer dans une congère = 陷进雪堆里 |
+| 19507 | `acupuncture` | acupuncture | `acupuncture` | B2 | 1 | ai-reviewed | [phrase] séance d'acupuncture = 一次针灸治疗；针灸治疗 |
+| 19507 | `acupuncture` | acupuncture | `acupuncture` | B2 | 1 | ai-reviewed | [phrase] aiguille d'acupuncture = 针灸针 |
+| 19507 | `acupuncture` | acupuncture | `acupuncture` | B2 | 1 | ai-reviewed | [phrase] point d'acupuncture = 针灸穴位 |
+| 19508 | `denommer` | dénommer | `denommer` | B2 | 1 | ai-reviewed | [phrase] être dénommé = 被称为；名叫；在文书中被具名 |
+| 19508 | `denommer` | dénommer | `denommer` | B2 | 1 | ai-reviewed | [phrase] ci-après dénommé = 以下称为；下称 |
+| 19508 | `denommer` | dénommer | `denommer` | B2 | 1 | ai-reviewed | [phrase] dénommer les parties = 列明各方当事人 |
+| 19509 | `attestation` | attestation | `attestation` | B2 | 1 | ai-reviewed | 用例；文献例证（词语在文本或铭文中的实证用例） |
+| 19509 | `attestation` | attestation | `attestation` | B2 | 1 | ai-reviewed | [phrase] attestation de domicile = 居住证明 |
+| 19509 | `attestation` | attestation | `attestation` | B2 | 1 | ai-reviewed | [phrase] attestation de travail = 在职证明；工作证明 |
+| 19509 | `attestation` | attestation | `attestation` | B2 | 1 | ai-reviewed | [phrase] attestation d'assurance = 保险证明 |
+| 19538 | `nationalisation` | nationalisation | `nationalisation` | B2 | 1 | ai-reviewed | 归化；加入国籍（同 naturalisation） |
+| 19538 | `nationalisation` | nationalisation | `nationalisation` | B2 | 1 | ai-reviewed | [phrase] nationalisation des banques = 银行国有化 |
+| 19538 | `nationalisation` | nationalisation | `nationalisation` | B2 | 1 | ai-reviewed | [phrase] procéder à la nationalisation de = 对……实施国有化 |
+| 19538 | `nationalisation` | nationalisation | `nationalisation` | B2 | 1 | ai-reviewed | [phrase] loi de nationalisation = 国有化法案 |
+| 19546 | `surveillante` | surveillante | `surveillante` | B2 | 1 | ai-reviewed | 女狱警；女看守 |
+| 19546 | `surveillante` | surveillante | `surveillante` | B2 | 1 | ai-reviewed | （学校）女学监；女舍监；生活老师 |
+| 19546 | `surveillante` | surveillante | `surveillante` | B2 | 1 | ai-reviewed | [phrase] surveillante générale = 总护士长；学校总学监 |
+| 19546 | `surveillante` | surveillante | `surveillante` | B2 | 1 | ai-reviewed | [phrase] surveillante de prison = 女狱警；女看守 |
+| 19546 | `surveillante` | surveillante | `surveillante` | B2 | 1 | ai-reviewed | [phrase] surveillante d'internat = 寄宿学校女舍监 |
+| 19547 | `indubitable` | indubitable | `indubitable` | B2 | 1 | ai-reviewed | [phrase] preuve indubitable = 确凿的证据 |
+| 19547 | `indubitable` | indubitable | `indubitable` | B2 | 1 | ai-reviewed | [phrase] fait indubitable = 毋庸置疑的事实 |
+| 19547 | `indubitable` | indubitable | `indubitable` | B2 | 1 | ai-reviewed | [phrase] il est indubitable que = 毫无疑问…… |
+| 19548 | `raisonne` | raisonné | `raisonne-adj` | B2 | 1 | ai-reviewed | 有理有据的；论证充分的 |
+| 19548 | `raisonne` | raisonné | `raisonne-adj` | B2 | 1 | ai-reviewed | 附有评注说明的；系统阐释的 |
+| 19548 | `raisonne` | raisonné | `raisonne-adj` | B2 | 1 | ai-reviewed | 理性的；深思熟虑的 |
+| 19548 | `raisonne` | raisonné | `raisonne-adj` | B2 | 1 | ai-reviewed | （方法、论著等）阐明原理的；阐述规律的 |
+| 19548 | `raisonne` | raisonné | `raisonne-adj` | B2 | 1 | ai-reviewed | [phrase] agriculture raisonnée = 理性农业；适度环保农业 |
+| 19548 | `raisonne` | raisonné | `raisonne-adj` | B2 | 1 | ai-reviewed | [phrase] catalogue raisonné = 专题作品全集；附有评注的目录 |
+| 19548 | `raisonne` | raisonné | `raisonne-adj` | B2 | 1 | ai-reviewed | [phrase] choix raisonné = 理性选择；深思熟虑的决定 |
+| 19549 | `gastronomie` | gastronomie | `gastronomie` | B2 | 1 | ai-reviewed | [phrase] gastronomie française = 法国美食；法式烹饪艺术 |
+| 19549 | `gastronomie` | gastronomie | `gastronomie` | B2 | 1 | ai-reviewed | [phrase] haute gastronomie = 高级美食；顶级餐饮艺术 |
+| 19549 | `gastronomie` | gastronomie | `gastronomie` | B2 | 1 | ai-reviewed | [phrase] amateur de gastronomie = 美食爱好者；美食家 |
+| 19550 | `aggravation` | aggravation | `aggravation` | B2 | 1 | ai-reviewed | （法律）定残后新增的身体损害；伤残加重 |
+| 19550 | `aggravation` | aggravation | `aggravation` | B2 | 1 | ai-reviewed | （宗教）再次发布的严厉训诫令 |
+| 19550 | `aggravation` | aggravation | `aggravation` | B2 | 1 | ai-reviewed | [phrase] aggravation de la situation = 局势恶化 |
+| 19550 | `aggravation` | aggravation | `aggravation` | B2 | 1 | ai-reviewed | [phrase] aggravation des symptômes = 症状加重 |
+| 19550 | `aggravation` | aggravation | `aggravation` | B2 | 1 | ai-reviewed | [phrase] aggravation de peine = 加重刑罚；加刑 |
+| 19551 | `senior` | senior | `senior-m` | B2 | 1 | ai-reviewed | （体育）成年组选手；成年队员 |
 | 19551 | `senior` | senior | `senior-m` | B2 | 1 | cfdict | 高职 |
+| 19551 | `senior` | senior | `senior-m` | B2 | 1 | ai-reviewed | （体育）成年组的；成年选手的 |
+| 19551 | `senior` | senior | `senior-m` | B2 | 1 | ai-reviewed | 老年人的；长者的 |
+| 19551 | `senior` | senior | `senior-m` | B2 | 1 | ai-reviewed | 资深的；经验丰富的；高级的 |
+| 19551 | `senior` | senior | `senior-m` | B2 | 1 | ai-reviewed | [phrase] équipe senior = 成年队；一线队 |
+| 19551 | `senior` | senior | `senior-m` | B2 | 1 | ai-reviewed | [phrase] poste senior = 高级职位；资深岗位 |
+| 19551 | `senior` | senior | `senior-m` | B2 | 1 | ai-reviewed | [phrase] résidence senior = 老年公寓；长者社区 |
 | 19585 | `compulsif` | compulsif | `compulsif-adj` | B2 | 1 | wikt-zh | adj. 强制的，强迫的 |
+| 19585 | `compulsif` | compulsif | `compulsif-adj` | B2 | 1 | ai-reviewed | [phrase] achat compulsif = 强迫性购物；冲动消费 |
+| 19585 | `compulsif` | compulsif | `compulsif-adj` | B2 | 1 | ai-reviewed | [phrase] comportement compulsif = 强迫性行为 |
+| 19585 | `compulsif` | compulsif | `compulsif-adj` | B2 | 1 | ai-reviewed | [phrase] trouble obsessionnel compulsif = 强迫症 |
 | 19608 | `blanquette` | blanquette | `blanquette` | A2 | 1 | wikt-zh | n.f. 炖肉［指白肉类，如小牛肉，小羊肉，家禽肉等］ |
+| 19608 | `blanquette` | blanquette | `blanquette` | A2 | 1 | ai-reviewed | 白皮夏梨 |
+| 19608 | `blanquette` | blanquette | `blanquette` | A2 | 1 | ai-reviewed | 白葡萄；布朗克特葡萄品种 |
+| 19608 | `blanquette` | blanquette | `blanquette` | A2 | 1 | ai-reviewed | 布朗克特起泡白葡萄酒（朗格多克产） |
+| 19608 | `blanquette` | blanquette | `blanquette` | A2 | 1 | ai-reviewed | [phrase] blanquette de Limoux = 利穆布朗克特起泡酒 |
+| 19608 | `blanquette` | blanquette | `blanquette` | A2 | 1 | ai-reviewed | [phrase] blanquette de volaille = 白汁炖禽肉 |
+| 19654 | `dessus-de-lit` | dessus-de-lit | `dessus-de-lit` | A2 | 1 | ai-reviewed | [phrase] dessus-de-lit matelassé = 绗缝床罩 |
+| 19654 | `dessus-de-lit` | dessus-de-lit | `dessus-de-lit` | A2 | 1 | ai-reviewed | [phrase] dessus-de-lit en coton = 棉质床罩 |
+| 19654 | `dessus-de-lit` | dessus-de-lit | `dessus-de-lit` | A2 | 1 | ai-reviewed | [phrase] jeter un dessus-de-lit sur le lit = 在床上铺一条床罩 |
+| 19655 | `epris` | épris | `epris` | B2 | 1 | ai-reviewed | [phrase] être épris de quelqu'un = 爱慕某人；倾心于某人 |
+| 19655 | `epris` | épris | `epris` | B2 | 1 | ai-reviewed | [phrase] épris de liberté = 向往自由的；崇尚自由的 |
+| 19655 | `epris` | épris | `epris` | B2 | 1 | ai-reviewed | [phrase] épris d'idéal = 怀抱理想的；倾心于理想的 |
+| 19659 | `perceuse` | perceuse | `perceuse` | B2 | 1 | ai-reviewed | 女钻工；女打孔工 |
+| 19659 | `perceuse` | perceuse | `perceuse` | B2 | 1 | ai-reviewed | 女穿孔师（如穿耳洞、人体穿孔师） |
+| 19659 | `perceuse` | perceuse | `perceuse` | B2 | 1 | ai-reviewed | [phrase] perceuse sans fil = 无线电钻；充电式电钻 |
+| 19659 | `perceuse` | perceuse | `perceuse` | B2 | 1 | ai-reviewed | [phrase] perceuse à percussion = 冲击电钻 |
+| 19659 | `perceuse` | perceuse | `perceuse` | B2 | 1 | ai-reviewed | [phrase] perceuse à colonne = 台式钻床；立式钻床 |
+| 19660 | `bureaucratique` | bureaucratique | `bureaucratique` | B2 | 1 | ai-reviewed | [phrase] lourdeur bureaucratique = 官僚机构臃肿；官僚作风繁琐 |
+| 19660 | `bureaucratique` | bureaucratique | `bureaucratique` | B2 | 1 | ai-reviewed | [phrase] machine bureaucratique = 官僚机器 |
+| 19660 | `bureaucratique` | bureaucratique | `bureaucratique` | B2 | 1 | ai-reviewed | [phrase] procédure bureaucratique = 官僚程序；繁文缛节 |
+| 19661 | `vermillon` | vermillon | `vermillon` | B2 | 1 | ai-reviewed | 朱砂；银朱（红色颜料） |
+| 19661 | `vermillon` | vermillon | `vermillon` | B2 | 1 | ai-reviewed | 亮朱红色葡萄酒 |
+| 19661 | `vermillon` | vermillon | `vermillon` | B2 | 1 | ai-reviewed | 胭脂虫栎 |
 | 19661 | `vermillon` | vermillon | `vermillon` | B2 | 1 | cfdict | 丹彩；丹；朱 |
+| 19661 | `vermillon` | vermillon | `vermillon` | B2 | 1 | ai-reviewed | [phrase] rouge vermillon = 朱红色 |
+| 19661 | `vermillon` | vermillon | `vermillon` | B2 | 1 | ai-reviewed | [phrase] des lèvres vermillon = 朱唇；红润的嘴唇 |
+| 19661 | `vermillon` | vermillon | `vermillon` | B2 | 1 | ai-reviewed | [phrase] peint au vermillon = 用朱砂（或朱红颜料）绘制的 |
+| 19715 | `trottinette` | trottinette | `trottinette` | A2 | 1 | ai-reviewed | 电动滑板车（trottinette électrique 的简称） |
+| 19715 | `trottinette` | trottinette | `trottinette` | A2 | 1 | ai-reviewed | 骑滑板车的人 |
+| 19715 | `trottinette` | trottinette | `trottinette` | A2 | 1 | ai-reviewed | [phrase] trottinette électrique = 电动滑板车 |
+| 19715 | `trottinette` | trottinette | `trottinette` | A2 | 1 | ai-reviewed | [phrase] faire de la trottinette = 骑滑板车 |
+| 19715 | `trottinette` | trottinette | `trottinette` | A2 | 1 | ai-reviewed | [phrase] en trottinette = 骑着滑板车 |
 | 19716 | `mini-jupe` | mini-jupe | `mini-jupe` | B1 | 1 | wikt-zh | minijupe的另一种写法 |
+| 19716 | `mini-jupe` | mini-jupe | `mini-jupe` | B1 | 1 | ai-reviewed | [phrase] porter une mini-jupe = 穿迷你裙 |
+| 19716 | `mini-jupe` | mini-jupe | `mini-jupe` | B1 | 1 | ai-reviewed | [phrase] mini-jupe en cuir = 皮质迷你裙；短皮裙 |
+| 19716 | `mini-jupe` | mini-jupe | `mini-jupe` | B1 | 1 | ai-reviewed | [phrase] mini-jupe plissée = 百褶迷你裙 |
+| 19717 | `symphonique` | symphonique | `symphonique` | B1 | 1 | ai-reviewed | [phrase] orchestre symphonique = 交响乐团 |
+| 19717 | `symphonique` | symphonique | `symphonique` | B1 | 1 | ai-reviewed | [phrase] concert symphonique = 交响音乐会 |
+| 19717 | `symphonique` | symphonique | `symphonique` | B1 | 1 | ai-reviewed | [phrase] poème symphonique = 交响诗 |
+| 19748 | `recession` | récession | `recession` | B2 | 1 | ai-reviewed | 减退；消退；退缩；下降 |
+| 19748 | `recession` | récession | `recession` | B2 | 1 | ai-reviewed | [phrase] entrer en récession = 陷入经济衰退 |
+| 19748 | `recession` | récession | `recession` | B2 | 1 | ai-reviewed | [phrase] récession économique = 经济衰退 |
+| 19748 | `recession` | récession | `recession` | B2 | 1 | ai-reviewed | [phrase] sortir de la récession = 走出经济衰退 |
+| 19790 | `audiovisuel` | audiovisuel | `audiovisuel-adj` | A2 | 1 | ai-reviewed | 视听业；广播影视行业；音像传媒业 |
+| 19790 | `audiovisuel` | audiovisuel | `audiovisuel-adj` | A2 | 1 | ai-reviewed | [phrase] secteur audiovisuel = 视听行业；广播影视业 |
+| 19790 | `audiovisuel` | audiovisuel | `audiovisuel-adj` | A2 | 1 | ai-reviewed | [phrase] moyens audiovisuels = 视听手段；音像设备 |
+| 19790 | `audiovisuel` | audiovisuel | `audiovisuel-adj` | A2 | 1 | ai-reviewed | [phrase] document audiovisuel = 音像资料；视听资料 |
+| 19791 | `marseillaise` | Marseillaise | `marseillaise` | B1 | 1 | ai-reviewed | 马赛女居民；马赛女子 |
+| 19791 | `marseillaise` | Marseillaise | `marseillaise` | B1 | 1 | ai-reviewed | [phrase] chanter la Marseillaise = 唱《马赛曲》 |
+| 19791 | `marseillaise` | Marseillaise | `marseillaise` | B1 | 1 | ai-reviewed | [phrase] les accents de la Marseillaise = 《马赛曲》的旋律；《马赛曲》的曲调 |
+| 19791 | `marseillaise` | Marseillaise | `marseillaise` | B1 | 1 | ai-reviewed | [phrase] entendre retentir la Marseillaise = 听见《马赛曲》奏响 |
 | 19857 | `laureat` | lauréat | `laureat` | B2 | 1 | wikt-zh | 获奖者 |
+| 19857 | `laureat` | lauréat | `laureat` | B2 | 1 | ai-reviewed | 桂冠的；戴月桂冠的 |
+| 19857 | `laureat` | lauréat | `laureat` | B2 | 1 | ai-reviewed | [phrase] lauréat d’un prix = 某奖项得主；获奖者 |
+| 19857 | `laureat` | lauréat | `laureat` | B2 | 1 | ai-reviewed | [phrase] poète lauréat = 桂冠诗人 |
+| 19857 | `laureat` | lauréat | `laureat` | B2 | 1 | ai-reviewed | [phrase] lauréat du concours = 竞赛优胜者；选拔考试优胜者 |
+| 19922 | `braconner` | braconner | `braconner` | B2 | 1 | ai-reviewed | [phrase] braconner du gibier = 偷猎野味 |
+| 19922 | `braconner` | braconner | `braconner` | B2 | 1 | ai-reviewed | [phrase] braconner dans une réserve = 在保护区内盗猎 |
+| 19922 | `braconner` | braconner | `braconner` | B2 | 1 | ai-reviewed | [phrase] braconner sur les terres d’autrui = 在他人土地上偷猎 |
 | 19948 | `bricoleur` | bricoleur | `bricoleur` | A2 | 1 | wikt-zh | n. et adj. 在家修修弄弄的（人），爱在家修修弄弄的（人） |
+| 19948 | `bricoleur` | bricoleur | `bricoleur` | A2 | 1 | ai-reviewed | [phrase] un bricoleur du dimanche = 周末业余修补迷；半吊子修理工 |
+| 19948 | `bricoleur` | bricoleur | `bricoleur` | A2 | 1 | ai-reviewed | [phrase] un habile bricoleur = 手巧的修补能手 |
+| 19948 | `bricoleur` | bricoleur | `bricoleur` | A2 | 1 | ai-reviewed | [phrase] être très bricoleur = 很擅长做手工修补活；爱自己动手修修弄弄 |
+| 19949 | `chasse-neige` | chasse-neige | `chasse-neige` | B1 | 1 | ai-reviewed | [phrase] passage du chasse-neige = 除雪车驶过；除雪车清雪作业 |
+| 19949 | `chasse-neige` | chasse-neige | `chasse-neige` | B1 | 1 | ai-reviewed | [phrase] freiner en chasse-neige = （滑雪时）采用犁式制动减速 |
+| 19949 | `chasse-neige` | chasse-neige | `chasse-neige` | B1 | 1 | ai-reviewed | [phrase] descendre en chasse-neige = （滑雪时）犁式滑降 |
+| 19950 | `controverse#2` | controversé | `controverse` | B1 | 1 | ai-reviewed | [phrase] un sujet controversé = 有争议的话题 |
+| 19950 | `controverse#2` | controversé | `controverse` | B1 | 1 | ai-reviewed | [phrase] une décision controversée = 颇具争议的决定 |
+| 19950 | `controverse#2` | controversé | `controverse` | B1 | 1 | ai-reviewed | [phrase] une théorie controversée = 存在争议的理论 |
 | 19951 | `annonceur` | annonceur | `annonceur` | B2 | 1 | wikt-zh | n. （电台电视）节目预报员annonceur；n.m. 广告客户，广告刊登者，登广告的公司 |
+| 19951 | `annonceur` | annonceur | `annonceur` | B2 | 1 | ai-reviewed | （旧时戏剧散场时）预告次日剧目的演员 |
+| 19951 | `annonceur` | annonceur | `annonceur` | B2 | 1 | ai-reviewed | [phrase] les grands annonceurs = 大广告客户；主要广告主 |
+| 19951 | `annonceur` | annonceur | `annonceur` | B2 | 1 | ai-reviewed | [phrase] budget des annonceurs = 广告主预算 |
+| 19951 | `annonceur` | annonceur | `annonceur` | B2 | 1 | ai-reviewed | [phrase] attirer les annonceurs = 吸引广告主；吸引广告客户 |
+| 19952 | `clonage` | clonage | `clonage` | B2 | 1 | ai-reviewed | 照搬；原样复制；仿制 |
+| 19952 | `clonage` | clonage | `clonage` | B2 | 1 | ai-reviewed | [phrase] clonage thérapeutique = 治疗性克隆 |
+| 19952 | `clonage` | clonage | `clonage` | B2 | 1 | ai-reviewed | [phrase] clonage reproductif = 生殖性克隆 |
+| 19952 | `clonage` | clonage | `clonage` | B2 | 1 | ai-reviewed | [phrase] clonage humain = 人类克隆；克隆人技术 |
+| 19953 | `protestantisme` | protestantisme | `protestantisme` | B2 | 1 | ai-reviewed | [phrase] se convertir au protestantisme = 皈依新教 |
+| 19953 | `protestantisme` | protestantisme | `protestantisme` | B2 | 1 | ai-reviewed | [phrase] l’essor du protestantisme = 新教的兴起 |
+| 19953 | `protestantisme` | protestantisme | `protestantisme` | B2 | 1 | ai-reviewed | [phrase] histoire du protestantisme = 新教史 |
+| 20007 | `pesticide` | pesticide | `pesticide` | B1 | 1 | ai-reviewed | [phrase] résidus de pesticides = 农药残留 |
+| 20007 | `pesticide` | pesticide | `pesticide` | B1 | 1 | ai-reviewed | [phrase] sans pesticides = 无农药的；不使用农药的 |
+| 20007 | `pesticide` | pesticide | `pesticide` | B1 | 1 | ai-reviewed | [phrase] utilisation de pesticides = 农药的使用 |
+| 20008 | `solfege` | solfège | `solfege` | B2 | 1 | ai-reviewed | 视唱练习曲集；视唱教材 |
+| 20008 | `solfege` | solfège | `solfege` | B2 | 1 | ai-reviewed | 基础乐理与视唱练耳课；音乐基础训练 |
+| 20008 | `solfege` | solfège | `solfege` | B2 | 1 | ai-reviewed | [phrase] cours de solfège = 视唱练耳课；基础乐理课 |
+| 20008 | `solfege` | solfège | `solfege` | B2 | 1 | ai-reviewed | [phrase] faire du solfège = 学视唱练耳；练习视唱 |
+| 20008 | `solfege` | solfège | `solfege` | B2 | 1 | ai-reviewed | [phrase] connaître le solfège = 懂乐理；会识谱 |
+| 20077 | `reconversion` | reconversion | `reconversion-f` | B2 | 1 | ai-reviewed | [phrase] reconversion professionnelle = 职业转型；转行 |
+| 20077 | `reconversion` | reconversion | `reconversion-f` | B2 | 1 | ai-reviewed | [phrase] reconversion industrielle = 工业转型；产业转产 |
+| 20077 | `reconversion` | reconversion | `reconversion-f` | B2 | 1 | ai-reviewed | [phrase] projet de reconversion = 转行计划；转型方案 |
+| 20078 | `modernisation` | modernisation | `modernisation` | B2 | 1 | ai-reviewed | 现代化改造；设备升级更新 |
+| 20078 | `modernisation` | modernisation | `modernisation` | B2 | 1 | ai-reviewed | [phrase] modernisation de l'économie = 经济现代化 |
+| 20078 | `modernisation` | modernisation | `modernisation` | B2 | 1 | ai-reviewed | [phrase] travaux de modernisation = 现代化改造工程 |
+| 20078 | `modernisation` | modernisation | `modernisation` | B2 | 1 | ai-reviewed | [phrase] plan de modernisation = 现代化计划；升级改造方案 |
+| 20129 | `rechauffement` | réchauffement | `rechauffement` | A2 | 1 | ai-reviewed | 加热；加温；使暖和；〈医〉复温 |
+| 20129 | `rechauffement` | réchauffement | `rechauffement` | A2 | 1 | ai-reviewed | [phrase] réchauffement de la planète = 地球变暖；全球升温 |
 | 20130 | `espieglerie` | espièglerie | `espieglerie` | B2 | 1 | wikt-zh | 调皮、恶作剧 |
+| 20130 | `espieglerie` | espièglerie | `espieglerie` | B2 | 1 | ai-reviewed | [phrase] faire une espièglerie = 搞恶作剧；淘气捣蛋 |
+| 20130 | `espieglerie` | espièglerie | `espieglerie` | B2 | 1 | ai-reviewed | [phrase] avec espièglerie = 调皮地；顽皮地 |
+| 20130 | `espieglerie` | espièglerie | `espieglerie` | B2 | 1 | ai-reviewed | [phrase] sourire plein d’espièglerie = 顽皮的微笑；充满淘气神气的笑容 |
+| 20131 | `sinistre#2` | sinistré | `sinistre` | B2 | 1 | ai-reviewed | 灾民；受灾者；受损方 |
+| 20131 | `sinistre#2` | sinistré | `sinistre` | B2 | 1 | ai-reviewed | [phrase] zone sinistrée = 灾区；受灾地区 |
+| 20131 | `sinistre#2` | sinistré | `sinistre` | B2 | 1 | ai-reviewed | [phrase] secteur sinistré = 陷入困境的行业；遭受重创的部门 |
+| 20131 | `sinistre#2` | sinistré | `sinistre` | B2 | 1 | ai-reviewed | [phrase] venir en aide aux sinistrés = 救助灾民 |
+| 20132 | `tactile` | tactile | `tactile-adj` | B2 | 1 | ai-reviewed | 可触摸的；可触知的 |
+| 20132 | `tactile` | tactile | `tactile-adj` | B2 | 1 | ai-reviewed | 喜欢肢体接触的；爱触碰他人的 |
+| 20132 | `tactile` | tactile | `tactile-adj` | B2 | 1 | ai-reviewed | [phrase] écran tactile = 触摸屏；触控屏 |
+| 20132 | `tactile` | tactile | `tactile-adj` | B2 | 1 | ai-reviewed | [phrase] sens tactile = 触觉 |
+| 20132 | `tactile` | tactile | `tactile-adj` | B2 | 1 | ai-reviewed | [phrase] clavier tactile = 触控键盘 |
+| 20133 | `productivite` | productivité | `productivite` | B2 | 1 | ai-reviewed | [phrase] gain de productivité = 生产率提高；生产力提升 |
+| 20133 | `productivite` | productivité | `productivite` | B2 | 1 | ai-reviewed | [phrase] améliorer la productivité = 提高生产率 |
+| 20133 | `productivite` | productivité | `productivite` | B2 | 1 | ai-reviewed | [phrase] baisse de productivité = 生产率下降 |
+| 20203 | `cremerie` | crémerie | `cremerie` | A2 | 1 | ai-reviewed | [phrase] changer de crémerie = 换一家店；另谋高就；换个地方 |
+| 20203 | `cremerie` | crémerie | `cremerie` | A2 | 1 | ai-reviewed | [phrase] aller à la crémerie = 去奶制品店 |
+| 20203 | `cremerie` | crémerie | `cremerie` | A2 | 1 | ai-reviewed | [phrase] une crémerie de quartier = 街区奶制品店 |
+| 20204 | `jusqu'a` | jusqu'à | `jusqu-a` | A2 | 1 | ai-reviewed | [phrase] jusqu’à présent = 至今；到目前为止 |
+| 20204 | `jusqu'a` | jusqu'à | `jusqu-a` | A2 | 1 | ai-reviewed | [phrase] jusqu’à nouvel ordre = 在接到新通知前；暂且 |
+| 20204 | `jusqu'a` | jusqu'à | `jusqu-a` | A2 | 1 | ai-reviewed | [phrase] jusqu’à ce que = 直到……为止 |
+| 20205 | `lave-vaisselle` | lave-vaisselle | `lave-vaisselle` | A2 | 1 | ai-reviewed | [phrase] faire tourner le lave-vaisselle = 启动洗碗机；开洗碗机洗碗 |
+| 20205 | `lave-vaisselle` | lave-vaisselle | `lave-vaisselle` | A2 | 1 | ai-reviewed | [phrase] vider le lave-vaisselle = 清空洗碗机；取出洗碗机里的餐具 |
+| 20205 | `lave-vaisselle` | lave-vaisselle | `lave-vaisselle` | A2 | 1 | ai-reviewed | [phrase] passer au lave-vaisselle = 放进洗碗机清洗；适用于洗碗机 |
+| 20206 | `bloc-notes` | bloc-notes | `bloc-notes` | B1 | 1 | ai-reviewed | （报刊的）随笔专栏；时事杂记栏 |
+| 20206 | `bloc-notes` | bloc-notes | `bloc-notes` | B1 | 1 | ai-reviewed | 博客；网络日志 |
+| 20206 | `bloc-notes` | bloc-notes | `bloc-notes` | B1 | 1 | ai-reviewed | [phrase] prendre des notes sur un bloc-notes = 在便签本上做记录 |
+| 20206 | `bloc-notes` | bloc-notes | `bloc-notes` | B1 | 1 | ai-reviewed | [phrase] une feuille de bloc-notes = 一页便签纸 |
+| 20206 | `bloc-notes` | bloc-notes | `bloc-notes` | B1 | 1 | ai-reviewed | [phrase] un bloc-notes numérique = 电子记事本 |
 | 20207 | `eolienne` | éolienne | `eolienne` | B1 | 1 | wikt-zh | 风力涡轮机 |
+| 20207 | `eolienne` | éolienne | `eolienne` | B1 | 1 | ai-reviewed | （纺织）丝经毛纬薄绸；丝毛轻薄织物 |
+| 20207 | `eolienne` | éolienne | `eolienne` | B1 | 1 | ai-reviewed | （古希腊）伊奥利亚女子；埃奥利斯女子 |
+| 20207 | `eolienne` | éolienne | `eolienne` | B1 | 1 | ai-reviewed | [phrase] un parc d’éoliennes = 风力发电场 |
+| 20207 | `eolienne` | éolienne | `eolienne` | B1 | 1 | ai-reviewed | [phrase] installer une éolienne = 安装风力发电机 |
+| 20207 | `eolienne` | éolienne | `eolienne` | B1 | 1 | ai-reviewed | [phrase] éolienne en mer = 海上风力发电机 |
+| 20208 | `superieurement` | supérieurement | `superieurement` | B2 | 1 | ai-reviewed | [phrase] supérieurement intelligent = 才智过人；极为聪颖 |
+| 20208 | `superieurement` | supérieurement | `superieurement` | B2 | 1 | ai-reviewed | [phrase] écrire supérieurement = 文笔极佳；写得极其出色 |
+| 20208 | `superieurement` | supérieurement | `superieurement` | B2 | 1 | ai-reviewed | [phrase] être supérieurement doué = 天赋异禀；极具天赋 |
+| 20285 | `logistique` | logistique | `logistique` | B1 | 1 | ai-reviewed | ［旧］计算术；实用算术 |
+| 20285 | `logistique` | logistique | `logistique` | B1 | 1 | ai-reviewed | [phrase] soutien logistique = 后勤支援；后勤保障 |
+| 20285 | `logistique` | logistique | `logistique` | B1 | 1 | ai-reviewed | [phrase] chaîne logistique = 供应链；物流链 |
+| 20285 | `logistique` | logistique | `logistique` | B1 | 1 | ai-reviewed | [phrase] plateforme logistique = 物流中心；物流枢纽 |
 | 20286 | `defavorise` | défavorisé | `defavorise-adj` | B1 | 1 | wikt-zh | 不利的；弱势的 |
+| 20286 | `defavorise` | défavorisé | `defavorise-adj` | B1 | 1 | ai-reviewed | 弱势者；贫困者；处境不利的人 |
+| 20286 | `defavorise` | défavorisé | `defavorise-adj` | B1 | 1 | ai-reviewed | [phrase] milieu défavorisé = 贫困环境；弱势阶层 |
+| 20286 | `defavorise` | défavorisé | `defavorise-adj` | B1 | 1 | ai-reviewed | [phrase] quartier défavorisé = 贫困社区；条件较差的街区 |
+| 20286 | `defavorise` | défavorisé | `defavorise-adj` | B1 | 1 | ai-reviewed | [phrase] les plus défavorisés = 最弱势的群体；最贫困的人群 |
+| 20287 | `teinturerie` | teinturerie | `teinturerie` | B1 | 1 | ai-reviewed | 印染业；染色工艺；染业 |
+| 20287 | `teinturerie` | teinturerie | `teinturerie` | B1 | 1 | ai-reviewed | [phrase] porter un vêtement à la teinturerie = 把衣服送去干洗店 |
+| 20287 | `teinturerie` | teinturerie | `teinturerie` | B1 | 1 | ai-reviewed | [phrase] travail de teinturerie = 印染工作；染色工艺 |
+| 20287 | `teinturerie` | teinturerie | `teinturerie` | B1 | 1 | ai-reviewed | [phrase] atelier de teinturerie = 染坊；印染作坊 |
+| 20288 | `oceanique` | océanique | `oceanique` | B1 | 1 | ai-reviewed | [phrase] climat océanique = 海洋性气候 |
+| 20288 | `oceanique` | océanique | `oceanique` | B1 | 1 | ai-reviewed | [phrase] fosse océanique = 海沟 |
+| 20288 | `oceanique` | océanique | `oceanique` | B1 | 1 | ai-reviewed | [phrase] dorsale océanique = 大洋中脊；海岭 |
 | 20289 | `concurrencer` | concurrencer | `concurrencer` | B2 | 1 | wikt-zh | 与……竞争 |
+| 20289 | `concurrencer` | concurrencer | `concurrencer` | B2 | 1 | ai-reviewed | [phrase] concurrencer directement = 直接与……竞争 |
+| 20289 | `concurrencer` | concurrencer | `concurrencer` | B2 | 1 | ai-reviewed | [phrase] concurrencer un produit = 与某产品竞争 |
+| 20289 | `concurrencer` | concurrencer | `concurrencer` | B2 | 1 | ai-reviewed | [phrase] se concurrencer = 互相竞争 |
+| 20329 | `texto` | texto | `texto` | A2 | 1 | ai-reviewed | 短信体语言；短信简写体 |
+| 20329 | `texto` | texto | `texto` | A2 | 1 | ai-reviewed | 逐字地；一字不差地；照原文 |
+| 20329 | `texto` | texto | `texto` | A2 | 1 | ai-reviewed | [phrase] envoyer un texto = 发一条短信 |
+| 20329 | `texto` | texto | `texto` | A2 | 1 | ai-reviewed | [phrase] citer texto = 一字不差地引用；原文照引 |
+| 20329 | `texto` | texto | `texto` | A2 | 1 | ai-reviewed | [phrase] écrire en texto = 用短信简写体书写 |
+| 20330 | `cessation` | cessation | `cessation` | B2 | 1 | ai-reviewed | [phrase] cessation d'activité = 停业；停止营业 |
+| 20330 | `cessation` | cessation | `cessation` | B2 | 1 | ai-reviewed | [phrase] cessation des hostilités = 停止敌对行动；停战 |
+| 20330 | `cessation` | cessation | `cessation` | B2 | 1 | ai-reviewed | [phrase] cessation de paiement = 停止支付；无力偿付到期债务 |
+| 20331 | `emblematique` | emblématique | `emblematique-adj` | B2 | 1 | ai-reviewed | 全套象征标志；象征物总称 |
+| 20331 | `emblematique` | emblématique | `emblematique-adj` | B2 | 1 | ai-reviewed | [phrase] une figure emblématique = 标志性人物；代表人物 |
+| 20331 | `emblematique` | emblématique | `emblematique-adj` | B2 | 1 | ai-reviewed | [phrase] un monument emblématique = 地标性建筑；标志性古迹 |
+| 20331 | `emblematique` | emblématique | `emblematique-adj` | B2 | 1 | ai-reviewed | [phrase] un lieu emblématique = 标志性场所；极具代表性的地点 |
+| 20381 | `benevolat` | bénévolat | `benevolat-m` | B1 | 1 | ai-reviewed | [phrase] faire du bénévolat = 做志愿服务；当志愿者 |
+| 20381 | `benevolat` | bénévolat | `benevolat-m` | B1 | 1 | ai-reviewed | [phrase] s'engager dans le bénévolat = 投身志愿服务 |
+| 20381 | `benevolat` | bénévolat | `benevolat-m` | B1 | 1 | ai-reviewed | [phrase] bénévolat associatif = 协会志愿服务；社团志愿服务 |
+| 20382 | `zinzin` | zinzin | `zinzin` | B2 | 1 | ai-reviewed | （俗）玩意儿；东西（一时叫不出名字的事物） |
+| 20382 | `zinzin` | zinzin | `zinzin` | B2 | 1 | ai-reviewed | （俗）烦人的东西；恼人的声响 |
+| 20382 | `zinzin` | zinzin | `zinzin` | B2 | 1 | ai-reviewed | （俗）机构投资者（银行、大企业等大型证券交易方） |
+| 20382 | `zinzin` | zinzin | `zinzin` | B2 | 1 | ai-reviewed | [phrase] devenir zinzin = （俗）发疯；疯掉 |
+| 20382 | `zinzin` | zinzin | `zinzin` | B2 | 1 | ai-reviewed | [phrase] être complètement zinzin = （俗）彻底疯了；疯疯癫癫 |
+| 20382 | `zinzin` | zinzin | `zinzin` | B2 | 1 | ai-reviewed | [phrase] les zinzins de la Bourse = （俗）股市机构投资者 |
+| 20383 | `crypte#2` | crypté | `crypte-adj` | B2 | 1 | ai-reviewed | [phrase] message crypté = 加密信息；密文 |
+| 20383 | `crypte#2` | crypté | `crypte-adj` | B2 | 1 | ai-reviewed | [phrase] chaîne cryptée = 加密电视频道；付费加密频道 |
+| 20383 | `crypte#2` | crypté | `crypte-adj` | B2 | 1 | ai-reviewed | [phrase] fichier crypté = 加密文件 |
 | 20438 | `diluvien` | diluvien | `diluvien` | B1 | 1 | wikt-zh | 洪水的；洪水般的 |
+| 20438 | `diluvien` | diluvien | `diluvien` | B1 | 1 | ai-reviewed | 滔滔不绝的；铺天盖地的；泛滥的 |
+| 20438 | `diluvien` | diluvien | `diluvien` | B1 | 1 | ai-reviewed | [phrase] pluie diluvienne = 倾盆大雨；特大暴雨 |
+| 20438 | `diluvien` | diluvien | `diluvien` | B1 | 1 | ai-reviewed | [phrase] averse diluvienne = 倾盆阵雨；瓢泼暴雨 |
+| 20438 | `diluvien` | diluvien | `diluvien` | B1 | 1 | ai-reviewed | [phrase] orage diluvien = 猛烈的暴风雨 |
+| 20439 | `relance` | relance | `relance` | B2 | 1 | ai-reviewed | （牌戏中的）加注 |
+| 20439 | `relance` | relance | `relance` | B2 | 1 | ai-reviewed | （经）经济刺激；经济振兴 |
+| 20439 | `relance` | relance | `relance` | B2 | 1 | ai-reviewed | 催款；催单；客户跟进 |
+| 20439 | `relance` | relance | `relance` | B2 | 1 | ai-reviewed | [phrase] plan de relance = 经济刺激计划；复苏计划 |
+| 20439 | `relance` | relance | `relance` | B2 | 1 | ai-reviewed | [phrase] relance économique = 经济复苏；经济振兴 |
+| 20439 | `relance` | relance | `relance` | B2 | 1 | ai-reviewed | [phrase] courrier de relance = 催款信；跟进提醒函 |
+| 20440 | `autodidacte` | autodidacte | `autodidacte-adj` | B2 | 1 | ai-reviewed | （罕）出于天性的；凭本能行事的 |
+| 20440 | `autodidacte` | autodidacte | `autodidacte-adj` | B2 | 1 | ai-reviewed | [phrase] être autodidacte = 自学成才；靠自学掌握技能 |
+| 20440 | `autodidacte` | autodidacte | `autodidacte-adj` | B2 | 1 | ai-reviewed | [phrase] formation autodidacte = 自学；自修 |
+| 20440 | `autodidacte` | autodidacte | `autodidacte-adj` | B2 | 1 | ai-reviewed | [phrase] musicien autodidacte = 自学成才的音乐家 |
+| 20488 | `athletisme` | athlétisme | `athletisme` | B1 | 1 | ai-reviewed | 体格锻炼；强身运动 |
+| 20488 | `athletisme` | athlétisme | `athletisme` | B1 | 1 | ai-reviewed | [phrase] faire de l'athlétisme = 从事田径运动；练田径 |
+| 20488 | `athletisme` | athlétisme | `athletisme` | B1 | 1 | ai-reviewed | [phrase] club d'athlétisme = 田径具乐部 |
+| 20488 | `athletisme` | athlétisme | `athletisme` | B1 | 1 | ai-reviewed | [phrase] championnats d'athlétisme = 田径锦标赛 |
+| 20489 | `remuneration` | rémunération | `remuneration` | B2 | 1 | ai-reviewed | （书）奖赏；报答；回报 |
+| 20489 | `remuneration` | rémunération | `remuneration` | B2 | 1 | ai-reviewed | [phrase] rémunération du travail = 劳动报酬 |
+| 20489 | `remuneration` | rémunération | `remuneration` | B2 | 1 | ai-reviewed | [phrase] juste rémunération = 合理报酬；公平薪酬 |
+| 20489 | `remuneration` | rémunération | `remuneration` | B2 | 1 | ai-reviewed | [phrase] niveau de rémunération = 薪酬水平 |
+| 20490 | `draconien` | draconien | `draconien` | B2 | 1 | ai-reviewed | 像龙的；似龙的 |
+| 20490 | `draconien` | draconien | `draconien` | B2 | 1 | ai-reviewed | [phrase] conditions draconiennes = 苛刻的条件 |
+| 20490 | `draconien` | draconien | `draconien` | B2 | 1 | ai-reviewed | [phrase] loi draconienne = 严刑峻法；严苛的法律 |
+| 20546 | `imprimante` | imprimante | `imprimante` | A2 | 1 | ai-reviewed | [phrase] imprimante laser = 激光打印机 |
+| 20546 | `imprimante` | imprimante | `imprimante` | A2 | 1 | ai-reviewed | [phrase] imprimante à jet d’encre = 喷墨打印机 |
+| 20546 | `imprimante` | imprimante | `imprimante` | A2 | 1 | ai-reviewed | [phrase] imprimante 3D = 3D打印机 |
+| 20547 | `recrudescence` | recrudescence | `recrudescence` | B2 | 1 | ai-reviewed | [phrase] recrudescence de violence = 暴力事件再度激增；暴力回潮 |
+| 20547 | `recrudescence` | recrudescence | `recrudescence` | B2 | 1 | ai-reviewed | [phrase] recrudescence des cas = 病例再度激增；疫情反弹 |
+| 20547 | `recrudescence` | recrudescence | `recrudescence` | B2 | 1 | ai-reviewed | [phrase] connaître une recrudescence = 再度加剧；死灰复燃；出现反弹 |
 | 20620 | `balai-brosse` | balai-brosse | `balai-brosse` | B1 | 1 | wikt-zh | n.m. 擦地刷 |
+| 20620 | `balai-brosse` | balai-brosse | `balai-brosse` | B1 | 1 | ai-reviewed | [phrase] passer le balai-brosse = 用擦地刷刷洗；用硬毛刷清扫 |
+| 20620 | `balai-brosse` | balai-brosse | `balai-brosse` | B1 | 1 | ai-reviewed | [phrase] frotter au balai-brosse = 用长柄硬毛刷用力擦洗 |
+| 20620 | `balai-brosse` | balai-brosse | `balai-brosse` | B1 | 1 | ai-reviewed | [phrase] un manche de balai-brosse = 擦地刷手柄 |
+| 20621 | `fessier` | fessier | `fessier` | B2 | 1 | ai-reviewed | 臀肌 |
+| 20621 | `fessier` | fessier | `fessier` | B2 | 1 | ai-reviewed | [phrase] la poche fessière = 裤子后袋；屁股兜 |
+| 20621 | `fessier` | fessier | `fessier` | B2 | 1 | ai-reviewed | [phrase] muscler les fessiers = 锻炼臀肌 |
+| 20621 | `fessier` | fessier | `fessier` | B2 | 1 | ai-reviewed | [phrase] les muscles fessiers = 臀部肌肉；臀肌 |
 | 20622 | `declencheur` | déclencheur | `declencheur` | B2 | 1 | wikt-zh | 触发/释放装置；快门装置；触发式 |
+| 20622 | `declencheur` | déclencheur | `declencheur` | B2 | 1 | ai-reviewed | （计算机）触发器 |
+| 20622 | `declencheur` | déclencheur | `declencheur` | B2 | 1 | ai-reviewed | 触发的；引发的；起触发作用的 |
+| 20622 | `declencheur` | déclencheur | `declencheur` | B2 | 1 | ai-reviewed | [phrase] l'élément déclencheur = 触发因素；导火索 |
+| 20622 | `declencheur` | déclencheur | `declencheur` | B2 | 1 | ai-reviewed | [phrase] appuyer sur le déclencheur = 按下快门 |
+| 20622 | `declencheur` | déclencheur | `declencheur` | B2 | 1 | ai-reviewed | [phrase] un facteur déclencheur = 诱发因素；触发因子 |
 | 20623 | `irresolu` | irrésolu | `irresolu` | B2 | 1 | wikt-zh | 悬而未决的 |
+| 20623 | `irresolu` | irrésolu | `irresolu` | B2 | 1 | ai-reviewed | 优柔寡断的人；犹豫不决者 |
+| 20623 | `irresolu` | irrésolu | `irresolu` | B2 | 1 | ai-reviewed | [phrase] rester irrésolu = 犹豫不决；悬而未决 |
+| 20623 | `irresolu` | irrésolu | `irresolu` | B2 | 1 | ai-reviewed | [phrase] un problème irrésolu = 未解决的问题；悬案 |
+| 20623 | `irresolu` | irrésolu | `irresolu` | B2 | 1 | ai-reviewed | [phrase] un esprit irrésolu = 优柔寡断的性格 |
 | 20712 | `influencable` | influençable | `influencable` | B2 | 1 | wikt-zh | 可影响的；易受影响的 |
+| 20712 | `influencable` | influençable | `influencable` | B2 | 1 | ai-reviewed | [phrase] un esprit influençable = 易受影响的心智 |
+| 20712 | `influencable` | influençable | `influencable` | B2 | 1 | ai-reviewed | [phrase] être très influençable = 非常容易受人影响；耳根子软 |
+| 20712 | `influencable` | influençable | `influencable` | B2 | 1 | ai-reviewed | [phrase] un public influençable = 易受影响的公众；易受左右的受众 |
+| 20713 | `reediter` | rééditer | `reediter` | B2 | 1 | ai-reviewed | [phrase] rééditer un livre = 再版一本书 |
+| 20713 | `reediter` | rééditer | `reediter` | B2 | 1 | ai-reviewed | [phrase] rééditer un exploit = 再创佳绩；重现壮举 |
+| 20713 | `reediter` | rééditer | `reediter` | B2 | 1 | ai-reviewed | [phrase] être réédité en poche = 以口袋本形式再版 |
+| 20759 | `dissipation` | dissipation | `dissipation` | B1 | 1 | ai-reviewed | 挥霍；浪费（财产） |
+| 20759 | `dissipation` | dissipation | `dissipation` | B1 | 1 | ai-reviewed | 放荡；荒嬉；心不在焉；不专心 |
+| 20759 | `dissipation` | dissipation | `dissipation` | B1 | 1 | ai-reviewed | [phrase] dissipation de la chaleur = 散热 |
+| 20759 | `dissipation` | dissipation | `dissipation` | B1 | 1 | ai-reviewed | [phrase] dissipation des biens = 挥霍财产 |
+| 20759 | `dissipation` | dissipation | `dissipation` | B1 | 1 | ai-reviewed | [phrase] vivre dans la dissipation = 过放荡挥霍的生活；沉湎声色 |
+| 20760 | `brushing` | brushing | `brushing` | B2 | 1 | ai-reviewed | （电商）刷单；刷好评 |
+| 20760 | `brushing` | brushing | `brushing` | B2 | 1 | ai-reviewed | [phrase] faire un brushing = 吹头发定型；做吹风造型 |
+| 20760 | `brushing` | brushing | `brushing` | B2 | 1 | ai-reviewed | [phrase] se faire faire un brushing = （去理发店）做吹风造型 |
+| 20760 | `brushing` | brushing | `brushing` | B2 | 1 | ai-reviewed | [phrase] brushing impeccable = 一丝不苟的吹风发型 |
+| 20761 | `offusque` | offusqué | `offusque` | B2 | 1 | ai-reviewed | [phrase] être offusqué par qch = 因某事感到受冒犯；对某事反感不满 |
+| 20761 | `offusque` | offusqué | `offusque` | B2 | 1 | ai-reviewed | [phrase] avoir l'air offusqué = 显得不满；一副受冒犯的样子 |
+| 20761 | `offusque` | offusqué | `offusque` | B2 | 1 | ai-reviewed | [phrase] d'un ton offusqué = 用受冒犯的口吻；带着愠怒的语气 |
+| 20762 | `velleitaire` | velléitaire | `velleitaire` | B2 | 1 | ai-reviewed | 优柔寡断的人；空有愿望而不付诸行动的人 |
+| 20762 | `velleitaire` | velléitaire | `velleitaire` | B2 | 1 | ai-reviewed | [phrase] attitude velléitaire = 光想不做的态度；优柔寡断的态度 |
+| 20762 | `velleitaire` | velléitaire | `velleitaire` | B2 | 1 | ai-reviewed | [phrase] caractère velléitaire = 优柔寡断的性格 |
+| 20762 | `velleitaire` | velléitaire | `velleitaire` | B2 | 1 | ai-reviewed | [phrase] se montrer velléitaire = 表现得优柔寡断；光想不做 |
+| 20825 | `bibliographie` | bibliographie | `bibliographie` | B1 | 1 | ai-reviewed | [phrase] établir une bibliographie = 编制参考书目 |
+| 20825 | `bibliographie` | bibliographie | `bibliographie` | B1 | 1 | ai-reviewed | [phrase] consulter la bibliographie = 查阅参考书目 |
+| 20825 | `bibliographie` | bibliographie | `bibliographie` | B1 | 1 | ai-reviewed | [phrase] bibliographie sélective = 精选书目；选编参考文献 |
+| 20890 | `intolerant` | intolérant | `intolerant-adj` | A2 | 1 | ai-reviewed | 容不下对手的；排斥竞争者的 |
+| 20890 | `intolerant` | intolérant | `intolerant-adj` | A2 | 1 | ai-reviewed | 不宽容他人者；偏狭之人 |
+| 20890 | `intolerant` | intolérant | `intolerant-adj` | A2 | 1 | ai-reviewed | [phrase] intolérant au lactose = 乳糖不耐受的 |
+| 20890 | `intolerant` | intolérant | `intolerant-adj` | A2 | 1 | ai-reviewed | [phrase] intolérant au gluten = 麸质不耐受的 |
+| 20890 | `intolerant` | intolérant | `intolerant-adj` | A2 | 1 | ai-reviewed | [phrase] esprit intolérant = 狭隘排他的思想；不宽容的态度 |
+| 20891 | `seche-cheveux` | sèche-cheveux | `seche-cheveux` | A2 | 1 | ai-reviewed | [phrase] donner un coup de sèche-cheveux = 用吹风机吹一下（头发） |
+| 20891 | `seche-cheveux` | sèche-cheveux | `seche-cheveux` | A2 | 1 | ai-reviewed | [phrase] sèche-cheveux ionique = 负离子吹风机 |
+| 20891 | `seche-cheveux` | sèche-cheveux | `seche-cheveux` | A2 | 1 | ai-reviewed | [phrase] utiliser un sèche-cheveux = 使用吹风机 |
+| 20892 | `collyre` | collyre | `collyre` | B2 | 1 | ai-reviewed | [phrase] instiller un collyre = 滴入眼药水 |
+| 20892 | `collyre` | collyre | `collyre` | B2 | 1 | ai-reviewed | [phrase] collyre antiseptique = 抗菌眼药水 |
+| 20892 | `collyre` | collyre | `collyre` | B2 | 1 | ai-reviewed | [phrase] flacon de collyre = 一瓶眼药水 |
 | 20893 | `migrer` | migrer | `migrer` | B2 | 1 | wikt-zh | 移民；迁徙 |
+| 20893 | `migrer` | migrer | `migrer` | B2 | 1 | ai-reviewed | （计算机）迁移；移植（软件、数据或系统） |
+| 20893 | `migrer` | migrer | `migrer` | B2 | 1 | ai-reviewed | [phrase] migrer vers le sud = 向南迁徙 |
+| 20893 | `migrer` | migrer | `migrer` | B2 | 1 | ai-reviewed | [phrase] migrer des données = 迁移数据 |
+| 20893 | `migrer` | migrer | `migrer` | B2 | 1 | ai-reviewed | [phrase] migrer vers le cloud = 迁移至云端 |
 | 20959 | `diete` | diète | `diete` | B2 | 1 | wikt-zh | 规定饮食；禁食；议会；会议 |
+| 20959 | `diete` | diète | `diete` | B2 | 1 | ai-reviewed | （旧、医）养生法；起居饮食调摄 |
+| 20959 | `diete` | diète | `diete` | B2 | 1 | ai-reviewed | [phrase] faire la diète = 节食；禁食 |
+| 20959 | `diete` | diète | `diete` | B2 | 1 | ai-reviewed | [phrase] être à la diète = 禁食；节食；忍饥挨饿 |
+| 20959 | `diete` | diète | `diete` | B2 | 1 | ai-reviewed | [phrase] mettre quelqu'un à la diète = 让某人禁食；限制某人饮食 |
+| 20960 | `sidere` | sidéré | `sidere` | B2 | 1 | ai-reviewed | [phrase] rester sidéré = 惊得目瞪口呆；呆若木鸡 |
+| 20960 | `sidere` | sidéré | `sidere` | B2 | 1 | ai-reviewed | [phrase] être complètement sidéré = 彻底惊呆了 |
+| 20960 | `sidere` | sidéré | `sidere` | B2 | 1 | ai-reviewed | [phrase] un silence sidéré = 一片惊愕的沉默 |
+| 21018 | `acclimatation` | acclimatation | `acclimatation` | B2 | 1 | ai-reviewed | [phrase] période d'acclimatation = 适应期 |
+| 21018 | `acclimatation` | acclimatation | `acclimatation` | B2 | 1 | ai-reviewed | [phrase] jardin d'acclimatation = 动植物驯化园 |
+| 21018 | `acclimatation` | acclimatation | `acclimatation` | B2 | 1 | ai-reviewed | [phrase] acclimatation à l'altitude = 对高海拔的适应 |
 | 21019 | `sensibiliser` | sensibiliser | `sensibiliser` | B2 | 1 | wikt-zh | 提高意识、认识 |
+| 21019 | `sensibiliser` | sensibiliser | `sensibiliser` | B2 | 1 | ai-reviewed | （摄影）使具感光性；敏化 |
+| 21019 | `sensibiliser` | sensibiliser | `sensibiliser` | B2 | 1 | ai-reviewed | [phrase] sensibiliser le public à = 提高公众对……的意识 |
+| 21019 | `sensibiliser` | sensibiliser | `sensibiliser` | B2 | 1 | ai-reviewed | [phrase] sensibiliser les jeunes à l'environnement = 增强年轻人的环保意识 |
+| 21019 | `sensibiliser` | sensibiliser | `sensibiliser` | B2 | 1 | ai-reviewed | [phrase] se sensibiliser à = 对……变得敏感；增强对……的认识 |
+| 21045 | `remunere` | rémunéré | `remunere-adj` | B2 | 1 | ai-reviewed | [phrase] emploi rémunéré = 有薪工作；带薪职位 |
+| 21045 | `remunere` | rémunéré | `remunere-adj` | B2 | 1 | ai-reviewed | [phrase] stage rémunéré = 带薪实习 |
+| 21045 | `remunere` | rémunéré | `remunere-adj` | B2 | 1 | ai-reviewed | [phrase] être bien rémunéré = 报酬丰厚；薪水优厚 |
+| 21046 | `raleur` | râleur | `raleur` | B2 | 1 | ai-reviewed | （俗）爱发牢骚的人；爱抱怨的人 |
+| 21046 | `raleur` | râleur | `raleur` | B2 | 1 | ai-reviewed | [phrase] un vieux râleur = （俗）爱发牢骚的老头；老牢骚鬼 |
+| 21046 | `raleur` | râleur | `raleur` | B2 | 1 | ai-reviewed | [phrase] être un peu râleur = 有点爱抱怨；有点爱发牢骚 |
+| 21046 | `raleur` | râleur | `raleur` | B2 | 1 | ai-reviewed | [phrase] un ton râleur = 抱怨的口吻；牢骚满腹的语气 |
+| 21122 | `incinerateur` | incinérateur | `incinerateur` | B2 | 1 | ai-reviewed | 焚化的；焚烧的；用于焚烧的 |
+| 21122 | `incinerateur` | incinérateur | `incinerateur` | B2 | 1 | ai-reviewed | [phrase] incinérateur de déchets = 垃圾焚烧炉 |
+| 21122 | `incinerateur` | incinérateur | `incinerateur` | B2 | 1 | ai-reviewed | [phrase] incinérateur médical = 医疗废物焚烧炉 |
+| 21122 | `incinerateur` | incinérateur | `incinerateur` | B2 | 1 | ai-reviewed | [phrase] four incinérateur = 焚烧炉 |
+| 21123 | `nuisance` | nuisance | `nuisance` | B2 | 1 | ai-reviewed | 滋扰；妨害；干扰 |
+| 21123 | `nuisance` | nuisance | `nuisance` | B2 | 1 | ai-reviewed | [phrase] capacité de nuisance = 破坏力；危害能力 |
+| 21123 | `nuisance` | nuisance | `nuisance` | B2 | 1 | ai-reviewed | [phrase] nuisances environnementales = 环境公害；环境污染 |
 | 21135 | `vendanger` | vendanger | `vendanger` | B1 | 1 | wikt-zh | 收获葡萄 |
+| 21135 | `vendanger` | vendanger | `vendanger` | B1 | 1 | ai-reviewed | （抓住机会）收获；斩获 |
+| 21135 | `vendanger` | vendanger | `vendanger` | B1 | 1 | ai-reviewed | （体育）浪费（得分机会）；挥霍（良机） |
+| 21135 | `vendanger` | vendanger | `vendanger` | B1 | 1 | ai-reviewed | [phrase] vendanger les vignes = 采收葡萄园的葡萄 |
+| 21135 | `vendanger` | vendanger | `vendanger` | B1 | 1 | ai-reviewed | [phrase] vendanger une occasion = 浪费得分良机；错过绝佳机会 |
+| 21135 | `vendanger` | vendanger | `vendanger` | B1 | 1 | ai-reviewed | [phrase] vendanger à la main = 手工采摘葡萄 |
+| 21136 | `retransmission` | retransmission | `retransmission` | B2 | 1 | ai-reviewed | 重播（电视节目） |
+| 21136 | `retransmission` | retransmission | `retransmission` | B2 | 1 | ai-reviewed | （车辆等的）传动装置 |
+| 21136 | `retransmission` | retransmission | `retransmission` | B2 | 1 | ai-reviewed | [phrase] retransmission en direct = 现场直播；实况转播 |
+| 21136 | `retransmission` | retransmission | `retransmission` | B2 | 1 | ai-reviewed | [phrase] droits de retransmission = 转播权 |
+| 21136 | `retransmission` | retransmission | `retransmission` | B2 | 1 | ai-reviewed | [phrase] retransmission télévisée = 电视转播 |
+| 21168 | `agrafeuse` | agrafeuse | `agrafeuse` | B1 | 1 | ai-reviewed | 钉装女工；装订女工 |
+| 21168 | `agrafeuse` | agrafeuse | `agrafeuse` | B1 | 1 | ai-reviewed | [phrase] agrafeuse de bureau = 办公用订书机 |
+| 21168 | `agrafeuse` | agrafeuse | `agrafeuse` | B1 | 1 | ai-reviewed | [phrase] recharger une agrafeuse = 给订书机装订书钉 |
+| 21168 | `agrafeuse` | agrafeuse | `agrafeuse` | B1 | 1 | ai-reviewed | [phrase] agrafeuse électrique = 电动订书机 |
+| 21169 | `trois-quarts` | trois-quarts | `trois-quarts` | B2 | 1 | ai-reviewed | 四分之三 |
+| 21169 | `trois-quarts` | trois-quarts | `trois-quarts` | B2 | 1 | ai-reviewed | 中长款大衣；四分之三长大衣 |
+| 21169 | `trois-quarts` | trois-quarts | `trois-quarts` | B2 | 1 | ai-reviewed | （橄榄球）四分之三后卫 |
+| 21169 | `trois-quarts` | trois-quarts | `trois-quarts` | B2 | 1 | ai-reviewed | [phrase] aux trois-quarts = 四分之三；在很大程度上；几乎 |
+| 21169 | `trois-quarts` | trois-quarts | `trois-quarts` | B2 | 1 | ai-reviewed | [phrase] pour les trois-quarts = 占四分之三；绝大多数 |
+| 21169 | `trois-quarts` | trois-quarts | `trois-quarts` | B2 | 1 | ai-reviewed | [phrase] un manteau trois-quarts = 一件中长款大衣 |
+| 21170 | `radioactivite` | radioactivité | `radioactivite` | B2 | 1 | ai-reviewed | [phrase] radioactivité naturelle = 天然放射性 |
+| 21170 | `radioactivite` | radioactivité | `radioactivite` | B2 | 1 | ai-reviewed | [phrase] taux de radioactivité = 放射性活度；辐射水平 |
+| 21170 | `radioactivite` | radioactivité | `radioactivite` | B2 | 1 | ai-reviewed | [phrase] fuite de radioactivité = 放射性泄漏 |
+| 21171 | `renforcement` | renforcement | `renforcement` | B2 | 1 | ai-reviewed | [phrase] renforcement des contrôles = 加强管控；强化检查 |
+| 21171 | `renforcement` | renforcement | `renforcement` | B2 | 1 | ai-reviewed | [phrase] renforcement musculaire = 肌肉强化训练 |
+| 21171 | `renforcement` | renforcement | `renforcement` | B2 | 1 | ai-reviewed | [phrase] renforcement de la sécurité = 加强安全保障 |
+| 21229 | `cremation` | crémation | `cremation` | B1 | 1 | ai-reviewed | [phrase] procéder à la crémation = 进行火葬；实施火化 |
+| 21229 | `cremation` | crémation | `cremation` | B1 | 1 | ai-reviewed | [phrase] choisir la crémation = 选择火葬 |
+| 21229 | `cremation` | crémation | `cremation` | B1 | 1 | ai-reviewed | [phrase] cérémonie de crémation = 火化仪式 |
+| 21230 | `mot-cle` | mot-clé | `mot-cle` | B2 | 1 | ai-reviewed | （编程）关键字；保留字 |
+| 21230 | `mot-cle` | mot-clé | `mot-cle` | B2 | 1 | ai-reviewed | 话题标签；标签词 |
+| 21230 | `mot-cle` | mot-clé | `mot-cle` | B2 | 1 | ai-reviewed | [phrase] recherche par mots-clés = 按关键词搜索 |
+| 21230 | `mot-cle` | mot-clé | `mot-cle` | B2 | 1 | ai-reviewed | [phrase] mot-clé réservé = 保留关键字 |
+| 21230 | `mot-cle` | mot-clé | `mot-cle` | B2 | 1 | ai-reviewed | [phrase] liste de mots-clés = 关键词列表 |
 | 21231 | `satirique` | satirique | `satirique` | B2 | 1 | wikt-zh | 讽刺的，讥讽的 |
+| 21231 | `satirique` | satirique | `satirique` | B2 | 1 | ai-reviewed | 讽刺作家；讽刺诗人 |
+| 21231 | `satirique` | satirique | `satirique` | B2 | 1 | ai-reviewed | [phrase] journal satirique = 讽刺报刊 |
+| 21231 | `satirique` | satirique | `satirique` | B2 | 1 | ai-reviewed | [phrase] dessin satirique = 讽刺漫画 |
+| 21231 | `satirique` | satirique | `satirique` | B2 | 1 | ai-reviewed | [phrase] poésie satirique = 讽刺诗 |
+| 21272 | `facultatif` | facultatif | `facultatif-adj` | B2 | 1 | ai-reviewed | [phrase] matière facultative = 选修课 |
+| 21272 | `facultatif` | facultatif | `facultatif-adj` | B2 | 1 | ai-reviewed | [phrase] caractère facultatif = 非强制性；可选择性 |
+| 21272 | `facultatif` | facultatif | `facultatif-adj` | B2 | 1 | ai-reviewed | [phrase] à titre facultatif = 作为可选项；自愿选择地 |
+| 21344 | `coquetier` | coquetier | `coquetier` | B1 | 1 | ai-reviewed | 禽蛋批发商；果蔬蛋禽商 |
+| 21344 | `coquetier` | coquetier | `coquetier` | B1 | 1 | ai-reviewed | 赶海拾贝者（尤指捕捞鸟蛤的人） |
+| 21344 | `coquetier` | coquetier | `coquetier` | B1 | 1 | ai-reviewed | [phrase] un œuf dans son coquetier = 放在蛋杯里的鸡蛋 |
+| 21344 | `coquetier` | coquetier | `coquetier` | B1 | 1 | ai-reviewed | [phrase] un coquetier en porcelaine = 瓷质蛋杯 |
+| 21344 | `coquetier` | coquetier | `coquetier` | B1 | 1 | ai-reviewed | [phrase] marchand coquetier = 禽蛋批发商 |
+| 21401 | `parabolique` | parabolique | `parabolique` | B1 | 1 | ai-reviewed | 寓言的；比喻性的 |
+| 21401 | `parabolique` | parabolique | `parabolique` | B1 | 1 | ai-reviewed | 抛物面反射式电暖器 |
+| 21401 | `parabolique` | parabolique | `parabolique` | B1 | 1 | ai-reviewed | [phrase] miroir parabolique = 抛物面镜 |
+| 21401 | `parabolique` | parabolique | `parabolique` | B1 | 1 | ai-reviewed | [phrase] trajectoire parabolique = 抛物线轨迹 |
+| 21402 | `quadrupler` | quadrupler | `quadrupler` | B2 | 1 | ai-reviewed | [phrase] quadrupler de volume = 体积增至四倍 |
+| 21402 | `quadrupler` | quadrupler | `quadrupler` | B2 | 1 | ai-reviewed | [phrase] quadrupler son chiffre d'affaires = 使营业额增至四倍 |
+| 21402 | `quadrupler` | quadrupler | `quadrupler` | B2 | 1 | ai-reviewed | [phrase] quadrupler les effectifs = 将人员规模扩增至四倍 |
 | 21403 | `costumier` | costumier | `costumier` | B2 | 1 | wikt-zh | n. 缝制戏装的人，戏装商，出租戏装的人；舞台服装技师 |
+| 21403 | `costumier` | costumier | `costumier` | B2 | 1 | ai-reviewed | [phrase] costumier de théâtre = 戏剧服装师 |
+| 21403 | `costumier` | costumier | `costumier` | B2 | 1 | ai-reviewed | [phrase] chef costumier = 首席服装设计师；服装指导 |
+| 21403 | `costumier` | costumier | `costumier` | B2 | 1 | ai-reviewed | [phrase] atelier de costumier = 戏服制作室；服装工坊 |
+| 21471 | `gastronome` | gastronome | `gastronome` | B1 | 1 | ai-reviewed | （餐饮用）带盖深烤盘；标准餐盘 |
+| 21471 | `gastronome` | gastronome | `gastronome` | B1 | 1 | ai-reviewed | [phrase] un fin gastronome = 品味精湛的美食家；美食行家 |
+| 21471 | `gastronome` | gastronome | `gastronome` | B1 | 1 | ai-reviewed | [phrase] un gastronome averti = 资深美食家 |
+| 21471 | `gastronome` | gastronome | `gastronome` | B1 | 1 | ai-reviewed | [phrase] bac gastronome = （餐饮）标准餐盘；份数盘 |
 | 21472 | `figuratif` | figuratif | `figuratif` | B2 | 1 | wikt-zh | 象形的 |
+| 21472 | `figuratif` | figuratif | `figuratif` | B2 | 1 | ai-reviewed | 象征性的；示意的 |
+| 21472 | `figuratif` | figuratif | `figuratif` | B2 | 1 | ai-reviewed | 具象派艺术家 |
+| 21472 | `figuratif` | figuratif | `figuratif` | B2 | 1 | ai-reviewed | [phrase] art figuratif = 具象艺术 |
+| 21472 | `figuratif` | figuratif | `figuratif` | B2 | 1 | ai-reviewed | [phrase] peinture figurative = 具象绘画 |
+| 21472 | `figuratif` | figuratif | `figuratif` | B2 | 1 | ai-reviewed | [phrase] plan figuratif = 示意图；草图 |
+| 21494 | `demi-bouteille` | demi-bouteille | `demi-bouteille` | A2 | 1 | ai-reviewed | [phrase] une demi-bouteille de vin = 半瓶葡萄酒 |
+| 21494 | `demi-bouteille` | demi-bouteille | `demi-bouteille` | A2 | 1 | ai-reviewed | [phrase] commander une demi-bouteille = 点半瓶酒 |
+| 21494 | `demi-bouteille` | demi-bouteille | `demi-bouteille` | A2 | 1 | ai-reviewed | [phrase] demi-bouteille de champagne = 半瓶装香槟 |
+| 21495 | `import-export` | import-export | `import-export` | B2 | 1 | ai-reviewed | [phrase] société d’import-export = 进出口公司 |
+| 21495 | `import-export` | import-export | `import-export` | B2 | 1 | ai-reviewed | [phrase] travailler dans l’import-export = 从事进出口贸易 |
+| 21495 | `import-export` | import-export | `import-export` | B2 | 1 | ai-reviewed | [phrase] activité d’import-export = 进出口业务 |
+| 21561 | `reedition` | réédition | `reedition` | B2 | 1 | ai-reviewed | 再版本；新版 |
+| 21561 | `reedition` | réédition | `reedition` | B2 | 1 | ai-reviewed | [phrase] réédition revue et augmentée = 修订增补再版 |
+| 21561 | `reedition` | réédition | `reedition` | B2 | 1 | ai-reviewed | [phrase] faire l’objet d’une réédition = 得以再版；重新出版 |
+| 21561 | `reedition` | réédition | `reedition` | B2 | 1 | ai-reviewed | [phrase] réédition en format de poche = 袖珍本再版 |
+| 21601 | `lorraine` | lorraine | `lorraine` | A2 | 1 | ai-reviewed | 洛林女居民；洛林籍女子 |
+| 21601 | `lorraine` | lorraine | `lorraine` | A2 | 1 | ai-reviewed | 洛林牌汽车 |
+| 21601 | `lorraine` | lorraine | `lorraine` | A2 | 1 | ai-reviewed | [phrase] croix de Lorraine = 洛林十字 |
+| 21601 | `lorraine` | lorraine | `lorraine` | A2 | 1 | ai-reviewed | [phrase] potée lorraine = 洛林猪肉蔬菜炖锅 |
+| 21602 | `curriculum vitae` | curriculum vitae | `curriculum-vitae` | B2 | 1 | ai-reviewed | [phrase] envoyer son curriculum vitae = 投递简历 |
+| 21602 | `curriculum vitae` | curriculum vitae | `curriculum-vitae` | B2 | 1 | ai-reviewed | [phrase] rédiger un curriculum vitae = 撰写个人简历 |
+| 21602 | `curriculum vitae` | curriculum vitae | `curriculum-vitae` | B2 | 1 | ai-reviewed | [phrase] mettre à jour son curriculum vitae = 更新个人简历 |
+| 21603 | `collegienne` | collégienne | `collegienne` | B2 | 1 | ai-reviewed | [phrase] une jeune collégienne = 小小年纪的初中女生；女初中生 |
+| 21603 | `collegienne` | collégienne | `collegienne` | B2 | 1 | ai-reviewed | [phrase] tenue de collégienne = 初中女生装束；女学生装 |
+| 21603 | `collegienne` | collégienne | `collegienne` | B2 | 1 | ai-reviewed | [phrase] vie de collégienne = 初中女生生活 |
+| 21655 | `metisse` | métisse | `metisse` | A2 | 1 | ai-reviewed | 混血女子；女混血儿 |
+| 21655 | `metisse` | métisse | `metisse` | A2 | 1 | ai-reviewed | （加拿大西部）梅蒂斯族女子 |
+| 21655 | `metisse` | métisse | `metisse` | A2 | 1 | ai-reviewed | [phrase] une jeune métisse = 一位年轻的混血女子 |
+| 21655 | `metisse` | métisse | `metisse` | A2 | 1 | ai-reviewed | [phrase] d'origine métisse = 具有混血血统的 |
+| 21655 | `metisse` | métisse | `metisse` | A2 | 1 | ai-reviewed | [phrase] beauté métisse = 混血美人；混血之美 |
 | 21656 | `francophone` | francophone | `francophone` | A2 | 1 | wikt-zh | 讲法语的 |
+| 21656 | `francophone` | francophone | `francophone` | A2 | 1 | ai-reviewed | 以法语为母语的 |
 | 21656 | `francophone` | francophone | `francophone` | A2 | 1 | wikt-zh | 讲法语的人 |
+| 21656 | `francophone` | francophone | `francophone` | A2 | 1 | ai-reviewed | [phrase] les pays francophones = 法语国家 |
+| 21656 | `francophone` | francophone | `francophone` | A2 | 1 | ai-reviewed | [phrase] le monde francophone = 法语世界；法语国家和地区 |
+| 21656 | `francophone` | francophone | `francophone` | A2 | 1 | ai-reviewed | [phrase] la presse francophone = 法语报刊；法语媒体 |
+| 21657 | `fonceur` | fonceur | `fonceur` | B2 | 1 | ai-reviewed | （壁纸印刷前的）打底工人 |
+| 21657 | `fonceur` | fonceur | `fonceur` | B2 | 1 | ai-reviewed | 有闯劲的；敢想敢干的；勇往直前的 |
+| 21657 | `fonceur` | fonceur | `fonceur` | B2 | 1 | ai-reviewed | [phrase] un esprit fonceur = 勇往直前的干劲；敢拼敢闯的精神 |
+| 21657 | `fonceur` | fonceur | `fonceur` | B2 | 1 | ai-reviewed | [phrase] avoir un tempérament fonceur = 性格果敢有闯劲 |
+| 21657 | `fonceur` | fonceur | `fonceur` | B2 | 1 | ai-reviewed | [phrase] être un vrai fonceur = 是个十足的闯将；极有冲劲 |
+| 21691 | `droguerie` | droguerie | `droguerie` | B2 | 1 | ai-reviewed | 日用化工及清洁用品商业；颜料日杂业 |
+| 21691 | `droguerie` | droguerie | `droguerie` | B2 | 1 | ai-reviewed | 〈旧〉药材制售业；药材铺；药店 |
+| 21691 | `droguerie` | droguerie | `droguerie` | B2 | 1 | ai-reviewed | 〈旧〉无用之物；无价值的琐物 |
+| 21691 | `droguerie` | droguerie | `droguerie` | B2 | 1 | ai-reviewed | [phrase] magasin de droguerie = 日用化工店；日杂店 |
+| 21691 | `droguerie` | droguerie | `droguerie` | B2 | 1 | ai-reviewed | [phrase] produits de droguerie = 日用化工产品；清洁日杂用品 |
+| 21691 | `droguerie` | droguerie | `droguerie` | B2 | 1 | ai-reviewed | [phrase] droguerie-quincaillerie = 日杂五金店 |
+| 21757 | `lumbago` | lumbago | `lumbago` | B2 | 1 | ai-reviewed | [phrase] avoir un lumbago = 患上腰痛；闪了腰 |
+| 21757 | `lumbago` | lumbago | `lumbago` | B2 | 1 | ai-reviewed | [phrase] souffrir d’un lumbago = 遭受腰痛折磨 |
+| 21757 | `lumbago` | lumbago | `lumbago` | B2 | 1 | ai-reviewed | [phrase] lumbago aigu = 急性腰痛 |
 | 21804 | `hexagone` | hexagone | `hexagane` | B2 | 1 | wikt-zh | Hexagone (“法国本土”)的另一种拼写法 |
+| 21804 | `hexagone` | hexagone | `hexagane` | B2 | 1 | ai-reviewed | 六棱堡；六角形要塞 |
+| 21804 | `hexagone` | hexagone | `hexagane` | B2 | 1 | ai-reviewed | [phrase] un hexagone régulier = 正六边形 |
+| 21804 | `hexagone` | hexagone | `hexagane` | B2 | 1 | ai-reviewed | [phrase] en forme d’hexagone = 呈六边形的 |
+| 21804 | `hexagone` | hexagone | `hexagane` | B2 | 1 | ai-reviewed | [phrase] à travers l’Hexagone = 遍及法国本土；在法国各地 |
+| 21840 | `gasoil` | gasoil | `gasoil` | B1 | 1 | ai-reviewed | [phrase] faire le plein de gasoil = 加满柴油 |
+| 21840 | `gasoil` | gasoil | `gasoil` | B1 | 1 | ai-reviewed | [phrase] moteur au gasoil = 柴油发动机 |
+| 21840 | `gasoil` | gasoil | `gasoil` | B1 | 1 | ai-reviewed | [phrase] le prix du gasoil = 柴油价格 |
+| 21841 | `multinational` | multinational | `multinational` | B2 | 1 | ai-reviewed | [phrase] une entreprise multinationale = 跨国企业 |
+| 21841 | `multinational` | multinational | `multinational` | B2 | 1 | ai-reviewed | [phrase] une société multinationale = 跨国公司 |
+| 21841 | `multinational` | multinational | `multinational` | B2 | 1 | ai-reviewed | [phrase] une force multinationale = 多国部队 |
+| 21874 | `lave-linge` | lave-linge | `lave-linge` | A2 | 1 | ai-reviewed | [phrase] lave-linge séchant = 洗烘一体机 |
+| 21874 | `lave-linge` | lave-linge | `lave-linge` | A2 | 1 | ai-reviewed | [phrase] lave-linge à chargement frontal = 前开门滚筒洗衣机；前装式洗衣机 |
+| 21874 | `lave-linge` | lave-linge | `lave-linge` | A2 | 1 | ai-reviewed | [phrase] mettre le lave-linge en marche = 启动洗衣机 |
+| 21894 | `embargo` | embargo | `embargo` | B2 | 1 | ai-reviewed | 封港；扣留船只禁航 |
+| 21894 | `embargo` | embargo | `embargo` | B2 | 1 | ai-reviewed | （新闻、研究成果等的）限时禁发；禁播期 |
+| 21894 | `embargo` | embargo | `embargo` | B2 | 1 | ai-reviewed | [phrase] lever l'embargo = 解除禁运 |
+| 21894 | `embargo` | embargo | `embargo` | B2 | 1 | ai-reviewed | [phrase] mettre un embargo sur = 对……实施禁运；扣押…… |
+| 21894 | `embargo` | embargo | `embargo` | B2 | 1 | ai-reviewed | [phrase] sous embargo = 处于禁运中；（新闻等）在解禁期前不得发布 |
 | 21986 | `barquette` | barquette | `barquette` | A2 | 1 | wikt-zh | n.f. 小艇；船形糕点；船形食物包装盒，船形盒装半成品菜 |
+| 21986 | `barquette` | barquette | `barquette` | A2 | 1 | ai-reviewed | 船形硬担架；篮式救援担架 |
+| 21986 | `barquette` | barquette | `barquette` | A2 | 1 | ai-reviewed | [phrase] une barquette de fraises = 一盒草莓 |
+| 21986 | `barquette` | barquette | `barquette` | A2 | 1 | ai-reviewed | [phrase] une barquette de frites = 一盒炸薯条 |
+| 21986 | `barquette` | barquette | `barquette` | A2 | 1 | ai-reviewed | [phrase] barquette en plastique = 塑料包装盒；塑料托盘 |
+| 21987 | `ecologiste` | écologiste | `ecolo-giste` | B2 | 1 | ai-reviewed | [phrase] un militant écologiste = 环保积极分子；环保人士 |
+| 21987 | `ecologiste` | écologiste | `ecolo-giste` | B2 | 1 | ai-reviewed | [phrase] un parti écologiste = 绿党；环保政党 |
+| 21987 | `ecologiste` | écologiste | `ecolo-giste` | B2 | 1 | ai-reviewed | [phrase] mouvement écologiste = 环保运动；生态保护运动 |
+| 21988 | `toussaint` | toussaint | `toussaint` | B1 | 1 | ai-reviewed | [phrase] les vacances de la Toussaint = 万圣节假期（法国秋季学校假期） |
+| 21988 | `toussaint` | toussaint | `toussaint` | B1 | 1 | ai-reviewed | [phrase] à la Toussaint = 在诸圣节期间；在万圣节期间 |
+| 21988 | `toussaint` | toussaint | `toussaint` | B1 | 1 | ai-reviewed | [phrase] le jour de la Toussaint = 万圣节当日；诸圣节那天 |
+| 22115 | `recycle` | recyclé | `recycle` | A2 | 1 | ai-reviewed | [phrase] papier recyclé = 再生纸 |
+| 22115 | `recycle` | recyclé | `recycle` | A2 | 1 | ai-reviewed | [phrase] plastique recyclé = 再生塑料；回收塑料 |
+| 22115 | `recycle` | recyclé | `recycle` | A2 | 1 | ai-reviewed | [phrase] matériaux recyclés = 回收材料；再生材料 |
+| 22116 | `squash` | squash | `squash` | B1 | 1 | ai-reviewed | [phrase] jouer au squash = 打壁球 |
+| 22116 | `squash` | squash | `squash` | B1 | 1 | ai-reviewed | [phrase] faire du squash = 练壁球；打壁球 |
+| 22116 | `squash` | squash | `squash` | B1 | 1 | ai-reviewed | [phrase] terrain de squash = 壁球场 |
+| 22117 | `stagnation` | stagnation | `stagnation` | B2 | 1 | ai-reviewed | （经济、商业）停滞；呆滞；不景气 |
+| 22117 | `stagnation` | stagnation | `stagnation` | B2 | 1 | ai-reviewed | [phrase] stagnation économique = 经济停滞 |
+| 22117 | `stagnation` | stagnation | `stagnation` | B2 | 1 | ai-reviewed | [phrase] sortir de la stagnation = 摆脱停滞局面 |
+| 22117 | `stagnation` | stagnation | `stagnation` | B2 | 1 | ai-reviewed | [phrase] période de stagnation = 停滞期 |
+| 22191 | `fromager` | fromager | `fromager` | A2 | 1 | ai-reviewed | 奶酪制作师；制酪工匠 |
+| 22191 | `fromager` | fromager | `fromager` | A2 | 1 | ai-reviewed | 滤酪多孔模具；制酪漏孔容器 |
 | 22191 | `fromager` | fromager | `fromager` | A2 | 1 | wikt-zh | 弗罗马格尔区，科特迪瓦/象牙海岸旧区名，现为戈大区（Gôh）取代。 |
+| 22191 | `fromager` | fromager | `fromager` | A2 | 1 | ai-reviewed | 制作奶酪的；奶酪业的 |
+| 22191 | `fromager` | fromager | `fromager` | A2 | 1 | ai-reviewed | [phrase] l'industrie fromagère = 奶酪制造业；乳酪业 |
+| 22191 | `fromager` | fromager | `fromager` | A2 | 1 | ai-reviewed | [phrase] maître fromager = 奶酪制作大师 |
+| 22191 | `fromager` | fromager | `fromager` | A2 | 1 | ai-reviewed | [phrase] artisan fromager = 手工制酪师 |
+| 22192 | `premisse` | prémisse | `premisse` | B2 | 1 | ai-reviewed | [phrase] partir d'une prémisse = 从某个前提出发 |
+| 22192 | `premisse` | prémisse | `premisse` | B2 | 1 | ai-reviewed | [phrase] prémisse majeure / mineure = 大前提／小前提 |
+| 22192 | `premisse` | prémisse | `premisse` | B2 | 1 | ai-reviewed | [phrase] poser une prémisse = 设定前提；提出前提 |
+| 22193 | `massacrant` | massacrant | `massacrant` | B2 | 1 | ai-reviewed | [phrase] une humeur massacrante = 极坏的脾气；暴躁的情绪 |
+| 22193 | `massacrant` | massacrant | `massacrant` | B2 | 1 | ai-reviewed | [phrase] être d'une humeur massacrante = 脾气坏透了；情绪极度暴躁 |
+| 22193 | `massacrant` | massacrant | `massacrant` | B2 | 1 | ai-reviewed | [phrase] se réveiller d'une humeur massacrante = 醒来时脾气极坏；醒来就一肚子火 |
+| 22246 | `climatique` | climatique | `climatique` | A2 | 1 | ai-reviewed | [phrase] changement climatique = 气候变化 |
+| 22246 | `climatique` | climatique | `climatique` | A2 | 1 | ai-reviewed | [phrase] réchauffement climatique = 全球气候变暖 |
+| 22246 | `climatique` | climatique | `climatique` | A2 | 1 | ai-reviewed | [phrase] réfugié climatique = 气候难民 |
+| 22247 | `camescope` | caméscope | `camescope` | A2 | 1 | ai-reviewed | [phrase] caméscope numérique = 数码摄像机 |
+| 22247 | `camescope` | caméscope | `camescope` | A2 | 1 | ai-reviewed | [phrase] filmer au caméscope = 用摄像机拍摄 |
+| 22247 | `camescope` | caméscope | `camescope` | A2 | 1 | ai-reviewed | [phrase] cassette de caméscope = 摄像机录像带 |
+| 22248 | `etiquete` | étiqueté | `etiquete` | B1 | 1 | ai-reviewed | （转）被贴上标签的；被定性归类的 |
+| 22248 | `etiquete` | étiqueté | `etiquete` | B1 | 1 | ai-reviewed | [phrase] produit étiqueté = 贴有标签的商品；明码标价的商品 |
+| 22248 | `etiquete` | étiqueté | `etiquete` | B1 | 1 | ai-reviewed | [phrase] être étiqueté comme = 被贴上……的标签；被归类为…… |
+| 22248 | `etiquete` | étiqueté | `etiquete` | B1 | 1 | ai-reviewed | [phrase] mal étiqueté = 标签贴错的；标识不清的 |
 | 22249 | `flexibilite` | flexibilité | `flexibilite` | B2 | 1 | wikt-zh | 柔韧性 |
+| 22249 | `flexibilite` | flexibilité | `flexibilite` | B2 | 1 | ai-reviewed | （性格的）随和；柔顺；通融性 |
+| 22249 | `flexibilite` | flexibilité | `flexibilite` | B2 | 1 | ai-reviewed | [phrase] flexibilité du travail = 用工弹性；工作时间灵活性 |
+| 22249 | `flexibilite` | flexibilité | `flexibilite` | B2 | 1 | ai-reviewed | [phrase] faire preuve de flexibilité = 表现出灵活性；通融 |
+| 22249 | `flexibilite` | flexibilité | `flexibilite` | B2 | 1 | ai-reviewed | [phrase] manquer de flexibilité = 缺乏灵活性；不够变通 |
+| 22250 | `prepa` | prépa | `prepa` | B2 | 1 | ai-reviewed | （俗）准备；备战；（车辆）改装调校 |
+| 22250 | `prepa` | prépa | `prepa` | B2 | 1 | ai-reviewed | （俗）药剂调配员；（体育）体能教练 |
+| 22250 | `prepa` | prépa | `prepa` | B2 | 1 | ai-reviewed | [phrase] classe prépa = （大学校）预科班 |
+| 22250 | `prepa` | prépa | `prepa` | B2 | 1 | ai-reviewed | [phrase] faire une prépa = 读预科班 |
+| 22250 | `prepa` | prépa | `prepa` | B2 | 1 | ai-reviewed | [phrase] prépa scientifique = 理科预科班 |
+| 22251 | `pigiste` | pigiste | `pigiste` | B2 | 1 | ai-reviewed | [phrase] journaliste pigiste = 自由撰稿记者；特约记者 |
+| 22251 | `pigiste` | pigiste | `pigiste` | B2 | 1 | ai-reviewed | [phrase] travailler comme pigiste = 担任自由撰稿人 |
+| 22251 | `pigiste` | pigiste | `pigiste` | B2 | 1 | ai-reviewed | [phrase] statut de pigiste = 自由撰稿人身份 |
 | 22321 | `raz-de-maree` | raz-de-marée | `raz-de-maree` | B1 | 1 | wikt-zh | 风暴潮；大变革，浪潮 |
+| 22321 | `raz-de-maree` | raz-de-marée | `raz-de-maree` | B1 | 1 | ai-reviewed | [phrase] provoquer un raz-de-marée = 引发海啸；掀起巨大浪潮 |
+| 22321 | `raz-de-maree` | raz-de-marée | `raz-de-maree` | B1 | 1 | ai-reviewed | [phrase] raz-de-marée électoral = 压倒性胜选；选举浪潮 |
+| 22321 | `raz-de-maree` | raz-de-marée | `raz-de-maree` | B1 | 1 | ai-reviewed | [phrase] un raz-de-marée médiatique = 铺天盖地的媒体热潮 |
+| 22322 | `doublage` | doublage | `doublage` | B2 | 1 | ai-reviewed | （船体）包板；包铜层；覆层 |
+| 22322 | `doublage` | doublage | `doublage` | B2 | 1 | ai-reviewed | 加倍；叠合；并纱 |
+| 22322 | `doublage` | doublage | `doublage` | B2 | 1 | ai-reviewed | 加衬里；装里子 |
+| 22322 | `doublage` | doublage | `doublage` | B2 | 1 | ai-reviewed | 替身演出；使用替身 |
+| 22322 | `doublage` | doublage | `doublage` | B2 | 1 | ai-reviewed | [phrase] le doublage d’un film = 电影配音 |
+| 22322 | `doublage` | doublage | `doublage` | B2 | 1 | ai-reviewed | [phrase] faire du doublage = 从事配音工作 |
+| 22322 | `doublage` | doublage | `doublage` | B2 | 1 | ai-reviewed | [phrase] studio de doublage = 配音棚；配音室 |
 | 22323 | `stabilisation` | stabilisation | `stabilisation` | B2 | 1 | wikt-zh | 稳定 |
+| 22323 | `stabilisation` | stabilisation | `stabilisation` | B2 | 1 | ai-reviewed | [phrase] stabilisation des prix = 稳定物价 |
+| 22323 | `stabilisation` | stabilisation | `stabilisation` | B2 | 1 | ai-reviewed | [phrase] plan de stabilisation = 稳定计划；经济稳定方案 |
+| 22323 | `stabilisation` | stabilisation | `stabilisation` | B2 | 1 | ai-reviewed | [phrase] stabilisation d’image = 图像防抖；画面稳定 |
+| 22324 | `allongement` | allongement | `allongement` | B2 | 1 | ai-reviewed | 相对伸长量；伸长率 |
+| 22324 | `allongement` | allongement | `allongement` | B2 | 1 | ai-reviewed | （机翼）展弦比 |
+| 22324 | `allongement` | allongement | `allongement` | B2 | 1 | ai-reviewed | 视觉拉长效果；修长感 |
+| 22324 | `allongement` | allongement | `allongement` | B2 | 1 | ai-reviewed | [phrase] allongement de la durée de vie = 寿命延长；预期寿命的提高 |
+| 22324 | `allongement` | allongement | `allongement` | B2 | 1 | ai-reviewed | [phrase] allongement du temps de travail = 工作时间的延长 |
+| 22324 | `allongement` | allongement | `allongement` | B2 | 1 | ai-reviewed | [phrase] allongement des délais = 期限延长 |
+| 22398 | `laicite` | laïcité | `la-icite` | B1 | 1 | ai-reviewed | [phrase] principe de laïcité = 政教分离原则 |
+| 22398 | `laicite` | laïcité | `la-icite` | B1 | 1 | ai-reviewed | [phrase] défendre la laïcité = 捍卫政教分离原则；维护世俗主义 |
+| 22398 | `laicite` | laïcité | `la-icite` | B1 | 1 | ai-reviewed | [phrase] respecter la laïcité = 遵守政教分离原则 |
 | 22458 | `taille-crayon` | taille-crayon | `taille-crayon` | A2 | 1 | wikt-zh | 笔刨；铅笔刀 |
+| 22458 | `taille-crayon` | taille-crayon | `taille-crayon` | A2 | 1 | ai-reviewed | [phrase] taille-crayon électrique = 电动卷笔刀 |
+| 22458 | `taille-crayon` | taille-crayon | `taille-crayon` | A2 | 1 | ai-reviewed | [phrase] lame de taille-crayon = 卷笔刀刀片 |
+| 22458 | `taille-crayon` | taille-crayon | `taille-crayon` | A2 | 1 | ai-reviewed | [phrase] taille-crayon à réservoir = 带储屑盒的卷笔刀 |
 | 22459 | `mincir` | mincir | `mincir` | B2 | 1 | wikt-zh | （使）变苗条，（使）瘦身 |
+| 22459 | `mincir` | mincir | `mincir` | B2 | 1 | ai-reviewed | [phrase] faire mincir = 显瘦；使变瘦 |
+| 22459 | `mincir` | mincir | `mincir` | B2 | 1 | ai-reviewed | [phrase] mincir durablement = 持久瘦身 |
+| 22459 | `mincir` | mincir | `mincir` | B2 | 1 | ai-reviewed | [phrase] crème pour mincir = 瘦身霜 |
+| 22460 | `desinteret` | désintérêt | `desinteret` | B2 | 1 | ai-reviewed | [phrase] faire preuve de désintérêt = 表现出漠不关心 |
+| 22460 | `desinteret` | désintérêt | `desinteret` | B2 | 1 | ai-reviewed | [phrase] un total désintérêt = 彻底不感兴趣；完全漠然 |
+| 22460 | `desinteret` | désintérêt | `desinteret` | B2 | 1 | ai-reviewed | [phrase] désintérêt pour la politique = 对政治不感兴趣；政治冷感 |
+| 22461 | `tongs` | tongs | `tongs-f` | B2 | 1 | ai-reviewed | [phrase] porter des tongs = 穿人字拖 |
+| 22461 | `tongs` | tongs | `tongs-f` | B2 | 1 | ai-reviewed | [phrase] une paire de tongs = 一双人字拖 |
+| 22461 | `tongs` | tongs | `tongs-f` | B2 | 1 | ai-reviewed | [phrase] marcher en tongs = 穿着人字拖走路 |
+| 22569 | `voilage` | voilage | `voilage` | A2 | 1 | ai-reviewed | 遮盖；蒙纱；朦胧遮蔽 |
+| 22569 | `voilage` | voilage | `voilage` | A2 | 1 | ai-reviewed | （帽子等上的）纱饰；薄纱饰边 |
+| 22569 | `voilage` | voilage | `voilage` | A2 | 1 | ai-reviewed | （车轮、板材等的）翘曲；变形；偏摆 |
+| 22569 | `voilage` | voilage | `voilage` | A2 | 1 | ai-reviewed | [phrase] voilage de fenêtre = 窗户薄纱帘；窗纱 |
+| 22569 | `voilage` | voilage | `voilage` | A2 | 1 | ai-reviewed | [phrase] poser des voilages = 挂窗纱 |
+| 22569 | `voilage` | voilage | `voilage` | A2 | 1 | ai-reviewed | [phrase] voilage d'une roue = 车轮瓢偏；车轮翘曲变形 |
+| 22570 | `luxembourgeois` | luxembourgeois | `luxembourgeois` | A2 | 1 | ai-reviewed | 卢森堡语的 |
+| 22570 | `luxembourgeois` | luxembourgeois | `luxembourgeois` | A2 | 1 | ai-reviewed | [phrase] le drapeau luxembourgeois = 卢森堡国旗 |
+| 22570 | `luxembourgeois` | luxembourgeois | `luxembourgeois` | A2 | 1 | ai-reviewed | [phrase] la langue luxembourgeoise = 卢森堡语 |
+| 22570 | `luxembourgeois` | luxembourgeois | `luxembourgeois` | A2 | 1 | ai-reviewed | [phrase] parler luxembourgeois = 说卢森堡语 |
+| 22571 | `dessous-de-plat` | dessous-de-plat | `dessous-de-plat` | B1 | 1 | ai-reviewed | [phrase] dessous-de-plat en liège = 软木隔热垫 |
+| 22571 | `dessous-de-plat` | dessous-de-plat | `dessous-de-plat` | B1 | 1 | ai-reviewed | [phrase] poser la casserole sur le dessous-de-plat = 把长柄锅放在隔热垫上 |
+| 22571 | `dessous-de-plat` | dessous-de-plat | `dessous-de-plat` | B1 | 1 | ai-reviewed | [phrase] dessous-de-plat en bois = 木质隔热垫 |
+| 22572 | `crawl` | crawl | `crawl` | B1 | 1 | ai-reviewed | （影视画面上的）滚动字幕；游动字幕 |
+| 22572 | `crawl` | crawl | `crawl` | B1 | 1 | ai-reviewed | [phrase] nager le crawl = 游自由泳 |
+| 22572 | `crawl` | crawl | `crawl` | B1 | 1 | ai-reviewed | [phrase] crawl sur le dos = 仰泳 |
+| 22572 | `crawl` | crawl | `crawl` | B1 | 1 | ai-reviewed | [phrase] longueur en crawl = 一趟自由泳 |
 | 22573 | `cine-club` | ciné-club | `cine-club` | B1 | 1 | wikt-zh | n.m. 电影爱好者具乐部 |
+| 22573 | `cine-club` | ciné-club | `cine-club` | B1 | 1 | ai-reviewed | [phrase] aller au ciné-club = 去电影具乐部 |
+| 22573 | `cine-club` | ciné-club | `cine-club` | B1 | 1 | ai-reviewed | [phrase] animer un ciné-club = 主持电影具乐部活动 |
+| 22573 | `cine-club` | ciné-club | `cine-club` | B1 | 1 | ai-reviewed | [phrase] séance de ciné-club = 电影具乐部放映场次 |
+| 22574 | `nationaliser` | nationaliser | `nationaliser` | B2 | 1 | ai-reviewed | 使民族化；使全国化；赋予……全国性 |
+| 22574 | `nationaliser` | nationaliser | `nationaliser` | B2 | 1 | ai-reviewed | [phrase] nationaliser une entreprise = 将企业国有化 |
+| 22574 | `nationaliser` | nationaliser | `nationaliser` | B2 | 1 | ai-reviewed | [phrase] nationaliser les banques = 将银行收归国有 |
+| 22574 | `nationaliser` | nationaliser | `nationaliser` | B2 | 1 | ai-reviewed | [phrase] entreprise nationalisée = 国有化企业 |
+| 22575 | `demographique` | démographique | `demographique-adj` | B2 | 1 | ai-reviewed | [phrase] croissance démographique = 人口增长 |
+| 22575 | `demographique` | démographique | `demographique-adj` | B2 | 1 | ai-reviewed | [phrase] transition démographique = 人口转型 |
+| 22575 | `demographique` | démographique | `demographique-adj` | B2 | 1 | ai-reviewed | [phrase] vieillissement démographique = 人口老龄化 |
+| 22576 | `dote` | doté | `dote` | B2 | 1 | ai-reviewed | 有嫁妆的；获得陪嫁的 |
+| 22576 | `dote` | doté | `dote` | B2 | 1 | ai-reviewed | [phrase] être doté de = 具备；配备有；拥有 |
+| 22576 | `dote` | doté | `dote` | B2 | 1 | ai-reviewed | [phrase] bien doté = 资源丰厚的；天赋过人的；奖金丰厚的 |
+| 22576 | `dote` | doté | `dote` | B2 | 1 | ai-reviewed | [phrase] fille dotée = 有嫁妆的女子 |
+| 22733 | `bermuda` | bermuda | `bermuda` | B1 | 1 | ai-reviewed | [phrase] en bermuda = 穿着百慕大短裤 |
+| 22733 | `bermuda` | bermuda | `bermuda` | B1 | 1 | ai-reviewed | [phrase] porter un bermuda = 穿一条百慕大短裤 |
+| 22733 | `bermuda` | bermuda | `bermuda` | B1 | 1 | ai-reviewed | [phrase] bermuda en jean = 牛仔百慕大短裤 |
+| 22778 | `s'endetter` | s'endetter | `s-endetter` | B2 | 1 | ai-reviewed | [phrase] s'endetter lourdement = 负债累累；债台高筑 |
+| 22778 | `s'endetter` | s'endetter | `s-endetter` | B2 | 1 | ai-reviewed | [phrase] s'endetter auprès d'une banque = 向银行举债 |
+| 22778 | `s'endetter` | s'endetter | `s-endetter` | B2 | 1 | ai-reviewed | [phrase] s'endetter pour acheter = 借债购买 |
 | 22794 | `homeopathie` | homéopathie | `homeopathie` | B2 | 1 | wikt-zh | 顺势疗法 |
+| 22794 | `homeopathie` | homéopathie | `homeopathie` | B2 | 1 | ai-reviewed | （喻）不痛不痒的举措；杯水车薪之举 |
+| 22794 | `homeopathie` | homéopathie | `homeopathie` | B2 | 1 | ai-reviewed | [phrase] se soigner par l'homéopathie = 采用顺势疗法治疗 |
+| 22794 | `homeopathie` | homéopathie | `homeopathie` | B2 | 1 | ai-reviewed | [phrase] adepte de l'homéopathie = 顺势疗法拥护者 |
+| 22794 | `homeopathie` | homéopathie | `homeopathie` | B2 | 1 | ai-reviewed | [phrase] traitement par homéopathie = 顺势疗法治疗 |
+| 22881 | `arrhes` | arrhes | `arrhes` | B1 | 1 | ai-reviewed | （书）保证；信物 |
+| 22881 | `arrhes` | arrhes | `arrhes` | B1 | 1 | ai-reviewed | （书）明证；凭证 |
+| 22881 | `arrhes` | arrhes | `arrhes` | B1 | 1 | ai-reviewed | [phrase] verser des arrhes = 支付定金 |
+| 22881 | `arrhes` | arrhes | `arrhes` | B1 | 1 | ai-reviewed | [phrase] perdre ses arrhes = 损失定金 |
+| 22881 | `arrhes` | arrhes | `arrhes` | B1 | 1 | ai-reviewed | [phrase] donner des arrhes = 付定金 |
+| 22934 | `demographie` | démographie | `demographie` | B2 | 1 | ai-reviewed | （动植物等的）种群统计学；种群动态研究 |
+| 22934 | `demographie` | démographie | `demographie` | B2 | 1 | ai-reviewed | 人口结构；人口构成 |
+| 22934 | `demographie` | démographie | `demographie` | B2 | 1 | ai-reviewed | [phrase] la démographie mondiale = 世界人口状况；全球人口统计 |
+| 22934 | `demographie` | démographie | `demographie` | B2 | 1 | ai-reviewed | [phrase] l’évolution de la démographie = 人口变化；人口发展趋势 |
+| 22934 | `demographie` | démographie | `demographie` | B2 | 1 | ai-reviewed | [phrase] en termes de démographie = 就人口统计而言；从人口规模来看 |
+| 22972 | `perseverant` | persévérant | `perseverant` | B1 | 1 | ai-reviewed | [phrase] un effort persévérant = 坚持不懈的努力 |
+| 22972 | `perseverant` | persévérant | `perseverant` | B1 | 1 | ai-reviewed | [phrase] un travail persévérant = 持之以恒的工作 |
+| 22972 | `perseverant` | persévérant | `perseverant` | B1 | 1 | ai-reviewed | [phrase] être patient et persévérant = 富有耐心且坚持不懈 |
+| 22973 | `ophtalmologiste` | ophtalmologiste | `ophtalmologiste` | B2 | 1 | ai-reviewed | [phrase] consulter un ophtalmologiste = 看眼科医生；向眼科医生就诊 |
+| 22973 | `ophtalmologiste` | ophtalmologiste | `ophtalmologiste` | B2 | 1 | ai-reviewed | [phrase] prendre rendez-vous chez l'ophtalmologiste = 预约眼科医生 |
+| 22973 | `ophtalmologiste` | ophtalmologiste | `ophtalmologiste` | B2 | 1 | ai-reviewed | [phrase] un cabinet d'ophtalmologiste = 眼科诊所 |
+| 23017 | `reformuler` | reformuler | `reformuler` | B2 | 1 | ai-reviewed | [phrase] reformuler une question = 重新表述问题；换个方式提问 |
+| 23017 | `reformuler` | reformuler | `reformuler` | B2 | 1 | ai-reviewed | [phrase] reformuler une phrase = 改写句子；重新措辞 |
+| 23017 | `reformuler` | reformuler | `reformuler` | B2 | 1 | ai-reviewed | [phrase] reformuler une demande = 重新表述请求 |
 | 23069 | `poissonnerie` | poissonnerie | `poissonnerie` | A2 | 1 | wikt-zh | 水产业 |
+| 23069 | `poissonnerie` | poissonnerie | `poissonnerie` | A2 | 1 | ai-reviewed | [phrase] rayon poissonnerie = 水产区；鲜鱼柜台 |
+| 23069 | `poissonnerie` | poissonnerie | `poissonnerie` | A2 | 1 | ai-reviewed | [phrase] aller à la poissonnerie = 去鱼店买鱼 |
+| 23069 | `poissonnerie` | poissonnerie | `poissonnerie` | A2 | 1 | ai-reviewed | [phrase] tenir une poissonnerie = 经营一家鱼店 |
+| 23070 | `parka` | parka | `parka` | A2 | 1 | ai-reviewed | [phrase] parka à capuche = 连帽派克大衣 |
+| 23070 | `parka` | parka | `parka` | A2 | 1 | ai-reviewed | [phrase] parka imperméable = 防水风雪大衣 |
+| 23070 | `parka` | parka | `parka` | A2 | 1 | ai-reviewed | [phrase] enfiler sa parka = 穿上派克大衣 |
 | 23071 | `convivialite` | convivialité | `convivialite` | B1 | 1 | wikt-zh | n.f. 爱宴饮交际，爱社交；（电脑硬件的）易使用性，易操作性 |
+| 23071 | `convivialite` | convivialité | `convivialite` | B1 | 1 | ai-reviewed | [phrase] un moment de convivialité = 欢聚融洽的时光 |
+| 23071 | `convivialite` | convivialité | `convivialite` | B1 | 1 | ai-reviewed | [phrase] esprit de convivialité = 友善融洽的精神 |
+| 23071 | `convivialite` | convivialité | `convivialite` | B1 | 1 | ai-reviewed | [phrase] convivialité d'une interface = 界面的易用性；用户友好性 |
+| 23072 | `justificatif` | justificatif | `justificatif` | B2 | 1 | ai-reviewed | 辩护的；证明清白的；说明正当理由的 |
+| 23072 | `justificatif` | justificatif | `justificatif` | B2 | 1 | ai-reviewed | 证明文件；凭证；单据 |
+| 23072 | `justificatif` | justificatif | `justificatif` | B2 | 1 | ai-reviewed | [phrase] justificatif de domicile = 住址证明 |
+| 23072 | `justificatif` | justificatif | `justificatif` | B2 | 1 | ai-reviewed | [phrase] fournir un justificatif = 提供证明文件 |
+| 23118 | `roquefort` | roquefort | `roquefort` | A2 | 1 | ai-reviewed | [phrase] sauce au roquefort = 洛克福奶酪酱 |
+| 23118 | `roquefort` | roquefort | `roquefort` | A2 | 1 | ai-reviewed | [phrase] tarte au roquefort = 洛克福奶酪咸派 |
+| 23118 | `roquefort` | roquefort | `roquefort` | A2 | 1 | ai-reviewed | [phrase] salade au roquefort = 洛克福奶酪沙拉 |
+| 23119 | `recale` | recalé | `recale` | B1 | 1 | ai-reviewed | [phrase] être recalé à un examen = 考试不及格；落榜 |
+| 23119 | `recale` | recalé | `recale` | B1 | 1 | ai-reviewed | [phrase] candidat recalé = 落选的考生；被淘汰的候选人 |
+| 23119 | `recale` | recalé | `recale` | B1 | 1 | ai-reviewed | [phrase] être recalé au permis = 驾照考试没通过 |
+| 23120 | `musculation` | musculation | `musculation` | B1 | 1 | ai-reviewed | [phrase] salle de musculation = 健身房；力量训练室 |
+| 23120 | `musculation` | musculation | `musculation` | B1 | 1 | ai-reviewed | [phrase] faire de la musculation = 做力量训练；健身 |
+| 23120 | `musculation` | musculation | `musculation` | B1 | 1 | ai-reviewed | [phrase] appareil de musculation = 健身器械；力量训练器材 |
+| 23121 | `generalisation` | généralisation | `generalisation` | B2 | 1 | ai-reviewed | 概括；归纳 |
+| 23121 | `generalisation` | généralisation | `generalisation` | B2 | 1 | ai-reviewed | [phrase] généralisation abusive = 过度概括；以偏概全 |
+| 23121 | `generalisation` | généralisation | `generalisation` | B2 | 1 | ai-reviewed | [phrase] la généralisation d'une mesure = 某项措施的全面推广 |
+| 23121 | `generalisation` | généralisation | `generalisation` | B2 | 1 | ai-reviewed | [phrase] en voie de généralisation = 正在普及中的；日趋普遍的 |
+| 23122 | `cliquer` | cliquer | `cliquer` | B2 | 1 | ai-reviewed | 发出咔嗒声；发出清脆响声 |
+| 23122 | `cliquer` | cliquer | `cliquer` | B2 | 1 | ai-reviewed | 〈俗〉突然明白；开窍 |
+| 23122 | `cliquer` | cliquer | `cliquer` | B2 | 1 | ai-reviewed | [phrase] cliquer sur un lien = 点击链接 |
+| 23122 | `cliquer` | cliquer | `cliquer` | B2 | 1 | ai-reviewed | [phrase] cliquer sur une icône = 点击图标 |
+| 23122 | `cliquer` | cliquer | `cliquer` | B2 | 1 | ai-reviewed | [phrase] cliquer ici = 点击此处 |
 | 23123 | `versatile` | versatile | `versatile` | B2 | 1 | wikt-zh | 易变的；优柔寡断的 |
+| 23123 | `versatile` | versatile | `versatile` | B2 | 1 | ai-reviewed | （器物、装备等）多功能的；多用途的 |
+| 23123 | `versatile` | versatile | `versatile` | B2 | 1 | ai-reviewed | [phrase] caractère versatile = 多变的性格 |
+| 23123 | `versatile` | versatile | `versatile` | B2 | 1 | ai-reviewed | [phrase] esprit versatile = 反复无常的心性 |
+| 23123 | `versatile` | versatile | `versatile` | B2 | 1 | ai-reviewed | [phrase] attitude versatile = 善变的态度 |
+| 23293 | `aide-soignant` | aide-soignant | `aide-soignant-n` | B1 | 1 | ai-reviewed | [phrase] formation d'aide-soignant = 护理员培训 |
+| 23293 | `aide-soignant` | aide-soignant | `aide-soignant-n` | B1 | 1 | ai-reviewed | [phrase] équipe d'aides-soignants = 护理员团队 |
+| 23293 | `aide-soignant` | aide-soignant | `aide-soignant-n` | B1 | 1 | ai-reviewed | [phrase] métier d'aide-soignant = 护工职业；护理员工作 |
+| 23294 | `abordable` | abordable | `abordable` | B2 | 1 | ai-reviewed | [phrase] prix abordable = 实惠的价格；合理的价格 |
+| 23294 | `abordable` | abordable | `abordable` | B2 | 1 | ai-reviewed | [phrase] logement abordable = 经济适用房；可负担住房 |
+| 23294 | `abordable` | abordable | `abordable` | B2 | 1 | ai-reviewed | [phrase] être facilement abordable = 平易近人；易于接近 |
+| 23295 | `commercialiser` | commercialiser | `commercialiser` | B2 | 1 | ai-reviewed | [phrase] commercialiser un produit = 将产品投放市场；销售产品 |
+| 23295 | `commercialiser` | commercialiser | `commercialiser` | B2 | 1 | ai-reviewed | [phrase] être commercialisé en France = 在法国上市销售 |
+| 23296 | `croche` | croche | `croche` | B2 | 1 | ai-reviewed | （加，口）不诚实的人；骗子；无赖 |
+| 23296 | `croche` | croche | `croche` | B2 | 1 | ai-reviewed | 弯曲的；歪斜的；不直的 |
+| 23296 | `croche` | croche | `croche` | B2 | 1 | ai-reviewed | [phrase] double croche = 十六分音符 |
+| 23296 | `croche` | croche | `croche` | B2 | 1 | ai-reviewed | [phrase] triple croche = 三十二分音符 |
+| 23296 | `croche` | croche | `croche` | B2 | 1 | ai-reviewed | [phrase] croche pointée = 附点八分音符 |
+| 23297 | `televisuel` | télévisuel | `televisuel-adj` | B2 | 1 | ai-reviewed | [phrase] paysage télévisuel = 电视行业格局；电视界 |
+| 23297 | `televisuel` | télévisuel | `televisuel-adj` | B2 | 1 | ai-reviewed | [phrase] émission télévisuelle = 电视节目 |
+| 23297 | `televisuel` | télévisuel | `televisuel-adj` | B2 | 1 | ai-reviewed | [phrase] série télévisuelle = 电视连续剧 |
+| 23354 | `hydrocarbures` | hydrocarbures | `hydrocarbures` | B2 | 1 | ai-reviewed | [phrase] gisement d'hydrocarbures = 油气藏；碳氢化合物矿藏 |
+| 23354 | `hydrocarbures` | hydrocarbures | `hydrocarbures` | B2 | 1 | ai-reviewed | [phrase] exploitation des hydrocarbures = 油气开采 |
+| 23354 | `hydrocarbures` | hydrocarbures | `hydrocarbures` | B2 | 1 | ai-reviewed | [phrase] hydrocarbures fossiles = 化石碳氢化合物；化石烃类燃料 |
+| 23355 | `eliminatoire` | éliminatoire | `eliminatoire` | B2 | 1 | ai-reviewed | 淘汰赛；预选赛；初试 |
+| 23355 | `eliminatoire` | éliminatoire | `eliminatoire` | B2 | 1 | ai-reviewed | [phrase] phase éliminatoire = 淘汰赛阶段 |
+| 23355 | `eliminatoire` | éliminatoire | `eliminatoire` | B2 | 1 | ai-reviewed | [phrase] épreuve éliminatoire = 淘汰赛；资格筛选考试 |
 | 23412 | `endette` | endetté | `endette` | B2 | 1 | wikt-zh | 欠债的 |
+| 23412 | `endette` | endetté | `endette` | B2 | 1 | ai-reviewed | [phrase] être endetté jusqu'au cou = 债台高筑；负债累累 |
+| 23412 | `endette` | endetté | `endette` | B2 | 1 | ai-reviewed | [phrase] fortement endetté = 严重负债的 |
+| 23412 | `endette` | endetté | `endette` | B2 | 1 | ai-reviewed | [phrase] ménage endetté = 负债家庭 |
+| 23413 | `consommable` | consommable | `consommable-adj` | B2 | 1 | ai-reviewed | 可安全食用的；可饮用的 |
+| 23413 | `consommable` | consommable | `consommable-adj` | B2 | 1 | ai-reviewed | 耗材；消耗品；易耗品 |
+| 23413 | `consommable` | consommable | `consommable-adj` | B2 | 1 | ai-reviewed | [phrase] consommables informatiques = 电脑耗材 |
+| 23413 | `consommable` | consommable | `consommable-adj` | B2 | 1 | ai-reviewed | [phrase] biens consommables = 消费品；易耗品 |
+| 23413 | `consommable` | consommable | `consommable-adj` | B2 | 1 | ai-reviewed | [phrase] consommable immédiatement = 可即食的；可立即使用的 |
+| 23414 | `reutiliser` | réutiliser | `reutiliser` | B2 | 1 | ai-reviewed | [phrase] réutiliser des données = 再利用数据；复用数据 |
+| 23414 | `reutiliser` | réutiliser | `reutiliser` | B2 | 1 | ai-reviewed | [phrase] réutiliser les eaux usées = 回用废水；再利用污水 |
+| 23414 | `reutiliser` | réutiliser | `reutiliser` | B2 | 1 | ai-reviewed | [phrase] réutiliser un emballage = 重复使用包装 |
+| 23415 | `perfectionniste` | perfectionniste | `perfectionniste` | B2 | 1 | ai-reviewed | [phrase] être perfectionniste = 是个完美主义者；追求完美 |
+| 23415 | `perfectionniste` | perfectionniste | `perfectionniste` | B2 | 1 | ai-reviewed | [phrase] un esprit perfectionniste = 完美主义精神；追求完美的头脑 |
+| 23415 | `perfectionniste` | perfectionniste | `perfectionniste` | B2 | 1 | ai-reviewed | [phrase] de nature perfectionniste = 天性追求完美 |
+| 23498 | `millefeuille` | millefeuille | `millefeuille` | A2 | 1 | ai-reviewed | 千层式菜肴 |
+| 23498 | `millefeuille` | millefeuille | `millefeuille` | A2 | 1 | ai-reviewed | 层叠繁杂的体制；叠床架屋的机构设置 |
+| 23498 | `millefeuille` | millefeuille | `millefeuille` | A2 | 1 | ai-reviewed | 蓍草；欧蓍草 |
+| 23498 | `millefeuille` | millefeuille | `millefeuille` | A2 | 1 | ai-reviewed | [phrase] le millefeuille administratif = 叠床架屋的行政体系；层层叠加的官僚机构 |
+| 23498 | `millefeuille` | millefeuille | `millefeuille` | A2 | 1 | ai-reviewed | [phrase] un millefeuille à la vanille = 香草千层酥 |
+| 23498 | `millefeuille` | millefeuille | `millefeuille` | A2 | 1 | ai-reviewed | [phrase] l’achillée millefeuille = 欧蓍草 |
+| 23499 | `programmeur` | programmeur | `programmeur` | A2 | 1 | ai-reviewed | [phrase] un programmeur informatique = 计算机程序员 |
+| 23499 | `programmeur` | programmeur | `programmeur` | A2 | 1 | ai-reviewed | [phrase] un analyste-programmeur = 系统分析程序员 |
+| 23499 | `programmeur` | programmeur | `programmeur` | A2 | 1 | ai-reviewed | [phrase] une équipe de programmeurs = 程序员团队 |
+| 23500 | `acrylique` | acrylique | `acrylique` | B1 | 1 | ai-reviewed | 丙烯颜料；丙烯画颜料 |
+| 23500 | `acrylique` | acrylique | `acrylique` | B1 | 1 | ai-reviewed | 丙烯画 |
+| 23500 | `acrylique` | acrylique | `acrylique` | B1 | 1 | ai-reviewed | [phrase] de la peinture acrylique = 丙烯颜料；丙烯酸涂料 |
+| 23500 | `acrylique` | acrylique | `acrylique` | B1 | 1 | ai-reviewed | [phrase] un pull en acrylique = 腈纶毛衣 |
+| 23500 | `acrylique` | acrylique | `acrylique` | B1 | 1 | ai-reviewed | [phrase] peindre à l’acrylique = 用丙烯颜料作画 |
+| 23501 | `rediffusion` | rediffusion | `rediffusion` | B2 | 1 | ai-reviewed | [phrase] en rediffusion = 正在重播；以重播方式 |
+| 23501 | `rediffusion` | rediffusion | `rediffusion` | B2 | 1 | ai-reviewed | [phrase] une rediffusion télévisée = 电视重播 |
+| 23501 | `rediffusion` | rediffusion | `rediffusion` | B2 | 1 | ai-reviewed | [phrase] regarder une rediffusion = 看重播 |
+| 23576 | `superette` | supérette | `superette-f` | B2 | 1 | ai-reviewed | [phrase] supérette de quartier = 社区小超市；街区便利超市 |
+| 23576 | `superette` | supérette | `superette-f` | B2 | 1 | ai-reviewed | [phrase] aller à la supérette = 去小超市 |
+| 23576 | `superette` | supérette | `superette-f` | B2 | 1 | ai-reviewed | [phrase] tenir une supérette = 经营一家小超市 |
+| 23667 | `revente` | revente | `revente` | B2 | 1 | ai-reviewed | [phrase] prix de revente = 转售价；再售价 |
+| 23667 | `revente` | revente | `revente` | B2 | 1 | ai-reviewed | [phrase] valeur de revente = 转售价值；二手残值 |
+| 23667 | `revente` | revente | `revente` | B2 | 1 | ai-reviewed | [phrase] interdit à la revente = 禁止转售 |
 | 23677 | `desinformation` | désinformation | `desinformation` | B2 | 1 | wikt-zh | 误传，误报，误导 |
+| 23677 | `desinformation` | désinformation | `desinformation` | B2 | 1 | ai-reviewed | [phrase] campagne de désinformation = 虚假信息宣传攻势；误导宣传活动 |
+| 23677 | `desinformation` | désinformation | `desinformation` | B2 | 1 | ai-reviewed | [phrase] lutter contre la désinformation = 打击虚假信息 |
+| 23677 | `desinformation` | désinformation | `desinformation` | B2 | 1 | ai-reviewed | [phrase] vecteur de désinformation = 虚假信息的传播渠道 |
+| 23765 | `finnois` | finnois | `finnois` | A2 | 1 | ai-reviewed | 芬兰族的；芬兰民族的 |
+| 23765 | `finnois` | finnois | `finnois` | A2 | 1 | ai-reviewed | [phrase] la langue finnoise = 芬兰语 |
+| 23765 | `finnois` | finnois | `finnois` | A2 | 1 | ai-reviewed | [phrase] le peuple finnois = 芬兰民族 |
+| 23765 | `finnois` | finnois | `finnois` | A2 | 1 | ai-reviewed | [phrase] parler finnois = 说芬兰语 |
+| 23805 | `ecologie` | écologie | `ecologie` | A2 | 1 | ai-reviewed | 人类生态学；社会生态学 |
+| 23805 | `ecologie` | écologie | `ecologie` | A2 | 1 | ai-reviewed | [phrase] ministère de l'Écologie = 生态部；环保部 |
+| 23805 | `ecologie` | écologie | `ecologie` | A2 | 1 | ai-reviewed | [phrase] protection de l'écologie = 生态保护 |
+| 23805 | `ecologie` | écologie | `ecologie` | A2 | 1 | ai-reviewed | [phrase] écologie politique = 政治生态学；生态政治运动 |
+| 23806 | `seine` | seine | `seine` | A2 | 1 | ai-reviewed | 围网；拉网（捕鱼用曳引围网） |
+| 23806 | `seine` | seine | `seine` | A2 | 1 | ai-reviewed | [phrase] pêcher à la seine = 用围网捕鱼 |
+| 23806 | `seine` | seine | `seine` | A2 | 1 | ai-reviewed | [phrase] tirer la seine = 拉起围网；收网 |
+| 23806 | `seine` | seine | `seine` | A2 | 1 | ai-reviewed | [phrase] jeter la seine = 撒下围网 |
+| 23807 | `depayse` | dépaysé | `depayse` | B1 | 1 | ai-reviewed | [phrase] se sentir dépaysé = 觉得人生地不熟；感到环境陌生 |
+| 23807 | `depayse` | dépaysé | `depayse` | B1 | 1 | ai-reviewed | [phrase] être complètement dépaysé = 完全不适应新环境；感到全然陌生 |
+| 23807 | `depayse` | dépaysé | `depayse` | B1 | 1 | ai-reviewed | [phrase] un voyageur dépaysé = 身处异乡感到陌生的旅客 |
+| 23808 | `trench` | trench | `trench` | B1 | 1 | ai-reviewed | [phrase] porter un trench = 穿一件风衣 |
+| 23808 | `trench` | trench | `trench` | B1 | 1 | ai-reviewed | [phrase] un trench beige = 米色风衣 |
+| 23808 | `trench` | trench | `trench` | B1 | 1 | ai-reviewed | [phrase] un trench ceinturé = 系腰带风衣 |
+| 23963 | `randonneur` | randonneur | `randonneur` | B1 | 1 | ai-reviewed | [phrase] un groupe de randonneurs = 一行徒步者；徒步旅行团 |
+| 23963 | `randonneur` | randonneur | `randonneur` | B1 | 1 | ai-reviewed | [phrase] un équipement de randonneur = 徒步装备 |
+| 23963 | `randonneur` | randonneur | `randonneur` | B1 | 1 | ai-reviewed | [phrase] un club de randonneurs = 徒步具乐部 |
+| 23964 | `posologie` | posologie | `posologie` | B2 | 1 | ai-reviewed | （药学）剂量学 |
+| 23964 | `posologie` | posologie | `posologie` | B2 | 1 | ai-reviewed | [phrase] respecter la posologie = 遵照规定剂量（服药） |
+| 23964 | `posologie` | posologie | `posologie` | B2 | 1 | ai-reviewed | [phrase] adapter la posologie = 调整用药剂量 |
+| 23964 | `posologie` | posologie | `posologie` | B2 | 1 | ai-reviewed | [phrase] posologie recommandée = 推荐剂量 |
+| 23965 | `assainissement` | assainissement | `assainissement` | B2 | 1 | ai-reviewed | （土地）排水改良；排涝 |
+| 23965 | `assainissement` | assainissement | `assainissement` | B2 | 1 | ai-reviewed | 排污系统；污水处理设施 |
+| 23965 | `assainissement` | assainissement | `assainissement` | B2 | 1 | ai-reviewed | [phrase] réseau d'assainissement = 排污管网；下水道系统 |
+| 23965 | `assainissement` | assainissement | `assainissement` | B2 | 1 | ai-reviewed | [phrase] travaux d'assainissement = 卫生整治工程；排水工程 |
+| 23965 | `assainissement` | assainissement | `assainissement` | B2 | 1 | ai-reviewed | [phrase] assainissement des finances publiques = 整顿公共财政 |
 | 23966 | `mollasson` | mollasson | `mollasson` | B2 | 1 | wikt-zh | 懒洋洋的 |
+| 23966 | `mollasson` | mollasson | `mollasson` | B2 | 1 | ai-reviewed | （口）软绵绵的；松软无力的 |
+| 23966 | `mollasson` | mollasson | `mollasson` | B2 | 1 | ai-reviewed | （口）懒散迟钝的人；软弱无力的人 |
+| 23966 | `mollasson` | mollasson | `mollasson` | B2 | 1 | ai-reviewed | [phrase] un caractère mollasson = 软弱懒散的性格 |
+| 23966 | `mollasson` | mollasson | `mollasson` | B2 | 1 | ai-reviewed | [phrase] une réaction mollassonne = 绵软无力的反应 |
+| 23966 | `mollasson` | mollasson | `mollasson` | B2 | 1 | ai-reviewed | [phrase] un type mollasson = 懒洋洋的家伙；萎靡不振的人 |
+| 24149 | `pacs` | pacs | `pacs` | A2 | 1 | ai-reviewed | [phrase] conclure un pacs = 缔结民事互助契约 |
+| 24149 | `pacs` | pacs | `pacs` | A2 | 1 | ai-reviewed | [phrase] dissoudre un pacs = 解除民事互助契约 |
+| 24149 | `pacs` | pacs | `pacs` | A2 | 1 | ai-reviewed | [phrase] convention de pacs = 民事互助契约协议 |
+| 24181 | `canada` | canada | `canada` | A2 | 1 | ai-reviewed | 加拿大苹果（一种灰皮苹果品种） |
+| 24181 | `canada` | canada | `canada` | A2 | 1 | ai-reviewed | （方，比利时）马铃薯；土豆；菊芋 |
+| 24181 | `canada` | canada | `canada` | A2 | 1 | ai-reviewed | [phrase] reinette du Canada = 加拿大灰皮苹果 |
+| 24181 | `canada` | canada | `canada` | A2 | 1 | ai-reviewed | [phrase] au Canada = 在加拿大 |
+| 24181 | `canada` | canada | `canada` | A2 | 1 | ai-reviewed | [phrase] bernache du Canada = 加拿大黑雁 |
+| 24182 | `sous-developpement` | sous-développement | `sous-developpement` | B2 | 1 | ai-reviewed | [phrase] lutter contre le sous-développement = 消除欠发达状态；努力摆脱落后 |
+| 24182 | `sous-developpement` | sous-développement | `sous-developpement` | B2 | 1 | ai-reviewed | [phrase] sortir du sous-développement = 摆脱欠发达状态 |
+| 24182 | `sous-developpement` | sous-développement | `sous-developpement` | B2 | 1 | ai-reviewed | [phrase] sous-développement économique = 经济欠发达 |
+| 24294 | `caniculaire` | caniculaire | `caniculaire` | B1 | 1 | ai-reviewed | [phrase] chaleur caniculaire = 酷热；三伏天的高温 |
+| 24294 | `caniculaire` | caniculaire | `caniculaire` | B1 | 1 | ai-reviewed | [phrase] été caniculaire = 酷热的夏天 |
+| 24294 | `caniculaire` | caniculaire | `caniculaire` | B1 | 1 | ai-reviewed | [phrase] températures caniculaires = 酷暑高温 |
+| 24295 | `dissuasion` | dissuasion | `dissuasion` | B2 | 1 | ai-reviewed | [phrase] dissuasion nucléaire = 核威慑 |
+| 24295 | `dissuasion` | dissuasion | `dissuasion` | B2 | 1 | ai-reviewed | [phrase] force de dissuasion = 威慑力量 |
+| 24295 | `dissuasion` | dissuasion | `dissuasion` | B2 | 1 | ai-reviewed | [phrase] effet de dissuasion = 威慑作用；阻吓效果 |
+| 24296 | `inabordable` | inabordable | `inabordable` | B2 | 1 | ai-reviewed | 价格高不可攀的；贵得买不起的 |
+| 24296 | `inabordable` | inabordable | `inabordable` | B2 | 1 | ai-reviewed | [phrase] prix inabordable = 高不可攀的价格；令人望而却步的价格 |
+| 24296 | `inabordable` | inabordable | `inabordable` | B2 | 1 | ai-reviewed | [phrase] côte inabordable = 难以靠岸的海岸 |
+| 24296 | `inabordable` | inabordable | `inabordable` | B2 | 1 | ai-reviewed | [phrase] homme inabordable = 难以接近的人；冷漠孤傲的人 |
+| 24297 | `grippe#2` | grippé | `grippe-adj` | B2 | 1 | ai-reviewed | （金属部件、机械）咬死的；卡住的 |
+| 24297 | `grippe#2` | grippé | `grippe-adj` | B2 | 1 | ai-reviewed | 运转不灵的；停滞不前的 |
+| 24297 | `grippe#2` | grippé | `grippe-adj` | B2 | 1 | ai-reviewed | （旧）紧抓着的 |
+| 24297 | `grippe#2` | grippé | `grippe-adj` | B2 | 1 | ai-reviewed | [phrase] être grippé = 患流感；（机械）卡住 |
+| 24297 | `grippe#2` | grippé | `grippe-adj` | B2 | 1 | ai-reviewed | [phrase] moteur grippé = 卡死的发动机；咬死的发动机 |
+| 24297 | `grippe#2` | grippé | `grippe-adj` | B2 | 1 | ai-reviewed | [phrase] serrure grippée = 卡住的锁；生锈打不开的锁 |
+| 24298 | `dioxyde` | dioxyde | `dioxyde` | B2 | 1 | ai-reviewed | [phrase] dioxyde de carbone = 二氧化碳 |
+| 24298 | `dioxyde` | dioxyde | `dioxyde` | B2 | 1 | ai-reviewed | [phrase] dioxyde de soufre = 二氧化硫 |
+| 24298 | `dioxyde` | dioxyde | `dioxyde` | B2 | 1 | ai-reviewed | [phrase] émissions de dioxyde de carbone = 二氧化碳排放（量） |
+| 24395 | `telecommunications` | télécommunications | `telecommunications` | A2 | 1 | ai-reviewed | [phrase] secteur des télécommunications = 电信行业 |
+| 24395 | `telecommunications` | télécommunications | `telecommunications` | A2 | 1 | ai-reviewed | [phrase] réseau de télécommunications = 电信网络 |
+| 24395 | `telecommunications` | télécommunications | `telecommunications` | A2 | 1 | ai-reviewed | [phrase] opérateur de télécommunications = 电信运营商 |
 | 24396 | `beur` | beur | `beur` | B1 | 1 | wikt-zh | n. 生于法国的北非移民子女 |
+| 24396 | `beur` | beur | `beur` | B1 | 1 | ai-reviewed | [phrase] la génération beur = 北非移民二代 |
+| 24396 | `beur` | beur | `beur` | B1 | 1 | ai-reviewed | [phrase] la culture beur = 法国北非裔青年文化 |
+| 24396 | `beur` | beur | `beur` | B1 | 1 | ai-reviewed | [phrase] la marche des Beurs = 1983年法国北非裔青年争取平等大游行 |
+| 24517 | `diese` | dièse | `diese` | B1 | 1 | ai-reviewed | ［乐］升音；升高半音的音符 |
+| 24517 | `diese` | dièse | `diese` | B1 | 1 | ai-reviewed | （键盘乐器的）升音键 |
+| 24517 | `diese` | dièse | `diese` | B1 | 1 | ai-reviewed | [phrase] touche dièse = 井号键（#键） |
+| 24517 | `diese` | dièse | `diese` | B1 | 1 | ai-reviewed | [phrase] fa dièse = 升F（升fa） |
+| 24517 | `diese` | dièse | `diese` | B1 | 1 | ai-reviewed | [phrase] dièse à la clef = 调号中的升号 |
+| 24518 | `toxicite` | toxicité | `toxicite-f` | B2 | 1 | ai-reviewed | [phrase] toxicité aiguë = 急性毒性 |
+| 24518 | `toxicite` | toxicité | `toxicite-f` | B2 | 1 | ai-reviewed | [phrase] seuil de toxicité = 毒性阈值；中毒临界值 |
+| 24518 | `toxicite` | toxicité | `toxicite-f` | B2 | 1 | ai-reviewed | [phrase] réduire la toxicité = 降低毒性 |
+| 24749 | `tsunami` | tsunami | `tsunami` | B1 | 1 | ai-reviewed | 〈喻〉浪潮；狂潮；海啸般的冲击 |
+| 24749 | `tsunami` | tsunami | `tsunami` | B1 | 1 | ai-reviewed | [phrase] alerte au tsunami = 海啸预警 |
+| 24749 | `tsunami` | tsunami | `tsunami` | B1 | 1 | ai-reviewed | [phrase] être balayé par un tsunami = 被海啸席卷 |
+| 24749 | `tsunami` | tsunami | `tsunami` | B1 | 1 | ai-reviewed | [phrase] un tsunami médiatique = 媒体风暴；舆论狂潮 |
+| 24750 | `indefendable` | indéfendable | `indefendable` | B2 | 1 | ai-reviewed | 无法防守的；难以守卫的 |
+| 24750 | `indefendable` | indéfendable | `indefendable` | B2 | 1 | ai-reviewed | [phrase] une position indéfendable = 无法守住的阵地；站不住脚的立场 |
+| 24750 | `indefendable` | indéfendable | `indefendable` | B2 | 1 | ai-reviewed | [phrase] un comportement indéfendable = 不可辩解的行为 |
+| 24750 | `indefendable` | indéfendable | `indefendable` | B2 | 1 | ai-reviewed | [phrase] une thèse indéfendable = 站不住脚的论点 |
+| 24816 | `ouvre-boite` | ouvre-boîte | `ouvre-boite` | B1 | 1 | ai-reviewed | [phrase] ouvre-boîte électrique = 电动开罐器 |
+| 24816 | `ouvre-boite` | ouvre-boîte | `ouvre-boite` | B1 | 1 | ai-reviewed | [phrase] ouvre-boîte manuel = 手动开罐器 |
+| 24816 | `ouvre-boite` | ouvre-boîte | `ouvre-boite` | B1 | 1 | ai-reviewed | [phrase] ouvrir avec un ouvre-boîte = 用开罐器打开 |
 | 24886 | `naturalise` | naturalisé | `naturalise` | B1 | 1 | wikt-zh | 归化的 |
+| 24886 | `naturalise` | naturalisé | `naturalise` | B1 | 1 | ai-reviewed | 入籍者；归化公民 |
+| 24886 | `naturalise` | naturalisé | `naturalise` | B1 | 1 | ai-reviewed | [phrase] citoyen naturalisé = 归化公民；入籍公民 |
+| 24886 | `naturalise` | naturalisé | `naturalise` | B1 | 1 | ai-reviewed | [phrase] nouveau naturalisé = 新入籍者 |
+| 24886 | `naturalise` | naturalisé | `naturalise` | B1 | 1 | ai-reviewed | [phrase] animal naturalisé = 动物标本；剥制动物标本 |
+| 24887 | `libeller` | libeller | `libeller` | B1 | 1 | ai-reviewed | 拟具；起草（司法或行政申请、诉状等） |
+| 24887 | `libeller` | libeller | `libeller` | B1 | 1 | ai-reviewed | 措辞；表述；写明 |
+| 24887 | `libeller` | libeller | `libeller` | B1 | 1 | ai-reviewed | [phrase] libeller un chèque = 填写支票 |
+| 24887 | `libeller` | libeller | `libeller` | B1 | 1 | ai-reviewed | [phrase] libeller une facture = 开具发票 |
+| 24887 | `libeller` | libeller | `libeller` | B1 | 1 | ai-reviewed | [phrase] libeller une demande = 起草申请书 |
+| 24888 | `chelem` | chelem | `chelem` | B1 | 1 | ai-reviewed | [phrase] petit chelem = 小满贯 |
+| 24888 | `chelem` | chelem | `chelem` | B1 | 1 | ai-reviewed | [phrase] réaliser le grand chelem = 夺得大满贯 |
+| 24889 | `redistribution` | redistribution | `redistribution` | B2 | 1 | ai-reviewed | [phrase] redistribution des richesses = 财富再分配 |
+| 24889 | `redistribution` | redistribution | `redistribution` | B2 | 1 | ai-reviewed | [phrase] redistribution des revenus = 收入再分配 |
+| 24889 | `redistribution` | redistribution | `redistribution` | B2 | 1 | ai-reviewed | [phrase] redistribution des cartes = 重新洗牌；格局重塑 |
+| 24991 | `telefilm` | téléfilm | `telefilm` | A2 | 1 | ai-reviewed | [phrase] tourner un téléfilm = 拍摄电视电影 |
+| 24991 | `telefilm` | téléfilm | `telefilm` | A2 | 1 | ai-reviewed | [phrase] diffuser un téléfilm = 播出电视电影 |
+| 24991 | `telefilm` | téléfilm | `telefilm` | A2 | 1 | ai-reviewed | [phrase] téléfilm policier = 警匪电视电影 |
+| 24992 | `sociabilite` | sociabilité | `sociabilite` | A2 | 1 | ai-reviewed | ［植］群聚度；群聚性 |
+| 24992 | `sociabilite` | sociabilité | `sociabilite` | A2 | 1 | ai-reviewed | [phrase] lien de sociabilité = 社交纽带；社会交往关系 |
+| 24992 | `sociabilite` | sociabilité | `sociabilite` | A2 | 1 | ai-reviewed | [phrase] lieu de sociabilité = 社交场所 |
+| 24992 | `sociabilite` | sociabilité | `sociabilite` | A2 | 1 | ai-reviewed | [phrase] faire preuve de sociabilité = 表现出合群性；展现出社交能力 |
+| 24993 | `maltais` | maltais | `maltais` | A2 | 1 | ai-reviewed | 马尔济斯犬；马耳他犬 |
+| 24993 | `maltais` | maltais | `maltais` | A2 | 1 | ai-reviewed | 马耳他鸽 |
+| 24993 | `maltais` | maltais | `maltais` | A2 | 1 | ai-reviewed | [phrase] bichon maltais = 马尔济斯犬；马耳他长毛小狗 |
+| 24993 | `maltais` | maltais | `maltais` | A2 | 1 | ai-reviewed | [phrase] archipel maltais = 马耳他群岛 |
+| 24993 | `maltais` | maltais | `maltais` | A2 | 1 | ai-reviewed | [phrase] parler maltais = 讲马耳他语 |
+| 24994 | `reintroduire` | réintroduire | `reintroduire` | B2 | 1 | ai-reviewed | 再次放入；重新引进；重新推行 |
+| 24994 | `reintroduire` | réintroduire | `reintroduire` | B2 | 1 | ai-reviewed | [phrase] réintroduire une espèce = 重新引入一个物种 |
+| 24994 | `reintroduire` | réintroduire | `reintroduire` | B2 | 1 | ai-reviewed | [phrase] réintroduire une mesure = 重新推行一项措施 |
+| 24994 | `reintroduire` | réintroduire | `reintroduire` | B2 | 1 | ai-reviewed | [phrase] réintroduire dans son milieu naturel = 放归自然栖息地；重新引入自然环境 |
+| 24995 | `gratine` | gratiné | `gratine` | B2 | 1 | ai-reviewed | 〈俗〉极其棘手的；高难度的 |
+| 24995 | `gratine` | gratiné | `gratine` | B2 | 1 | ai-reviewed | 〈俗〉本领高强的；厉害的 |
+| 24995 | `gratine` | gratiné | `gratine` | B2 | 1 | ai-reviewed | 〈俗〉极其出色的；棒极了的 |
+| 24995 | `gratine` | gratiné | `gratine` | B2 | 1 | ai-reviewed | [phrase] soupe à l'oignon gratinée = 法式焗洋葱汤 |
+| 24995 | `gratine` | gratiné | `gratine` | B2 | 1 | ai-reviewed | [phrase] légumes gratinés = 奶酪焗蔬菜 |
+| 24995 | `gratine` | gratiné | `gratine` | B2 | 1 | ai-reviewed | [phrase] une question gratinée = 〈俗〉一道棘手的难题 |
+| 24996 | `personnification` | personnification | `personnification` | B2 | 1 | ai-reviewed | [phrase] être la personnification de = 是……的化身 |
+| 24996 | `personnification` | personnification | `personnification` | B2 | 1 | ai-reviewed | [phrase] par personnification = 通过拟人手法 |
+| 24996 | `personnification` | personnification | `personnification` | B2 | 1 | ai-reviewed | [phrase] personnification de la justice = 正义的化身 |
 | 25096 | `intervenant` | intervenant | `intervenant` | B2 | 1 | wikt-zh | 赌金保管人；（会议等地）演讲者 |
 | 25096 | `intervenant` | intervenant | `intervenant` | B2 | 1 | wikt-zh | 其间的，介于中间的 |
 | 25186 | `letton` | letton | `letton` | A2 | 1 | wikt-zh | 拉脱维亚的 |
