@@ -49,6 +49,8 @@ jobs:
       - run: npm run bundle:check
       - run: npx playwright install --with-deps chromium
       - name: Run Playwright E2E against vite preview
+        env:
+          ATLAS_BASE: /${{ github.event.repository.name }}/
         run: |
           npx vite preview --host 127.0.0.1 --port 5191 &
           PREVIEW_PID=$!
