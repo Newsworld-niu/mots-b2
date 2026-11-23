@@ -85,7 +85,7 @@ Respond with ONE JSON object strictly matching:
   ]
 }`;
 
-export function buildGenPayload(db: DatabaseSync, lemmaId: string, tier: "top15k" | "longtail") {
+export function buildGenPayload(db: DatabaseSync, lemmaId: string, tier: "top15k" | "mid25k" | "longtail") {
   const lemma = db.prepare("SELECT id, w, rank FROM lemma WHERE id = ?").get(lemmaId) as { id: string; w: string; rank: number };
   const posRows = db.prepare("SELECT id, p, g FROM pos_block WHERE lemma_id = ? ORDER BY sort_order").all(lemmaId) as {
     id: number;
@@ -96,7 +96,7 @@ export function buildGenPayload(db: DatabaseSync, lemmaId: string, tier: "top15k
     .prepare(
       `SELECT pb.p, s.fr, s.zh_merged, s.src_json
        FROM sense s JOIN pos_block pb ON pb.id = s.pos_block_id
-       WHERE s.lemma_id = ? ORDER BY pb.sort_order, s.sort_order`,
+       WHERE s.lemma_id = ? AND s.src_json != '["omw"]' ORDER BY pb.sort_order, s.sort_order`,
     )
     .all(lemmaId) as { p: string; fr: string | null; zh_merged: string; src_json: string }[];
   const frDefs = db
@@ -108,7 +108,7 @@ export function buildGenPayload(db: DatabaseSync, lemmaId: string, tier: "top15k
       id: lemma.id,
       w: lemma.w,
       pos: posRows.map((r) => r.p),
-      frDefs: frDefs.slice(0, 3),
+      frDefs: frDefs.slice(0, 4),
     };
   }
 
@@ -116,6 +116,18 @@ export function buildGenPayload(db: DatabaseSync, lemmaId: string, tier: "top15k
     .prepare("SELECT id AS exId, pos, fr FROM example WHERE lemma_id = ? AND zh = '' AND src = 'wikt-fr' ORDER BY id LIMIT 3")
     .all(lemmaId) as { exId: number; pos: string | null; fr: string }[];
   const phrCnt = (db.prepare("SELECT count(*) AS c FROM phrase WHERE lemma_id = ?").get(lemmaId) as { c: number }).c;
+
+  if (tier === "mid25k") {
+    return {
+      id: lemma.id,
+      w: lemma.w,
+      pos: posRows.map((r) => r.p),
+      existingSenses: existingSenses.map((s) => ({ p: s.p, fr: s.fr ?? undefined, zh: s.zh_merged })),
+      frDefs: frDefs.slice(0, 4),
+      untranslatedExamples: untranslatedEx.slice(0, 2),
+      needPhrases: phrCnt < 3,
+    };
+  }
 
   return {
     id: lemma.id,
@@ -153,9 +165,9 @@ export function applyGenResult(db: DatabaseSync, lemmaId: string, model: string,
     return { pbId, p };
   };
 
-  // Existing zh tokens to prevent duplicate AI senses
+  // Existing non-OMW-only zh tokens to prevent duplicate AI senses
   const existingZhs = new Set(
-    (db.prepare("SELECT zh_merged FROM sense WHERE lemma_id = ?").all(lemmaId) as { zh_merged: string }[]).map((r) =>
+    (db.prepare("SELECT zh_merged FROM sense WHERE lemma_id = ? AND src_json != '[\"omw\"]'").all(lemmaId) as { zh_merged: string }[]).map((r) =>
       normalizeZh(r.zh_merged),
     ),
   );
@@ -220,7 +232,7 @@ export function buildReviewPayload(db: DatabaseSync, lemmaId: string) {
     .prepare(
       `SELECT pb.p, s.zh_merged AS zh, s.src_json AS src
        FROM sense s JOIN pos_block pb ON pb.id = s.pos_block_id
-       WHERE s.lemma_id = ? AND s.src_json NOT LIKE '%"ai"%' ORDER BY pb.sort_order, s.sort_order`,
+       WHERE s.lemma_id = ? AND s.src_json NOT LIKE '%"ai"%' AND s.src_json != '["omw"]' ORDER BY pb.sort_order, s.sort_order`,
     )
     .all(lemmaId) as { p: string; zh: string; src: string }[];
   const aiSenses = db

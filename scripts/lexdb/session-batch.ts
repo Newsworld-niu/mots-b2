@@ -26,7 +26,7 @@ import {
 } from "./ai-core.ts";
 
 export type Phase = "gen" | "review";
-export type Tier = "top15k" | "longtail";
+export type Tier = "top15k" | "mid25k" | "longtail";
 
 const ROOT = resolve(import.meta.dirname, "../..");
 const DEFAULT_DB = resolve(ROOT, "data/lexdb/lexdb.sqlite");
@@ -114,7 +114,12 @@ function withWriteTx<T>(db: DatabaseSync, fn: () => T): T {
   throw new Error("Unreachable");
 }
 
-const tierSql = (tier: Tier) => (tier === "top15k" ? "l.rank <= 15000" : "(l.rank IS NULL OR l.rank > 15000)");
+const tierSql = (tier: Tier) =>
+  tier === "top15k"
+    ? "l.rank <= 15000"
+    : tier === "mid25k"
+      ? "l.rank > 15000 AND l.rank <= 25000 AND l.is_phrase = 0"
+      : "(l.rank IS NULL OR l.rank > 15000)";
 
 const BAD_TRAD_KEYS = new Set(["类", "强", "转", "层", "喜", "甚", "著", "乾", "徵"]);
 let tradMap: Record<string, string> | null = null;
@@ -211,7 +216,7 @@ export function claim(
     ).run(batchId, phase, tier, worker, JSON.stringify(ids), now);
     const paths = batchPaths(phase, batchId, opts.dir);
     mkdirSync(paths.dir, { recursive: true });
-    const instructions = phase === "review" ? SYSTEM_REVIEW : tier === "top15k" ? SYSTEM_TOP15K : SYSTEM_LONGTAIL;
+    const instructions = phase === "review" ? SYSTEM_REVIEW : tier === "longtail" ? SYSTEM_LONGTAIL : SYSTEM_TOP15K;
     writeFileSync(paths.inputPath, JSON.stringify({ batchId, phase, tier, instructions, entries: payloads }, null, 2));
     return { batchId, inputPath: paths.inputPath, outputPath: paths.outputPath, count: ids.length };
   });
@@ -221,8 +226,19 @@ const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 
 const zhOk = (s: unknown) => typeof s === "string" && s.trim().length > 0 && s.length <= 300 && CJK_RE.test(s);
 const VERDICTS = new Set(["ok", "fix", "reject"]);
 
+export interface ExpectedReviewIds {
+  senseIds: number[];
+  exIds: number[];
+  phraseIds: number[];
+}
+
 /** Validate a parsed output object against the batch; returns error messages (empty = valid). */
-export function validateOutput(phase: Phase, parsed: unknown, batchIds: readonly string[]): string[] {
+export function validateOutput(
+  phase: Phase,
+  parsed: unknown,
+  batchIds: readonly string[],
+  expectedReviewItems?: Map<string, ExpectedReviewIds>,
+): string[] {
   const errs: string[] = [];
   const allowed = new Set(batchIds);
   if (!isObj(parsed)) return ["output must be a JSON object"];
@@ -257,20 +273,39 @@ export function validateOutput(phase: Phase, parsed: unknown, batchIds: readonly
         if (!zhOk(ph.zh)) errs.push(`${at}.phrases[${j}].zh must be non-empty Chinese`);
       }
     } else {
-      const check = (arr: unknown, name: string, idKey: string) => {
-        if (arr === undefined) return;
-        if (!Array.isArray(arr)) return void errs.push(`${at}.${name} must be an array`);
+      const check = (arr: unknown, name: string, idKey: string): Set<number> => {
+        const seenIds = new Set<number>();
+        if (arr === undefined) return seenIds;
+        if (!Array.isArray(arr)) {
+          errs.push(`${at}.${name} must be an array`);
+          return seenIds;
+        }
         arr.forEach((r, j) => {
           if (!isObj(r)) return void errs.push(`${at}.${name}[${j}] must be an object`);
-          if (!Number.isInteger(Number(r[idKey])) || r[idKey] === null || r[idKey] === "") errs.push(`${at}.${name}[${j}].${idKey} must be an integer`);
+          const numId = Number(r[idKey]);
+          if (!Number.isInteger(numId) || r[idKey] === null || r[idKey] === "") errs.push(`${at}.${name}[${j}].${idKey} must be an integer`);
+          else seenIds.add(numId);
           const v = String(r.verdict ?? "").toLowerCase();
           if (!VERDICTS.has(v)) errs.push(`${at}.${name}[${j}].verdict must be ok|fix|reject`);
           if (v === "fix" && !zhOk(r.fixedZh)) errs.push(`${at}.${name}[${j}] verdict fix needs Chinese fixedZh`);
         });
+        return seenIds;
       };
-      check(item.senseReviews, "senseReviews", "senseId");
-      check(item.exampleReviews, "exampleReviews", "exId");
-      check(item.phraseReviews, "phraseReviews", "phraseId");
+      const seenSenseIds = check(item.senseReviews, "senseReviews", "senseId");
+      const seenExIds = check(item.exampleReviews, "exampleReviews", "exId");
+      const seenPhraseIds = check(item.phraseReviews, "phraseReviews", "phraseId");
+      const exp = expectedReviewItems?.get(id);
+      if (exp) {
+        for (const sid of exp.senseIds) {
+          if (!seenSenseIds.has(sid)) errs.push(`${at}.senseReviews missing senseId ${sid}`);
+        }
+        for (const eid of exp.exIds) {
+          if (!seenExIds.has(eid)) errs.push(`${at}.exampleReviews missing exId ${eid}`);
+        }
+        for (const pid of exp.phraseIds) {
+          if (!seenPhraseIds.has(pid)) errs.push(`${at}.phraseReviews missing phraseId ${pid}`);
+        }
+      }
       if (item.conflictReview !== undefined && item.conflictReview !== null) {
         const c = item.conflictReview;
         if (!isObj(c)) errs.push(`${at}.conflictReview must be an object`);
@@ -312,13 +347,32 @@ export function applyBatch(db: DatabaseSync, opts: { batchId: string; model: str
   if (!row) throw new Error(`Unknown batch ${opts.batchId}`);
   if (row.status !== "claimed") throw new Error(`Batch ${opts.batchId} is ${row.status}, not claimed`);
   const ids = JSON.parse(row.lemma_ids) as string[];
+  const { inputPath, outputPath } = batchPaths(row.phase, row.id, opts.dir);
   let parsed = opts.parsed;
   if (parsed === undefined) {
-    const { outputPath } = batchPaths(row.phase, row.id, opts.dir);
     if (!existsSync(outputPath)) throw new Error(`Output file not found: ${outputPath}`);
     parsed = extractJson(readFileSync(outputPath, "utf8"));
   }
-  const errs = validateOutput(row.phase, parsed, ids);
+  let expectedReviewItems: Map<string, ExpectedReviewIds> | undefined;
+  if (row.phase === "review" && existsSync(inputPath)) {
+    const inp = JSON.parse(readFileSync(inputPath, "utf8")) as {
+      entries?: Array<{
+        id: string;
+        aiSenses?: Array<{ senseId: number }>;
+        aiExamples?: Array<{ exId: number }>;
+        aiPhrases?: Array<{ phraseId: number }>;
+      }>;
+    };
+    expectedReviewItems = new Map();
+    for (const e of inp.entries ?? []) {
+      expectedReviewItems.set(String(e.id), {
+        senseIds: (e.aiSenses ?? []).map((x) => Number(x.senseId)),
+        exIds: (e.aiExamples ?? []).map((x) => Number(x.exId)),
+        phraseIds: (e.aiPhrases ?? []).map((x) => Number(x.phraseId)),
+      });
+    }
+  }
+  const errs = validateOutput(row.phase, parsed, ids, expectedReviewItems);
   if (errs.length) {
     const err = new Error(`Validation failed (${errs.length}):\n- ${errs.slice(0, 40).join("\n- ")}`);
     (err as Error & { validation?: string[] }).validation = errs;
@@ -381,7 +435,7 @@ export function release(db: DatabaseSync, staleMinutes: number): { released: str
 export function status(db: DatabaseSync) {
   const jobs = db
     .prepare(
-      `SELECT CASE WHEN l.rank <= 15000 THEN 'top15k' ELSE 'longtail' END AS tier, j.gen_status AS gen, j.review_status AS review, count(*) AS n
+      `SELECT CASE WHEN l.rank <= 15000 THEN 'top15k' WHEN l.rank <= 25000 THEN 'mid25k' ELSE 'gt25k' END AS tier, j.gen_status AS gen, j.review_status AS review, count(*) AS n
        FROM ai_job j JOIN lemma l ON l.id = j.lemma_id GROUP BY 1, 2, 3 ORDER BY 1, 2, 3`,
     )
     .all();
@@ -407,7 +461,7 @@ function main() {
       const phase = arg(args, "--phase") as Phase;
       const tier = (arg(args, "--tier", "top15k") as Tier) ?? "top15k";
       if (phase !== "gen" && phase !== "review") throw new Error("--phase must be gen or review");
-      if (tier !== "top15k" && tier !== "longtail") throw new Error("--tier must be top15k or longtail");
+      if (tier !== "top15k" && tier !== "mid25k" && tier !== "longtail") throw new Error("--tier must be top15k, mid25k, or longtail");
       const res = claim(db, { phase, tier, size: Number(arg(args, "--size", "40")), worker: arg(args, "--worker", "cli")! });
       console.log(JSON.stringify(res));
     } else if (cmd === "apply") {

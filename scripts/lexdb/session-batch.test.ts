@@ -204,6 +204,7 @@ test("session-batch claim, apply (with trad->simp & missing reset), review, and 
     const revInput = JSON.parse(readFileSync(rc.inputPath!, "utf8"));
     assert.equal(revInput.entries[0].id, "acheter");
 
+    const acheterPhrase = db.prepare("SELECT id FROM phrase WHERE lemma_id = 'acheter'").get() as { id: number };
     const ra = applyBatch(db, {
       batchId: rc.batchId!,
       model: "opus-rev",
@@ -213,6 +214,7 @@ test("session-batch claim, apply (with trad->simp & missing reset), review, and 
           {
             id: "acheter",
             senseReviews: [{ senseId: acheterSense.id, verdict: "ok" }],
+            phraseReviews: [{ phraseId: acheterPhrase.id, verdict: "ok" }],
           },
         ],
       },
@@ -248,5 +250,66 @@ test("toSimp converts traditional characters without corrupting common simplifie
     assert.equal(toSimp("喜欢甚至著名显著转层类强傳統"), "喜欢甚至著名显著转层类强传统");
   } finally {
     setTradMap(null);
+  }
+});
+
+test("mid25k claim ignores OMW-only senses and caps examples at 2; review enforces all item IDs", () => {
+  const db = makeTestDb();
+  const dir = mkdtempSync(join(tmpdir(), "lexdb-mid25k-test-"));
+  try {
+    db.prepare("INSERT INTO lemma(id, w, folded, rank, is_phrase, sources_json) VALUES ('ecueil', 'écueil', 'ecueil', 15003, 0, '[\"omw\"]')").run();
+    const pbRes = db.prepare("INSERT INTO pos_block(lemma_id, p, sort_order) VALUES ('ecueil', 'n.m.', 0)").run();
+    db.prepare("INSERT INTO sense(pos_block_id, lemma_id, zh_merged, src_json, conf, sort_order) VALUES (?, 'ecueil', '收帆；缩帆', '[\"omw\"]', 1, 0)").run(Number(pbRes.lastInsertRowid));
+    db.prepare("INSERT INTO fr_def(lemma_id, p, gloss) VALUES ('ecueil', 'n.m.', 'Rocher à fleur d''eau.')").run();
+    for (let i = 1; i <= 3; i++) {
+      db.prepare("INSERT INTO example(lemma_id, fr, zh, src) VALUES ('ecueil', ?, '', 'wikt-fr')").run(`Exemple ${i} sur un écueil.`);
+    }
+    db.prepare("INSERT INTO ai_job(lemma_id, tier, gen_status, review_status) VALUES ('ecueil', 'longtail', 'pending', 'pending')").run();
+
+    const c1 = claim(db, { phase: "gen", tier: "mid25k", size: 5, worker: "m1", dir });
+    assert.equal(c1.count, 1);
+    const inp = JSON.parse(readFileSync(c1.inputPath!, "utf8"));
+    assert.equal(inp.tier, "mid25k");
+    assert.equal(inp.entries[0].existingSenses.length, 0);
+    assert.equal(inp.entries[0].untranslatedExamples.length, 2);
+
+    const a1 = applyBatch(db, {
+      batchId: c1.batchId!,
+      model: "m-gen",
+      dir,
+      parsed: {
+        entries: [{ id: "ecueil", senses: [{ p: "n.m.", zh: "暗礁；障碍" }] }],
+      },
+    });
+    assert.equal(a1.applied, 1);
+
+    const rc = claim(db, { phase: "review", tier: "mid25k", size: 5, worker: "m2", dir });
+    assert.equal(rc.count, 1);
+    const revInp = JSON.parse(readFileSync(rc.inputPath!, "utf8"));
+    assert.equal(revInp.entries[0].openSenses.length, 0);
+    const sid = revInp.entries[0].aiSenses[0].senseId;
+
+    assert.throws(
+      () =>
+        applyBatch(db, {
+          batchId: rc.batchId!,
+          model: "m-rev",
+          dir,
+          parsed: { reviews: [{ id: "ecueil", senseReviews: [] }] },
+        }),
+      /missing senseId/,
+    );
+
+    const revErrs = validateOutput(
+      "review",
+      { reviews: [{ id: "ecueil", senseReviews: [{ senseId: sid, verdict: "ok" }], exampleReviews: [], phraseReviews: [] }] },
+      ["ecueil"],
+      new Map([["ecueil", { senseIds: [sid], exIds: [99], phraseIds: [88] }]]),
+    );
+    assert.ok(revErrs.some((e) => e.includes("missing exId 99")));
+    assert.ok(revErrs.some((e) => e.includes("missing phraseId 88")));
+  } finally {
+    db.close();
+    rmSync(dir, { recursive: true, force: true });
   }
 });
