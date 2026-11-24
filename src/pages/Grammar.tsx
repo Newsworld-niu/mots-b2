@@ -14,7 +14,7 @@ const StructureSprint = lazy(() =>
 /** 语法点 / 动词变位: the two halves of the 语法 tab. */
 export function GrammarTabs({ on }: { on: "grammar" | "conj" }) {
   return (
-    <div className="segmented gram-tabs" role="tablist">
+    <div className="segmented gram-tabs pillar-tabs" role="tablist">
       <a role="tab" aria-selected={on === "grammar"} className={on === "grammar" ? "is-on" : ""} href="#/grammar">
         语法点
       </a>

@@ -23,7 +23,7 @@ import { confirmAction } from "../ui/ConfirmSheet";
 import { Illustration } from "../ui/Illustration";
 import { VoicePick } from "../ui/EntryView";
 import { toast } from "../ui/Toast";
-import { EXAM_TRACKS, TRACK_META, type ExamTrack } from "../lib/exam-tracks";
+import { TRACK_META, type ExamTrack } from "../lib/exam-tracks";
 import { EXPRESSIONS } from "../lib/expressions";
 import { coreSet, CORE_LABEL, isCore } from "../lib/core-words";
 import { DRILL_QUESTIONS } from "../lib/drill";
@@ -294,37 +294,12 @@ export function Practice() {
   return (
     <div className="page practice">
       <header className="page-head">
-        <p className="eyebrow">练习 · {trackMeta.name} Studio</p>
+        <p className="eyebrow">应试 · {trackMeta.name}</p>
         <h1 className="display">听、读、写、说，分科击破。</h1>
-        <p className="lede">顶层一键切换 DELF B2、TCF 全科与 TEF 2023.12 新政赛道，下层随时热身词汇拼写与成句；基础训练不改动 FSRS 记忆进度。</p>
-        <a className="btn btn-ghost practice-compare" href="#/compare">
-          易混词辨析：ou / où、voir / regarder …… <ArrowRight size={16} />
-        </a>
+        <p className="lede">
+          {trackMeta.scaleSummary} <span className="chip">{trackMeta.b2TargetLabel}</span>
+        </p>
       </header>
-
-      <section className="panel" aria-label="考试体系切换">
-        <div className="panel-head">
-          <div>
-            <span className="eyebrow">当前目标考试赛道</span>
-            <p className="muted small">{trackMeta.scaleSummary}</p>
-          </div>
-          <span className="chip">{trackMeta.b2TargetLabel}</span>
-        </div>
-        <div className="segmented segmented-wide" role="tablist" aria-label="目标法语考试">
-          {EXAM_TRACKS.map((t) => (
-            <button
-              key={t}
-              type="button"
-              role="tab"
-              aria-selected={examTrack === t}
-              className={examTrack === t ? "is-on" : ""}
-              onClick={() => store.settings({ examTrack: t })}
-            >
-              {TRACK_META[t].shortName}
-            </button>
-          ))}
-        </div>
-      </section>
 
       <ExamDashboard compact onStartMock={() => go({ page: "mock" })} />
 
