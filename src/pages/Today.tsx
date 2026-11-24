@@ -1,5 +1,5 @@
 import { POS_OPTIONS } from "../lib/pos";
-import { ArrowRight, BookMarked, Calendar, Compass, Download, Flame, Headphones, Keyboard, MessageSquareQuote, Mic, Sparkles, Target } from "lucide-react";
+import { ArrowRight, BookMarked, Calendar, Compass, Download, Flame, Headphones, Keyboard, MessageSquareQuote, Mic, SlidersHorizontal, Sparkles, Target } from "lucide-react";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { prefetch, useAtlas, useEntry } from "../atlas/context";
 import { useGrammarMeta } from "../atlas/grammar";
@@ -26,7 +26,6 @@ import { Ring } from "../ui/Ring";
 import { Sheet } from "../ui/Sheet";
 import { toast } from "../ui/Toast";
 
-const LazyExamDashboard = lazy(() => import("../ui/ExamDashboard").then((m) => ({ default: m.ExamDashboard })));
 const LazyGalaxy = lazy(() => import("../galaxy/Galaxy").then((m) => ({ default: m.Galaxy })));
 const LazyHomeDictionary = lazy(() => import("../ui/HomeDictionary").then((m) => ({ default: m.HomeDictionary })));
 const LazyFamilyPicker = lazy(() => import("../ui/FamilyPicker").then((m) => ({ default: m.FamilyPicker })));
@@ -174,55 +173,34 @@ export function Today() {
   return (
     <div className="page today">
       <header className="greet">
-        <p className="eyebrow">
-          {greeting(now.getHours())} · {now.getMonth() + 1}月{now.getDate()}日 · 星期{"日一二三四五六"[now.getDay()]}
-        </p>
-        <h1 className="display">
-          <span lang="fr">{greetingFr(now.getHours())}</span>，探索者。
-        </h1>
+        <div>
+          <p className="eyebrow">
+            {greeting(now.getHours())} · {now.getMonth() + 1}月{now.getDate()}日 · 星期{"日一二三四五六"[now.getDay()]}
+          </p>
+          <h1 className="display">
+            <span lang="fr">{greetingFr(now.getHours())}</span>，探索者。
+          </h1>
+        </div>
+        <dl className="greet-stats">
+          <div className={streak ? "is-hot" : ""}>
+            <dt><Flame size={14} /> 连续</dt>
+            <dd>{streak}<small>天</small></dd>
+          </div>
+          <div>
+            <dt>今日答题</dt>
+            <dd>{doneToday}</dd>
+          </div>
+          <div>
+            <dt>已点亮</dt>
+            <dd>{learned.toLocaleString()}</dd>
+          </div>
+        </dl>
       </header>
-
-      {!icebreakerDismissed && learned < 5 && !(progress.examLog?.length) && (
-        <section className="panel today-icebreaker" aria-label="3 分钟快速体验 DELF B2">
-          <div className="panel-head">
-            <div>
-              <p className="eyebrow">新手 3 分钟破冰 · DELF B2</p>
-              <h2>无需配置 Key，先完成这 3 步体验闭环</h2>
-            </div>
-            <button
-              type="button"
-              className="link small"
-              onClick={() => {
-                setIcebreakerDismissed(true);
-                try {
-                  localStorage.setItem("fb2.icebreaker.dismissed", "1");
-                } catch {
-                  /* optional */
-                }
-              }}
-            >
-              收起引导
-            </button>
-          </div>
-          <div className="today-icebreaker-steps">
-            <button type="button" className="icebreaker-step" onClick={() => start({ extra: 5 })}>
-              <span className="chip">第 1 步 · 1 分钟</span>
-              <b>5 词快速热身</b>
-              <small>按 FSRS 记忆卡点亮前 5 颗核心词汇</small>
-            </button>
-            <button type="button" className="icebreaker-step" onClick={() => go({ page: "read" })}>
-              <span className="chip">第 2 步 · 1 分钟</span>
-              <b>精读一篇免 AI B2 报刊</b>
-              <small>即点即查词典与句级跟读，直接对接真题题材</small>
-            </button>
-            <button type="button" className="icebreaker-step" onClick={() => go({ page: "essay" })}>
-              <span className="chip">第 3 步 · 1 分钟</span>
-              <b>看一遍高分作文批改样张</b>
-              <small>免 Key 预览官方五项评分表与润色对照</small>
-            </button>
-          </div>
-        </section>
-      )}
+      <section className="today-dict-section" aria-label="快速查词">
+        <Suspense fallback={null}>
+          <LazyHomeDictionary />
+        </Suspense>
+      </section>
 
       {backupDue.remind && !cloudSyncHealthy(sync) && !backupDismissed && (
         <aside className="backup-remind" role="status">
@@ -246,106 +224,6 @@ export function Today() {
           </div>
         </aside>
       )}
-
-      <section className="panel prep-card" aria-label="今日备考调度">
-        <div className="prep-head">
-          <div className="prep-meta">
-            <p className="eyebrow">
-              今日备考调度 · {settings.examTrack === "tcf" ? "TCF 全科" : settings.examTrack === "tef" ? "TEF 新政" : "DELF B2"}
-            </p>
-            <div className="prep-pills">
-              <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
-                <Calendar size={14} />
-                {prep.daysLeft === null
-                  ? "未设考期 · 点此设定"
-                  : prep.daysLeft > 0
-                    ? `距考还有 ${prep.daysLeft} 天`
-                    : prep.daysLeft === 0
-                      ? "考试就在今天"
-                      : "已过设定考期"}
-              </button>
-              <span className="prep-pill">
-                <Target size={14} />{" "}
-                {settings.examTrack === "tcf"
-                  ? "目标 B2 (400+ / 10+) · NCLC 7+"
-                  : settings.examTrack === "tef"
-                    ? "目标 B2 (400+) · NCLC 7+ (434+/456+)"
-                    : `目标 ${prep.targetScore}/100（均 ${prep.targetPerPart}/25）`}
-              </span>
-              <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
-                每日预算 {prep.totalMinutes} 分钟
-              </button>
-              {prep.phase === "urgent" && (
-                <span className="prep-pill is-urgent">考前 30 天内 · 冲刺模式</span>
-              )}
-            </div>
-          </div>
-          <div className="prep-head-actions">
-            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPlaceOpen(true)}>
-              <Compass size={15} /> {progress.placement ? `重测定级（${atlas.cefr[progress.placement.level] ?? "B1"}）` : "摸底定级"}
-            </button>
-          </div>
-        </div>
-
-        <Suspense fallback={null}>
-          <LazyExamDashboard compact onStartMock={() => go({ page: "mock" })} />
-        </Suspense>
-
-        {prep.vocabOverCap && (
-          <div className="prep-warn" role="status">
-            <span>
-              {prep.phase === "urgent" ? `考前 ${prep.daysLeft} 天冲刺` : "距考不足 6 个月"}：当前背词预计 {prep.vocabRawMinutes} 分钟（占今日 {prep.vocabSharePct}%），建议控制在 ≤{prep.vocabCapPct}%（≤{prep.vocabCapMinutes} 分钟）。
-            </span>
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              onClick={() => {
-                store.settings({ dailyNew: prep.suggestedDailyNew });
-                toast(`已将每日新词调为 ${prep.suggestedDailyNew} 个（背词控制在 ${prep.vocabCapPct}% 以内）`, "ok");
-              }}
-            >
-              调为每日 {prep.suggestedDailyNew} 新词
-            </button>
-          </div>
-        )}
-
-        {(() => {
-          const dailyStatus = reconcileDailyTasks(prep.tasks, progress, now);
-          return (
-            <ol className="prep-tasks">
-              {prep.tasks.map((t) => {
-                const st = dailyStatus[t.kind];
-                return (
-                  <li key={t.kind} className={`prep-task is-${t.kind}${st?.done ? " is-done" : ""}`}>
-                    <div className="prep-task-body">
-                      <div className="prep-task-top">
-                        <b>
-                          {st?.done ? "✓ " : ""}
-                          {t.title}
-                        </b>
-                        <span className="prep-task-time">
-                          {t.minutes} 分钟 · {t.sharePct}%
-                        </span>
-                      </div>
-                      <small className="muted">
-                        {st?.done ? `${st.detail} · ` : ""}
-                        {t.reason}
-                      </small>
-                    </div>
-                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => launchPrepTask(t.kind)}>
-                      {st?.done ? "再练一次" : t.cta} <ArrowRight size={14} />
-                    </button>
-                  </li>
-                );
-              })}
-            </ol>
-          );
-        })()}
-      </section>
-
-      <Suspense fallback={null}>
-        <LazyCockpitInsights />
-      </Suspense>
 
       <section className={`journey ${total === 0 && !active ? "is-clear" : ""}`}>
         <img className="journey-art" src={`${BRAND}/hero.webp`} alt="" fetchPriority="high" />
@@ -389,21 +267,27 @@ export function Today() {
               <RangeNote otherDue={plan.otherDue} />
             </>
           )}
-          <div className="study-pos-row">
-            <span id="study-pos-label">按词性学习：</span>
-            <div className="study-pos-options" role="group" aria-labelledby="study-pos-label">
-              <button className={!settings.studyPos?.length ? "is-on" : ""} aria-pressed={!settings.studyPos?.length} onClick={() => store.settings({ studyPos: null })}>全部</button>
-              {POS_OPTIONS.map(([key, label]) => {
-                const selected = settings.studyPos?.includes(key) ?? false;
-                return <button key={key} className={selected ? "is-on" : ""} aria-pressed={selected} onClick={() => {
-                  const next = selected ? settings.studyPos!.filter((p) => p !== key) : [...(settings.studyPos ?? []), key];
-                  store.settings({ studyPos: next.length && next.length < POS_OPTIONS.length ? next : null });
-                }}>{label}</button>;
-              })}
+          <details className="journey-filters">
+            <summary>
+              <SlidersHorizontal size={15} /> 学习范围设置
+              <small>{settings.studyPos?.length ? `词性 ${settings.studyPos.length} 项` : "全部词性"} · {settings.studyFamilies?.length ? `词族 ${settings.studyFamilies.length} 个` : "全部词族"}</small>
+            </summary>
+            <div className="study-pos-row">
+              <span id="study-pos-label">按词性学习：</span>
+              <div className="study-pos-options" role="group" aria-labelledby="study-pos-label">
+                <button className={!settings.studyPos?.length ? "is-on" : ""} aria-pressed={!settings.studyPos?.length} onClick={() => store.settings({ studyPos: null })}>全部</button>
+                {POS_OPTIONS.map(([key, label]) => {
+                  const selected = settings.studyPos?.includes(key) ?? false;
+                  return <button key={key} className={selected ? "is-on" : ""} aria-pressed={selected} onClick={() => {
+                    const next = selected ? settings.studyPos!.filter((p) => p !== key) : [...(settings.studyPos ?? []), key];
+                    store.settings({ studyPos: next.length && next.length < POS_OPTIONS.length ? next : null });
+                  }}>{label}</button>;
+                })}
+              </div>
+              <small>{active ? "下次旅程生效，当前旅程继续原来的词" : "可多选 · 新词和复习包含任一所选词性"}</small>
             </div>
-            <small>{active ? "下次旅程生效，当前旅程继续原来的词" : "可多选 · 新词和复习包含任一所选词性"}</small>
-          </div>
-          <div className="study-family-row"><span>按词族学习：</span><Suspense fallback={null}><LazyFamilyPicker study value={settings.studyFamilies} onChange={(ids, scope) => store.settings({ studyFamilies: ids.length ? ids : null, ...(scope && scope !== "study" ? { studyDecks: scope === "all" ? null : [scope] } : {}) })} /></Suspense></div>
+            <div className="study-family-row"><span>按词族学习：</span><Suspense fallback={null}><LazyFamilyPicker study value={settings.studyFamilies} onChange={(ids, scope) => store.settings({ studyFamilies: ids.length ? ids : null, ...(scope && scope !== "study" ? { studyDecks: scope === "all" ? null : [scope] } : {}) })} /></Suspense></div>
+          </details>
           {teaser.length > 0 && (
             <div className="teaser" aria-label="今天将遇见的新词">
               {teaser.map((w, i) => (
@@ -455,6 +339,211 @@ export function Today() {
         </div>
       </section>
 
+      {!icebreakerDismissed && learned < 5 && !(progress.examLog?.length) && (
+        <section className="panel today-icebreaker" aria-label="3 分钟快速体验 DELF B2">
+          <div className="panel-head">
+            <div>
+              <p className="eyebrow">新手 3 分钟破冰 · DELF B2</p>
+              <h2>无需配置 Key，先完成这 3 步体验闭环</h2>
+            </div>
+            <button
+              type="button"
+              className="link small"
+              onClick={() => {
+                setIcebreakerDismissed(true);
+                try {
+                  localStorage.setItem("fb2.icebreaker.dismissed", "1");
+                } catch {
+                  /* optional */
+                }
+              }}
+            >
+              收起引导
+            </button>
+          </div>
+          <div className="today-icebreaker-steps">
+            <button type="button" className="icebreaker-step" onClick={() => start({ extra: 5 })}>
+              <span className="chip">第 1 步 · 1 分钟</span>
+              <b>5 词快速热身</b>
+              <small>按 FSRS 记忆卡点亮前 5 颗核心词汇</small>
+            </button>
+            <button type="button" className="icebreaker-step" onClick={() => go({ page: "read" })}>
+              <span className="chip">第 2 步 · 1 分钟</span>
+              <b>精读一篇免 AI B2 报刊</b>
+              <small>即点即查词典与句级跟读，直接对接真题题材</small>
+            </button>
+            <button type="button" className="icebreaker-step" onClick={() => go({ page: "essay" })}>
+              <span className="chip">第 3 步 · 1 分钟</span>
+              <b>看一遍高分作文批改样张</b>
+              <small>免 Key 预览官方五项评分表与润色对照</small>
+            </button>
+          </div>
+        </section>
+      )}
+
+      <div className="today-primary-grid">
+        <section className="panel prep-card" aria-label="今日备考调度">
+          <div className="prep-head">
+            <div className="prep-meta">
+              <p className="eyebrow">
+                今日备考调度 · {settings.examTrack === "tcf" ? "TCF 全科" : settings.examTrack === "tef" ? "TEF 新政" : "DELF B2"}
+              </p>
+              <div className="prep-pills">
+                <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
+                  <Calendar size={14} />
+                  {prep.daysLeft === null
+                    ? "未设考期 · 点此设定"
+                    : prep.daysLeft > 0
+                      ? `距考还有 ${prep.daysLeft} 天`
+                      : prep.daysLeft === 0
+                        ? "考试就在今天"
+                        : "已过设定考期"}
+                </button>
+                <span className="prep-pill">
+                  <Target size={14} />{" "}
+                  {settings.examTrack === "tcf"
+                    ? "目标 B2 (400+ / 10+) · NCLC 7+"
+                    : settings.examTrack === "tef"
+                      ? "目标 B2 (400+) · NCLC 7+ (434+/456+)"
+                      : `目标 ${prep.targetScore}/100（均 ${prep.targetPerPart}/25）`}
+                </span>
+                <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
+                  每日预算 {prep.totalMinutes} 分钟
+                </button>
+                {prep.phase === "urgent" && (
+                  <span className="prep-pill is-urgent">考前 30 天内 · 冲刺模式</span>
+                )}
+              </div>
+            </div>
+            <div className="prep-head-actions">
+              <a className="btn btn-ghost btn-sm" href="#/practice">
+                <Target size={15} /> 四科实测总览
+              </a>
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPlaceOpen(true)}>
+                <Compass size={15} /> {progress.placement ? `重测定级（${atlas.cefr[progress.placement.level] ?? "B1"}）` : "摸底定级"}
+              </button>
+            </div>
+          </div>
+
+
+          {prep.vocabOverCap && (
+            <div className="prep-warn" role="status">
+              <span>
+                {prep.phase === "urgent" ? `考前 ${prep.daysLeft} 天冲刺` : "距考不足 6 个月"}：当前背词预计 {prep.vocabRawMinutes} 分钟（占今日 {prep.vocabSharePct}%），建议控制在 ≤{prep.vocabCapPct}%（≤{prep.vocabCapMinutes} 分钟）。
+              </span>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => {
+                  store.settings({ dailyNew: prep.suggestedDailyNew });
+                  toast(`已将每日新词调为 ${prep.suggestedDailyNew} 个（背词控制在 ${prep.vocabCapPct}% 以内）`, "ok");
+                }}
+              >
+                调为每日 {prep.suggestedDailyNew} 新词
+              </button>
+            </div>
+          )}
+
+          {(() => {
+            const dailyStatus = reconcileDailyTasks(prep.tasks, progress, now);
+            return (
+              <ol className="prep-tasks">
+                {prep.tasks.map((t) => {
+                  const st = dailyStatus[t.kind];
+                  return (
+                    <li key={t.kind} className={`prep-task is-${t.kind}${st?.done ? " is-done" : ""}`}>
+                      <div className="prep-task-body">
+                        <div className="prep-task-top">
+                          <b>
+                            {st?.done ? "✓ " : ""}
+                            {t.title}
+                          </b>
+                          <span className="prep-task-time">
+                            {t.minutes} 分钟 · {t.sharePct}%
+                          </span>
+                        </div>
+                        <small className="muted">
+                          {st?.done ? `${st.detail} · ` : ""}
+                          {t.reason}
+                        </small>
+                      </div>
+                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => launchPrepTask(t.kind)}>
+                        {st?.done ? "再练一次" : t.cta} <ArrowRight size={14} />
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+            );
+          })()}
+        </section>
+        <div className="today-side">
+          <section className="panel streak-panel">
+            <div className="panel-head">
+              <h2 className="eyebrow">这一周</h2>
+              <span className={`streak ${streak ? "is-on" : ""}`}>
+                <Flame size={16} /> 连续 {streak} 天
+              </span>
+            </div>
+            <div className="streak-body">
+              <Ring value={goal ? doneToday / goal : 0} size={112} stroke={8} tone="terra">
+                <b>{doneToday}</b>
+                <small>今日答题</small>
+              </Ring>
+              <ol className="week">
+                {week.map((d) => (
+                  <li key={d.k} className={`${d.v ? "is-on" : ""} ${d.today ? "is-today" : ""}`} title={`${d.k}：${d.v} 题`}>
+                    <span style={{ "--h": Math.min(1, d.v / 40) } as React.CSSProperties} />
+                    <small>{d.label}</small>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <dl className="mini-stats">
+              <div>
+                <dt>已点亮</dt>
+                <dd>{learned.toLocaleString()}</dd>
+              </div>
+              <div>
+                <dt>已掌握</dt>
+                <dd>{mastered.toLocaleString()}</dd>
+              </div>
+              <div>
+                <dt>全部词汇</dt>
+                <dd>{atlas.count.toLocaleString()}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section className="panel today-quick-links" aria-label="B2 专项直达">
+            <h2 className="eyebrow">专项训练直达</h2>
+            <div className="today-quick-grid">
+              <button type="button" className="btn btn-ghost" onClick={() => go({ page: "real" })}>
+                <Headphones size={16} /> 真实电台 RFI
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={() => go({ page: "reflow" })}>
+                <BookMarked size={16} /> 统一错题中心{reflow.due > 0 ? ` (${reflow.due})` : ""}
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={() => go({ page: "expr" })}>
+                高频论证表达
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={() => go({ page: "mock" })}>
+                全真模考
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={() => go({ page: "conj" })}>
+                动词变位
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={() => go({ page: "compare" })}>
+                易混词辨析
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
+      <Suspense fallback={null}>
+        <LazyCockpitInsights />
+      </Suspense>
+
       <section className="panel today-lounge-card" aria-label="漫游 · 书影音馆">
         <div className="panel-head">
           <div>
@@ -487,75 +576,6 @@ export function Today() {
             </a>
           </div>
         </div>
-      </section>
-
-      <div className="today-primary-grid">
-        <section className="panel streak-panel">
-          <div className="panel-head">
-            <h2 className="eyebrow">这一周</h2>
-            <span className={`streak ${streak ? "is-on" : ""}`}>
-              <Flame size={16} /> 连续 {streak} 天
-            </span>
-          </div>
-          <div className="streak-body">
-            <Ring value={goal ? doneToday / goal : 0} size={112} stroke={8} tone="terra">
-              <b>{doneToday}</b>
-              <small>今日答题</small>
-            </Ring>
-            <ol className="week">
-              {week.map((d) => (
-                <li key={d.k} className={`${d.v ? "is-on" : ""} ${d.today ? "is-today" : ""}`} title={`${d.k}：${d.v} 题`}>
-                  <span style={{ "--h": Math.min(1, d.v / 40) } as React.CSSProperties} />
-                  <small>{d.label}</small>
-                </li>
-              ))}
-            </ol>
-          </div>
-          <dl className="mini-stats">
-            <div>
-              <dt>已点亮</dt>
-              <dd>{learned.toLocaleString()}</dd>
-            </div>
-            <div>
-              <dt>已掌握</dt>
-              <dd>{mastered.toLocaleString()}</dd>
-            </div>
-            <div>
-              <dt>全部词汇</dt>
-              <dd>{atlas.count.toLocaleString()}</dd>
-            </div>
-          </dl>
-        </section>
-
-        <section className="panel today-quick-links" aria-label="B2 专项直达">
-          <h2 className="eyebrow">专项训练直达</h2>
-          <div className="today-quick-grid">
-            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "real" })}>
-              <Headphones size={16} /> 真实电台 RFI
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "reflow" })}>
-              <BookMarked size={16} /> 统一错题中心{reflow.due > 0 ? ` (${reflow.due})` : ""}
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "expr" })}>
-              高频论证表达
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "mock" })}>
-              全真模考
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "conj" })}>
-              动词变位
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={() => go({ page: "compare" })}>
-              易混词辨析
-            </button>
-          </div>
-        </section>
-      </div>
-
-      <section className="today-dict-section" aria-label="快速查词">
-        <Suspense fallback={null}>
-          <LazyHomeDictionary />
-        </Suspense>
       </section>
 
       <details className="today-discover" open={discoverOpen} onToggle={(e) => setDiscoverOpen(e.currentTarget.open)}>
