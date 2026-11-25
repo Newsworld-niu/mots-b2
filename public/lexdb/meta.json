@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated": "2026-11-23",
+  "generated": "2026-11-25",
   "sources": {
     "atlas": "Mots B2 Atlas (data/lexicon.json)",
     "lexique": "Lexique 3.83 (CC BY-SA 4.0)",
@@ -10,7 +10,10 @@
     "omw": "WOLF (OMW-fr, CeCILL-C V1) x Chinese Open Wordnet (OMW-cmn)",
     "tatoeba": "Tatoeba fra-cmn (CC BY 2.0 FR)",
     "ai": "OpenRouter LLM generation",
-    "ai-reviewed": "OpenRouter cross-model review"
+    "ai-reviewed": "OpenRouter cross-model review",
+    "morphynet": "MorphyNet French derivational morphology v1 (CC BY-SA 4.0)",
+    "cnrtl": "CNRTL / ATILF CRISCO DES synonymes & antonymes + morphological families (crawled, rate-limited; relation lists only)",
+    "frdic": "Frdic 法语助手 近义词/反义词/派生 (crawled verification batch, rate-limited; relation lists only)"
   },
   "licenses": [
     "CC BY-SA 4.0",
@@ -82,6 +85,7 @@
     "u",
     "un"
   ],
+  "hintsShards": true,
   "counts": {
     "lemmas": 41077,
     "withZh": 41022,
@@ -93,6 +97,9 @@
       "1": 67616,
       "2": 5051,
       "3": 12005
-    }
+    },
+    "withDerived": 24327,
+    "withSyn": 16219,
+    "withAnt": 3511
   }
 }

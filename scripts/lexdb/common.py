@@ -58,7 +58,27 @@ OMW_POS = {
 
 VALID_POS = {"n.m.", "n.f.", "n.m./f.", "n.", "v.", "adj.", "adv.", "prép.", "conj.", "pron.", "interj.", "loc."}
 VALID_LEVELS = {"A1", "A2", "B1", "B2"}
-VALID_SOURCES = {"atlas", "wikt-fr", "wikt-zh", "cfdict", "omw", "tatoeba", "lexique", "ai", "ai-reviewed", "user"}
+VALID_SOURCES = {"atlas", "wikt-fr", "wikt-zh", "cfdict", "omw", "tatoeba", "lexique", "morphynet", "cnrtl", "frdic", "ai", "ai-reviewed", "user"}
+
+# meta.json["sources"] descriptions shared by export.py and enrich-relations.py
+SOURCE_DESCRIPTIONS = {
+    "atlas": "Mots B2 Atlas (data/lexicon.json)",
+    "lexique": "Lexique 3.83 (CC BY-SA 4.0)",
+    "wikt-fr": "Wiktionnaire fr via wiktextract + Wiktionary French entries via Kaikki (CC BY-SA 4.0)",
+    "wikt-zh": "Wiktionary zh / fr-zh (CC BY-SA 4.0)",
+    "cfdict": "CFDICT (CC BY-SA 3.0)",
+    "omw": "WOLF (OMW-fr, CeCILL-C V1) x Chinese Open Wordnet (OMW-cmn)",
+    "tatoeba": "Tatoeba fra-cmn (CC BY 2.0 FR)",
+    "morphynet": "MorphyNet French derivational morphology v1 (CC BY-SA 4.0)",
+    "cnrtl": "CNRTL / ATILF CRISCO DES synonymes & antonymes + morphological families (crawled, rate-limited; relation lists only)",
+    "frdic": "Frdic 法语助手 近义词/反义词/派生 (crawled verification batch, rate-limited; relation lists only)",
+    "ai": "OpenRouter LLM generation",
+    "ai-reviewed": "OpenRouter cross-model review",
+}
+SOURCE_LICENSES = ["CC BY-SA 4.0", "CC BY 2.0 FR", "CC BY-SA 3.0", "CeCILL-C V1", "WordNet License"]
+
+# public/lexdb/hints/<bucket>.json: Record<lowercase word, [short pos, short zh]>
+HINT_ZH_MAX = 18
 
 ZH_SPLIT_RE = re.compile(r"[；;，,、/（）()]")
 PARENS_RE = re.compile(r"（[^）]*）|\([^)]*\)")
@@ -131,6 +151,41 @@ def lexdb_key(folded: str, splits: set[str] | None = None) -> str:
     while len(key) < 4 and key in splits:
         key = (letters + "___")[: len(key) + 1]
     return key
+
+
+def hint_bucket(word: str) -> str:
+    folded = lexdb_fold(word)
+    letters = re.sub(r"[^a-z]", "", folded)
+    if not letters or not folded or not folded[0].isalpha():
+        return "_"
+    return letters[0]
+
+
+def hint_key(word: str) -> str:
+    """Key used in public/lexdb/hints/<bucket>.json (exact lowercase NFC spelling)."""
+    return unicodedata.normalize("NFC", word).strip().lower()
+
+
+def short_hint_zh(zh: str, trad_map: dict[str, str] | None = None, limit: int = HINT_ZH_MAX) -> str:
+    """Short simplified-Chinese preview: drop parentheticals, keep the first 1-2 terms, cap at `limit` chars."""
+    s = to_simp(nfc(zh or ""), trad_map or {})
+    s = PARENS_RE.sub("", s)
+    s = re.sub(r"\[[^\]]*\]|【[^】]*】|〈[^〉]*〉", "", s)
+    parts: list[str] = []
+    for seg in re.split(r"[；;]", s):
+        for p in re.split(r"[，,、/]", seg):
+            p = p.strip(" 。.：:·~～!?！？\t")
+            if p and has_cjk(p) and p not in parts:
+                parts.append(p)
+    if not parts:
+        return ""
+    out = parts[0][:limit]
+    for p in parts[1:3]:
+        cand = f"{out}；{p}"
+        if len(cand) > limit:
+            break
+        out = cand
+    return out
 
 
 def zh_bucket(term: str) -> int:
@@ -268,6 +323,81 @@ def zh_tokens(text: str, trad_map: dict[str, str] | None = None) -> list[str]:
         if 1 <= len(p) <= 20 and p not in out:
             out.append(p)
     return out
+
+
+def compact_json_bytes(obj) -> bytes:
+    return json.dumps(obj, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+
+
+def load_lexdb_entries(out_dir: Path | None = None) -> dict[str, dict]:
+    """Load every shipped public/lexdb/e/*.json entry keyed by entry id (immutable enrichment baseline)."""
+    d = (out_dir or ROOT / "public/lexdb") / "e"
+    entries: dict[str, dict] = {}
+    for fp in sorted(d.glob("*.json")):
+        entries.update(json.loads(fp.read_text(encoding="utf-8")))
+    return entries
+
+
+def load_lexdb_forms(out_dir: Path | None = None) -> dict[str, list[str]]:
+    d = (out_dir or ROOT / "public/lexdb") / "forms"
+    forms: dict[str, list[str]] = {}
+    for fp in sorted(d.glob("*.json")):
+        forms.update(json.loads(fp.read_text(encoding="utf-8")))
+    return forms
+
+
+def _hint_norm(w: str) -> str:
+    return re.sub(r"\s+", " ", nfc(w or "").strip().replace("’", "'").replace("‘", "'")).lower()
+
+
+def build_hint_shards(entries: dict[str, dict], extra_words=(), atlas_cards=()) -> dict[str, dict[str, list[str]]]:
+    """public/lexdb/hints/<bucket>.json payloads: every word in syn/ant/derived (+ extra_words, e.g. Atlas family
+    names/examples) -> [short pos, short simplified zh]. LexDB entries (best rank, first sense with zh) win over Atlas cards."""
+    words: set[str] = set(w for w in extra_words if w and w.strip())
+    for e in entries.values():
+        for k in ("syn", "ant", "derived"):
+            words.update(e.get(k) or [])
+    by_norm: dict[str, list[dict]] = {}
+    for e in entries.values():
+        by_norm.setdefault(_hint_norm(e["w"]), []).append(e)
+    for rows in by_norm.values():
+        rows.sort(key=lambda e: (e.get("rank") or 999999, "#" in e["id"], e["id"]))
+    atlas: dict[str, list[dict]] = {}
+    for c in atlas_cards:
+        atlas.setdefault(_hint_norm(c.get("lemma", "")), []).append(c)
+    buckets: dict[str, dict[str, list[str]]] = {}
+    for w in sorted(words):
+        nk = _hint_norm(w)
+        pos, zh = "", ""
+        for e in by_norm.get(nk, []):
+            for pb in e.get("pos") or []:
+                z = next((s["zh"] for s in pb.get("senses") or [] if s.get("zh")), "")
+                if z:
+                    pos, zh = pb.get("p", ""), z
+                    break
+            if zh:
+                break
+            if not pos and e.get("pos"):
+                pos = e["pos"][0].get("p", "")
+        if not zh:
+            for c in atlas.get(nk, []):
+                z = next((s.get("zh") for s in c.get("senses") or [] if s.get("zh")), "")
+                if z:
+                    pos, zh = (c.get("pos") or pos), z
+                    break
+        buckets.setdefault(hint_bucket(w), {})[hint_key(w)] = [pos, short_hint_zh(zh)]
+    return {b: dict(sorted(v.items())) for b, v in buckets.items()}
+
+
+def write_hint_shards(out_dir: Path, buckets: dict[str, dict[str, list[str]]]) -> None:
+    import shutil
+
+    d = out_dir / "hints"
+    if d.exists():
+        shutil.rmtree(d)
+    d.mkdir(parents=True, exist_ok=True)
+    for b in sorted(buckets):
+        (d / f"{b}.json").write_bytes(compact_json_bytes(buckets[b]))
 
 
 def has_cjk(text: str) -> bool:
