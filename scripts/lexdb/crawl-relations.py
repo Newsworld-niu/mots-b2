@@ -318,9 +318,10 @@ def parse_frdic(query: str, page: str) -> dict:
         if not kind:
             continue
         rest = page[m.end():]
-        if rest.startswith("<ul"):
-            end = rest.find("</ul>")
-            sec = rest[: end if end >= 0 else 3000]
+        rest_l = rest.lstrip()
+        if rest_l.startswith("<ul"):
+            end = rest_l.find("</ul>")
+            sec = rest_l[: end if end >= 0 else 3000]
         else:
             nx = SECTION_END_RE.search(rest)
             sec = rest[: nx.start() if nx else 3000]

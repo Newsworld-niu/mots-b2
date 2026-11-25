@@ -6,8 +6,9 @@
 import { loadHintsShard, loadMeta } from "./load";
 import { hintBucket, lexdbFold, type LexHintTuple, type LexHintsShard, type LexMeta } from "./types";
 
-/** Lower-cased NFC key used by hints/<bucket>.json. */
-export const hintKey = (w: string) => w.normalize("NFC").trim().toLowerCase();
+/** Lower-cased NFC key (apostrophes and whitespace normalized) used by hints/<bucket>.json. */
+export const hintKey = (w: string) =>
+  w.normalize("NFC").trim().replace(/[’‘]/g, "'").replace(/\s+/g, " ").toLowerCase();
 
 const foldedIndex = new WeakMap<LexHintsShard, Map<string, string | null>>();
 

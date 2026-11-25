@@ -8,7 +8,7 @@ import { canAutoFetchFrdic, frdicUrl, GAP, loadFrdic, type DictionaryNode, type 
 import { buildSeed, CAPACITY, dictPicks, frdicPicks, hasGap, KIND_LABEL, KINDS, tooLong, withZh, type Pick, type Seed } from "../lib/lookup";
 import { isNative } from "../lib/native";
 import { href, openWord } from "../lib/router";
-import { addToDeck, createDeck, findSame } from "../store/decks";
+import { addToDeck, createDeck, findExact, findSame } from "../store/decks";
 import { store, useStore } from "../store/store";
 import { Sheet } from "./Sheet";
 import { toast } from "./Toast";
@@ -94,11 +94,11 @@ export function HomeDictionary() {
   const job = useRef<AbortController | null>(null);
   useEffect(() => () => job.current?.abort(), []);
 
-  // 派生词 picks get a short Chinese hint from the atlas already in memory (no families.json request on the home page)
+  // 派生词 picks get a short Chinese hint from the atlas already in memory (exact accent match; no families.json request on the home page)
   const picks = useMemo(() => {
     const fromDict = dictPicks(hits ?? []).map((p) => {
       if (p.kind !== "family" || p.zh) return p;
-      const zh = findSame(atlas, p.fr)[0]?.zh?.split(/[；;]/)[0]?.trim().slice(0, 38) ?? "";
+      const zh = findExact(atlas, p.fr)[0]?.zh?.split(/[；;]/)[0]?.trim().slice(0, 38) ?? "";
       return zh ? { ...p, zh } : p;
     });
     return [...fromDict, ...frdicPicks(result?.items ?? [])];
@@ -170,12 +170,14 @@ export function HomeDictionary() {
   const dictOnly = picks.filter((p) => p.origin === "dict");
   const dictHits = hits ?? [];
   const head = dictHits[0];
-  const headPos = [...new Set(dictHits.filter((h) => h.w === head?.w).map((h) => (h.g === "mf" ? `${h.p}（阴阳同形）` : h.p)).filter(Boolean))];
-  const headForms = dictHits.find((h) => h.forms)?.forms;
+  const headHits = dictHits.filter((h) => h.w === head?.w);
+  const headPos = [...new Set(headHits.map((h) => (h.g === "mf" ? `${h.p}（阴阳同形）` : h.p)).filter(Boolean))];
+  const headForms = headHits.find((h) => h.forms)?.forms;
   const formsText = headForms
-    ? [headForms.f && `f. ${headForms.f}`, headForms.pl && `pl. ${headForms.pl}`, headForms.fpl && `f.pl. ${headForms.fpl}`].filter(Boolean).join(" · ")
+    ? [headForms.f && `f. ${headForms.f}`, headForms.pl && `pl. ${headForms.pl}`, headForms.fpl && `f.pl. ${headForms.fpl}`].filter(Boolean)
+        .join(" · ")
     : "";
-  const hasConj = dictHits.some((h) => h.conj);
+  const hasConj = headHits.some((h) => h.conj);
   const frdicOnly = picks.filter((p) => p.origin === "frdic");
 
   return <section className="home-dictionary" aria-label="查词">
@@ -224,7 +226,7 @@ export function HomeDictionary() {
         {error && <div role="alert" className="lookup-error"><p>{error}</p><button className="btn btn-ghost btn-sm" onClick={() => void search()}>重新查询</button></div>}
         {!busy && !error && !result && !canAutoFetchFrdic() && (
           <div className="lookup-empty">
-            <p>静态托管环境不自动抓取法语助手，避免额外 404 请求；可前往 <a className="link" href={`#/dict?w=${encodeURIComponent(term)}`}>LexDB 完整词典</a> 或打开法语助手原文查看。</p>
+            <p>静态托管环境不自动抓取法语助手，避免额外 404 请求；可前往 <a className="link" href={href({ page: "dict", w: term })}>LexDB 完整词典</a> 或打开法语助手原文查看。</p>
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => {
               job.current?.abort();
               const c = new AbortController();

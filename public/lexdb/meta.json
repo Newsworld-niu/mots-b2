@@ -69,6 +69,7 @@
     "te",
     "to",
     "tr",
+    "ve",
     "vi"
   ],
   "suggestShards": true,
@@ -98,8 +99,8 @@
       "2": 5051,
       "3": 12005
     },
-    "withDerived": 24327,
-    "withSyn": 16219,
-    "withAnt": 3511
+    "withDerived": 24595,
+    "withSyn": 16327,
+    "withAnt": 3571
   }
 }

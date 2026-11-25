@@ -188,6 +188,7 @@ export function Dict({ word, query, tab }: { word?: string; query?: string; tab?
           });
         } else {
           const resolved = await lookupLexdbWithFallback(qVal);
+          if (searchReq.current !== req) return;
           setResult({
             query: qVal,
             isCjk: false,

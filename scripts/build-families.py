@@ -33,9 +33,13 @@ def load_lexdb_entries() -> dict[str, dict]:
     return out
 
 
-def build(lexdb_entries: dict[str, dict] | None = None, existing: list[dict] | None = None) -> list[dict]:
+def build(
+    lexdb_entries: dict[str, dict] | None = None,
+    existing: list[dict] | None = None,
+    strong_derived: dict[str, list[str]] | None = None,
+) -> list[dict]:
     """`existing` = groups to preserve (enrich-relations.py passes the pre-enrichment families.json from git so
-    reruns are idempotent); defaults to the current public/atlas/families.json."""
+    reruns are idempotent); `strong_derived` optionally supplies filtered high-confidence derived lists per entry id."""
     entries = lexdb_entries if lexdb_entries is not None else load_lexdb_entries()
     lex = json.loads((root / "data/lexicon.json").read_text(encoding="utf-8"))
     cards = [e for e in lex["entries"] if not e.get("aliasOf")]
@@ -59,15 +63,19 @@ def build(lexdb_entries: dict[str, dict] | None = None, existing: list[dict] | N
     by_id = {g["id"]: g for g in out}
     member_sets = [set(g["words"]) for g in out]
 
+    def derived_for(e: dict) -> list[str]:
+        raw = strong_derived.get(e["id"], []) if strong_derived is not None else (e.get("derived") or [])
+        return [d for d in raw if " " not in d][:MAX_EXAMPLES]
+
     # 2) new groups from the enriched LexDB derived lists, most frequent cards first
     linked = sorted(
-        (e for e in entries.values() if e.get("atlasId") in card_ids and e.get("derived")),
+        (e for e in entries.values() if e.get("atlasId") in card_ids and derived_for(e)),
         key=lambda e: (e.get("rank") or 999999, e["id"]),
     )
     added = 0
     for e in linked:
         cid = e["atlasId"]
-        derived = [d for d in e["derived"] if " " not in d][:MAX_EXAMPLES]
+        derived = derived_for(e)
         members = [cid] + [i for d in derived for i in by_lemma.get(key(d), []) if i != cid]
         members = list(dict.fromkeys(members))
         if len(members) < 2:

@@ -9,7 +9,7 @@ import {
   type LexSuggestRow,
   type SourceId,
 } from "../../lib/lexdb/types";
-import { findSame } from "../../store/decks";
+import { exactHeadwordKey, findExact } from "../../store/decks";
 import { LEXDB_FIXTURES } from "../../lib/lexdb/fixtures";
 
 export type { DictTab } from "../../lib/router";
@@ -20,6 +20,7 @@ export const SAMPLE_WORDS = ["prendre", "beau", "accueil", "être", "faire", "te
 export const POS_ZH: Record<string, string> = {
   "n.m.": "阳性名词",
   "n.f.": "阴性名词",
+  "n.m./f.": "阴阳同形名词",
   "n.": "名词",
   "v.": "动词",
   "adj.": "形容词",
@@ -140,12 +141,12 @@ export function fixtureDidYouMean(q: string, limit = 5): LexSuggestRow[] {
     .map((x) => x.row);
 }
 
-/** [pos, shortZh] for a related word from what is already in memory (atlas word list, then LexDB fixtures). */
+/** [pos, shortZh] for a related word from what is already in memory (exact-accent atlas match, then LexDB fixtures). */
 export function memoryHint(atlas: Atlas | null, w: string): LexHintTuple | null {
-  const ref = atlas ? findSame(atlas, w)[0] : undefined;
+  const ref = atlas ? findExact(atlas, w)[0] : undefined;
   if (ref?.zh) return [ref.pos?.[0] ?? "", ref.zh.slice(0, 16)];
-  const f = lexdbFold(w);
-  const fx = LEXDB_FIXTURES.find((e) => e.id === f || lexdbFold(e.w) === f);
+  const ek = exactHeadwordKey(w);
+  const fx = LEXDB_FIXTURES.find((e) => exactHeadwordKey(e.w) === ek || e.id === ek);
   if (fx) {
     const zh = fx.pos[0]?.senses[0]?.zh ?? "";
     if (zh || fx.pos[0]?.p) return [fx.pos[0]?.p ?? "", zh.slice(0, 16)];

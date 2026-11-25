@@ -888,8 +888,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  max-height: 64px;
-  overflow: hidden;
 }
 
 .dict-family-box {

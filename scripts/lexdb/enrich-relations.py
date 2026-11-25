@@ -78,6 +78,41 @@ SKIP_SENSE_TOPICS = {"computing", "Internet", "programming", "software"}
 AFFIX_TEMPLATES = {"af", "affix", "suffix", "suf", "prefix", "pre", "compound", "com", "confix", "con", "deverbal", "surf"}
 ETY_AFFIX_KINDS = {":af", ":affix", ":suffix", ":prefix", ":compound", ":confix", ":deverbal", ":bf", ":surf"}
 
+# Known homograph / folk-etymology root collisions that must not cross-link learner families or antonyms
+_FALSE_FAMILY_SPLITS = (
+    (
+        {"tache", "tacher", "taché", "entacher", "entachement", "détachant"},
+        {
+            "attacher", "attache", "attaché", "attachant", "attachement",
+            "détacher", "détaché", "détachement", "détachable",
+            "rattacher", "rattachement", "inattachable",
+        },
+    ),
+    (
+        {"lion", "lionne", "lionceau"},
+        {"lu", "lire", "relire", "lisible", "illisible", "lecteur", "lecture", "délire", "délirer", "élire", "élection"},
+    ),
+    (
+        {"arriver", "arrivée", "arriviste", "arrivisme"},
+        {"rive", "river", "rivage", "riverain", "dériver", "dérive", "dérivation"},
+    ),
+    (
+        {"bras", "brassard", "embrasser", "embrassade"},
+        {"brasser", "brasseur", "brasserie", "brassage"},
+    ),
+)
+BAD_DERIVED_PAIRS: set[tuple[str, str]] = set()
+for _g1, _g2 in _FALSE_FAMILY_SPLITS:
+    for _a in _g1:
+        for _b in _g2:
+            BAD_DERIVED_PAIRS.add((_a, _b))
+            BAD_DERIVED_PAIRS.add((_b, _a))
+
+BAD_ANT_PAIRS: set[tuple[str, str]] = {
+    ("comptable", "massif"),
+    ("massif", "comptable"),
+}
+
 
 def t0p(msg: str, t0: float) -> None:
     print(f"[enrich {time.time() - t0:6.1f}s] {msg}", flush=True)
@@ -134,23 +169,35 @@ def git_blobs(ref: str, paths: list[str]) -> dict[str, bytes]:
     return out
 
 
-def load_baseline_inputs(ref: str) -> tuple[dict[str, dict], list[dict], list[dict]] | None:
-    """(entry relations, lexicon cards, families) as shipped at `ref`; None when git history is unavailable."""
+def load_baseline_inputs(ref: str) -> tuple[dict[str, dict], dict[str, list[str]], list[dict], list[dict]] | None:
+    """(entry mutable baseline, reverse forms map, lexicon cards, families) as shipped at `ref`; None if unavailable."""
     try:
-        names = subprocess.run(
+        e_names = subprocess.run(
             ["git", "ls-tree", "--name-only", f"{ref}:public/lexdb/e"], capture_output=True, cwd=ROOT, check=True, text=True
         ).stdout.split()
-        paths = [f"public/lexdb/e/{n}" for n in names] + ["data/lexicon.json", "public/atlas/families.json"]
+        f_names = subprocess.run(
+            ["git", "ls-tree", "--name-only", f"{ref}:public/lexdb/forms"], capture_output=True, cwd=ROOT, check=True, text=True
+        ).stdout.split()
+        e_paths = [f"public/lexdb/e/{n}" for n in e_names]
+        f_paths = [f"public/lexdb/forms/{n}" for n in f_names]
+        paths = e_paths + f_paths + ["data/lexicon.json", "public/atlas/families.json"]
         blobs = git_blobs(ref, paths)
     except (subprocess.CalledProcessError, FileNotFoundError, ValueError):
         return None
     rels: dict[str, dict] = {}
-    for p in paths[:-2]:
+    for p in e_paths:
         for eid, e in json.loads(blobs[p]).items():
-            rels[eid] = {k: e[k] for k in ("derived", "syn", "ant") if e.get(k)}
+            rels[eid] = {
+                k: e[k]
+                for k in ("derived", "syn", "ant", "forms", "family", "sources")
+                if k in e and e[k] is not None
+            }
+    forms_map: dict[str, list[str]] = {}
+    for p in f_paths:
+        forms_map.update(json.loads(blobs[p]))
     cards = [c for c in json.loads(blobs["data/lexicon.json"])["entries"] if not c.get("aliasOf")]
     fams = json.loads(blobs["public/atlas/families.json"])
-    return rels, cards, fams
+    return rels, forms_map, cards, fams
 
 
 def download(force: bool = False) -> None:
@@ -159,8 +206,11 @@ def download(force: bool = False) -> None:
         if dest.exists() and not force:
             continue
         dest.parent.mkdir(parents=True, exist_ok=True)
+        tmp = dest.with_suffix(dest.suffix + ".part")
+        tmp.unlink(missing_ok=True)
         print(f"[download] {url}", flush=True)
-        subprocess.run(["curl", "-sSL", "--fail", "-o", str(dest), url], check=True)
+        subprocess.run(["curl", "-sSL", "--fail", "-o", str(tmp), url], check=True)
+        tmp.replace(dest)
     for name in ("omw-fr", "omw-en"):
         xml = REL_DIR / f"omw/{name}/{name}.xml"
         if not xml.exists():
@@ -170,10 +220,50 @@ def download(force: bool = False) -> None:
 
 # ------------------------------------------------------------------------------------------- baseline
 class Baseline:
-    def __init__(self, t0: float):
+    def __init__(self, t0: float, require_baseline: bool = False):
         self.meta = json.loads((OUT / "meta.json").read_text(encoding="utf-8"))
         self.entries = load_lexdb_entries(OUT)
         self.forms_map = load_lexdb_forms(OUT)
+        assert len(self.entries) >= 41_000, f"refusing to run on incomplete LexDB ({len(self.entries)} entries < 41,000)"
+        shipped = load_baseline_inputs(BASELINE_REF)
+        if shipped is None:
+            if require_baseline:
+                raise RuntimeError(f"git baseline {BASELINE_REF} unavailable")
+            print(f"WARNING: git ref {BASELINE_REF[:8]} unavailable; using current files as shipped inputs", flush=True)
+            self.orig_rel = {
+                eid: {k: e[k] for k in ("derived", "syn", "ant", "forms", "family", "sources") if k in e}
+                for eid, e in self.entries.items()
+            }
+            lex_now = json.loads(LEXICON.read_text(encoding="utf-8"))
+            self.orig_cards = [dict(c) for c in lex_now["entries"] if not c.get("aliasOf")]
+            self.orig_families = json.loads(FAMILIES.read_text(encoding="utf-8"))
+        else:
+            self.orig_rel, orig_forms_map, self.orig_cards, self.orig_families = shipped
+            assert set(self.entries) == set(self.orig_rel), (
+                f"entry ID mismatch vs baseline {BASELINE_REF[:8]}: "
+                f"{len(self.entries)} current vs {len(self.orig_rel)} baseline"
+            )
+            self.forms_map = {ff: list(ids) for ff, ids in orig_forms_map.items()}
+            for eid, e in self.entries.items():
+                orig_e = self.orig_rel[eid]
+                for k in ("derived", "syn", "ant", "forms", "family", "sources"):
+                    if k in orig_e:
+                        e[k] = json.loads(json.dumps(orig_e[k]))
+                    else:
+                        e.pop(k, None)
+            t0p(
+                f"shipped inputs from git {BASELINE_REF[:8]}: {len(self.orig_rel)} entries, "
+                f"{len(self.forms_map)} reverse forms, {len(self.orig_cards)} cards, {len(self.orig_families)} families",
+                t0,
+            )
+        # Drop any self-identical display forms (e.g. jolie.forms.pl == "jolie")
+        for e in self.entries.values():
+            if "forms" in e:
+                cleaned_fo = {k: v for k, v in (e.get("forms") or {}).items() if v and v != e["w"]}
+                if cleaned_fo:
+                    e["forms"] = cleaned_fo
+                else:
+                    e.pop("forms", None)
         t0p(f"baseline: {len(self.entries)} entries, {len(self.forms_map)} reverse forms", t0)
         lex = json.loads(LEXICON.read_text(encoding="utf-8"))
         self.lexicon = lex
@@ -204,15 +294,6 @@ class Baseline:
         for eid, fs in self.infl_of.items():
             for ff in fs:
                 self.lemma_of_form[ff].add(eid)
-        shipped = load_baseline_inputs(BASELINE_REF)
-        if shipped is None:
-            print(f"WARNING: git ref {BASELINE_REF[:8]} unavailable; using current files as shipped inputs", flush=True)
-            self.orig_rel = {eid: {k: e[k] for k in ("derived", "syn", "ant") if e.get(k)} for eid, e in self.entries.items()}
-            self.orig_cards = [dict(c) for c in self.cards]
-            self.orig_families = json.loads(FAMILIES.read_text(encoding="utf-8"))
-        else:
-            self.orig_rel, self.orig_cards, self.orig_families = shipped
-            t0p(f"shipped inputs from git {BASELINE_REF[:8]}: {len(self.orig_rel)} entries, {len(self.orig_cards)} cards, {len(self.orig_families)} families", t0)
 
     def known(self, key: str) -> bool:
         return key in self.by_key or key in self.atlas_keys
@@ -262,7 +343,7 @@ class Store:
         self.edges_rev: dict[str, set[str]] = defaultdict(set)
 
     def edge(self, base: str, der: str, lin: str, bpos: str | None = None, dpos: str | None = None) -> None:
-        if not base or not der or base == der or is_affix(base) or is_affix(der):
+        if not base or not der or base == der or is_affix(base) or is_affix(der) or (base, der) in BAD_DERIVED_PAIRS:
             return
         d = self.edges[base].setdefault(der, {"lin": set(), "bpos": set(), "dpos": set()})
         d["lin"].add(lin)
@@ -272,6 +353,8 @@ class Store:
             d["dpos"].add(dpos)
 
     def relate(self, a: str, b: str, lin: str, need_stem: bool = False) -> None:
+        if (a, b) in BAD_DERIVED_PAIRS:
+            return
         if need_stem and not share_stem(a, b):
             return  # uncurated "related" lists also hold semantic neighbours (beau ~ joli): require a shared stem
         if a and b and a != b and not is_affix(a) and not is_affix(b):
@@ -279,6 +362,8 @@ class Store:
             self.related[b][a].add(lin)
 
     def peer(self, a: str, b: str, lin: str, need_stem: bool = False) -> None:
+        if (a, b) in BAD_DERIVED_PAIRS:
+            return
         if need_stem and not share_stem(a, b):
             return
         if a and b and a != b:
@@ -296,27 +381,33 @@ class Store:
             c["omw"] = max(c.get("omw", 0), score)
 
 
-def load_kaikki(base: Baseline, store: Store, t0: float) -> dict[str, dict[str, str]]:
-    """Stream Kaikki French once. Returns display forms {(key): {f/pl/fpl}} for nouns/adjectives."""
+def load_kaikki(base: Baseline, store: Store, t0: float) -> dict[tuple[str, str], dict[str, str]]:
+    """Stream Kaikki French once. Returns unambiguous display forms {(exact_word, pos): {f/pl/fpl}} for nouns/adjectives."""
     path = REL_DIR / "kaikki/kaikki.org-dictionary-French.jsonl.gz"
-    display_forms: dict[str, dict[str, str]] = defaultdict(dict)
+    form_cands: dict[tuple[str, str], dict[str, set[str]]] = defaultdict(lambda: defaultdict(set))
     if not path.exists():
         print(f"WARNING: {path} missing (run with --download)", flush=True)
-        return display_forms
+        return {}
     targets = set(base.by_key) | base.atlas_keys
+    skip_form_tags = {
+        "obsolete", "archaic", "dated", "rare", "nonstandard", "before-vowel", "alternative",
+        "informal", "colloquial", "slang", "regional", "dialectal", "multiword-construction", "error-lua-exec",
+    }
     proc = subprocess.Popen(["gzip", "-dc", str(path)], stdout=subprocess.PIPE)
     assert proc.stdout is not None
     n = used = 0
     for raw in proc.stdout:
         n += 1
-        i = raw.find(b'"word": "')
-        if i < 0:
+        try:
+            d = json.loads(raw)
+        except ValueError:
             continue
-        j = raw.find(b'"', i + 9)
-        wk = norm_word(raw[i + 9 : j].decode("utf-8", "ignore"))
+        raw_w = nfc(d.get("word") or "").strip()
+        if not raw_w:
+            continue
+        wk = norm_word(raw_w)
         if wk not in targets:
             continue
-        d = json.loads(raw)
         pos = KAIKKI_POS.get(d.get("pos") or "")
         if not pos:
             continue
@@ -366,7 +457,9 @@ def load_kaikki(base: Baseline, store: Store, t0: float) -> dict[str, dict[str, 
             for fm in d.get("forms") or []:
                 ftags = set(fm.get("tags") or [])
                 form = nfc(fm.get("form") or "").strip()
-                if not form or norm_word(form) == w or " " in form or len(form) > 40 or ftags & {"obsolete", "archaic", "dated", "rare", "nonstandard", "before-vowel", "alternative"}:
+                if not form or " " in form or len(form) > 40 or (ftags & skip_form_tags):
+                    continue
+                if raw_w.islower() and not form.islower():
                     continue
                 tag = None
                 if "feminine" in ftags and "plural" in ftags:
@@ -375,10 +468,23 @@ def load_kaikki(base: Baseline, store: Store, t0: float) -> dict[str, dict[str, 
                     tag = "f"
                 elif "plural" in ftags and "feminine" not in ftags:
                     tag = "pl"
-                if tag and tag not in display_forms[(w, pos)]:
-                    display_forms[(w, pos)][tag] = form
-    proc.wait()
-    t0p(f"kaikki: scanned {n:,} lines, used {used:,} entries", t0)
+                if tag:
+                    form_cands[(raw_w, pos)][tag].add(form)
+    rc = proc.wait()
+    if rc != 0:
+        raise RuntimeError(f"gzip -dc {path} failed with exit code {rc}")
+    display_forms: dict[tuple[str, str], dict[str, str]] = {}
+    for key, tag_map in form_cands.items():
+        raw_w, _pos = key
+        clean: dict[str, str] = {}
+        for tag, vals in tag_map.items():
+            if len(vals) == 1:
+                only = next(iter(vals))
+                if only != raw_w:
+                    clean[tag] = only
+        if clean:
+            display_forms[key] = clean
+    t0p(f"kaikki: scanned {n:,} lines, used {used:,} entries, {len(display_forms):,} unambiguous form sets", t0)
     return display_forms
 
 
@@ -622,7 +728,9 @@ def resolve_entry(base: Baseline, store: Store, eid: str) -> dict[str, list[tupl
     cands: dict[str, dict] = {}
 
     def put(tk: str, lin: set[str], direct: int):
-        if not ok_target(tk) or " " in tk:
+        if not ok_target(tk) or " " in tk or (wk, tk) in BAD_DERIVED_PAIRS:
+            return
+        if len(lexdb_fold(tk)) <= 2 and "atlas" not in lin:
             return
         c = cands.setdefault(tk, {"lin": set(), "direct": 9})
         c["lin"] |= lin
@@ -634,19 +742,21 @@ def resolve_entry(base: Baseline, store: Store, eid: str) -> dict[str, list[tupl
     parents = []
     for b, ders in ((b, store.edges[b]) for b in list(store.edges_rev.get(wk, ()))):
         ed = ders.get(wk)
-        if ed and pos_ok(ed["dpos"]):
-            parents.append(b)
+        if ed and pos_ok(ed["dpos"]) and (wk, b) not in BAD_DERIVED_PAIRS:
+            if len(lexdb_fold(b)) > 2:
+                parents.append(b)
             put(b, ed["lin"], 0)
     children = []
     for d, ed in store.edges.get(wk, {}).items():
-        if pos_ok(ed["bpos"]):
-            children.append(d)
+        if pos_ok(ed["bpos"]) and (wk, d) not in BAD_DERIVED_PAIRS:
+            if len(lexdb_fold(d)) > 2:
+                children.append(d)
             put(d, ed["lin"], 0)
     for r, lin in store.related.get(wk, {}).items():
         put(r, lin, 0)
-    if len(wk) > 2:
+    if len(lexdb_fold(wk)) > 2:
         for d in children:
-            if len(d) <= 2:
+            if len(lexdb_fold(d)) <= 2:
                 continue
             for d2, ed2 in store.edges.get(d, {}).items():
                 put(d2, ed2["lin"], 1)
@@ -654,12 +764,12 @@ def resolve_entry(base: Baseline, store: Store, eid: str) -> dict[str, list[tupl
         # component spawns siblings, so bonheur joins the heur family but not bonté / bonjour
         heads = [b for b in parents if wf.endswith(lexdb_fold(b))] if len(parents) > 1 else parents
         for b in heads or parents:
-            if len(b) <= 2 or len(store.edges.get(b, {})) > 60:
+            if len(lexdb_fold(b)) <= 2 or len(store.edges.get(b, {})) > 60:
                 continue
             for s, eds in store.edges.get(b, {}).items():
                 put(s, eds["lin"], 1)
         for r in list(store.related.get(wk, {}))[:20]:
-            if len(r) <= 2 or (r in parents and r not in (heads or parents)):
+            if len(lexdb_fold(r)) <= 2 or (r in parents and r not in (heads or parents)):
                 continue
             for d, ed in store.edges.get(r, {}).items():
                 put(d, ed["lin"], 1)
@@ -675,6 +785,8 @@ def resolve_entry(base: Baseline, store: Store, eid: str) -> dict[str, list[tupl
         cc: dict[str, dict] = {}
         for tk, c in store.rel.get(eid, {}).get(kind, {}).items():
             if not ok_target(tk):
+                continue
+            if kind == "ant" and (wk, tk) in BAD_ANT_PAIRS:
                 continue
             if kind == "syn" and re.search(r"(^|[\s'’-])" + re.escape(wk) + r"($|[\s-])", tk):
                 continue  # compounds containing the headword (page d'accueil) are not synonyms (non-violence IS an antonym)
@@ -800,11 +912,17 @@ def shard_and_write(entries: dict[str, dict], forms_map: dict[str, list[str]], d
     if not dry:
         for sub, shards in (("e", e_sh), ("forms", f_sh)):
             d = OUT / sub
-            if d.exists():
-                shutil.rmtree(d)
-            d.mkdir(parents=True)
+            tmp_d = OUT / f".{sub}.tmp"
+            old_d = OUT / f".{sub}.old"
+            shutil.rmtree(tmp_d, ignore_errors=True)
+            shutil.rmtree(old_d, ignore_errors=True)
+            tmp_d.mkdir(parents=True)
             for k in sorted(shards):
-                (d / f"{k}.json").write_bytes(compact_json_bytes(shards[k]))
+                (tmp_d / f"{k}.json").write_bytes(compact_json_bytes(shards[k]))
+            if d.exists():
+                d.rename(old_d)
+            tmp_d.rename(d)
+            shutil.rmtree(old_d, ignore_errors=True)
     return sorted(splits_set)
 
 
@@ -821,13 +939,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--download", action="store_true", help="download/extract raw sources into references/lexdb/relations/")
     ap.add_argument("--dry-run", action="store_true", help="compute + report, write nothing")
+    ap.add_argument("--require-baseline", action="store_true", help="fail if git baseline commit is unreachable")
     ap.add_argument("--report-out", default="", help="also write the report JSON here (useful with --dry-run)")
     args = ap.parse_args()
     t0 = time.time()
     if args.download or not (REL_DIR / "omw/omw-fr/omw-fr.xml").exists():
         download()
 
-    base = Baseline(t0)
+    base = Baseline(t0, require_baseline=args.require_baseline)
     before_entries = {
         eid: dict(base.orig_rel.get(eid, {})) | {"atlasId": e.get("atlasId"), "level": e.get("level"), "w": e["w"]}
         for eid, e in base.entries.items()
@@ -869,13 +988,14 @@ def main():
                 e[kind] = vals
             else:
                 e.pop(kind, None)
-        # fill missing display forms (nouns / adjectives) from Wiktionary
+        # fill missing display forms (nouns / adjectives) from unambiguous exact-case Wiktionary entries
         if "forms" not in e:
+            exact_w = nfc(e["w"]).strip()
             for pb in e.get("pos") or []:
                 cp = coarse(pb.get("p", ""))
-                df = display_forms.get((norm_word(e["w"]), cp))
+                df = display_forms.get((exact_w, cp))
                 if df and cp in ("n", "adj"):
-                    fo = {k: df[k] for k in ("f", "pl", "fpl") if k in df}
+                    fo = {k: df[k] for k in ("f", "pl", "fpl") if k in df and df[k] != exact_w}
                     if fo:
                         e["forms"] = fo
                         for v in fo.values():
@@ -927,11 +1047,21 @@ def main():
 
     if not args.dry_run:
         LEXICON.write_text(json.dumps(base.lexicon, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        # rebuild families.json from the enriched LexDB + Atlas
+        # rebuild families.json from the enriched LexDB + Atlas, requiring direct edges or multi-lineage attestation
+        strong_derived: dict[str, list[str]] = {}
+        for eid, res in resolved.items():
+            s_vals: list[str] = []
+            for tk, (key, lin) in res.get("derived", []):
+                if is_strong_derived(key, lin):
+                    w = base.canon(tk)
+                    if w not in s_vals:
+                        s_vals.append(w)
+            if s_vals:
+                strong_derived[eid] = s_vals
         spec = importlib.util.spec_from_file_location("build_families", ROOT / "scripts/build-families.py")
         bf = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(bf)
-        bf.build(base.entries, [dict(g) for g in base.orig_families])
+        bf.build(base.entries, [dict(g) for g in base.orig_families], strong_derived)
     families = json.loads(FAMILIES.read_text(encoding="utf-8"))
     fam_by_card = {}
     for g in families:
@@ -1009,14 +1139,22 @@ def write_meta(base: Baseline, splits: list[str]) -> None:
 
 
 # ------------------------------------------------------------------------------------------- Atlas
+def is_strong_derived(key: tuple, lin: list[str] | set[str]) -> bool:
+    """Direct morphological edge from a trusted lexical source, or indirect 2-hop edge attested by >=2 lineages / Atlas."""
+    top = lineages(set(lin))
+    return len(top) >= 2 or "atlas" in top or (key[1] == 0 and bool(top & {"wikt", "cnrtl", "frdic"}))
+
+
 def propagate_atlas(base: Baseline, resolved: dict[str, dict]) -> dict:
     head = lambda s: norm_word(re.sub(r"\s*\([^)]*\)\s*$", "", s.split("｜")[0]))  # noqa: E731
+    orig_by_id = {c["id"]: c for c in base.orig_cards}
     linked: dict[str, str] = {}
     for eid, e in base.entries.items():
         if e.get("atlasId"):
             linked.setdefault(e["atlasId"], eid)
     changes = Counter()
     for c in base.cards:
+        orig_c = orig_by_id.get(c["id"], {})
         eid = linked.get(c["id"])
         if not eid:
             cand = base.entries_for(norm_word(c["lemma"]), {coarse(c.get("pos", ""))})
@@ -1027,7 +1165,7 @@ def propagate_atlas(base: Baseline, resolved: dict[str, dict]) -> dict:
         res = resolved.get(eid) or {}
         self_k = norm_word(c["lemma"])
         for field, kind, cap in (("fam", "derived", 8), ("syn", "syn", 6), ("ant", "ant", 6)):
-            cur = list(c.get(field) or [])
+            cur = list(orig_c.get(field) or [])
             have = {head(x) for x in cur} | {self_k}
             added = 0
             for tk, (key, lin) in res.get(kind, []):
@@ -1037,11 +1175,7 @@ def propagate_atlas(base: Baseline, resolved: dict[str, dict]) -> dict:
                     continue
                 top = lineages(set(lin))
                 if kind == "derived":
-                    # direct morphological edge (base / derivative / etymological relative) or multi-lineage sibling
-                    # (siblings such as heureux ~ bonheur qualify when the target is itself an Atlas card)
-                    strong = len(top) >= 2 or "atlas" in top or (
-                        (key[1] == 0 or key[2] == 0) and bool(top & {"wikt", "cnrtl", "frdic"})
-                    )
+                    strong = is_strong_derived(key, lin)
                 else:
                     strong = len(top) >= 2 or "atlas" in top or ("cnrtl" in top and key[4] <= -40)
                 if not strong:
@@ -1062,8 +1196,11 @@ def propagate_atlas(base: Baseline, resolved: dict[str, dict]) -> dict:
                     cur.append(f"{word} ({tp})" if tp else word)
                 have.add(tk)
                 added += 1
-            if added:
+            if cur or field in orig_c:
                 c[field] = cur
+            else:
+                c.pop(field, None)
+            if added:
                 changes[f"{field}_cards"] += 1
                 changes[f"{field}_items"] += added
     return dict(changes)

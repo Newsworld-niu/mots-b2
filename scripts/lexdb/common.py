@@ -83,6 +83,17 @@ HINT_ZH_MAX = 18
 ZH_SPLIT_RE = re.compile(r"[；;，,、/（）()]")
 PARENS_RE = re.compile(r"（[^）]*）|\([^)]*\)")
 WORD_RE = re.compile(r"[^\W\d_]+(?:-[^\W\d_]+)*", re.UNICODE)
+LEADING_POS_RE = re.compile(
+    r"^(?:\.?\s*(?:n|v|adj|adv|pr[ée]p|conj|pron|interj|loc|art|num|det|dét|aux|part|préf|suff|m|f|pl)"
+    r"(?:\s*[./]\s*[a-zA-ZéÉ]+\.?)*\s*\.\s*)+",
+    re.IGNORECASE,
+)
+INLINE_POS_SPLIT_RE = re.compile(
+    r"(?<=[\u4e00-\u9fff])\s*(?=(?:n|v|adj|adv|pr[ée]p|conj|pron|interj|loc)(?:\s*[./]\s*[a-zA-ZéÉ]+)*\s*\.)",
+    re.IGNORECASE,
+)
+TRAILING_FORM_NOTE_RE = re.compile(r"\s*(?:f\.?\s*pl|pl|f|m|sing|inv)\.\s*[~a-zA-ZÀ-ÿ'\-/\s]+$", re.IGNORECASE)
+LEADING_SENSE_NUM_RE = re.compile(r"^(?:[①-⑳]|\(\d+\)|（\d+）|\d+\s*[.．、)）])\s*")
 
 _COMMON_REPO_ROOT: Path | None = None
 
@@ -161,20 +172,39 @@ def hint_bucket(word: str) -> str:
     return letters[0]
 
 
+def _hint_norm(w: str) -> str:
+    return re.sub(r"\s+", " ", nfc(w or "").strip().replace("’", "'").replace("‘", "'")).lower()
+
+
 def hint_key(word: str) -> str:
-    """Key used in public/lexdb/hints/<bucket>.json (exact lowercase NFC spelling)."""
-    return unicodedata.normalize("NFC", word).strip().lower()
+    """Key used in public/lexdb/hints/<bucket>.json (exact lowercase NFC spelling, normalized apostrophes/spaces)."""
+    return _hint_norm(word)
+
+
+def _strip_pos_and_num(text: str) -> str:
+    cur = text.strip()
+    while cur:
+        nxt = LEADING_POS_RE.sub("", cur).strip()
+        nxt = LEADING_SENSE_NUM_RE.sub("", nxt).strip()
+        if nxt == cur:
+            break
+        cur = nxt
+    return cur
 
 
 def short_hint_zh(zh: str, trad_map: dict[str, str] | None = None, limit: int = HINT_ZH_MAX) -> str:
-    """Short simplified-Chinese preview: drop parentheticals, keep the first 1-2 terms, cap at `limit` chars."""
+    """Short simplified-Chinese preview: drop POS prefixes, sense numbers & parentheticals, keep 1-2 terms, cap at `limit`."""
     s = to_simp(nfc(zh or ""), trad_map or {})
     s = PARENS_RE.sub("", s)
     s = re.sub(r"\[[^\]]*\]|【[^】]*】|〈[^〉]*〉", "", s)
+    s = INLINE_POS_SPLIT_RE.sub("；", s)
+    s = _strip_pos_and_num(s)
     parts: list[str] = []
     for seg in re.split(r"[；;]", s):
+        seg = _strip_pos_and_num(seg)
         for p in re.split(r"[，,、/]", seg):
-            p = p.strip(" 。.：:·~～!?！？\t")
+            p = TRAILING_FORM_NOTE_RE.sub("", p)
+            p = _strip_pos_and_num(p).strip(" 。.：:·~～!?！？\t")
             if p and has_cjk(p) and p not in parts:
                 parts.append(p)
     if not parts:
@@ -346,10 +376,6 @@ def load_lexdb_forms(out_dir: Path | None = None) -> dict[str, list[str]]:
     return forms
 
 
-def _hint_norm(w: str) -> str:
-    return re.sub(r"\s+", " ", nfc(w or "").strip().replace("’", "'").replace("‘", "'")).lower()
-
-
 def build_hint_shards(entries: dict[str, dict], extra_words=(), atlas_cards=()) -> dict[str, dict[str, list[str]]]:
     """public/lexdb/hints/<bucket>.json payloads: every word in syn/ant/derived (+ extra_words, e.g. Atlas family
     names/examples) -> [short pos, short simplified zh]. LexDB entries (best rank, first sense with zh) win over Atlas cards."""
@@ -385,7 +411,9 @@ def build_hint_shards(entries: dict[str, dict], extra_words=(), atlas_cards=()) 
                 if z:
                     pos, zh = (c.get("pos") or pos), z
                     break
-        buckets.setdefault(hint_bucket(w), {})[hint_key(w)] = [pos, short_hint_zh(zh)]
+        short_zh = short_hint_zh(zh)
+        if pos or short_zh:
+            buckets.setdefault(hint_bucket(w), {})[hint_key(w)] = [pos, short_zh]
     return {b: dict(sorted(v.items())) for b, v in buckets.items()}
 
 
@@ -393,11 +421,17 @@ def write_hint_shards(out_dir: Path, buckets: dict[str, dict[str, list[str]]]) -
     import shutil
 
     d = out_dir / "hints"
-    if d.exists():
-        shutil.rmtree(d)
-    d.mkdir(parents=True, exist_ok=True)
+    tmp_d = out_dir / ".hints.tmp"
+    old_d = out_dir / ".hints.old"
+    shutil.rmtree(tmp_d, ignore_errors=True)
+    shutil.rmtree(old_d, ignore_errors=True)
+    tmp_d.mkdir(parents=True, exist_ok=True)
     for b in sorted(buckets):
-        (d / f"{b}.json").write_bytes(compact_json_bytes(buckets[b]))
+        (tmp_d / f"{b}.json").write_bytes(compact_json_bytes(buckets[b]))
+    if d.exists():
+        d.rename(old_d)
+    tmp_d.rename(d)
+    shutil.rmtree(old_d, ignore_errors=True)
 
 
 def has_cjk(text: str) -> bool:

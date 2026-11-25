@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 
-import { findHint, resolveHints } from "./hints.ts";
+import { findHint, hintKey, resolveHints } from "./hints.ts";
 import { loadHintsShard, loadMeta, setLexdbFetcher } from "./load.ts";
 import { hintBucket, type LexMeta } from "./types.ts";
 import { validateHintsShard, validateLexEntry, validateLexMeta } from "./validate.ts";
+import { memoryHint } from "../../pages/dict/helpers.ts";
+import type { Atlas, WordRef } from "../../atlas/types.ts";
 
 afterEach(() => {
   setLexdbFetcher(null);
@@ -128,4 +130,61 @@ test("resolveHints never fetches shards when memory covers every word, or when m
   });
   assert.equal(await loadMeta(), null);
   assert.equal((await resolveHints(["heureusement"])).size, 0);
+});
+
+test("memoryHint requires exact French accents so mûr/tâche/sûr never steal mur/tache/sur glosses", async () => {
+  assert.equal(hintKey("  L’École  du   Soir "), "l'école du soir");
+
+  const mkRef = (id: string, word: string, zh: string, pos: string[]): WordRef => ({
+    id,
+    word,
+    zh,
+    ipa: "",
+    cefr: 1,
+    topic: 0,
+    media: 0,
+    order: 0,
+    pos,
+  });
+  const words = [
+    mkRef("mur", "mur", "墙", ["n.m."]),
+    mkRef("tache", "tache", "斑点；污渍", ["n.f."]),
+    mkRef("sur-prep", "sur", "在…上面", ["prép."]),
+    mkRef("sur-adj", "sûr", "肯定的；可靠的", ["adj."]),
+  ];
+  const atlas: Atlas = {
+    id: "test",
+    name: "test",
+    kind: "open",
+    count: words.length,
+    examples: 0,
+    illustrated: 0,
+    topics: [],
+    cefr: [],
+    words,
+    byId: new Map(words.map((w) => [w.id, w])),
+    entry: () => Promise.reject(new Error("unused")),
+    peek: () => undefined,
+    img: () => null,
+    audio: () => null,
+  };
+
+  // Exact match hits the right accented entry even when unaccented 'sur' appears earlier in atlas.words
+  assert.deepEqual(memoryHint(atlas, "sûr"), ["adj.", "肯定的；可靠的"]);
+  assert.deepEqual(memoryHint(atlas, "sur"), ["prép.", "在…上面"]);
+
+  // Accented words absent from Atlas return null so hints/<bucket>.json can supply the true gloss
+  assert.equal(memoryHint(atlas, "mûr"), null);
+  assert.equal(memoryHint(atlas, "tâche"), null);
+
+  setLexdbFetcher(async (url) => {
+    if (url === "/lexdb/meta.json") return META;
+    if (url === "/lexdb/hints/m.json") return { "mûr": ["adj.", "成熟的"], mur: ["n.m.", "墙"] };
+    if (url === "/lexdb/hints/t.json") return { "tâche": ["n.f.", "任务"], tache: ["n.f.", "斑点"] };
+    return null;
+  });
+  const resolved = await resolveHints(["mûr", "tâche", "sûr"], { local: (w) => memoryHint(atlas, w) });
+  assert.deepEqual(resolved.get("mûr"), ["adj.", "成熟的"]);
+  assert.deepEqual(resolved.get("tâche"), ["n.f.", "任务"]);
+  assert.deepEqual(resolved.get("sûr"), ["adj.", "肯定的；可靠的"]);
 });

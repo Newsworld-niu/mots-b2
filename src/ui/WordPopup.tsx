@@ -11,7 +11,7 @@ import { lexdbFold, type LexEntry } from "../lib/lexdb/types";
 import { LEXDB_FIXTURES } from "../lib/lexdb/fixtures";
 import { isNative } from "../lib/native";
 import { href, openWord } from "../lib/router";
-import { MAX_SOURCE_SENTENCE, addPicked, addToDeck, createDeck, findSame, setDeckNote } from "../store/decks";
+import { MAX_SOURCE_SENTENCE, addPicked, addToDeck, createDeck, findExact, setDeckNote } from "../store/decks";
 import { store, useStore } from "../store/store";
 import { Sheet } from "./Sheet";
 import { toast } from "./Toast";
@@ -428,7 +428,10 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
   };
 
   const entry = popup?.result?.entries[0] ?? null;
-  const atlasMatch = useMemo(() => (entry ? findSame(atlas, entry.w)[0] : undefined), [atlas, entry]);
+  const atlasMatch = useMemo(
+    () => (entry ? (entry.atlasId ? atlas.byId.get(entry.atlasId) : undefined) ?? findExact(atlas, entry.w)[0] : undefined),
+    [atlas, entry],
+  );
   const savedWordId = useMemo(() => {
     if (atlasMatch) return atlasMatch.id;
     if (!entry || !customWords) return undefined;
@@ -614,6 +617,8 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
                               note: seed.note || undefined,
                               col: seed.col,
                               fam: seed.fam,
+                              syn: seed.syn,
+                              ant: seed.ant,
                               sentence,
                               span,
                               deckNote: popup.contextSource,

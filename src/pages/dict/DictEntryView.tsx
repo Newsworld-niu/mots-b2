@@ -26,7 +26,7 @@ import { addDictReport, setDictNote, toggleDictFav, useDictStore } from "../../l
 import { lexdbFold, type LexEntry, type LexHintTuple, type LexMeta, type LexPhrase } from "../../lib/lexdb/types";
 import { isNative } from "../../lib/native";
 import { href, openWord } from "../../lib/router";
-import { addToDeck, createDeck, findSame } from "../../store/decks";
+import { addToDeck, createDeck, exactHeadwordKey, findExact } from "../../store/decks";
 import { store, useStore } from "../../store/store";
 import { AUX_NOTE, ConjTable } from "../../ui/ConjTable";
 import { Highlight } from "../../ui/EntryView";
@@ -121,7 +121,7 @@ export function DictEntryView({
 
   const isFav = favs.includes(entry.id);
   const savedNote = notes[entry.id] ?? "";
-  const atlasRef = entry.atlasId ? atlas.byId.get(entry.atlasId) : findSame(atlas, entry.w)[0];
+  const atlasRef = entry.atlasId ? atlas.byId.get(entry.atlasId) : findExact(atlas, entry.w)[0];
   const conf = entryMaxConf(entry);
   const confInfo = CONF_META[conf];
 
@@ -145,11 +145,12 @@ export function DictEntryView({
       const hit = families.find((f) => f.id === entry.family);
       if (hit) return hit;
     }
-    const folded = lexdbFold(entry.w);
+    const exactW = exactHeadwordKey(entry.w);
+    const linkedId = entry.atlasId ?? atlasRef?.id;
     return families.find(
-      (f) => f.words.includes(entry.atlasId ?? "") || f.words.includes(folded) || lexdbFold(f.name) === folded,
+      (f) => (linkedId ? f.words.includes(linkedId) : false) || exactHeadwordKey(f.name) === exactW,
     );
-  }, [entry, families]);
+  }, [entry, families, atlasRef]);
 
   const confusableGroups = useMemo(() => {
     if (!confusables) return [];
@@ -196,23 +197,46 @@ export function DictEntryView({
   const hasFrDefs = (entry.frDefs?.length ?? 0) > 0;
   const hasEtymOrCf = !!entry.etym?.trim() || confusableGroups.length > 0;
 
-  const relWords = useMemo(() => relationWords(entry), [entry]);
+  const extraFamilyPairs = useMemo(() => {
+    if (!familyGroup) return [];
+    const selfKey = exactHeadwordKey(entry.w);
+    const covered = new Set<string>([selfKey, ...(entry.derived ?? []).map(exactHeadwordKey)]);
+    const out: { fr: string; zh: string }[] = [];
+    for (const raw of [familyGroup.name, ...familyGroup.examples]) {
+      const pair = familyPair(raw);
+      if (!pair.fr) continue;
+      const k = exactHeadwordKey(pair.fr);
+      if (!k || covered.has(k)) continue;
+      covered.add(k);
+      out.push(pair);
+    }
+    return out;
+  }, [entry.w, entry.derived, familyGroup]);
+
+  const relWords = useMemo(() => {
+    const base = relationWords(entry);
+    const extraNeedHints = extraFamilyPairs.filter((p) => !p.zh).map((p) => p.fr);
+    return extraNeedHints.length ? [...new Set([...base, ...extraNeedHints])] : base;
+  }, [entry, extraFamilyPairs]);
+
   const relCount = useMemo(() => {
-    const all = new Set(relWords.map((w) => w.toLowerCase()));
-    if (familyGroup) {
-      for (const raw of [familyGroup.name, ...familyGroup.examples]) {
-        const fr = familyPair(raw).fr;
-        if (fr) all.add(fr.toLowerCase());
-      }
+    const selfKey = exactHeadwordKey(entry.w);
+    const all = new Set<string>();
+    for (const w of relationWords(entry)) {
+      const k = exactHeadwordKey(w);
+      if (k && k !== selfKey) all.add(k);
+    }
+    for (const pair of extraFamilyPairs) {
+      all.add(exactHeadwordKey(pair.fr));
     }
     return all.size;
-  }, [relWords, familyGroup]);
+  }, [entry, extraFamilyPairs]);
   const hints = useRelationHints(relWords, atlas, meta);
 
   const tabs: { id: DictTab; label: string; count?: number; dot?: boolean }[] = [
     { id: "zh", label: "法汉释义" },
     ...(hasConjTab ? [{ id: "conj" as const, label: "动词变位" }] : []),
-    ...(hasAnyRel ? [{ id: "relations" as const, label: "派生·近反义", count: relCount }] : []),
+    ...(hasAnyRel ? [{ id: "relations" as const, label: "派生·近反义", ...(relCount > 0 ? { count: relCount } : {}) }] : []),
     ...(hasPhrases ? [{ id: "phrases" as const, label: "短语搭配", count: entry.phrases?.length ?? 0 }] : []),
     ...(hasExamples ? [{ id: "examples" as const, label: "法语例句", count: allExamples.length }] : []),
     ...(hasFrDefs ? [{ id: "fr" as const, label: "法法释义", count: entry.frDefs?.length ?? 0 }] : []),
@@ -526,7 +550,7 @@ export function DictEntryView({
             <details className="dict-panel dict-panel-rel" open>
               <summary>派生词 · 同义词 · 反义词</summary>
               <div className="dict-panel-body">
-                <RelationsBody entry={entry} familyGroup={familyGroup} hints={hints} />
+                <RelationsBody entry={entry} familyGroup={familyGroup} extraFamilyPairs={extraFamilyPairs} hints={hints} />
               </div>
             </details>
           )}
@@ -639,7 +663,7 @@ export function DictEntryView({
 
       {tab === "relations" && (
         <section className="dict-panel-body is-flush">
-          <RelationsBody entry={entry} familyGroup={familyGroup} hints={hints} />
+          <RelationsBody entry={entry} familyGroup={familyGroup} extraFamilyPairs={extraFamilyPairs} hints={hints} />
         </section>
       )}
 
@@ -784,65 +808,69 @@ export function DictEntryView({
       )}
 
       <Sheet open={reviewOpen} onClose={() => setReviewOpen(false)} label="加入复习卡片" wide>
-        <h2 className="sheet-title">加入复习 · {entry.w}</h2>
-        <div className="dict-notice dict-review-notice">
-          <label className="dict-deck-label">
-            <Layers size={15} /> 目标卡组：
-            <select
-              className="reader-deck"
-              value={activeDeck?.id ?? ""}
-              onChange={(e) => {
-                const next = e.target.value;
-                setSelectedDeckId(next);
-                store.settings({ readDeck: next || null });
-              }}
-            >
-              {!activeDeck && <option value="">{DICT_DECK}（将自动新建）</option>}
-              {decks.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
-          </label>
+        {reviewOpen && (
+          <>
+            <h2 className="sheet-title">加入复习 · {entry.w}</h2>
+            <div className="dict-notice dict-review-notice">
+              <label className="dict-deck-label">
+                <Layers size={15} /> 目标卡组：
+                <select
+                  className="reader-deck"
+                  value={activeDeck?.id ?? ""}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    setSelectedDeckId(next);
+                    store.settings({ readDeck: next || null });
+                  }}
+                >
+                  {!activeDeck && <option value="">{DICT_DECK}（将自动新建）</option>}
+                  {decks.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-          {atlasRef && (
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              disabled={inTargetDeck}
-              onClick={() => {
-                const did = ensureTargetDeck();
-                addToDeck(did, atlasRef.id);
-                const name = store.get().progress.decks?.find((d) => d.id === did)?.name ?? deckDisplayName;
-                toast(`已将词库词条「${atlasRef.word}」加入「${name}」`, "ok");
-                setReviewOpen(false);
-              }}
-            >
-              {inTargetDeck ? (
-                <>
-                  <Check size={14} /> 词库原词已在「{deckDisplayName}」
-                </>
-              ) : (
-                <>
-                  <Plus size={14} /> 直接加入「{deckDisplayName}」
-                </>
+              {atlasRef && (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  disabled={inTargetDeck}
+                  onClick={() => {
+                    const did = ensureTargetDeck();
+                    addToDeck(did, atlasRef.id);
+                    const name = store.get().progress.decks?.find((d) => d.id === did)?.name ?? deckDisplayName;
+                    toast(`已将词库词条「${atlasRef.word}」加入「${name}」`, "ok");
+                    setReviewOpen(false);
+                  }}
+                >
+                  {inTargetDeck ? (
+                    <>
+                      <Check size={14} /> 词库原词已在「{deckDisplayName}」
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={14} /> 直接加入「{deckDisplayName}」
+                    </>
+                  )}
+                </button>
               )}
-            </button>
-          )}
-        </div>
+            </div>
 
-        <WordForm
-          mode="create"
-          deckId={activeDeck?.id ?? ensureTargetDeck()}
-          seed={entryToSeed(entry)}
-          onDone={(createdId) => {
-            setReviewOpen(false);
-            if (createdId) {
-              toast(`「${entry.w}」已加入复习卡组`, "ok");
-            }
-          }}
-        />
+            <WordForm
+              mode="create"
+              deckId={activeDeck?.id || selectedDeckId}
+              seed={entryToSeed(entry)}
+              onDone={(createdId) => {
+                setReviewOpen(false);
+                if (createdId) {
+                  toast(`「${entry.w}」已加入复习卡组`, "ok");
+                }
+              }}
+            />
+          </>
+        )}
       </Sheet>
     </article>
   );
@@ -874,10 +902,12 @@ const REL_GROUPS = [
 function RelationsBody({
   entry,
   familyGroup,
+  extraFamilyPairs,
   hints,
 }: {
   entry: LexEntry;
   familyGroup: Family | undefined;
+  extraFamilyPairs: { fr: string; zh: string }[];
   hints: Map<string, LexHintTuple>;
 }) {
   return (
@@ -903,24 +933,29 @@ function RelationsBody({
           <div className="dict-family-box">
             <div className="panel-head">
               <span>
-                <b lang="fr">{familyGroup.name}</b> · <span className="muted small">{familyGroup.zh}</span>
+                <b lang="fr">{familyGroup.name}</b>
+                {familyGroup.zh && (
+                  <>
+                    {" "}· <span className="muted small">{familyGroup.zh}</span>
+                  </>
+                )}
               </span>
               <a className="link small" href={href({ page: "atlas", families: familyGroup.id })}>
                 在图鉴查看词族 →
               </a>
             </div>
-            <div className="dict-rel-chips">
-              {[familyGroup.name, ...familyGroup.examples].map((raw) => {
-                const pair = familyPair(raw);
-                if (!pair.fr) return null;
-                return (
-                  <a key={raw} className="dict-rel-chip" href={href({ page: "dict", w: pair.fr })}>
-                    <span lang="fr">{pair.fr}</span>
-                    {pair.zh && <small>{pair.zh}</small>}
-                  </a>
-                );
-              })}
-            </div>
+            {extraFamilyPairs.length > 0 && (
+              <div className="dict-rel-chips">
+                {extraFamilyPairs.map((pair) => (
+                  <RelChip
+                    key={pair.fr}
+                    w={pair.fr}
+                    hint={pair.zh ? ["", pair.zh] : hints.get(pair.fr)}
+                    withPos={!pair.zh}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

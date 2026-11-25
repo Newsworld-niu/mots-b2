@@ -271,3 +271,110 @@ test("parseRelLabel splits pipe glosses, CJK/POS parentheticals, and preserves F
   assert.deepEqual(parseRelLabel("malheureux (adj.)"), { fr: "malheureux", zh: "adj." });
   assert.deepEqual(parseRelLabel("s'asseoir (pronominal)"), { fr: "s'asseoir (pronominal)", zh: "" });
 });
+
+test("DictEntryView does not mutate decks during render, deduplicates 词图词族 against derived, and excludes self-link", async () => {
+  setBaseFamiliesForTest([
+    {
+      id: "heureux",
+      name: "heureux",
+      zh: "幸福的",
+      words: ["heureux", "bonheur"],
+      examples: ["bonheur", "heureusement", "malheur"],
+    },
+  ]);
+
+  assert.equal(store.get().progress.decks, undefined);
+  assert.equal(store.get().settings.readDeck, null);
+
+  const { unmount } = renderEntry(HEUREUX);
+
+  // Render purity: closed review sheet must never create "阅读生词" or mutate settings
+  assert.equal(store.get().progress.decks, undefined);
+  assert.equal(store.get().settings.readDeck, null);
+
+  // No self-link chip for headword "heureux"
+  assert.equal(chip("heureux"), null);
+
+  // bonheur & heureusement appear once (in 派生 / 同族词), while extra family word malheur renders once in 词图词族
+  const overviewRel = document.querySelector(".dict-panel-rel")!;
+  assert.equal(overviewRel.querySelectorAll(`a.dict-rel-chip[href="${href({ page: "dict", w: "bonheur" })}"]`).length, 1);
+  assert.equal(overviewRel.querySelectorAll(`a.dict-rel-chip[href="${href({ page: "dict", w: "heureusement" })}"]`).length, 1);
+  assert.equal(
+    overviewRel.querySelectorAll(`.dict-rel-family a.dict-rel-chip[href="${href({ page: "dict", w: "malheur" })}"]`).length,
+    1,
+  );
+  assert.ok(tabNames()[1].includes("(7)"), "2 derived + 2 syn + 2 ant + 1 extra family word = 7");
+  unmount();
+
+  // When every family word is already in entry.derived, 词图词族 keeps its header link without repeating chips
+  setBaseFamiliesForTest([
+    {
+      id: "heureux",
+      name: "heureux",
+      zh: "幸福的",
+      words: ["heureux", "bonheur"],
+      examples: ["bonheur", "heureusement"],
+    },
+  ]);
+  renderEntry(HEUREUX);
+  const famBox = document.querySelector(".dict-panel-rel .dict-rel-family");
+  assert.ok(famBox?.textContent?.includes("在图鉴查看词族 →"));
+  assert.equal(famBox?.querySelector(".dict-rel-chips"), null);
+});
+
+test("accent-distinct headwords do not cross-bind in DictEntryView or EntryView", async () => {
+  const accentAtlas = fakeAtlas([
+    ref("affaire", "affaire", "事情；案件", ["n.f."]),
+    ref("diplome", "diplôme", "文凭", ["n.m."]),
+    ref("sur-prep", "sur", "在…上面", ["prép."]),
+    ref("sur-adj", "sûr", "肯定的", ["adj."]),
+  ]);
+
+  const affaireAdj: LexEntry = {
+    id: "affaire#adj",
+    w: "affairé",
+    pos: [{ p: "adj.", senses: [{ zh: "忙碌的", src: ["wikt-zh"], conf: 2 }] }],
+    sources: ["wikt-zh"],
+  };
+
+  const { unmount } = render(
+    <AtlasContext.Provider value={accentAtlas}>
+      <DictEntryView entry={affaireAdj} />
+    </AtlasContext.Provider>,
+  );
+  assert.equal(screen.queryByRole("button", { name: /词图卡片/ }), null, "affairé must not bind to affaire");
+  unmount();
+
+  const { EntryView } = await import("../../ui/EntryView");
+  render(
+    <AtlasContext.Provider value={accentAtlas}>
+      <EntryView
+        entry={{
+          id: "diplome",
+          w: "diplôme",
+          uk: "",
+          us: "",
+          cefr: "B1",
+          topic: "",
+          m: 0,
+          senses: [{ pos: "n.m.", zh: "文凭", en: "" }],
+          ex: [],
+          col: [],
+          syn: ["sûr (adj.)"],
+          ant: [],
+          fam: ["diplômé｜毕业生"],
+          tip: "",
+        }}
+      />
+    </AtlasContext.Provider>,
+  );
+
+  // diplômé is not in accentAtlas (only diplôme is), so it must link to #/dict?w=diplômé rather than opening diplôme
+  const diplomeLink = document.querySelector<HTMLAnchorElement>(`a.link[href="${href({ page: "dict", w: "diplômé" })}"]`);
+  assert.ok(diplomeLink, "diplômé links to dictionary entry instead of wrong-accent card");
+
+  // sûr matches sur-adj (button opening card), not sur-prep
+  const surButtons = [...document.querySelectorAll<HTMLButtonElement>(".relations button.link")];
+  assert.equal(surButtons.length, 1);
+  assert.ok(surButtons[0].textContent?.includes("sûr"));
+});

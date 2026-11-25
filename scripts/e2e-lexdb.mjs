@@ -149,7 +149,27 @@ if (await synChip.count()) {
   check("clicking a synonym/antonym chip navigates to its dictionary entry", false, "no syn/ant chip on heureux");
 }
 
-// 5c) The overview never shows empty "暂未收录" placeholders
+// 5c) Accented & hyphenated chips (tâche -> tâcher / bien-être) navigate to exact accented entry without wrong-accent gloss
+await page.goto(BASE + "#/dict?w=t%C3%A2che");
+await page.waitForSelector(".dict-headword");
+await settle(page, 400);
+check(
+  "dict accented headword tâche opens tâche (not tache)",
+  (await page.locator(".dict-headword").innerText()).trim() === "tâche" &&
+    !/斑点|污渍/.test(await page.locator(".dict-pos-list").innerText()),
+);
+const accentDerChip = page.locator(".dict-panel-rel .dict-rel-derived a.dict-rel-chip").first();
+if (await accentDerChip.count()) {
+  const derTarget = ((await accentDerChip.locator('span[lang="fr"]').innerText()) || "").trim();
+  await accentDerChip.click();
+  await page.waitForFunction((w) => decodeURIComponent(location.hash.replace(/\+/g, " ")).includes(`w=${w}`), derTarget, { timeout: 5000 }).catch(() => {});
+  await page.waitForSelector(".dict-headword", { timeout: 8000 }).catch(() => {});
+  await settle(page, 300);
+  const derHead = (await page.locator(".dict-headword").innerText().catch(() => "")).trim();
+  check("clicking an accented derived chip navigates to its exact entry", derHead === derTarget, `${derTarget} → ${derHead}`);
+}
+
+// 5d) The overview never shows empty "暂未收录" placeholders
 let emptyHits = [];
 for (const w of ["heureux", "actuel", "accueil"]) {
   await page.goto(BASE + `#/dict?w=${encodeURIComponent(w)}`);

@@ -12,7 +12,7 @@ import { Illustration } from "./Illustration";
 import { Speak, SpeakBoth } from "./Speak";
 import { shareWord } from "./share";
 import { closeWord, href, openWord } from "../lib/router";
-import { addToDeck, createDeck, dropMainSense, findSame, hideExample, hideSense, isCustomId, ownParts, removeFromCard, removeFromDeck, restoreExamples, restoreSenses } from "../store/decks";
+import { addToDeck, createDeck, dropMainSense, findExact, hideExample, hideSense, isCustomId, ownParts, removeFromCard, removeFromDeck, restoreExamples, restoreSenses } from "../store/decks";
 import { WordForm } from "./WordForm";
 import { AiExplain } from "./AiExplain";
 import { ready, useAiConfig } from "../ai/config";
@@ -108,16 +108,14 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
   const saved = useStore((s) => s.progress.bookmarks.includes(entry.id));
   const topicIdx = atlas.topics.findIndex((t) => t[0] === entry.topic);
   const topic = atlas.topics[topicIdx];
-  // a related word opens its atlas card when it is in the lexicon, otherwise its dictionary entry (#/dict?w=…)
+  // a related word opens its atlas card when the exact accented headword is in the lexicon, otherwise its dictionary entry (#/dict?w=…)
   const toLinks = (list: string[]) =>
     list.map((label) => {
       const { fr, zh } = parseRelLabel(label);
       const bare = fr.replace(/\s*\([^)]*\)\s*$/, "").trim();
-      const lower = (bare || fr).toLowerCase();
       const hit =
-        (fr ? findSame(atlas, fr)[0] : undefined) ??
-        (bare && bare !== fr ? findSame(atlas, bare)[0] : undefined) ??
-        atlas.words.find((x) => x.word.toLowerCase() === lower);
+        (fr ? findExact(atlas, fr)[0] : undefined) ??
+        (bare && bare !== fr ? findExact(atlas, bare)[0] : undefined);
       return { label, fr, zh, id: hit?.id };
     });
   const famLinks = toLinks(entry.fam);
@@ -356,15 +354,8 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
           </p>
         )}
 
-        {mode === "detail" && entry.senses[0]?.pos === "v." && (
-          <>
-            <VerbConjugation id={entry.id} />
-            <p className="muted small conj-full-link">
-              <a className="link" href={href({ page: "dict", w: entry.w, tab: "conj" })}>
-                词典里查看「{entry.w}」完整变位 →
-              </a>
-            </p>
-          </>
+        {mode === "detail" && entry.senses.some((s) => s.pos === "v.") && (
+          <VerbConjugation id={entry.id} word={entry.w} />
         )}
 
         {entry.col.length > 0 && (
@@ -512,7 +503,7 @@ function ConfusableBlock({ id }: { id: string }) {
 /** The forms a learner cannot guess: irregular plural, adjective feminine, where the adjective goes, a verb's auxiliary. */
 function Inflections({ entry }: { entry: Entry }) {
   const i = entry.infl;
-  const verb = entry.senses[0]?.pos === "v.";
+  const verb = entry.senses.some((s) => s.pos === "v.");
   const items: [string, string][] = [];
   if (i?.pl) items.push(["复数", i.pl]);
   if (i?.fem) items.push(["阴性", i.fem]);
