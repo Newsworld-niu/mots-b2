@@ -262,3 +262,12 @@ test("an unavailable initialTab (e.g. relations on a bare entry) opens 法汉释
   assert.equal(tabBtn(/法汉释义/)!.getAttribute("aria-selected"), "true");
   assert.ok(tabBtn(/笔记/));
 });
+
+test("parseRelLabel splits pipe glosses, CJK/POS parentheticals, and preserves French qualifiers", async () => {
+  const { parseRelLabel } = await import("../../ui/EntryView");
+  assert.deepEqual(parseRelLabel("bonheur｜幸福；快乐"), { fr: "bonheur", zh: "幸福；快乐" });
+  assert.deepEqual(parseRelLabel("réception (接待)"), { fr: "réception", zh: "接待" });
+  assert.deepEqual(parseRelLabel("ostracisme (n.m.)"), { fr: "ostracisme", zh: "n.m." });
+  assert.deepEqual(parseRelLabel("malheureux (adj.)"), { fr: "malheureux", zh: "adj." });
+  assert.deepEqual(parseRelLabel("s'asseoir (pronominal)"), { fr: "s'asseoir (pronominal)", zh: "" });
+});

@@ -80,10 +80,11 @@ function ExampleSpeak({ entry, index, text }: { entry: Entry; index: number; tex
 }
 
 const CJK_RE = /[\u3400-\u9fff]/;
+const POS_TAG_RE = /^(?:n\.(?:\s*(?:m\.|f\.|m\.\/f\.))?|v\.(?:\s*(?:t\.|i\.|pr\.))?|adj\.|adv\.|prép\.|conj\.|pron\.|interj\.|loc\.(?:\s*[a-zé]+\.)?)$/i;
 
 /**
- * A related-word label as stored on a card: "bonheur｜幸福", "réception (接待)" or plain "accueillir".
- * A trailing parenthetical is only taken as the Chinese gloss when it contains CJK ("s'asseoir (pronominal)" stays French).
+ * A related-word label as stored on a card: "bonheur｜幸福", "réception (接待)", "ostracisme (n.m.)" or plain "accueillir".
+ * A trailing parenthetical is taken as the hint when it contains CJK or a POS tag ("s'asseoir (pronominal)" stays French).
  */
 export function parseRelLabel(label: string): { fr: string; zh: string } {
   const [head = "", ...rest] = label.split(/[｜|]/);
@@ -91,9 +92,10 @@ export function parseRelLabel(label: string): { fr: string; zh: string } {
   let zh = rest.join("｜").trim();
   if (!zh) {
     const m = fr.match(/^(.*?)\s*[（(]([^()（）]*)[)）]\s*$/);
-    if (m && m[1].trim() && CJK_RE.test(m[2])) {
+    const note = m?.[2]?.trim() ?? "";
+    if (m && m[1].trim() && (CJK_RE.test(note) || POS_TAG_RE.test(note))) {
       fr = m[1].trim();
-      zh = m[2].trim();
+      zh = note;
     }
   }
   return { fr, zh };
