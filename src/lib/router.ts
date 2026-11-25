@@ -3,10 +3,15 @@ import { transition } from "./motion";
 import { activeNavGuard } from "./nav-guard";
 import { confirmAction } from "../ui/ConfirmSheet";
 
+/** Tabs of a dictionary entry (#/dict?w=…&tab=…); "zh" is the default and is never written to the URL. */
+export type DictTab = "zh" | "conj" | "phrases" | "examples" | "relations" | "fr" | "etym" | "notes";
+export const DICT_TABS: readonly DictTab[] = ["zh", "conj", "phrases", "examples", "relations", "fr", "etym", "notes"];
+const isDictTab = (v: string | null): v is DictTab => !!v && (DICT_TABS as readonly string[]).includes(v);
+
 export type Route =
   | { page: "today" }
   | { page: "atlas"; families?: string; pos?: string; d?: string; topic?: string; level?: string; q?: string; view?: string }
-  | { page: "dict"; w?: string; q?: string }
+  | { page: "dict"; w?: string; q?: string; tab?: DictTab }
   | { page: "learn" }
   | { page: "practice" }
   | { page: "mock" }
@@ -52,8 +57,14 @@ export function parseHash(hash: string): Location {
   const seg = path.split("/").filter(Boolean);
   let route: Route = { page: "today" };
   if (seg[0] === "dict") {
+    const tab = params.get("tab");
     return {
-      route: { page: "dict", w: params.get("w") || undefined, q: params.get("q") || undefined },
+      route: {
+        page: "dict",
+        w: params.get("w") || undefined,
+        q: params.get("q") || undefined,
+        ...(isDictTab(tab) && tab !== "zh" ? { tab } : {}),
+      },
       word: params.get("card") || null,
     };
   }
@@ -101,6 +112,7 @@ export function href(route: Route, word?: string | null) {
   if (route.page === "dict") {
     if (route.w) params.set("w", route.w);
     if (route.q) params.set("q", route.q);
+    if (route.tab && route.tab !== "zh" && isDictTab(route.tab)) params.set("tab", route.tab);
     if (word) params.set("card", word);
   }
   if (route.page === "compare" && route.g) params.set("g", route.g);

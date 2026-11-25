@@ -68,15 +68,9 @@
     { "fr": "famille d'accueil", "zh": "寄宿家庭；寄养家庭", "src": "wikt-fr", "conf": 1 },
     { "fr": "faire bon accueil", "zh": "热情接待；欢迎", "src": "wikt-fr", "conf": 1 }
   ],
-  "syn": ["réception", "bienvenue", "page d'accueil"],
-  "derived": [
-    "accueil de loisirs",
-    "accueil sécurité",
-    "agent d'accueil",
-    "comité d'accueil",
-    "famille d'accueil",
-    "page d'accueil"
-  ],
+  "syn": ["réception", "bienvenue", "hospitalité"],
+  "ant": ["rejet", "exclusion"],
+  "derived": ["accueillir", "accueillant", "inaccueillant"],
   "frDefs": [
     {
       "p": "n.m.",

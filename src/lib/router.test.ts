@@ -57,3 +57,15 @@ test("lounge route round-trips shelf, item, ch, and WordSheet ?w= cleanly", () =
     word: null,
   });
 });
+
+test("dict tab deep link round-trips, and the default 法汉释义 tab is never written", () => {
+  const url = href({ page: "dict", w: "prendre", tab: "conj" });
+  assert.equal(url, "#/dict?w=prendre&tab=conj");
+  assert.deepEqual(parseHash(url), { route: { page: "dict", w: "prendre", q: undefined, tab: "conj" }, word: null });
+  assert.equal(href({ page: "dict", w: "accueil", tab: "zh" }), "#/dict?w=accueil");
+  assert.equal(href({ page: "dict", w: "accueil" }), "#/dict?w=accueil");
+  assert.deepEqual(parseHash("#/dict?w=accueil&tab=zh"), { route: { page: "dict", w: "accueil", q: undefined }, word: null });
+  // unknown tabs are dropped rather than trusted
+  assert.deepEqual(parseHash("#/dict?w=accueil&tab=evil"), { route: { page: "dict", w: "accueil", q: undefined }, word: null });
+  assert.equal(href({ page: "dict", w: "beau", tab: "relations" }, "beau"), "#/dict?w=beau&tab=relations&card=beau");
+});

@@ -50,18 +50,26 @@ export function tooLong(p: Pick): string {
   }
 }
 
-/** The offline dictionary's glosses and examples, one pick each (every gloss, not only the first few). */
+/**
+ * The offline dictionary's glosses, examples, phrases and related words (派生 / 近义 / 反义), one pick each
+ * (every gloss, not only the first few). Keys are stable: `dict|<hit>|<kind>|<text>`.
+ */
 export function dictPicks(hits: DictHit[]): Pick[] {
   const out: Pick[] = [];
   const seen = new Set<string>();
+  const push = (p: Pick) => {
+    if (!p.fr && !p.zh) return;
+    if (seen.has(p.key)) return;
+    seen.add(p.key);
+    out.push(p);
+  };
   hits.forEach((h, i) => {
-    for (const [zh, label] of h.zh ?? []) {
-      const key = `dict|${i}|sense|${zh}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push({ key, origin: "dict", kind: "sense", fr: label || "", zh, pos: h.p });
-    }
-    for (const [fr, zh, a, b] of h.ex ?? []) out.push({ key: `dict|${i}|example|${fr}`, origin: "dict", kind: "example", fr, zh, pos: h.p, hl: [a, b], tatoeba: true });
+    for (const [zh, label] of h.zh ?? []) push({ key: `dict|${i}|sense|${zh}`, origin: "dict", kind: "sense", fr: label || "", zh, pos: h.p });
+    for (const [fr, zh, a, b] of h.ex ?? []) push({ key: `dict|${i}|example|${fr}`, origin: "dict", kind: "example", fr, zh, pos: h.p, hl: [a, b], tatoeba: true });
+    for (const [fr, zh] of h.phrases ?? []) push({ key: `dict|${i}|phrase|${fr}`, origin: "dict", kind: "phrase", fr, zh, pos: "" });
+    for (const [fr, zh] of h.derived ?? []) push({ key: `dict|${i}|family|${fr}`, origin: "dict", kind: "family", fr, zh, pos: "" });
+    for (const fr of h.syn ?? []) push({ key: `dict|${i}|syn|${fr}`, origin: "dict", kind: "syn", fr, zh: "", pos: "" });
+    for (const fr of h.ant ?? []) push({ key: `dict|${i}|ant|${fr}`, origin: "dict", kind: "ant", fr, zh: "", pos: "" });
   });
   return out;
 }

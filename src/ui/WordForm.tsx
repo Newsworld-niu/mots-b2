@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import { openWord } from "../lib/router";
 import { addToDeck, cleanCollocations, createCustomWord, deleteCustomWord, findSame, setWordEdit, updateCustomWord } from "../store/decks";
-import { MAX_COLLOCATIONS, MAX_EXAMPLES, MAX_OWN_SENSES, MAX_TIP, useStore, type OwnSense, type UserExample } from "../store/store";
+import { MAX_COLLOCATIONS, MAX_EXAMPLES, MAX_OWN_SENSES, MAX_RELATED, MAX_TIP, useStore, type OwnSense, type UserExample } from "../store/store";
 import { joinGlosses, lookupDict, type DictHit } from "../lib/dict";
 import type { Seed } from "../lib/lookup";
 import { fileToImage, setImage, useImages } from "../store/images";
@@ -197,6 +197,11 @@ export function WordForm(props: Props) {
     if (h.zh?.length) setZh(joinGlosses(h.zh));
     const blank = ex.every((x) => !x.fr.trim());
     if (blank && h.ex?.length) setEx(h.ex.slice(0, 2).map(([fr, z, a, b]) => ({ fr, zh: z, src: "tatoeba", hl: [a, b] })));
+    // lemma-wide extras from the dictionary fill only what the learner has left empty
+    if (h.phrases?.length && col.every((c) => !c.fr.trim())) setCol(h.phrases.slice(0, MAX_COLLOCATIONS).map(([fr, zh]) => ({ fr, zh })));
+    if (h.derived?.length && fam.every((x) => !familyPair(x).fr)) setFam(h.derived.slice(0, 12).map(([fr, zh]) => (zh ? `${fr}｜${zh}` : fr)));
+    if (h.syn?.length && !syn.length) setSyn(h.syn.slice(0, MAX_RELATED));
+    if (h.ant?.length && !ant.length) setAnt(h.ant.slice(0, MAX_RELATED));
     setAuto(true);
   };
   // AI 填写: the word's meanings (listed separately), one example for each, and the pronunciation

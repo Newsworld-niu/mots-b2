@@ -102,16 +102,9 @@
     { "fr": "avoir beau", "zh": "尽管……还是；白费力气", "src": "wikt-fr", "conf": 1 },
     { "fr": "à la belle étoile", "zh": "在露天；在星空下", "src": "wikt-fr", "conf": 1 }
   ],
-  "syn": ["avenant", "élégant", "gracieux", "joli"],
-  "ant": ["affreux", "hideux", "horrible", "laid", "vilain"],
-  "derived": [
-    "beauté",
-    "beaucoup",
-    "à la belle étoile",
-    "au beau milieu de",
-    "avoir beau",
-    "faire le beau"
-  ],
+  "syn": ["joli", "élégant", "gracieux", "superbe"],
+  "ant": ["laid", "affreux", "horrible", "vilain"],
+  "derived": ["beauté", "embellir", "embellissement", "joliment"],
   "family": "beau",
   "frDefs": [
     {

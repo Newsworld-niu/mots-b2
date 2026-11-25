@@ -118,6 +118,73 @@ check(
 );
 await page.screenshot({ path: "output/e2e/dict.png" });
 
+// 5b) Relations (派生 · 近义 · 反义) render as clickable chips that open the target entry
+const hintRequests = [];
+page.on("request", (r) => {
+  if (/\/lexdb\/hints\//.test(r.url())) hintRequests.push(r.url());
+});
+await page.goto(BASE + "#/dict?w=heureux");
+await page.waitForSelector(".dict-headword");
+await settle(page, 500);
+const relPanel = page.locator(".dict-panel-rel");
+const relChips = relPanel.locator("a.dict-rel-chip");
+const relCount = await relChips.count();
+const relHrefsOk = relCount > 0 && (await relChips.evaluateAll((els) => els.every((a) => /^#\/dict\?w=/.test(a.getAttribute("href") || ""))));
+check("dict relation panel renders 派生/近义/反义 chips linking to #/dict?w=…", relCount > 0 && relHrefsOk, `${relCount} chips`);
+const relTab = await page.locator(".dict-tabs [role=tab]", { hasText: "派生·近反义" }).count();
+check("dict 派生·近反义 tab is offered when the entry has relations", relTab === 1);
+const synChip = (await relPanel.locator(".dict-rel-syn a.dict-rel-chip", { hasText: /^content/ }).count())
+  ? relPanel.locator(".dict-rel-syn a.dict-rel-chip", { hasText: /^content/ }).first()
+  : relPanel.locator(".dict-rel-syn a.dict-rel-chip, .dict-rel-ant a.dict-rel-chip").first();
+if (await synChip.count()) {
+  const target = ((await synChip.locator('span[lang="fr"]').innerText()) || "").trim();
+  await synChip.click();
+  await page.waitForFunction((w) => decodeURIComponent(location.hash.replace(/\+/g, " ")).includes(`w=${w}`), target, { timeout: 5000 }).catch(() => {});
+  await page.waitForSelector(".dict-headword, .dict-empty-card", { timeout: 8000 }).catch(() => {});
+  await settle(page, 300);
+  const landed = decodeURIComponent(page.url().replace(/\+/g, " "));
+  const head = (await page.locator(".dict-headword").innerText().catch(() => "")).trim();
+  check("clicking a synonym/antonym chip navigates to its dictionary entry", landed.includes(`w=${target}`) && head.length > 0, `${target} → ${head}`);
+} else {
+  check("clicking a synonym/antonym chip navigates to its dictionary entry", false, "no syn/ant chip on heureux");
+}
+
+// 5c) The overview never shows empty "暂未收录" placeholders
+let emptyHits = [];
+for (const w of ["heureux", "actuel", "accueil"]) {
+  await page.goto(BASE + `#/dict?w=${encodeURIComponent(w)}`);
+  await page.waitForSelector(".dict-headword");
+  await settle(page, 300);
+  const panels = await page.locator(".dict-panels").innerText().catch(() => "");
+  if (/暂未收录/.test(panels)) emptyHits.push(w);
+}
+check("dict overview hides empty sections (no 暂未收录 placeholders)", emptyHits.length === 0, emptyHits.join(", "));
+
+// 5d) Conjugation deep link #/dict?w=prendre&tab=conj
+await page.goto(BASE + "#/dict?w=prendre&tab=conj");
+await page.waitForSelector(".conj-table", { timeout: 10000 }).catch(() => {});
+check(
+  "dict ?tab=conj deep link opens the conjugation table",
+  /je\s+prends/.test(await page.locator(".conj-table").innerText().catch(() => "")) &&
+    (await page.locator('.dict-tabs [role=tab][aria-selected="true"]').innerText().catch(() => "")).includes("动词变位"),
+);
+
+// 5e) Phone width: no horizontal overflow on a rich entry
+await page.setViewportSize({ width: 390, height: 844 });
+await page.goto(BASE + "#/dict?w=heureux");
+await page.waitForSelector(".dict-headword");
+await settle(page, 500);
+const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+check("dict entry has no horizontal overflow at 390x844", overflow <= 1, `overflow ${overflow}px`);
+await page.screenshot({ path: "output/e2e/dict-mobile.png", fullPage: false });
+await page.setViewportSize({ width: 1280, height: 900 });
+
+// 5f) Home never fetches related-word hint shards
+hintRequests.length = 0;
+await page.goto(BASE + "#/");
+await settle(page, 800);
+check("home loads zero lexdb/hints requests", hintRequests.length === 0, hintRequests.slice(0, 2).join(" "));
+
 // 6) Read: existing token tap works and exposes 词典详情 →
 await page.goto(BASE + "#/read");
 await page.waitForSelector(".read-draft");

@@ -8,9 +8,7 @@ import { frdicUrl } from "../lib/frdic";
 import { getEntryById, loadMeta, setLexdbFixtures } from "../lib/lexdb/load";
 import { entryToSeed, resolve, type ResolveResult } from "../lib/lexdb/search";
 import { lexdbFold, type LexEntry } from "../lib/lexdb/types";
-import accueilFixture from "../lib/lexdb/fixtures/accueil.json";
-import beauFixture from "../lib/lexdb/fixtures/beau.json";
-import prendreFixture from "../lib/lexdb/fixtures/prendre.json";
+import { LEXDB_FIXTURES } from "../lib/lexdb/fixtures";
 import { isNative } from "../lib/native";
 import { href, openWord } from "../lib/router";
 import { MAX_SOURCE_SENTENCE, addPicked, addToDeck, createDeck, findSame, setDeckNote } from "../store/decks";
@@ -21,11 +19,7 @@ import { WordForm } from "./WordForm";
 
 const POPUP_DECK = "阅读生词";
 
-export const LEXDB_FIXTURES: readonly LexEntry[] = [
-  accueilFixture as LexEntry,
-  prendreFixture as LexEntry,
-  beauFixture as LexEntry,
-];
+export { LEXDB_FIXTURES };
 
 const FIXTURE_FORMS: Record<string, string[]> = {
   accueils: ["accueil"],
@@ -507,6 +501,23 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
               )}
             </div>
 
+            {(entry.forms?.f || entry.forms?.pl || entry.forms?.fpl || entry.conj) && (
+              <p className="word-popup-meta muted small">
+                {[
+                  entry.forms?.f && `f. ${entry.forms.f}`,
+                  entry.forms?.pl && `pl. ${entry.forms.pl}`,
+                  entry.forms?.fpl && `f.pl. ${entry.forms.fpl}`,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+                {entry.conj && (
+                  <a className="link small" href={href({ page: "dict", w: entry.w, tab: "conj" })} onClick={close}>
+                    动词变位 →
+                  </a>
+                )}
+              </p>
+            )}
+
             {topSenses.length > 0 ? (
               <ul className="word-popup-senses">
                 {topSenses.map((s, idx) => (
@@ -519,6 +530,25 @@ export function WordPopup({ children, containerRef, allowWordTap = true, classNa
             ) : (
               <p className="muted small">暂无简明中文释义，可在词典详情中查看。</p>
             )}
+
+            {(entry.derived?.length || entry.syn?.length || entry.ant?.length) ? (
+              <div className="word-popup-rels" aria-label="相关词">
+                {(
+                  [
+                    ["派", entry.derived?.slice(0, 3)],
+                    ["近", entry.syn?.slice(0, 2)],
+                    ["反", entry.ant?.slice(0, 1)],
+                  ] as const
+                ).flatMap(([tag, list]) =>
+                  (list ?? []).map((w) => (
+                    <a key={`${tag}-${w}`} className="dict-rel-chip is-compact" href={href({ page: "dict", w })} onClick={close} title={`查看「${w}」词条`}>
+                      <small>{tag}</small>
+                      <span lang="fr">{w}</span>
+                    </a>
+                  )),
+                )}
+              </div>
+            ) : null}
 
             <div className="word-popup-actions">
               {savedWordId && inDeck ? (

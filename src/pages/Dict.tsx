@@ -4,7 +4,7 @@ import { getEntryById, loadMeta, loadSuggest, loadSuggestShard, setLexdbFixtures
 import { isCjkQuery, searchDict, suggest, zhLookup, type SearchDictResult } from "../lib/lexdb/search";
 import { recordDictHistory } from "../lib/lexdb/store";
 import { lexdbFold, type LexMeta, type LexSuggestRow } from "../lib/lexdb/types";
-import { go, href } from "../lib/router";
+import { go, href, type DictTab } from "../lib/router";
 import { LexiconTabs } from "../ui/LexiconTabs";
 import { LEXDB_FIXTURES, lookupLexdbWithFallback } from "../ui/WordPopup";
 import "../styles/dict.css";
@@ -18,7 +18,7 @@ import {
   SAMPLE_WORDS,
 } from "./dict/helpers";
 
-export function Dict({ word, query }: { word?: string; query?: string }) {
+export function Dict({ word, query, tab }: { word?: string; query?: string; tab?: DictTab }) {
   const [input, setInput] = useState(word ?? query ?? "");
   const [meta, setMeta] = useState<LexMeta | null | undefined>(undefined);
   const [suggestMap, setSuggestMap] = useState<Map<string, LexSuggestRow>>(new Map());
@@ -482,6 +482,8 @@ export function Dict({ word, query }: { word?: string; query?: string }) {
                 <DictEntryView
                   key={activeEntry.id}
                   entry={activeEntry}
+                  initialTab={tab}
+                  meta={meta}
                   highlightPhrase={result?.matchedVia === "phrase" ? (word ?? query) : undefined}
                 />
               </>
