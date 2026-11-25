@@ -223,7 +223,7 @@ function Shell() {
         }>
           {route.page === "today" && <Today />}
           {route.page === "atlas" && <AtlasPage route={route} />}
-          {route.page === "dict" && <Dict word={route.w} query={route.q} />}
+          {route.page === "dict" && <Dict word={route.w} query={route.q} tab={route.tab} />}
           {route.page === "learn" && <Learn />}
           {route.page === "practice" && <Practice />}
           {route.page === "mock" && <MockExam onExit={() => go({ page: "practice" })} />}

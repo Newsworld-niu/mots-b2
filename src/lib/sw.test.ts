@@ -331,19 +331,30 @@ test("sw uses network-first for grammar.json and lexdb/, and bypasses dictionary
   const aiProxyRes = await sw.dispatchFetch(new Request("https://app.test/ai-proxy/openai"));
   assert.equal(aiProxyRes.intercepted, false);
 
-  // grammar.json network-first -> updates cache on version 2 -> offline falls back to version 2
+  // grammar.json and families.json network-first -> updates cache on version 2 -> offline falls back to version 2
   const g1 = await sw.dispatchFetch(new Request("https://app.test/atlas/grammar.json"));
   assert.equal(JSON.parse(await g1.response!.text()).v, 1);
   await Promise.all(g1.waitTasks);
+
+  const f1 = await sw.dispatchFetch(new Request("https://app.test/atlas/families.json"));
+  assert.equal(JSON.parse(await f1.response!.text()).v, 1);
+  await Promise.all(f1.waitTasks);
 
   version = 2;
   const g2 = await sw.dispatchFetch(new Request("https://app.test/atlas/grammar.json"));
   assert.equal(JSON.parse(await g2.response!.text()).v, 2);
   await Promise.all(g2.waitTasks);
 
+  const f2 = await sw.dispatchFetch(new Request("https://app.test/atlas/families.json"));
+  assert.equal(JSON.parse(await f2.response!.text()).v, 2);
+  await Promise.all(f2.waitTasks);
+
   online = false;
   const gOff = await sw.dispatchFetch(new Request("https://app.test/atlas/grammar.json"));
   assert.equal(JSON.parse(await gOff.response!.text()).v, 2);
+
+  const fOff = await sw.dispatchFetch(new Request("https://app.test/atlas/families.json"));
+  assert.equal(JSON.parse(await fOff.response!.text()).v, 2);
 
   // lexdb/ network-first -> caches into atlas-v6-lexdb -> offline falls back
   online = true;

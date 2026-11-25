@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 // XML DOM is supplied by the existing Capacitor CLI dependency; fixtures use well-formed markup.
 import { DOMParser } from "@xmldom/xmldom";
-import { dictionaryImage, frdicUrl, parseFrdic, loadFrdic } from "./frdic.ts";
+import { dictionaryImage, frdicUrl, parseFrdic, loadFrdic, relationKind } from "./frdic.ts";
 const parse = (s: string) => new DOMParser().parseFromString(s, "text/html") as unknown as Document;
 
 test("dictionary URLs safely encode French, Chinese and punctuation", () => {
@@ -97,4 +97,38 @@ test("picking: meanings, examples, phrases and relatives are told apart; picture
 
 test("the login page is recognised, not reported as a missing word", () => {
   assert.throws(() => parseFrdic("<html><head><title>登录_法语助手在线词典</title></head><body/></html>", "test", parse), /登录页/);
+});
+
+test("relation headings drawn with picture characters still map to 近义 / 反义 / 派生", () => {
+  assert.equal(relationKind("近□词"), "syn");
+  assert.equal(relationKind("近义词"), "syn");
+  assert.equal(relationKind("反□词"), "ant");
+  assert.equal(relationKind("反义词"), "ant");
+  assert.equal(relationKind("□容词变化"), "family");
+  assert.equal(relationKind("副□变化"), "family");
+  assert.equal(relationKind("名词变化"), "family");
+  assert.equal(relationKind("派生"), "family");
+  assert.equal(relationKind("联想词"), "");
+  assert.equal(relationKind("用法"), "");
+});
+
+test("related words: picture-character headings, plain-text antonyms, and 联想词 kept apart", () => {
+  const img = (n: string) => `<img class="dictimgtoword" src="https://www.frdic.com/tmp/wordimg/${n}.png"/>`;
+  const html = `<html><div id="ExpSYNchild">`
+    + `<div class="derivation"><h5>${img("xing")}容词变化：</h5><a href="/dicts/fr/heureuse">heureuse</a><br/></div>`
+    + `<div class="derivation"><h5>副${img("ci")}变化：</h5><a href="/dicts/fr/heureusement">heureusement</a><br/></div>`
+    + `<h5>近${img("yi")}词：</h5><a href="/dicts/fr/content">content</a>, <a href="/dicts/fr/joyeux">joyeux</a>、ravi`
+    + `<h5>反${img("yi2")}词：</h5><a href="/dicts/fr/malheureux">malheureux</a>, triste&#160;chagrinant`
+    + `<div><p>désolé</p></div>`
+    + `<div class="eudic_wordtype_cont"><h5>联想词</h5><a href="/dicts/fr/chance">chance</a> fortune</div>`
+    + `<h5>联想词：</h5><a href="/dicts/fr/bonheur">bonheur</a> gaieté`
+    + `</div></html>`;
+  const data = parseFrdic(html, "heureux", parse);
+  const by = (k: string) => data.items.filter((x) => x.kind === k).map((x) => x.fr);
+  assert.deepEqual(by("family"), ["heureuse", "heureusement"]);
+  assert.deepEqual(by("syn"), ["content", "joyeux", "ravi"]);
+  assert.deepEqual(by("ant"), ["malheureux", "triste", "chagrinant"]);
+  for (const loose of ["chance", "fortune", "bonheur", "gaieté", "désolé"]) {
+    assert.ok(!data.items.some((x) => x.fr === loose), loose);
+  }
 });

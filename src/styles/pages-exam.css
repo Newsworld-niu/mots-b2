@@ -1441,3 +1441,13 @@ button.prep-pill:hover { border-color: var(--ink-4); color: var(--ink); }
   font: 500 14.5px var(--serif);
   color: var(--ink);
 }
+
+/* ---------- Home lookup: LexDB headword bar and 查词 ↗ jump links ---------- */
+.home-dict-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 4px 0 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--paper-2); overflow-wrap: anywhere; min-width: 0; }
+.home-dict-meta b { font: 600 18px/1.3 var(--serif); color: var(--ink); }
+.home-dict-meta .pos { color: var(--ink-2); font-style: italic; font-size: 13px; }
+.home-dict-forms { color: var(--ink-2); font-size: 13px; }
+.home-dict-links { display: inline-flex; flex-wrap: wrap; gap: 4px 12px; margin-inline-start: auto; }
+.pick-row:has(> .pick-jump) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 4px; }
+.pick-jump { padding: 7px 8px; white-space: nowrap; text-decoration: none; }
+@media (max-width: 759px) { .home-dict-links { margin-inline-start: 0; } }

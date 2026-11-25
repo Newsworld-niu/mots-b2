@@ -4,6 +4,7 @@ import {
   lexdbKey,
   type LexEntry,
   type LexFormsShard,
+  type LexHintsShard,
   type LexMeta,
   type LexShard,
   type LexSuggestRow,
@@ -11,6 +12,7 @@ import {
 } from "./types";
 import {
   validateFormsShard,
+  validateHintsShard,
   validateLexMeta,
   validateLexShard,
   validateSuggestRows,
@@ -25,12 +27,14 @@ const BASE = (typeof import.meta !== "undefined" && import.meta.env?.BASE_URL ? 
 );
 
 const isValidShardKey = (key: string) => /^[a-z_]{2,4}$/.test(key);
+const isValidHintBucket = (bucket: string) => /^[a-z_]$/.test(bucket);
 const isValidSuggestBucket = (bucket: string) => bucket === "top" || /^[a-z_]{1,3}$/.test(bucket);
 
 export const LEXDB_ENTRY_CACHE_MAX = 24;
 export const LEXDB_FORMS_CACHE_MAX = 24;
 export const LEXDB_ZH_CACHE_MAX = 16;
 export const LEXDB_SUGGEST_CACHE_MAX = 16;
+export const LEXDB_HINTS_CACHE_MAX = 16;
 
 /** Compute the suggest/<bucket>.json shard name for a folded French query (1 -> 2 -> 3 char splits). */
 export function suggestBucket(folded: string, suggestSplits?: readonly string[]): string {
@@ -59,6 +63,7 @@ const entryShards = new LruCache<string, Promise<LexShard | null>>(LEXDB_ENTRY_C
 const formsShards = new LruCache<string, Promise<LexFormsShard | null>>(LEXDB_FORMS_CACHE_MAX);
 const zhShards = new LruCache<number, Promise<LexZhShard | null>>(LEXDB_ZH_CACHE_MAX);
 const suggestShards = new LruCache<string, Promise<LexSuggestRow[] | null>>(LEXDB_SUGGEST_CACHE_MAX);
+const hintsShards = new LruCache<string, Promise<LexHintsShard | null>>(LEXDB_HINTS_CACHE_MAX);
 const fixtureEntries = new Map<string, LexEntry>();
 
 /** Replace the network fetcher for deterministic tests and clear all internal caches. */
@@ -71,6 +76,7 @@ export function setLexdbFetcher(f: LexdbFetcher | null): void {
   formsShards.clear();
   zhShards.clear();
   suggestShards.clear();
+  hintsShards.clear();
   fixtureEntries.clear();
 }
 
@@ -133,6 +139,15 @@ function loadCached<K, V>(
     cache.set(key, p);
   }
   return p;
+}
+
+/**
+ * Compact related-word hints (`hints/<bucket>.json`, bucket from hintBucket). Only fetched lazily for the buckets an
+ * open entry's related words need, and only when meta.hintsShards is true; resolves null offline or when absent.
+ */
+export function loadHintsShard(bucket: string): Promise<LexHintsShard | null> {
+  if (!isValidHintBucket(bucket)) return Promise.resolve(null);
+  return loadCached(hintsShards, bucket, `${BASE}/lexdb/hints/${bucket}.json`, validateHintsShard);
 }
 
 export function loadEntryShard(key: string): Promise<LexShard | null> {

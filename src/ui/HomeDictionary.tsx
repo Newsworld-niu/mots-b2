@@ -7,8 +7,8 @@ import { lookupDict, type DictHit } from "../lib/dict";
 import { canAutoFetchFrdic, frdicUrl, GAP, loadFrdic, type DictionaryNode, type FrdicResult } from "../lib/frdic";
 import { buildSeed, CAPACITY, dictPicks, frdicPicks, hasGap, KIND_LABEL, KINDS, tooLong, withZh, type Pick, type Seed } from "../lib/lookup";
 import { isNative } from "../lib/native";
-import { openWord } from "../lib/router";
-import { addToDeck, createDeck, findSame } from "../store/decks";
+import { href, openWord } from "../lib/router";
+import { addToDeck, createDeck, findExact, findSame } from "../store/decks";
 import { store, useStore } from "../store/store";
 import { Sheet } from "./Sheet";
 import { toast } from "./Toast";
@@ -30,7 +30,11 @@ function Zh({ text }: { text: string }) {
   return <>{parts.map((t, i) => <span key={i}>{t}{i < parts.length - 1 && <i className="pick-gap" title="词典里这个字是图片，没法复制">{GAP}</i>}</span>)}</>;
 }
 
+/** Kinds whose French text is itself a dictionary word or phrase worth opening (查词 ↗). */
+const JUMP_KINDS = new Set<Pick["kind"]>(["family", "syn", "ant", "phrase"]);
+
 function PickRow({ p, on, blocked, onToggle }: { p: Pick; on: boolean; blocked: string; onToggle: () => void }) {
+  const jump = JUMP_KINDS.has(p.kind) && p.fr.trim() && !p.fr.includes(GAP);
   return (
     <li className={`pick-row pick-${p.kind} ${on ? "is-on" : ""} ${blocked && !on ? "is-blocked" : ""}`}>
       <label title={blocked && !on ? blocked : undefined}>
@@ -43,6 +47,11 @@ function PickRow({ p, on, blocked, onToggle }: { p: Pick; on: boolean; blocked: 
           {blocked && !on && <em className="pick-note">{blocked}</em>}
         </span>
       </label>
+      {jump && (
+        <a className="pick-jump link small" href={href({ page: "dict", w: p.fr.trim() })} title={`查看「${p.fr.trim()}」词条`}>
+          查词 ↗
+        </a>
+      )}
     </li>
   );
 }
@@ -85,7 +94,15 @@ export function HomeDictionary() {
   const job = useRef<AbortController | null>(null);
   useEffect(() => () => job.current?.abort(), []);
 
-  const picks = useMemo(() => [...dictPicks(hits ?? []), ...frdicPicks(result?.items ?? [])], [hits, result]);
+  // 派生词 picks get a short Chinese hint from the atlas already in memory (exact accent match; no families.json request on the home page)
+  const picks = useMemo(() => {
+    const fromDict = dictPicks(hits ?? []).map((p) => {
+      if (p.kind !== "family" || p.zh) return p;
+      const zh = findExact(atlas, p.fr)[0]?.zh?.split(/[；;]/)[0]?.trim().slice(0, 38) ?? "";
+      return zh ? { ...p, zh } : p;
+    });
+    return [...fromDict, ...frdicPicks(result?.items ?? [])];
+  }, [atlas, hits, result]);
   const mine = useMemo(() => {
     const seen = new Set<string>();
     return [term, ...(hits ?? []).map((h) => h.w)].flatMap((n) => (n ? findSame(atlas, n) : [])).filter((w) => !seen.has(w.id) && !!seen.add(w.id));
@@ -151,6 +168,16 @@ export function HomeDictionary() {
   const addMine = (id: string) => { addToDeck(targetDeck(), id); toast(`已加入「${store.get().progress.decks?.find((d) => d.id === targetDeck())?.name ?? TARGET_DECK}」`, "ok"); };
   const dictBusy = term !== "" && hits === null;
   const dictOnly = picks.filter((p) => p.origin === "dict");
+  const dictHits = hits ?? [];
+  const head = dictHits[0];
+  const headHits = dictHits.filter((h) => h.w === head?.w);
+  const headPos = [...new Set(headHits.map((h) => (h.g === "mf" ? `${h.p}（阴阳同形）` : h.p)).filter(Boolean))];
+  const headForms = headHits.find((h) => h.forms)?.forms;
+  const formsText = headForms
+    ? [headForms.f && `f. ${headForms.f}`, headForms.pl && `pl. ${headForms.pl}`, headForms.fpl && `f.pl. ${headForms.fpl}`].filter(Boolean)
+        .join(" · ")
+    : "";
+  const hasConj = headHits.some((h) => h.conj);
   const frdicOnly = picks.filter((p) => p.origin === "frdic");
 
   return <section className="home-dictionary" aria-label="查词">
@@ -176,11 +203,20 @@ export function HomeDictionary() {
         })}</ul>}
       </details>
 
-      <details className="lookup-section" open={dictOnly.length > 0}>
+      <details className="lookup-section" open={dictHits.length > 0}>
         <summary>离线大词典 (LexDB) <small>{dictBusy ? "查询中…" : `${dictOnly.length} 项`}</small></summary>
-        {dictOnly.length === 0 ? <p className="lookup-empty">{dictBusy ? "正在查询…" : "词典里没有这个词。"}</p> : <>
-          {(hits ?? [])[0]?.form && <p className="muted small">「{term}」是 <span lang="fr">{hits![0].w}</span> 的变化形式。</p>}
-          <Picks picks={dictOnly} chosen={list} toggle={toggle} />
+        {dictHits.length === 0 || !head ? <p className="lookup-empty">{dictBusy ? "正在查询…" : "词典里没有这个词。"}</p> : <>
+          {head.form && <p className="muted small">「{term}」是 <span lang="fr">{head.w}</span> 的变化形式。</p>}
+          <div className="home-dict-meta">
+            <b lang="fr">{head.w}</b>
+            {headPos.map((p) => <span key={p} className="pos">{p}</span>)}
+            {formsText && <span className="home-dict-forms" lang="fr">{formsText}</span>}
+            <span className="home-dict-links">
+              <a className="link small" href={href({ page: "dict", w: head.w })}>完整词条 →</a>
+              {hasConj && <a className="link small" href={href({ page: "dict", w: head.w, tab: "conj" })}>动词变位 →</a>}
+            </span>
+          </div>
+          {dictOnly.length > 0 && <Picks picks={dictOnly} chosen={list} toggle={toggle} />}
         </>}
       </details>
 
@@ -190,7 +226,7 @@ export function HomeDictionary() {
         {error && <div role="alert" className="lookup-error"><p>{error}</p><button className="btn btn-ghost btn-sm" onClick={() => void search()}>重新查询</button></div>}
         {!busy && !error && !result && !canAutoFetchFrdic() && (
           <div className="lookup-empty">
-            <p>静态托管环境不自动抓取法语助手，避免额外 404 请求；可前往 <a className="link" href={`#/dict?w=${encodeURIComponent(term)}`}>LexDB 完整词典</a> 或打开法语助手原文查看。</p>
+            <p>静态托管环境不自动抓取法语助手，避免额外 404 请求；可前往 <a className="link" href={href({ page: "dict", w: term })}>LexDB 完整词典</a> 或打开法语助手原文查看。</p>
             <button type="button" className="btn btn-ghost btn-sm" onClick={() => {
               job.current?.abort();
               const c = new AbortController();

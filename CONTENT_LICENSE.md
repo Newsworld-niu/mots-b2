@@ -46,9 +46,12 @@ The Chinese glosses, the examples and translations marked `origin=supplement`, t
   - **CFDICT**（汉法自由词典，https://chine.in/mandarin/dictionnaire/CFDICT/ ）：[CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)；
   - **WOLF (`omw-fr` 1.4)**（Wordnet Libre du Français，Benoit Sagot & Darla Fišer）：[CeCILL-C V1](http://www.cecill.info/licenses/Licence_CeCILL-C_V1-en.html)；
   - **Chinese Open Wordnet (`omw-cmn` 1.4)**（Shan Wang & Francis Bond，https://bond-lab.github.io/cow/ ）：WordNet License；
+  - **Wiktionary French entries（en.wiktionary，经 kaikki.org 提取）** 与 **MorphyNet** 法语派生形态数据（Khuyagbaatar Batsuren et al., 2021，https://github.com/kbatsuren/MorphyNet ）：[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)，用于 `derived` / `syn` / `ant` 关系与缺失的阴性/复数形式；
+  - **Princeton WordNet 3.0（`omw-en` 1.4）**：WordNet License，仅用于经 ILI 投射的反义关系佐证；
+  - **CNRTL / ATILF（CRISCO DES 近义词词典与形态族）** 及 **法语助手 frdic**：经项目所有者授权、限速抓取的**单词关系列表**（`data/lexdb/crawled-relations.jsonl`，来源标记 `cnrtl` / `frdic`），不包含任何释义、例句或译文；这些站点未以开放协议授权其数据，本项目不对这部分列表授予额外许可，再发布前请自行评估；
   - 由 AI 模型生成或跨模型复核的释义、例句译文与短语标记为 `src: "ai"` / `"ai-reviewed"`，按 CC BY 4.0 随 `public/lexdb/` 提供；由于包含 CC BY-SA 来源，整个 `public/lexdb/` 分片目录遵循 **CC BY-SA 4.0** 协议发布，并保留全部上游署名。
 
-The offline dictionary in `public/dict/` is built from Lexique 3.83, the French Wiktionary (via kaikki.org) and Tatoeba sentences; use the directory under CC BY-SA 4.0 and credit all three sources. The extended `public/lexdb/` shards additionally incorporate zh.wiktionary (CC BY-SA 4.0 / GFDL), CFDICT (CC BY-SA 3.0), WOLF / omw-fr (CeCILL-C V1), Chinese Open Wordnet / omw-cmn (WordNet License), and AI-assisted translations (CC BY 4.0); redistribute `public/lexdb/` under CC BY-SA 4.0 with attribution to all upstream sources.
+The offline dictionary in `public/dict/` is built from Lexique 3.83, the French Wiktionary (via kaikki.org) and Tatoeba sentences; use the directory under CC BY-SA 4.0 and credit all three sources. The extended `public/lexdb/` shards additionally incorporate zh.wiktionary (CC BY-SA 4.0 / GFDL), French entries from en.wiktionary via kaikki.org and MorphyNet derivational morphology (CC BY-SA 4.0), CFDICT (CC BY-SA 3.0), WOLF / omw-fr (CeCILL-C V1), Chinese Open Wordnet / omw-cmn and Princeton WordNet / omw-en (WordNet License), AI-assisted translations (CC BY 4.0), and owner-authorized rate-limited relation word lists from CNRTL / CRISCO DES and `frdic` (`data/lexdb/crawled-relations.jsonl`, headword lists only with no definitions, examples, or translations; those sites are not open-licensed and this project grants no extra license over those lists — evaluate independently before redistribution); open-licensed portions of `public/lexdb/` are distributed under CC BY-SA 4.0 with attribution to all upstream sources.
 
 ## 说明 / Notes
 
@@ -58,7 +61,7 @@ The offline dictionary in `public/dict/` is built from Lexique 3.83, the French 
 - 不是官方 DELF/DALF、TCF 或 TEF 词表与真题，与 France Éducation international 及 CCI Paris Île-de-France 无关。Not an official DELF/DALF, TCF, or TEF word list or exam paper, and not affiliated with France Éducation international or CCI Paris Île-de-France.
 
 ### 词族关联
-`src/data/families.json` 的新增派生关系来自法语 Wiktionnaire，经本地 Wiktextract JSONL 的 `derived` 字段提取；源词条可在 https://fr.wiktionary.org/wiki/ 后接法语词头查阅。该部分按源内容的 CC BY-SA 条款使用，保留来源标记；数据仅匹配本项目已有单词，未逐项人工核验。生成脚本：`scripts/build-families.py`。
+`public/atlas/families.json` 的派生关系来自法语 Wiktionnaire（经本地 Wiktextract JSONL 的 `derived` 字段提取；源词条可在 https://fr.wiktionary.org/wiki/ 后接法语词头查阅），以及 `scripts/lexdb/enrich-relations.py` 汇总的 Wiktionary（kaikki.org）/ MorphyNet（CC BY-SA 4.0）派生边与 CNRTL 形态族（来源标记 `LexDB · dérivés …`）。该部分按源内容的 CC BY-SA 条款使用，保留来源标记；数据仅匹配本项目已有单词，未逐项人工核验。生成脚本：`scripts/build-families.py`。`data/lexicon.json` 卡片中由同一流程追加的 `fam`（`word｜中文`）/ `syn` / `ant` 同样按 CC BY-SA 4.0 使用。
 
 用户主动从 Wiktionnaire 导入的内容会保留固定版本来源链接（`wikiSources`），可从原文查看贡献者历史；例句中的来源署名随原文保留。导入文本及其翻译、编辑遵循源站的 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 条款。卡片上的中文可能由用户或 AI 翻译、编辑，并非维基词典提供的中文原文。
 

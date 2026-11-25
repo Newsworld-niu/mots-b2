@@ -388,7 +388,7 @@ def load_atlas_data():
     freq_data = json.loads((ROOT / "data/frequency.json").read_text(encoding="utf-8"))["entries"]
     hl_data = json.loads((ROOT / "data/highlights.json").read_text(encoding="utf-8"))["entries"]
     conj_data = json.loads((ROOT / "public/atlas/conj.json").read_text(encoding="utf-8"))["verbs"]
-    fam_data = json.loads((ROOT / "src/data/families.json").read_text(encoding="utf-8"))
+    fam_data = json.loads((ROOT / "public/atlas/families.json").read_text(encoding="utf-8"))
     cf_data = json.loads((ROOT / "data/confusables.json").read_text(encoding="utf-8"))["groups"]
     ipa_data = json.loads((ROOT / "data/ipa.json").read_text(encoding="utf-8"))["entries"]
     forms_data = json.loads((ROOT / "data/forms.json").read_text(encoding="utf-8"))["entries"]
@@ -441,7 +441,8 @@ def stream_wikt_fr(target_w_lower: set[str], ortho_to_lemmas: dict[str, set[tupl
         "forms": defaultdict(list),     # w_lower -> [(form, tag)]
         "syn": defaultdict(list),       # w_lower -> [word]
         "ant": defaultdict(list),       # w_lower -> [word]
-        "derived": defaultdict(list),   # w_lower -> [word]
+        "derived": defaultdict(list),   # w_lower -> [word] (multi-word items feed phrases only)
+        "related": defaultdict(list),   # w_lower -> [word] (etymological relatives, e.g. accueil -> accueillir)
         "examples": defaultdict(list),  # w_lower -> [(p, fr, hl_start, hl_end, ref)]
         "pos_tags": defaultdict(set),   # w_lower -> {(p, g)}
     }
@@ -527,6 +528,7 @@ def stream_wikt_fr(target_w_lower: set[str], ortho_to_lemmas: dict[str, set[tupl
         collect_rel(d.get("synonyms"), out["syn"][wl], 15)
         collect_rel(d.get("antonyms"), out["ant"][wl], 15)
         collect_rel(d.get("derived"), out["derived"][wl], 25)
+        collect_rel(d.get("related"), out["related"][wl], 15)
 
         wf = lexdb_fold(w)
         for s in d.get("senses") or []:
@@ -886,7 +888,7 @@ def main():
     # Load other sources
     raw_wikt = stream_wikt_fr(target_w_lower, ortho_to_lemmas) if not args.skip_raw else {
         k: defaultdict(list if k != "pos_tags" else set)
-        for k in ("fr_defs", "etym", "forms", "syn", "ant", "derived", "examples", "pos_tags")
+        for k in ("fr_defs", "etym", "forms", "syn", "ant", "derived", "related", "examples", "pos_tags")
     }
     zhwikt = load_zhwikt(target_w_lower, trad_map)
     cfdict = load_cfdict(target_w_lower, trad_map)
@@ -1302,17 +1304,20 @@ def main():
 
         for ae in atlas_by_w.get(wl, []):
             for s in ae.get("syn") or []:
-                add_rel("syn", s, "atlas")
+                add_rel("syn", re.sub(r"\s*\([^)]*\)$", "", s.split("｜")[0]).strip(), "atlas")
             for a in ae.get("ant") or []:
-                add_rel("ant", a, "atlas")
+                add_rel("ant", re.sub(r"\s*\([^)]*\)$", "", a.split("｜")[0]).strip(), "atlas")
             for f in ae.get("fam") or []:
-                add_rel("derived", re.sub(r"\s*\([^)]*\)$", "", f).strip(), "atlas")
+                add_rel("derived", re.sub(r"\s*\([^)]*\)$", "", f.split("｜")[0]).strip(), "atlas")
         for s in raw_wikt["syn"].get(wl, []):
             add_rel("syn", s, "wikt-fr")
         for a in raw_wikt["ant"].get(wl, []):
             add_rel("ant", a, "wikt-fr")
-        for d in raw_wikt["derived"].get(wl, []):
-            add_rel("derived", d, "wikt-fr")
+        # derived = single words / hyphenated compounds only (multi-word idioms already went to phrases above);
+        # scripts/lexdb/enrich-relations.py re-ranks these against MorphyNet / CNRTL / Frdic / Atlas afterwards
+        for d in raw_wikt["derived"].get(wl, []) + raw_wikt["related"].get(wl, []):
+            if " " not in d.strip():
+                add_rel("derived", d, "wikt-fr")
         if rec["family"]:
             add_rel("family", rec["family"], "atlas")
         for cgid in w_to_confusable.get(wl, []):

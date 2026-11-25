@@ -8,11 +8,17 @@ export interface ConjData {
 }
 
 let cache: Promise<ConjData> | null = null;
+const BASE = typeof import.meta !== "undefined" && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : "/";
+
+/** Tests: serve this data instead of fetching (null forgets it, so the next use fetches again). */
+export function setConjForTest(data: ConjData | null): void {
+  cache = data ? Promise.resolve(data) : null;
+}
 
 /** Conjugation tables (public/atlas/conj.json, ~90 kB gzipped), loaded once on first use. */
 export function loadConj(): Promise<ConjData> {
   if (!cache)
-    cache = fetch(`${import.meta.env.BASE_URL}atlas/conj.json`)
+    cache = fetch(`${BASE}atlas/conj.json`)
       .then((r) => {
         if (!r.ok) throw new Error(`变位数据加载失败（${r.status}）`);
         return r.json() as Promise<ConjData>;

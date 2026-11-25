@@ -91,15 +91,72 @@ export const senseGlosses = (w: WordRef) => [w.zh, ...(w.more ?? [])];
 
 /* ---------- finding a word the learner types ---------- */
 
+/** Exact headword key: NFC, apostrophes and spaces normalised, case-folded, French accents preserved. */
+export const exactHeadwordKey = (s: string) =>
+  s.normalize("NFC").trim().replace(/[’‘]/g, "'").replace(/\s+/g, " ").toLowerCase();
+
+const foldedHeadwordKey = (s: string) =>
+  foldAccents(s.trim().replace(/[’‘]/g, "'").replace(/\s+/g, " "));
+
 /** Same headword: case and accents ignored, apostrophes and spaces normalised. */
-export const sameHeadword = (a: string, b: string) => {
-  const k = (s: string) => foldAccents(s.trim().replace(/[’‘]/g, "'").replace(/\s+/g, " "));
-  return k(a) === k(b);
-};
+export const sameHeadword = (a: string, b: string) => foldedHeadwordKey(a) === foldedHeadwordKey(b);
+
+interface AtlasLookupCache {
+  words: WordRef[];
+  wordsLen: number;
+  custom: WordRef[] | undefined;
+  customLen: number;
+  exact: Map<string, WordRef[]>;
+  folded: Map<string, WordRef[]>;
+}
+
+const atlasLookupCache = new WeakMap<Atlas, AtlasLookupCache>();
+
+function getAtlasLookup(atlas: Atlas): AtlasLookupCache {
+  const customLen = atlas.custom?.length ?? 0;
+  const hit = atlasLookupCache.get(atlas);
+  if (
+    hit &&
+    hit.words === atlas.words &&
+    hit.wordsLen === atlas.words.length &&
+    hit.custom === atlas.custom &&
+    hit.customLen === customLen
+  ) {
+    return hit;
+  }
+  const exact = new Map<string, WordRef[]>();
+  const folded = new Map<string, WordRef[]>();
+  for (const x of [...atlas.words, ...(atlas.custom ?? [])]) {
+    const ek = exactHeadwordKey(x.word);
+    const eList = exact.get(ek);
+    if (eList) eList.push(x);
+    else exact.set(ek, [x]);
+
+    const fk = foldedHeadwordKey(x.word);
+    const fList = folded.get(fk);
+    if (fList) fList.push(x);
+    else folded.set(fk, [x]);
+  }
+  const built: AtlasLookupCache = {
+    words: atlas.words,
+    wordsLen: atlas.words.length,
+    custom: atlas.custom,
+    customLen,
+    exact,
+    folded,
+  };
+  atlasLookupCache.set(atlas, built);
+  return built;
+}
+
+/** Existing words (atlas or custom) with the exact accented spelling of `w` (case-insensitive NFC). */
+export function findExact(atlas: Atlas, w: string): WordRef[] {
+  return getAtlasLookup(atlas).exact.get(exactHeadwordKey(w)) ?? [];
+}
 
 /** Existing words (atlas or custom) spelled like `w`: adding the same word twice links to the one already there. */
 export function findSame(atlas: Atlas, w: string): WordRef[] {
-  return [...atlas.words, ...(atlas.custom ?? [])].filter((x) => sameHeadword(x.word, w));
+  return getAtlasLookup(atlas).folded.get(foldedHeadwordKey(w)) ?? [];
 }
 
 /* ---------- mutations ---------- */
@@ -534,9 +591,11 @@ export interface PickedWord {
   /** Atlas word: the sense this deck studies, and a note for this deck (a list's own translation). */
   sense?: number;
   deckNote?: string;
-  /** Collocations ("French｜中文") and 注意点 for a new word (from the AI). */
+  /** Collocations ("French｜中文"), related words, and 注意点 for a new word (from LexDB or AI). */
   col?: string[];
   fam?: string[];
+  syn?: string[];
+  ant?: string[];
   tip?: string;
 }
 
@@ -595,7 +654,7 @@ export function addPicked(deckId: string, picked: PickedWord[], withSentence: bo
         zh: p.zh,
         ipa: p.ipa,
         note: [p.tip, p.note].filter(Boolean).join("；") || undefined,
-        col: p.col, fam: p.fam,
+        col: p.col, fam: p.fam, syn: p.syn, ant: p.ant,
         ex: [...sourceEx(p), ...(p.dictEx ?? [])].slice(0, 3),
         auto: p.kind === "dict" ? true : undefined,
       },

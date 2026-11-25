@@ -11,20 +11,22 @@ import {
   Plus,
   Volume2,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useConfusables } from "../../atlas/confusables";
 import { useConj } from "../../atlas/conj";
 import { useAtlas } from "../../atlas/context";
+import type { Atlas } from "../../atlas/types";
 import { play } from "../../lib/audio";
 import { TENSE_FR, TENSE_ZH, TENSES, tableFor, type ConjTense } from "../../lib/conjugation";
 import { familyPair, useFamilies, type Family } from "../../lib/families";
 import { frdicUrl } from "../../lib/frdic";
+import { localHints, resolveHints } from "../../lib/lexdb/hints";
 import { entryToSeed } from "../../lib/lexdb/search";
 import { addDictReport, setDictNote, toggleDictFav, useDictStore } from "../../lib/lexdb/store";
-import { lexdbFold, type LexEntry } from "../../lib/lexdb/types";
+import { lexdbFold, type LexEntry, type LexHintTuple, type LexMeta, type LexPhrase } from "../../lib/lexdb/types";
 import { isNative } from "../../lib/native";
 import { href, openWord } from "../../lib/router";
-import { addToDeck, createDeck, findSame } from "../../store/decks";
+import { addToDeck, createDeck, exactHeadwordKey, findExact } from "../../store/decks";
 import { store, useStore } from "../../store/store";
 import { AUX_NOTE, ConjTable } from "../../ui/ConjTable";
 import { Highlight } from "../../ui/EntryView";
@@ -36,14 +38,58 @@ import {
   CONF_META,
   DICT_DECK,
   entryMaxConf,
+  memoryHint,
   POS_ZH,
+  relationWords,
   REPORT_KINDS,
   SOURCE_LABEL,
   type CollectedExample,
   type DictTab,
 } from "./helpers";
 
-export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; highlightPhrase?: string }) {
+const OVERVIEW_PHRASES = 6;
+const OVERVIEW_EXAMPLES = 8;
+
+/**
+ * [pos, shortZh] hints for related-word chips: memory (atlas, fixtures) right away, then the 1-letter
+ * hints/<bucket>.json shards for whatever is still missing (lazily, only when meta.hintsShards is true).
+ */
+function useRelationHints(words: string[], atlas: Atlas, meta: LexMeta | null | undefined) {
+  const key = words.join("\u0000");
+  const [hints, setHints] = useState<Map<string, LexHintTuple>>(() => localHints(words, (w) => memoryHint(atlas, w)));
+  useEffect(() => {
+    const list = key ? key.split("\u0000") : [];
+    const local = (w: string) => memoryHint(atlas, w);
+    const initial = localHints(list, local);
+    setHints(initial);
+    if (!list.length || list.every((w) => initial.has(w)) || meta === null) return;
+    let live = true;
+    void resolveHints(list, { local, meta }).then(
+      (all) => {
+        if (live && all.size > initial.size) setHints(all);
+      },
+      () => undefined,
+    );
+    return () => {
+      live = false;
+    };
+  }, [key, atlas, meta]);
+  return hints;
+}
+
+export function DictEntryView({
+  entry,
+  highlightPhrase,
+  initialTab,
+  meta,
+}: {
+  entry: LexEntry;
+  highlightPhrase?: string;
+  /** Tab to open first (#/dict?w=…&tab=conj); falls back to 法汉释义 when the entry has no such section. */
+  initialTab?: DictTab;
+  /** LexDB meta already loaded by the page (undefined: loaded on demand when hints are needed). */
+  meta?: LexMeta | null;
+}) {
   const atlas = useAtlas();
   const { data: conjData } = useConj();
   const { data: confusables } = useConfusables();
@@ -51,7 +97,13 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
   const decks = useStore((s) => s.progress.decks) ?? [];
   const readDeck = useStore((s) => s.settings.readDeck);
 
-  const [tab, setTab] = useState<DictTab>("zh");
+  const [tab, setTabState] = useState<DictTab>(initialTab ?? "zh");
+  /** A requested tab (URL ?tab=) that is not available yet (e.g. 动词变位 while conj.json loads). */
+  const pendingTab = useRef<DictTab | undefined>(initialTab);
+  const setTab = (t: DictTab) => {
+    pendingTab.current = undefined;
+    setTabState(t);
+  };
   const [conjTense, setConjTense] = useState<ConjTense>("pres");
   const [speakingVoice, setSpeakingVoice] = useState<string | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
@@ -62,7 +114,6 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
   const [selectedDeckId, setSelectedDeckId] = useState<string>("");
 
   useEffect(() => {
-    setTab("zh");
     setReportOpen(false);
     setReportDetail("");
     setNoteDraft(notes[entry.id] ?? "");
@@ -70,7 +121,7 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
 
   const isFav = favs.includes(entry.id);
   const savedNote = notes[entry.id] ?? "";
-  const atlasRef = entry.atlasId ? atlas.byId.get(entry.atlasId) : findSame(atlas, entry.w)[0];
+  const atlasRef = entry.atlasId ? atlas.byId.get(entry.atlasId) : findExact(atlas, entry.w)[0];
   const conf = entryMaxConf(entry);
   const confInfo = CONF_META[conf];
 
@@ -94,11 +145,12 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
       const hit = families.find((f) => f.id === entry.family);
       if (hit) return hit;
     }
-    const folded = lexdbFold(entry.w);
+    const exactW = exactHeadwordKey(entry.w);
+    const linkedId = entry.atlasId ?? atlasRef?.id;
     return families.find(
-      (f) => f.words.includes(entry.atlasId ?? "") || f.words.includes(folded) || lexdbFold(f.name) === folded,
+      (f) => (linkedId ? f.words.includes(linkedId) : false) || exactHeadwordKey(f.name) === exactW,
     );
-  }, [entry, families]);
+  }, [entry, families, atlasRef]);
 
   const confusableGroups = useMemo(() => {
     if (!confusables) return [];
@@ -135,22 +187,82 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
     }
   };
 
+  const hasPhrases = (entry.phrases?.length ?? 0) > 0;
+  const hasExamples = allExamples.length > 0;
+  const hasAnyRel =
+    (entry.derived?.length ?? 0) > 0 ||
+    (entry.syn?.length ?? 0) > 0 ||
+    (entry.ant?.length ?? 0) > 0 ||
+    !!familyGroup;
+  const hasFrDefs = (entry.frDefs?.length ?? 0) > 0;
+  const hasEtymOrCf = !!entry.etym?.trim() || confusableGroups.length > 0;
+
+  const extraFamilyPairs = useMemo(() => {
+    if (!familyGroup) return [];
+    const selfKey = exactHeadwordKey(entry.w);
+    const covered = new Set<string>([selfKey, ...(entry.derived ?? []).map(exactHeadwordKey)]);
+    const out: { fr: string; zh: string }[] = [];
+    for (const raw of [familyGroup.name, ...familyGroup.examples]) {
+      const pair = familyPair(raw);
+      if (!pair.fr) continue;
+      const k = exactHeadwordKey(pair.fr);
+      if (!k || covered.has(k)) continue;
+      covered.add(k);
+      out.push(pair);
+    }
+    return out;
+  }, [entry.w, entry.derived, familyGroup]);
+
+  const relWords = useMemo(() => {
+    const base = relationWords(entry);
+    const extraNeedHints = extraFamilyPairs.filter((p) => !p.zh).map((p) => p.fr);
+    return extraNeedHints.length ? [...new Set([...base, ...extraNeedHints])] : base;
+  }, [entry, extraFamilyPairs]);
+
+  const relCount = useMemo(() => {
+    const selfKey = exactHeadwordKey(entry.w);
+    const all = new Set<string>();
+    for (const w of relationWords(entry)) {
+      const k = exactHeadwordKey(w);
+      if (k && k !== selfKey) all.add(k);
+    }
+    for (const pair of extraFamilyPairs) {
+      all.add(exactHeadwordKey(pair.fr));
+    }
+    return all.size;
+  }, [entry, extraFamilyPairs]);
+  const hints = useRelationHints(relWords, atlas, meta);
+
   const tabs: { id: DictTab; label: string; count?: number; dot?: boolean }[] = [
     { id: "zh", label: "法汉释义" },
     ...(hasConjTab ? [{ id: "conj" as const, label: "动词变位" }] : []),
-    { id: "phrases", label: "短语搭配", count: entry.phrases?.length ?? 0 },
-    { id: "examples", label: "法语例句", count: allExamples.length },
-    { id: "relations", label: "近义·反义·派生" },
-    { id: "fr", label: "法法释义", count: entry.frDefs?.length ?? 0 },
-    { id: "etym", label: "词源与辨析" },
+    ...(hasAnyRel ? [{ id: "relations" as const, label: "派生·近反义", ...(relCount > 0 ? { count: relCount } : {}) }] : []),
+    ...(hasPhrases ? [{ id: "phrases" as const, label: "短语搭配", count: entry.phrases?.length ?? 0 }] : []),
+    ...(hasExamples ? [{ id: "examples" as const, label: "法语例句", count: allExamples.length }] : []),
+    ...(hasFrDefs ? [{ id: "fr" as const, label: "法法释义", count: entry.frDefs?.length ?? 0 }] : []),
+    ...(hasEtymOrCf ? [{ id: "etym" as const, label: "词源与辨析" }] : []),
     { id: "notes", label: "笔记", dot: !!savedNote },
   ];
+  const tabKey = tabs.map((t) => t.id).join(",");
 
-  const hasAnyRel =
-    (entry.syn?.length ?? 0) > 0 ||
-    (entry.ant?.length ?? 0) > 0 ||
-    (entry.derived?.length ?? 0) > 0 ||
-    !!familyGroup;
+  // Land on the requested tab when the entry (or ?tab=) changes; never stay on a tab that is not shown.
+  useEffect(() => {
+    pendingTab.current = initialTab;
+    const ids = tabKey.split(",");
+    setTabState(initialTab && ids.includes(initialTab) ? initialTab : "zh");
+  }, [entry.id, initialTab]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const ids = tabKey.split(",");
+    const want = pendingTab.current;
+    if (want && ids.includes(want)) {
+      pendingTab.current = undefined;
+      if (tab !== want) setTabState(want);
+      return;
+    }
+    // 动词变位 requested but conj.json loaded without this verb: stop waiting for it
+    if (want === "conj" && conjData) pendingTab.current = undefined;
+    if (!ids.includes(tab)) setTabState("zh");
+  }, [tabKey, tab, conjData]);
 
   const formsList: [string, string][] = [];
   if (entry.forms?.f) formsList.push(["f.", entry.forms.f]);
@@ -433,37 +545,54 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
             </div>
           </details>
 
-          {/* 2. 近义、反义、派生与词族 */}
-          <details className="dict-panel" open>
-            <summary>近义、反义、派生与词族</summary>
-            <div className="dict-panel-body">
-              <RelationsBody entry={entry} familyGroup={familyGroup} hasAnyRel={hasAnyRel} />
-            </div>
-          </details>
+          {/* 2. 派生词 · 同义词 · 反义词 (only when there is something to show) */}
+          {hasAnyRel && (
+            <details className="dict-panel dict-panel-rel" open>
+              <summary>派生词 · 同义词 · 反义词</summary>
+              <div className="dict-panel-body">
+                <RelationsBody entry={entry} familyGroup={familyGroup} extraFamilyPairs={extraFamilyPairs} hints={hints} />
+              </div>
+            </details>
+          )}
 
-          {/* 3. 法语例句库 */}
-          <details className="dict-panel" open>
-            <summary>法语例句库（{allExamples.length}）</summary>
-            <div className="dict-panel-body">
-              {allExamples.length === 0 ? (
-                <p className="muted small">暂未收录双语例句。</p>
-              ) : (
-                <>
-                  <ExamplesList
-                    examples={allExamples.slice(0, 8)}
-                    word={entry.w}
-                    speakingVoice={speakingVoice}
-                    onSpeak={(fr, key) => void speakText(fr, "uk", key)}
-                  />
-                  {allExamples.length > 8 && (
-                    <button type="button" className="link" onClick={() => setTab("examples")}>
-                      查看全部 {allExamples.length} 条例句 →
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          </details>
+          {/* 3. 常用搭配与固定表达 */}
+          {hasPhrases && (
+            <details className="dict-panel dict-panel-phrases" open>
+              <summary>常用搭配与固定表达（{entry.phrases!.length}）</summary>
+              <div className="dict-panel-body">
+                <PhraseList
+                  phrases={entry.phrases!.slice(0, OVERVIEW_PHRASES)}
+                  highlightPhrase={highlightPhrase}
+                  onSpeak={(fr, key) => void speakText(fr, "uk", key)}
+                />
+                {entry.phrases!.length > OVERVIEW_PHRASES && (
+                  <button type="button" className="link" onClick={() => setTab("phrases")}>
+                    查看全部 {entry.phrases!.length} 条搭配 →
+                  </button>
+                )}
+              </div>
+            </details>
+          )}
+
+          {/* 4. 法语例句库 */}
+          {hasExamples && (
+            <details className="dict-panel dict-panel-examples" open>
+              <summary>法语例句库（{allExamples.length}）</summary>
+              <div className="dict-panel-body">
+                <ExamplesList
+                  examples={allExamples.slice(0, OVERVIEW_EXAMPLES)}
+                  word={entry.w}
+                  speakingVoice={speakingVoice}
+                  onSpeak={(fr, key) => void speakText(fr, "uk", key)}
+                />
+                {allExamples.length > OVERVIEW_EXAMPLES && (
+                  <button type="button" className="link" onClick={() => setTab("examples")}>
+                    查看全部 {allExamples.length} 条例句 →
+                  </button>
+                )}
+              </div>
+            </details>
+          )}
         </div>
       )}
 
@@ -507,35 +636,11 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
           {!entry.phrases?.length ? (
             <p className="muted">暂未收录常见短语搭配。</p>
           ) : (
-            <ul className="dict-phrase-list">
-              {entry.phrases.map((p, i) => {
-                const isMatched =
-                  highlightPhrase && lexdbFold(p.fr) === lexdbFold(highlightPhrase);
-                return (
-                  <li
-                    key={`${p.fr}-${i}`}
-                    className={`dict-phrase-item ${isMatched ? "is-matched" : ""}`}
-                  >
-                    <a className="dict-phrase-fr link" href={href({ page: "dict", w: p.fr })} lang="fr">
-                      {p.fr}
-                    </a>
-                    <span className="dict-phrase-zh">{p.zh}</span>
-                    <span className="dict-sense-meta">
-                      <span className={`conf-pill ${CONF_META[p.conf].tone}`}>conf {p.conf}</span>
-                      <span className="src-pill">{SOURCE_LABEL[p.src] ?? p.src}</span>
-                      <button
-                        type="button"
-                        className="icon-btn is-xs"
-                        aria-label={`朗读短语 ${p.fr}`}
-                        onClick={() => void speakText(p.fr, "uk", `phrase-${i}`)}
-                      >
-                        <Volume2 size={14} />
-                      </button>
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
+            <PhraseList
+              phrases={entry.phrases}
+              highlightPhrase={highlightPhrase}
+              onSpeak={(fr, key) => void speakText(fr, "uk", key)}
+            />
           )}
         </section>
       )}
@@ -558,7 +663,7 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
 
       {tab === "relations" && (
         <section className="dict-panel-body is-flush">
-          <RelationsBody entry={entry} familyGroup={familyGroup} hasAnyRel={hasAnyRel} />
+          <RelationsBody entry={entry} familyGroup={familyGroup} extraFamilyPairs={extraFamilyPairs} hints={hints} />
         </section>
       )}
 
@@ -600,27 +705,19 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
 
       {tab === "etym" && (
         <section className="dict-panel-body is-flush">
-          <div>
-            <h2 className="eyebrow dict-subhead">
-              词源
-            </h2>
-            {entry.etym ? (
+          {entry.etym?.trim() && (
+            <div>
+              <h2 className="eyebrow dict-subhead">词源</h2>
               <div className="dict-etym-box">
                 <p lang="fr">{entry.etym}</p>
                 <small className="muted">来源：Wiktionnaire（CC BY-SA 4.0）</small>
               </div>
-            ) : (
-              <p className="muted small">暂未收录词源说明。</p>
-            )}
-          </div>
+            </div>
+          )}
 
-          <div>
-            <h2 className="eyebrow dict-subhead">
-              易混词辨析
-            </h2>
-            {confusableGroups.length === 0 ? (
-              <p className="muted small">暂无匹配的易混词辨析组。</p>
-            ) : (
+          {confusableGroups.length > 0 && (
+            <div>
+              <h2 className="eyebrow dict-subhead">易混词辨析</h2>
               <div className="dict-cf-cards">
                 {confusableGroups.map((g) => (
                   <div key={g.id} className="dict-cf-card">
@@ -664,8 +761,8 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </section>
       )}
 
@@ -711,151 +808,197 @@ export function DictEntryView({ entry, highlightPhrase }: { entry: LexEntry; hig
       )}
 
       <Sheet open={reviewOpen} onClose={() => setReviewOpen(false)} label="加入复习卡片" wide>
-        <h2 className="sheet-title">加入复习 · {entry.w}</h2>
-        <div className="dict-notice dict-review-notice">
-          <label className="dict-deck-label">
-            <Layers size={15} /> 目标卡组：
-            <select
-              className="reader-deck"
-              value={activeDeck?.id ?? ""}
-              onChange={(e) => {
-                const next = e.target.value;
-                setSelectedDeckId(next);
-                store.settings({ readDeck: next || null });
-              }}
-            >
-              {!activeDeck && <option value="">{DICT_DECK}（将自动新建）</option>}
-              {decks.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
-              ))}
-            </select>
-          </label>
+        {reviewOpen && (
+          <>
+            <h2 className="sheet-title">加入复习 · {entry.w}</h2>
+            <div className="dict-notice dict-review-notice">
+              <label className="dict-deck-label">
+                <Layers size={15} /> 目标卡组：
+                <select
+                  className="reader-deck"
+                  value={activeDeck?.id ?? ""}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    setSelectedDeckId(next);
+                    store.settings({ readDeck: next || null });
+                  }}
+                >
+                  {!activeDeck && <option value="">{DICT_DECK}（将自动新建）</option>}
+                  {decks.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-          {atlasRef && (
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              disabled={inTargetDeck}
-              onClick={() => {
-                const did = ensureTargetDeck();
-                addToDeck(did, atlasRef.id);
-                const name = store.get().progress.decks?.find((d) => d.id === did)?.name ?? deckDisplayName;
-                toast(`已将词库词条「${atlasRef.word}」加入「${name}」`, "ok");
-                setReviewOpen(false);
-              }}
-            >
-              {inTargetDeck ? (
-                <>
-                  <Check size={14} /> 词库原词已在「{deckDisplayName}」
-                </>
-              ) : (
-                <>
-                  <Plus size={14} /> 直接加入「{deckDisplayName}」
-                </>
+              {atlasRef && (
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  disabled={inTargetDeck}
+                  onClick={() => {
+                    const did = ensureTargetDeck();
+                    addToDeck(did, atlasRef.id);
+                    const name = store.get().progress.decks?.find((d) => d.id === did)?.name ?? deckDisplayName;
+                    toast(`已将词库词条「${atlasRef.word}」加入「${name}」`, "ok");
+                    setReviewOpen(false);
+                  }}
+                >
+                  {inTargetDeck ? (
+                    <>
+                      <Check size={14} /> 词库原词已在「{deckDisplayName}」
+                    </>
+                  ) : (
+                    <>
+                      <Plus size={14} /> 直接加入「{deckDisplayName}」
+                    </>
+                  )}
+                </button>
               )}
-            </button>
-          )}
-        </div>
+            </div>
 
-        <WordForm
-          mode="create"
-          deckId={activeDeck?.id ?? ensureTargetDeck()}
-          seed={entryToSeed(entry)}
-          onDone={(createdId) => {
-            setReviewOpen(false);
-            if (createdId) {
-              toast(`「${entry.w}」已加入复习卡组`, "ok");
-            }
-          }}
-        />
+            <WordForm
+              mode="create"
+              deckId={activeDeck?.id || selectedDeckId}
+              seed={entryToSeed(entry)}
+              onDone={(createdId) => {
+                setReviewOpen(false);
+                if (createdId) {
+                  toast(`「${entry.w}」已加入复习卡组`, "ok");
+                }
+              }}
+            />
+          </>
+        )}
       </Sheet>
     </article>
   );
 }
 
+/** A related word as a chip linking to its own entry, with a compact [pos] shortZh hint when one is known. */
+function RelChip({ w, hint, withPos }: { w: string; hint?: LexHintTuple; withPos: boolean }) {
+  const pos = withPos ? hint?.[0] ?? "" : "";
+  const zh = hint?.[1] ?? "";
+  return (
+    <a className="dict-rel-chip" href={href({ page: "dict", w })} title={`查看「${w}」词条`}>
+      <span lang="fr">{w}</span>
+      {(pos || zh) && (
+        <small>
+          {pos ? `${pos}${zh ? " " : ""}` : ""}
+          {zh}
+        </small>
+      )}
+    </a>
+  );
+}
+
+const REL_GROUPS = [
+  { key: "derived", title: "派生 / 同族词", withPos: true },
+  { key: "syn", title: "同义词 / 近义词", withPos: false },
+  { key: "ant", title: "反义词", withPos: false },
+] as const;
+
 function RelationsBody({
   entry,
   familyGroup,
-  hasAnyRel,
+  extraFamilyPairs,
+  hints,
 }: {
   entry: LexEntry;
   familyGroup: Family | undefined;
-  hasAnyRel: boolean;
+  extraFamilyPairs: { fr: string; zh: string }[];
+  hints: Map<string, LexHintTuple>;
 }) {
-  if (!hasAnyRel) {
-    return <p className="muted small">暂未收录近义词、反义词、派生词或词族信息。</p>;
-  }
   return (
     <div className="dict-rel-groups">
-      {entry.syn && entry.syn.length > 0 && (
-        <div className="dict-rel-group">
-          <h3>近义词</h3>
-          <div className="dict-rel-chips">
-            {entry.syn.map((w) => (
-              <a key={w} className="dict-rel-chip" href={href({ page: "dict", w })} lang="fr">
-                {w}
-              </a>
-            ))}
+      {REL_GROUPS.map(({ key, title, withPos }) => {
+        const list = entry[key];
+        if (!list?.length) return null;
+        return (
+          <div key={key} className={`dict-rel-group dict-rel-${key}`}>
+            <h3>{title}</h3>
+            <div className="dict-rel-chips">
+              {list.map((w) => (
+                <RelChip key={w} w={w} hint={hints.get(w)} withPos={withPos} />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-
-      {entry.ant && entry.ant.length > 0 && (
-        <div className="dict-rel-group">
-          <h3>反义词</h3>
-          <div className="dict-rel-chips">
-            {entry.ant.map((w) => (
-              <a key={w} className="dict-rel-chip" href={href({ page: "dict", w })} lang="fr">
-                {w}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {entry.derived && entry.derived.length > 0 && (
-        <div className="dict-rel-group">
-          <h3>派生词</h3>
-          <div className="dict-rel-chips">
-            {entry.derived.map((w) => (
-              <a key={w} className="dict-rel-chip" href={href({ page: "dict", w })} lang="fr">
-                {w}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
+        );
+      })}
 
       {familyGroup && (
-        <div className="dict-rel-group">
-          <h3>词族</h3>
+        <div className="dict-rel-group dict-rel-family">
+          <h3>词图词族</h3>
           <div className="dict-family-box">
             <div className="panel-head">
               <span>
-                <b lang="fr">{familyGroup.name}</b> · <span className="muted small">{familyGroup.zh}</span>
+                <b lang="fr">{familyGroup.name}</b>
+                {familyGroup.zh && (
+                  <>
+                    {" "}· <span className="muted small">{familyGroup.zh}</span>
+                  </>
+                )}
               </span>
               <a className="link small" href={href({ page: "atlas", families: familyGroup.id })}>
                 在图鉴查看词族 →
               </a>
             </div>
-            <div className="dict-rel-chips">
-              {[familyGroup.name, ...familyGroup.examples].map((raw) => {
-                const pair = familyPair(raw);
-                if (!pair.fr) return null;
-                return (
-                  <a key={raw} className="dict-rel-chip" href={href({ page: "dict", w: pair.fr })}>
-                    <span lang="fr">{pair.fr}</span>
-                    {pair.zh && <small>{pair.zh}</small>}
-                  </a>
-                );
-              })}
-            </div>
+            {extraFamilyPairs.length > 0 && (
+              <div className="dict-rel-chips">
+                {extraFamilyPairs.map((pair) => (
+                  <RelChip
+                    key={pair.fr}
+                    w={pair.fr}
+                    hint={pair.zh ? ["", pair.zh] : hints.get(pair.fr)}
+                    withPos={!pair.zh}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+function PhraseList({
+  phrases,
+  highlightPhrase,
+  onSpeak,
+}: {
+  phrases: LexPhrase[];
+  highlightPhrase?: string;
+  onSpeak: (fr: string, key: string) => void;
+}) {
+  return (
+    <ul className="dict-phrase-list">
+      {phrases.map((p, i) => {
+        const isMatched = !!highlightPhrase && lexdbFold(p.fr) === lexdbFold(highlightPhrase);
+        const conf = CONF_META[p.conf] ?? CONF_META[0];
+        return (
+          <li key={`${p.fr}-${i}`} className={`dict-phrase-item ${isMatched ? "is-matched" : ""}`}>
+            <a className="dict-phrase-fr link" href={href({ page: "dict", w: p.fr })} lang="fr">
+              {p.fr}
+            </a>
+            <span className="dict-phrase-zh">{p.zh}</span>
+            <span className="dict-sense-meta">
+              <span className={`conf-pill ${conf.tone}`}>conf {p.conf}</span>
+              <span className="src-pill">{SOURCE_LABEL[p.src] ?? p.src}</span>
+              <button
+                type="button"
+                className="icon-btn is-xs"
+                aria-label={`朗读短语 ${p.fr}`}
+                onClick={() => onSpeak(p.fr, `phrase-${i}`)}
+              >
+                <Volume2 size={14} />
+              </button>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
