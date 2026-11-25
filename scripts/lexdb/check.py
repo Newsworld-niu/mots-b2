@@ -13,12 +13,25 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import ROOT, VALID_LEVELS, VALID_POS, VALID_SOURCES, lexdb_fold, lexdb_key, zh_bucket
+from common import (
+    HINT_ZH_MAX,
+    ROOT,
+    VALID_LEVELS,
+    VALID_POS,
+    VALID_SOURCES,
+    compact_json_bytes,
+    hint_bucket,
+    hint_key,
+    lexdb_fold,
+    lexdb_key,
+    zh_bucket,
+)
 
 DEFAULT_OUT = ROOT / "public/lexdb"
 DEFAULT_DB = ROOT / "data/lexdb/lexdb.sqlite"
 MAX_SHARD_BYTES = 409_600  # 400 KB
-WARN_TOTAL_BYTES = 80 * 1024 * 1024  # 80 MB
+MAX_TOTAL_BYTES = 80 * 1024 * 1024  # 80 MiB hard cap across every file under public/lexdb/
+RELATION_KINDS = ("derived", "syn", "ant")
 REQUIRED_PILOT_WORDS = [
     "prendre",
     "faire",
@@ -31,6 +44,10 @@ REQUIRED_PILOT_WORDS = [
     "coup",
     "fois",
 ]
+
+
+def norm_rel(w: str) -> str:
+    return " ".join(w.replace("’", "'").replace("‘", "'").split()).lower()
 
 
 def main():
@@ -134,6 +151,18 @@ def main():
                             if not (isinstance(hl, list) and len(hl) == 2 and 0 <= hl[0] < hl[1] <= u16_len):
                                 errors.append(f"e/{fp.name}:{eid} invalid hl {hl} for len={u16_len}")
 
+            for rk in RELATION_KINDS:
+                if rk in entry:
+                    rv = entry[rk]
+                    if not isinstance(rv, list) or not rv or not all(isinstance(x, str) and x.strip() for x in rv):
+                        errors.append(f"e/{fp.name}:{eid} {rk} must be a non-empty string[] (omit when empty)")
+                    elif len(set(rv)) != len(rv):
+                        errors.append(f"e/{fp.name}:{eid} duplicate items in {rk}")
+                    elif rk == "derived" and any(" " in x for x in rv):
+                        errors.append(f"e/{fp.name}:{eid} multi-word phrase in derived: {[x for x in rv if ' ' in x][:3]}")
+            if set(entry.get("syn") or []) & set(entry.get("ant") or []):
+                errors.append(f"e/{fp.name}:{eid} syn and ant overlap")
+
             for ph in entry.get("phrases") or []:
                 if not ph.get("fr") or not ph.get("zh") or ph.get("src") not in VALID_SOURCES or ph.get("conf") not in (0, 1, 2, 3):
                     errors.append(f"e/{fp.name}:{eid} invalid phrase {ph}")
@@ -233,6 +262,50 @@ def main():
                         errors.append(f"suggest.json invalid row: {row}")
                         break
 
+    # 4b) Validate hints/<bucket>.json (relation-target previews)
+    hints: dict[str, list] = {}
+    if meta.get("hintsShards"):
+        hints_dir = out_dir / "hints"
+        h_files = sorted(hints_dir.glob("*.json")) if hints_dir.exists() else []
+        if not h_files:
+            errors.append("meta.hintsShards is true but public/lexdb/hints/*.json is missing")
+        for hp in h_files:
+            sz = hp.stat().st_size
+            if sz > max_shard_bytes:
+                max_shard_bytes = sz
+                max_shard_name = f"hints/{hp.name}"
+            if sz > MAX_SHARD_BYTES:
+                errors.append(f"hints/{hp.name} exceeds 400 KB limit ({sz} bytes)")
+            bucket = hp.stem
+            if not (bucket == "_" or (len(bucket) == 1 and "a" <= bucket <= "z")):
+                errors.append(f"hints/{hp.name} invalid bucket name")
+            raw = hp.read_bytes()
+            data = json.loads(raw)
+            if not isinstance(data, dict):
+                errors.append(f"hints/{hp.name} is not a JSON object")
+                continue
+            if compact_json_bytes(data) != raw:
+                errors.append(f"hints/{hp.name} is not compact JSON")
+            for k, v in data.items():
+                if hint_key(k) != k:
+                    errors.append(f"hints/{hp.name} key {k!r} is not NFC/trimmed/lowercase")
+                if hint_bucket(k) != bucket:
+                    errors.append(f"hints/{hp.name} key {k!r} belongs in hints/{hint_bucket(k)}.json")
+                if not (isinstance(v, list) and len(v) == 2 and all(isinstance(x, str) for x in v)):
+                    errors.append(f"hints/{hp.name} key {k!r} value must be [pos, shortZh]")
+                    continue
+                if len(v[1]) > HINT_ZH_MAX:
+                    errors.append(f"hints/{hp.name} key {k!r} shortZh longer than {HINT_ZH_MAX} chars")
+                hints[k] = v
+        missing_hints = sorted(
+            {x for e in all_entries.values() for rk in RELATION_KINDS for x in e.get(rk) or [] if hint_key(x) not in hints}
+        )
+        if h_files and missing_hints:
+            errors.append(f"{len(missing_hints)} relation targets lack a hints entry, e.g. {missing_hints[:5]}")
+
+    # 4c) Total size of every file under public/lexdb/ (recursive)
+    total_bytes = sum(p.stat().st_size for p in out_dir.rglob("*") if p.is_file())
+
     # 5) Validate pilot 200 entries
     pilot_valid = 0
     pilot_ids = []
@@ -255,8 +328,29 @@ def main():
     if missing_req:
         errors.append(f"Missing required pilot words in exported entries: {missing_req}")
 
-    if total_bytes > WARN_TOTAL_BYTES:
-        warnings.append(f"Total public/lexdb size ({total_bytes / 1024 / 1024:.2f} MB) exceeds 80 MB target")
+    if total_bytes >= MAX_TOTAL_BYTES:
+        errors.append(f"Total public/lexdb size ({total_bytes / 1024 / 1024:.2f} MiB) reaches the 80 MiB cap")
+
+    # Relation coverage across populations + exact-headword resolution
+    atlas_lemmas: set[str] = set()
+    lex_p = ROOT / "data/lexicon.json"
+    if lex_p.exists():
+        lex = json.loads(lex_p.read_text(encoding="utf-8"))
+        atlas_lemmas = {norm_rel(c["lemma"]) for c in lex.get("entries", []) if not c.get("aliasOf")}
+    headwords = {norm_rel(e["w"]) for e in all_entries.values()} | atlas_lemmas
+    pops = {
+        "all LexDB": list(all_entries.values()),
+        "Atlas-linked LexDB": [e for e in all_entries.values() if e.get("atlasId")],
+        "B2-level LexDB": [e for e in all_entries.values() if e.get("level") == "B2"],
+    }
+    rel_lines = []
+    for name, rows in pops.items():
+        n = len(rows) or 1
+        parts = [f"{rk} {sum(1 for e in rows if e.get(rk)):>6} ({100 * sum(1 for e in rows if e.get(rk)) / n:5.1f}%)" for rk in RELATION_KINDS]
+        rel_lines.append(f"  {name:<20} n={len(rows):>6} | " + " | ".join(parts))
+    rel_items = [x for e in all_entries.values() for rk in RELATION_KINDS for x in e.get(rk) or []]
+    resolved = sum(1 for x in rel_items if norm_rel(x) in headwords)
+    pct_resolved = (resolved / len(rel_items) * 100) if rel_items else 100.0
 
     total_lemmas = len(all_entries)
     pct_zh = (with_zh / total_lemmas * 100) if total_lemmas else 0.0
@@ -270,7 +364,13 @@ def main():
     print(f"pilot 200 valid count: {pilot_valid}/{len(pilot_ids)}")
     print(f"splits count         : {len(splits)} -> {sorted(splits)}")
     print(f"max shard size       : {max_shard_bytes:,} bytes ({max_shard_bytes / 1024:.1f} KB) [{max_shard_name}]")
-    print(f"total public/lexdb   : {total_bytes:,} bytes ({total_bytes / 1024 / 1024:.2f} MB)")
+    print(f"total public/lexdb   : {total_bytes:,} bytes ({total_bytes / 1024 / 1024:.2f} MiB, all files)")
+    print("relation coverage    :")
+    for line in rel_lines:
+        print(line)
+    print(f"exact-headword hits  : {resolved}/{len(rel_items)} relation targets ({pct_resolved:.2f}%) match a LexDB w or Atlas lemma")
+    if meta.get("hintsShards"):
+        print(f"hints                : {len(hints)} words")
 
     for w in warnings:
         print(f"WARNING: {w}", file=sys.stderr)
