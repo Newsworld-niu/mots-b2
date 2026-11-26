@@ -15,15 +15,36 @@ const grammarFull = JSON.parse(
   fs.readFileSync(new URL("../../public/atlas/grammar.json", import.meta.url), "utf8"),
 ) as GrammarData;
 
-test("M23-C: GRAMMAR_SPRINT_BANK has 84 curated 4-option items with 100% valid grammar-meta points", () => {
-  assert.ok(GRAMMAR_SPRINT_BANK.length >= 80, `expected >= 80 items, got ${GRAMMAR_SPRINT_BANK.length}`);
-  assert.equal(GRAMMAR_SPRINT_BANK.length, 84);
+/** B2 points whose hand-written content lands before the next grammar build regenerates public/atlas/*. */
+const NEW_B2 = new Set(["causatif", "hypothese-systeme", "registre-inversion"]);
+
+test("M23-C: GRAMMAR_SPRINT_BANK has 108 curated 4-option items with 100% valid grammar-meta points", () => {
+  assert.equal(GRAMMAR_SPRINT_BANK.length, 108);
+  for (const d of [1, 2, 3, 4, 5, 6] as const) {
+    assert.equal(
+      GRAMMAR_SPRINT_BANK.filter((it) => it.difficulty === d).length,
+      18,
+      `difficulty ${d} should hold 18 items`,
+    );
+  }
 
   const metaIds = new Set(grammarMeta.points.map((p) => p.id));
   const fullById = new Map(grammarFull.points.map((p) => [p.id, p]));
   const seenIds = new Set<string>();
 
   for (const item of GRAMMAR_SPRINT_BANK) {
+    if (Number(item.id.slice(3)) > 84) {
+      assert.ok(item.optionWhy, `${item.id}: expansion items must carry optionWhy`);
+    }
+    if (item.optionWhy) {
+      assert.equal(item.optionWhy.length, 4, `${item.id}: optionWhy must align with 4 options`);
+      item.optionWhy.forEach((w, i) => {
+        assert.ok(w.trim().length > 4, `${item.id}: empty optionWhy[${i}]`);
+        if (item.category !== "error") {
+          assert.equal(w.startsWith("✓"), i === item.answer, `${item.id}: optionWhy[${i}] ✓/✗ must match the answer`);
+        }
+      });
+    }
     assert.ok(!seenIds.has(item.id), `duplicate sprint item id: ${item.id}`);
     seenIds.add(item.id);
     assert.ok(["structure", "lexique", "error"].includes(item.category), `${item.id}: bad category`);
@@ -45,6 +66,12 @@ test("M23-C: GRAMMAR_SPRINT_BANK has 84 curated 4-option items with 100% valid g
     );
     assert.ok([0, 1, 2, 3].includes(item.answer), `${item.id}: invalid answer index ${item.answer}`);
     assert.ok(item.why.trim().length > 5 && !item.why.includes("Wait"), `${item.id}: invalid why`);
+    if (NEW_B2.has(item.point) && !fullById.has(item.point)) {
+      // Not yet compiled into grammar.json / grammar-meta.json: the new points carry r0..r3 / t0..t3.
+      // Once the build regenerates public/atlas, these items fall through to the full checks below.
+      assert.ok(!item.tag || /^[rt][0-3]$/.test(item.tag), `${item.id}: invalid tag "${item.tag}" for new point ${item.point}`);
+      continue;
+    }
     assert.ok(metaIds.has(item.point), `${item.id}: point "${item.point}" missing from grammar-meta.json`);
     const pt = fullById.get(item.point);
     assert.ok(pt, `${item.id}: point "${item.point}" missing from grammar.json`);
