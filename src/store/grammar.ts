@@ -183,6 +183,9 @@ export const EXAM_GRAMMAR_PRIORITY = [
   "futur-anterieur",
   "subj-passe",
   "passif",
+  "hypothese-systeme",
+  "causatif",
+  "registre-inversion",
 ] as const;
 
 const EXAM_RANK = new Map<string, number>(EXAM_GRAMMAR_PRIORITY.map((id, i) => [id, i]));

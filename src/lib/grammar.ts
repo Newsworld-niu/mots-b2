@@ -310,7 +310,7 @@ export function joinOrderTokens(tokens: readonly string[], p = ""): string {
       return;
     }
     const prev = tokens[i - 1];
-    const glue = /['’]$/.test(prev) || w.startsWith("-") || w === "," || w === ";";
+    const glue = /['’]$/.test(prev) || w.startsWith("-") || w === ",";
     out += glue ? w : ` ${w}`;
   });
   return out + p;

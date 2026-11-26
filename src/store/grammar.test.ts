@@ -42,11 +42,11 @@ test("PE-7: nextPoint follows startLevel and prioritizes B1/B2 exam syllabus poi
   assert.equal(nextPoint(grammar, allB1B2Done, 2)?.id, "art-gender");
 });
 
-test("PE-7 & M3B: 40 discourse exercises cover B1/B2 multi-clause grammar with valid grammar-meta point links and sync mastery", () => {
+test("PE-7 & M3B: 46 discourse exercises cover B1/B2 multi-clause grammar with valid grammar-meta point links and sync mastery", () => {
   const ids = new Set(grammar.points.map((p) => p.id));
   const meta = JSON.parse(fs.readFileSync("public/atlas/grammar-meta.json", "utf8")) as { points: { id: string }[] };
   const metaIds = new Set(meta.points.map((m) => m.id));
-  assert.equal(DISCOURSE_EXERCISES.length, 40);
+  assert.equal(DISCOURSE_EXERCISES.length, 46);
   const seenIds = new Set<string>();
   for (const ex of DISCOURSE_EXERCISES) {
     assert.ok(!seenIds.has(ex.id), `duplicate discourse id: ${ex.id}`);
