@@ -1,7 +1,11 @@
 /* Grammar points and their drills → public/atlas/grammar.json
  *
  *   data/grammar/points.json   explanations (written for this site, 待核对)
+ *   data/grammar/new-points.json   further points { points: [...] } (optional)
+ *   data/grammar/enrich/*.json     per-point additions { points: { id: PointEnrichment } } (optional, by file name)
  *   data/grammar/drills.json   hand-written drills for points that rules cannot find (待核对)
+ *   data/grammar/new-drills/*.json further hand-written drills { drills: { id: [...] } } (optional, by file name)
+ *   data/grammar/matrices.json     comparison tables of points easily mixed up { matrices: [...] } (optional)
  *   data/lexicon.json          example sentences of every entry (and their Chinese)
  *   data/highlights.json       where each entry's headword sits in its examples
  *   public/atlas/conj.json     checked conjugation tables (npm run lexicon:conj)
@@ -12,10 +16,23 @@
  * a contraction that is spelled out). Distractors are other real forms of the same word. Points without
  * enough sentences get template drills (city and country prepositions).
  */
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { startsWithFrenchVowel } from "../src/lib/conjugation.ts";
-import type { Drill, GrammarData, GrammarPoint, OrderDrill } from "../src/lib/grammar.ts";
+import {
+  GRAMMAR_CATEGORY_LABEL,
+  validateGrammarMarks,
+  type Drill,
+  type GrammarData,
+  type GrammarMatrix,
+  type GrammarPair,
+  type GrammarPitfall,
+  type GrammarPoint,
+  type GrammarRule,
+  type GrammarTable,
+  type GrammarWalk,
+  type OrderDrill,
+} from "../src/lib/grammar.ts";
 import { parseWritten, type Problem } from "./grammar/written.ts";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -36,7 +53,8 @@ interface Verb {
   tr?: Record<string, string[]>;
 }
 
-const points: Omit<GrammarPoint, "drills">[] = read("data/grammar/points.json").points;
+type Point = Omit<GrammarPoint, "drills">;
+const points: Point[] = read("data/grammar/points.json").points;
 const lexicon: LexEntry[] = read("data/lexicon.json").entries;
 const highlights: Record<string, ([number, number] | null)[]> = read("data/highlights.json").entries;
 const verbs: Record<string, Verb> = read("public/atlas/conj.json").verbs;
@@ -86,6 +104,243 @@ function tokens(s: string): Tok[] {
 /** Two tokens separated by one space only (a blank over both stays one piece of text). */
 const adjacent = (a: Tok, b: Tok, s: string) => s.slice(a.e, b.s) === " ";
 const capital = (opt: string, like: string) => (/^\p{Lu}/u.test(like) ? opt.charAt(0).toUpperCase() + opt.slice(1) : opt);
+
+/* ---------- new points and enrichments (optional files) ---------- */
+
+const exists = (p: string) => existsSync(resolve(ROOT, p));
+/** The .json files of a folder, by name; none when the folder does not exist. */
+const jsonFiles = (dir: string) =>
+  exists(dir)
+    ? readdirSync(resolve(ROOT, dir))
+        .filter((f) => f.endsWith(".json"))
+        .sort()
+        .map((f) => `${dir}/${f}`)
+    : [];
+const fail = (where: string, msg: string): never => {
+  throw new Error(`${where}: ${msg}`);
+};
+const isStr = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0;
+const isStrList = (v: unknown): v is string[] => Array.isArray(v) && v.every(isStr);
+const LEVEL_SET = new Set(["A1", "A2", "B1", "B2"]);
+const CATEGORY_SET = new Set(Object.keys(GRAMMAR_CATEGORY_LABEL));
+
+function checkExamples(where: string, ex: unknown) {
+  if (!Array.isArray(ex)) fail(where, "ex must be a list");
+  for (const e of ex as unknown[])
+    if (!Array.isArray(e) || (e.length !== 2 && e.length !== 3) || !e.every(isStr)) fail(where, `bad example ${JSON.stringify(e)}: [fr, zh] or [fr, zh, breakdown]`);
+}
+function checkRule(where: string, r: unknown): GrammarRule {
+  const x = r as GrammarRule;
+  if (!x || typeof x !== "object" || !isStr(x.h) || !isStr(x.text)) fail(where, "a rule needs h and text");
+  if (x.formula !== undefined && !isStrList(x.formula)) fail(where, "formula must be a list of strings");
+  checkExamples(where, x.ex);
+  return x;
+}
+function checkTable(where: string, t: unknown): GrammarTable {
+  const x = t as GrammarTable;
+  if (!x || typeof x !== "object" || !isStr(x.title)) fail(where, "a table needs a title");
+  if (!Array.isArray(x.headers) || !x.headers.length || x.headers.some((h) => typeof h !== "string") || !x.headers.some(isStr))
+    fail(where, `table « ${x.title} »: headers must be a non-empty list of strings`);
+  if (!Array.isArray(x.rows) || !x.rows.length) fail(where, `table « ${x.title} »: rows must be a non-empty list`);
+  x.rows.forEach((row, i) => {
+    if (!Array.isArray(row) || row.length !== x.headers.length || row.some((c) => typeof c !== "string"))
+      fail(where, `table « ${x.title} » row ${i + 1}: ${x.headers.length} string cells expected`);
+  });
+  for (const k of ["caption", "tag", "note"] as const) if (x[k] !== undefined && !isStr(x[k])) fail(where, `table « ${x.title} »: ${k} must be a non-empty string`);
+  return x;
+}
+function checkPitfall(where: string, p: unknown): GrammarPitfall {
+  const x = p as GrammarPitfall;
+  if (!x || typeof x !== "object" || !isStr(x.wrong) || !isStr(x.right) || !isStr(x.why)) fail(where, "a pitfall needs wrong, right and why");
+  if (x.tag !== undefined && !isStr(x.tag)) fail(where, "pitfall tag must be a string");
+  return x;
+}
+/** A tag (r<i> / t<i>) must name a rule or trap of the point. */
+function checkTag(where: string, p: Point, tag: string | undefined) {
+  if (tag === undefined) return;
+  const m = /^([rt])(\d+)$/.exec(tag);
+  if (!m) fail(where, `bad tag ${tag}`);
+  const n = Number(m![2]);
+  if (m![1] === "r" ? n >= p.rules.length : n >= p.traps.length) fail(where, `tag ${tag} out of range (${p.rules.length} rules, ${p.traps.length} traps)`);
+}
+
+if (exists("data/grammar/new-points.json")) {
+  const extra: unknown = read("data/grammar/new-points.json").points;
+  if (!Array.isArray(extra)) fail("new-points.json", "points must be a list");
+  const ids = new Set(points.map((p) => p.id));
+  for (const raw of extra as Point[]) {
+    const where = `new-points.json ${raw?.id ?? "?"}`;
+    if (!raw || !isStr(raw.id) || !/^[a-z0-9-]+$/.test(raw.id)) fail(where, "id must be lower-case letters, digits and hyphens");
+    if (ids.has(raw.id)) fail(where, "id already exists");
+    if (!LEVEL_SET.has(raw.level)) fail(where, `bad level ${raw.level}`);
+    if (!isStr(raw.title) || !isStr(raw.fr) || !isStr(raw.intro)) fail(where, "title, fr and intro are required");
+    if (!Array.isArray(raw.rules) || !raw.rules.length) fail(where, "rules must be a non-empty list");
+    raw.rules.forEach((r, i) => checkRule(`${where} rule ${i}`, r));
+    if (!isStrList(raw.traps)) fail(where, "traps must be a list of strings");
+    if ("drills" in raw) fail(where, "drills go in drills.json or new-drills/, not with the point");
+    ids.add(raw.id);
+    points.push(raw);
+  }
+}
+
+interface PointEnrichment {
+  category?: GrammarPoint["category"];
+  intro?: string;
+  motto?: string;
+  decide?: string[];
+  pairs?: GrammarPair[];
+  walk?: GrammarWalk;
+  tables?: GrammarTable[];
+  pitfalls?: GrammarPitfall[];
+  exceptions?: string[];
+  prereq?: string[];
+  related?: string[];
+  rulesPatch?: { index: number; h?: string; text?: string; formula?: string[]; ex?: GrammarRule["ex"] }[];
+  appendRules?: GrammarRule[];
+  trapsPatch?: { index: number; text: string }[];
+  appendTraps?: string[];
+}
+const ENRICH_KEYS = new Set(["category", "intro", "motto", "decide", "pairs", "walk", "tables", "pitfalls", "exceptions", "prereq", "related", "rulesPatch", "appendRules", "trapsPatch", "appendTraps"]);
+const pointById = new Map(points.map((p) => [p.id, p]));
+let enrichCount = 0;
+for (const file of jsonFiles("data/grammar/enrich")) {
+  const all: unknown = read(file).points;
+  if (!all || typeof all !== "object" || Array.isArray(all)) fail(file, "points must be an object keyed by point id");
+  for (const [id, raw] of Object.entries(all as Record<string, PointEnrichment>)) {
+    const where = `${file} ${id}`;
+    const p = pointById.get(id) ?? fail(where, "no such grammar point");
+    if (!raw || typeof raw !== "object") fail(where, "not an object");
+    for (const k of Object.keys(raw)) if (!ENRICH_KEYS.has(k)) fail(where, `unknown field ${k}`);
+    const e = raw;
+    if (e.category !== undefined) {
+      if (!CATEGORY_SET.has(e.category)) fail(where, `bad category ${e.category}`);
+      p.category = e.category;
+    }
+    if (e.intro !== undefined) p.intro = isStr(e.intro) ? e.intro : fail(where, "intro must be a non-empty string");
+    if (e.motto !== undefined) p.motto = isStr(e.motto) ? e.motto : fail(where, "motto must be a non-empty string");
+    if (e.decide !== undefined) p.decide = isStrList(e.decide) ? e.decide : fail(where, "decide must be a list of strings");
+    if (e.pairs !== undefined) {
+      if (!Array.isArray(e.pairs) || e.pairs.some((x) => !isStr(x?.a) || !isStr(x?.b) || !isStr(x?.d))) fail(where, "pairs need a, b and d");
+      p.pairs = e.pairs;
+    }
+    if (e.walk !== undefined) {
+      const w = e.walk;
+      if (!isStr(w?.s) || !isStr(w?.z) || !Array.isArray(w.steps) || w.steps.some((x) => !Array.isArray(x) || x.length !== 2 || !x.every(isStr))) fail(where, "walk needs s, z and [question, answer] steps");
+      p.walk = w;
+    }
+    if (e.exceptions !== undefined) p.exceptions = [...(p.exceptions ?? []), ...(isStrList(e.exceptions) ? e.exceptions : fail(where, "exceptions must be a list of strings"))];
+    if (e.prereq !== undefined) p.prereq = isStrList(e.prereq) ? e.prereq : fail(where, "prereq must be a list of ids");
+    if (e.related !== undefined) p.related = isStrList(e.related) ? e.related : fail(where, "related must be a list of ids");
+    // rule and trap indices are what drill tags point at: patch in place, append at the end, never remove or reorder
+    for (const patch of e.rulesPatch ?? []) {
+      const n = patch?.index;
+      if (!Number.isInteger(n) || n < 0 || n >= p.rules.length) fail(where, `rulesPatch index ${n} out of range (${p.rules.length} rules)`);
+      const merged: GrammarRule = { ...p.rules[n] };
+      if (patch.h !== undefined) merged.h = patch.h;
+      if (patch.text !== undefined) merged.text = patch.text;
+      if (patch.formula !== undefined) merged.formula = patch.formula;
+      if (patch.ex !== undefined) merged.ex = patch.ex;
+      p.rules[n] = checkRule(`${where} rulesPatch ${n}`, merged);
+    }
+    for (const r of e.appendRules ?? []) p.rules.push(checkRule(`${where} appendRules`, r));
+    for (const patch of e.trapsPatch ?? []) {
+      const n = patch?.index;
+      if (!Number.isInteger(n) || n < 0 || n >= p.traps.length) fail(where, `trapsPatch index ${n} out of range (${p.traps.length} traps)`);
+      p.traps[n] = isStr(patch.text) ? patch.text : fail(where, `trapsPatch ${n}: text must be a non-empty string`);
+    }
+    if (e.appendTraps !== undefined) p.traps.push(...(isStrList(e.appendTraps) ? e.appendTraps : fail(where, "appendTraps must be a list of strings")));
+    // tables and pitfalls add up across files
+    if (e.tables !== undefined) {
+      if (!Array.isArray(e.tables)) fail(where, "tables must be a list");
+      p.tables = [...(p.tables ?? []), ...e.tables.map((t) => checkTable(where, t))];
+    }
+    if (e.pitfalls !== undefined) {
+      if (!Array.isArray(e.pitfalls)) fail(where, "pitfalls must be a list");
+      p.pitfalls = [...(p.pitfalls ?? []), ...e.pitfalls.map((x) => checkPitfall(where, x))];
+    }
+    enrichCount++;
+  }
+}
+// tags of tables and pitfalls, once every rule and trap is in
+for (const p of points) {
+  for (const t of p.tables ?? []) checkTag(`${p.id} table « ${t.title} »`, p, t.tag);
+  for (const x of p.pitfalls ?? []) checkTag(`${p.id} pitfall « ${x.wrong} »`, p, x.tag);
+}
+for (const p of points)
+  for (const k of ["prereq", "related"] as const)
+    for (const id of p[k] ?? []) if (!pointById.has(id) || id === p.id) fail(`${p.id} ${k}`, `no grammar point "${id}"`);
+
+const LV_ORDER: Record<string, number> = { A1: 0, A2: 1, B1: 2, B2: 3 };
+let matrices: GrammarMatrix[] = [];
+if (exists("data/grammar/matrices.json")) {
+  const list: unknown = read("data/grammar/matrices.json").matrices;
+  if (!Array.isArray(list)) fail("matrices.json", "matrices must be a list");
+  const seenIds = new Set<string>();
+  for (const raw of list as (Partial<GrammarMatrix> & { intro?: string })[]) {
+    const where = `matrices.json ${raw?.id ?? "?"}`;
+    if (!raw || !isStr(raw.id)) fail(where, "id is required");
+    if (seenIds.has(raw.id)) fail(where, "duplicate id");
+    seenIds.add(raw.id);
+    const summary = raw.summary ?? raw.intro ?? "";
+    if (!isStr(raw.title) || !isStr(raw.fr) || !isStr(summary)) fail(where, "title, fr and summary/intro are required");
+    if (raw.motto !== undefined && !isStr(raw.motto)) fail(where, "motto must be a non-empty string");
+    if (!isStrList(raw.points) || !raw.points.length) fail(where, "points must list grammar point ids");
+    for (const id of raw.points) if (!pointById.has(id)) fail(where, `no grammar point "${id}"`);
+    const linkedPts = raw.points.map((id) => pointById.get(id)!);
+    const derivedLv = linkedPts.reduce<GrammarPoint["level"]>((acc, pt) => (LV_ORDER[pt.level] > LV_ORDER[acc] ? pt.level : acc), linkedPts[0].level);
+    const level = raw.level ?? derivedLv;
+    const category = raw.category ?? linkedPts[0].category ?? "clause";
+    if (!LEVEL_SET.has(level)) fail(where, `bad level ${level}`);
+    if (!CATEGORY_SET.has(category)) fail(where, `bad category ${category}`);
+    const rawTables = Array.isArray(raw.tables) && raw.tables.length
+      ? raw.tables.map((t) => checkTable(where, t))
+      : raw.headers && raw.rows
+        ? [checkTable(where, { title: raw.title, headers: raw.headers, rows: raw.rows })]
+        : fail(where, "tables (or headers + rows) are required");
+    if (raw.decide !== undefined && !isStrList(raw.decide)) fail(where, "decide must be a list of strings");
+    const pitfalls = (raw.pitfalls ?? []).map((x) => checkPitfall(where, x));
+    matrices.push({
+      id: raw.id,
+      title: raw.title,
+      fr: raw.fr,
+      level,
+      category,
+      summary,
+      ...(raw.motto ? { motto: raw.motto } : {}),
+      tables: rawTables,
+      ...(raw.decide?.length ? { decide: raw.decide } : {}),
+      ...(pitfalls.length ? { pitfalls } : {}),
+      points: raw.points,
+    });
+  }
+}
+
+/* every text that may carry {v:…} marks must be well-formed */
+function checkMarks(where: string, texts: (string | undefined)[]) {
+  for (const t of texts) {
+    if (t === undefined) continue;
+    const why = validateGrammarMarks(t);
+    if (why) fail(where, `bad mark (${why}) in « ${t.slice(0, 80)} »`);
+  }
+}
+const tableTexts = (t: GrammarTable) => [t.title, t.caption, t.note, ...t.headers, ...t.rows.flat()];
+const pitfallTexts = (x: GrammarPitfall) => [x.wrong, x.right, x.why];
+for (const p of points) {
+  checkMarks(p.id, [
+    p.intro,
+    p.motto,
+    ...(p.decide ?? []),
+    ...(p.exceptions ?? []),
+    ...p.traps,
+    ...p.rules.flatMap((r) => [r.h, r.text, ...(r.formula ?? []), ...r.ex.flat()]),
+    ...(p.tables ?? []).flatMap(tableTexts),
+    ...(p.pitfalls ?? []).flatMap(pitfallTexts),
+    ...(p.pairs ?? []).flatMap((x) => [x.a, x.b, x.d]),
+    ...(p.walk ? [p.walk.s, p.walk.z, ...p.walk.steps.flat()] : []),
+  ]);
+}
+for (const m of matrices)
+  checkMarks(`matrix ${m.id}`, [m.title, m.summary, m.motto, ...m.tables.flatMap(tableTexts), ...(m.decide ?? []), ...(m.pitfalls ?? []).flatMap(pitfallTexts)]);
 
 /* ---------- drill collection ---------- */
 
@@ -558,17 +813,42 @@ WISHES.forEach(([v, rest, vz], n) => {
  * automatic ones, and the automatic ones of a point are capped so that they do not crowd them out.
  */
 const written: Record<string, unknown[]> = read("data/grammar/drills.json").drills;
+/** What makes two written drills the same: their kind and sentence without the answer brackets. */
+const writtenKey = (raw: unknown) => {
+  const r = raw as { k?: string; s?: unknown; q?: unknown } | null;
+  const text = typeof r?.s === "string" ? r.s : typeof r?.q === "string" ? r.q : "";
+  return `${r?.k ?? "c"}|${text.replace(/[[\]{}]/g, "")}`;
+};
+let addedWritten = 0;
+for (const file of jsonFiles("data/grammar/new-drills")) {
+  const more: unknown = read(file).drills;
+  if (!more || typeof more !== "object" || Array.isArray(more)) fail(file, "drills must be an object keyed by point id");
+  for (const [point, list] of Object.entries(more as Record<string, unknown[]>)) {
+    if (!pointById.has(point)) fail(file, `no grammar point "${point}"`);
+    if (!Array.isArray(list)) fail(`${file} ${point}`, "drills must be a list");
+    const had = written[point] ?? [];
+    const keys = new Set(had.map(writtenKey));
+    const fresh = list.filter((d) => {
+      const k = writtenKey(d);
+      if (keys.has(k)) return false;
+      keys.add(k);
+      return true;
+    });
+    addedWritten += fresh.length;
+    written[point] = [...had, ...fresh];
+  }
+}
 const problems: Problem[] = [];
 const writtenBy = new Map<string, Drill[]>();
 for (const [point, list] of Object.entries(written)) {
   const p = points.find((x) => x.id === point);
-  if (!p) throw new Error(`drills.json: no grammar point "${point}"`);
+  if (!p) throw new Error(`drills: no grammar point "${point}"`);
   writtenBy.set(point, parseWritten(point, list, { rules: p.rules.length, traps: p.traps.length }, problems));
 }
 // a distractor that only differs in person is a weakness, not a broken drill: warn
 const leaks = problems.filter((x) => x.msg.includes("another person"));
 const broken = problems.filter((x) => !leaks.includes(x));
-if (broken.length) throw new Error(`drills.json:\n${broken.map((x) => `  ${x.point} ${x.at}: ${x.msg}`).join("\n")}`);
+if (broken.length) throw new Error(`written drills:\n${broken.map((x) => `  ${x.point} ${x.at}: ${x.msg}`).join("\n")}`);
 if (leaks.length) console.warn(`${leaks.length} distractor(s) differ from the answer only in person (see scripts/grammar/check-gen.ts)`);
 
 /* ---------- output ---------- */
@@ -588,14 +868,24 @@ const out: GrammarData = {
       .slice(0, cap);
     return { ...p, drills: [...own, ...picked] };
   }),
+  ...(matrices.length ? { matrices } : {}),
 };
 mkdirSync(resolve(ROOT, "public/atlas"), { recursive: true });
 writeFileSync(resolve(ROOT, "public/atlas/grammar.json"), JSON.stringify(out));
-writeFileSync(
-  resolve(ROOT, "public/atlas/grammar-meta.json"),
-  JSON.stringify({
-    v: out.v,
-    points: out.points.map(({ id, title, level, fr }) => ({ id, title, level, fr })),
-  }),
-);
+const meta = JSON.stringify({
+  v: out.v,
+  points: out.points.map(({ id, title, level, fr, category }) => ({ id, title, level, fr, ...(category ? { category } : {}) })),
+});
+writeFileSync(resolve(ROOT, "public/atlas/grammar-meta.json"), meta);
 for (const p of out.points) console.log(`${p.id.padEnd(22)} ${String(writtenBy.get(p.id)?.length ?? 0).padStart(4)} written, ${String(collected.get(p.id)!.drills.length).padStart(5)} found, ${p.drills.length} kept`);
+
+const kinds = new Map<string, number>();
+for (const p of out.points) for (const d of p.drills) kinds.set(d.k, (kinds.get(d.k) ?? 0) + 1);
+const KIND_ZH: Record<string, string> = { c: "选择", t: "填空", f: "改错", x: "改写", o: "语序" };
+const totalDrills = out.points.reduce((n, p) => n + p.drills.length, 0);
+console.log("\n—— grammar build summary ——");
+console.log(`points        ${out.points.length}（categorised ${out.points.filter((p) => p.category).length}, enrichments ${enrichCount}）`);
+console.log(`drills        ${totalDrills}（written ${[...writtenBy.values()].reduce((n, l) => n + l.length, 0)}, from new-drills ${addedWritten}）`);
+console.log(`by kind       ${[...kinds].map(([k, n]) => `${KIND_ZH[k] ?? k} ${n}`).join(" · ")}`);
+console.log(`tables        ${out.points.reduce((n, p) => n + (p.tables?.length ?? 0), 0)} · pitfalls ${out.points.reduce((n, p) => n + (p.pitfalls?.length ?? 0), 0)} · matrices ${matrices.length}`);
+console.log(`meta          ${(Buffer.byteLength(meta) / 1024).toFixed(1)} KB`);

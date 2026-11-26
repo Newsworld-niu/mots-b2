@@ -1,0 +1,3333 @@
+{
+  "points": {
+    "art-gender": {
+      "category": "determiner",
+      "intro": "法语每个名词都有阴阳性，冠词、形容词、过去分词、代词都要跟着它变。阴阳性大多没有道理可讲，要和冠词一起记：记 {a:une} maison、{a:un} problème，而不是只记 maison、problème。词尾能帮你猜对大部分，但高频例外必须单独记。",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "冠词是名词阴阳性最直接的标志。阳性单数用不定冠词 {a:un}、定冠词 {a:le}；阴性单数用 {a:une}、{a:la}。名词以元音或哑音 h 开头时，le 和 la 都省音成 {a:l'}（l'arbre、l'école、l'hôtel），这时从冠词上看不出阴阳性，必须另外记。复数不分阴阳：不定冠词 des，定冠词 les。不定冠词说「一个、某个」，第一次提到；定冠词说「这个、那个」或泛指一类。",
+          "formula": [
+            "阳性：{a:un} / {a:le} + 名词；阴性：{a:une} / {a:la} + 名词",
+            "元音 / 哑音 h 前：le、la → {a:l'}；复数：des / les（不分阴阳）"
+          ],
+          "ex": [
+            [
+              "{a:un} livre, {a:le} livre",
+              "一本书，这本书",
+              "livre 是阳性 → un / le"
+            ],
+            [
+              "{a:une} table, {a:la} table",
+              "一张桌子，这张桌子",
+              "table 是阴性 → une / la"
+            ],
+            [
+              "{a:l'}arbre (m.), {a:l'}école (f.)",
+              "树（阳），学校（阴）",
+              "元音开头省音成 l'，阴阳性要靠 un arbre / une école 来记"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "词尾能帮助判断大约八成名词的阴阳性。多为阴性的词尾：-tion / -sion（une nation）、-té（une liberté）、-ure（une voiture）、-ette（une baguette）、-ence / -ance（une différence）、-ie（une boulangerie）、-ade（une salade）、-esse（une jeunesse）。多为阳性的词尾：-ment（un moment）、-age（un fromage）、-eau（un bateau）、-isme（le tourisme）、-oir（un miroir）、-et（un billet）、-al（un journal）。这只是倾向，常用词里有一批例外（见下表和例外清单）。",
+          "formula": [
+            "-tion / -sion / -té / -ure / -ette / -ence / -ance / -ie → 多为阴性",
+            "-ment / -age / -eau / -isme / -oir / -et / -al → 多为阳性"
+          ],
+          "ex": [
+            [
+              "{a:une} nation, {a:une} liberté, {a:une} voiture",
+              "一个民族，一种自由，一辆汽车",
+              "-tion、-té、-ure → 阴性"
+            ],
+            [
+              "{a:un} moment, {a:un} fromage, {a:un} bateau",
+              "一会儿，一块奶酪，一条船",
+              "-ment、-age、-eau → 阳性"
+            ],
+            [
+              "{a:la} plage, {a:l'}image, {a:le} musée",
+              "海滩，图像，博物馆",
+              "例外：plage、image 虽以 -age 结尾却是阴性；musée 以 -ée 结尾却是阳性"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "词尾猜阴阳性速查",
+          "tag": "r1",
+          "headers": [
+            "词尾",
+            "倾向",
+            "例词",
+            "高频例外"
+          ],
+          "rows": [
+            [
+              "-tion / -sion",
+              "阴性",
+              "une nation、une décision",
+              "—"
+            ],
+            [
+              "-té",
+              "阴性",
+              "une liberté、la santé",
+              "le côté、l'été (m.)、le comité"
+            ],
+            [
+              "-ure",
+              "阴性",
+              "une voiture、la culture",
+              "le murmure"
+            ],
+            [
+              "-ence / -ance",
+              "阴性",
+              "la patience、la chance",
+              "le silence"
+            ],
+            [
+              "-ment",
+              "阳性",
+              "un moment、le gouvernement",
+              "—"
+            ],
+            [
+              "-age",
+              "阳性",
+              "un fromage、le voyage",
+              "la plage、l'image、la page、la cage"
+            ],
+            [
+              "-eau",
+              "阳性",
+              "un bateau、le bureau",
+              "l'eau (f.)、la peau"
+            ],
+            [
+              "-isme",
+              "阳性",
+              "le tourisme、le racisme",
+              "—"
+            ],
+            [
+              "-ée",
+              "阴性",
+              "une idée、l'année",
+              "le musée、le lycée"
+            ]
+          ],
+          "note": "表里的倾向只是帮助记忆的线索，查词典时请连同冠词一起记。"
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Le plage est magnifique.",
+          "right": "{a:La} plage est magnifique.",
+          "why": "按「-age 结尾是阳性」的规律类推。plage、image、page、cage、nage、rage 是高频例外，都是阴性。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "J'ai acheté une livre de français.",
+          "right": "J'ai acheté {a:un} livre de français.",
+          "why": "同一个拼写，阴阳性不同意思就不同：le livre 是书，la livre 是磅（重量单位）。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "C'est un école très connue.",
+          "right": "C'est {a:une} école très connue.",
+          "why": "只记了 l'école，冠词省音后看不出阴阳性，结果猜错。元音开头的名词一定要用 un / une 来记。",
+          "tag": "t2"
+        }
+      ],
+      "exceptions": [
+        "-age 结尾的阴性例外：la plage、l'image、la page、la cage、la nage、la rage。",
+        "-ée 结尾的阳性例外：le musée、le lycée、le trophée、l'apogée。",
+        "阴阳不同意思不同：le livre / la livre、le tour / la tour、le poste / la poste、le mode / la mode、le mémoire / la mémoire、le manche / la manche。",
+        "嘘音 h（不省音、不连读）高频词：le héros、la honte、le haricot、le hasard、la hauteur、le hibou、la haine、le huit。",
+        "职业名词的阴性：le / la journaliste（同形）、un acteur / une actrice、un vendeur / une vendeuse；现代法语普遍使用 une professeure、une autrice、une ingénieure。"
+      ]
+    },
+    "contraction": {
+      "category": "determiner",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "介词 {p:à}（去、在、给）后面跟定冠词 le 和 les 时，必须合成一个词：à + le → {p:au}，à + les → {p:aux}。跟 la、l' 时不缩合：à la、à l'。缩合只看冠词，不看名词：au cinéma、aux États-Unis、à la gare、à l'hôpital。嘘音 h 开头的阳性名词不省音，所以照样缩合：au héros、aux Halles。",
+          "formula": [
+            "{p:à} + le → {p:au}；{p:à} + les → {p:aux}",
+            "{p:à} + la / l' → 不变（{p:à} la、{p:à} l'）"
+          ],
+          "ex": [
+            [
+              "Je vais {p:au} cinéma.",
+              "我去电影院。",
+              "à + le cinéma → au"
+            ],
+            [
+              "Il parle {p:aux} enfants.",
+              "他跟孩子们说话。",
+              "à + les enfants → aux"
+            ],
+            [
+              "Elle est {p:à} la gare.",
+              "她在火车站。",
+              "la 不缩合"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "介词 {p:de}（……的、从……）后面跟定冠词 le 和 les 时同样必须合成：de + le → {p:du}，de + les → {p:des}；de + la、de + l' 不变。注意 des 有两种来源：不定冠词复数（J'ai des amis）和 de + les（le livre des étudiants）。",
+          "formula": [
+            "{p:de} + le → {p:du}；{p:de} + les → {p:des}",
+            "{p:de} + la / l' → 不变（{p:de} la、{p:de} l'）"
+          ],
+          "ex": [
+            [
+              "le livre {p:du} professeur",
+              "老师的书",
+              "de + le professeur → du"
+            ],
+            [
+              "Il revient {p:de} la plage.",
+              "他从海滩回来。",
+              "la 不缩合"
+            ],
+            [
+              "la fin {p:des} vacances",
+              "假期的结束",
+              "de + les vacances → des"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "部分冠词和 de + 定冠词形式相同，但用法不同：部分冠词放在不可数名词前，表示「一些」：{p:du} pain（阳）、{p:de la} soupe（阴）、{p:de l'}eau（元音前）。它本身就是冠词，不是介词 + 冠词。详细用法见「部分冠词」一条。",
+          "formula": [
+            "部分冠词：{p:du} + 阳性 / {p:de la} + 阴性 / {p:de l'} + 元音开头"
+          ],
+          "ex": [
+            [
+              "Je bois {p:du} café et {p:de l'}eau.",
+              "我喝咖啡和水。",
+              "不可数名词前用部分冠词"
+            ],
+            [
+              "Tu veux {p:de la} soupe ?",
+              "你要汤吗？",
+              "soupe 是阴性 → de la"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "介词与定冠词缩合总表",
+          "headers": [
+            "介词",
+            "+ le",
+            "+ la",
+            "+ l'",
+            "+ les"
+          ],
+          "rows": [
+            [
+              "{p:à}",
+              "{p:au}（au parc）",
+              "à la（à la mer）",
+              "à l'（à l'école）",
+              "{p:aux}（aux enfants）"
+            ],
+            [
+              "{p:de}",
+              "{p:du}（du parc）",
+              "de la（de la mer）",
+              "de l'（de l'école）",
+              "{p:des}（des enfants）"
+            ]
+          ],
+          "note": "le / les 是宾语代词（不是冠词）时不缩合：Je commence à le comprendre；J'ai peur de les déranger。"
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Je parle à les étudiants.",
+          "right": "Je parle {p:aux} étudiants.",
+          "why": "把介词和冠词当成两个独立的词分别翻译。à les、de le、à le、de les 在法语里一律必须缩合。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Je commence au comprendre.",
+          "right": "Je commence {p:à} {c:le} comprendre.",
+          "why": "le 在这里是代词（指某件事），不是冠词，所以 à 和它不缩合。看 le 后面：接动词就是代词。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Je ne bois pas du café.",
+          "right": "Je ne bois pas {p:de} café.",
+          "why": "否定句里部分冠词 du / de la 变成 de；只有 être 的否定句冠词不变。",
+          "tag": "t2"
+        }
+      ],
+      "exceptions": [
+        "国名、城市名里的冠词也缩合：au Japon、aux États-Unis、du Canada、au Havre、du Caire。",
+        "嘘音 h 开头的名词前冠词不省音，所以照样缩合：au héros、du haut de la tour、aux Halles。",
+        "表示「由……做成」的 à 常和缩合形式一起出现：une tarte aux pommes、un sandwich au jambon。"
+      ]
+    },
+    "adj-agree": {
+      "category": "determiner",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "形容词和它修饰的名词保持阴阳性、单复数一致。基本规则：阴性在阳性后加 {a:-e}，复数加 {a:-s}，阴性复数加 {a:-es}。阳性本来就以 -e 结尾的形容词阴阳同形（rouge、jeune、facile）；以 -s、-x 结尾的阳性复数不再加 s（gris、heureux）。加 -e 后原来不发音的词尾辅音会读出来：petit [pəti] → petite [pətit]，grand → grande。",
+          "formula": [
+            "阴性 = 阳性 + {a:e}；复数 = + {a:s}；阴性复数 = + {a:es}",
+            "-e 结尾：阴阳同形；-s / -x 结尾：复数不变"
+          ],
+          "ex": [
+            [
+              "un petit chat, une petit{a:e} maison",
+              "一只小猫，一座小房子",
+              "阴性加 -e，t 读出来"
+            ],
+            [
+              "des amis content{a:s}",
+              "高兴的朋友们",
+              "阳性复数加 -s"
+            ],
+            [
+              "un livre rouge, une robe rouge",
+              "一本红书，一条红裙子",
+              "rouge 以 -e 结尾，阴阳同形"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "不少形容词的阴性要变词尾：-eux → -euse（heureux → heureuse），-if → -ive（sportif → sportive），-er → -ère（cher → chère），-en / -on → 双写 n 加 e（ancien → ancienne，bon → bonne），-el → -elle（cruel → cruelle），-et → -ète 或 -ette（complet → complète，muet → muette）。复数：-al → {a:-aux}（national → nationaux），-eau → -eaux（beau → beaux）。还有几个要整体记的：beau / belle、nouveau / nouvelle、vieux / vieille、blanc / blanche、long / longue、frais / fraîche、doux / douce、faux / fausse。",
+          "formula": [
+            "-eux → -{a:euse}；-if → -{a:ive}；-er → -{a:ère}；-en → -{a:enne}；-el → -{a:elle}",
+            "复数：-al → -{a:aux}；-eau → -{a:eaux}"
+          ],
+          "ex": [
+            [
+              "heureux → heur{a:euse}",
+              "幸福的",
+              "-eux → -euse"
+            ],
+            [
+              "sportif → sport{a:ive}",
+              "爱运动的",
+              "-if → -ive"
+            ],
+            [
+              "un journal national → des journaux nation{a:aux}",
+              "一份全国性报纸 → 全国性报纸（复数）",
+              "-al 的阳性复数 → -aux"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "beau、nouveau、vieux 这三个放在名词前的形容词，在以元音或哑音 h 开头的阳性单数名词前，为了连读改用特殊形式 {a:bel}、{a:nouvel}、{a:vieil}（读音和阴性 belle、nouvelle、vieille 相同）。复数不受影响，仍是 beaux、nouveaux、vieux；形容词放在名词后时也用普通形式：un homme beau。",
+          "formula": [
+            "beau / nouveau / vieux + 元音或哑音 h 开头的阳性单数名词 → {a:bel} / {a:nouvel} / {a:vieil}",
+            "复数不变：beaux / nouveaux / vieux"
+          ],
+          "ex": [
+            [
+              "un {a:bel} homme",
+              "一个英俊的男人",
+              "homme 以哑音 h 开头 → bel"
+            ],
+            [
+              "un {a:nouvel} appartement",
+              "一套新公寓",
+              "appartement 以元音开头 → nouvel"
+            ],
+            [
+              "de {a:beaux} hommes",
+              "一些英俊的男人",
+              "复数恢复 beaux"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "形容词阴性 / 复数变化表",
+          "tag": "r1",
+          "headers": [
+            "阳性词尾",
+            "阴性",
+            "例",
+            "阳性复数"
+          ],
+          "rows": [
+            [
+              "一般",
+              "+ {a:e}",
+              "grand → grand{a:e}",
+              "grand{a:s}"
+            ],
+            [
+              "-e",
+              "不变",
+              "jeune → jeune",
+              "jeune{a:s}"
+            ],
+            [
+              "-eux",
+              "-{a:euse}",
+              "sérieux → séri{a:euse}",
+              "sérieux（不变）"
+            ],
+            [
+              "-if",
+              "-{a:ive}",
+              "actif → act{a:ive}",
+              "actif{a:s}"
+            ],
+            [
+              "-er",
+              "-{a:ère}",
+              "léger → lég{a:ère}",
+              "léger{a:s}"
+            ],
+            [
+              "-en / -on",
+              "-{a:enne} / -{a:onne}",
+              "italien → itali{a:enne}；bon → b{a:onne}",
+              "italien{a:s}"
+            ],
+            [
+              "-el / -il",
+              "-{a:elle} / -{a:ille}",
+              "naturel → natur{a:elle}；gentil → gent{a:ille}",
+              "naturel{a:s}"
+            ],
+            [
+              "-al",
+              "-{a:ale}",
+              "national → nation{a:ale}",
+              "nation{a:aux}"
+            ],
+            [
+              "特殊",
+              "beau → b{a:elle}；vieux → vi{a:eille}；blanc → blan{a:che}",
+              "—",
+              "beaux、vieux、blancs"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Paul et Marie sont très gentilles.",
+          "right": "Paul et Marie sont très gentil{a:s}.",
+          "why": "只看离得最近的 Marie 就用了阴性。阴阳性混合的一组名词，形容词一律用阳性复数。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Elle porte des chaussures marrons.",
+          "right": "Elle porte des chaussures marron.",
+          "why": "按一般形容词加 s。marron、orange 原本是名词（栗子、橙子），当颜色词用时不变。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "C'est une femme très heureux.",
+          "right": "C'est une femme très heur{a:euse}.",
+          "why": "只学了「阴性加 -e」，没注意 -eux 的阴性是 -euse。",
+          "tag": "t0"
+        }
+      ],
+      "exceptions": [
+        "来自名词的颜色词不变：marron、orange、kaki、crème、cerise、noisette（des yeux marron）；例外：rose、mauve、pourpre、fauve 要配合（des robes roses）。",
+        "复合颜色词不变：des yeux bleu clair、une robe vert foncé。",
+        "-al 的复数例外：banals、fatals、finals、navals（des combats navals）。",
+        "-et 的阴性：complet → complète、inquiet → inquiète、secret → secrète；但 muet → muette、net → nette。",
+        "常用不规则阴性：frais → fraîche、sec → sèche、doux → douce、faux → fausse、gros → grosse、long → longue、public → publique。"
+      ]
+    },
+    "present": {
+      "category": "tense",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "-er 结尾的动词是第一组，占法语动词的九成，变位完全规则：去掉不定式的 -er 得到词干，再加 -e、-es、-e、-ons、-ez、-ent。je、tu、il、ils 四个形式读音相同（-e、-es、-ent 都不发音），只有 nous、vous 听得出来。元音开头的动词前 je 省音：j'aime、j'habite。aller 虽以 -er 结尾，却是不规则动词。",
+          "formula": [
+            "词干（去 -er）+ -{v:e}、-{v:es}、-{v:e}、-{v:ons}、-{v:ez}、-{v:ent}",
+            "je parle = tu parles = il parle = ils parlent（读音相同）"
+          ],
+          "ex": [
+            [
+              "je parl{v:e}, nous parl{v:ons}, ils parl{v:ent}",
+              "我说，我们说，他们说",
+              "词干 parl- + 词尾；-ent 不发音"
+            ],
+            [
+              "J'habit{v:e} à Lyon depuis deux ans.",
+              "我住在里昂两年了。",
+              "元音开头 je → j'"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "第二组动词以 -ir 结尾、现在分词是 -issant（finir、choisir、réussir、grandir、réfléchir）。单数加 -is、-is、-it，复数在词干后插入 -iss-：-issons、-issez、-issent。注意：partir、sortir、dormir、venir 虽然也以 -ir 结尾，但不属于第二组，没有 -iss-。",
+          "formula": [
+            "词干 + -{v:is}、-{v:is}、-{v:it}、-{v:issons}、-{v:issez}、-{v:issent}"
+          ],
+          "ex": [
+            [
+              "je fin{v:is}, nous fin{v:issons}",
+              "我结束，我们结束",
+              "复数插入 -iss-"
+            ],
+            [
+              "Les cours fin{v:issent} à midi.",
+              "课在中午结束。",
+              "ils / elles → -issent"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "现在时词尾对照",
+          "headers": [
+            "人称",
+            "parler（第一组）",
+            "finir（第二组）",
+            "partir（第三组）",
+            "prendre（第三组）"
+          ],
+          "rows": [
+            [
+              "je",
+              "parl{v:e}",
+              "fin{v:is}",
+              "par{v:s}",
+              "prend{v:s}"
+            ],
+            [
+              "tu",
+              "parl{v:es}",
+              "fin{v:is}",
+              "par{v:s}",
+              "prend{v:s}"
+            ],
+            [
+              "il / elle / on",
+              "parl{v:e}",
+              "fin{v:it}",
+              "par{v:t}",
+              "prend"
+            ],
+            [
+              "nous",
+              "parl{v:ons}",
+              "fin{v:issons}",
+              "part{v:ons}",
+              "pren{v:ons}"
+            ],
+            [
+              "vous",
+              "parl{v:ez}",
+              "fin{v:issez}",
+              "part{v:ez}",
+              "pren{v:ez}"
+            ],
+            [
+              "ils / elles",
+              "parl{v:ent}",
+              "fin{v:issent}",
+              "part{v:ent}",
+              "prenn{v:ent}"
+            ]
+          ],
+          "note": "être、avoir、aller、faire 完全不规则，见第三条规则。"
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Nous mangons à midi.",
+          "right": "Nous mang{v:eons} à midi.",
+          "why": "直接套词尾 -ons。-ger 动词在 o 前要保留 e，才能读成 [ʒ]；-cer 动词同理写成 ç：nous commençons。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Qu'est-ce que vous faisez ce soir ?",
+          "right": "Qu'est-ce que vous {v:faites} ce soir ?",
+          "why": "按「vous → -ez」的规律类推。vous faites、vous dites、vous êtes 是三个不以 -ez 结尾的例外。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Je part demain matin.",
+          "right": "Je par{v:s} demain matin.",
+          "why": "以为单数去掉词尾就行。partir 类动词单数形式是 je pars、tu pars、il part，je 的形式结尾是 -s。",
+          "tag": "t3"
+        }
+      ],
+      "exceptions": [
+        "-eler / -eter 动词双写辅音：j'appelle、je jette（nous appelons）；acheter、geler 改用 è：j'achète。",
+        "-é- + 辅音 + er 的动词在不发音词尾前变 è：je préfère、ils répètent（nous préférons）。",
+        "-oyer / -uyer 动词 y 变 i：j'envoie、il nettoie、tu essuies（nous envoyons）。",
+        "现在时也可以表示马上要发生的事和将来的安排：Je pars demain、J'arrive !"
+      ]
+    },
+    "negation": {
+      "category": "syntax",
+      "intro": "法语的否定由两部分组成：{k:ne} 放在变位动词前，{k:pas}（或 jamais、plus、rien、personne）放在变位动词后，把动词「夹」在中间。复合时态夹住的是助动词，有宾语代词时代词也一起被夹住。",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "简单时态（现在时、未完成过去时、将来时……）里，{k:ne} 放在变位动词前，{k:pas} 紧跟在变位动词后。ne 在元音或哑音 h 前省音成 {k:n'}：Il n'aime pas、Je n'habite pas。动词后面的宾语、状语都放在 pas 后面。",
+          "formula": [
+            "主语 + {k:ne} (n') + 变位动词 + {k:pas} + 其余成分"
+          ],
+          "ex": [
+            [
+              "Je {k:ne} parle {k:pas} anglais.",
+              "我不会说英语。",
+              "ne + parle + pas"
+            ],
+            [
+              "Il {k:n'}aime {k:pas} le café.",
+              "他不喜欢咖啡。",
+              "aime 以元音开头 → n'"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "复合时态（复合过去时、愈过去时……）里，{k:ne} … {k:pas} 夹住的是助动词 avoir / être，过去分词放在 pas 后面。jamais、plus、rien 的位置和 pas 相同。",
+          "formula": [
+            "主语 + {k:ne} + 助动词 + {k:pas} / {k:jamais} + 过去分词"
+          ],
+          "ex": [
+            [
+              "Je {k:n'}ai {k:pas} compris.",
+              "我没听懂。",
+              "ne … pas 夹住助动词 ai"
+            ],
+            [
+              "Elle {k:n'}est {k:jamais} venue.",
+              "她从来没来过。",
+              "jamais 和 pas 同位"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "动词前有宾语代词（me、le、lui、y、en……）时，代词和动词是一个整体，{k:ne} 放在代词前面，{k:pas} 仍在变位动词后。复合时态：ne + 代词 + 助动词 + pas + 过去分词（Je ne l'ai pas vu）。",
+          "formula": [
+            "主语 + {k:ne} + 宾语代词 + 变位动词 + {k:pas}",
+            "复合时态：主语 + {k:ne} + 代词 + 助动词 + {k:pas} + 过去分词"
+          ],
+          "ex": [
+            [
+              "Je {k:ne} le connais {k:pas}.",
+              "我不认识他。",
+              "ne 在代词 le 前"
+            ],
+            [
+              "Il {k:ne} me répond {k:plus}.",
+              "他不再回复我了。",
+              "ne … plus = 不再"
+            ],
+            [
+              "Je {k:ne} l'ai {k:pas} vu.",
+              "我没看见他。",
+              "复合时态：ne + l' + ai + pas + vu"
+            ]
+          ]
+        },
+        {
+          "index": 3,
+          "text": "其他否定词的位置分两类。① rien、jamais、plus 和 pas 一样，复合时态里放在助动词后、过去分词前（Je n'ai rien vu）。② personne、aucun、nulle part 放在过去分词后（Je n'ai vu personne）。否定词作主语时放在句首，后面仍然要 ne，但不加 pas：Personne n'est venu、Rien n'a changé。几个否定词可以连用（plus jamais rien），但都不能再加 pas。",
+          "formula": [
+            "{k:ne} + 助动词 + {k:rien} / {k:jamais} / {k:plus} + 过去分词",
+            "{k:ne} + 助动词 + 过去分词 + {k:personne} / {k:aucun} + 名词",
+            "{k:Personne} / {k:Rien} + {k:ne} + 动词（作主语，不加 pas）"
+          ],
+          "ex": [
+            [
+              "Je {k:n'}ai {k:rien} vu.",
+              "我什么都没看见。",
+              "rien 在过去分词前"
+            ],
+            [
+              "Je {k:n'}ai vu {k:personne}.",
+              "我谁也没看见。",
+              "personne 在过去分词后"
+            ],
+            [
+              "{k:Personne} {k:n'}est venu.",
+              "没有人来。",
+              "personne 作主语，ne 仍保留，不加 pas"
+            ],
+            [
+              "Il {k:ne} dit {k:plus jamais rien}.",
+              "他再也什么都不说了。",
+              "多个否定词连用，不加 pas"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "否定词位置速查",
+          "headers": [
+            "否定词",
+            "意思",
+            "简单时态",
+            "复合时态"
+          ],
+          "rows": [
+            [
+              "{k:ne} … {k:pas}",
+              "不",
+              "Je {k:ne} mange {k:pas}.",
+              "Je {k:n'}ai {k:pas} mangé."
+            ],
+            [
+              "{k:ne} … {k:jamais}",
+              "从不",
+              "Il {k:ne} ment {k:jamais}.",
+              "Il {k:n'}a {k:jamais} menti."
+            ],
+            [
+              "{k:ne} … {k:plus}",
+              "不再",
+              "Elle {k:ne} fume {k:plus}.",
+              "Elle {k:n'}a {k:plus} fumé."
+            ],
+            [
+              "{k:ne} … {k:rien}",
+              "什么也不",
+              "Je {k:ne} vois {k:rien}.",
+              "Je {k:n'}ai {k:rien} vu."
+            ],
+            [
+              "{k:ne} … {k:personne}",
+              "谁也不",
+              "Je {k:ne} vois {k:personne}.",
+              "Je {k:n'}ai vu {k:personne}."
+            ],
+            [
+              "{k:ne} … {k:aucun}",
+              "没有一个",
+              "Je {k:n'}ai {k:aucune} idée.",
+              "Je {k:n'}ai eu {k:aucune} idée."
+            ],
+            [
+              "{k:ne pas} + 不定式",
+              "（不定式否定）",
+              "Je préfère {k:ne pas} sortir.",
+              "—"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Je n'ai pas une voiture.",
+          "right": "Je {k:n'}ai {k:pas} {p:de} voiture.",
+          "why": "把「没有一辆车」逐字译出。否定句里 un / une / des、du / de la 都变成 de；只有 être 后面不变（Ce n'est pas une voiture）。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Je préfère ne sortir pas ce soir.",
+          "right": "Je préfère {k:ne pas} sortir ce soir.",
+          "why": "按变位动词的语序把 pas 放在不定式后。不定式的否定 ne pas 两部分连在一起，放在不定式前。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Je sais pas où il habite.",
+          "right": "Je {k:ne} sais {k:pas} où il habite.",
+          "why": "照搬口语只说 pas。书面语和考试写作里 ne 一定要写出来。",
+          "tag": "t2"
+        }
+      ],
+      "exceptions": [
+        "pas 可以不带 ne 单独否定一个成分：pas moi、pas du tout、pas encore、Pourquoi pas ?、pas mal。",
+        "回答否定问句时，「不，我要来」用 si：— Tu ne viens pas ? — Si, je viens !",
+        "附和否定句用 non plus，不用 aussi：— Je n'aime pas ça. — Moi non plus.",
+        "pas de 在 être 之外的固定结构里也保留冠词：Ce n'est pas un problème；Je ne suis pas un enfant。"
+      ]
+    },
+    "place-prep": {
+      "category": "preposition",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "「在 / 去」某地用哪个介词，先看是城市还是国家，再看国家名的阴阳性和单复数。① 城市（不带冠词）：{p:à}。② 阴性国家（大多以 -e 结尾：la France、la Chine）和以元音开头的阳性国家（l'Iran、l'Irak）：{p:en}，不加冠词。③ 以辅音开头的阳性国家（le Canada、le Japon、le Brésil）：{p:au}。④ 复数国家（les États-Unis、les Pays-Bas）：{p:aux}。",
+          "formula": [
+            "城市 → {p:à}；阴性国家 / 元音开头国家 → {p:en}",
+            "阳性国家 → {p:au}；复数国家 → {p:aux}"
+          ],
+          "ex": [
+            [
+              "J'habite {p:à} Lyon.",
+              "我住在里昂。",
+              "城市 → à"
+            ],
+            [
+              "Elle va {p:en} Chine.",
+              "她去中国。",
+              "la Chine 阴性 → en"
+            ],
+            [
+              "Il travaille {p:au} Canada.",
+              "他在加拿大工作。",
+              "le Canada 阳性 → au"
+            ],
+            [
+              "Nous partons {p:aux} États-Unis.",
+              "我们去美国。",
+              "les États-Unis 复数 → aux"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "「从……来」用 de 的各种形式，和「在 / 去」一一对应：à → de（城市），en → de / d'（阴性或元音开头的国家，不加冠词），au → du，aux → des。",
+          "formula": [
+            "城市 / 阴性国家 → {p:de} (d')；阳性国家 → {p:du}；复数国家 → {p:des}"
+          ],
+          "ex": [
+            [
+              "Je viens {p:de} Paris.",
+              "我从巴黎来。",
+              "城市 → de"
+            ],
+            [
+              "Il rentre {p:d'}Italie.",
+              "他从意大利回来。",
+              "阴性 + 元音开头 → d'"
+            ],
+            [
+              "Elle arrive {p:du} Japon.",
+              "她从日本来。",
+              "le Japon → du"
+            ],
+            [
+              "Ils reviennent {p:des} Pays-Bas.",
+              "他们从荷兰回来。",
+              "les Pays-Bas → des"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "城市和国家前的介词",
+          "headers": [
+            "地名类型",
+            "在 / 去",
+            "从……来",
+            "例"
+          ],
+          "rows": [
+            [
+              "城市",
+              "{p:à}",
+              "{p:de} / {p:d'}",
+              "à Paris / de Paris"
+            ],
+            [
+              "阴性国家",
+              "{p:en}",
+              "{p:de} / {p:d'}",
+              "en France / de France"
+            ],
+            [
+              "元音开头的阳性国家",
+              "{p:en}",
+              "{p:d'}",
+              "en Iran / d'Iran"
+            ],
+            [
+              "辅音开头的阳性国家",
+              "{p:au}",
+              "{p:du}",
+              "au Japon / du Japon"
+            ],
+            [
+              "复数国家",
+              "{p:aux}",
+              "{p:des}",
+              "aux États-Unis / des États-Unis"
+            ],
+            [
+              "不带冠词的岛国",
+              "{p:à}",
+              "{p:de}",
+              "à Cuba / de Cuba"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Il habite en Mexique.",
+          "right": "Il habite {p:au} Mexique.",
+          "why": "按「-e 结尾 = 阴性」的规律猜。le Mexique、le Cambodge、le Mozambique、le Zimbabwe 以 -e 结尾却是阳性，用 au。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Elle travaille au Iran.",
+          "right": "Elle travaille {p:en} Iran.",
+          "why": "知道 l'Iran 是阳性就用 au。元音开头的阳性国家为了读音也用 en。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "J'aime le café de Brésil.",
+          "right": "J'aime le café {p:du} Brésil.",
+          "why": "说产地时，阳性国家名要保留冠词并和 de 缩合；阴性国家才不加冠词（les vins de France）。",
+          "tag": "t2"
+        }
+      ],
+      "exceptions": [
+        "以 -e 结尾的阳性国家：le Mexique、le Cambodge、le Mozambique、le Zimbabwe、le Belize。",
+        "不带冠词的岛国和国家用 à：à Cuba、à Madagascar、à Malte、à Chypre、à Singapour、à Monaco；Israël → en Israël。",
+        "带冠词的城市：au Havre、au Caire、à La Rochelle、à La Havane。",
+        "美国的州、加拿大的省：阴性用 en（en Californie、en Floride），阳性用 au 或 dans le（au Texas、au Québec）。"
+      ]
+    },
+    "partitif": {
+      "category": "determiner",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "部分冠词放在不可数的东西前，表示「一些、一定量的」：食物饮料（du pain、de l'eau）、物质（du bois）、抽象概念（du courage、de la patience）、活动（faire du sport）。阳性用 {p:du}，阴性用 {p:de la}，元音或哑音 h 前一律用 {p:de l'}；可数名词的复数用 des。",
+          "formula": [
+            "{p:du} + 阳性 / {p:de la} + 阴性 / {p:de l'} + 元音 / {p:des} + 复数"
+          ],
+          "ex": [
+            [
+              "Je bois {p:du} café.",
+              "我喝咖啡。",
+              "café 阳性、不可数 → du"
+            ],
+            [
+              "Elle mange {p:de la} salade.",
+              "她吃沙拉。",
+              "salade 阴性 → de la"
+            ],
+            [
+              "Tu veux {p:de l'}eau ?",
+              "你要水吗？",
+              "元音开头 → de l'"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "两种情况下部分冠词和不定冠词（un、une、des）统统变成 {p:de}（元音前 d'）：① 否定之后：ne … pas / plus / jamais + de（Je ne bois pas de café）；② 数量词之后：beaucoup de、un peu de、trop de、assez de、peu de、un kilo de、une bouteille de、un verre de。这个 de 只是一个「数量 / 否定标记」，名词前不再加冠词。",
+          "formula": [
+            "{k:ne} … {k:pas} / {k:plus} / {k:jamais} + {p:de} + 名词",
+            "数量词（beaucoup、un peu、un kilo…）+ {p:de} + 名词"
+          ],
+          "ex": [
+            [
+              "Je ne bois pas {p:de} café.",
+              "我不喝咖啡。",
+              "否定 → du 变 de"
+            ],
+            [
+              "Il y a beaucoup {p:de} monde.",
+              "人很多。",
+              "数量词 beaucoup + de"
+            ],
+            [
+              "Achète un kilo {p:de} pommes.",
+              "买一公斤苹果。",
+              "单位 + de，不加 des"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "aimer、adorer、préférer、détester 这类表示喜好的动词，说的是对整个类别的态度，后面用定冠词 {a:le} / {a:la} / {a:les}，不用部分冠词。同一句话里「喜欢咖啡（整类）」和「喝咖啡（一些）」冠词不同。",
+          "formula": [
+            "aimer / adorer / préférer / détester + {a:le} / {a:la} / {a:les} + 名词（整个类别）",
+            "manger / boire / acheter / vouloir + {p:du} / {p:de la} / {p:des}（一些）"
+          ],
+          "ex": [
+            [
+              "J'aime {a:le} café, mais le matin je bois {p:du} thé.",
+              "我喜欢咖啡，但早上我喝茶。",
+              "喜好 → le；喝一些 → du"
+            ],
+            [
+              "Il déteste {a:les} épinards.",
+              "他讨厌菠菜。",
+              "喜好动词 + 定冠词"
+            ]
+          ]
+        },
+        {
+          "index": 3,
+          "text": "有几类结构里名词前完全不用冠词：① être、devenir + 职业、身份、国籍（Elle est médecin）；② avoir faim / soif / peur / sommeil / raison / besoin 等固定动词短语；③ {p:sans} + 名词（un café sans sucre）；④ {p:en} + 交通工具、材料、状态（en train、en bois、en colère）；⑤ 名词 + de + 表示类别的名词（un professeur de musique）。",
+          "formula": [
+            "être / devenir + 职业（无冠词）；avoir faim / soif / peur（无冠词）",
+            "{p:sans} / {p:en} + 无冠词名词"
+          ],
+          "ex": [
+            [
+              "Elle est médecin.",
+              "她是医生。",
+              "être + 职业，不加冠词"
+            ],
+            [
+              "Un café {p:sans} sucre, s'il vous plaît.",
+              "请来一杯不加糖的咖啡。",
+              "sans + 无冠词名词"
+            ],
+            [
+              "Il va au bureau {p:en} train.",
+              "他坐火车去上班。",
+              "en + 交通工具"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "冠词选择速查",
+          "headers": [
+            "语境",
+            "冠词",
+            "例句"
+          ],
+          "rows": [
+            [
+              "吃喝、买、要（不可数）",
+              "{p:du} / {p:de la} / {p:de l'}",
+              "Je prends {p:du} pain."
+            ],
+            [
+              "可数、数量不定",
+              "des",
+              "J'achète des pommes."
+            ],
+            [
+              "喜好动词（整个类别）",
+              "le / la / les",
+              "J'adore le chocolat."
+            ],
+            [
+              "否定（être 除外）",
+              "{p:de}",
+              "Je ne mange pas {p:de} viande."
+            ],
+            [
+              "数量词后",
+              "{p:de}",
+              "un peu {p:de} sucre"
+            ],
+            [
+              "être 的否定",
+              "冠词不变",
+              "Ce n'est pas {p:du} vin."
+            ],
+            [
+              "avoir besoin / envie de",
+              "{p:de}（泛指）",
+              "J'ai besoin {p:d'}argent."
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Ce n'est pas de vin, c'est du jus de raisin.",
+          "right": "Ce n'est pas {p:du} vin, c'est du jus de raisin.",
+          "why": "把「否定 → de」的规则用过头。être 的否定是在更正身份，冠词保持不变。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Je ne fais pas du sport.",
+          "right": "Je ne fais pas {p:de} sport.",
+          "why": "faire du sport 里的 du 也是部分冠词，否定时同样变成 de。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "J'ai envie du chocolat.",
+          "right": "J'ai envie {p:de} chocolat.",
+          "why": "avoir envie de 本身带 de，后面不再加部分冠词；只有特指（du chocolat que tu as acheté）才用 du。",
+          "tag": "t3"
+        }
+      ],
+      "exceptions": [
+        "bien des（= beaucoup de）后面保留 des：bien des gens、bien des fois。",
+        "la plupart 后面用 de + 定冠词：la plupart des étudiants。",
+        "ne … que（只）不是否定，冠词不变：Il ne boit que du thé。"
+      ]
+    },
+    "poss-dem": {
+      "category": "pronoun",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "主有形容词放在名词前，性数跟着「被拥有的东西」走，和拥有者是男是女无关：sa sœur 可以是「他的姐姐」也可以是「她的姐姐」，因为 sœur 是阴性。拥有者只决定人称（我的 mon、你的 ton、他 / 她的 son、我们的 notre、你们的 votre、他们的 leur）。以元音或哑音 h 开头的阴性名词前，为了读音把 ma、ta、sa 换成 {a:mon}、{a:ton}、{a:son}：mon amie、son école。",
+          "formula": [
+            "主有形容词的性数 = 被拥有物的性数（与拥有者无关）",
+            "元音开头的阴性名词前：ma / ta / sa → {a:mon} / {a:ton} / {a:son}"
+          ],
+          "ex": [
+            [
+              "Paul aime {a:sa} sœur.",
+              "保罗爱他的妹妹。",
+              "sœur 阴性 → sa，虽然拥有者 Paul 是男性"
+            ],
+            [
+              "{a:Mon} amie habite à Lille.",
+              "我的女朋友住在里尔。",
+              "amie 阴性但以元音开头 → mon"
+            ],
+            [
+              "Marie adore {a:son} père.",
+              "玛丽很爱她的父亲。",
+              "père 阳性 → son，虽然拥有者 Marie 是女性"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "主有代词代替「主有形容词 + 名词」，避免重复：mon vélo → le mien。它前面总带定冠词，性数同样跟着所代替的名词走：le mien（阳单）、la mienne（阴单）、les miens（阳复）、les miennes（阴复）。nous、vous 的形式 le nôtre、le vôtre 带长音符，读 [o]；leur 的形式 le leur、la leur、les leurs。",
+          "formula": [
+            "le / la / les + {a:mien} / {a:mienne} / {a:miens} / {a:miennes}（tien、sien 同理）",
+            "le / la {a:nôtre}、le / la {a:vôtre}、le / la {a:leur}；复数 les nôtres / vôtres / leurs"
+          ],
+          "ex": [
+            [
+              "Ton vélo est neuf, {a:le mien} est vieux.",
+              "你的自行车是新的，我的是旧的。",
+              "le mien = mon vélo（阳单）"
+            ],
+            [
+              "Ce ne sont pas mes clés, ce sont {a:les tiennes}.",
+              "这不是我的钥匙，是你的。",
+              "les tiennes = tes clés（阴复）"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "指示形容词「这 / 那」：阳性 ce，阳性单数名词以元音或哑音 h 开头时用 cet（cet ami、cet hôtel），阴性 cette，复数一律 ces。法语的指示形容词本身不分远近；需要区分时，在名词后加 -ci（这）或 -là（那）。",
+          "formula": [
+            "{a:ce} + 阳性辅音 / {a:cet} + 阳性元音 / {a:cette} + 阴性 / {a:ces} + 复数",
+            "名词 + -ci（这个）/ -là（那个）"
+          ],
+          "ex": [
+            [
+              "{a:Cet} hôtel est cher.",
+              "这家酒店很贵。",
+              "hôtel 阳性、哑音 h → cet"
+            ],
+            [
+              "Je préfère {a:cette} robe-ci.",
+              "我更喜欢这条裙子。",
+              "-ci 表示近处的「这」"
+            ]
+          ]
+        },
+        {
+          "index": 3,
+          "text": "指示代词 celui（阳单）、celle（阴单）、ceux（阳复）、celles（阴复）代替前面说过的名词，但不能单独使用，后面必须接：① de + 名词（……的那个）；② {c:qui} / {c:que} / {c:dont} 从句（……的那个人）；③ -ci / -là。ceux qui、celles qui 还可以泛指「……的人」。",
+          "formula": [
+            "{c:celui} / {c:celle} / {c:ceux} / {c:celles} + {p:de} + 名词",
+            "{c:celui} / {c:celle} / {c:ceux} / {c:celles} + {c:qui} / {c:que} / {c:dont} + 从句；或 + -ci / -là"
+          ],
+          "ex": [
+            [
+              "Ma voiture est en panne, je prends {c:celle} {p:de} mon frère.",
+              "我的车坏了，我开我哥哥的。",
+              "celle = la voiture"
+            ],
+            [
+              "{c:Ceux} {c:qui} ont fini peuvent sortir.",
+              "做完的人可以出去。",
+              "ceux qui 泛指「……的人」"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "主有形容词和主有代词总表",
+          "headers": [
+            "拥有者",
+            "阳单 / 阴单 / 复数（形容词）",
+            "主有代词（阳单 / 阴单 / 阳复 / 阴复）"
+          ],
+          "rows": [
+            [
+              "je",
+              "{a:mon} / {a:ma} / {a:mes}",
+              "le mien / la mienne / les miens / les miennes"
+            ],
+            [
+              "tu",
+              "{a:ton} / {a:ta} / {a:tes}",
+              "le tien / la tienne / les tiens / les tiennes"
+            ],
+            [
+              "il / elle / on",
+              "{a:son} / {a:sa} / {a:ses}",
+              "le sien / la sienne / les siens / les siennes"
+            ],
+            [
+              "nous",
+              "{a:notre} / {a:notre} / {a:nos}",
+              "le nôtre / la nôtre / les nôtres"
+            ],
+            [
+              "vous",
+              "{a:votre} / {a:votre} / {a:vos}",
+              "le vôtre / la vôtre / les vôtres"
+            ],
+            [
+              "ils / elles",
+              "{a:leur} / {a:leur} / {a:leurs}",
+              "le leur / la leur / les leurs"
+            ]
+          ],
+          "note": "形容词 notre / votre 没有长音符，代词 le nôtre / le vôtre 有。"
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Marie adore sa père.",
+          "right": "Marie adore {a:son} père.",
+          "why": "「她的」让人按拥有者 Marie 选了阴性。主有形容词只和被拥有的名词配合：père 是阳性 → son。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Les voisins ont vendu leurs maison.",
+          "right": "Les voisins ont vendu {a:leur} maison.",
+          "why": "拥有者是复数就给 leur 加 s。leur 是否加 s 看名词：一栋房子 → leur maison；几个孩子 → leurs enfants。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "J'ai mal à ma tête.",
+          "right": "J'ai mal {p:à la} tête.",
+          "why": "按「我的头」直译。身体部位的归属已经由主语清楚表明，法语用定冠词。",
+          "tag": "t4"
+        }
+      ],
+      "exceptions": [
+        "un ami à moi = 我的一个朋友（强调「是我的」）；C'est à moi = 是我的；À moi ! = 轮到我了。",
+        "chacun 对应 son / sa / ses：Chacun a son avis。",
+        "ce + 时间名词：ce matin、cet après-midi、ce soir 指今天的；ce jour-là、cette année-là 指过去或将来的那一天、那一年。",
+        "celui-ci / celui-là 也可以表示「后者 / 前者」：Paul et Marc sont venus ; celui-ci était fatigué。"
+      ]
+    },
+    "toniques": {
+      "category": "pronoun",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "所有介词后面都要用重读人称代词：avec moi、chez toi、pour lui、sans elle、à côté de nous、derrière vous、entre eux、pour elles。主语代词 je、tu、il、ils 只能紧贴在变位动词前，不能放在介词后面。",
+          "formula": [
+            "介词（avec、chez、pour、sans、à côté de…）+ {c:moi} / {c:toi} / {c:lui} / {c:elle} / {c:nous} / {c:vous} / {c:eux} / {c:elles}"
+          ],
+          "ex": [
+            [
+              "Tu viens avec {c:nous} ?",
+              "你跟我们一起来吗？",
+              "avec + 重读代词 nous"
+            ],
+            [
+              "Je dîne chez {c:eux} ce soir.",
+              "我今晚在他们家吃饭。",
+              "chez + eux（他们）"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "重读代词用于强调和「单独出现」的位置：① 放在句首强调主语，后面仍保留主语代词：{c:Moi}, je…；② 不带动词的简短回答：— Qui veut du café ? — {c:Moi} !；③ c'est 后面：{c:C'est} {c:lui}；④ 追问：Et {c:toi} ?。这些位置上不能用 je、tu、il。",
+          "formula": [
+            "{c:Moi}, je … / {c:Lui}, il …（句首强调，主语代词仍保留）",
+            "{c:C'est} + 重读代词；— Qui … ? — {c:Moi} !；Et {c:toi} ?"
+          ],
+          "ex": [
+            [
+              "{c:Moi}, je préfère le thé.",
+              "我嘛，我更喜欢茶。",
+              "句首强调，je 不能省"
+            ],
+            [
+              "— Qui veut du gâteau ? — {c:Moi} !",
+              "——谁要蛋糕？——我！",
+              "不带动词的回答用重读代词"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "比较句 que 后面的比较对象用重读代词：plus grand que {c:toi}。附和别人时：对方说肯定句，用 {c:moi} aussi（我也是）；对方说否定句，用 {c:moi} non plus（我也不）。",
+          "formula": [
+            "plus / moins / aussi … {k:que} + 重读代词",
+            "肯定附和：{c:moi} aussi；否定附和：{c:moi} non plus"
+          ],
+          "ex": [
+            [
+              "Elle est plus grande {k:que} {c:toi}.",
+              "她比你高。",
+              "que 后用重读代词 toi"
+            ],
+            [
+              "— Je n'aime pas le poisson. — {c:Moi} non plus.",
+              "——我不喜欢鱼。——我也不喜欢。",
+              "附和否定句用 non plus"
+            ]
+          ]
+        },
+        {
+          "index": 3,
+          "text": "两类 à + 人不用 lui / leur，而用 {p:à} + 重读代词：① être à 表示归属：Ce livre est à {c:moi}；② penser à、songer à、tenir à、faire attention à、s'intéresser à、avoir affaire à 等动词，对象是人时，代词放在动词后：Je pense à {c:elle}。对象是物时用 y：J'y pense。",
+          "formula": [
+            "{v:être} {p:à} + 重读代词（归属）",
+            "penser / tenir / s'intéresser {p:à} + 重读代词（人）；物 → {c:y}"
+          ],
+          "ex": [
+            [
+              "Ce stylo est {p:à} {c:lui}.",
+              "这支笔是他的。",
+              "être à + 重读代词表示归属"
+            ],
+            [
+              "Je pense souvent {p:à} {c:eux}.",
+              "我常常想念他们。",
+              "penser à + 人 → à eux，不说 je leur pense"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "主语代词与重读代词对照",
+          "headers": [
+            "主语代词",
+            "重读代词",
+            "典型用法"
+          ],
+          "rows": [
+            [
+              "je",
+              "{c:moi}",
+              "{c:Moi}, je reste. / avec {c:moi}"
+            ],
+            [
+              "tu",
+              "{c:toi}",
+              "Et {c:toi} ? / chez {c:toi}"
+            ],
+            [
+              "il",
+              "{c:lui}",
+              "{c:C'est} {c:lui}. / pour {c:lui}"
+            ],
+            [
+              "elle",
+              "{c:elle}",
+              "sans {c:elle}"
+            ],
+            [
+              "on / chacun / personne",
+              "{c:soi}",
+              "chacun chez {c:soi}"
+            ],
+            [
+              "nous",
+              "{c:nous}",
+              "entre {c:nous}"
+            ],
+            [
+              "vous",
+              "{c:vous}",
+              "à côté de {c:vous}"
+            ],
+            [
+              "ils",
+              "{c:eux}",
+              "plus âgés qu'{c:eux}"
+            ],
+            [
+              "elles",
+              "{c:elles}",
+              "{c:Elles}, elles savent."
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Ce cadeau est pour il.",
+          "right": "Ce cadeau est pour {c:lui}.",
+          "why": "把「他」一律译成 il。介词后面不能用主语代词，要用重读代词 lui。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Paul et Marie ? Je dîne chez elles ce soir.",
+          "right": "Paul et Marie ? Je dîne chez {c:eux} ce soir.",
+          "why": "按「她们」的字面去选。只要组里有一个男性，就用阳性复数 eux；全是女性才用 elles。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Il faut avoir confiance en lui-même.",
+          "right": "Il faut avoir confiance en {c:soi}.",
+          "why": "泛指「人」（il faut、on、chacun、personne）时，重读代词是 soi，不是 lui。",
+          "tag": "t2"
+        }
+      ],
+      "exceptions": [
+        "重读代词 + -même 加强语气：moi-même、lui-même、eux-mêmes（亲自）。",
+        "重读代词可以和其他名词并列作主语，之后常用一个复数代词总结：Paul et moi, nous partons demain。",
+        "肯定命令式里 me、te 也变成重读形式：Regarde-moi、Assieds-toi。"
+      ]
+    },
+    "cest-ilest": {
+      "category": "syntax",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "c'est 用来「介绍、指认」：后面接带限定词的名词（un、une、le、mon、ce…）、人名或重读代词。复数名词前规范说 {c:ce sont}（口语也常说 c'est）。问句 Qui est-ce ?、Qu'est-ce que c'est ? 永远用单数。",
+          "formula": [
+            "{c:C'est} + un / le / mon / ce … + 单数名词；人名；重读代词",
+            "{c:Ce sont} + les / des / mes … + 复数名词"
+          ],
+          "ex": [
+            [
+              "{c:C'est} un médecin.",
+              "这是一位医生。",
+              "带冠词的名词 → c'est"
+            ],
+            [
+              "{c:Ce sont} mes collègues.",
+              "这些是我的同事。",
+              "复数名词 → ce sont"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "il est / elle est 用来「描述」一个已经知道的人或物：后面直接接形容词，或不带冠词的职业、国籍、宗教、政治身份（这时它们相当于形容词）。代词 il / elle 的阴阳性跟所指的人或物一致，复数用 ils / elles sont。",
+          "formula": [
+            "{c:Il} / {c:Elle} est + 形容词",
+            "{c:Il} / {c:Elle} est + 职业 / 国籍 / 身份（不带冠词）"
+          ],
+          "ex": [
+            [
+              "{c:Il} est médecin.",
+              "他是医生。",
+              "职业不带冠词 → il est"
+            ],
+            [
+              "{c:Elle} est très gentille.",
+              "她很和善。",
+              "描述某人的形容词 → elle est，形容词配合"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "评论一件事、一个情况、一个泛指的东西（而不是描述某个具体的人或物）时，用 c'est + 形容词，形容词一律用阳性单数，不管前面的话题是阴性还是复数。话题常放在句首，用逗号隔开。",
+          "formula": [
+            "话题 , {c:c'est} + 阳性单数形容词"
+          ],
+          "ex": [
+            [
+              "Voyager seul, {c:c'est} parfois difficile.",
+              "一个人旅行，有时候挺难的。",
+              "评论一件事 → c'est + 阳性单数"
+            ],
+            [
+              "La mer, {c:c'est} beau !",
+              "大海，真美啊！",
+              "泛指 la mer → c'est beau（不是 belle）"
+            ]
+          ]
+        },
+        {
+          "index": 3,
+          "text": "说钟点用无人称的 {c:il est}（Il est midi、Il est huit heures）；说星期几和日期用 {c:c'est} 或 on est（C'est lundi、On est le 3 mai、Nous sommes le 3 mai）。",
+          "formula": [
+            "钟点：{c:Il} est + 数字 + heure(s) / midi / minuit",
+            "星期、日期：{c:C'est} / On est / Nous sommes + lundi / le 3 mai"
+          ],
+          "ex": [
+            [
+              "{c:Il} est huit heures.",
+              "现在八点。",
+              "钟点 → il est"
+            ],
+            [
+              "Aujourd'hui, {c:c'est} lundi.",
+              "今天是星期一。",
+              "星期 → c'est"
+            ]
+          ]
+        },
+        {
+          "index": 4,
+          "text": "il y a 说「某处有什么」（存在），永远是单数，后面接不定冠词或数量；c'est 说「它是什么 / 是谁」（指认）。叙述时常常先用 il y a 引出，再用 c'est 指认，最后用 il / elle est 描述。",
+          "formula": [
+            "{k:il y a} + 名词（存在）→ {c:c'est} + 名词（指认）→ {c:il} / {c:elle} est + 形容词（描述）"
+          ],
+          "ex": [
+            [
+              "Dans la rue, {k:il y a} une voiture rouge. {c:C'est} une Ferrari.",
+              "街上有一辆红色的车，是一辆法拉利。",
+              "il y a 引出 → c'est 指认"
+            ],
+            [
+              "— Qui est-ce ? — {c:Ce sont} mes cousins.",
+              "——这是谁？——是我的表兄弟们。",
+              "问句永远单数，回答可用 ce sont"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "c'est / il est / il y a 的分工",
+          "headers": [
+            "功能",
+            "句型",
+            "后接",
+            "例"
+          ],
+          "rows": [
+            [
+              "存在（有）",
+              "{k:il y a}",
+              "un / des / 数量 + 名词",
+              "{k:Il y a} un chat dans le jardin."
+            ],
+            [
+              "指认（是谁 / 是什么）",
+              "{c:c'est} / {c:ce sont}",
+              "限定词 + 名词、人名、重读代词",
+              "{c:C'est} le chat de Marie."
+            ],
+            [
+              "描述（怎么样）",
+              "{c:il} / {c:elle} est",
+              "形容词、无冠词职业",
+              "{c:Il} est noir et blanc."
+            ],
+            [
+              "评价一件事",
+              "{c:c'est}",
+              "阳性单数形容词",
+              "Les chats, {c:c'est} mignon."
+            ],
+            [
+              "钟点",
+              "{c:il} est",
+              "钟点",
+              "{c:Il} est midi."
+            ],
+            [
+              "天气",
+              "il fait",
+              "形容词 / 名词",
+              "Il fait beau."
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Il est un médecin.",
+          "right": "{c:C'est} un médecin. / {c:Il} est médecin.",
+          "why": "按英语 He is a doctor 直译。冠词和 il est 不能同时出现：要么去掉冠词说 il est médecin，要么保留冠词说 c'est un médecin。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Cette ville, c'est belle.",
+          "right": "Cette ville, {c:c'est} beau.",
+          "why": "按 ville 是阴性去配合形容词。c'est 后面的形容词评论的是整件事，永远用阳性单数；要配合就说 Elle est belle, cette ville。",
+          "tag": "t2"
+        },
+        {
+          "wrong": "C'est très froid aujourd'hui.",
+          "right": "Il fait très froid aujourd'hui.",
+          "why": "按「今天很冷」直译。说天气用 il fait；c'est froid 指某个东西（如饭菜）是凉的。",
+          "tag": "t4"
+        }
+      ],
+      "exceptions": [
+        "nous、vous 前不用 ce sont：C'est nous、C'est vous。",
+        "C'est 也接副词和介词短语：C'est ici、C'est pour toi、C'est à Paris。",
+        "il est + 形容词 + de + 不定式是书面无人称结构（Il est difficile de répondre），口语说 C'est difficile de répondre。"
+      ]
+    },
+    "pluriel": {
+      "category": "determiner",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "名词和形容词的复数一般在单数后加 {a:-s}，这个 s 不发音，听起来靠冠词 le / les、un / des 来区分单复数。本来就以 -s、-x、-z 结尾的词复数不变：un pays → des pays、un prix → des prix、un nez → des nez。",
+          "formula": [
+            "名词 / 形容词 + {a:s}（不发音）",
+            "-s / -x / -z 结尾：复数不变"
+          ],
+          "ex": [
+            [
+              "un livre → des livre{a:s}",
+              "一本书 → 一些书",
+              "一般加 -s"
+            ],
+            [
+              "un pays → des pays ; un prix → des prix",
+              "一个国家 → 一些国家；一个价格 → 一些价格",
+              "-s、-x 结尾不变"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "以 -eau、-au、-eu 结尾的词复数加 {a:-x}：un bateau → des bateaux，un tuyau → des tuyaux，un jeu → des jeux。少数 -eu 结尾的词加 -s：des pneus、des bleus（瘀青）。形容词 beau、nouveau 的复数是 beaux、nouveaux。",
+          "formula": [
+            "-eau / -au / -eu → + {a:x}（例外：pneus、bleus）"
+          ],
+          "ex": [
+            [
+              "un cadeau → des cadeau{a:x}",
+              "一件礼物 → 一些礼物",
+              "-eau → -eaux"
+            ],
+            [
+              "un cheveu → des cheveu{a:x}",
+              "一根头发 → 头发",
+              "-eu → -eux"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "以 -al 结尾的名词和形容词，复数大多变成 {a:-aux}：un journal → des journaux，national → nationaux。例外加 -s：des bals、des carnavals、des festivals、des récitals；形容词 banals、fatals、finals、navals。-ail 结尾一般加 s（des détails），但 travail → travaux、vitrail → vitraux、corail → coraux、émail → émaux。",
+          "formula": [
+            "-al → -{a:aux}（例外：bals、festivals、carnavals）",
+            "-ail → -ails（例外：trav{a:aux}、vitr{a:aux}）"
+          ],
+          "ex": [
+            [
+              "un cheval → des chev{a:aux}",
+              "一匹马 → 一些马",
+              "-al → -aux"
+            ],
+            [
+              "un festival → des festival{a:s}",
+              "一个节日 → 一些节日",
+              "例外：加 -s"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "复数变化总表",
+          "headers": [
+            "单数词尾",
+            "复数",
+            "例",
+            "例外"
+          ],
+          "rows": [
+            [
+              "一般",
+              "+ {a:s}",
+              "une table → des table{a:s}",
+              "—"
+            ],
+            [
+              "-s / -x / -z",
+              "不变",
+              "un bras → des bras",
+              "—"
+            ],
+            [
+              "-eau / -au",
+              "+ {a:x}",
+              "un gâteau → des gâteau{a:x}",
+              "des landaus"
+            ],
+            [
+              "-eu",
+              "+ {a:x}",
+              "un jeu → des jeu{a:x}",
+              "des pneus、des bleus"
+            ],
+            [
+              "-al",
+              "-{a:aux}",
+              "un animal → des anim{a:aux}",
+              "bals、festivals、carnavals"
+            ],
+            [
+              "-ail",
+              "+ {a:s}",
+              "un détail → des détail{a:s}",
+              "trav{a:aux}、vitr{a:aux}"
+            ],
+            [
+              "-ou",
+              "+ {a:s}",
+              "un trou → des trou{a:s}",
+              "bijoux、cailloux、choux、genoux、hiboux、joujoux、poux"
+            ],
+            [
+              "不规则",
+              "—",
+              "un œil → des yeux；monsieur → messieurs",
+              "—"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "des routes nationaux",
+          "right": "des routes nation{a:ales}",
+          "why": "把 -al → -aux 用到了阴性上。阴性形容词的复数永远规则：nationale → nationales。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Nous dînons chez les Martins.",
+          "right": "Nous dînons chez les Martin.",
+          "why": "按普通名词加 s。姓氏指一家人时不加 s，复数只靠冠词 les 表示。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "J'ai changé les quatre pneux.",
+          "right": "J'ai changé les quatre pneu{a:s}.",
+          "why": "把 -eu → -eux 的规则类推到了例外词上。pneu、bleu 的复数加 -s。",
+          "tag": "r1"
+        }
+      ],
+      "exceptions": [
+        "-ou 加 x 的七个词：bijou、caillou、chou、genou、hibou、joujou、pou。",
+        "复数意思不同的词：un ciel → des cieux（天空，诗意）、un œil → des yeux、un aïeul → des aïeux（祖先）。",
+        "les gens（人们）、les vacances、les fiançailles、les environs 只有复数形式。",
+        "复合名词的复数看组成：des grands-mères、des chefs-d'œuvre、des timbres-poste。"
+      ]
+    },
+    "passe-compose": {
+      "category": "tense",
+      "intro": "复合过去时表示过去已经完成的动作，是口语和日常书面语里最常用的过去时。它由两部分构成：助动词 {v:avoir} 或 {v:être} 的现在时 + 过去分词。关键是选对助动词，以及在用 être 时让过去分词和主语配合。",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "绝大多数动词用 {v:avoir} 作助动词：主语 + avoir 的现在时（ai、as、a、avons、avez、ont）+ 过去分词。过去分词的构成：-er 动词 → {v:-é}（parlé），第二组 -ir 动词 → {v:-i}（fini），很多 -re / -oir 动词 → {v:-u}（vendu、vu、pu），另有一批不规则形式要单独记（pris、mis、fait、dit、écrit、eu、été）。用 avoir 时过去分词一般不和主语配合。",
+          "formula": [
+            "主语 + {v:avoir}（现在时）+ 过去分词",
+            "-er → -{v:é}；-ir（第二组）→ -{v:i}；-re / -oir → 常为 -{v:u}"
+          ],
+          "ex": [
+            [
+              "J'{v:ai mangé} une pomme.",
+              "我吃了一个苹果。",
+              "avoir + mangé（-er → -é）"
+            ],
+            [
+              "Elles {v:ont fini} leurs devoirs.",
+              "她们做完了作业。",
+              "主语阴性复数，但用 avoir → fini 不配合"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "用 être 作助动词的有两类：① 约 15 个表示位置移动或状态变化、本身不带直接宾语的动词，可以成对记：aller / venir、arriver / partir、entrer / sortir、monter / descendre、naître / mourir、rester、tomber、retourner、passer，以及派生词 devenir、revenir、rentrer；② 所有代词式动词（se lever、se promener、s'en aller…）。其他动词一律用 avoir。",
+          "formula": [
+            "主语 + {v:être}（现在时）+ 过去分词（移动 / 状态变化动词、代词式动词）"
+          ],
+          "ex": [
+            [
+              "Elle {v:est} all{a:ée} à Paris.",
+              "她去了巴黎。",
+              "aller 用 être，分词和 elle 配合"
+            ],
+            [
+              "Nous nous {v:sommes} lev{a:és} tôt.",
+              "我们起得很早。",
+              "代词式动词一律用 être"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "用 être 作助动词时，过去分词像形容词一样和主语配合：阴性加 {a:-e}，复数加 {a:-s}，阴性复数加 {a:-es}。主语是 on 表示「我们」、vous 表示一个人（您）时，按实际所指配合：On est partis、Vous êtes arrivée, madame ?",
+          "formula": [
+            "{v:être} + 过去分词 + {a:e}（阴）/ {a:s}（复）/ {a:es}（阴复）"
+          ],
+          "ex": [
+            [
+              "Il {v:est} parti.",
+              "他走了。",
+              "阳性单数，不加"
+            ],
+            [
+              "Elle {v:est} parti{a:e}.",
+              "她走了。",
+              "阴性单数 → -e"
+            ],
+            [
+              "Ils {v:sont} parti{a:s}.",
+              "他们走了。",
+              "阳性复数 → -s"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "用 être 的动词（成对记忆）",
+          "tag": "r1",
+          "headers": [
+            "动词",
+            "过去分词",
+            "成对动词",
+            "过去分词"
+          ],
+          "rows": [
+            [
+              "aller",
+              "allé",
+              "venir",
+              "venu"
+            ],
+            [
+              "arriver",
+              "arrivé",
+              "partir",
+              "parti"
+            ],
+            [
+              "entrer",
+              "entré",
+              "sortir",
+              "sorti"
+            ],
+            [
+              "monter",
+              "monté",
+              "descendre",
+              "descendu"
+            ],
+            [
+              "naître",
+              "né",
+              "mourir",
+              "mort"
+            ],
+            [
+              "rester",
+              "resté",
+              "tomber",
+              "tombé"
+            ],
+            [
+              "retourner",
+              "retourné",
+              "passer",
+              "passé"
+            ],
+            [
+              "devenir",
+              "devenu",
+              "revenir / rentrer",
+              "revenu / rentré"
+            ]
+          ],
+          "note": "所有代词式动词也用 être：se lever → je me suis levé(e)。"
+        },
+        {
+          "title": "常用不规则过去分词",
+          "tag": "r0",
+          "headers": [
+            "-is / -it",
+            "-u",
+            "-ert / -int",
+            "其他"
+          ],
+          "rows": [
+            [
+              "prendre → pris",
+              "voir → vu",
+              "ouvrir → ouvert",
+              "être → été"
+            ],
+            [
+              "mettre → mis",
+              "lire → lu",
+              "offrir → offert",
+              "avoir → eu"
+            ],
+            [
+              "dire → dit",
+              "boire → bu",
+              "peindre → peint",
+              "faire → fait"
+            ],
+            [
+              "écrire → écrit",
+              "pouvoir → pu",
+              "craindre → craint",
+              "naître → né"
+            ],
+            [
+              "conduire → conduit",
+              "vouloir → voulu",
+              "éteindre → éteint",
+              "mourir → mort"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Je suis sorti la poubelle.",
+          "right": "J'{v:ai} sorti la poubelle.",
+          "why": "记住了 sortir 用 être，却没注意它带了直接宾语 la poubelle。monter、descendre、sortir、rentrer、passer、retourner 带直宾时意思变成「拿出去、搬上去」，改用 avoir。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Les fleurs que j'ai acheté sont belles.",
+          "right": "Les fleurs que j'ai achet{a:ées} sont belles.",
+          "why": "以为 avoir 后面永远不配合。直接宾语（que = les fleurs）在动词前面时，过去分词要和它配合。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Hier, je suis marché pendant deux heures.",
+          "right": "Hier, j'{v:ai} marché pendant deux heures.",
+          "why": "把「走」当成 aller 一类的移动动词。只有表示方向和位置变化的少数动词用 être；marcher、courir、voyager、sauter 说的是移动方式，用 avoir。",
+          "tag": "t2"
+        }
+      ],
+      "exceptions": [
+        "带直宾时改用 avoir 的 être 动词：monter（J'ai monté les valises）、descendre（Il a descendu l'escalier）、sortir（J'ai sorti la voiture）、rentrer（Elle a rentré le linge）、passer（J'ai passé un examen / de bonnes vacances）、retourner（Il a retourné la crêpe）。",
+        "passer 不带宾语表示「经过、顺路」时用 être：Il est passé me voir。",
+        "être 和 avoir 本身都用 avoir 作助动词：j'ai été、j'ai eu。"
+      ]
+    },
+    "imparfait": {
+      "category": "tense",
+      "intro": "未完成过去时（imparfait）描写过去的背景、状态、持续或反复发生的动作，相当于「那时候……」「以前常常……」「当时正在……」。它不关心动作的开始和结束，只呈现「当时的样子」。",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "构成极其规则：取现在时 nous 的形式，去掉 -ons 得到词干，再加 -ais、-ais、-ait、-ions、-iez、-aient。这个办法对几乎所有动词都适用，包括不规则动词（nous faisons → je faisais，nous prenons → je prenais）。唯一的例外是 être，词干是 {v:ét-}：j'étais、nous étions。je、tu、il、ils 四个形式读音相同 [ɛ]。",
+          "formula": [
+            "nous 现在时词干（去 -ons）+ -{v:ais}、-{v:ais}、-{v:ait}、-{v:ions}、-{v:iez}、-{v:aient}",
+            "唯一例外：être → {v:ét}- （j'étais）"
+          ],
+          "ex": [
+            [
+              "nous parl{v:ons} → je parl{v:ais}",
+              "我们说 → 我（那时）说",
+              "词干 parl- + -ais"
+            ],
+            [
+              "nous finiss{v:ons} → il finiss{v:ait}",
+              "我们结束 → 他（那时）在结束",
+              "第二组保留 -iss-"
+            ],
+            [
+              "nous fais{v:ons} → je fais{v:ais}",
+              "我们做 → 我（那时）做",
+              "不规则动词同样从 nous 形式取词干"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "讲过去的事时，未完成过去时和复合过去时分工明确：未完成过去时铺设背景——环境、天气、心情、外貌、正在进行的动作、过去的习惯（d'habitude、souvent、tous les jours、quand j'étais petit）；复合过去时讲在这个背景上发生的具体事件，推动故事向前。典型组合：背景（imparfait）+ quand + 事件（passé composé）。",
+          "formula": [
+            "背景 / 状态 / 习惯 / 进行中 → 未完成过去时",
+            "背景（{v:imparfait}）+ {k:quand} + 突发事件（{v:passé composé}）"
+          ],
+          "ex": [
+            [
+              "Il {v:pleuvait} {k:quand} je {v:suis sorti}.",
+              "我出门的时候正在下雨。",
+              "下雨是背景，出门是事件"
+            ],
+            [
+              "Quand j'{v:étais} petit, j'{v:allais} à la mer chaque été.",
+              "我小时候每年夏天都去海边。",
+              "过去的习惯 → 未完成过去时"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "未完成过去时变位",
+          "tag": "r0",
+          "headers": [
+            "人称",
+            "parler",
+            "finir",
+            "faire",
+            "être"
+          ],
+          "rows": [
+            [
+              "je",
+              "parl{v:ais}",
+              "finiss{v:ais}",
+              "fais{v:ais}",
+              "ét{v:ais}"
+            ],
+            [
+              "tu",
+              "parl{v:ais}",
+              "finiss{v:ais}",
+              "fais{v:ais}",
+              "ét{v:ais}"
+            ],
+            [
+              "il / elle / on",
+              "parl{v:ait}",
+              "finiss{v:ait}",
+              "fais{v:ait}",
+              "ét{v:ait}"
+            ],
+            [
+              "nous",
+              "parl{v:ions}",
+              "finiss{v:ions}",
+              "fais{v:ions}",
+              "ét{v:ions}"
+            ],
+            [
+              "vous",
+              "parl{v:iez}",
+              "finiss{v:iez}",
+              "fais{v:iez}",
+              "ét{v:iez}"
+            ],
+            [
+              "ils / elles",
+              "parl{v:aient}",
+              "finiss{v:aient}",
+              "fais{v:aient}",
+              "ét{v:aient}"
+            ]
+          ],
+          "note": "faisais 里的 ai 读 [ə]。"
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Quand nous étions jeunes, nous étudions beaucoup.",
+          "right": "Quand nous étions jeunes, nous étudi{v:ions} beaucoup.",
+          "why": "étudier 的词干以 i 结尾，再加 -ions 就出现两个 i；只写一个 i 就成了现在时。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Quand il était petit, il mangait beaucoup de bonbons.",
+          "right": "Quand il était petit, il mange{v:ait} beaucoup de bonbons.",
+          "why": "直接把 -ait 接在 mang- 上。-ger 动词在 a、o 前要保留 e（nous mangeons → je mangeais），-cer 动词写 ç（je commençais）。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Hier soir, j'allais au cinéma avec Léa.",
+          "right": "Hier soir, je {v:suis allé} au cinéma avec Léa.",
+          "why": "看到「过去」就用未完成过去时。昨晚去看电影是一次完整的事件，用复合过去时；未完成过去时只用于背景和习惯。",
+          "tag": "r1"
+        }
+      ],
+      "exceptions": [
+        "si + 未完成过去时的问句用来提建议：Et si on allait au cinéma ?",
+        "礼貌地提出请求：Je voulais vous demander un service（比 je veux 更委婉）。",
+        "venir de、aller、être en train de 的未完成过去时讲过去的「刚刚、将要、正在」：Il venait de partir；J'allais t'appeler。",
+        "si + 未完成过去时 → 主句条件式：Si j'avais le temps, je viendrais。"
+      ]
+    },
+    "futur": {
+      "category": "tense",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "简单将来时的词干就是不定式本身（-re 动词去掉词尾 e：prendre → prendr-），再加 -ai、-as、-a、-ons、-ez、-ont——这组词尾就是 avoir 现在时的形式。所有将来时形式里都有一个 [r] 音，这是辨认它的标志。",
+          "formula": [
+            "不定式（-re 去 e）+ -{v:ai}、-{v:as}、-{v:a}、-{v:ons}、-{v:ez}、-{v:ont}"
+          ],
+          "ex": [
+            [
+              "je parler{v:ai}, tu finir{v:as}, il prendr{v:a}",
+              "我将说，你将完成，他将拿",
+              "词干 = 不定式；prendre 去掉 e"
+            ],
+            [
+              "Nous partir{v:ons} à l'aube.",
+              "我们将在黎明出发。",
+              "partir + -ons"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "约二十个常用动词的将来时词干不规则，但词尾完全不变。最重要的十个：être → ser-，avoir → aur-，aller → ir-，faire → fer-，venir → viendr-，voir → verr-，pouvoir → pourr-，vouloir → voudr-，devoir → devr-，savoir → saur-。这些词干在条件式里也一样。",
+          "formula": [
+            "不规则词干 + 同样的词尾：ser-、aur-、ir-、fer-、viendr-、verr-、pourr-、voudr-、devr-、saur-"
+          ],
+          "ex": [
+            [
+              "Demain, il {v:fera} beau.",
+              "明天天气会很好。",
+              "faire → fer- + a"
+            ],
+            [
+              "Nous {v:irons} en Espagne cet été.",
+              "今年夏天我们要去西班牙。",
+              "aller → ir- + ons"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "将来时不规则词干",
+          "tag": "r1",
+          "headers": [
+            "不定式",
+            "词干",
+            "je",
+            "nous"
+          ],
+          "rows": [
+            [
+              "être",
+              "ser-",
+              "je {v:serai}",
+              "nous {v:serons}"
+            ],
+            [
+              "avoir",
+              "aur-",
+              "j'{v:aurai}",
+              "nous {v:aurons}"
+            ],
+            [
+              "aller",
+              "ir-",
+              "j'{v:irai}",
+              "nous {v:irons}"
+            ],
+            [
+              "faire",
+              "fer-",
+              "je {v:ferai}",
+              "nous {v:ferons}"
+            ],
+            [
+              "venir / tenir",
+              "viendr- / tiendr-",
+              "je {v:viendrai}",
+              "nous {v:viendrons}"
+            ],
+            [
+              "voir / envoyer",
+              "verr- / enverr-",
+              "je {v:verrai}",
+              "nous {v:enverrons}"
+            ],
+            [
+              "pouvoir / courir / mourir",
+              "pourr- / courr- / mourr-",
+              "je {v:pourrai}",
+              "nous {v:courrons}"
+            ],
+            [
+              "vouloir",
+              "voudr-",
+              "je {v:voudrai}",
+              "nous {v:voudrons}"
+            ],
+            [
+              "devoir / recevoir",
+              "devr- / recevr-",
+              "je {v:devrai}",
+              "nous {v:recevrons}"
+            ],
+            [
+              "savoir",
+              "saur-",
+              "je {v:saurai}",
+              "nous {v:saurons}"
+            ],
+            [
+              "falloir / pleuvoir",
+              "faudr- / pleuvr-",
+              "il {v:faudra}",
+              "il {v:pleuvra}"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Quand tu arrives à la gare demain, appelle-moi.",
+          "right": "Quand tu {v:arriveras} à la gare demain, appelle-moi.",
+          "why": "中文「你到了就打给我」不标时间，就用了现在时。法语里 quand、dès que、lorsque 说将来的事，从句也要用将来时。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Demain, je vous téléphonerais sans faute.",
+          "right": "Demain, je vous {v:téléphonerai} sans faute.",
+          "why": "-rai（将来时）和 -rais（条件式）只差一个 s。肯定的承诺用将来时；条件式表示礼貌或假设。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "S'il fera beau, nous irons à la plage.",
+          "right": "S'il {v:fait} beau, nous irons à la plage.",
+          "why": "按「如果明天会天晴」的意思用了将来时。条件 si 后面用现在时，将来时只放在主句。",
+          "tag": "t2"
+        }
+      ],
+      "exceptions": [
+        "-eler / -eter 动词双写辅音：j'appellerai、je jetterai；acheter、lever 改 è：j'achèterai、je lèverai。",
+        "-yer 动词 y 变 i：je paierai（也写 payerai）、j'essaierai、je nettoierai；envoyer → j'enverrai。",
+        "-é- + 辅音 + er 的动词保留 é（传统写法）或写 è（1990 年正字法）：je préférerai / je préfèrerai。",
+        "将来时也表示礼貌的命令：Vous fermerez la porte en sortant。"
+      ]
+    },
+    "pronoms-objet": {
+      "category": "pronoun",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "动词后面不经过介词、直接接的宾语是直接宾语（COD）。代替它的代词：le（阳性单数）、la（阴性单数）、les（复数），元音或哑音 h 前 le、la 省音成 l'。代词的选择看被替代名词的性数，人和物都一样。第一、二人称 me、te、nous、vous 直接宾语和间接宾语同形。判断方法：问「动词 + qui / quoi ?」，答案前面没有介词就是直接宾语。",
+          "formula": [
+            "动词 + 直宾（无介词）→ {c:le} / {c:la} / {c:l'} / {c:les} + 动词",
+            "{c:me} / {c:te} / {c:nous} / {c:vous}：直宾、间宾同形"
+          ],
+          "ex": [
+            [
+              "Je connais Marie. → Je {c:la} connais.",
+              "我认识玛丽。→ 我认识她。",
+              "connaître qqn 直接接人 → la"
+            ],
+            [
+              "Il lit ces livres. → Il {c:les} lit.",
+              "他读这些书。→ 他读它们。",
+              "复数 → les"
+            ],
+            [
+              "J'attends le bus. → Je {c:l'}attends.",
+              "我在等公交车。→ 我在等它。",
+              "attendre 直接接宾语，元音前 le → l'"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "动词通过 {p:à} 接人时，这个人是间接宾语（COI），代词用 {c:lui}（他或她，不分阴阳）、{c:leur}（他们或她们）。常见的「动词 + à + 人」：parler à、téléphoner à、écrire à、répondre à、sourire à、ressembler à、plaire à、obéir à、mentir à；以及「动词 + 东西 + à + 人」：donner、dire、demander、montrer、envoyer、prêter qqch à qqn。注意 à + 物不用 lui / leur，而用 y。",
+          "formula": [
+            "动词 + {p:à} + 人 → {c:lui} / {c:leur} + 动词",
+            "动词 + 东西 + {p:à} + 人 → {c:le} / {c:la} / {c:les} + {c:lui} / {c:leur} + 动词"
+          ],
+          "ex": [
+            [
+              "Je téléphone à Paul. → Je {c:lui} téléphone.",
+              "我给保罗打电话。→ 我给他打电话。",
+              "téléphoner à + 人 → lui"
+            ],
+            [
+              "Elle écrit à ses parents. → Elle {c:leur} écrit.",
+              "她给父母写信。→ 她给他们写信。",
+              "复数 → leur（不加 s）"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "宾语代词的位置：① 简单时态放在变位动词前；② 复合时态放在助动词前（过去分词不动）；③ 「变位动词 + 不定式」时放在不定式前（它是不定式的宾语）；④ 否定句中 ne 在代词前，pas 在变位动词后；⑤ 只有肯定命令式例外：代词放在动词后，用连字符连接。",
+          "formula": [
+            "主语 + ({k:ne}) + 代词 + 变位动词 / 助动词 (+ {k:pas})",
+            "主语 + 变位动词 + 代词 + 不定式（Je vais {c:lui} parler）",
+            "肯定命令式：动词-代词（{v:Donne}-{c:leur}）"
+          ],
+          "ex": [
+            [
+              "Je {c:l'}ai vu hier.",
+              "我昨天看见他了。",
+              "复合时态：代词在助动词前"
+            ],
+            [
+              "Je vais {c:lui} parler.",
+              "我要跟他谈谈。",
+              "代词在不定式 parler 前"
+            ],
+            [
+              "Je {k:ne} {c:les} trouve {k:pas}.",
+              "我找不到它们。",
+              "ne + 代词 + 动词 + pas"
+            ],
+            [
+              "{v:Donne}-{c:leur} ce livre.",
+              "把这本书给他们。",
+              "肯定命令式：代词后置"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "宾语代词总表",
+          "headers": [
+            "人称",
+            "直接宾语 COD",
+            "间接宾语 COI",
+            "à + 重读代词"
+          ],
+          "rows": [
+            [
+              "je",
+              "{c:me} (m')",
+              "{c:me} (m')",
+              "à {c:moi}"
+            ],
+            [
+              "tu",
+              "{c:te} (t')",
+              "{c:te} (t')",
+              "à {c:toi}"
+            ],
+            [
+              "il",
+              "{c:le} (l')",
+              "{c:lui}",
+              "à {c:lui}"
+            ],
+            [
+              "elle",
+              "{c:la} (l')",
+              "{c:lui}",
+              "à {c:elle}"
+            ],
+            [
+              "nous",
+              "{c:nous}",
+              "{c:nous}",
+              "à {c:nous}"
+            ],
+            [
+              "vous",
+              "{c:vous}",
+              "{c:vous}",
+              "à {c:vous}"
+            ],
+            [
+              "ils / elles",
+              "{c:les}",
+              "{c:leur}",
+              "à {c:eux} / à {c:elles}"
+            ]
+          ],
+          "note": "à + 重读代词用于 penser à、s'intéresser à、être à 等少数动词。"
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Je lui aide à faire ses devoirs.",
+          "right": "Je {c:l'}aide à faire ses devoirs.",
+          "why": "「帮他」在中文里像「给他帮忙」，就用了间接宾语。法语 aider qqn 直接接人，代词用 le / la。appeler、écouter、remercier、attendre 同理。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Je leurs ai envoyé un message.",
+          "right": "Je {c:leur} ai envoyé un message.",
+          "why": "受主有形容词 leurs enfants 影响。代词 leur 永远不加 s。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Je lui pense souvent.",
+          "right": "Je pense souvent {p:à} {c:lui}.",
+          "why": "penser à 后的人不能用 lui 提前，要用 à + 重读代词放在动词后。",
+          "tag": "t2"
+        }
+      ],
+      "exceptions": [
+        "直接接宾语（用 le / la）的高频动词：aider、appeler、écouter、regarder、attendre、chercher、remercier、inviter、rencontrer、suivre。",
+        "接 à + 人（用 lui / leur）的高频动词：téléphoner、répondre、parler、écrire、ressembler、plaire、sourire、obéir、mentir、faire confiance。",
+        "接 à + 人但用 à + 重读代词的动词：penser à、songer à、tenir à、s'intéresser à、faire attention à、s'adresser à。"
+      ]
+    },
+    "y-en": {
+      "category": "pronoun",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "{c:y} 有两大用法：① 代替地点状语，无论原来的介词是 à、dans、sur、chez、en 还是 sous（Tu vas à Paris ? — J'y vais）；② 代替「à + 事物」：penser à qqch、s'intéresser à qqch、répondre à qqch、participer à qqch、s'habituer à qqch（Je pense à mon examen → J'y pense）。y 和其他宾语代词一样放在变位动词前。",
+          "formula": [
+            "{p:à} / {p:dans} / {p:sur} / {p:chez} / {p:en} + 地点 → {c:y}",
+            "{p:à} + 事物（penser à、participer à…）→ {c:y}"
+          ],
+          "ex": [
+            [
+              "Tu vas à Paris ? — Oui, j'{c:y} vais demain.",
+              "你去巴黎吗？——去，我明天去。",
+              "y = à Paris"
+            ],
+            [
+              "Je pense à mon travail. → J'{c:y} pense.",
+              "我在想我的工作。→ 我在想这件事。",
+              "penser à + 事物 → y"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "{c:en} 有三大用法：① 代替「de + 事物」（parler de、avoir besoin de、s'occuper de、être content de）；② 代替部分冠词或不定冠词引出的名词（du pain、des amis、une voiture）；③ 代替「de + 地点」表示「从那里」（Je reviens de Lyon → J'en reviens）。有数量时，数量词（un、une、deux、beaucoup、un kilo）要保留在动词后面。",
+          "formula": [
+            "{p:de} + 事物 / {p:du} / {p:de la} / {p:des} + 名词 → {c:en}",
+            "数量：{c:en} + 动词 + 数量词（un、trois、beaucoup…）"
+          ],
+          "ex": [
+            [
+              "Tu veux du thé ? — Oui, j'{c:en} veux.",
+              "你要茶吗？——要。",
+              "en = du thé"
+            ],
+            [
+              "Il a trois sœurs. → Il {c:en} a trois.",
+              "他有三个姐妹。→ 他有三个。",
+              "数量词 trois 保留在动词后"
+            ],
+            [
+              "Elle revient de Lyon. → Elle {c:en} revient.",
+              "她从里昂回来。→ 她从那里回来。",
+              "en = de Lyon"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "y 和 en 代替什么",
+          "headers": [
+            "原结构",
+            "代词",
+            "例",
+            "注意"
+          ],
+          "rows": [
+            [
+              "à / dans / sur / chez + 地点",
+              "{c:y}",
+              "Il va {p:au} bureau. → Il {c:y} va.",
+              "—"
+            ],
+            [
+              "à + 事物",
+              "{c:y}",
+              "Je réponds {p:à} ta lettre. → J'{c:y} réponds.",
+              "à + 人 → lui / leur"
+            ],
+            [
+              "de + 事物",
+              "{c:en}",
+              "Il parle {p:de} son projet. → Il {c:en} parle.",
+              "de + 人 → de lui / d'elle"
+            ],
+            [
+              "du / de la / des + 名词",
+              "{c:en}",
+              "Je bois {p:de l'}eau. → J'{c:en} bois.",
+              "—"
+            ],
+            [
+              "数词 / 数量词 + 名词",
+              "{c:en} + 数量",
+              "J'ai deux frères. → J'{c:en} ai deux.",
+              "否定时去掉 un / une"
+            ],
+            [
+              "de + 地点（从）",
+              "{c:en}",
+              "Je sors {p:du} cinéma. → J'{c:en} sors.",
+              "—"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Tu as parlé à Paul ? — Oui, j'y ai parlé.",
+          "right": "Tu as parlé à Paul ? — Oui, je {c:lui} ai parlé.",
+          "why": "把「à + 任何东西」都换成 y。y 只代替地点和 à + 事物；à + 人用 lui / leur。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Tu connais ma sœur ? Je t'en parle souvent.",
+          "right": "Tu connais ma sœur ? Je te parle souvent {p:d'}elle.",
+          "why": "de + 人一般不用 en（虽然口语里偶尔听到），规范说法是 de + 重读代词。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Va-y, tu vas y arriver !",
+          "right": "{v:Vas}-{c:y}, tu vas y arriver !",
+          "why": "按命令式「-er 动词去 s」的规则写成 Va。y 和 en 前要把 s 加回来，方便连读：vas-y、parles-en。",
+          "tag": "t3"
+        },
+        {
+          "wrong": "Tu as une voiture ? — Oui, j'en ai.",
+          "right": "Tu as une voiture ? — Oui, j'{c:en} ai une.",
+          "why": "用了 en 就忘了数量。代替「un / une + 名词」时，un / une 要留在动词后；否定时才去掉：Je n'en ai pas。",
+          "tag": "t5"
+        }
+      ],
+      "exceptions": [
+        "en 的惯用语：s'en aller（离开）、en avoir assez（受够了）、ne plus en pouvoir（再也受不了）、en vouloir à qqn（怨恨某人）、s'en sortir（应付过来）、ne pas s'en faire（别担心）。",
+        "y 的惯用语：ça y est（好了、成了）、s'y connaître（在行）、n'y être pour rien（与此无关）、y compris（包括）、on y va（走吧）。",
+        "il y en a（有一些）是 y 和 en 唯一常见的连用：Il y en a trois。"
+      ]
+    },
+    "comparatif": {
+      "category": "clause",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "比较形容词和副词：plus（更）/ moins（不如）/ aussi（一样）+ 形容词或副词 + que + 比较对象。形容词照常和主语配合；que 后面是人称代词时用重读形式（que moi、que lui）；que 在元音前省音成 qu'。",
+          "formula": [
+            "{k:plus} / {k:moins} / {k:aussi} + 形容词 / 副词 + {k:que} + 比较对象"
+          ],
+          "ex": [
+            [
+              "Mon frère est {k:aussi} grand {k:que} moi.",
+              "我哥哥和我一样高。",
+              "aussi + 形容词 + que"
+            ],
+            [
+              "Aujourd'hui, il fait {k:plus} froid {k:qu'}hier.",
+              "今天比昨天冷。",
+              "que 在元音前 → qu'"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "比较名词（数量）：{k:plus de} / {k:moins de} / {k:autant de} + 名词 + que，名词前不加冠词。比较动词（程度）：动词 + {k:plus} / {k:moins} / {k:autant} + que；复合时态里比较词放在过去分词前（Il a autant travaillé que moi）。",
+          "formula": [
+            "{k:plus de} / {k:moins de} / {k:autant de} + 名词 + {k:que}",
+            "动词 + {k:plus} / {k:moins} / {k:autant} + {k:que}"
+          ],
+          "ex": [
+            [
+              "J'ai {k:moins de} temps {k:que} toi.",
+              "我的时间比你少。",
+              "比较名词：moins de + 名词"
+            ],
+            [
+              "Il travaille {k:autant que} moi.",
+              "他和我工作得一样多。",
+              "比较动词：autant que"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "三个词有特殊的比较级：形容词 bon → {a:meilleur}（meilleure、meilleurs、meilleures）；副词 bien → mieux（不变）；形容词 mauvais → pire 或 plus mauvais（具体的质量差多用 plus mauvais，抽象的坏多用 pire）。「同样好」仍然说 aussi bon、aussi bien。",
+          "formula": [
+            "bon → {a:meilleur}(e)(s)；bien → mieux；mauvais → pire / plus mauvais"
+          ],
+          "ex": [
+            [
+              "Ce gâteau est {a:meilleur} que l'autre.",
+              "这个蛋糕比另一个好吃。",
+              "bon 的比较级 → meilleur"
+            ],
+            [
+              "Elle chante mieux que moi.",
+              "她唱得比我好。",
+              "bien 的比较级 → mieux"
+            ]
+          ]
+        },
+        {
+          "index": 3,
+          "text": "最高级：定冠词 + plus / moins + 形容词，比较范围用 {p:de}（du、de la、des）。形容词放在名词前时：la plus grande ville；放在名词后时冠词要重复：le restaurant le plus cher。副词的最高级永远用 le（C'est elle qui court le plus vite）。bon → le meilleur，bien → le mieux。",
+          "formula": [
+            "le / la / les + {k:plus} / {k:moins} + 形容词 + 名词 + {p:de} + 范围",
+            "le / la / les + 名词 + le / la / les + {k:plus} + 形容词 + {p:de} + 范围"
+          ],
+          "ex": [
+            [
+              "C'est la {k:plus} grande ville {p:du} pays.",
+              "这是该国最大的城市。",
+              "grande 在名词前，范围 du pays"
+            ],
+            [
+              "C'est le restaurant le {k:plus} cher {p:de} la ville.",
+              "这是城里最贵的餐馆。",
+              "cher 在名词后 → 冠词重复"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "比较级与最高级总表",
+          "headers": [
+            "比较对象",
+            "更",
+            "一样",
+            "不如",
+            "最"
+          ],
+          "rows": [
+            [
+              "形容词",
+              "{k:plus} grand {k:que}",
+              "{k:aussi} grand {k:que}",
+              "{k:moins} grand {k:que}",
+              "le {k:plus} grand {p:de}"
+            ],
+            [
+              "副词",
+              "{k:plus} vite {k:que}",
+              "{k:aussi} vite {k:que}",
+              "{k:moins} vite {k:que}",
+              "le {k:plus} vite"
+            ],
+            [
+              "名词",
+              "{k:plus de} livres {k:que}",
+              "{k:autant de} livres {k:que}",
+              "{k:moins de} livres {k:que}",
+              "le {k:plus} de livres"
+            ],
+            [
+              "动词",
+              "travailler {k:plus} {k:que}",
+              "travailler {k:autant} {k:que}",
+              "travailler {k:moins} {k:que}",
+              "travailler le {k:plus}"
+            ],
+            [
+              "bon / bien",
+              "meilleur / mieux",
+              "aussi bon / aussi bien",
+              "moins bon / moins bien",
+              "le meilleur / le mieux"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Ce vin est plus bon que l'autre.",
+          "right": "Ce vin est {a:meilleur} que l'autre.",
+          "why": "按「更 + 好」逐字组合。bon、bien 有专门的比较级 meilleur、mieux。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "C'est la plus haute tour dans le monde.",
+          "right": "C'est la plus haute tour {p:du} monde.",
+          "why": "按「在世界上」用了 dans。最高级的范围一律用 de。",
+          "tag": "t2"
+        },
+        {
+          "wrong": "J'ai aussi de livres que toi.",
+          "right": "J'ai {k:autant de} livres que toi.",
+          "why": "「一样多」修饰名词和动词要用 autant；aussi 只配形容词和副词。",
+          "tag": "t3"
+        },
+        {
+          "wrong": "Il faut mieux partir tôt.",
+          "right": "Il {v:vaut} mieux partir tôt.",
+          "why": "受 il faut 影响。「最好……」的固定说法是 il vaut mieux（valoir mieux）。",
+          "tag": "t5"
+        }
+      ],
+      "exceptions": [
+        "plus de + 数字 = 超过：plus de cent personnes；plus que + 比较对象。",
+        "le moindre（最小的、丝毫的）是 petit 的抽象最高级：Je n'ai pas la moindre idée。",
+        "de plus en plus（越来越）、plus … plus（越……越）见 B2「比较的细化」。",
+        "比较对象可以省略：Elle est plus grande（比别人高）；Prends le moins cher。"
+      ]
+    },
+    "pronominaux": {
+      "category": "pronoun",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "代动词带一个和主语同人称的代词：je me、tu te、il / elle / on se、nous nous、vous vous、ils / elles se，元音前 me、te、se 省音。按意思分三类：① 自反：动作落在自己身上（se laver、s'habiller、se coucher）；② 相互：只用于复数，「彼此」（se parler、se téléphoner、se rencontrer、s'aimer）；③ 固有代动词：只有代动形式，或代动后意思改变（se souvenir de、s'en aller、se moquer de、s'occuper de、se rendre compte）。",
+          "formula": [
+            "主语 + {c:me} / {c:te} / {c:se} / {c:nous} / {c:vous} / {c:se} + 变位动词"
+          ],
+          "ex": [
+            [
+              "Je {c:me} lève à sept heures.",
+              "我七点起床。",
+              "自反：me 和 je 同人称"
+            ],
+            [
+              "Ils {c:se} téléphonent tous les jours.",
+              "他们每天互相打电话。",
+              "相互：se = 彼此"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "所有代动词的复合时态一律用 {v:être}，自反代词放在助动词前。否定时 {k:ne} 在自反代词前，{k:pas} 在助动词后：Je ne me suis pas reposé。过去分词一般和主语配合（Elle s'est levée），但 se 是间接宾语或后面另有直接宾语时不配合。",
+          "formula": [
+            "主语 + 自反代词 + {v:être} + 过去分词（一般和主语配合）",
+            "否定：主语 + {k:ne} + 自反代词 + {v:être} + {k:pas} + 过去分词"
+          ],
+          "ex": [
+            [
+              "Elle s'{v:est} lev{a:ée} tôt.",
+              "她起得很早。",
+              "être + 过去分词，阴性配合"
+            ],
+            [
+              "Je {k:ne} me suis {k:pas} reposé.",
+              "我没休息。",
+              "ne 在 me 前，pas 在 suis 后"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "代动词作不定式时，自反代词要随主语变化：Je vais {c:me} coucher、Nous allons {c:nous} promener，不是固定的 se。肯定命令式里代词放到动词后，te 变成 {c:toi}：Lève-toi、Levons-nous、Levez-vous；否定命令式代词留在动词前：Ne te lève pas。",
+          "formula": [
+            "主语 + 动词 + 同人称自反代词 + 不定式（Je vais {c:me} coucher）",
+            "肯定命令式：动词-{c:toi} / -{c:nous} / -{c:vous}；否定：{k:Ne} + {c:te} + 动词 + {k:pas}"
+          ],
+          "ex": [
+            [
+              "Je vais {c:me} coucher.",
+              "我要去睡了。",
+              "不定式前的代词随主语 je → me"
+            ],
+            [
+              "Lève-{c:toi} !",
+              "起床！",
+              "肯定命令式：te → toi"
+            ],
+            [
+              "{k:Ne} {c:te} lève {k:pas} !",
+              "别起来！",
+              "否定命令式：代词在前"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "se lever 的现在时与复合过去时",
+          "headers": [
+            "人称",
+            "现在时",
+            "复合过去时",
+            "否定"
+          ],
+          "rows": [
+            [
+              "je",
+              "je {c:me} lève",
+              "je {c:me} suis lev{a:é(e)}",
+              "je ne me suis pas levé(e)"
+            ],
+            [
+              "tu",
+              "tu {c:te} lèves",
+              "tu {c:t'}es lev{a:é(e)}",
+              "tu ne t'es pas levé(e)"
+            ],
+            [
+              "il / elle",
+              "il {c:se} lève",
+              "elle {c:s'}est lev{a:ée}",
+              "elle ne s'est pas levée"
+            ],
+            [
+              "nous",
+              "nous {c:nous} levons",
+              "nous {c:nous} sommes lev{a:é(e)s}",
+              "nous ne nous sommes pas levé(e)s"
+            ],
+            [
+              "vous",
+              "vous {c:vous} levez",
+              "vous {c:vous} êtes lev{a:é(e)(s)}",
+              "vous ne vous êtes pas levé(e)(s)"
+            ],
+            [
+              "ils / elles",
+              "ils {c:se} lèvent",
+              "elles {c:se} sont lev{a:ées}",
+              "elles ne se sont pas levées"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Je dois se lever tôt demain.",
+          "right": "Je dois {c:me} lever tôt demain.",
+          "why": "把词典里的 se lever 原样照搬。不定式前的自反代词要和主语一致：je → me、nous → nous。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Elles se sont téléphonées hier soir.",
+          "right": "Elles se sont téléphoné hier soir.",
+          "why": "以为代动词一律和主语配合。téléphoner à qqn 的 se 是间接宾语，过去分词不变；se parler、se sourire、se mentir 同理。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Je me lave mes mains avant de manger.",
+          "right": "Je me lave les mains avant de manger.",
+          "why": "按「洗我的手」直译。自反代词 me 已经说明是自己的手，身体部位用定冠词。",
+          "tag": "t3"
+        }
+      ],
+      "exceptions": [
+        "只有代动形式的动词：s'enfuir、s'évanouir、se souvenir、se méfier、s'absenter、se moquer、s'écrier、se taire（过去分词和主语配合）。",
+        "代动后意思改变：s'apercevoir de（发觉）、se douter de（猜到）、s'attendre à（预料）、se rendre compte（意识到）、s'ennuyer（无聊）、se passer de（不用）。",
+        "代动式也可以表示被动：Ce plat se mange froid（见 B2「被动的其他说法」）。"
+      ]
+    },
+    "imperatif": {
+      "category": "tense",
+      "rulesPatch": [
+        {
+          "index": 0,
+          "text": "命令式只有三个人称：tu、nous（我们一起……吧）、vous（您 / 你们），没有主语。构成：直接用现在时的对应形式。只有一个拼写变化：-er 动词（包括 aller）和现在时像 -er 动词的 ouvrir、offrir、cueillir、souffrir，tu 的形式去掉词尾 -s：tu parles → Parle !，tu vas → Va !，tu ouvres → Ouvre !。其他动词保留 -s：Finis !、Prends !、Viens !",
+          "formula": [
+            "现在时 tu / nous / vous 的形式，去掉主语",
+            "-er 动词（及 aller、ouvrir 类）tu 式去 -s：tu parles → {v:Parle} !"
+          ],
+          "ex": [
+            [
+              "{v:Parle} plus fort !",
+              "说大声点！",
+              "tu parles → parle（去 s）"
+            ],
+            [
+              "{v:Finissons} ce travail.",
+              "我们把这项工作做完吧。",
+              "nous 式 = 我们一起……吧"
+            ],
+            [
+              "{v:Ouvre} la fenêtre, s'il te plaît.",
+              "请打开窗户。",
+              "ouvrir 现在时像 -er 动词 → 去 s"
+            ]
+          ]
+        },
+        {
+          "index": 1,
+          "text": "四个动词的命令式不规则，形式来自虚拟式：être → {v:sois}、{v:soyons}、{v:soyez}；avoir → {v:aie}、{v:ayons}、{v:ayez}；savoir → {v:sache}、{v:sachons}、{v:sachez}；vouloir 几乎只用 {v:veuillez} + 不定式，表示正式的「请」。",
+          "formula": [
+            "être → {v:sois} / {v:soyons} / {v:soyez}；avoir → {v:aie} / {v:ayons} / {v:ayez}",
+            "savoir → {v:sache} / {v:sachons} / {v:sachez}；vouloir → {v:veuillez} + 不定式"
+          ],
+          "ex": [
+            [
+              "{v:Sois} sage !",
+              "乖一点！",
+              "être 的 tu 式命令"
+            ],
+            [
+              "N'{v:ayez} pas peur.",
+              "别怕。",
+              "avoir 的 vous 式否定命令"
+            ],
+            [
+              "{v:Veuillez} patienter quelques instants.",
+              "请稍候。",
+              "正式语体的「请」"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "肯定命令式里，宾语代词放在动词后面，用连字符连接；me、te 在末尾变成重读形式 {c:moi}、{c:toi}。两个代词连用时，顺序是：动词 – 直接宾语（le / la / les）– 间接宾语（moi / lui / nous / leur）– y – en。",
+          "formula": [
+            "动词-直宾-间宾：{v:Donne}-{c:le-moi}",
+            "末尾的 me / te → {c:moi} / {c:toi}；en 前 → {c:m'} / {c:t'}"
+          ],
+          "ex": [
+            [
+              "{v:Regarde}-{c:moi}.",
+              "看着我。",
+              "me → moi"
+            ],
+            [
+              "{v:Donne}-{c:le-moi}.",
+              "把它给我。",
+              "直宾 le 在前，间宾 moi 在后"
+            ]
+          ]
+        },
+        {
+          "index": 3,
+          "text": "否定命令式的代词回到动词前面，形式和顺序都和陈述句一样（me、te 不变成 moi、toi）：{k:ne} + 代词 + 动词 + {k:pas}。",
+          "formula": [
+            "{k:Ne} + 代词 + 动词 + {k:pas}（顺序同陈述句）"
+          ],
+          "ex": [
+            [
+              "{k:Ne} {c:me} regarde {k:pas}.",
+              "别看我。",
+              "代词回到动词前，me 不变 moi"
+            ],
+            [
+              "{k:Ne} {c:le lui} donne {k:pas}.",
+              "别把它给他。",
+              "顺序同陈述句：le lui"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "命令式变位",
+          "tag": "r1",
+          "headers": [
+            "动词",
+            "tu",
+            "nous",
+            "vous"
+          ],
+          "rows": [
+            [
+              "parler",
+              "{v:parle}",
+              "{v:parlons}",
+              "{v:parlez}"
+            ],
+            [
+              "finir",
+              "{v:finis}",
+              "{v:finissons}",
+              "{v:finissez}"
+            ],
+            [
+              "aller",
+              "{v:va}（vas-y）",
+              "{v:allons}",
+              "{v:allez}"
+            ],
+            [
+              "faire",
+              "{v:fais}",
+              "{v:faisons}",
+              "{v:faites}"
+            ],
+            [
+              "être",
+              "{v:sois}",
+              "{v:soyons}",
+              "{v:soyez}"
+            ],
+            [
+              "avoir",
+              "{v:aie}",
+              "{v:ayons}",
+              "{v:ayez}"
+            ],
+            [
+              "savoir",
+              "{v:sache}",
+              "{v:sachons}",
+              "{v:sachez}"
+            ],
+            [
+              "s'asseoir",
+              "{v:assieds}-toi",
+              "{v:asseyons}-nous",
+              "{v:asseyez}-vous"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Parles plus lentement, s'il te plaît.",
+          "right": "{v:Parle} plus lentement, s'il te plaît.",
+          "why": "照搬现在时 tu parles。-er 动词的 tu 式命令要去掉 -s。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Des pommes ? Mange-en deux.",
+          "right": "Des pommes ? {v:Manges}-{c:en} deux.",
+          "why": "去掉了 s 却忘了 en / y 前要加回来，方便连读 [mɑ̃ʒzɑ̃]。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Donne-moi-le tout de suite !",
+          "right": "{v:Donne}-{c:le-moi} tout de suite !",
+          "why": "按陈述句 me le 的顺序排。肯定命令式里直宾永远在间宾前。",
+          "tag": "t2"
+        },
+        {
+          "wrong": "Assieds-te ici.",
+          "right": "Assieds-{c:toi} ici.",
+          "why": "代动词的肯定命令式里 te 在末尾要变成 toi。",
+          "tag": "t3"
+        }
+      ],
+      "exceptions": [
+        "aller 的 tu 式是 va，但在 y 前写 vas-y；固定说法 va-t'en（s'en aller）不加 s。",
+        "说明书、告示、食谱常用不定式代替命令式：Ne pas fumer、Ajouter le sel。",
+        "将来时也可以表示命令或嘱咐：Tu feras attention en traversant。"
+      ]
+    },
+    "mots-confondus": {
+      "category": "preposition",
+      "rulesPatch": [
+        {
+          "index": 1,
+          "text": "savoir 和 connaître 都译成「知道、会」，但后面接的东西不同。{v:savoir} 接不定式（学会的本领：savoir nager）或从句（知道一件事：savoir que / si / où / pourquoi），也可以接少数抽象名词（savoir sa leçon、savoir la vérité）。{v:connaître} 只接名词：认识某人、熟悉某地、了解某物（connaître Paris、connaître ce livre、connaître la musique classique）。",
+          "formula": [
+            "{v:savoir} + 不定式 / 从句（que、si、où…）",
+            "{v:connaître} + 名词（人、地方、作品、领域）"
+          ],
+          "ex": [
+            [
+              "Je {v:sais} nager.",
+              "我会游泳。",
+              "savoir + 不定式 = 学会的本领"
+            ],
+            [
+              "Je {v:sais} qu'il est parti.",
+              "我知道他走了。",
+              "savoir + 从句"
+            ],
+            [
+              "Je {v:connais} bien ce quartier.",
+              "我很熟悉这个街区。",
+              "connaître + 地方"
+            ]
+          ]
+        },
+        {
+          "index": 2,
+          "text": "移动动词按说话人的位置选：{v:aller} 是离开说话人去别处；{v:venir} 是朝说话人（或听话人）所在的地方来，所以邀请别人「跟我们一起去」说 Tu viens avec nous ?。回来的三个词：{v:revenir} 回到说话人所在的这里；{v:retourner} 再去一次（回到那里）；{v:rentrer} 回家、回国、回到常待的地方。",
+          "formula": [
+            "{v:aller}（去别处）↔ {v:venir}（来说话人这边，含「跟我一起去」）",
+            "{v:revenir}（回到这里）/ {v:retourner}（再去那里）/ {v:rentrer}（回家、回国）"
+          ],
+          "ex": [
+            [
+              "On {v:va} au cinéma. Tu {v:viens} avec nous ?",
+              "我们去看电影。你跟我们一起去吗？",
+              "加入说话人的行动 → venir"
+            ],
+            [
+              "Attends-moi, je {v:reviens} tout de suite.",
+              "等我一下，我马上回来。",
+              "回到这里 → revenir"
+            ]
+          ]
+        },
+        {
+          "index": 3,
+          "text": "{v:visiter} 只接地方：参观城市、博物馆、看房子（visiter un appartement）。看望人要说 {v:rendre visite} {p:à} qqn（较正式）或 {v:aller voir} qqn（日常）。",
+          "formula": [
+            "{v:visiter} + 地方；{v:rendre visite} {p:à} / {v:aller voir} + 人"
+          ],
+          "ex": [
+            [
+              "Nous avons {v:visité} le château.",
+              "我们参观了城堡。",
+              "visiter + 地方"
+            ],
+            [
+              "Je {v:vais voir} mes parents dimanche.",
+              "星期天我去看我父母。",
+              "看望人 → aller voir"
+            ]
+          ]
+        },
+        {
+          "index": 4,
+          "text": "形容词修饰名词、作表语，要配合：bon、mauvais、rapide。副词修饰动词，不变：bien、mal、vite。程度词：très 修饰形容词和副词（très bon、très bien），beaucoup 修饰动词（il parle beaucoup）；beaucoup de + 名词表示数量。",
+          "formula": [
+            "bon / mauvais（形容词）+ 名词；动词 + bien / mal（副词）",
+            "très + 形容词 / 副词；动词 + beaucoup；beaucoup {p:de} + 名词"
+          ],
+          "ex": [
+            [
+              "C'est un bon film. Les acteurs jouent bien.",
+              "这是一部好电影，演员演得很好。",
+              "bon 修饰 film；bien 修饰 jouent"
+            ],
+            [
+              "Il est très bavard : il parle beaucoup.",
+              "他很健谈：话很多。",
+              "très + 形容词；动词 + beaucoup"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "易混词对照",
+          "headers": [
+            "意思",
+            "用法 A",
+            "用法 B",
+            "判断"
+          ],
+          "rows": [
+            [
+              "知道 / 会",
+              "{v:savoir} + 不定式 / 从句",
+              "{v:connaître} + 名词",
+              "接什么"
+            ],
+            [
+              "去 / 来",
+              "{v:aller}（离开这里）",
+              "{v:venir}（来这里 / 跟我去）",
+              "说话人位置"
+            ],
+            [
+              "回",
+              "{v:revenir} / {v:retourner}",
+              "{v:rentrer}",
+              "回这里 / 那里 / 家"
+            ],
+            [
+              "看",
+              "{v:visiter} + 地方",
+              "{v:rendre visite} {p:à} + 人",
+              "地方还是人"
+            ],
+            [
+              "好",
+              "bon（形容词）",
+              "bien（副词）",
+              "修饰名词 / 动词"
+            ],
+            [
+              "很",
+              "très + 形容词 / 副词",
+              "beaucoup（修饰动词）",
+              "修饰谁"
+            ],
+            [
+              "年",
+              "an（数词后）",
+              "année（过程）",
+              "计数 / 整段"
+            ],
+            [
+              "新",
+              "nouveau（新换的，名词前）",
+              "neuf（全新，名词后）",
+              "相对 / 绝对"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Je suis faim et je suis vingt ans.",
+          "right": "J'{v:ai} faim et j'{v:ai} vingt ans.",
+          "why": "按英语 I am hungry / I am twenty 直译。年龄和饿、渴、冷、热、怕、困都用 avoir。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Je connais qu'il habite à Lyon.",
+          "right": "Je {v:sais} qu'il habite à Lyon.",
+          "why": "connaître 只能接名词；接 que 从句只能用 savoir。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Ce chocolat, c'est très bien !",
+          "right": "Ce chocolat, c'est très bon !",
+          "why": "说味道和身体感觉用 c'est bon；c'est bien 是评价做法或事情「不错、对」。",
+          "tag": "t3"
+        },
+        {
+          "wrong": "J'ai beaucoup faim.",
+          "right": "J'ai très faim.",
+          "why": "avoir faim / peur / froid / mal 被看成一个整体的形容词性表达，程度用 très。",
+          "tag": "t4"
+        }
+      ],
+      "exceptions": [
+        "jour / journée、soir / soirée、matin / matinée 和 an / année 同理：数词后用短形式（trois jours），强调整段过程用长形式（toute la journée）。",
+        "aimer bien < aimer beaucoup < aimer：对人说 Je t'aime 是「我爱你」，Je t'aime bien 只是「我挺喜欢你」。",
+        "entendre（听见）/ écouter（听）；voir（看见）/ regarder（看）：前者是结果，后者是有意的动作。"
+      ]
+    },
+    "nombres-temps": {
+      "category": "determiner",
+      "rulesPatch": [
+        {
+          "index": 2,
+          "text": "季节前的介词：元音开头的三个季节用 {p:en}：en été、en automne、en hiver；辅音开头的 printemps 用 {p:au}：au printemps。前面有形容词或说具体的某一年时用定冠词：l'été dernier、pendant l'hiver 2022。",
+          "formula": [
+            "{p:au} printemps；{p:en} été / automne / hiver"
+          ],
+          "ex": [
+            [
+              "{p:Au} printemps, il pleut souvent.",
+              "春天常下雨。",
+              "printemps 辅音开头 → au"
+            ],
+            [
+              "{p:En} hiver, les jours sont courts.",
+              "冬天白天很短。",
+              "hiver 元音开头 → en"
+            ]
+          ]
+        },
+        {
+          "index": 3,
+          "text": "说钟点用 il est + 数字 + heure(s)：et quart（一刻）、et demie（半）、moins le quart（差一刻）、moins dix（差十分）；正午 midi、午夜 minuit 不加 heures（midi et demi）。正式场合用 24 小时制：quatorze heures trente。「在几点」用 {p:à}：à huit heures。准时 à l'heure、提前 en avance、迟到 en retard。",
+          "formula": [
+            "Il est + 数字 + heure(s) + et quart / et demie / moins le quart",
+            "{p:à} + 钟点（在几点）；midi / minuit 不加 heures"
+          ],
+          "ex": [
+            [
+              "Il est huit heures et quart.",
+              "现在八点一刻。",
+              "et quart = 过一刻"
+            ],
+            [
+              "Il est dix heures moins le quart.",
+              "现在差一刻十点。",
+              "moins le quart = 差一刻"
+            ],
+            [
+              "Le cours commence {p:à} neuf heures précises.",
+              "课九点整开始。",
+              "在几点 → à"
+            ]
+          ]
+        },
+        {
+          "index": 4,
+          "text": "表示频率：tous les / toutes les + 复数名词（每……）：tous les jours、toutes les semaines；tous les deux jours = 每隔一天。次数：数字 + fois {p:par} + 时间单位：une fois par semaine。chaque 后面只接单数名词：chaque jour。",
+          "formula": [
+            "tous les / toutes les + 复数名词（每……；tous les deux jours = 隔一天）",
+            "数字 + fois {p:par} + 时间单位"
+          ],
+          "ex": [
+            [
+              "Je vais à la piscine deux fois {p:par} semaine.",
+              "我每星期去两次游泳池。",
+              "fois par + 时间单位"
+            ],
+            [
+              "Le bus passe toutes les dix minutes.",
+              "公交车每十分钟一班。",
+              "toutes les + 数字 + 复数名词"
+            ]
+          ]
+        }
+      ],
+      "tables": [
+        {
+          "title": "时间前面用什么小词",
+          "headers": [
+            "时间单位",
+            "用法",
+            "例"
+          ],
+          "rows": [
+            [
+              "钟点",
+              "{p:à}",
+              "{p:à} midi、{p:à} 8 h 30"
+            ],
+            [
+              "日期",
+              "le（不加介词）",
+              "le 14 juillet、le 1er mai"
+            ],
+            [
+              "星期",
+              "无冠词 = 这个；le = 每个",
+              "lundi / le lundi"
+            ],
+            [
+              "月份",
+              "{p:en} / {p:au mois de}",
+              "{p:en} mars、{p:au mois d'}août"
+            ],
+            [
+              "季节",
+              "{p:au} / {p:en}",
+              "{p:au} printemps、{p:en} hiver"
+            ],
+            [
+              "年份",
+              "{p:en}",
+              "{p:en} 2024"
+            ],
+            [
+              "世纪",
+              "{p:au}",
+              "{p:au} XXIe siècle"
+            ],
+            [
+              "一天中的时段",
+              "le（不加介词）",
+              "le matin、le soir"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Il a vingt-un ans.",
+          "right": "Il a vingt et un ans.",
+          "why": "按其他两位数加连字符的办法类推。21、31、41、51、61、71 用 et；81、91 不用（quatre-vingt-un）。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Je t'attends depuis une demie-heure.",
+          "right": "Je t'attends depuis une demi-heure.",
+          "why": "按 heure 是阴性去配合。demi 放在名词前用连字符、不变；放在名词后才配合：une heure et demie。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Je fais du sport chaque deux jours.",
+          "right": "Je fais du sport tous les deux jours.",
+          "why": "按「每两天」逐字译成 chaque deux。chaque 后面只能接单数名词；「每隔……」用 tous les + 数字 + 复数。",
+          "tag": "t2"
+        },
+        {
+          "wrong": "Je travaille dans le matin.",
+          "right": "Je travaille le matin.",
+          "why": "按英语 in the morning 加介词。le matin、le soir 本身就表示「在上午、在晚上」。",
+          "tag": "t3"
+        }
+      ],
+      "exceptions": [
+        "比利时和瑞士法语：septante（70）、nonante（90），瑞士部分地区 huitante（80）。",
+        "mille 永远不变（deux mille），年份也写 mil（较旧）；million、milliard 是名词，加 s 并接 de。",
+        "序数词：premier / première，deuxième / second(e)，cinquième（加 u），neuvième（f 变 v）。",
+        "1990 年正字法建议所有复合数词都用连字符：vingt-et-un、deux-cent-trois。"
+      ]
+    }
+  }
+}

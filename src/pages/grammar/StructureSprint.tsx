@@ -515,8 +515,18 @@ export function StructureSprint({
                           </>
                         )}
                       </p>
+                      {(() => {
+                        // optional per-option reasons: why the chosen wrong option is wrong
+                        const optionWhy = (r.item as { optionWhy?: readonly string[] }).optionWhy;
+                        const why = !r.correct && r.chosen !== null ? optionWhy?.[r.chosen] : undefined;
+                        return why ? (
+                          <p className="small gram-sprint-why">
+                            <X size={13} style={{ verticalAlign: "-2px" }} /> 你选的 <b lang="fr">{r.item.options[r.chosen!]}</b>：{why}
+                          </p>
+                        ) : null;
+                      })()}
                       <p className="muted small">{r.item.why}</p>
-                      <a className="link small" href={`#/grammar?p=${r.item.point}`}>
+                      <a className="link small" href={`#/grammar?p=${r.item.point}${r.item.tag && /^r\d+$/.test(r.item.tag) ? `&section=${r.item.tag}` : ""}`}>
                         去练语法点：{titleOf(data, r.item.point)} <ArrowRight size={13} />
                       </a>
                     </li>

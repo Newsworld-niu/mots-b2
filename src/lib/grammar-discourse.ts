@@ -2,7 +2,8 @@
  * Discourse-level multi-clause grammar exercises (语篇级/跨句时态与改错综合练习).
  * Trains concordance des temps, subjonctif/indicatif, hypothèse, relatifs composés,
  * nominalisation, participe présent vs adjectif verbal, accord du participe passé,
- * discours indirect, mise en relief, négation nuancée and error correction inside continuous paragraphs.
+ * discours indirect, mise en relief, négation nuancée, causatif, système hypothétique, inversion en registre soutenu
+ * and error correction inside continuous paragraphs.
  */
 
 export interface DiscourseSlot {
@@ -2060,6 +2061,362 @@ export const DISCOURSE_EXERCISES: readonly DiscourseExercise[] = [
         point: "comparaison-nuances",
         tag: "r2",
         why: "表达“正因为……而越发……”固定结构为 d'autant plus + 形容词 + que，不能漏写开头的 d'。",
+      },
+    ],
+  },
+  {
+    id: "disc-causatif-renovation",
+    kind: "cloze",
+    level: "B2",
+    title: "装修日记里的使役与感官结构",
+    subtitle: "Causatif & perception · faire / laisser / entendre + infinitif",
+    text:
+      "Avant d'emménager, Claire a fait {{0}} toute la cuisine par un artisan du quartier. " +
+      "Les nouvelles fenêtres, elle les a {{1}} poser par une entreprise spécialisée. " +
+      "Les peintres qu'elle a {{2}} chanter toute la semaine sur leurs échafaudages sont repartis vendredi. " +
+      "Quant à sa sœur, elle s'est {{3}} convaincre de l'aider à choisir les meubles, bien qu'elle {{4}} débordée de travail.",
+    slots: [
+      {
+        id: "caus1",
+        hint: "refaire",
+        answer: ["refaire"],
+        options: ["refaire", "refait", "refaite", "à refaire"],
+        point: "causatif",
+        tag: "r0",
+        why: "faire + 不定式：faire 后紧跟不定式 refaire，中间不加介词，执行者由 par 引出。",
+      },
+      {
+        id: "caus2",
+        hint: "faire（复合过去时，后接不定式）",
+        answer: ["fait"],
+        options: ["fait", "faites", "faite", "faire"],
+        point: "causatif",
+        tag: "t0",
+        why: "前置直宾 les（les fenêtres，阴性复数）不影响 fait：fait + 不定式恒不配合 → les a fait poser。",
+      },
+      {
+        id: "caus3",
+        hint: "entendre（感官动词，复合过去时）",
+        answer: ["entendus"],
+        options: ["entendus", "entendu", "entendues", "entendre"],
+        point: "causatif",
+        tag: "t3",
+        why: "les peintres 自己在 chanter，前置直宾 que 是不定式的施动者 → 感官动词过去分词配合：entendus。",
+      },
+      {
+        id: "caus4",
+        hint: "laisser（se laisser + inf.）",
+        answer: ["laissé"],
+        options: ["laissé", "laissée", "laissés", "laisser"],
+        point: "causatif",
+        tag: "r1",
+        why: "se laisser convaincre：她是“被说服”的一方，并不执行 convaincre；按传统规则与 1990 正字法都写 laissé。",
+      },
+      {
+        id: "caus5",
+        hint: "être（bien que + ?）",
+        answer: ["soit"],
+        options: ["soit", "est", "sera", "serait"],
+        point: "subj-indicatif",
+        tag: "r1",
+        why: "bien que 表让步，固定要求虚拟式：bien qu'elle soit débordée。",
+      },
+    ],
+  },
+  {
+    id: "disc-hypothese-teletravail",
+    kind: "cloze",
+    level: "B2",
+    title: "远程办公谈判中的假设体系",
+    subtitle: "Système hypothétique · si / à condition que / au cas où / si interrogatif",
+    text:
+      "Si l'entreprise {{0}} le télétravail dès 2020, elle aurait conservé ses meilleurs ingénieurs. " +
+      "Aujourd'hui, la direction accepte d'en discuter, à condition que les équipes {{1}} leurs objectifs. " +
+      "Au cas où les résultats {{2}}, un retour partiel au bureau serait envisagé. " +
+      "Le délégué syndical a demandé si la mesure {{3}} rétroactive, et la directrice a répondu qu'elle le {{4}} d'ici vendredi.",
+    slots: [
+      {
+        id: "hyp1",
+        hint: "adopter",
+        answer: ["avait adopté"],
+        options: ["avait adopté", "aurait adopté", "adoptait", "a adopté"],
+        point: "hypothese-systeme",
+        tag: "r0",
+        why: "与过去事实相反（dès 2020 + 主句 aurait conservé）：si + 愈过去时 avait adopté；si 后绝不用条件式。",
+      },
+      {
+        id: "hyp2",
+        hint: "atteindre",
+        answer: ["atteignent"],
+        options: ["atteignent", "atteindront", "atteindraient", "atteignaient"],
+        point: "hypothese-systeme",
+        tag: "r2",
+        why: "à condition que（前提是）要求虚拟式：que les équipes atteignent。",
+      },
+      {
+        id: "hyp3",
+        hint: "baisser",
+        answer: ["baisseraient"],
+        options: ["baisseraient", "baissent", "baisseront", "aient baissé"],
+        point: "hypothese-systeme",
+        tag: "t1",
+        why: "au cas où（万一）后接条件式：au cas où les résultats baisseraient，不接虚拟式。",
+      },
+      {
+        id: "hyp4",
+        hint: "être（间接疑问：是否）",
+        answer: ["serait"],
+        options: ["serait", "soit", "sera", "fût"],
+        point: "hypothese-systeme",
+        tag: "t0",
+        why: "这里的 si 意为“是否”（间接疑问），可接条件式；主句 a demandé 为过去时，过去将来用 serait。",
+      },
+      {
+        id: "hyp5",
+        hint: "préciser（过去将来）",
+        answer: ["préciserait"],
+        options: ["préciserait", "précisera", "précise", "ait précisé"],
+        point: "discours-indirect",
+        tag: "r0",
+        why: "转述动词 a répondu 为过去时，原话的将来时 je le préciserai 变为条件式 préciserait。",
+      },
+    ],
+  },
+  {
+    id: "disc-registre-synthese",
+    kind: "cloze",
+    level: "B2",
+    title: "公文综述中的句首倒装与正式语体",
+    subtitle: "Registre soutenu · Aussi / Sans doute / Toujours est-il / Encore faut-il / À peine",
+    text:
+      "Le budget de la médiathèque a été réduit de 15 %. {{0}} la direction a-t-elle dû renoncer à deux postes. " +
+      "Sans doute cette décision {{1}} critiquée par les usagers. " +
+      "{{2}} est-il que le service reste ouvert six jours sur sept. " +
+      "Encore {{3}} que les horaires actuels soient maintenus. " +
+      "À peine le rapport {{4}} été publié que les syndicats ont réagi.",
+    slots: [
+      {
+        id: "inv1",
+        hint: "句首“因此”（引发倒装）",
+        answer: ["Aussi"],
+        options: ["Aussi", "Donc", "Également", "Pourtant"],
+        point: "registre-inversion",
+        tag: "t0",
+        why: "句首 Aussi 表“因此”并引发复合倒装（la direction a-t-elle）；donc、également、pourtant 都不触发倒装。",
+      },
+      {
+        id: "inv2",
+        hint: "être（将来时，复合倒装）",
+        answer: ["sera-t-elle"],
+        options: ["sera-t-elle", "sera-elle", "elle sera", "sera-t-il"],
+        point: "registre-inversion",
+        tag: "r1",
+        why: "句首 Sans doute + 名词主语 → 复合倒装：cette décision sera-t-elle（元音相遇加 -t-，复指代词与阴性主语一致）。",
+      },
+      {
+        id: "inv3",
+        hint: "固定倒装短语的第一个词（尽管如此）",
+        answer: ["Toujours"],
+        options: ["Toujours", "Encore", "Aussi", "Peut-être"],
+        point: "registre-inversion",
+        tag: "r2",
+        why: "Toujours est-il que（尽管如此、事实仍是）是固定倒装短语，后接直陈式。",
+      },
+      {
+        id: "inv4",
+        hint: "falloir（固定倒装）",
+        answer: ["faut-il"],
+        options: ["faut-il", "il faut", "faut-t-il", "faudra-il"],
+        point: "registre-inversion",
+        tag: "r2",
+        why: "分句首 Encore（但还须）要求倒装：Encore faut-il que + 虚拟式；faut 以 t 结尾，不加补音。",
+      },
+      {
+        id: "inv5",
+        hint: "avoir（À peine + 复合倒装）",
+        answer: ["a-t-il"],
+        options: ["a-t-il", "a-il", "il a", "a-t-elle"],
+        point: "registre-inversion",
+        tag: "t1",
+        why: "À peine + 名词主语 le rapport → 复合倒装 a-t-il été publié；a 与 il 元音相遇须加 -t-，代词与阳性主语一致。",
+      },
+    ],
+  },
+  {
+    id: "disc-compte-rendu-b2",
+    kind: "cloze",
+    level: "B2",
+    title: "会议纪要中的转述、语式与配合联动",
+    subtitle: "Discours indirect · Subjonctif / Indicatif · Causatif · Accord du participe",
+    text:
+      "Lors de la réunion, la directrice a annoncé que le projet {{0}} reporté de six mois. " +
+      "Elle a précisé que les maquettes qu'elle avait {{1}} réaliser par une agence externe ne correspondaient pas au cahier des charges. " +
+      "Il est probable que le budget {{2}} revu à la baisse, mais il n'est pas certain que les recrutements {{3}} gelés. " +
+      "Les remarques que les employés ont {{4}} ont été transmises au conseil.",
+    slots: [
+      {
+        id: "crb1",
+        hint: "être（转述，过去将来）",
+        answer: ["serait"],
+        options: ["serait", "sera", "soit", "est"],
+        point: "discours-indirect",
+        tag: "r0",
+        why: "a annoncé 为过去时，原话的将来时 sera 在间接引语中变为条件式 serait。",
+      },
+      {
+        id: "crb2",
+        hint: "faire（愈过去时，后接不定式）",
+        answer: ["fait"],
+        options: ["fait", "faites", "faite", "faits"],
+        point: "causatif",
+        tag: "t0",
+        why: "前置直宾 que（les maquettes，阴性复数）不影响 fait：使役结构 avait fait réaliser 中 fait 恒不配合。",
+      },
+      {
+        id: "crb3",
+        hint: "être（il est probable que + ?）",
+        answer: ["sera"],
+        options: ["sera", "soit", "ait été", "fût"],
+        point: "subj-indicatif",
+        tag: "t2",
+        why: "il est probable que 用直陈式（与 il est possible que + 虚拟式相对）：le budget sera revu。",
+      },
+      {
+        id: "crb4",
+        hint: "être（il n'est pas certain que + ?）",
+        answer: ["soient"],
+        options: ["soient", "seront", "sont", "seraient"],
+        point: "subj-indicatif",
+        tag: "r2",
+        why: "certain 用于否定时事情不再确定，从句改用虚拟式：il n'est pas certain que les recrutements soient gelés。",
+      },
+      {
+        id: "crb5",
+        hint: "formuler（复合过去时）",
+        answer: ["formulées"],
+        options: ["formulées", "formulé", "formulés", "formulée"],
+        point: "accord-pp",
+        tag: "r1",
+        why: "avoir + 前置直宾 que（les remarques，阴性复数）→ 过去分词配合：formulées。",
+      },
+    ],
+  },
+  {
+    id: "disc-fix-courriel-proprietaire",
+    kind: "fix",
+    level: "B2",
+    title: "致房东邮件：使役与假设改错",
+    subtitle: "Causatif & hypothèse · 正式邮件中的高频失分点",
+    text:
+      "Madame, les travaux que vous avez {{0}} réaliser dans l'appartement ne sont toujours pas terminés. " +
+      "Au cas où l'entreprise ne {{1}} pas avant lundi, je serais contrainte de vous écrire à nouveau. " +
+      "Si vous {{2}} plus tôt, j'aurais pu m'organiser. " +
+      "Je me suis d'ailleurs {{3}} voler mon vélo dans le local, dont la porte ne ferme plus.",
+    slots: [
+      {
+        id: "fxc1",
+        shown: "faits",
+        hint: "fait + 不定式的配合",
+        answer: ["fait"],
+        options: ["fait", "faits", "faites", "faire"],
+        point: "causatif",
+        tag: "t0",
+        why: "使役结构 faire + 不定式中 fait 恒不配合，不随前置直宾 que（les travaux）加 -s。",
+      },
+      {
+        id: "fxc2",
+        shown: "revienne",
+        hint: "au cas où 后的语式",
+        answer: ["reviendrait"],
+        options: ["reviendrait", "revienne", "reviendra", "revient"],
+        point: "hypothese-systeme",
+        tag: "t1",
+        why: "au cas où 后接条件式，不接虚拟式：au cas où l'entreprise ne reviendrait pas。",
+      },
+      {
+        id: "fxc3",
+        shown: "m'auriez prévenue",
+        hint: "si + 与过去事实相反",
+        answer: ["m'aviez prévenue"],
+        options: ["m'aviez prévenue", "m'auriez prévenue", "me prévenez", "m'avez prévenue"],
+        point: "hypothese-systeme",
+        tag: "r0",
+        why: "si 从句绝不用条件式：与过去事实相反用 si + 愈过去时（写信人为女性，前置直宾 m' 使 prévenue 配合）。",
+      },
+      {
+        id: "fxc4",
+        shown: "faite",
+        hint: "se faire + inf. 的配合",
+        answer: ["fait"],
+        options: ["fait", "faite", "faits", "laissée"],
+        point: "causatif",
+        tag: "r1",
+        why: "se faire + 不定式（遭受某事）中 fait 恒不配合，即使主语是女性：je me suis fait voler mon vélo。",
+      },
+    ],
+  },
+  {
+    id: "disc-fix-lettre-motivation",
+    kind: "fix",
+    level: "B2",
+    title: "求职信：倒装、转述与语体改错",
+    subtitle: "Registre soutenu · Inversion / Discours indirect / Subjonctif / Accord",
+    text:
+      "Madame, je me permets de vous adresser ma candidature au poste de chargée de projet. " +
+      "Peut-être {{0}} un profil polyvalent. " +
+      "Lors du salon le mois dernier, votre collaborateur m'avait demandé {{1}} disponible à cette époque-là, ce que j'avais aussitôt confirmé. " +
+      "Bien que je {{2}} encore étudiante, j'ai déjà dirigé plusieurs projets, et les compétences que j'y ai {{3}} me semblent directement utiles à votre service. " +
+      "Dans l'attente de votre réponse, {{4}} d'agréer, Madame, l'expression de mes salutations distinguées.",
+    slots: [
+      {
+        id: "fxr1",
+        shown: "que recherchez-vous",
+        hint: "Peut-être que 与倒装不能混用",
+        answer: ["recherchez-vous", "que vous recherchez"],
+        options: ["recherchez-vous", "que recherchez-vous", "vous recherchez-vous", "recherchez-t-vous"],
+        point: "registre-inversion",
+        tag: "t2",
+        why: "二选一：Peut-être + 倒装（recherchez-vous）或 Peut-être que + 正常语序（que vous recherchez），不能把 que 和倒装混在一起。",
+      },
+      {
+        id: "fxr2",
+        shown: "est-ce que j'étais",
+        hint: "间接问句的引导词",
+        answer: ["si j'étais"],
+        options: ["si j'étais", "est-ce que j'étais", "si je suis", "si étais-je"],
+        point: "discours-indirect",
+        tag: "t1",
+        why: "是非问句转述用 si，不用 est-ce que，也不倒装；主句 a demandé 为过去时 → j'étais。",
+      },
+      {
+        id: "fxr3",
+        shown: "suis",
+        hint: "bien que 后的语式",
+        answer: ["sois"],
+        options: ["sois", "suis", "serai", "serais"],
+        point: "subj-indicatif",
+        tag: "r1",
+        why: "bien que 固定要求虚拟式：bien que je sois encore étudiante。",
+      },
+      {
+        id: "fxr4",
+        shown: "acquis",
+        hint: "前置直宾 que 的配合",
+        answer: ["acquises"],
+        options: ["acquises", "acquis", "acquise", "acquérées"],
+        point: "accord-pp",
+        tag: "r1",
+        why: "前置直宾 que 指 les compétences（阴性复数），avoir + 过去分词须配合：acquises。",
+      },
+      {
+        id: "fxr5",
+        shown: "je te prie",
+        hint: "正式信函的人称",
+        answer: ["je vous prie"],
+        options: ["je vous prie", "je te prie", "je vous prie à", "on vous prie"],
+        point: "registre-inversion",
+        tag: "t3",
+        why: "正式求职信通篇用 vous，结尾套语 je vous prie d'agréer；混入 tu 属于语体混杂。",
       },
     ],
   },

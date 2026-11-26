@@ -5,11 +5,129 @@
 import { are1990OrthographyVariants, explainOrthographyError, startsWithFrenchVowel } from "./conjugation";
 export { are1990OrthographyVariants, explainOrthographyError };
 
+/* ---------- inline structure marks: {v:…} {p:…} {c:…} {a:…} {k:…} ---------- */
+
+/** v verb ending / conjugated form, p preposition, c pronoun, a agreement, k conjunction / relative / negation. */
+export type GrammarMarkKind = "v" | "p" | "c" | "a" | "k";
+
+export interface GrammarTextSeg {
+  text: string;
+  mark?: GrammarMarkKind;
+  /** The mark is glued to a letter (or elision apostrophe) before or after it: a word ending, parl{v:ais}. */
+  affix?: boolean;
+}
+
+const MARK_RE = /\{([vpcak]):([^{}]+)\}/g;
+/** A letter, or an apostrophe of an elision (l'{c:ai}, {c:l'}ai): the mark is part of a written word. */
+const GLUED = /[\p{L}'’]/u;
+
+/** The text without marks: for speech, copying and search. */
+export function stripGrammarMarks(s: string): string {
+  return s.replace(MARK_RE, "$2");
+}
+
+/** Plain and marked pieces of a text, in order. */
+export function parseGrammarMarks(s: string): GrammarTextSeg[] {
+  const out: GrammarTextSeg[] = [];
+  let at = 0;
+  for (const m of s.matchAll(MARK_RE)) {
+    const start = m.index!;
+    const end = start + m[0].length;
+    if (start > at) out.push({ text: s.slice(at, start) });
+    const before = start > 0 ? s[start - 1] : "";
+    const after = end < s.length ? s[end] : "";
+    const affix = (before !== "" && GLUED.test(before)) || (after !== "" && GLUED.test(after));
+    out.push({ text: m[2], mark: m[1] as GrammarMarkKind, ...(affix ? { affix: true } : {}) });
+    at = end;
+  }
+  if (at < s.length) out.push({ text: s.slice(at) });
+  return out;
+}
+
+/** Why a marked text is malformed (unclosed or nested braces, unknown kind, empty mark), or null. */
+export function validateGrammarMarks(s: string): string | null {
+  let i = 0;
+  while (i < s.length) {
+    const ch = s[i];
+    if (ch === "}") return `unmatched "}" at ${i}`;
+    if (ch !== "{") {
+      i++;
+      continue;
+    }
+    const close = s.indexOf("}", i + 1);
+    const nextOpen = s.indexOf("{", i + 1);
+    if (close < 0) return `unclosed "{" at ${i}`;
+    if (nextOpen >= 0 && nextOpen < close) return `nested "{" at ${nextOpen}`;
+    const body = s.slice(i + 1, close);
+    const colon = body.indexOf(":");
+    if (colon < 0) return `mark without a kind: {${body}}`;
+    const kind = body.slice(0, colon);
+    if (!/^[vpcak]$/.test(kind)) return `unknown mark kind "${kind}" in {${body}}`;
+    if (!body.slice(colon + 1).trim()) return `empty mark {${body}}`;
+    i = close + 1;
+  }
+  return null;
+}
+
+export type GrammarCategory =
+  | "tense" // 时态与语式
+  | "pronoun" // 代词与指代
+  | "determiner" // 名词、冠词与配合
+  | "syntax" // 句子结构与语序
+  | "clause" // 从句与逻辑连接
+  | "preposition"; // 介词搭配与词义辨析
+
+export const GRAMMAR_CATEGORY_LABEL: Record<GrammarCategory, string> = {
+  tense: "时态与语式",
+  pronoun: "代词与指代",
+  determiner: "名词·冠词·配合",
+  syntax: "句法结构与语序",
+  clause: "从句与逻辑连接",
+  preposition: "介词搭配与辨析",
+};
+
+export const GRAMMAR_CATEGORIES = Object.keys(GRAMMAR_CATEGORY_LABEL) as GrammarCategory[];
+
 export interface GrammarRule {
   h: string;
   text: string;
-  /** [French, Chinese] */
-  ex: [string, string][];
+  formula?: string[];
+  /** [French, Chinese, optional structural breakdown] */
+  ex: ([string, string] | [string, string, string])[];
+}
+
+export interface GrammarTable {
+  title: string;
+  caption?: string;
+  /** "r1": shown inside rule 1; otherwise after the rules. */
+  tag?: string;
+  headers: string[];
+  rows: string[][];
+  note?: string;
+}
+
+export interface GrammarPitfall {
+  wrong: string;
+  right: string;
+  why: string;
+  tag?: string;
+}
+
+/** A comparison of points that are easily mixed up (语法规律总表). */
+export interface GrammarMatrix {
+  id: string;
+  title: string;
+  fr: string;
+  level: "A1" | "A2" | "B1" | "B2";
+  category: GrammarCategory;
+  summary: string;
+  motto?: string;
+  tables: GrammarTable[];
+  headers?: string[];
+  rows?: string[][];
+  decide?: string[];
+  pitfalls?: GrammarPitfall[];
+  points: string[];
 }
 
 interface DrillBase {
@@ -41,6 +159,10 @@ export interface OrderDrill extends DrillBase {
   t: string[];
   /** Final punctuation. */
   p: string;
+  /** Other word orders that are right too. */
+  alts?: string[][];
+  /** Only t and alts are right (no moving of time adverbs): every hand-written order drill. */
+  strict?: boolean;
 }
 
 /** Type the word(s) of one blank: s.slice(b[0], b[1]), or any of a. */
@@ -102,15 +224,21 @@ export interface GrammarPoint {
   prereq?: string[];
   /** Points that are easily mixed up with this one or go with it. */
   related?: string[];
+  category?: GrammarCategory;
+  tables?: GrammarTable[];
+  pitfalls?: GrammarPitfall[];
+  /** High-frequency exceptions, one per line. */
+  exceptions?: string[];
   drills: Drill[];
 }
 
 export interface GrammarData {
   v: 1;
   points: GrammarPoint[];
+  matrices?: GrammarMatrix[];
 }
 
-export type GrammarPointMeta = Pick<GrammarPoint, "id" | "title" | "level" | "fr">;
+export type GrammarPointMeta = Pick<GrammarPoint, "id" | "title" | "level" | "fr" | "category">;
 
 export interface GrammarMeta {
   v: 1;
@@ -171,12 +299,36 @@ function isMovableAdjunct(span: string[], core: string[]): boolean {
   return false;
 }
 
-/** Order drill: right when words match reference order or relocate a movable clause-edge temporal/discourse adjunct. */
+/**
+ * The words of an order drill as one sentence: no space after an elision (l', qu'), before a hyphenated
+ * clitic (-le, -t-il) or before a comma; then the final punctuation as given (".", " ?").
+ */
+export function joinOrderTokens(tokens: readonly string[], p = ""): string {
+  let out = "";
+  tokens.forEach((w, i) => {
+    if (i === 0) {
+      out = w;
+      return;
+    }
+    const prev = tokens[i - 1];
+    const glue = /['’]$/.test(prev) || w.startsWith("-") || w === ",";
+    out += glue ? w : ` ${w}`;
+  });
+  return out + p;
+}
+
+/**
+ * Order drill: right when the words match the reference order or one of its alternatives; old automatic
+ * drills (not strict) also accept a movable time / discourse adjunct moved to the other end of the sentence.
+ */
 export function orderRight(d: OrderDrill, picked: string[]) {
   if (picked.length !== d.t.length) return false;
   const pNorm = picked.map(normOrderWord);
+  const same = (ref: readonly string[]) => ref.length === pNorm.length && ref.every((w, i) => normOrderWord(w) === pNorm[i]);
   const tNorm = d.t.map(normOrderWord);
-  if (pNorm.every((w, i) => w === tNorm[i])) return true;
+  if (same(tNorm)) return true;
+  if (d.alts?.some(same)) return true;
+  if (d.strict) return false;
 
   for (let k = 1; k <= Math.min(4, tNorm.length - 2); k++) {
     const frontAdj = tNorm.slice(0, k);
@@ -193,6 +345,20 @@ export function orderRight(d: OrderDrill, picked: string[]) {
     }
   }
   return false;
+}
+
+/** Same words, each as many times (case and apostrophe kind ignored): an alternative order of t. */
+export function sameTokenMultiset(a: readonly string[], b: readonly string[]) {
+  if (a.length !== b.length) return false;
+  const count = new Map<string, number>();
+  for (const w of a) count.set(normOrderWord(w), (count.get(normOrderWord(w)) ?? 0) + 1);
+  for (const w of b) {
+    const k = normOrderWord(w);
+    const c = count.get(k) ?? 0;
+    if (!c) return false;
+    count.set(k, c - 1);
+  }
+  return true;
 }
 
 /** A sentence with words shuffled so that it is never already in order (when it can be). */
@@ -412,8 +578,8 @@ export function tagsOf(p: Pick<GrammarPoint, "rules" | "traps">) {
 export function tagLabel(p: Pick<GrammarPoint, "rules" | "traps">, tag: string | undefined) {
   if (!tag) return "";
   const n = Number(tag.slice(1));
-  if (tag[0] === "r") return p.rules[n]?.h ?? "";
-  const t = p.traps[n] ?? "";
+  if (tag[0] === "r") return stripGrammarMarks(p.rules[n]?.h ?? "");
+  const t = stripGrammarMarks(p.traps[n] ?? "");
   const cut = t.search(/[：:；;，,。]/);
   const head = cut > 0 ? t.slice(0, cut) : t;
   return head.length > 28 ? head.slice(0, 27) + "…" : head;

@@ -1,0 +1,1068 @@
+{
+  "points": [
+    {
+      "id": "causatif",
+      "level": "B2",
+      "category": "syntax",
+      "title": "使役与感官结构：faire faire、laisser 与感官动词",
+      "fr": "Le causatif (faire / laisser + infinitif) et les verbes de perception",
+      "intro": "faire + 不定式表示「让 / 叫 / 请某人做某事」，laisser + 不定式表示「任由、允许」，voir、entendre、regarder、écouter、sentir + 不定式表示「看见 / 听见某人做某事」。这三类结构里，变位动词和不定式紧紧连成一个整体：真正做动作的人（施事者）跟在不定式后面，宾语代词一律提到变位动词前面，过去分词的配合也有专门的规则。",
+      "motto": "faire 和不定式焊成一块：施事放后头，代词跑前头，fait 永远不配合",
+      "decide": [
+        "先认结构：是 faire / laisser / 感官动词 + 不定式吗？ → 是，就把「变位动词 + 不定式」当成一个整体，不在中间插入名词或代词",
+        "不定式自己有没有直接宾语？ → 没有：施事者直接放在不定式后（Je fais rire les enfants），代词用 le / la / les；有：施事者改由 à 或 par 引出，代词用 lui / leur（Je fais lire ce texte à Paul → Je le lui fais lire）",
+        "à + 施事者会不会有歧义（« 让他写信 » 还是 « 让人写信给他 »）？ → 会，就换成 par",
+        "要用代词？ → 陈述句、否定句、不定式结构：代词全部放在 faire / laisser / 感官动词前；肯定命令式：代词用连字符接在 faire 后（Fais-le-lui lire）",
+        "复合时态要不要配合？ → fait + 不定式永远不变；laissé + 不定式按 1990 年正字法不变（传统按施事者配合也可）；感官动词看前置直宾是否亲自做不定式的动作：是 → 配合，否 → 不变"
+      ],
+      "rules": [
+        {
+          "h": "基本使役结构：faire + 不定式",
+          "text": "{v:faire} + 不定式 = 让某人做某事 / 请人做某事。施事者（真正做动作的人）永远放在不定式后面，不能放在 faire 和不定式之间。① 不定式不带直接宾语时，施事者是 faire 的直接宾语：Le prof fait travailler ses élèves → il les fait travailler。② 不定式本身带了直接宾语时，一句话里不能有两个直接宾语，施事者要改由 {p:à} 或 {p:par} 引出：Il fait lire ce roman {p:à} ses élèves → il le leur fait lire。③ {p:à} + 人有时会产生歧义（faire écrire une lettre à Paul 可以是「让保罗写信」，也可以是「让人写信给保罗」），这时用 {p:par} 明确施事者。④ 不说出施事者时，结构表示「请人 / 找人做」：Je fais réparer ma voiture（我找人修车）。",
+          "formula": [
+            "主语 + {v:faire} + 不定式 + 施事者（不定式无直宾）",
+            "主语 + {v:faire} + 不定式 + 直宾 + {p:à} / {p:par} + 施事者",
+            "主语 + {v:faire} + 不定式 + 直宾（施事者不说出 = 请人做）"
+          ],
+          "ex": [
+            [
+              "Le professeur {v:fait travailler} ses élèves.",
+              "老师让学生们用功。",
+              "travailler 没有直宾 → 施事者 ses élèves 直接跟在不定式后"
+            ],
+            [
+              "Elle {v:fait réparer} sa voiture.",
+              "她请人修车。",
+              "不说施事者 → 表示「找人做」；sa voiture 是 réparer 的直宾"
+            ],
+            [
+              "J'ai fait lire ce texte {p:à} mes étudiants.",
+              "我让学生们读了这篇文章。",
+              "lire 已带直宾 ce texte → 施事者 mes étudiants 改用 à 引出"
+            ],
+            [
+              "Il a fait rédiger la lettre {p:par} son avocat.",
+              "他让律师起草了这封信。",
+              "用 par 排除 à son avocat 的歧义（「写给律师」）"
+            ]
+          ]
+        },
+        {
+          "h": "代词式使役：se faire + 不定式、se laisser + 不定式",
+          "text": "主语既是整件事的发起者或承受者时，用代词式。{c:se} {v:faire} + 不定式有两个意思：① 请别人为自己做某事（se faire couper les cheveux、se faire opérer）；② 遭遇某件不愉快的事，口语里常用来代替被动语态（se faire voler son sac、se faire renverser par une voiture、se faire licencier）。{c:se} {v:laisser} + 不定式表示「任由自己、经不住」：se laisser convaincre、se laisser aller、se laisser tenter。非代词的 {v:laisser} + 不定式表示「让、允许、放任别人」：Laisse-moi parler。这一组和「被动的其他说法」（passif-autres）里的 se faire / se voir 是同一套结构。",
+          "formula": [
+            "主语 + {c:se} {v:faire} + 不定式 (+ 名词) (+ {p:par} + 施事者)",
+            "主语 + {c:se} {v:laisser} + 不定式 = 任由自己被……、经不住……",
+            "主语 + {v:laisser} + 人 + 不定式 = 让 / 允许某人做"
+          ],
+          "ex": [
+            [
+              "Je {c:me} suis {v:fait} couper les cheveux.",
+              "我去剪了头发（找人剪的）。",
+              "se faire + 不定式 = 请人为自己做；fait 永远不配合"
+            ],
+            [
+              "Il {c:s'}est {v:fait voler} son portefeuille dans le métro.",
+              "他在地铁里被偷了钱包。",
+              "se faire + 不定式表示遭遇不幸，相当于口语里的被动"
+            ],
+            [
+              "Elle {c:s'}est {v:laissé} convaincre par ses amis.",
+              "她被朋友们说服了。",
+              "se laisser + 不定式 = 经不住、任由；她是被说服的一方 → laissé 不变"
+            ],
+            [
+              "{v:Laisse}-moi finir ma phrase !",
+              "让我把话说完！",
+              "laisser + 人 + 不定式 = 允许某人做；命令式里代词后置"
+            ]
+          ]
+        },
+        {
+          "h": "使役与感官结构的代词位置",
+          "text": "faire、laisser 和感官动词（voir、entendre、regarder、écouter、sentir）后面接不定式时，所有宾语代词——无论是 faire 的宾语还是不定式的宾语——都放在变位的 faire / laisser / 感官动词前面，不放在不定式前：Je {c:le lui} ai fait lire；Ne {c:les} fais pas attendre。两个代词连用时按普通顺序（le / la / les 在 lui / leur 前）。肯定命令式里代词用连字符接在 faire 后面：{v:Fais}-{c:le-lui} lire。不定式本身是代词式动词时，se 在 faire 后面省去：Je les fais asseoir（不说 se asseoir）。",
+          "formula": [
+            "主语 + ({k:ne}) + 代词 + {v:faire} / {v:laisser} / 感官动词 + 不定式 (+ {k:pas})",
+            "复合时态：主语 + 代词 + {v:avoir} + {v:fait} / {v:laissé} / {v:vu} + 不定式",
+            "肯定命令式：{v:Fais}-{c:le-lui} + 不定式"
+          ],
+          "ex": [
+            [
+              "Je {c:le lui} ai fait lire.",
+              "我让他读了这个。",
+              "le = 不定式 lire 的直宾，lui = 施事者（à lui）；两个都在 ai fait 前"
+            ],
+            [
+              "Ne {c:les} fais pas attendre !",
+              "别让他们等！",
+              "否定：ne … pas 夹住「代词 + fais」，代词不插到 attendre 前"
+            ],
+            [
+              "{v:Fais}-{c:le-lui} lire.",
+              "让他读读这个。",
+              "肯定命令式：代词后置于 faire，直宾在前、间宾在后"
+            ],
+            [
+              "Je {c:les} entends chanter tous les soirs.",
+              "我每天晚上都听见他们唱歌。",
+              "感官动词同理：les（施事者）放在 entends 前"
+            ]
+          ]
+        },
+        {
+          "h": "过去分词的配合：fait 恒不变，laissé 两可，感官动词看施事",
+          "text": "① {v:fait} + 不定式：永远不配合，前面有什么宾语都不变（la maison qu'ils ont {v:fait} construire；elle s'est {v:fait} opérer）。② {v:laissé} + 不定式：1990 年法国正字法修订建议一律不变（Je les ai {v:laissé} partir），传统规则按感官动词的办法配合（Je les ai laissés partir）也被接受，两种写法都算对。③ 感官动词 + 不定式：看前置的直接宾语是不是亲自做不定式动作的人。是施事者 → 配合：Les chanteuses que j'ai entendu{a:es} chanter（她们在唱）；是不定式的受事 → 不配合：Les chansons que j'ai {v:entendu} chanter（歌是被唱的）。判断方法：能换成「qui + 不定式的变位形式」就配合（j'ai entendu les chanteuses qui chantaient）。",
+          "formula": [
+            "{v:fait} + 不定式 → 永远不变",
+            "{v:laissé} + 不定式 → 推荐不变（传统按施事者配合亦可）",
+            "感官动词 + 不定式：前置直宾 = 施事者 → 配合；= 受事 → 不变"
+          ],
+          "ex": [
+            [
+              "Les robes qu'elle a {v:fait} faire sont superbes.",
+              "她请人做的那些裙子非常漂亮。",
+              "fait + 不定式 → 不变，尽管前面有阴性复数的 que"
+            ],
+            [
+              "Les chanteuses que j'ai entendu{a:es} chanter étaient brésiliennes.",
+              "我听过她们唱歌的那几位女歌手是巴西人。",
+              "que = les chanteuses，她们自己在唱 → 施事者 → 配合"
+            ],
+            [
+              "Les chansons que j'ai {v:entendu} chanter étaient brésiliennes.",
+              "我听人唱的那些歌是巴西歌曲。",
+              "que = les chansons，歌是被唱的 → 受事 → 不变"
+            ],
+            [
+              "Ces enfants, je les ai {v:laissé} partir seuls.",
+              "这些孩子，我让他们自己走了。",
+              "1990 年正字法：laissé + 不定式不变；传统写法 laissés 也对"
+            ]
+          ]
+        }
+      ],
+      "traps": [
+        "fait + 不定式永远不配合：la maison qu'ils ont fait construire、elle s'est fait opérer，不写 faite、faits。",
+        "不定式自己带了直接宾语时，施事者不能再当直接宾语：要说 Je fais lire ce livre à Paul / par Paul，代词用 Je le lui fais lire，不说 Je le le fais lire 或 Je fais Paul lire ce livre。",
+        "宾语代词放在 faire 前，不插在 faire 和不定式之间：Je le fais réparer ✓，Je fais le réparer ✗；否定 Je ne le fais pas réparer。",
+        "感官动词 + 不定式：前置直宾自己做动作才配合（les chanteuses que j'ai entendues chanter），被做动作时不变（les chansons que j'ai entendu chanter）。"
+      ],
+      "tables": [
+        {
+          "title": "faire + 不定式：施事者怎么引出",
+          "caption": "看不定式有没有自己的直接宾语",
+          "tag": "r0",
+          "headers": [
+            "不定式的情况",
+            "名词句",
+            "代词句",
+            "要点"
+          ],
+          "rows": [
+            [
+              "不带直宾",
+              "Je fais {v:rire} les enfants.",
+              "Je {c:les} fais rire.",
+              "施事者 = faire 的直宾 → le / la / les"
+            ],
+            [
+              "带直宾，施事者用 à",
+              "Je fais lire ce livre {p:à} Paul.",
+              "Je {c:le lui} fais lire.",
+              "施事者变成间宾 → lui / leur"
+            ],
+            [
+              "带直宾，施事者用 par",
+              "Je fais lire ce livre {p:par} Paul.",
+              "Je le fais lire {p:par} lui.",
+              "par 消除歧义，代词用重读形式 lui"
+            ],
+            [
+              "不说出施事者",
+              "Je fais {v:réparer} mon vélo.",
+              "Je {c:le} fais réparer.",
+              "= 请人做，le 是 réparer 的直宾"
+            ],
+            [
+              "不定式是代动词",
+              "Je fais asseoir les invités.",
+              "Je {c:les} fais asseoir.",
+              "se 省去，不说 faire s'asseoir"
+            ]
+          ],
+          "note": "laisser 和感官动词带直宾的不定式时，施事者既可以用 lui / leur 也可以用 le / la / les：Je la lui ai laissé lire / Je la leur entends chanter。"
+        },
+        {
+          "title": "使役与感官结构的过去分词配合",
+          "tag": "r3",
+          "headers": [
+            "结构",
+            "例句",
+            "配合？",
+            "依据"
+          ],
+          "rows": [
+            [
+              "fait + 不定式",
+              "la maison qu'ils ont {v:fait} construire",
+              "永远不变",
+              "fait 和不定式是一个整体"
+            ],
+            [
+              "se faire + 不定式",
+              "Elle s'est {v:fait} opérer.",
+              "永远不变",
+              "同上，代词式也不例外"
+            ],
+            [
+              "laissé + 不定式",
+              "Je les ai {v:laissé} partir.",
+              "推荐不变（传统 laissés 也对）",
+              "1990 年正字法修订"
+            ],
+            [
+              "感官动词，宾语做动作",
+              "les chanteuses que j'ai entendu{a:es} chanter",
+              "配合",
+              "她们在唱 = 施事者"
+            ],
+            [
+              "感官动词，宾语被做动作",
+              "les chansons que j'ai {v:entendu} chanter",
+              "不变",
+              "歌被唱 = 受事"
+            ],
+            [
+              "感官动词，宾语做动作",
+              "Je les ai vu{a:es} partir. (les = ces filles)",
+              "配合",
+              "她们自己离开"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "La maison qu'ils ont faite construire est magnifique.",
+          "right": "La maison qu'ils ont {v:fait} construire est magnifique.",
+          "why": "看到前面有阴性的 que（= la maison）就按 avoir 的规则去配合，这是类推过度。fait 后面一接不定式，就和不定式焊成一个整体，宾语属于 construire，fait 永远不变。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "J'ai fait mon fils ranger sa chambre.",
+          "right": "J'ai fait ranger sa chambre {p:à} mon fils.",
+          "why": "照「让 + 人 + 做事」的语序把人放在 faire 后面。法语里施事者永远在不定式后；不定式 ranger 已有直宾 sa chambre，施事者还要改用 à（或 par）引出，代词说 Je la lui ai fait ranger。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Mon ordinateur est en panne, je vais faire le réparer.",
+          "right": "Mon ordinateur est en panne, je vais {c:le} {v:faire réparer}.",
+          "why": "按「代词放在它所属的不定式前」的习惯，把 le 插到了 réparer 前。使役结构中代词要提到 faire 前；faire 本身是不定式时，就放在 faire 这个不定式前。",
+          "tag": "t2"
+        },
+        {
+          "wrong": "Les chansons que j'ai entendues chanter hier soir étaient magnifiques.",
+          "right": "Les chansons que j'ai {v:entendu} chanter hier soir étaient magnifiques.",
+          "why": "感官动词的配合看的是前置直宾是不是亲自做动作。歌不会自己唱，是「被唱」的受事，所以 entendu 不变；换成 les chanteuses（她们自己在唱）才写 entendues。",
+          "tag": "t3"
+        }
+      ],
+      "exceptions": [
+        "faire faire：faire 可以接自己的不定式，Il a fait faire un costume sur mesure（他请人定做了一套西装）。",
+        "代动词不定式在 faire / laisser 后面通常省去 se：faire asseoir、faire taire、faire lever（fais-le taire），少数固定说法保留 se：laisser se reposer 也可说 laisser reposer。",
+        "感官动词和 laisser 后，名词施事者可放在不定式前或后：J'entends les oiseaux chanter / J'entends chanter les oiseaux；faire 后面只能放在不定式后：Je fais chanter les enfants。",
+        "常见固定使役说法：faire venir（叫来）、faire savoir（通知）、faire remarquer（指出）、faire attendre（让人等）、laisser tomber（放弃、甩掉）、se faire comprendre（让人听懂自己）、se faire avoir（上当）。"
+      ],
+      "pairs": [
+        {
+          "a": "Je répare mon vélo.",
+          "b": "Je fais réparer mon vélo.",
+          "d": "前句是自己修；加上 faire 变成使役，意思是找别人修"
+        },
+        {
+          "a": "J'ai fait lire ce texte à Paul.",
+          "b": "J'ai fait lire ce texte par Paul.",
+          "d": "à Paul 可以理解为让保罗读，也可以理解为读给保罗听；par Paul 只表示读的人是保罗"
+        },
+        {
+          "a": "Les chanteuses que j'ai entendues chanter.",
+          "b": "Les chansons que j'ai entendu chanter.",
+          "d": "女歌手自己在唱，是不定式的施事者 → 配合；歌曲是被唱的受事 → 不配合"
+        },
+        {
+          "a": "Elle s'est coupé les cheveux.",
+          "b": "Elle s'est fait couper les cheveux.",
+          "d": "前句是自己剪；se faire + 不定式表示请理发师剪"
+        }
+      ],
+      "walk": {
+        "s": "Les documents que l'avocat a fait traduire, il me les a fait relire avant de les faire signer à son client.",
+        "z": "律师请人翻译的那些文件，他让我重读了一遍，然后才让客户签字。",
+        "steps": [
+          [
+            "que 指阳性复数 les documents，为什么 a fait traduire 里的 fait 不加 s？",
+            "fait + 不定式是固定特例，永远不配合；documents 是 traduire 的宾语，不是 fait 的"
+          ],
+          [
+            "il me les a fait relire 里 me 和 les 各是什么？",
+            "les = 那些文件，是 relire 的直宾；me = 施事者（我来重读）。不定式已有直宾，所以施事者用间宾形式 me（= à moi），顺序 me les"
+          ],
+          [
+            "为什么两个代词都放在 a fait 前面，而不是 relire 前面？",
+            "使役结构里所有宾语代词都提到 faire（复合时态是助动词）前，不插进 faire 和不定式之间"
+          ],
+          [
+            "les faire signer à son client：为什么用 à？代词为什么在 faire 前？",
+            "signer 带直宾 les（文件），所以施事者 son client 用 à 引出；faire 本身是 avant de 后的不定式，代词就放在这个不定式 faire 前"
+          ]
+        ]
+      },
+      "prereq": [
+        "pronoms-objet",
+        "double-pronoms",
+        "accord-pp"
+      ],
+      "related": [
+        "passif-autres",
+        "infinitif",
+        "passif"
+      ]
+    },
+    {
+      "id": "hypothese-systeme",
+      "level": "B2",
+      "category": "clause",
+      "title": "假设体系：si 三大公式、混合假设与条件连词",
+      "fr": "Le système hypothétique : si, hypothèses mixtes et autres expressions de la condition",
+      "intro": "法语的假设句由 {k:si} 从句的时态决定主句的时态，三条标准公式必须背熟；条件和结果不在同一个时间时还可以混搭。除了 si，B2 还要掌握一批条件连词：有的接虚拟式（à condition que、à moins que），有的接条件式（au cas où、quand bien même），还有不用从句的精炼说法（sans + 名词、副动词）。",
+      "motto": "si 从句不见 -rai / -rais：现在→将来，未完成→条件，愈过去→条件过去",
+      "decide": [
+        "是表示「如果」的条件 si，还是「是否」的间接疑问 si？ → 「是否」（se demander si、savoir si、ignorer si）：按正常时态，可接将来时和条件式；「如果」：继续往下判断",
+        "假设的事情是可能的，还是与事实相反？ → 可能的：si + 现在时 → 将来时 / 现在时 / 命令式",
+        "与事实相反：说的是现在还是过去？ → 现在（或将来）：si + 未完成过去时 → 条件式现在时；过去：si + 愈过去时 → 条件式过去时",
+        "条件和结果是不是在不同的时间？ → 过去的条件、现在的结果：si + 愈过去时 → 条件式现在时；一贯的状态、过去某次的结果：si + 未完成过去时 → 条件式过去时",
+        "没有 si，用了别的连词或结构？ → à condition que / pourvu que / à moins que / à supposer que + 虚拟式；au cas où / dans l'hypothèse où / quand bien même + 条件式；sans / avec / en cas de + 名词、en + 现在分词，主句照常用条件式或将来时"
+      ],
+      "rules": [
+        {
+          "h": "si 的三大标准公式",
+          "text": "① 现实可能：{k:si} + 现在时，主句用简单将来时、现在时（规律、习惯）或命令式：S'il pleut, on restera à la maison。② 现在不真实或可能性很低：{k:si} + 未完成过去时，主句用条件式现在时：Si j'avais le temps, je voyagerais（现在没时间）。③ 过去与事实相反、表示遗憾：{k:si} + 愈过去时，主句用条件式过去时：Si tu m'avais prévenu, je serais venu（你当时没通知我）。三条公式的共同铁律：si（如果）引导的从句里永远不出现将来时和条件式。",
+          "formula": [
+            "{k:si} + 现在时 → 将来时 / 现在时 / 命令式",
+            "{k:si} + 未完成过去时 → 条件式现在时",
+            "{k:si} + 愈过去时 → 条件式过去时"
+          ],
+          "ex": [
+            [
+              "{k:Si} tu {v:viens} demain, on {v:ira} au cinéma.",
+              "如果你明天来，我们就去看电影。",
+              "现实可能：si + 现在时 → 将来时"
+            ],
+            [
+              "{k:Si} tu {v:as} froid, {v:mets} un pull.",
+              "你要是冷，就穿件毛衣。",
+              "si + 现在时 → 命令式"
+            ],
+            [
+              "{k:Si} j'{v:avais} le temps, je {v:voyagerais} davantage.",
+              "要是我有时间，我会多去旅行。",
+              "现在不真实：si + 未完成过去时 → 条件式现在时"
+            ],
+            [
+              "{k:Si} nous {v:étions partis} plus tôt, nous {v:aurions pris} le train de 8 h.",
+              "要是我们早点出发，就能赶上 8 点的火车了。",
+              "过去与事实相反：si + 愈过去时 → 条件式过去时"
+            ]
+          ]
+        },
+        {
+          "h": "跨时间轴的混合假设",
+          "text": "条件和结果不在同一个时间时，两边各按自己的时间选时态。① 过去的条件 → 现在的结果：{k:si} + 愈过去时，主句用条件式现在时，常带 aujourd'hui、maintenant、encore：Si j'avais accepté ce poste, je vivrais à Montréal aujourd'hui。② 一贯的性格或状态（现在仍然如此）→ 过去某一次的结果：{k:si} + 未完成过去时，主句用条件式过去时：Si elle était plus prudente, elle n'aurait pas eu cet accident（她一向不谨慎，所以那次出了事）。判断窍门：分别问「条件是什么时候的事」「结果是什么时候的事」。",
+          "formula": [
+            "{k:si} + 愈过去时（过去的条件）→ 条件式现在时（现在的结果）",
+            "{k:si} + 未完成过去时（一贯的状态）→ 条件式过去时（过去那一次的结果）"
+          ],
+          "ex": [
+            [
+              "{k:Si} j'{v:avais accepté} ce poste, je {v:vivrais} à Montréal aujourd'hui.",
+              "如果我当初接受了那个职位，现在就住在蒙特利尔了。",
+              "条件在过去 → 愈过去时；结果在现在 → 条件式现在时"
+            ],
+            [
+              "{k:Si} tu m'{v:avais écouté}, tu ne {v:serais} pas dans cette situation.",
+              "你当初要是听我的，现在就不会落到这个地步。",
+              "过去没听 → 现在的处境"
+            ],
+            [
+              "{k:Si} elle {v:était} plus prudente, elle n'{v:aurait} pas eu cet accident.",
+              "她要是谨慎一点，就不会出那次事故了。",
+              "一贯的性格 → 未完成过去时；过去那次事故 → 条件式过去时"
+            ]
+          ]
+        },
+        {
+          "h": "条件与假设连词的语式分工",
+          "text": "si 之外的条件连词按后接语式分成两大阵营。虚拟式阵营（条件被当作要求或设想）：à condition que（只要、条件是）、pourvu que（只要）、à moins que（除非，可加不表示否定的赘词 ne）、en admettant que、à supposer que（假定）、pour peu que（只要稍微）。条件式阵营（条件被当作可能发生的情况）：{k:au cas où}（万一）、{k:dans l'hypothèse où}（假如）、{k:quand bien même}（即使，书面；口语用 même si + 直陈式）。主语相同时，à condition que → {k:à condition de}、à moins que → {k:à moins de} + 不定式。",
+          "formula": [
+            "{k:à condition que} / {k:pourvu que} / {k:à moins que} / {k:à supposer que} + 虚拟式",
+            "{k:au cas où} / {k:dans l'hypothèse où} / {k:quand bien même} + 条件式",
+            "{k:à condition de} / {k:à moins de} + 不定式（主语相同）"
+          ],
+          "ex": [
+            [
+              "Je te prête ma voiture {k:à condition que} tu me la {v:rendes} demain.",
+              "我把车借给你，条件是你明天还我。",
+              "à condition que + 虚拟式"
+            ],
+            [
+              "Nous partirons à 8 h, {k:à moins qu'}il ne {v:pleuve}.",
+              "我们 8 点出发，除非下雨。",
+              "à moins que + 虚拟式；ne 是赘词，不表示否定"
+            ],
+            [
+              "{k:Au cas où} tu {v:aurais} besoin de moi, appelle-moi.",
+              "万一你需要我，就给我打电话。",
+              "au cas où + 条件式，不用虚拟式"
+            ],
+            [
+              "{k:Quand bien même} il s'{v:excuserait}, je ne lui pardonnerais pas.",
+              "即使他道歉，我也不会原谅他。",
+              "quand bien même + 条件式，主句也用条件式"
+            ]
+          ]
+        },
+        {
+          "h": "不用从句的精炼假设",
+          "text": "书面语和议论文常用更紧凑的结构代替 si 从句，主句照样用条件式（或将来时、命令式）：① {p:sans} / {p:avec} + 名词：Sans ton aide, je n'aurais pas réussi。② {p:en cas de}（遇到……时）、{p:à défaut de}（没有……的话）+ 名词：En cas d'incendie, utilisez l'escalier。③ 副动词 {k:en} + 现在分词：En partant plus tôt, tu éviterais les bouchons。④ 句首的过去分词或形容词同位语：Mieux organisé, ce projet aurait réussi。⑤ 两个并列的条件式，第一句表示假设：Tu me le demanderais, je refuserais。⑥ à + 不定式：À l'entendre, on croirait qu'il sait tout。",
+          "formula": [
+            "{p:sans} / {p:avec} / {p:en cas de} / {p:à défaut de} + 名词 → 主句条件式 / 将来时 / 命令式",
+            "{k:en} + 现在分词 / 句首过去分词 → 主句条件式",
+            "条件式 + 条件式（并列，前句 = 假设）"
+          ],
+          "ex": [
+            [
+              "{p:Sans} ton aide, je n'{v:aurais} jamais {v:terminé} ce mémoire.",
+              "没有你的帮助，我永远也写不完这篇论文。",
+              "sans + 名词 = si tu ne m'avais pas aidé"
+            ],
+            [
+              "{p:En cas de} panne, {v:appelez} ce numéro.",
+              "如遇故障，请拨打这个号码。",
+              "en cas de + 名词 = si + 现在时 → 命令式"
+            ],
+            [
+              "{k:En} {v:partant} plus tôt, tu {v:éviterais} les embouteillages.",
+              "早点出发的话，你就能避开堵车。",
+              "副动词 = si tu partais plus tôt"
+            ],
+            [
+              "Mieux {v:organisé}, ce projet {v:aurait réussi}.",
+              "组织得好一点的话，这个项目本可以成功。",
+              "句首过去分词 = s'il avait été mieux organisé"
+            ]
+          ]
+        }
+      ],
+      "traps": [
+        "表示「如果」的 si 后面不能用将来时和条件式；表示「是否」的 si（se demander si、ne pas savoir si）是间接疑问，可以：Je me demande s'il viendra ✓。",
+        "au cas où 和 quand bien même 后面用条件式，不用虚拟式：Au cas où il pleuvrait ✓，Au cas où il pleuve ✗。",
+        "à moins que 后面的 ne 是赘词，不表示否定：à moins qu'il ne pleuve = 除非下雨；不能再加 pas（à moins qu'il ne pleuve pas 意思变成「除非不下雨」）。",
+        "si … et que …：que 代替第二个 si，书面语后面接虚拟式（Si tu viens et qu'il fasse beau…），也常见直陈式；但不能接条件式，重复 si 时则只能用直陈式（et s'il fait beau）。"
+      ],
+      "tables": [
+        {
+          "title": "si 假设句时态搭配总表",
+          "caption": "三条标准公式 + 两类混合假设",
+          "tag": "r0",
+          "headers": [
+            "类型",
+            "si 从句",
+            "主句",
+            "例句"
+          ],
+          "rows": [
+            [
+              "现实可能",
+              "现在时",
+              "将来时 / 现在时 / 命令式",
+              "{k:Si} tu {v:veux}, on {v:partira} demain."
+            ],
+            [
+              "现在不真实",
+              "未完成过去时",
+              "条件式现在时",
+              "{k:Si} j'{v:étais} riche, j'{v:achèterais} une maison."
+            ],
+            [
+              "过去与事实相反",
+              "愈过去时",
+              "条件式过去时",
+              "{k:Si} tu {v:avais travaillé}, tu {v:aurais réussi}."
+            ],
+            [
+              "混合：过去条件 → 现在结果",
+              "愈过去时",
+              "条件式现在时",
+              "{k:Si} j'{v:avais étudié} le droit, je {v:serais} avocat aujourd'hui."
+            ],
+            [
+              "混合：一贯状态 → 过去结果",
+              "未完成过去时",
+              "条件式过去时",
+              "{k:Si} j'{v:étais} moins distrait, je n'{v:aurais} pas {v:oublié} mes clés."
+            ]
+          ],
+          "note": "si 从句里永远不出现将来时和条件式；si 在 il / ils 前省音为 s'，在 elle / on 前不省。"
+        },
+        {
+          "title": "条件 / 假设连词的语式分工",
+          "tag": "r2",
+          "headers": [
+            "连接词",
+            "意思",
+            "后接",
+            "例句"
+          ],
+          "rows": [
+            [
+              "{k:si}",
+              "如果",
+              "直陈式（不接将来 / 条件）",
+              "{k:Si} tu {v:pars}, préviens-moi."
+            ],
+            [
+              "{k:même si}",
+              "即使",
+              "直陈式",
+              "{k:Même si} tu {v:insistes}, je refuserai."
+            ],
+            [
+              "{k:à condition que}",
+              "只要、条件是",
+              "虚拟式",
+              "{k:à condition qu'}il {v:fasse} beau"
+            ],
+            [
+              "{k:pourvu que}",
+              "只要",
+              "虚拟式",
+              "{k:pourvu que} tu {v:sois} là"
+            ],
+            [
+              "{k:à moins que}",
+              "除非",
+              "虚拟式（+ 赘词 ne）",
+              "{k:à moins qu'}il ne {v:soit} trop tard"
+            ],
+            [
+              "{k:à supposer que} / {k:en admettant que}",
+              "假定",
+              "虚拟式",
+              "{k:À supposer qu'}il {v:accepte}…"
+            ],
+            [
+              "{k:au cas où}",
+              "万一",
+              "条件式",
+              "{k:au cas où} il {v:pleuvrait}"
+            ],
+            [
+              "{k:dans l'hypothèse où}",
+              "假如",
+              "条件式",
+              "{k:dans l'hypothèse où} le projet {v:échouerait}"
+            ],
+            [
+              "{k:quand bien même}",
+              "即使（书面）",
+              "条件式",
+              "{k:Quand bien même} il {v:viendrait}, …"
+            ],
+            [
+              "{p:en cas de} / {p:sans} / {p:avec}",
+              "遇到 / 没有 / 有了",
+              "名词",
+              "{p:sans} ton aide, je {v:serais} perdu"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Si j'aurais su, je serais venu.",
+          "right": "{k:Si} j'{v:avais su}, je {v:serais venu}.",
+          "why": "「如果我早知道」里的「会 / 早」让人想在 si 后面也用条件式。法语的分工很死：条件式只出现在主句，si 从句用愈过去时。也不要按「我想知道他会不会来」去类推：那是「是否」的 si，才能接条件式。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Au cas où il pleuve, prends ton parapluie.",
+          "right": "{k:Au cas où} il {v:pleuvrait}, prends ton parapluie.",
+          "why": "看到「万一」这种不确定的意思，就以为要用虚拟式。au cas où 固定接条件式；接虚拟式的是 à condition que、à moins que 这一组。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Je viendrai à moins qu'il ne pleuve pas.",
+          "right": "Je viendrai {k:à moins qu'}il ne {v:pleuve}.",
+          "why": "把赘词 ne 当成否定的一半，顺手补上 pas。à moins que 本身就是「除非」，ne 只是书面语的装饰，加了 pas 就变成「除非不下雨」，意思反了。",
+          "tag": "t2"
+        },
+        {
+          "wrong": "Si tu as le temps et que tu voudrais venir, appelle-moi.",
+          "right": "{k:Si} tu as le temps {k:et que} tu {v:veuilles} venir, appelle-moi.",
+          "why": "第二个条件用 que 代替 si，但它仍属于 si 的条件从句，不能用条件式；书面语接虚拟式（也可用直陈式 et que tu veux）。更简单的写法是重复 si：et si tu veux venir。",
+          "tag": "t3"
+        }
+      ],
+      "exceptions": [
+        "si + 现在时，主句也用现在时，表示普遍规律：Si on chauffe la glace, elle fond。",
+        "si + 复合过去时表示一个已经完成的条件：Si tu as fini, tu peux partir。",
+        "même si + 直陈式（可用未完成过去时 / 愈过去时表示假设），不接虚拟式和条件式；书面的 quand bien même 接条件式。",
+        "Pourvu que + 虚拟式放在句首单独用，表示愿望：Pourvu qu'il fasse beau demain !（但愿明天天晴！）",
+        "Et si + 未完成过去时的问句表示建议：Et si on allait au cinéma ?",
+        "sinon（否则）、autrement 后面接结果：Dépêche-toi, sinon tu vas rater le train。"
+      ],
+      "pairs": [
+        {
+          "a": "Si j'avais le temps, je t'aiderais.",
+          "b": "Si j'avais eu le temps, je t'aurais aidé.",
+          "d": "前句说现在没时间、现在帮不了；后句说过去没时间、当时没帮上"
+        },
+        {
+          "a": "Je me demande s'il viendra.",
+          "b": "S'il vient, je partirai.",
+          "d": "前句的 si 是「是否」，可以接将来时；后句的 si 是「如果」，只能接现在时"
+        },
+        {
+          "a": "Au cas où il pleuvrait, prends un parapluie.",
+          "b": "À condition qu'il fasse beau, nous sortirons.",
+          "d": "au cas où 接条件式；à condition que 接虚拟式"
+        },
+        {
+          "a": "Si j'avais fait médecine, je serais médecin aujourd'hui.",
+          "b": "Si j'avais fait médecine, j'aurais eu une vie très différente.",
+          "d": "结果落在现在 → 条件式现在时；结果也在过去 → 条件式过去时"
+        }
+      ],
+      "walk": {
+        "s": "Si l'entreprise avait investi dans la recherche il y a dix ans, elle serait aujourd'hui leader du marché, à moins que la crise n'ait tout remis en cause.",
+        "z": "如果这家企业十年前投资了研发，今天它就会是市场龙头，除非那场危机把一切都推翻了。",
+        "steps": [
+          [
+            "si 从句为什么用 avait investi？",
+            "条件在过去（il y a dix ans），而且与事实相反（实际上没投资）→ 愈过去时"
+          ],
+          [
+            "主句为什么是 serait，而不是 aurait été？",
+            "结果落在现在（aujourd'hui）→ 混合假设：si + 愈过去时 → 条件式现在时"
+          ],
+          [
+            "à moins que 后面为什么是 ait remis？",
+            "à moins que 要求虚拟式；危机的作用发生在过去，已经完成 → 虚拟式过去时 ait remis"
+          ],
+          [
+            "n'ait 里的 n' 是否定吗？",
+            "不是，是 à moins que 后可加可不加的赘词 ne；意思是「除非危机已经推翻了一切」"
+          ]
+        ]
+      },
+      "prereq": [
+        "conditionnel",
+        "cond-passe",
+        "plus-que-parfait",
+        "subjonctif"
+      ],
+      "related": [
+        "cond-incertain",
+        "subj-indicatif",
+        "gerondif",
+        "connecteurs"
+      ]
+    },
+    {
+      "id": "registre-inversion",
+      "level": "B2",
+      "category": "syntax",
+      "title": "句首倒装与语体升级：Peut-être、Aussi、À peine 与正式写作",
+      "fr": "L'inversion après certains adverbes et les registres de langue",
+      "intro": "书面语里，Peut-être、Sans doute、Aussi（因此）、À peine 等副词放在句首时，主语和动词要倒装，就像疑问句一样。这是 DELF B2 写作里最省力的「语体升级」手段之一；配合 {c:cela}、无人称结构、名词化和礼貌条件式，就能把口语化的句子改写成正式的议论文和信函语体。",
+      "motto": "Peut-être 打头要倒装，加 que 就不倒；Aussi 句首是「因此」；元音碰 il / elle 补 -t-",
+      "decide": [
+        "句首是不是 Peut-être、Sans doute、Aussi、À peine、Encore、Ainsi、Du moins 这类副词？ → 不是：正常语序",
+        "副词后面有没有 que（Peut-être que、Sans doute que）？ → 有：不倒装，用陈述语序（较日常）；没有：继续",
+        "主语是代词还是名词？ → 代词：直接倒装 动词-代词（Peut-être viendra-t-il）；名词：名词留在前面，再用代词复指倒装（Sans doute cette mesure sera-t-elle…）",
+        "倒装时动词以元音 -e / -a 结尾、主语是 il / elle / on 吗？ → 是：加 -t-（arrive-t-il、sera-t-elle）；以 -t / -d 结尾直接连字符（vient-il、prend-elle）",
+        "整篇是正式写作吗？ → 检查语体：ne 不省略，ça → cela，on → nous / 被动 / 无人称，口语连接词换成 en effet、par conséquent、néanmoins"
+      ],
+      "rules": [
+        {
+          "h": "句首情态 / 逻辑副词触发倒装",
+          "text": "书面语里，下列副词放在句首、后面不带 que 时，代词主语要和动词倒装：Peut-être（也许）、Sans doute（大概）、Aussi（因此，≠ 也）、À peine（刚刚）、Encore（不过，前提是）、Ainsi（这样）、Du moins、Tout au plus（至多）。其中 Peut-être、Sans doute 句首必须倒装；Ainsi、Du moins 倒装可有可无。不想倒装有两种办法：① 加 que：{k:Peut-être qu'}il viendra（日常语体）；② 把副词移到动词后：Il viendra peut-être（中性）。",
+          "formula": [
+            "{k:Peut-être} / {k:Sans doute} / {k:Aussi} + 动词-代词主语 …",
+            "{k:Peut-être que} / {k:Sans doute que} + 主语 + 动词（不倒装）",
+            "主语 + 动词 + {k:peut-être} / {k:sans doute}（副词后置，不倒装）"
+          ],
+          "ex": [
+            [
+              "{k:Peut-être} {v:viendra-t-il} demain.",
+              "他也许明天会来。",
+              "句首 Peut-être 不带 que → 倒装；viendra 以 a 结尾 → 加 -t-"
+            ],
+            [
+              "{k:Peut-être qu'}il viendra demain.",
+              "他也许明天会来。",
+              "加了 que → 恢复陈述语序，语体较日常"
+            ],
+            [
+              "Il viendra {k:peut-être} demain.",
+              "他也许明天会来。",
+              "副词放在动词后 → 不倒装，中性语体"
+            ],
+            [
+              "Le train était en retard ; {k:aussi} {v:avons-nous} pris un taxi.",
+              "火车晚点了，因此我们打了车。",
+              "句首 aussi = donc → 倒装"
+            ]
+          ]
+        },
+        {
+          "h": "名词主语的复合倒装",
+          "text": "主语是名词时，名词本身不能挪到动词后，而是留在原位，再在动词后加一个同性数的代词（il、elle、ils、elles）复指：{k:Sans doute} cette mesure {v:permettra-t-elle} de réduire les inégalités。复合时态只倒装助动词：{k:Peut-être} le ministre {v:a-t-il} mal évalué la situation。补音 -t- 的规则和疑问句倒装相同：动词以元音结尾（-e、-a）、主语是 il / elle / on 时插入 -t-；以 -t、-d 结尾时已经有读音 [t]，直接用连字符。",
+          "formula": [
+            "副词 + 名词主语 + 动词-{c:il} / {c:elle} / {c:ils} / {c:elles} …",
+            "复合时态：副词 + (名词主语) + 助动词-代词 + 过去分词",
+            "-e / -a 结尾 + {c:il} / {c:elle} / {c:on} → 动词-t-代词"
+          ],
+          "ex": [
+            [
+              "{k:Sans doute} cette mesure {v:permettra-t-elle} de réduire les inégalités.",
+              "这项措施大概能够减少不平等。",
+              "名词主语 cette mesure 留在前面，elle 复指并倒装"
+            ],
+            [
+              "{k:Peut-être} le ministre {v:a-t-il} mal évalué la situation.",
+              "也许部长错误地估计了形势。",
+              "复合时态：只倒装助动词 a，加 -t-"
+            ],
+            [
+              "{k:Ainsi} les citoyens {v:pourront-ils} s'exprimer librement.",
+              "这样一来，公民们就能自由表达了。",
+              "Ainsi 后倒装可选；名词复数 → ils"
+            ]
+          ]
+        },
+        {
+          "h": "高阶时间与转折倒装句型",
+          "text": "三个固定句型在议论文和叙述里很有分量：① {k:À peine} + 倒装 + … {k:que} + 主句：刚一……就……，从句多用复合时态（愈过去时 / 先过去时）：À peine était-il sorti qu'il s'est mis à pleuvoir。不倒装的写法是把 à peine 放回动词后：Il était à peine sorti que…。② {k:Toujours est-il que} + 直陈式：不管怎样，事实是……（承认前面的不确定，再强调一个确定的事实）。③ {k:Encore faut-il que} + 虚拟式：但前提还得是……（先让步，再提出一个必要条件）。",
+          "formula": [
+            "{k:À peine} + 助动词-代词 + 过去分词 + {k:que} + 主句",
+            "{k:Toujours est-il que} + 直陈式",
+            "{k:Encore faut-il que} + 虚拟式"
+          ],
+          "ex": [
+            [
+              "{k:À peine} {v:était-il} sorti {k:qu'}il s'est mis à pleuvoir.",
+              "他刚出门就下起雨来。",
+              "À peine 句首 → 倒装；que 引出紧接着发生的事"
+            ],
+            [
+              "Les causes restent floues ; {k:toujours est-il que} le projet {v:a échoué}.",
+              "原因仍不清楚；不管怎样，项目确实失败了。",
+              "toujours est-il que + 直陈式，强调确定的事实"
+            ],
+            [
+              "Cette réforme peut fonctionner ; {k:encore faut-il qu'}elle {v:soit} bien appliquée.",
+              "这项改革是可行的，但前提是它得到切实执行。",
+              "encore faut-il que + 虚拟式，提出必要条件"
+            ]
+          ]
+        },
+        {
+          "h": "DELF B2 正式写作的语体升级",
+          "text": "法语分三个语体：familier（熟人口语）、courant（标准）、soutenu（正式书面）。DELF B2 的议论文、正式信函要求 courant 到 soutenu。升级的几条路：① 指代：{c:ça} → {c:cela}，c'est pas → ce n'est pas，y a → il y a；② 泛指主语：on → nous、被动语态，或无人称 Il convient de / Il importe de / Il est essentiel de + 不定式；③ 句法：否定不省 ne，疑问用倒装，句首副词倒装，多用名词化（L'augmentation des prix…）；④ 语气：礼貌条件式（Je vous serais reconnaissant de…、Il serait souhaitable que…）；⑤ 连接词：du coup → par conséquent，mais bon → néanmoins，en plus → de surcroît / en outre。",
+          "formula": [
+            "familier → courant → soutenu",
+            "{c:ça} → {c:cela}；{c:on} → {c:nous} / 被动 / {k:Il convient de} + 不定式",
+            "命令 / 请求 → 礼貌条件式：Je vous {v:serais} reconnaissant de + 不定式"
+          ],
+          "ex": [
+            [
+              "{k:Il convient de} {v:souligner} que cette mesure reste insuffisante.",
+              "应当强调，这项措施仍然不够。",
+              "无人称结构代替 on doit dire"
+            ],
+            [
+              "Je vous {v:serais} reconnaissant de bien vouloir me répondre rapidement.",
+              "如蒙尽快回复，不胜感激。",
+              "礼貌条件式，正式信函的标准结尾"
+            ],
+            [
+              "{c:Cela} {k:ne} me semble {k:pas} pertinent.",
+              "我认为这并不恰当。",
+              "ça → cela，ne 不省略"
+            ]
+          ]
+        }
+      ],
+      "traps": [
+        "句首的 Aussi + 倒装意思是「因此」，不是「也」：Aussi avons-nous décidé de partir = 因此我们决定离开。「也」要用 aussi 放在动词后：Nous avons aussi décidé…。",
+        "倒装时动词以 -e、-a 结尾、主语是 il / elle / on 要加 -t-（Peut-être arrive-t-il、Sans doute sera-t-elle）；以 -t、-d 结尾不加（Peut-être vient-il、prend-elle）。",
+        "Peut-être 要么倒装，要么加 que：Peut-être viendra-t-il ✓、Peut-être qu'il viendra ✓；Peut-être il viendra ✗、Peut-être qu'il viendra-t-il ✗。",
+        "正式写作里不能混入口语：不省 ne（Je ne sais pas），不说 c'est pas、y a、ça、du coup、mais bon、bah，不用感叹词。"
+      ],
+      "tables": [
+        {
+          "title": "句首副词与倒装速查",
+          "tag": "r0",
+          "headers": [
+            "句首成分",
+            "意思",
+            "倒装？",
+            "例句"
+          ],
+          "rows": [
+            [
+              "{k:Peut-être}",
+              "也许",
+              "必须",
+              "{k:Peut-être} {v:a-t-il} raison."
+            ],
+            [
+              "{k:Peut-être que}",
+              "也许（日常）",
+              "不倒装",
+              "{k:Peut-être qu'}il a raison."
+            ],
+            [
+              "{k:Sans doute}",
+              "大概、想必",
+              "必须",
+              "{k:Sans doute} {v:est-il} déjà parti."
+            ],
+            [
+              "{k:Aussi}",
+              "因此（≠ 也）",
+              "通常倒装",
+              "{k:Aussi} {v:faut-il} agir vite."
+            ],
+            [
+              "{k:Ainsi}",
+              "这样、因此",
+              "可选",
+              "{k:Ainsi} {v:a-t-il} pu partir. / Ainsi, il a pu partir."
+            ],
+            [
+              "{k:Du moins}",
+              "至少",
+              "可选",
+              "{k:Du moins} {v:est-ce} ce qu'on dit."
+            ],
+            [
+              "{k:Encore}",
+              "不过、前提是",
+              "倒装",
+              "{k:Encore} {v:faut-il} le prouver."
+            ],
+            [
+              "{k:À peine} … {k:que}",
+              "刚……就",
+              "倒装",
+              "{k:À peine} {v:était-elle} arrivée {k:qu'}on l'a appelée."
+            ],
+            [
+              "{k:Toujours est-il que}",
+              "不管怎样，事实是",
+              "固定倒装",
+              "{k:Toujours est-il que} rien n'a changé."
+            ]
+          ],
+          "note": "副词放在动词后（Il a peut-être raison）时一律不倒装。"
+        },
+        {
+          "title": "倒装的连字符与补音 -t-",
+          "tag": "r1",
+          "headers": [
+            "动词结尾",
+            "主语",
+            "写法",
+            "例"
+          ],
+          "rows": [
+            [
+              "-e",
+              "il / elle / on",
+              "加 -t-",
+              "{v:arrive-t-il}、{v:semble-t-elle}"
+            ],
+            [
+              "-a",
+              "il / elle / on",
+              "加 -t-",
+              "{v:sera-t-il}、{v:a-t-on}"
+            ],
+            [
+              "-t",
+              "il / elle / on",
+              "只加连字符",
+              "{v:vient-il}、{v:est-elle}、{v:doit-on}"
+            ],
+            [
+              "-d",
+              "il / elle / on",
+              "只加连字符",
+              "{v:prend-il}、{v:répond-elle}"
+            ],
+            [
+              "-ent / -ont",
+              "ils / elles",
+              "只加连字符",
+              "{v:pourront-ils}、{v:sont-elles}"
+            ]
+          ]
+        },
+        {
+          "title": "三种语体对照",
+          "tag": "r3",
+          "headers": [
+            "familier（口语）",
+            "courant（标准）",
+            "soutenu（正式）",
+            "说明"
+          ],
+          "rows": [
+            [
+              "C'est pas possible.",
+              "Ce n'est pas possible.",
+              "Cela n'est guère envisageable.",
+              "补回 ne；ça / c' → cela"
+            ],
+            [
+              "Y a un problème.",
+              "Il y a un problème.",
+              "Un problème se pose.",
+              "il 不省；用代动式"
+            ],
+            [
+              "On doit agir.",
+              "Nous devons agir.",
+              "{k:Il convient d'}agir.",
+              "on → nous → 无人称结构"
+            ],
+            [
+              "Du coup, on a annulé.",
+              "Donc, nous avons annulé.",
+              "{k:Aussi} {v:avons-nous} annulé.",
+              "连接词升级 + 倒装"
+            ],
+            [
+              "Peut-être qu'il viendra.",
+              "Il viendra peut-être.",
+              "{k:Peut-être} {v:viendra-t-il}.",
+              "句首副词倒装"
+            ],
+            [
+              "Tu peux m'envoyer le dossier ?",
+              "Pouvez-vous m'envoyer le dossier ?",
+              "Je vous {v:serais} reconnaissant de m'envoyer le dossier.",
+              "礼貌条件式"
+            ],
+            [
+              "Les prix montent, ça énerve les gens.",
+              "Les prix augmentent, cela agace les gens.",
+              "La hausse des prix suscite le mécontentement.",
+              "名词化"
+            ]
+          ]
+        }
+      ],
+      "pitfalls": [
+        {
+          "wrong": "Il pleuvait. Aussi nous avons pris un parapluie.",
+          "right": "Il pleuvait ; {k:aussi} {v:avons-nous} pris un parapluie.",
+          "why": "把 aussi 一律理解成「也」，放在句首又不倒装。句首的 aussi 是书面连接词「因此」，后面要倒装；想说「我们也带了伞」应写 Nous avons aussi pris un parapluie。",
+          "tag": "t0"
+        },
+        {
+          "wrong": "Sans doute cette décision sera-elle contestée.",
+          "right": "{k:Sans doute} cette décision {v:sera-t-elle} contestée.",
+          "why": "sera 以元音 a 结尾，后接 elle 时两个元音直接碰在一起，要插入 -t- 补音；vient-il、prend-elle 这类以 -t / -d 结尾的才不用加。",
+          "tag": "t1"
+        },
+        {
+          "wrong": "Peut-être il a oublié notre rendez-vous.",
+          "right": "{k:Peut-être} {v:a-t-il} oublié notre rendez-vous.",
+          "why": "按「也许 + 他 + 忘了」的语序直接排列。法语句首的 peut-être 后面不能接普通语序：要么倒装，要么写 Peut-être qu'il a oublié，要么把副词放到动词后 Il a peut-être oublié。",
+          "tag": "t2"
+        },
+        {
+          "wrong": "Je pense que c'est pas une bonne idée, du coup on devrait changer ça.",
+          "right": "{c:Cela} {k:ne} me semble {k:pas} judicieux ; par conséquent, il conviendrait de revoir ce projet.",
+          "why": "考试作文照搬口语：省掉 ne、用 c'est pas、du coup、ça 和泛泛的 on。正式语体要补回 ne，用 cela、par conséquent、无人称结构和条件式表达建议。",
+          "tag": "t3"
+        }
+      ],
+      "exceptions": [
+        "主语是 je 时书面倒装很少见，除了少数固定形式：Peut-être ai-je tort、Sans doute suis-je trop sévère、Puis-je… ?（pouvoir 的倒装形式是 puis-je）。",
+        "Aussi 放在句首、后面有逗号或不倒装时，现代也有人用，但考试里建议「Aussi + 倒装」或改用 C'est pourquoi / Par conséquent。",
+        "Ainsi 后的倒装可有可无：Ainsi a-t-il pu partir / Ainsi, il a pu partir。",
+        "Sans doute 在现代法语里表示「大概」；「毫无疑问」要说 sans aucun doute。",
+        "引语后的插入句也倒装：« Je viendrai », a-t-il dit；« C'est faux », répondit-elle。"
+      ],
+      "pairs": [
+        {
+          "a": "Peut-être viendra-t-il demain.",
+          "b": "Peut-être qu'il viendra demain.",
+          "d": "句首 peut-être 不带 que 要倒装；带了 que 就用陈述语序"
+        },
+        {
+          "a": "Nous avons aussi pris un taxi.",
+          "b": "Aussi avons-nous pris un taxi.",
+          "d": "动词后的 aussi 是「也」；句首加倒装的 aussi 是「因此」"
+        },
+        {
+          "a": "Sans doute est-il malade.",
+          "b": "Sans aucun doute, il est malade.",
+          "d": "sans doute 是「大概」，后面倒装；sans aucun doute 是「毫无疑问」，不倒装"
+        },
+        {
+          "a": "Il était à peine arrivé qu'on l'a appelé.",
+          "b": "À peine était-il arrivé qu'on l'a appelé.",
+          "d": "à peine 在动词后用普通语序；放到句首就要倒装，语体更正式"
+        }
+      ],
+      "walk": {
+        "s": "À peine le gouvernement avait-il annoncé la réforme que les syndicats ont appelé à la grève ; sans doute la négociation sera-t-elle longue.",
+        "z": "政府刚宣布改革，工会就号召罢工；谈判大概会旷日持久。",
+        "steps": [
+          [
+            "À peine 后面为什么是 le gouvernement avait-il，而不是 avait le gouvernement？",
+            "名词主语不直接倒装：le gouvernement 留在前面，再用代词 il 倒装在助动词 avait 后（复合倒装）"
+          ],
+          [
+            "que les syndicats ont appelé 里的 que 起什么作用？",
+            "À peine … que 是固定句型：「刚……就……」，que 引出紧接着发生的事"
+          ],
+          [
+            "sans doute 后为什么倒装？",
+            "sans doute 放在句首又没有 que → 必须倒装；名词主语 la négociation 留在前面，用 elle 复指"
+          ],
+          [
+            "sera-t-elle 里的 -t- 是怎么来的？",
+            "sera 以元音 a 结尾，后面接 elle，要插入 -t- 补音"
+          ]
+        ]
+      },
+      "prereq": [
+        "interrogation",
+        "adverbes",
+        "cause-consequence"
+      ],
+      "related": [
+        "connecteurs",
+        "nominalisation",
+        "mise-en-relief",
+        "impersonnel"
+      ]
+    }
+  ]
+}

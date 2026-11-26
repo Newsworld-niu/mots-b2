@@ -15,15 +15,33 @@ const grammarFull = JSON.parse(
   fs.readFileSync(new URL("../../public/atlas/grammar.json", import.meta.url), "utf8"),
 ) as GrammarData;
 
-test("M23-C: GRAMMAR_SPRINT_BANK has 84 curated 4-option items with 100% valid grammar-meta points", () => {
-  assert.ok(GRAMMAR_SPRINT_BANK.length >= 80, `expected >= 80 items, got ${GRAMMAR_SPRINT_BANK.length}`);
-  assert.equal(GRAMMAR_SPRINT_BANK.length, 84);
+test("M23-C: GRAMMAR_SPRINT_BANK has 108 curated 4-option items with 100% valid grammar-meta points", () => {
+  assert.equal(GRAMMAR_SPRINT_BANK.length, 108);
+  for (const d of [1, 2, 3, 4, 5, 6] as const) {
+    assert.equal(
+      GRAMMAR_SPRINT_BANK.filter((it) => it.difficulty === d).length,
+      18,
+      `difficulty ${d} should hold 18 items`,
+    );
+  }
 
   const metaIds = new Set(grammarMeta.points.map((p) => p.id));
   const fullById = new Map(grammarFull.points.map((p) => [p.id, p]));
   const seenIds = new Set<string>();
 
   for (const item of GRAMMAR_SPRINT_BANK) {
+    if (Number(item.id.slice(3)) > 84) {
+      assert.ok(item.optionWhy, `${item.id}: expansion items must carry optionWhy`);
+    }
+    if (item.optionWhy) {
+      assert.equal(item.optionWhy.length, 4, `${item.id}: optionWhy must align with 4 options`);
+      item.optionWhy.forEach((w, i) => {
+        assert.ok(w.trim().length > 4, `${item.id}: empty optionWhy[${i}]`);
+        if (item.category !== "error") {
+          assert.equal(w.startsWith("✓"), i === item.answer, `${item.id}: optionWhy[${i}] ✓/✗ must match the answer`);
+        }
+      });
+    }
     assert.ok(!seenIds.has(item.id), `duplicate sprint item id: ${item.id}`);
     seenIds.add(item.id);
     assert.ok(["structure", "lexique", "error"].includes(item.category), `${item.id}: bad category`);

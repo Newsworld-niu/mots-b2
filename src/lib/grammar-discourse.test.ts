@@ -13,8 +13,18 @@ const grammarFull = JSON.parse(
   fs.readFileSync(new URL("../../public/atlas/grammar.json", import.meta.url), "utf8"),
 ) as GrammarData;
 
-test("M23-C: DISCOURSE_EXERCISES has exactly 40 well-formed B1/B2 passages with 100% valid grammar-meta points and sub-rule tags", () => {
-  assert.equal(DISCOURSE_EXERCISES.length, 40);
+/** B2 points whose hand-written content lands before the next grammar build regenerates public/atlas/*. */
+const NEW_B2 = new Set(["causatif", "hypothese-systeme", "registre-inversion"]);
+
+test("M23-C: DISCOURSE_EXERCISES has exactly 46 well-formed B1/B2 passages with 100% valid grammar-meta points and sub-rule tags", () => {
+  assert.equal(DISCOURSE_EXERCISES.length, 46);
+  assert.ok(DISCOURSE_EXERCISES.filter((ex) => ex.kind === "fix").length >= 2, "at least 2 fix passages");
+  for (const id of NEW_B2) {
+    assert.ok(
+      DISCOURSE_EXERCISES.some((ex) => ex.slots.some((s) => s.point === id)),
+      `new B2 point ${id} must be trained by at least one passage`,
+    );
+  }
 
   const metaPointIds = new Set(grammarMeta.points.map((p) => p.id));
   const fullPointById = new Map(grammarFull.points.map((p) => [p.id, p]));

@@ -9,12 +9,15 @@
  *   fix        { "k": "f", "s": "… {sont parti} …", "r": ["sont partis"] | [], "y", "z", "g"? }
  *              (r empty = the underlined part is right)
  *   transform  { "k": "x", "q": "sentence given", "h": "instruction", "a": ["reference answer", "other accepted"], "y", "z", "g"? }
+ *   order      { "k": "o", "s": "Donne-le-moi !", "t": ["donne", "-le", "-moi"], "p": " !", "alts"?: [[…]], "h"?, "y", "z", "g"? }
+ *              (t: 4–16 word blocks that joinOrderTokens(t, p) turns back into s; alts: other right orders of the
+ *              same blocks. Written order drills are strict: only t and alts are accepted.)
  *
  * "g" is what the drill trains: "r<i>" the point's rule i, "t<i>" its trap i (0-based).
  */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { Drill } from "../../src/lib/grammar.ts";
+import { joinOrderTokens, sameTokenMultiset, type Drill } from "../../src/lib/grammar.ts";
 
 const ROOT = resolve(import.meta.dirname, "../..");
 
@@ -54,7 +57,18 @@ export interface WrittenTransform {
   z: string;
   g?: string;
 }
-export type Written = WrittenChoice | WrittenType | WrittenFix | WrittenTransform;
+export interface WrittenOrder {
+  k: "o";
+  s: string;
+  t: string[];
+  p: string;
+  alts?: string[][];
+  h?: string;
+  y: string;
+  z: string;
+  g?: string;
+}
+export type Written = WrittenChoice | WrittenType | WrittenFix | WrittenTransform | WrittenOrder;
 
 /** Points whose drills ask for the verb form itself: another person of the verb is a fair distractor there. */
 export const PERSON_IS_THE_POINT = new Set(["present", "imparfait", "futur", "imperatif", "passe-simple"]);
@@ -110,6 +124,7 @@ export interface Problem {
 
 const str = (v: unknown) => typeof v === "string" && v.trim().length > 0;
 const TAG = /^[rt]\d+$/;
+const ELISION_SPACE = /(?:^|[^\p{L}])(?:qu|d|l|j|n|m|t|s|c|jusqu|lorsqu|puisqu|quoiqu)['’]\s+\p{L}/iu;
 
 /**
  * Turn the written drills of a point into built drills. Problems are collected rather than thrown, so a
@@ -122,6 +137,10 @@ export function parseWritten(point: string, list: unknown[], counts: { rules: nu
     const r = raw as { s?: unknown; q?: unknown } | null;
     const label = typeof r?.s === "string" ? r.s : typeof r?.q === "string" ? r.q : "";
     const bad = (msg: string) => problems.push({ point, at: `${at} ${label}`.slice(0, 120), msg });
+    const checkElision = (text: string, where: string) => {
+      const em = ELISION_SPACE.exec(text);
+      if (em) bad(`space after elision apostrophe in ${where}: « ${em[0].trim()} »`);
+    };
     if (!raw || typeof raw !== "object") return bad("not an object");
     const w = raw as Written;
     if (!str(w.z) || !str(w.y)) return bad("z and y are required");
@@ -139,10 +158,12 @@ export function parseWritten(point: string, list: unknown[], counts: { rules: nu
       const [, before, answer, after] = m;
       const s = before + answer + after;
       const b: [number, number] = [before.length, before.length + answer.length];
+      checkElision(s, "s");
       if (kind === "t") {
         const t = ww as WrittenType;
         if (!str(t.h)) return bad("a typed drill needs a hint (h)");
         const alts = Array.isArray(t.a) ? t.a.filter(str) : [];
+        for (const alt of alts) checkElision(before + alt + after, "a");
         out.push({ k: "t", s, z: w.z, b, a: [answer, ...alts.filter((x) => x !== answer)], h: t.h, y: w.y, ...g });
         return;
       }
@@ -173,13 +194,35 @@ export function parseWritten(point: string, list: unknown[], counts: { rules: nu
       if (!Array.isArray(f.r) || f.r.some((x) => !str(x))) return bad("r must be a list of corrections ([] when right)");
       const [, before, seg, after] = m;
       if (f.r.some((x) => x.trim() === seg.trim())) return bad("a correction equals the underlined part");
+      if (f.r.length === 0) checkElision(before + seg + after, "s");
+      else for (const r of f.r) checkElision(before + r + after, "r");
       out.push({ k: "f", s: before + seg + after, z: w.z, b: [before.length, before.length + seg.length], r: f.r, h: f.h ?? "", y: w.y, ...g });
       return;
     }
     if (kind === "x") {
       const x = w as WrittenTransform;
       if (!str(x.q) || !str(x.h) || !Array.isArray(x.a) || !x.a.length || x.a.some((a) => !str(a))) return bad("a transform needs q, h and a");
+      checkElision(x.q, "q");
+      for (const a of x.a) checkElision(a, "a");
       out.push({ k: "x", q: x.q, s: x.a[0], z: w.z, a: x.a, h: x.h, y: w.y, ...g });
+      return;
+    }
+    if (kind === "o") {
+      const o = w as WrittenOrder;
+      if (!str(o.s)) return bad("an order drill needs s");
+      checkElision(o.s, "s");
+      if (!Array.isArray(o.t) || o.t.length < 4 || o.t.length > 16 || o.t.some((x) => !str(x))) return bad("t must be 4–16 non-empty word blocks");
+      if (typeof o.p !== "string") return bad("p (final punctuation) must be a string");
+      const joined = joinOrderTokens(o.t, o.p);
+      if (joined.toLowerCase() !== o.s.toLowerCase()) return bad(`t and p rebuild « ${joined} », not s`);
+      if (o.h !== undefined && !str(o.h)) return bad("h must be a non-empty string when given");
+      let alts: string[][] = [];
+      if (o.alts !== undefined) {
+        if (!Array.isArray(o.alts) || o.alts.some((a) => !Array.isArray(a) || a.some((x) => !str(x)))) return bad("alts must be a list of word-block lists");
+        if (o.alts.some((a) => !sameTokenMultiset(a, o.t))) return bad("every alt must use exactly the blocks of t");
+        alts = o.alts;
+      }
+      out.push({ k: "o", s: o.s, z: w.z, t: o.t, p: o.p, ...(alts.length ? { alts } : {}), strict: true, h: o.h ?? "排出正确的法语语序", y: w.y, ...g });
       return;
     }
     bad(`unknown kind ${String(kind)}`);
