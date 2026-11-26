@@ -15,9 +15,6 @@ const grammarFull = JSON.parse(
   fs.readFileSync(new URL("../../public/atlas/grammar.json", import.meta.url), "utf8"),
 ) as GrammarData;
 
-/** B2 points whose hand-written content lands before the next grammar build regenerates public/atlas/*. */
-const NEW_B2 = new Set(["causatif", "hypothese-systeme", "registre-inversion"]);
-
 test("M23-C: GRAMMAR_SPRINT_BANK has 108 curated 4-option items with 100% valid grammar-meta points", () => {
   assert.equal(GRAMMAR_SPRINT_BANK.length, 108);
   for (const d of [1, 2, 3, 4, 5, 6] as const) {
@@ -66,12 +63,6 @@ test("M23-C: GRAMMAR_SPRINT_BANK has 108 curated 4-option items with 100% valid 
     );
     assert.ok([0, 1, 2, 3].includes(item.answer), `${item.id}: invalid answer index ${item.answer}`);
     assert.ok(item.why.trim().length > 5 && !item.why.includes("Wait"), `${item.id}: invalid why`);
-    if (NEW_B2.has(item.point) && !fullById.has(item.point)) {
-      // Not yet compiled into grammar.json / grammar-meta.json: the new points carry r0..r3 / t0..t3.
-      // Once the build regenerates public/atlas, these items fall through to the full checks below.
-      assert.ok(!item.tag || /^[rt][0-3]$/.test(item.tag), `${item.id}: invalid tag "${item.tag}" for new point ${item.point}`);
-      continue;
-    }
     assert.ok(metaIds.has(item.point), `${item.id}: point "${item.point}" missing from grammar-meta.json`);
     const pt = fullById.get(item.point);
     assert.ok(pt, `${item.id}: point "${item.point}" missing from grammar.json`);

@@ -506,6 +506,8 @@
 .gram-detail-layout,
 .gram-read,
 .gram-side,
+.gram-sec,
+.gram-formula,
 .gram-practice-panel,
 .gram-table,
 .gram-matrices,
@@ -521,6 +523,8 @@
 .gram-formula {
   display: grid;
   gap: 4px;
+  min-width: 0;
+  max-width: 100%;
   margin: 12px 0 0;
   padding: 12px 16px;
   border-left: 3px solid var(--sky);
@@ -528,10 +532,12 @@
   background: var(--paper-2);
 }
 .gram-formula-line {
+  min-width: 0;
   margin: 0;
   font-family: var(--serif);
   font-size: 16px;
   line-height: 1.75;
+  overflow-wrap: anywhere;
 }
 .gram-op {
   margin: 0 0.4em;

@@ -139,7 +139,8 @@ function checkRule(where: string, r: unknown): GrammarRule {
 function checkTable(where: string, t: unknown): GrammarTable {
   const x = t as GrammarTable;
   if (!x || typeof x !== "object" || !isStr(x.title)) fail(where, "a table needs a title");
-  if (!isStrList(x.headers) || !x.headers.length) fail(where, `table « ${x.title} »: headers must be a non-empty list of strings`);
+  if (!Array.isArray(x.headers) || !x.headers.length || x.headers.some((h) => typeof h !== "string") || !x.headers.some(isStr))
+    fail(where, `table « ${x.title} »: headers must be a non-empty list of strings`);
   if (!Array.isArray(x.rows) || !x.rows.length) fail(where, `table « ${x.title} »: rows must be a non-empty list`);
   x.rows.forEach((row, i) => {
     if (!Array.isArray(row) || row.length !== x.headers.length || row.some((c) => typeof c !== "string"))
@@ -269,26 +270,49 @@ for (const p of points)
   for (const k of ["prereq", "related"] as const)
     for (const id of p[k] ?? []) if (!pointById.has(id) || id === p.id) fail(`${p.id} ${k}`, `no grammar point "${id}"`);
 
+const LV_ORDER: Record<string, number> = { A1: 0, A2: 1, B1: 2, B2: 3 };
 let matrices: GrammarMatrix[] = [];
 if (exists("data/grammar/matrices.json")) {
   const list: unknown = read("data/grammar/matrices.json").matrices;
   if (!Array.isArray(list)) fail("matrices.json", "matrices must be a list");
   const seenIds = new Set<string>();
-  for (const m of list as GrammarMatrix[]) {
-    const where = `matrices.json ${m?.id ?? "?"}`;
-    if (!m || !isStr(m.id)) fail(where, "id is required");
-    if (seenIds.has(m.id)) fail(where, "duplicate id");
-    seenIds.add(m.id);
-    if (!isStr(m.title) || !isStr(m.fr) || !isStr(m.summary) || !isStr(m.motto)) fail(where, "title, fr, summary and motto are required");
-    if (!LEVEL_SET.has(m.level)) fail(where, `bad level ${m.level}`);
-    if (!CATEGORY_SET.has(m.category)) fail(where, `bad category ${m.category}`);
-    checkTable(where, { title: m.title, headers: m.headers, rows: m.rows });
-    if (m.decide !== undefined && !isStrList(m.decide)) fail(where, "decide must be a list of strings");
-    (m.pitfalls ?? []).forEach((x) => checkPitfall(where, x));
-    if (!isStrList(m.points) || !m.points.length) fail(where, "points must list grammar point ids");
-    for (const id of m.points) if (!pointById.has(id)) fail(where, `no grammar point "${id}"`);
+  for (const raw of list as (Partial<GrammarMatrix> & { intro?: string })[]) {
+    const where = `matrices.json ${raw?.id ?? "?"}`;
+    if (!raw || !isStr(raw.id)) fail(where, "id is required");
+    if (seenIds.has(raw.id)) fail(where, "duplicate id");
+    seenIds.add(raw.id);
+    const summary = raw.summary ?? raw.intro ?? "";
+    if (!isStr(raw.title) || !isStr(raw.fr) || !isStr(summary)) fail(where, "title, fr and summary/intro are required");
+    if (raw.motto !== undefined && !isStr(raw.motto)) fail(where, "motto must be a non-empty string");
+    if (!isStrList(raw.points) || !raw.points.length) fail(where, "points must list grammar point ids");
+    for (const id of raw.points) if (!pointById.has(id)) fail(where, `no grammar point "${id}"`);
+    const linkedPts = raw.points.map((id) => pointById.get(id)!);
+    const derivedLv = linkedPts.reduce<GrammarPoint["level"]>((acc, pt) => (LV_ORDER[pt.level] > LV_ORDER[acc] ? pt.level : acc), linkedPts[0].level);
+    const level = raw.level ?? derivedLv;
+    const category = raw.category ?? linkedPts[0].category ?? "clause";
+    if (!LEVEL_SET.has(level)) fail(where, `bad level ${level}`);
+    if (!CATEGORY_SET.has(category)) fail(where, `bad category ${category}`);
+    const rawTables = Array.isArray(raw.tables) && raw.tables.length
+      ? raw.tables.map((t) => checkTable(where, t))
+      : raw.headers && raw.rows
+        ? [checkTable(where, { title: raw.title, headers: raw.headers, rows: raw.rows })]
+        : fail(where, "tables (or headers + rows) are required");
+    if (raw.decide !== undefined && !isStrList(raw.decide)) fail(where, "decide must be a list of strings");
+    const pitfalls = (raw.pitfalls ?? []).map((x) => checkPitfall(where, x));
+    matrices.push({
+      id: raw.id,
+      title: raw.title,
+      fr: raw.fr,
+      level,
+      category,
+      summary,
+      ...(raw.motto ? { motto: raw.motto } : {}),
+      tables: rawTables,
+      ...(raw.decide?.length ? { decide: raw.decide } : {}),
+      ...(pitfalls.length ? { pitfalls } : {}),
+      points: raw.points,
+    });
   }
-  matrices = list as GrammarMatrix[];
 }
 
 /* every text that may carry {v:…} marks must be well-formed */
@@ -316,7 +340,7 @@ for (const p of points) {
   ]);
 }
 for (const m of matrices)
-  checkMarks(`matrix ${m.id}`, [m.title, m.summary, m.motto, ...m.headers, ...m.rows.flat(), ...(m.decide ?? []), ...(m.pitfalls ?? []).flatMap(pitfallTexts)]);
+  checkMarks(`matrix ${m.id}`, [m.title, m.summary, m.motto, ...m.tables.flatMap(tableTexts), ...(m.decide ?? []), ...(m.pitfalls ?? []).flatMap(pitfallTexts)]);
 
 /* ---------- drill collection ---------- */
 

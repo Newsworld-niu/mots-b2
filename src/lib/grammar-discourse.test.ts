@@ -76,12 +76,6 @@ test("M23-C: DISCOURSE_EXERCISES has exactly 46 well-formed B1/B2 passages with 
         );
       }
 
-      if (NEW_B2.has(slot.point) && !fullPointById.has(slot.point)) {
-        // Not yet compiled into grammar.json / grammar-meta.json: the new points carry r0..r3 / t0..t3.
-        // Once the build regenerates public/atlas, these slots fall through to the full checks below.
-        assert.ok(!slot.tag || /^[rt][0-3]$/.test(slot.tag), `${ex.id}/${slot.id}: invalid tag "${slot.tag}" for new point ${slot.point}`);
-        continue;
-      }
       assert.ok(metaPointIds.has(slot.point), `${ex.id}/${slot.id}: unknown point "${slot.point}" in grammar-meta.json`);
       const fullPt = fullPointById.get(slot.point);
       assert.ok(fullPt, `${ex.id}/${slot.id}: unknown point "${slot.point}" in grammar.json`);

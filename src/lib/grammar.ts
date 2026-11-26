@@ -121,9 +121,10 @@ export interface GrammarMatrix {
   level: "A1" | "A2" | "B1" | "B2";
   category: GrammarCategory;
   summary: string;
-  motto: string;
-  headers: string[];
-  rows: string[][];
+  motto?: string;
+  tables: GrammarTable[];
+  headers?: string[];
+  rows?: string[][];
   decide?: string[];
   pitfalls?: GrammarPitfall[];
   points: string[];

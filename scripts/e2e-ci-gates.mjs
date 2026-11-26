@@ -358,6 +358,125 @@ try {
     assertCheck("Suite C: zero uncaught pageerrors on 390x844 routes", mobErrors.length === 0, JSON.stringify(mobErrors));
     await ctxMob.close();
   }
+
+  // Suite D: Grammar 4-dimension upgrade E2E gate (matrices, rich point layout, 390px wide tables, focused+retry loop & offline deep link)
+  {
+    const ctxGram = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "zh-CN" });
+    await ctxGram.addInitScript((s) => {
+      if (!sessionStorage.getItem("seeded")) {
+        localStorage.setItem("word-atlas:settings", s);
+        sessionStorage.setItem("seeded", "1");
+      }
+    }, SETTINGS_DEFAULT);
+    const pageG = await ctxGram.newPage();
+    const gramErrors = [];
+    pageG.on("pageerror", (e) => gramErrors.push(e.message));
+
+    await pageG.goto(BASE + "#/grammar", { waitUntil: "networkidle" });
+    await pageG.waitForSelector(".gram-card");
+    const totalCards = await pageG.locator(".gram-card").count();
+    assertCheck("Suite D: grammar overview renders 66 points", totalCards >= 20, `visibleCards=${totalCards}`);
+
+    // Open comparison matrices hub (#/grammar?sheet=1)
+    await pageG.goto(BASE + "#/grammar?sheet=1", { waitUntil: "networkidle" });
+    await pageG.waitForSelector(".gram-matrix");
+    const matrixCount = await pageG.locator(".gram-matrix").count();
+    const rawMarkLeakSheet = await pageG.evaluate(() => /\{[vpcak]:/.test(document.body.innerText || ""));
+    assertCheck("Suite D: comparison hub renders 12 cross-chapter matrices with zero raw mark leaks", matrixCount === 12 && !rawMarkLeakSheet, `matrices=${matrixCount} leak=${rawMarkLeakSheet}`);
+
+    // Open new B2 point causatif with deep-link section=r3
+    await pageG.goto(BASE + "#/grammar?p=causatif&section=r3", { waitUntil: "networkidle" });
+    await pageG.waitForSelector("#gram-sec-r3");
+    const hasRich = await pageG.evaluate(() => ({
+      formulas: document.querySelectorAll(".gram-formula").length,
+      tables: document.querySelectorAll(".gram-table").length,
+      pitfalls: document.querySelectorAll(".gram-pitfall").length,
+      marks: document.querySelectorAll(".gm-affix, .gm-pill").length,
+      leak: /\{[vpcak]:/.test(document.body.innerText || ""),
+    }));
+    assertCheck(
+      "Suite D: PointView renders formulas, tables, ✓/✗ pitfalls & semantic highlights without raw mark leaks",
+      hasRich.formulas >= 1 && hasRich.tables >= 1 && hasRich.pitfalls >= 1 && hasRich.marks >= 3 && !hasRich.leak,
+      JSON.stringify(hasRich),
+    );
+
+    // Focused choice round -> deliberately miss >=1 item -> check inline rule card -> finish -> Summary -> Retry Missed without extra FSRS reps
+    await pageG.locator(".gram-kind-filter button", { hasText: "选择" }).click();
+    await pageG.locator(".gram-practice-go").click();
+    await pageG.waitForSelector(".gram-run");
+    let sawRuleCard = false;
+    for (let step = 0; step < 12; step++) {
+      if (!(await pageG.locator(".gram-run").count())) break;
+      const opts = pageG.locator(".gram-run .option:not([disabled])");
+      if (await opts.count()) {
+        await opts.first().click();
+        await pageG.waitForTimeout(120);
+        if (await pageG.locator(".conj-feedback .gram-rule-glance, .conj-feedback details").count()) sawRuleCard = true;
+      }
+      const nextBtn = pageG.getByRole("button", { name: /^继续/ });
+      if (await nextBtn.count()) {
+        await nextBtn.click();
+        await pageG.waitForTimeout(120);
+      }
+    }
+    await pageG.waitForSelector(".typing-done");
+    await pageG.waitForTimeout(350); // store persists to localStorage after a 250ms debounce
+    const repsAfterRound = await pageG.evaluate((k) => {
+      const p = JSON.parse(localStorage.getItem(k) || "{}");
+      return p.gram?.causatif?.reps ?? 0;
+    }, DATASET_KEY);
+    assertCheck("Suite D: focused round shows inline rule card and records initial FSRS state", sawRuleCard && repsAfterRound === 1, `sawRuleCard=${sawRuleCard} reps=${repsAfterRound}`);
+
+    const retryBtn = pageG.getByRole("button", { name: /重练本轮错题/ });
+    if (await retryBtn.count()) {
+      await retryBtn.click();
+      await pageG.waitForSelector(".gram-run-mode.is-retry");
+      for (let step = 0; step < 12; step++) {
+        if (!(await pageG.locator(".gram-run").count())) break;
+        const opts = pageG.locator(".gram-run .option:not([disabled])");
+        if (await opts.count()) {
+          await opts.first().click();
+          await pageG.waitForTimeout(100);
+        }
+        const nextBtn = pageG.getByRole("button", { name: /^继续/ });
+        if (await nextBtn.count()) {
+          await nextBtn.click();
+          await pageG.waitForTimeout(100);
+        }
+      }
+      await pageG.waitForSelector(".typing-done");
+      await pageG.waitForTimeout(350);
+      const repsAfterRetry = await pageG.evaluate((k) => {
+        const p = JSON.parse(localStorage.getItem(k) || "{}");
+        return p.gram?.causatif?.reps ?? 0;
+      }, DATASET_KEY);
+      assertCheck("Suite D: retry round preserves original FSRS reps without double-counting", repsAfterRetry === repsAfterRound, `before=${repsAfterRound} after=${repsAfterRetry}`);
+    }
+
+    // Offline reload of grammar deep link + mobile 390px overflow gate across matrices & ALL 66 grammar points
+    await ctxGram.setOffline(true);
+    await pageG.goto(BASE + "#/grammar?p=double-pronoms&section=r1", { waitUntil: "domcontentloaded" });
+    await pageG.waitForSelector("#gram-sec-r1", { timeout: 10000 });
+    const offlineTitle = await pageG.locator("h1.gram-title").innerText();
+    assertCheck("Suite D: offline reload of #/grammar?p=double-pronoms&section=r1 succeeds from SW cache", offlineTitle.includes("两个宾语代词"), offlineTitle);
+    await ctxGram.setOffline(false);
+
+    await pageG.setViewportSize({ width: 390, height: 844 });
+    const metaPts = await pageG.evaluate(async (u) => (await fetch(u)).json(), BASE + "atlas/grammar-meta.json");
+    const gramMobRoutes = ["#/grammar?sheet=1", ...metaPts.points.map((pt) => `#/grammar?p=${pt.id}`)];
+    const gramOverflows = [];
+    for (const r of gramMobRoutes) {
+      await pageG.goto(BASE + r, { waitUntil: "networkidle" });
+      const ov = await pageG.evaluate(() => ({
+        sw: document.documentElement.scrollWidth,
+        cw: document.documentElement.clientWidth,
+      }));
+      if (ov.sw > ov.cw) gramOverflows.push({ route: r, ...ov });
+    }
+    assertCheck(`Suite D: 390x844 zero horizontal overflow across matrices & all ${metaPts.points.length} grammar point pages`, gramOverflows.length === 0, JSON.stringify(gramOverflows));
+    assertCheck("Suite D: zero uncaught pageerrors across grammar E2E flows", gramErrors.length === 0, JSON.stringify(gramErrors));
+    await ctxGram.close();
+  }
 } finally {
   await browser.close();
 }

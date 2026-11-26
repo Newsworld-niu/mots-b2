@@ -510,7 +510,19 @@ export function CheatSheet({ data, section }: { data: GrammarData; section?: str
     (m) =>
       (cat === "all" || m.category === cat) &&
       (!mqn ||
-        searchNorm([m.title, m.fr, m.summary, m.motto, ...m.headers, ...m.rows.flat(), ...(m.decide ?? []), ...m.points.map((id) => titleOf(data, id))].join(" ")).includes(mqn)),
+        searchNorm(
+          [
+            m.title,
+            m.fr,
+            m.summary,
+            m.motto ?? "",
+            ...(m.tables ?? []).flatMap((t) => [t.title, ...t.headers, ...t.rows.flat()]),
+            ...(m.headers ?? []),
+            ...(m.rows?.flat() ?? []),
+            ...(m.decide ?? []),
+            ...m.points.map((id) => titleOf(data, id)),
+          ].join(" "),
+        ).includes(mqn)),
   );
 
   const q = searchNorm(query.trim());
@@ -664,6 +676,12 @@ export function CheatSheet({ data, section }: { data: GrammarData; section?: str
 
 function MatrixCard({ data, matrix: m, open, onToggle }: { data: GrammarData; matrix: GrammarMatrix; open: boolean; onToggle: () => void }) {
   const extra = (m.decide?.length ?? 0) + (m.pitfalls?.length ?? 0) > 0;
+  const tables =
+    m.tables && m.tables.length > 0
+      ? m.tables
+      : m.headers && m.rows
+        ? [{ title: "横向对比", headers: m.headers, rows: m.rows }]
+        : [];
   return (
     <article id={`gram-mat-${m.id}`} className="panel gram-matrix">
       <header className="gram-matrix-head">
@@ -677,11 +695,15 @@ function MatrixCard({ data, matrix: m, open, onToggle }: { data: GrammarData; ma
         <p className="gram-matrix-summary">
           <RichGrammarText text={m.summary} />
         </p>
-        <p className="gram-motto">
-          <RichGrammarText text={m.motto} />
-        </p>
+        {m.motto && (
+          <p className="gram-motto">
+            <RichGrammarText text={m.motto} />
+          </p>
+        )}
       </header>
-      <GrammarTableView table={{ title: "横向对比", headers: m.headers, rows: m.rows }} />
+      {tables.map((tbl, idx) => (
+        <GrammarTableView key={`${tbl.title}-${idx}`} table={tbl} />
+      ))}
       {extra && (
         <button type="button" className="link gram-matrix-toggle" aria-expanded={open} onClick={onToggle}>
           <ChevronDown size={15} className={open ? "is-flipped" : ""} /> {open ? "收起判断步骤与正误对比" : "展开判断步骤与正误对比"}
