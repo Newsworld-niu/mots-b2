@@ -1,11 +1,11 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useGrammar } from "../atlas/grammar";
 import type { DiscourseExercise } from "../lib/grammar-discourse";
-import { go } from "../lib/router";
+import { go, useLocation } from "../lib/router";
 import { DiscourseSession } from "./grammar/DiscourseSession";
 import { Session } from "./grammar/GrammarDrills";
 import { CheatSheet, Overview, PointView } from "./grammar/GrammarViews";
-import type { Step } from "./grammar/helpers";
+import type { RunSpec, StartRound } from "./grammar/helpers";
 
 const StructureSprint = lazy(() =>
   import("./grammar/StructureSprint").then((m) => ({ default: m.StructureSprint })),
@@ -25,14 +25,35 @@ export function GrammarTabs({ on }: { on: "grammar" | "conj" }) {
   );
 }
 
-export function Grammar({ pointId, sheet, sprint }: { pointId?: string; sheet?: boolean; sprint?: "tcf" | "tef" }) {
+export function Grammar({
+  pointId,
+  sheet,
+  sprint,
+  section: sectionProp,
+}: {
+  pointId?: string;
+  sheet?: boolean;
+  sprint?: "tcf" | "tef";
+  /** Section to scroll to (r1, traps, a matrix id …); read from the address when not given. */
+  section?: string;
+}) {
   const { data, error } = useGrammar();
-  const [run, setRun] = useState<{ steps: Step[]; key: number } | null>(null);
+  const loc = useLocation();
+  const section = sectionProp ?? (loc.route.page === "grammar" ? loc.route.section : undefined);
+  const [run, setRun] = useState<(RunSpec & { key: number }) | null>(null);
   const [discourse, setDiscourse] = useState<DiscourseExercise | null>(null);
+  // a new point, sheet or sprint ends the round; moving to another section of the same page does not
   useEffect(() => {
     setRun(null);
     setDiscourse(null);
   }, [pointId, sheet, sprint]);
+  const start = useCallback<StartRound>((steps, opts) => {
+    if (!steps.length) return;
+    setRun({ steps, mode: opts?.mode ?? "round", label: opts?.label, again: opts?.again, key: Date.now() });
+  }, []);
+  const restart = useCallback((spec: RunSpec) => {
+    if (spec.steps.length) setRun({ ...spec, key: Date.now() });
+  }, []);
   if (error) return <div className="page"><p className="muted">{error}</p></div>;
   if (!data) return <div className="page learn-loading"><span className="spinner" /></div>;
   if (sprint === "tcf" || sprint === "tef") {
@@ -42,7 +63,7 @@ export function Grammar({ pointId, sheet, sprint }: { pointId?: string; sheet?: 
       </Suspense>
     );
   }
-  if (run) return <Session key={run.key} data={data} initial={run.steps} onExit={() => setRun(null)} />;
+  if (run) return <Session key={run.key} data={data} run={run} onRestart={restart} onExit={() => setRun(null)} />;
   if (discourse) {
     return (
       <DiscourseSession
@@ -54,9 +75,8 @@ export function Grammar({ pointId, sheet, sprint }: { pointId?: string; sheet?: 
       />
     );
   }
-  const start = (steps: Step[]) => steps.length && setRun({ steps, key: Date.now() });
-  if (sheet) return <CheatSheet data={data} />;
+  if (sheet) return <CheatSheet data={data} section={section} />;
   const point = pointId ? data.points.find((p) => p.id === pointId) : undefined;
-  if (point) return <PointView data={data} point={point} onStart={start} />;
+  if (point) return <PointView data={data} point={point} section={section} onStart={start} />;
   return <Overview data={data} tabs={<GrammarTabs on="grammar" />} onStart={start} onDiscourse={setDiscourse} />;
 }

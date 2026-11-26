@@ -9,12 +9,15 @@
  *   fix        { "k": "f", "s": "… {sont parti} …", "r": ["sont partis"] | [], "y", "z", "g"? }
  *              (r empty = the underlined part is right)
  *   transform  { "k": "x", "q": "sentence given", "h": "instruction", "a": ["reference answer", "other accepted"], "y", "z", "g"? }
+ *   order      { "k": "o", "s": "Donne-le-moi !", "t": ["donne", "-le", "-moi"], "p": " !", "alts"?: [[…]], "h"?, "y", "z", "g"? }
+ *              (t: 4–16 word blocks that joinOrderTokens(t, p) turns back into s; alts: other right orders of the
+ *              same blocks. Written order drills are strict: only t and alts are accepted.)
  *
  * "g" is what the drill trains: "r<i>" the point's rule i, "t<i>" its trap i (0-based).
  */
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import type { Drill } from "../../src/lib/grammar.ts";
+import { joinOrderTokens, sameTokenMultiset, type Drill } from "../../src/lib/grammar.ts";
 
 const ROOT = resolve(import.meta.dirname, "../..");
 
@@ -54,7 +57,18 @@ export interface WrittenTransform {
   z: string;
   g?: string;
 }
-export type Written = WrittenChoice | WrittenType | WrittenFix | WrittenTransform;
+export interface WrittenOrder {
+  k: "o";
+  s: string;
+  t: string[];
+  p: string;
+  alts?: string[][];
+  h?: string;
+  y: string;
+  z: string;
+  g?: string;
+}
+export type Written = WrittenChoice | WrittenType | WrittenFix | WrittenTransform | WrittenOrder;
 
 /** Points whose drills ask for the verb form itself: another person of the verb is a fair distractor there. */
 export const PERSON_IS_THE_POINT = new Set(["present", "imparfait", "futur", "imperatif", "passe-simple"]);
@@ -180,6 +194,23 @@ export function parseWritten(point: string, list: unknown[], counts: { rules: nu
       const x = w as WrittenTransform;
       if (!str(x.q) || !str(x.h) || !Array.isArray(x.a) || !x.a.length || x.a.some((a) => !str(a))) return bad("a transform needs q, h and a");
       out.push({ k: "x", q: x.q, s: x.a[0], z: w.z, a: x.a, h: x.h, y: w.y, ...g });
+      return;
+    }
+    if (kind === "o") {
+      const o = w as WrittenOrder;
+      if (!str(o.s)) return bad("an order drill needs s");
+      if (!Array.isArray(o.t) || o.t.length < 4 || o.t.length > 16 || o.t.some((x) => !str(x))) return bad("t must be 4–16 non-empty word blocks");
+      if (typeof o.p !== "string") return bad("p (final punctuation) must be a string");
+      const joined = joinOrderTokens(o.t, o.p);
+      if (joined.toLowerCase() !== o.s.toLowerCase()) return bad(`t and p rebuild « ${joined} », not s`);
+      if (o.h !== undefined && !str(o.h)) return bad("h must be a non-empty string when given");
+      let alts: string[][] = [];
+      if (o.alts !== undefined) {
+        if (!Array.isArray(o.alts) || o.alts.some((a) => !Array.isArray(a) || a.some((x) => !str(x)))) return bad("alts must be a list of word-block lists");
+        if (o.alts.some((a) => !sameTokenMultiset(a, o.t))) return bad("every alt must use exactly the blocks of t");
+        alts = o.alts;
+      }
+      out.push({ k: "o", s: o.s, z: w.z, t: o.t, p: o.p, ...(alts.length ? { alts } : {}), strict: true, h: o.h ?? "排出正确的法语语序", y: w.y, ...g });
       return;
     }
     bad(`unknown kind ${String(kind)}`);

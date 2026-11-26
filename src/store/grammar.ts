@@ -203,21 +203,55 @@ export function nextPoint(data: GrammarData, p: Pick<Progress, "gram">, startLev
 /** How the learner did on one tag of a point: answered and wrong. */
 export const tagKey = (point: string, tag: string) => `${point}|${tag}`;
 
+/**
+ * How a finished round counts:
+ *  - round: a whole-point round or a review of due points; it schedules the point.
+ *  - focused: one rule, one trap or one kind of drill; it counts for the tags and the day, and moves the
+ *    point's card only when the point is new or the round had mistakes (a clean focused round must not
+ *    push the whole point further away).
+ *  - retry: the round's mistakes again, right away; nothing is recorded.
+ */
+export type SessionMode = "round" | "focused" | "retry";
+
+/** Only drills of one tag (rule or trap) and/or one kind. */
+export interface DrillFilter {
+  tag?: string;
+  kind?: Drill["k"];
+}
+
+const matchesFilter = (d: Drill, filter?: DrillFilter) =>
+  (!filter?.tag || d.g === filter.tag) && (!filter?.kind || d.k === filter.kind);
+
+/** The drills a round with this filter can draw from: the point's (minus skipped ones) and the learner's own. */
+function filteredPool(point: GrammarPoint, p: Pick<Progress, "gramSkip">, mine: FixDrill[], filter?: DrillFilter) {
+  const skip = new Set(p.gramSkip ?? []);
+  return {
+    pool: point.drills.filter((d) => !skip.has(drillId(point.id, d)) && matchesFilter(d, filter)),
+    mine: mine.filter((d) => matchesFilter(d, filter)),
+  };
+}
+
+/** How many drills a filter leaves (shown before starting). */
+export function countMatchingDrills(point: GrammarPoint, p: Pick<Progress, "gramSkip">, mine: FixDrill[] = [], filter?: DrillFilter) {
+  const f = filteredPool(point, p, mine, filter);
+  return f.pool.length + f.mine.length;
+}
+
 /** Pick drills for a round: spread over the point's tags, weak tags more often, varied kinds. */
 export function pickDrills(
   point: GrammarPoint,
   p: Pick<Progress, "cards" | "gramSkip" | "gramTags">,
   n: number,
   seed = Date.now(),
-  mine: FixDrill[] = [],
+  mineAll: FixDrill[] = [],
+  filter?: DrillFilter,
 ): Drill[] {
   let x = (seed ^ 0x9e3779b9) >>> 0;
   const rnd = () => {
     x = (Math.imul(x ^ (x >>> 15), 2246822519) + 0x6d2b79f5) >>> 0;
     return x / 4294967296;
   };
-  const skip = new Set(p.gramSkip ?? []);
-  const pool = point.drills.filter((d) => !skip.has(drillId(point.id, d)));
+  const { pool, mine } = filteredPool(point, p, mineAll, filter);
   const byTag = new Map<string, Drill[]>();
   for (const d of pool) byTag.set(d.g ?? "", [...(byTag.get(d.g ?? "") ?? []), d]);
   // within a tag: written drills and learned-word auto drills come first, shuffled
@@ -231,7 +265,9 @@ export function pickDrills(
     return 0.6 + (2 * (s.w + 1)) / (s.n + 2);
   };
   const out: Drill[] = [];
-  const own = [...mine].sort(() => rnd() - 0.5).slice(0, Math.min(MINE_PER_ROUND, Math.max(0, n - 2)));
+  // the learner's own mistakes: at most two in a mixed round; a round of only fix drills may take more
+  const ownCap = filter?.tag === ESSAY_TAG ? n : pool.length ? Math.min(MINE_PER_ROUND, Math.max(0, n - 2)) : n;
+  const own = [...mine].sort(() => rnd() - 0.5).slice(0, ownCap);
   const kinds = new Map<string, number>();
   let last = "";
   while (out.length < n - own.length) {
@@ -433,28 +469,55 @@ export function recordSprintResult(items: { point: string; tag?: string; ok: boo
   store.progress((p) => applySprintResult(p, items, Date.now(), settings.retention));
 }
 
+export interface RoundAnswer {
+  g?: string;
+  ok: boolean;
+  accent?: boolean;
+}
+
+/**
+ * Pure state update for a finished round of one point (see SessionMode). Returns the progress unchanged for a
+ * retry round.
+ */
+export function applyPointRound(
+  p: Progress,
+  pointId: string,
+  answers: RoundAnswer[],
+  mode: SessionMode = "round",
+  now = Date.now(),
+  retention = 0.9,
+): Progress {
+  if (mode === "retry" || !answers.length) return p;
+  const total = answers.length;
+  const wrong = answers.filter((a) => !a.ok).length;
+  const accentSlips = answers.filter((a) => a.ok && a.accent).length;
+  const grade = roundGrade(wrong, total, accentSlips);
+  const day = dayKey(new Date(now));
+  const d = p.gramDays?.[day] ?? { n: 0, r: 0, c: 0 };
+  const card = p.gram?.[pointId];
+  const isNew = !card;
+  const gramTags = { ...(p.gramTags ?? {}) };
+  for (const a of answers) {
+    if (!a.g || a.g === ESSAY_TAG) continue;
+    bumpTagStat(gramTags, pointId, a.g, a.ok);
+  }
+  // a focused round moves the card only for a new point, or for mistakes on a card that is not due yet
+  const moveCard = mode === "round" || isNew || (wrong > 0 && card.due > now);
+  return {
+    ...p,
+    gram: moveCard ? { ...(p.gram ?? {}), [pointId]: review(card, grade, now, retention) } : p.gram,
+    gramDays: { ...(p.gramDays ?? {}), [day]: { n: d.n + (isNew ? 1 : 0), r: d.r + total, c: d.c + total - wrong } },
+    gramTags,
+  };
+}
+
 /** Record a finished round of a point: its card, the day's numbers, and how each tag went. */
-export function gradePoint(pointId: string, answers: { g?: string; ok: boolean; accent?: boolean }[]) {
+export function gradePoint(pointId: string, answers: RoundAnswer[], mode: SessionMode = "round") {
   const { settings } = store.get();
   const total = answers.length;
   const wrong = answers.filter((a) => !a.ok).length;
   const accentSlips = answers.filter((a) => a.ok && a.accent).length;
   const grade = roundGrade(wrong, total, accentSlips);
-  store.progress((p) => {
-    const day = dayKey();
-    const d = p.gramDays?.[day] ?? { n: 0, r: 0, c: 0 };
-    const isNew = !p.gram?.[pointId];
-    const gramTags = { ...(p.gramTags ?? {}) };
-    for (const a of answers) {
-      if (!a.g || a.g === ESSAY_TAG) continue;
-      bumpTagStat(gramTags, pointId, a.g, a.ok);
-    }
-    return {
-      ...p,
-      gram: { ...(p.gram ?? {}), [pointId]: review(p.gram?.[pointId], grade, Date.now(), settings.retention) },
-      gramDays: { ...(p.gramDays ?? {}), [day]: { n: d.n + (isNew ? 1 : 0), r: d.r + total, c: d.c + total - wrong } },
-      gramTags,
-    };
-  });
+  if (mode !== "retry") store.progress((p) => applyPointRound(p, pointId, answers, mode, Date.now(), settings.retention));
   return grade;
 }

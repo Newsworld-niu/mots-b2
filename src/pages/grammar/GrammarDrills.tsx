@@ -1,4 +1,4 @@
-import { ArrowRight, Check, RotateCcw, Sparkles, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Repeat, RotateCcw, Sparkles, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ready, useAiConfig } from "../../ai/config";
 import { checkRewrite } from "../../ai/tasks";
@@ -7,11 +7,12 @@ import {
   answerOf,
   checkTyped,
   explainOrthographyError,
-  fixedOf,
   fullOf,
   grammarTokenOverlap,
+  joinOrderTokens,
   orderRight,
   shuffled,
+  stripGrammarMarks,
   tagLabel,
   type ChoiceDrill,
   type Drill,
@@ -32,16 +33,29 @@ import { store, useStore } from "../../store/store";
 import { AccentKeys } from "../../ui/AccentKeys";
 import { confirmAction } from "../../ui/ConfirmSheet";
 import { Speak } from "../../ui/Speak";
-import { gradeRound, useNextKeys, type Answered, type Graded, type Pending, type Result, type Step } from "./helpers";
+import { gradeRound, tagNumber, useNextKeys, type Answered, type Graded, type Pending, type Result, type RunSpec, type Step } from "./helpers";
+import { FormulaBlock, PitfallList, RichGrammarText } from "./RichGrammar";
 
-export function Session({ data, initial, onExit }: { data: GrammarData; initial: Step[]; onExit: () => void }) {
+export function Session({
+  data,
+  run,
+  onRestart,
+  onExit,
+}: {
+  data: GrammarData;
+  run: RunSpec;
+  /** Start another round in place of this one (retry the mistakes, or 再来一轮). */
+  onRestart: (spec: RunSpec) => void;
+  onExit: () => void;
+}) {
+  const initial = run.steps;
   const settings = useStore((s) => s.settings);
   const [i, setI] = useState(0);
   const [pending, setPending] = useState<Pending | null>(null);
   const [log, setLog] = useState<Answered[]>([]);
   const [graded, setGraded] = useState<Graded[] | null>(null);
   const active = i < initial.length && log.length > 0;
-  useNavGuard(active, "本轮语法练习尚未完成，离开不会记录本轮复习进度，确定离开？");
+  useNavGuard(active && run.mode !== "retry", "本轮语法练习尚未完成，离开不会记录本轮复习进度，确定离开？");
   useEffect(() => {
     window.scrollTo({ top: 0 });
   }, []);
@@ -50,10 +64,11 @@ export function Session({ data, initial, onExit }: { data: GrammarData; initial:
   const answer = useCallback(
     (result: Result, value: string, extra?: { aiNote?: string; orthographyHint?: string | null }) => {
       if (pending || !step) return;
-      const ok = result === "right";
+      // an accent slip counts as right but is remembered (the round is then graded Hard, not Good)
+      const ok = result !== "wrong";
       if (settings.sfx) void cue(result !== "wrong" ? "correct" : "wrong");
       setPending({ result, value, ...extra });
-      setLog((l) => [...l, { step, ok, value }]);
+      setLog((l) => [...l, { step, ok, value, ...(result === "accent" ? { accent: true } : {}) }]);
     },
     [pending, step, settings.sfx],
   );
@@ -64,13 +79,14 @@ export function Session({ data, initial, onExit }: { data: GrammarData; initial:
   }, []);
   const next = useCallback(() => {
     setPending(null);
-    if (i + 1 >= initial.length && !graded) setGraded(gradeRound(log));
+    if (i + 1 >= initial.length && !graded) setGraded(gradeRound(log, run.mode));
     setI((n) => n + 1);
-  }, [i, initial.length, graded, log]);
+  }, [i, initial.length, graded, log, run.mode]);
 
   const exitSession = async () => {
     if (
       active &&
+      run.mode !== "retry" &&
       !(await confirmAction({
         title: "结束本轮语法练习？",
         message: "本轮尚未完成，提前退出不会记入复习调度，确定离开？",
@@ -83,7 +99,18 @@ export function Session({ data, initial, onExit }: { data: GrammarData; initial:
     onExit();
   };
 
-  if (i >= initial.length) return <Summary data={data} log={log} graded={graded ?? []} onExit={onExit} />;
+  if (i >= initial.length)
+    return (
+      <Summary
+        data={data}
+        log={log}
+        graded={graded ?? []}
+        mode={run.mode}
+        onRetry={(steps) => onRestart({ steps, mode: "retry", label: "本轮错题重练", again: run.again })}
+        onAgain={run.again ? () => onRestart({ steps: run.again!(), mode: run.mode === "retry" ? "focused" : run.mode, label: run.label, again: run.again }) : undefined}
+        onExit={onExit}
+      />
+    );
   const point = data.points.find((p) => p.id === step.point)!;
   const d = step.drill;
   const q = { point, pending, onAnswer: answer, onNext: next, onAmend: amend };
@@ -101,6 +128,12 @@ export function Session({ data, initial, onExit }: { data: GrammarData; initial:
         </span>
       </header>
       <section className="typing-stage gram-stage">
+        {(run.mode !== "round" || run.label) && (
+          <p className={`gram-run-mode is-${run.mode}`}>
+            {run.mode === "retry" ? <Repeat size={14} /> : null}
+            {run.mode === "retry" ? "错题重练巩固 · 不重复计入调度" : run.mode === "focused" ? `专项 · ${run.label ?? ""}` : run.label}
+          </p>
+        )}
         <p className="stage-label">
           <span className="dot dot-review" />
           {point.title}
@@ -237,18 +270,31 @@ function Feedback({ point, drill, pending, onNext, onAmend }: { point: GrammarPo
       {drill.k === "x" && drill.a.length > 1 && <p className="muted gram-also">也可以：{drill.a.slice(1).join(" / ")}</p>}
       {drill.z && <p className="gram-zh">{drill.z}</p>}
       <p className="gram-why">{drill.y}</p>
-      {otherOpts.length > 0 && (
-        <details className="gram-others">
-          <summary>为什么其他选项不对</summary>
-          <ul>
-            {otherOpts.map(([opt, why]) => (
-              <li key={opt}>
-                <b lang="fr">{opt}</b>：{why}
-              </li>
-            ))}
-          </ul>
-        </details>
-      )}
+      {otherOpts.length > 0 &&
+        (ok ? (
+          <details className="gram-others">
+            <summary>为什么其他选项不对</summary>
+            <ul>
+              {otherOpts.map(([opt, why]) => (
+                <li key={opt}>
+                  <b lang="fr">{opt}</b>：{why}
+                </li>
+              ))}
+            </ul>
+          </details>
+        ) : (
+          <div className="gram-others is-open">
+            <p className="gram-others-title">其余选项的排除理由</p>
+            <ul>
+              {otherOpts.map(([opt, why]) => (
+                <li key={opt}>
+                  <b lang="fr">{opt}</b>：{why}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      <RuleGlance key={drill.s + (drill.g ?? "")} point={point} drill={drill} defaultOpen={pending.result === "wrong"} />
       {mine && !ok && (
         <div className="gram-amend">
           <button className="link" onClick={onAmend}>
@@ -367,7 +413,8 @@ function OrderQuestion({ point, drill, pending, onAnswer, onNext, onAmend }: Que
   const pool = useMemo(() => shuffled(drill.t, hashSeed(drill.s)).map((w, i) => ({ w, i })), [drill]);
   const [picked, setPicked] = useState<number[]>([]);
   const words = picked.map((k) => pool[k].w);
-  const check = () => onAnswer(orderRight(drill, words) ? "right" : "wrong", words.join(" "));
+  const complete = picked.length === pool.length;
+  const check = () => onAnswer(orderRight(drill, words) ? "right" : "wrong", joinOrderTokens(words, drill.p));
   const keys: Record<string, () => void> = {};
   if (pending) {
     keys.Enter = onNext;
@@ -388,8 +435,14 @@ function OrderQuestion({ point, drill, pending, onAnswer, onNext, onAmend }: Que
             {pool[k].w}
           </button>
         ))}
-        {drill.p && picked.length === pool.length && <span>{drill.p}</span>}
+        {drill.p && complete && <span className="gram-order-p">{drill.p.trim()}</span>}
       </div>
+      {picked.length > 0 && (
+        <p className="gram-order-preview" lang="fr" aria-live="polite">
+          <small>预览</small>
+          {capitalize(joinOrderTokens(words, complete ? drill.p : ""))}
+        </p>
+      )}
       <div className="gram-pool" lang="fr">
         {pool.map((x, k) => (
           <button key={k} className="gram-chip" disabled={!!pending || picked.includes(k)} onClick={() => setPicked((p) => [...p, k])}>
@@ -411,6 +464,8 @@ function OrderQuestion({ point, drill, pending, onAnswer, onNext, onAmend }: Que
     </>
   );
 }
+
+const capitalize = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 
 /** A text box with buttons for French letters; Enter submits. */
 function FrenchInput({ value, onChange, onSubmit, disabled, label, wide, autoFocus = true }: { value: string; onChange: (v: string) => void; onSubmit: () => void; disabled: boolean; label: string; wide?: boolean; autoFocus?: boolean }) {
@@ -632,43 +687,200 @@ function TransformQuestion({ point, drill, pending, onAnswer, onNext, onAmend }:
   );
 }
 
-function Summary({ data, log, graded, onExit }: { data: GrammarData; log: Answered[]; graded: Graded[]; onExit: () => void }) {
+/**
+ * 对应语法规则速览: the rule or trap the drill trains, right inside the question (open after a wrong answer).
+ * The toggle does not take focus on click, so Enter / space still go on to the next question.
+ */
+function RuleGlance({ point, drill, defaultOpen }: { point: GrammarPoint; drill: Drill; defaultOpen: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const g = drill.g ?? "";
+  const n = Number(g.slice(1));
+  const rule = /^r\d+$/.test(g) ? point.rules[n] : undefined;
+  const trap = /^t\d+$/.test(g) ? point.traps[n] : undefined;
+  let title: string;
+  let body: React.ReactNode;
+  if (g === ESSAY_TAG) {
+    title = "你自己的错句";
+    body = (
+      <p>
+        这题来自{drill.h.includes("口语") ? "你的口语" : "你的作文"}批改：
+        <s lang="fr">{drill.s}</s>
+      </p>
+    );
+  } else if (rule) {
+    title = `${tagNumber(g)} · ${stripGrammarMarks(rule.h)}`;
+    body = (
+      <>
+        <p>
+          <RichGrammarText text={rule.text} />
+        </p>
+        {rule.formula && rule.formula.length > 0 && <FormulaBlock formulas={rule.formula} />}
+        {rule.ex[0] && (
+          <p className="gram-glance-ex">
+            <RichGrammarText text={rule.ex[0][0]} lang="fr" /> <small>{rule.ex[0][1]}</small>
+          </p>
+        )}
+      </>
+    );
+  } else if (trap) {
+    const pitfalls = (point.pitfalls ?? []).filter((x) => x.tag === g);
+    title = `${tagNumber(g)} · ${tagLabel(point, g)}`;
+    body = (
+      <>
+        <p>
+          <RichGrammarText text={trap} />
+        </p>
+        {pitfalls.length > 0 && <PitfallList pitfalls={pitfalls.slice(0, 2)} />}
+      </>
+    );
+  } else {
+    title = "本点口诀";
+    body = (
+      <p>
+        <RichGrammarText text={point.motto ?? point.intro} />
+      </p>
+    );
+  }
+  return (
+    <div className={`gram-glance ${open ? "is-open" : ""}`}>
+      <button
+        type="button"
+        className="gram-glance-toggle"
+        aria-expanded={open}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <BookOpen size={15} aria-hidden />
+        <span>
+          对应语法规则速览 <small>{title}</small>
+        </span>
+        <ChevronDown size={15} className={open ? "is-flipped" : ""} aria-hidden />
+      </button>
+      {open && <div className="gram-glance-body">{body}</div>}
+    </div>
+  );
+}
+
+/** Where a drill's rule or trap is explained: #/grammar?p=…&section=r1 (traps share one section). */
+function sectionHref(pointId: string, g: string | undefined) {
+  const section = g && /^r\d+$/.test(g) ? g : g && /^t\d+$/.test(g) ? "traps" : undefined;
+  return `#/grammar?p=${encodeURIComponent(pointId)}${section ? `&section=${section}` : ""}`;
+}
+
+/** One wrong answer in the round's review: the question, yours, the right one, the sentence's meaning and why. */
+function WrongReview({ point, answered }: { point: GrammarPoint; answered: Answered }) {
+  const d = answered.step.drill;
+  const prompt =
+    d.k === "c" || d.k === "t" ? (
+      <p className="gram-rv-q" lang="fr">
+        {d.s.slice(0, d.b[0])}
+        <span className="gram-blank">{"\u2002".repeat(4)}</span>
+        {d.s.slice(d.b[1])}
+      </p>
+    ) : d.k === "f" ? (
+      <p className="gram-rv-q gram-fix" lang="fr">
+        {d.s.slice(0, d.b[0])}
+        <u>{d.s.slice(d.b[0], d.b[1])}</u>
+        {d.s.slice(d.b[1])}
+      </p>
+    ) : d.k === "x" ? (
+      <p className="gram-rv-q">
+        <span lang="fr">{d.q}</span>
+      </p>
+    ) : (
+      <p className="gram-rv-q">{d.z}</p>
+    );
+  const right =
+    d.k === "c" || d.k === "t" ? (
+      <Marked s={d.s} b={d.b} />
+    ) : d.k === "f" ? (
+      d.r.length ? (
+        <Marked s={d.s} b={d.b} with={d.r[0]} />
+      ) : (
+        <>原句没有错：{d.s}</>
+      )
+    ) : (
+      d.s
+    );
+  return (
+    <li className="gram-rv">
+      <p className="gram-rv-meta">
+        <span className="gram-tag-chip">{d.g === ESSAY_TAG ? "作文错句" : d.g ? tagNumber(d.g) : point.title}</span>
+        {d.h && <span className="muted small">{d.h}</span>}
+      </p>
+      {prompt}
+      <p className="gram-rv-mine">
+        <X size={14} aria-label="你的作答" /> <span lang="fr">{answered.value || "（未作答）"}</span>
+      </p>
+      <p className="gram-rv-right">
+        <Check size={14} aria-label="正确答案" /> <span lang="fr">{right}</span>
+        <Speak url={null} text={fullOf(d)} size="sm" />
+      </p>
+      {d.z && d.k !== "o" && <p className="gram-zh">{d.z}</p>}
+      <p className="gram-why">{d.y}</p>
+      <a className="link small" href={sectionHref(point.id, d.g)}>
+        {point.title}
+        {d.g && d.g !== ESSAY_TAG ? ` · ${tagLabel(point, d.g) || tagNumber(d.g)}` : ""} <ArrowRight size={13} />
+      </a>
+    </li>
+  );
+}
+
+function Summary({
+  data,
+  log,
+  graded,
+  mode,
+  onRetry,
+  onAgain,
+  onExit,
+}: {
+  data: GrammarData;
+  log: Answered[];
+  graded: Graded[];
+  mode: RunSpec["mode"];
+  onRetry: (steps: Step[]) => void;
+  onAgain?: () => void;
+  onExit: () => void;
+}) {
   useEffect(() => {
     if (store.get().settings.sfx) void cue("complete");
+    window.scrollTo({ top: 0 });
   }, []);
   const right = log.filter((l) => l.ok).length;
   const wrong = log.filter((l) => !l.ok);
+  const pointOf = (id: string) => data.points.find((p) => p.id === id)!;
   const weak = new Map<string, { point: GrammarPoint; tag: string; n: number }>();
   for (const { step } of wrong) {
-    const point = data.points.find((p) => p.id === step.point)!;
+    const point = pointOf(step.point);
     const tag = step.drill.g ?? "";
     const k = `${point.id}|${tag}`;
     weak.set(k, { point, tag, n: (weak.get(k)?.n ?? 0) + 1 });
   }
   return (
-    <div className="page practice">
+    <div className="page practice gram-summary">
       <section className="panel typing-done">
-        <p className="eyebrow">这一轮结束了</p>
+        <p className="eyebrow">{mode === "retry" ? "错题重练结束" : "这一轮结束了"}</p>
         <h1 className="display">
           {right}/{log.length} <small>答对</small>
         </h1>
-        <ul className="gram-result">
-          {graded.map((g) => {
-            const p = data.points.find((x) => x.id === g.id)!;
-            return (
+        {mode === "retry" && <p className="gram-run-mode is-retry">错题重练巩固 · 不重复计入调度</p>}
+        {mode !== "retry" && (
+          <ul className="gram-result">
+            {graded.map((g) => (
               <li key={g.id}>
-                <a href={`#/grammar?p=${g.id}`}>{p.title}</a>
+                <a href={`#/grammar?p=${g.id}`}>{pointOf(g.id).title}</a>
                 <span>
                   {g.total - g.wrong}/{g.total}
                 </span>
                 <small>{g.grade === Rating.Good ? "掌握得不错" : g.grade === Rating.Hard ? "有一点小错" : "需要再练，很快会回来"}</small>
               </li>
-            );
-          })}
-        </ul>
+            ))}
+          </ul>
+        )}
         {weak.size > 0 && (
           <div className="gram-weak">
-            <p className="muted">错在这些地方（之后会多出这类题）：</p>
+            <p className="muted">错在这些地方{mode === "retry" ? "" : "（之后会多出这类题）"}：</p>
             <ul>
               {[...weak.values()]
                 .sort((a, b) => b.n - a.n)
@@ -683,21 +895,35 @@ function Summary({ data, log, graded, onExit }: { data: GrammarData; log: Answer
           </div>
         )}
         {wrong.length > 0 && (
-          <ul className="gram-wrong">
-            {wrong.map(({ step }, k) => {
-              const d = step.drill;
-              return (
-                <li key={k} lang="fr">
-                  {d.k === "c" || d.k === "t" ? <Marked s={d.s} b={d.b} /> : d.k === "f" ? (d.r.length ? <Marked s={d.s} b={d.b} with={d.r[0]} /> : fixedOf(d)) : d.s}
-                </li>
-              );
-            })}
-          </ul>
+          <section className="gram-review" aria-label="错题复盘">
+            <h2 className="eyebrow">错题复盘 · {wrong.length} 题</h2>
+            <ol>
+              {wrong.map((a, k) => (
+                <WrongReview key={k} point={pointOf(a.step.point)} answered={a} />
+              ))}
+            </ol>
+          </section>
         )}
-        <p className="muted">每个语法点的下次复习时间已经排好。</p>
-        <div className="summary-actions">
-          <button className="btn btn-primary btn-xl" onClick={onExit} autoFocus>
-            <RotateCcw size={18} /> 返回
+        <p className="muted small">
+          {mode === "retry"
+            ? "重练只用来巩固，不会改动复习时间和掌握度。"
+            : mode === "focused"
+              ? "专项结果已计入细分掌握度；整点复习时间只在出错时提前。"
+              : "每个语法点的下次复习时间已经排好。"}
+        </p>
+        <div className="summary-actions gram-summary-actions">
+          {wrong.length > 0 && (
+            <button className="btn btn-primary btn-xl" onClick={() => onRetry(wrong.map((a) => a.step))} autoFocus>
+              <Repeat size={18} /> 立即重练本轮错题（{wrong.length} 题）
+            </button>
+          )}
+          {onAgain && (
+            <button className={`btn ${wrong.length ? "btn-ghost" : "btn-primary btn-xl"}`} onClick={onAgain} autoFocus={!wrong.length}>
+              <RotateCcw size={17} /> 再来一轮
+            </button>
+          )}
+          <button className="btn btn-ghost" onClick={onExit} autoFocus={!wrong.length && !onAgain}>
+            <ArrowLeft size={17} /> 返回
           </button>
         </div>
       </section>

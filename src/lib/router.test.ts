@@ -57,3 +57,23 @@ test("lounge route round-trips shelf, item, ch, and WordSheet ?w= cleanly", () =
     word: null,
   });
 });
+
+test("grammar route round-trips point, sheet, sprint and section deep links", () => {
+  assert.equal(href({ page: "grammar" }), "#/grammar");
+  assert.deepEqual(parseHash("#/grammar"), {
+    route: { page: "grammar", p: undefined, sheet: undefined, sprint: undefined, section: undefined },
+    word: null,
+  });
+  const pointUrl = href({ page: "grammar", p: "double-pronoms", section: "r1" });
+  assert.equal(pointUrl, "#/grammar?p=double-pronoms&section=r1");
+  assert.deepEqual(parseHash(pointUrl).route, { page: "grammar", p: "double-pronoms", sheet: undefined, sprint: undefined, section: "r1" });
+  const sheetUrl = href({ page: "grammar", sheet: "1", section: "mat-relatifs" }, "dont");
+  assert.equal(sheetUrl, "#/grammar?sheet=1&section=mat-relatifs&w=dont");
+  assert.deepEqual(parseHash(sheetUrl), {
+    route: { page: "grammar", p: undefined, sheet: "1", sprint: undefined, section: "mat-relatifs" },
+    word: "dont",
+  });
+  assert.equal(parseHash("#/grammar?sprint=xyz&section=").route.page, "grammar");
+  assert.deepEqual(parseHash("#/grammar?sprint=xyz&section=").route, { page: "grammar", p: undefined, sheet: undefined, sprint: undefined, section: undefined });
+  assert.equal(href({ page: "grammar", sprint: "tef" }), "#/grammar?sprint=tef");
+});

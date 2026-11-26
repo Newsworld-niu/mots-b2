@@ -20,7 +20,7 @@ export type Route =
   | { page: "reflow" }
   | { page: "read"; t?: string }
   | { page: "conj" }
-  | { page: "grammar"; p?: string; sheet?: string; sprint?: "tcf" | "tef" }
+  | { page: "grammar"; p?: string; sheet?: string; sprint?: "tcf" | "tef"; section?: string }
   | { page: "compare"; g?: string }
   | { page: "me" }
   | { page: "about" }
@@ -67,7 +67,7 @@ export function parseHash(hash: string): Location {
   else if (seg[0] === "grammar") {
     const rawSprint = params.get("sprint");
     const sprint = rawSprint === "tcf" || rawSprint === "tef" ? rawSprint : undefined;
-    route = { page: "grammar", p: params.get("p") || undefined, sheet: params.get("sheet") || undefined, sprint };
+    route = { page: "grammar", p: params.get("p") || undefined, sheet: params.get("sheet") || undefined, sprint, section: params.get("section") || undefined };
   }
   else if (seg[0] === "compare") route = { page: "compare", g: params.get("g") || undefined };
   else if (seg[0] === "me") route = { page: "me" };
@@ -108,6 +108,7 @@ export function href(route: Route, word?: string | null) {
   if (route.page === "grammar" && route.p) params.set("p", route.p);
   if (route.page === "grammar" && route.sheet) params.set("sheet", route.sheet);
   if (route.page === "grammar" && route.sprint) params.set("sprint", route.sprint);
+  if (route.page === "grammar" && route.section) params.set("section", route.section);
   if (route.page === "read" && route.t) params.set("t", route.t);
   if (route.page === "lounge") {
     if (route.shelf) params.set("shelf", route.shelf);

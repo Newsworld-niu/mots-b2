@@ -5,7 +5,23 @@ import { test } from "node:test";
 import { duePoints, ESSAY_TAG, essayErrors, mineDrills, nextPoint, pickDrills, roundGrade, tagKey, untouchedWithErrors } from "../store/grammar.ts";
 import { Rating, type CardState } from "../store/srs.ts";
 import { emptyProgress as blankProgress } from "../store/store.ts";
-import { answerOf, checkTyped, fixedOf, orderRight, shuffled, tagLabel, tagsOf, type GrammarData, type GrammarPoint, type OrderDrill } from "./grammar.ts";
+import {
+  answerOf,
+  checkTyped,
+  fixedOf,
+  joinOrderTokens,
+  orderRight,
+  parseGrammarMarks,
+  sameTokenMultiset,
+  shuffled,
+  stripGrammarMarks,
+  tagLabel,
+  tagsOf,
+  validateGrammarMarks,
+  type GrammarData,
+  type GrammarPoint,
+  type OrderDrill,
+} from "./grammar.ts";
 
 const data: GrammarData = JSON.parse(readFileSync(new URL("../../public/atlas/grammar.json", import.meta.url), "utf8"));
 const emptyProgress = () => blankProgress("test");
@@ -61,8 +77,8 @@ test("an order drill's words rebuild its sentence", () => {
   for (const p of data.points)
     for (const d of p.drills) {
       if (d.k !== "o") continue;
-      const joined = d.t.map((w, i) => (i > 0 && !d.t[i - 1].endsWith("'") ? " " : "") + w).join("") + d.p;
-      assert.equal(joined.toLowerCase(), d.s.toLowerCase(), p.id);
+      assert.equal(joinOrderTokens(d.t, d.p).toLowerCase(), d.s.toLowerCase(), p.id);
+      for (const alt of d.alts ?? []) assert.ok(sameTokenMultiset(alt, d.t), `${p.id}: alt is not a reordering of t`);
     }
 });
 
@@ -153,4 +169,88 @@ test("essay mistakes make a practised point due and flag unstarted points; nextP
     untouchedWithErrors(mini, p).map((x) => x.point.id),
     ["a"],
   );
+});
+
+test("joinOrderTokens glues elisions, hyphenated clitics and commas", () => {
+  assert.equal(joinOrderTokens(["donne", "-le", "-moi"], " !"), "donne-le-moi !");
+  assert.equal(joinOrderTokens(["quand", "viendra", "-t-il"], " ?"), "quand viendra-t-il ?");
+  assert.equal(joinOrderTokens(["je", "ne", "l'", "ai", "pas", "vu"], "."), "je ne l'ai pas vu.");
+  assert.equal(joinOrderTokens(["qu'", "il", "vienne"], ""), "qu'il vienne");
+  assert.equal(joinOrderTokens(["j’", "y", "vais"], "."), "j’y vais.");
+  assert.equal(joinOrderTokens(["hier", ",", "il", "pleuvait"], "."), "hier, il pleuvait.");
+  assert.equal(joinOrderTokens(["vas", "-y"], " !"), "vas-y !");
+  assert.equal(joinOrderTokens([], "."), ".");
+});
+
+test("strict order drills accept only t and alts; old drills keep the movable-adjunct rule", () => {
+  const strict: OrderDrill = {
+    k: "o",
+    s: "Il parle en français.",
+    z: "",
+    h: "",
+    y: "",
+    t: ["il", "parle", "en", "français"],
+    p: ".",
+    strict: true,
+  };
+  assert.ok(orderRight(strict, ["Il", "parle", "en", "français"]));
+  assert.ok(!orderRight(strict, ["en", "français", "il", "parle"]), "no heuristic moving of en … in strict mode");
+
+  const withAlt: OrderDrill = {
+    k: "o",
+    s: "Hier, je suis allé au cinéma.",
+    z: "",
+    h: "",
+    y: "",
+    t: ["hier", ",", "je", "suis", "allé", "au", "cinéma"],
+    p: ".",
+    alts: [["je", "suis", "allé", "au", "cinéma", "hier", ","]],
+    strict: true,
+  };
+  assert.equal(joinOrderTokens(withAlt.t, withAlt.p), "hier, je suis allé au cinéma.");
+  assert.ok(orderRight(withAlt, ["Hier", ",", "je", "suis", "allé", "au", "cinéma"]));
+  assert.ok(orderRight(withAlt, ["je", "suis", "allé", "au", "cinéma", "hier", ","]));
+  assert.ok(!orderRight(withAlt, ["je", "suis", "allé", "hier", ",", "au", "cinéma"]));
+
+  const imperative: OrderDrill = { k: "o", s: "Donne-le-moi !", z: "", h: "", y: "", t: ["donne", "-le", "-moi"], p: " !", strict: true };
+  assert.ok(orderRight(imperative, ["donne", "-le", "-moi"]));
+  assert.ok(!orderRight(imperative, ["donne", "-moi", "-le"]));
+  const inv: OrderDrill = { k: "o", s: "Quand viendra-t-il ?", z: "", h: "", y: "", t: ["quand", "viendra", "-t-il"], p: " ?", strict: true };
+  assert.ok(orderRight(inv, ["Quand", "viendra", "-t-il"]));
+  assert.ok(orderRight(inv, ["quand", "viendra", "-t-il"]));
+  assert.ok(!orderRight(inv, ["viendra", "-t-il", "quand"]));
+
+  // a non-strict automatic drill still lets a time adverb move to the other end
+  const auto: OrderDrill = { k: "o", s: "Demain je ne viens pas.", z: "", h: "", y: "", t: ["demain", "je", "ne", "viens", "pas"], p: "." };
+  assert.ok(orderRight(auto, ["je", "ne", "viens", "pas", "demain"]));
+  assert.ok(!orderRight({ ...auto, strict: true }, ["je", "ne", "viens", "pas", "demain"]));
+
+  assert.ok(sameTokenMultiset(["a", "B", "l'"], ["l’", "b", "a"]));
+  assert.ok(!sameTokenMultiset(["a", "b"], ["a", "a"]));
+});
+
+test("grammar marks: strip, parse (affix vs whole word) and validate", () => {
+  const s = "Je parl{v:ais} {p:de} lui {k:bien que} elle soit achet{a:ées} ; l'{c:ai}";
+  assert.equal(stripGrammarMarks(s), "Je parlais de lui bien que elle soit achetées ; l'ai");
+  const segs = parseGrammarMarks(s);
+  assert.deepEqual(segs.find((x) => x.text === "ais"), { text: "ais", mark: "v", affix: true });
+  assert.deepEqual(segs.find((x) => x.text === "de"), { text: "de", mark: "p" });
+  assert.deepEqual(segs.find((x) => x.text === "bien que"), { text: "bien que", mark: "k" });
+  assert.deepEqual(segs.find((x) => x.text === "ées"), { text: "ées", mark: "a", affix: true });
+  assert.deepEqual(segs.find((x) => x.text === "ai"), { text: "ai", mark: "c", affix: true });
+  assert.equal(segs.map((x) => x.text).join(""), stripGrammarMarks(s));
+  assert.deepEqual(parseGrammarMarks("plain"), [{ text: "plain" }]);
+  assert.deepEqual(parseGrammarMarks("{c:le lui}"), [{ text: "le lui", mark: "c" }]);
+  assert.deepEqual(parseGrammarMarks("{c:l'}ai")[0], { text: "l'", mark: "c", affix: true });
+  assert.deepEqual(parseGrammarMarks("je {c:la} vois")[1], { text: "la", mark: "c" });
+
+  assert.equal(validateGrammarMarks(s), null);
+  assert.equal(validateGrammarMarks("no marks at all"), null);
+  assert.match(validateGrammarMarks("un {v:ais") ?? "", /unclosed/);
+  assert.match(validateGrammarMarks("un v:ais}") ?? "", /unmatched/);
+  assert.match(validateGrammarMarks("{x:foo}") ?? "", /unknown/);
+  assert.match(validateGrammarMarks("{v:}") ?? "", /empty/);
+  assert.match(validateGrammarMarks("{v:  }") ?? "", /empty/);
+  assert.match(validateGrammarMarks("{v:a{p:b}}") ?? "", /nested/);
+  assert.match(validateGrammarMarks("{foo}") ?? "", /kind/);
 });
