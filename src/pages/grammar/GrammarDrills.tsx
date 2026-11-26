@@ -54,6 +54,7 @@ export function Session({
   const [pending, setPending] = useState<Pending | null>(null);
   const [log, setLog] = useState<Answered[]>([]);
   const [graded, setGraded] = useState<Graded[] | null>(null);
+  const gradedRef = useRef(false);
   const active = i < initial.length && log.length > 0;
   useNavGuard(active && run.mode !== "retry", "本轮语法练习尚未完成，离开不会记录本轮复习进度，确定离开？");
   useEffect(() => {
@@ -77,11 +78,17 @@ export function Session({
     setPending((p) => (p ? { ...p, result: "right" } : p));
     setLog((l) => l.map((x, k) => (k === l.length - 1 ? { ...x, ok: true } : x)));
   }, []);
+  const clearAccent = useCallback(() => {
+    setPending((p) => (p ? { ...p, accentCleared: true } : p));
+  }, []);
   const next = useCallback(() => {
     setPending(null);
-    if (i + 1 >= initial.length && !graded) setGraded(gradeRound(log, run.mode));
+    if (i + 1 >= initial.length && !gradedRef.current) {
+      gradedRef.current = true;
+      setGraded(gradeRound(log, run.mode));
+    }
     setI((n) => n + 1);
-  }, [i, initial.length, graded, log, run.mode]);
+  }, [i, initial.length, log, run.mode]);
 
   const exitSession = async () => {
     if (
@@ -99,21 +106,27 @@ export function Session({
     onExit();
   };
 
-  if (i >= initial.length)
+  if (i >= initial.length) {
+    const baseOrigin = run.origin ?? { mode: run.mode === "retry" ? "round" : run.mode, label: run.label };
     return (
       <Summary
         data={data}
         log={log}
         graded={graded ?? []}
         mode={run.mode}
-        onRetry={(steps) => onRestart({ steps, mode: "retry", label: "本轮错题重练", again: run.again })}
-        onAgain={run.again ? () => onRestart({ steps: run.again!(), mode: run.mode === "retry" ? "focused" : run.mode, label: run.label, again: run.again }) : undefined}
+        onRetry={(steps) => onRestart({ steps, mode: "retry", label: "本轮错题重练", origin: baseOrigin, again: run.again })}
+        onAgain={
+          run.again
+            ? () => onRestart({ steps: run.again!(), mode: baseOrigin.mode, label: baseOrigin.label, origin: baseOrigin, again: run.again })
+            : undefined
+        }
         onExit={onExit}
       />
     );
+  }
   const point = data.points.find((p) => p.id === step.point)!;
   const d = step.drill;
-  const q = { point, pending, onAnswer: answer, onNext: next, onAmend: amend };
+  const q = { point, pending, onAnswer: answer, onNext: next, onAmend: amend, onAccentCleared: clearAccent };
   return (
     <div className="page practice typing gram-run">
       <header className="typing-top">
@@ -162,6 +175,7 @@ interface QuestionProps<D extends Drill> {
   onAnswer: (r: Result, v: string, extra?: { aiNote?: string; orthographyHint?: string | null }) => void;
   onNext: () => void;
   onAmend: () => void;
+  onAccentCleared?: () => void;
 }
 
 /** The sentence with one part in bold. */
@@ -175,7 +189,21 @@ function Marked({ s, b, with: w }: { s: string; b: [number, number]; with?: stri
   );
 }
 
-function Feedback({ point, drill, pending, onNext, onAmend }: { point: GrammarPoint; drill: Drill; pending: Pending; onNext: () => void; onAmend: () => void }) {
+function Feedback({
+  point,
+  drill,
+  pending,
+  onNext,
+  onAmend,
+  onAccentCleared,
+}: {
+  point: GrammarPoint;
+  drill: Drill;
+  pending: Pending;
+  onNext: () => void;
+  onAmend: () => void;
+  onAccentCleared?: () => void;
+}) {
   const [skipped, setSkipped] = useState(false);
   const ai = useAiConfig();
   const [checking, setChecking] = useState<"idle" | "busy" | { verdict: "correct" | "almost" | "wrong"; why: string; corrected: string } | "error">("idle");
@@ -185,6 +213,7 @@ function Feedback({ point, drill, pending, onNext, onAmend }: { point: GrammarPo
   const [accentRetriedOk, setAccentRetriedOk] = useState(false);
   const retryInput = useRef<HTMLInputElement>(null);
   const accentInput = useRef<HTMLInputElement>(null);
+  const nextBtn = useRef<HTMLButtonElement>(null);
   const isAccent = pending.result === "accent";
   const needsAccentRetype = isAccent && !accentRetriedOk;
   const ok = pending.result === "right" || accentRetriedOk;
@@ -223,6 +252,8 @@ function Feedback({ point, drill, pending, onNext, onAmend }: { point: GrammarPo
     e.preventDefault();
     if (checkTyped(accentRetry, expectedTargets, clozeCtx) === "right") {
       setAccentRetriedOk(true);
+      onAccentCleared?.();
+      requestAnimationFrame(() => nextBtn.current?.focus());
     }
   };
   return (
@@ -351,7 +382,7 @@ function Feedback({ point, drill, pending, onNext, onAmend }: { point: GrammarPo
           )}
         </div>
       )}
-      <button className={`btn btn-xl ${ok ? "btn-sage" : "btn-terra"}`} disabled={needsAccentRetype} onClick={onNext} autoFocus={!needsAccentRetype}>
+      <button ref={nextBtn} className={`btn btn-xl ${ok ? "btn-sage" : "btn-terra"}`} disabled={needsAccentRetype} onClick={onNext} autoFocus={!needsAccentRetype}>
         继续 <ArrowRight size={20} />
       </button>
       {!mine && (
@@ -507,11 +538,11 @@ function FrenchInput({ value, onChange, onSubmit, disabled, label, wide, autoFoc
   );
 }
 
-function TypeQuestion({ point, drill, pending, onAnswer, onNext, onAmend }: QuestionProps<TypeDrill>) {
+function TypeQuestion({ point, drill, pending, onAnswer, onNext, onAmend, onAccentCleared }: QuestionProps<TypeDrill>) {
   const ai = useAiConfig();
   const [value, setValue] = useState("");
   const [verifying, setVerifying] = useState(false);
-  useNextKeys(pending && pending.result !== "accent" ? pending : null, onNext);
+  useNextKeys(pending, onNext);
   const right = answerOf(drill);
   const before = drill.s.slice(0, drill.b[0]);
   const after = drill.s.slice(drill.b[1]);
@@ -553,12 +584,12 @@ function TypeQuestion({ point, drill, pending, onAnswer, onNext, onAmend }: Ques
       <p className="gram-hint">{drill.h}</p>
       <FrenchInput value={pending ? pending.value : value} onChange={setValue} onSubmit={() => void submit()} disabled={!!pending || verifying} label="填空" />
       {verifying && <p className="muted small">AI 正在静默核验等价表达…</p>}
-      {pending && <Feedback point={point} drill={drill} pending={pending} onNext={onNext} onAmend={onAmend} />}
+      {pending && <Feedback point={point} drill={drill} pending={pending} onNext={onNext} onAmend={onAmend} onAccentCleared={onAccentCleared} />}
     </>
   );
 }
 
-function FixQuestion({ point, drill, pending, onAnswer, onNext, onAmend }: QuestionProps<FixDrill>) {
+function FixQuestion({ point, drill, pending, onAnswer, onNext, onAmend, onAccentCleared }: QuestionProps<FixDrill>) {
   const ai = useAiConfig();
   const segment = drill.s.slice(drill.b[0], drill.b[1]);
   const before = drill.s.slice(0, drill.b[0]);
@@ -598,7 +629,7 @@ function FixQuestion({ point, drill, pending, onAnswer, onNext, onAmend }: Quest
     onAnswer("wrong", v, { orthographyHint: orthoHint });
   };
   const keys: Record<string, () => void> = {};
-  if (pending && pending.result !== "accent") {
+  if (pending && (pending.result !== "accent" || pending.accentCleared)) {
     keys.Enter = onNext;
     keys[" "] = onNext;
   } else if (!pending && !editing) {
@@ -635,16 +666,16 @@ function FixQuestion({ point, drill, pending, onAnswer, onNext, onAmend }: Quest
       )}
       {verifying && <p className="muted small">AI 正在静默核验等价改写…</p>}
       {pending && pending.value === "（没有错）" && <p className="gram-hint">你的回答：没有错</p>}
-      {pending && <Feedback point={point} drill={drill} pending={pending} onNext={onNext} onAmend={onAmend} />}
+      {pending && <Feedback point={point} drill={drill} pending={pending} onNext={onNext} onAmend={onAmend} onAccentCleared={onAccentCleared} />}
     </>
   );
 }
 
-function TransformQuestion({ point, drill, pending, onAnswer, onNext, onAmend }: QuestionProps<TransformDrill>) {
+function TransformQuestion({ point, drill, pending, onAnswer, onNext, onAmend, onAccentCleared }: QuestionProps<TransformDrill>) {
   const ai = useAiConfig();
   const [value, setValue] = useState("");
   const [verifying, setVerifying] = useState(false);
-  useNextKeys(pending && pending.result !== "accent" ? pending : null, onNext);
+  useNextKeys(pending, onNext);
   const submit = async () => {
     const v = value.trim();
     if (!v || verifying) return;
@@ -682,7 +713,7 @@ function TransformQuestion({ point, drill, pending, onAnswer, onNext, onAmend }:
       </p>
       <FrenchInput value={pending ? pending.value : value} onChange={setValue} onSubmit={() => void submit()} disabled={!!pending || verifying} label="写出改好的句子" wide />
       {verifying && <p className="muted small">AI 正在静默核验等价句型转换…</p>}
-      {pending && <Feedback point={point} drill={drill} pending={pending} onNext={onNext} onAmend={onAmend} />}
+      {pending && <Feedback point={point} drill={drill} pending={pending} onNext={onNext} onAmend={onAmend} onAccentCleared={onAccentCleared} />}
     </>
   );
 }
@@ -768,7 +799,7 @@ function sectionHref(pointId: string, g: string | undefined) {
 }
 
 /** One wrong answer in the round's review: the question, yours, the right one, the sentence's meaning and why. */
-function WrongReview({ point, answered }: { point: GrammarPoint; answered: Answered }) {
+function WrongReview({ point, answered, onExit }: { point: GrammarPoint; answered: Answered; onExit: () => void }) {
   const d = answered.step.drill;
   const prompt =
     d.k === "c" || d.k === "t" ? (
@@ -818,7 +849,7 @@ function WrongReview({ point, answered }: { point: GrammarPoint; answered: Answe
       </p>
       {d.z && d.k !== "o" && <p className="gram-zh">{d.z}</p>}
       <p className="gram-why">{d.y}</p>
-      <a className="link small" href={sectionHref(point.id, d.g)}>
+      <a className="link small" href={sectionHref(point.id, d.g)} onClick={onExit}>
         {point.title}
         {d.g && d.g !== ESSAY_TAG ? ` · ${tagLabel(point, d.g) || tagNumber(d.g)}` : ""} <ArrowRight size={13} />
       </a>
@@ -869,7 +900,7 @@ function Summary({
           <ul className="gram-result">
             {graded.map((g) => (
               <li key={g.id}>
-                <a href={`#/grammar?p=${g.id}`}>{pointOf(g.id).title}</a>
+                <a href={`#/grammar?p=${g.id}`} onClick={onExit}>{pointOf(g.id).title}</a>
                 <span>
                   {g.total - g.wrong}/{g.total}
                 </span>
@@ -899,7 +930,7 @@ function Summary({
             <h2 className="eyebrow">错题复盘 · {wrong.length} 题</h2>
             <ol>
               {wrong.map((a, k) => (
-                <WrongReview key={k} point={pointOf(a.step.point)} answered={a} />
+                <WrongReview key={k} point={pointOf(a.step.point)} answered={a} onExit={onExit} />
               ))}
             </ol>
           </section>

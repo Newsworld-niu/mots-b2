@@ -504,11 +504,12 @@ export function applyPointRound(
     if (!a.g || a.g === ESSAY_TAG) continue;
     bumpTagStat(gramTags, pointId, a.g, a.ok);
   }
-  // a focused round moves the card only for a new point, or for mistakes on a card that is not due yet
-  const moveCard = mode === "round" || isNew || (wrong > 0 && card.due > now);
+  const nextCard = review(card, grade, now, retention);
+  // a focused round moves the card only for a new point, or when mistakes bring a not-yet-due card closer
+  const moveCard = mode === "round" || isNew || (wrong > 0 && card.due > now && nextCard.due < card.due);
   return {
     ...p,
-    gram: moveCard ? { ...(p.gram ?? {}), [pointId]: review(card, grade, now, retention) } : p.gram,
+    gram: moveCard ? { ...(p.gram ?? {}), [pointId]: nextCard } : p.gram,
     gramDays: { ...(p.gramDays ?? {}), [day]: { n: d.n + (isNew ? 1 : 0), r: d.r + total, c: d.c + total - wrong } },
     gramTags,
   };

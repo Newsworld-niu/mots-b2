@@ -2276,7 +2276,7 @@ export const DISCOURSE_EXERCISES: readonly DiscourseExercise[] = [
         id: "crb3",
         hint: "être（il est probable que + ?）",
         answer: ["sera"],
-        options: ["sera", "soit", "serait", "fût"],
+        options: ["sera", "soit", "ait été", "fût"],
         point: "subj-indicatif",
         tag: "t2",
         why: "il est probable que 用直陈式（与 il est possible que + 虚拟式相对）：le budget sera revu。",
@@ -2364,7 +2364,7 @@ export const DISCOURSE_EXERCISES: readonly DiscourseExercise[] = [
     text:
       "Madame, je me permets de vous adresser ma candidature au poste de chargée de projet. " +
       "Peut-être {{0}} un profil polyvalent. " +
-      "Lors du salon, votre collaborateur m'a demandé {{1}} disponible dès septembre ; je le suis. " +
+      "Lors du salon le mois dernier, votre collaborateur m'avait demandé {{1}} disponible à cette époque-là, ce que j'avais aussitôt confirmé. " +
       "Bien que je {{2}} encore étudiante, j'ai déjà dirigé plusieurs projets, et les compétences que j'y ai {{3}} me semblent directement utiles à votre service. " +
       "Dans l'attente de votre réponse, {{4}} d'agréer, Madame, l'expression de mes salutations distinguées.",
     slots: [

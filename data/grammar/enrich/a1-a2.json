@@ -1362,7 +1362,7 @@
             [
               "ils",
               "{c:eux}",
-              "plus âgés que {c:eux}"
+              "plus âgés qu'{c:eux}"
             ],
             [
               "elles",

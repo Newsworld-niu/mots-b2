@@ -105,7 +105,7 @@
             ],
             [
               "promettre",
-              "{p:de} + 不定式 / {k:que} + 条件式",
+              "{p:de} + 不定式 / {k:que} + 直陈式（主句过去时转条件式）",
               "Il a promis {k:qu'}il {v:viendrait}."
             ],
             [
@@ -137,9 +137,9 @@
           "tag": "t2"
         },
         {
-          "wrong": "Il a dit qu'il va partir.",
-          "right": "Il a dit qu'il {v:allait} partir.",
-          "why": "近将来时也要退后：aller 变成未完成过去时 allait + 不定式；venir de 同理变 venait de。",
+          "wrong": "Il m'a dit hier soir qu'il va partir tout de suite.",
+          "right": "Il m'a dit hier soir qu'il {v:allait} partir tout de suite.",
+          "why": "过去叙事中近将来时也要退后：aller 变成未完成过去时 allait + 不定式；venir de 同理变 venait de。",
           "tag": "t4"
         }
       ],
@@ -2334,7 +2334,7 @@
         },
         {
           "index": 3,
-          "text": "描述数字变化（图表题必备）：augmenter / baisser / diminuer {p:de} + 幅度（增加了多少），{p:à} + 结果（增加到多少）；passer {p:de} … {p:à} …（从……变成……）；atteindre（达到）、représenter（占）、doubler / tripler（翻一番 / 两番）；être en hausse / en baisse {p:de} + 幅度。名词形式：une hausse / une baisse / une augmentation {p:de} 5 %。",
+          "text": "描述数字变化（图表题必备）：augmenter / baisser / diminuer {p:de} + 幅度（增加了多少），{p:à} + 结果（增加到多少）；passer {p:de} … {p:à} …（从……变成……）；atteindre（达到）、représenter（占）、doubler / tripler（翻一番 / 增至三倍）；être en hausse / en baisse {p:de} + 幅度。名词形式：une hausse / une baisse / une augmentation {p:de} 5 %。",
           "formula": [
             "augmenter / baisser {p:de} + 幅度；… {p:à} + 结果",
             "passer {p:de} A {p:à} B；être en hausse / en baisse {p:de} + 幅度"
@@ -2779,7 +2779,7 @@
         }
       ],
       "exceptions": [
-        "se voir + 过去分词时，vu 按 1990 年正字法常不配合；考试里避免把它当唯一答案。",
+        "se voir + 不定式且 se 为间接宾语时 vu 不配合（Elle s'est vu refuser un visa）；se voir + 过去分词时 se 为直宾，vu 随主语配合（Elle s'est vue contrainte de partir）。",
         "se faire avoir（上当）、se faire engueuler（挨骂，口语）、se faire remarquer（引人注目）是固定说法。",
         "被动语态本身见 B1「被动语态」，与使役结构的对比见横向对比「被动与使役」。"
       ]

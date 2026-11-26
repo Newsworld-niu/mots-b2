@@ -49,7 +49,7 @@ export function Grammar({
   }, [pointId, sheet, sprint]);
   const start = useCallback<StartRound>((steps, opts) => {
     if (!steps.length) return;
-    setRun({ steps, mode: opts?.mode ?? "round", label: opts?.label, again: opts?.again, key: Date.now() });
+    setRun({ steps, mode: opts?.mode ?? "round", label: opts?.label, origin: opts?.origin, again: opts?.again, key: Date.now() });
   }, []);
   const restart = useCallback((spec: RunSpec) => {
     if (spec.steps.length) setRun({ ...spec, key: Date.now() });
@@ -77,6 +77,6 @@ export function Grammar({
   }
   if (sheet) return <CheatSheet data={data} section={section} />;
   const point = pointId ? data.points.find((p) => p.id === pointId) : undefined;
-  if (point) return <PointView data={data} point={point} section={section} onStart={start} />;
+  if (point) return <PointView key={point.id} data={data} point={point} section={section} onStart={start} />;
   return <Overview data={data} tabs={<GrammarTabs on="grammar" />} onStart={start} onDiscourse={setDiscourse} />;
 }

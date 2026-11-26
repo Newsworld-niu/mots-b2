@@ -7,7 +7,7 @@
    {"k": "o", "s": "Je vais le leur annoncer ce soir.", "t": ["je", "vais", "le", "leur", "annoncer", "ce", "soir"], "p": ".", "alts": [], "h": "近将来时 + 双代词（时间状语放句末）", "z": "我今晚要把这件事告诉他们。", "y": "有不定式时，双代词放在不定式前：vais le leur annoncer；第三人称直宾 le 在间宾 leur 之前", "g": "r0"},
    {"k": "o", "s": "Donne-le-moi tout de suite.", "t": ["donne", "-le", "-moi", "tout", "de", "suite"], "p": ".", "alts": [], "h": "肯定命令式双代词", "z": "马上把它给我。", "y": "肯定命令式：动词 – 直宾 – 间宾，me 变 moi：Donne-le-moi", "g": "r1"},
    {"k": "o", "s": "Parle-lui-en avant la réunion.", "t": ["parle", "-lui", "-en", "avant", "la", "réunion"], "p": ".", "alts": [], "h": "肯定命令式中 lui 与 en 的顺序", "z": "开会前跟他/她谈谈这件事。", "y": "en 永远排在最后：Parle-lui-en（lui 在 en 之前）", "g": "r1"},
-   {"k": "o", "s": "Ne me le dis pas maintenant.", "t": ["ne", "me", "le", "dis", "pas", "maintenant"], "p": ".", "alts": [], "h": "否定命令式双代词", "z": "现在别告诉我。", "y": "否定命令式回到陈述句顺序：ne + me + le + 动词 + pas", "g": "r2"},
+   {"k": "o", "s": "Ne me le dis pas maintenant.", "t": ["ne", "me", "le", "dis", "pas", "maintenant"], "p": ".", "alts": [["maintenant", "ne", "me", "le", "dis", "pas"]], "h": "否定命令式双代词", "z": "现在别告诉我。", "y": "否定命令式回到陈述句顺序：ne + me + le + 动词 + pas", "g": "r2"},
    {"k": "o", "s": "Ne nous en parlez plus.", "t": ["ne", "nous", "en", "parlez", "plus"], "p": ".", "alts": [], "h": "否定命令式 + en", "z": "别再跟我们提这件事了。", "y": "否定命令式：ne + nous + en + 动词 + plus，en 总在最后", "g": "r2"},
    {"k": "o", "s": "Elle la leur a présentée avec fierté.", "t": ["elle", "la", "leur", "a", "présentée", "avec", "fierté"], "p": ".", "alts": [], "h": "两个第三人称代词：直宾在前", "z": "她骄傲地把她介绍给了他们。", "y": "第三人称直宾 la 在间宾 leur 之前：la leur a présentée（前置直宾 la 使过去分词配合）", "g": "t0"},
    {"k": "o", "s": "Il y en a encore dans le frigo.", "t": ["il", "y", "en", "a", "encore", "dans", "le", "frigo"], "p": ".", "alts": [], "h": "y 与 en 连用", "z": "冰箱里还有一些。", "y": "y 和 en 连用时 y 在前：il y en a", "g": "t1"},
@@ -39,12 +39,12 @@
   ],
   "imperatif": [
    {"k": "o", "s": "N'oublie pas ton passeport.", "t": ["n'", "oublie", "pas", "ton", "passeport"], "p": ".", "alts": [], "h": "否定命令式（-er 动词 tu 形式）", "z": "别忘了你的护照。", "y": "-er 动词命令式 tu 形式去 s：oublie；否定：n'oublie pas", "g": "r0"},
-   {"k": "o", "s": "Soyez à l'heure demain matin.", "t": ["soyez", "à", "l'", "heure", "demain", "matin"], "p": ".", "alts": [], "h": "être 的命令式", "z": "明天早上请准时。", "y": "être 的命令式不规则：sois / soyons / soyez", "g": "r1"},
+   {"k": "o", "s": "Soyez à l'heure demain matin.", "t": ["soyez", "à", "l'", "heure", "demain", "matin"], "p": ".", "alts": [["demain", "matin", "soyez", "à", "l'", "heure"]], "h": "être 的命令式", "z": "明天早上请准时。", "y": "être 的命令式不规则：sois / soyons / soyez", "g": "r1"},
    {"k": "o", "s": "Envoie-nous une carte postale.", "t": ["envoie", "-nous", "une", "carte", "postale"], "p": ".", "alts": [], "h": "肯定命令式 + 代词", "z": "给我们寄张明信片吧。", "y": "肯定命令式代词后置并用连字符：Envoie-nous", "g": "r2"},
    {"k": "o", "s": "Allons-y tous ensemble.", "t": ["allons", "-y", "tous", "ensemble"], "p": ".", "alts": [], "h": "nous 命令式 + y", "z": "我们一起去吧。", "y": "Allons-y：y 用连字符接在命令式之后", "g": "r2"},
    {"k": "o", "s": "Ne le lui dis surtout pas.", "t": ["ne", "le", "lui", "dis", "surtout", "pas"], "p": ".", "alts": [], "h": "否定命令式双代词", "z": "千万别告诉他/她。", "y": "否定命令式代词回到动词前，顺序同陈述句：ne le lui dis pas", "g": "r3"},
    {"k": "o", "s": "Parles-en à ton médecin.", "t": ["parles", "-en", "à", "ton", "médecin"], "p": ".", "alts": [], "h": "命令式 + en（注意 s）", "z": "跟你的医生谈谈这件事。", "y": "-er 动词命令式后接 en 时补回 s 以便连读：Parles-en", "g": "t1"},
-   {"k": "o", "s": "Donne-la-leur dès demain.", "t": ["donne", "-la", "-leur", "dès", "demain"], "p": ".", "alts": [], "h": "肯定命令式：直宾在前", "z": "明天就把它交给他们。", "y": "肯定命令式双代词：动词 – 直宾（la）– 间宾（leur）", "g": "t2"},
+   {"k": "o", "s": "Donne-la-leur dès demain.", "t": ["donne", "-la", "-leur", "dès", "demain"], "p": ".", "alts": [["dès", "demain", "donne", "-la", "-leur"]], "h": "肯定命令式：直宾在前", "z": "明天就把它交给他们。", "y": "肯定命令式双代词：动词 – 直宾（la）– 间宾（leur）", "g": "t2"},
    {"k": "o", "s": "Montre-le-moi, s'il te plaît.", "t": ["montre", "-le", "-moi", ",", "s'", "il", "te", "plaît"], "p": ".", "alts": [], "h": "肯定命令式 le + moi（礼貌语放句末）", "z": "请给我看看。", "y": "Montre-le-moi：直宾 le 在 moi 之前，不说 Montre-moi-le", "g": "t2"},
    {"k": "o", "s": "Assieds-toi près de la fenêtre.", "t": ["assieds", "-toi", "près", "de", "la", "fenêtre"], "p": ".", "alts": [], "h": "代动词的肯定命令式", "z": "坐到窗边来。", "y": "代动词肯定命令式：te → toi 后置：Assieds-toi", "g": "t3"},
    {"k": "o", "s": "Ne t'inquiète pas pour moi.", "t": ["ne", "t'", "inquiète", "pas", "pour", "moi"], "p": ".", "alts": [], "h": "代动词的否定命令式", "z": "别为我担心。", "y": "代动词否定命令式：ne + te（t'）+ 动词 + pas", "g": "t3"}
@@ -68,7 +68,7 @@
    {"k": "o", "s": "Qui est-ce que tu as invité ?", "t": ["qui", "est-ce", "que", "tu", "as", "invité"], "p": " ?", "alts": [], "h": "问人（宾语）", "z": "你邀请了谁？", "y": "问人作宾语：qui est-ce que + 陈述语序", "g": "r2"},
    {"k": "o", "s": "Laquelle de ces robes préfères-tu ?", "t": ["laquelle", "de", "ces", "robes", "préfères", "-tu"], "p": " ?", "alts": [], "h": "lequel 类疑问代词", "z": "这几条裙子你更喜欢哪一条？", "y": "laquelle de + 名词 + 倒装：préfères-tu", "g": "r3"},
    {"k": "o", "s": "Comme il fait beau aujourd'hui !", "t": ["comme", "il", "fait", "beau", "aujourd'hui"], "p": " !", "alts": [], "h": "comme 感叹句", "z": "今天天气真好啊！", "y": "感叹句 comme + 陈述语序，不倒装", "g": "r4"},
-   {"k": "o", "s": "Où est-ce que tu vas ce soir ?", "t": ["où", "est-ce", "que", "tu", "vas", "ce", "soir"], "p": " ?", "alts": [], "h": "est-ce que 后不倒装", "z": "你今晚去哪儿？", "y": "est-ce que 后用陈述语序：où est-ce que tu vas", "g": "t0"},
+   {"k": "o", "s": "Où est-ce que tu vas ce soir ?", "t": ["où", "est-ce", "que", "tu", "vas", "ce", "soir"], "p": " ?", "alts": [["ce", "soir", "où", "est-ce", "que", "tu", "vas"]], "h": "est-ce que 后不倒装", "z": "你今晚去哪儿？", "y": "est-ce que 后用陈述语序：où est-ce que tu vas", "g": "t0"},
    {"k": "o", "s": "Qu'est-ce qui t'inquiète autant ?", "t": ["qu'est-ce", "qui", "t'", "inquiète", "autant"], "p": " ?", "alts": [], "h": "问物作主语", "z": "什么事让你这么担心？", "y": "问物作主语只能用 qu'est-ce qui，后接动词", "g": "t1"},
    {"k": "o", "s": "De quoi avez-vous besoin ?", "t": ["de", "quoi", "avez", "-vous", "besoin"], "p": " ?", "alts": [], "h": "介词后用 quoi", "z": "您需要什么？", "y": "介词后 que 要变成 quoi：De quoi avez-vous besoin", "g": "t2"},
    {"k": "o", "s": "Auquel de ces projets participes-tu ?", "t": ["auquel", "de", "ces", "projets", "participes", "-tu"], "p": " ?", "alts": [], "h": "lequel 与 à 缩合", "z": "你参加了这些项目中的哪一个？", "y": "participer à → à + lequel 缩合为 auquel", "g": "t3"}
@@ -106,7 +106,7 @@
    {"k": "o", "s": "Ne vous inquiétez pas pour nous.", "t": ["ne", "vous", "inquiétez", "pas", "pour", "nous"], "p": ".", "alts": [], "h": "代动词否定命令式", "z": "别为我们担心。", "y": "否定命令式：代词在动词前：ne vous inquiétez pas", "g": "r2"},
    {"k": "o", "s": "Je dois me lever à six heures.", "t": ["je", "dois", "me", "lever", "à", "six", "heures"], "p": ".", "alts": [], "h": "不定式前的自反代词", "z": "我得六点起床。", "y": "不定式前的代词随主语变：je dois me lever，不说 se lever", "g": "t0"},
    {"k": "o", "s": "Elles se sont souri sans rien dire.", "t": ["elles", "se", "sont", "souri", "sans", "rien", "dire"], "p": ".", "alts": [], "h": "se 为间接宾语（sourire à qqn）", "z": "她们相视一笑，什么也没说。", "y": "sourire à qqn：se 是间宾，过去分词 souri 不配合", "g": "t1"},
-   {"k": "o", "s": "Elle s'est lavé les mains avant le repas.", "t": ["elle", "s'", "est", "lavé", "les", "mains", "avant", "le", "repas"], "p": ".", "alts": [], "h": "后面另有直宾时不配合", "z": "她饭前洗了手。", "y": "直宾 les mains 在后，s' 是间宾 → lavé 不配合；身体部位用定冠词", "g": "t2"}
+   {"k": "o", "s": "Elle s'est lavé les mains avant le repas.", "t": ["elle", "s'", "est", "lavé", "les", "mains", "avant", "le", "repas"], "p": ".", "alts": [["avant", "le", "repas", "elle", "s'", "est", "lavé", "les", "mains"]], "h": "后面另有直宾时不配合", "z": "她饭前洗了手。", "y": "直宾 les mains 在后，s' 是间宾 → lavé 不配合；身体部位用定冠词", "g": "t2"}
   ],
   "restriction": [
    {"k": "o", "s": "Je n'ai que dix euros sur moi.", "t": ["je", "n'", "ai", "que", "dix", "euros", "sur", "moi"], "p": ".", "alts": [["je", "n'", "ai", "sur", "moi", "que", "dix", "euros"]], "h": "ne … que 的位置", "z": "我身上只有十欧元。", "y": "que 紧贴被限定的成分 dix euros 前", "g": "r0"},
@@ -127,22 +127,22 @@
    {"k": "o", "s": "Elle préfère ne plus en parler.", "t": ["elle", "préfère", "ne", "plus", "en", "parler"], "p": ".", "alts": [], "h": "否定不定式", "z": "她宁愿不再谈论这件事。", "y": "不定式前 ne plus 一起放，代词 en 紧贴不定式", "g": "r2"},
    {"k": "o", "s": "Il n'y a plus aucun billet disponible.", "t": ["il", "n'", "y", "a", "plus", "aucun", "billet", "disponible"], "p": ".", "alts": [], "h": "plus 与 aucun 连用", "z": "已经一张票都不剩了。", "y": "plus + aucun 可连用，不加 pas", "g": "r2"},
    {"k": "o", "s": "Je crains qu'il ne soit trop tard.", "t": ["je", "crains", "qu'", "il", "ne", "soit", "trop", "tard"], "p": ".", "alts": [], "h": "赘词 ne", "z": "我担心已经太晚了。", "y": "craindre que + 赘词 ne + 虚拟式，ne 没有否定意义", "g": "r3"},
-   {"k": "o", "s": "Il ne cesse de pleuvoir depuis lundi.", "t": ["il", "ne", "cesse", "de", "pleuvoir", "depuis", "lundi"], "p": ".", "alts": [], "h": "单用 ne 的书面否定", "z": "从周一起雨就下个不停。", "y": "cesser 在书面语中可单用 ne：ne cesse de", "g": "r4"},
+   {"k": "o", "s": "Il ne cesse de pleuvoir depuis lundi.", "t": ["il", "ne", "cesse", "de", "pleuvoir", "depuis", "lundi"], "p": ".", "alts": [["depuis", "lundi", "il", "ne", "cesse", "de", "pleuvoir"]], "h": "单用 ne 的书面否定", "z": "从周一起雨就下个不停。", "y": "cesser 在书面语中可单用 ne：ne cesse de", "g": "r4"},
    {"k": "o", "s": "Elle n'ose lui répondre.", "t": ["elle", "n'", "ose", "lui", "répondre"], "p": ".", "alts": [], "h": "oser + 单用 ne", "z": "她不敢回答他/她。", "y": "oser 在书面语中可单用 ne，不加 pas", "g": "r4"},
    {"k": "o", "s": "Je crains qu'il ne vienne pas.", "t": ["je", "crains", "qu'", "il", "ne", "vienne", "pas"], "p": ".", "alts": [], "h": "我怕他“不来”", "z": "我担心他不来。", "y": "真正的否定要加 pas：qu'il ne vienne pas；没有 pas 意为“怕他来”", "g": "t0"},
    {"k": "o", "s": "Je ne prends pas de fromage ni de dessert.", "t": ["je", "ne", "prends", "pas", "de", "fromage", "ni", "de", "dessert"], "p": ".", "alts": [["je", "ne", "prends", "pas", "de", "dessert", "ni", "de", "fromage"]], "h": "pas de … ni de …", "z": "我既不要奶酪也不要甜点。", "y": "pas de X ni de Y 与 ni X ni Y 同义", "g": "t3"}
   ],
   "passif": [
-   {"k": "o", "s": "Les résultats seront publiés la semaine prochaine.", "t": ["les", "résultats", "seront", "publiés", "la", "semaine", "prochaine"], "p": ".", "alts": [], "h": "将来时被动", "z": "结果将于下周公布。", "y": "将来时被动：seront + 过去分词（与主语配合）", "g": "r0"},
+   {"k": "o", "s": "Les résultats seront publiés la semaine prochaine.", "t": ["les", "résultats", "seront", "publiés", "la", "semaine", "prochaine"], "p": ".", "alts": [["la", "semaine", "prochaine", "les", "résultats", "seront", "publiés"]], "h": "将来时被动", "z": "结果将于下周公布。", "y": "将来时被动：seront + 过去分词（与主语配合）", "g": "r0"},
    {"k": "o", "s": "Le cambrioleur a été arrêté par les gendarmes.", "t": ["le", "cambrioleur", "a", "été", "arrêté", "par", "les", "gendarmes"], "p": ".", "alts": [], "h": "复合过去时被动 + par", "z": "窃贼被宪兵抓住了。", "y": "a été + 过去分词，施动者由 par 引出", "g": "r1"},
    {"k": "o", "s": "Le directeur est respecté de tous.", "t": ["le", "directeur", "est", "respecté", "de", "tous"], "p": ".", "alts": [], "h": "情感动词的施动者", "z": "主任受到所有人的尊敬。", "y": "respecter 等情感类动词的施动者常用 de 引出", "g": "r1"},
    {"k": "o", "s": "Ce vin se boit très frais.", "t": ["ce", "vin", "se", "boit", "très", "frais"], "p": ".", "alts": [], "h": "代词式被动", "z": "这种酒要冰镇着喝。", "y": "代词式动词可表示被动：se boit", "g": "r2"},
    {"k": "o", "s": "La réunion a été annulée à la dernière minute.", "t": ["la", "réunion", "a", "été", "annulée", "à", "la", "dernière", "minute"], "p": ".", "alts": [], "h": "a été + 过去分词（配合）", "z": "会议在最后一刻被取消了。", "y": "été 不变，过去分词与主语配合：a été annulée", "g": "t0"},
-   {"k": "o", "s": "Cette maison a été construite en 1920.", "t": ["cette", "maison", "a", "été", "construite", "en", "1920"], "p": ".", "alts": [], "h": "被动复合过去时", "z": "这栋房子建于1920年。", "y": "a été construite：分词与阴性主语配合", "g": "t0"},
+   {"k": "o", "s": "Cette maison a été construite en 1920.", "t": ["cette", "maison", "a", "été", "construite", "en", "1920"], "p": ".", "alts": [["en", "1920", "cette", "maison", "a", "été", "construite"]], "h": "被动复合过去时", "z": "这栋房子建于1920年。", "y": "a été construite：分词与阴性主语配合", "g": "t0"},
    {"k": "o", "s": "On m'a dit de patienter.", "t": ["on", "m'", "a", "dit", "de", "patienter"], "p": ".", "alts": [], "h": "间宾不能作被动主语", "z": "有人叫我耐心等待。", "y": "dire à qqn 的间宾不能变被动主语，要用 on：On m'a dit", "g": "t1"},
    {"k": "o", "s": "Elle a été invitée par ses voisins.", "t": ["elle", "a", "été", "invitée", "par", "ses", "voisins"], "p": ".", "alts": [], "h": "被动 vs être 助动词", "z": "她受到了邻居们的邀请。", "y": "a été invitée 是被动复合过去时，与 est arrivée（主动）区分", "g": "t2"},
    {"k": "o", "s": "C'est moi qui ai fait ce dessin.", "t": ["c'", "est", "moi", "qui", "ai", "fait", "ce", "dessin"], "p": ".", "alts": [], "h": "施动者为人称代词时不用被动", "z": "这幅画是我画的。", "y": "不说 Ce dessin a été fait par moi，改用强调句 C'est moi qui…", "g": "t3"},
-   {"k": "o", "s": "Le dossier doit être rendu avant vendredi.", "t": ["le", "dossier", "doit", "être", "rendu", "avant", "vendredi"], "p": ".", "alts": [], "h": "devoir + 被动不定式", "z": "材料必须在周五前交上来。", "y": "情态动词后接被动不定式：doit être rendu", "g": "t4"}
+   {"k": "o", "s": "Le dossier doit être rendu avant vendredi.", "t": ["le", "dossier", "doit", "être", "rendu", "avant", "vendredi"], "p": ".", "alts": [["avant", "vendredi", "le", "dossier", "doit", "être", "rendu"]], "h": "devoir + 被动不定式", "z": "材料必须在周五前交上来。", "y": "情态动词后接被动不定式：doit être rendu", "g": "t4"}
   ],
   "discours-indirect": [
    {"k": "o", "s": "Il m'a demandé comment je m'appelais.", "t": ["il", "m'", "a", "demandé", "comment", "je", "m'", "appelais"], "p": ".", "alts": [], "h": "间接问句 + 时态后移", "z": "他问我叫什么名字。", "y": "现在时 → 未完成过去时：je m'appelais；间接问句用陈述语序", "g": "r0"},

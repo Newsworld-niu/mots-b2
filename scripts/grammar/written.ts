@@ -124,6 +124,7 @@ export interface Problem {
 
 const str = (v: unknown) => typeof v === "string" && v.trim().length > 0;
 const TAG = /^[rt]\d+$/;
+const ELISION_SPACE = /(?:^|[^\p{L}])(?:qu|d|l|j|n|m|t|s|c|jusqu|lorsqu|puisqu|quoiqu)['’]\s+\p{L}/iu;
 
 /**
  * Turn the written drills of a point into built drills. Problems are collected rather than thrown, so a
@@ -136,6 +137,10 @@ export function parseWritten(point: string, list: unknown[], counts: { rules: nu
     const r = raw as { s?: unknown; q?: unknown } | null;
     const label = typeof r?.s === "string" ? r.s : typeof r?.q === "string" ? r.q : "";
     const bad = (msg: string) => problems.push({ point, at: `${at} ${label}`.slice(0, 120), msg });
+    const checkElision = (text: string, where: string) => {
+      const em = ELISION_SPACE.exec(text);
+      if (em) bad(`space after elision apostrophe in ${where}: « ${em[0].trim()} »`);
+    };
     if (!raw || typeof raw !== "object") return bad("not an object");
     const w = raw as Written;
     if (!str(w.z) || !str(w.y)) return bad("z and y are required");
@@ -153,10 +158,12 @@ export function parseWritten(point: string, list: unknown[], counts: { rules: nu
       const [, before, answer, after] = m;
       const s = before + answer + after;
       const b: [number, number] = [before.length, before.length + answer.length];
+      checkElision(s, "s");
       if (kind === "t") {
         const t = ww as WrittenType;
         if (!str(t.h)) return bad("a typed drill needs a hint (h)");
         const alts = Array.isArray(t.a) ? t.a.filter(str) : [];
+        for (const alt of alts) checkElision(before + alt + after, "a");
         out.push({ k: "t", s, z: w.z, b, a: [answer, ...alts.filter((x) => x !== answer)], h: t.h, y: w.y, ...g });
         return;
       }
@@ -187,18 +194,23 @@ export function parseWritten(point: string, list: unknown[], counts: { rules: nu
       if (!Array.isArray(f.r) || f.r.some((x) => !str(x))) return bad("r must be a list of corrections ([] when right)");
       const [, before, seg, after] = m;
       if (f.r.some((x) => x.trim() === seg.trim())) return bad("a correction equals the underlined part");
+      if (f.r.length === 0) checkElision(before + seg + after, "s");
+      else for (const r of f.r) checkElision(before + r + after, "r");
       out.push({ k: "f", s: before + seg + after, z: w.z, b: [before.length, before.length + seg.length], r: f.r, h: f.h ?? "", y: w.y, ...g });
       return;
     }
     if (kind === "x") {
       const x = w as WrittenTransform;
       if (!str(x.q) || !str(x.h) || !Array.isArray(x.a) || !x.a.length || x.a.some((a) => !str(a))) return bad("a transform needs q, h and a");
+      checkElision(x.q, "q");
+      for (const a of x.a) checkElision(a, "a");
       out.push({ k: "x", q: x.q, s: x.a[0], z: w.z, a: x.a, h: x.h, y: w.y, ...g });
       return;
     }
     if (kind === "o") {
       const o = w as WrittenOrder;
       if (!str(o.s)) return bad("an order drill needs s");
+      checkElision(o.s, "s");
       if (!Array.isArray(o.t) || o.t.length < 4 || o.t.length > 16 || o.t.some((x) => !str(x))) return bad("t must be 4–16 non-empty word blocks");
       if (typeof o.p !== "string") return bad("p (final punctuation) must be a string");
       const joined = joinOrderTokens(o.t, o.p);

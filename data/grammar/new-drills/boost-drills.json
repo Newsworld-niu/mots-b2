@@ -8,7 +8,7 @@
    {"s": "Je n'ai ni le temps [ni] l'envie de me disputer avec lui.", "x": [["et", "ni … ni 结构中第二个并列成分也要用 ni"], ["ou", "ou 不能与 ni 配对"], ["pas", "ni … ni 句中不再加 pas"]], "h": "既不……也不……", "z": "我既没时间也没兴趣跟他吵。", "y": "ne + 动词 + ni … ni …：两个被否定的成分前都用 ni", "g": "r2"},
    {"s": "Elle ne fait [que] répéter les mêmes arguments depuis le début de la réunion.", "x": [["pas", "ne fait pas répéter 语义不通，且改变了“一直在做”的意思"], ["rien que", "ne faire rien que 不是规范结构"], ["seulement", "seulement 不能与 ne 搭配构成 ne fait seulement"]], "h": "ne faire que + inf.", "z": "从会议一开始她就一直在重复同样的论点。", "y": "ne faire que + 不定式：只是一个劲地做某事", "g": "r1"},
    {"s": "Je ne connais [ni] son nom ni son adresse.", "x": [["pas", "ne … pas 与后面的 ni 不能搭配：要么 pas … ni，要么 ni … ni"], ["pas ni", "ni … ni 句里不再加 pas"], ["ou", "ou 不能与 ni 构成否定并列"]], "h": "ni … ni，不加 pas", "z": "我既不知道他的名字也不知道他的地址。", "y": "ni … ni 结构中 ne 后直接跟动词，不再出现 pas", "g": "t1"},
-   {"k": "t", "s": "Nous ne partirons [qu'] après la réunion du conseil.", "a": [], "h": "ne … que（直到……才），元音前省音", "z": "我们要等理事会开完会才出发。", "y": "que 紧贴被限定的时间状语 après la réunion，元音前写 qu'", "g": "r0"},
+   {"k": "t", "s": "Nous ne partirons [qu']après la réunion du conseil.", "a": [], "h": "ne … que（直到……才），元音前省音", "z": "我们要等理事会开完会才出发。", "y": "que 紧贴被限定的时间状语 après la réunion，元音前写 qu'", "g": "r0"},
    {"k": "t", "s": "[Seuls] les étudiants inscrits pourront passer l'examen.", "a": [], "h": "seul（限定主语，阳性复数）", "z": "只有注册的学生才能参加考试。", "y": "限定主语用 seul，与 les étudiants 配合为 seuls", "g": "t3"},
    {"k": "f", "s": "Il ne mange que {de la} viande blanche.", "r": [], "z": "他只吃白肉。", "y": "ne … que 不是否定，部分冠词 de la 保持不变，原句正确", "g": "t0"},
    {"k": "f", "s": "Je n'ai {pas ni} le temps ni l'argent pour ce voyage.", "r": ["ni"], "z": "我既没时间也没钱去旅行。", "y": "ni … ni 句中不再加 pas：Je n'ai ni le temps ni l'argent", "g": "t1"},
@@ -130,7 +130,7 @@
    {"k": "t", "s": "C'est [en forgeant] qu'on devient forgeron.", "a": [], "h": "forger（副动词，-ger 动词）", "z": "熟能生巧。", "y": "forger → forgeant（保留 e）", "g": "t2"},
    {"k": "f", "s": "Il chante toujours {en prenant} sa douche.", "r": [], "z": "他总是边洗澡边唱歌。", "y": "en + 现在分词表示同时，原句正确", "g": "r1"},
    {"k": "f", "s": "En {mangant} trop vite, on digère mal.", "r": ["mangeant"], "z": "吃得太快消化不好。", "y": "-ger 动词现在分词保留 e：mangeant", "g": "t2"},
-   {"k": "f", "s": "J'ai aperçu Marie {en sortant} du cinéma : elle avait l'air ravie du film qu'elle venait de voir.", "r": ["sortant", "qui sortait"], "z": "我看见玛丽从电影院出来：她看完电影一脸满意。", "y": "从电影院出来的是玛丽而不是“我”，不能用副动词（其主语是主句主语），要用现在分词 sortant 或 qui sortait", "g": "t4"},
+   {"k": "f", "s": "Depuis la terrasse du café d'en face, j'ai aperçu Marie {en sortant} du cinéma : elle avait l'air ravie.", "r": ["sortant", "qui sortait"], "z": "我坐在对面咖啡馆露台上，看见玛丽从电影院出来：她一脸满意。", "y": "说话人坐在露台上，从电影院出来的是玛丽而不是“我”，不能用副动词（其主语必须是主句主语），要用现在分词 sortant 或关系从句 qui sortait", "g": "t4"},
    {"k": "x", "q": "Pendant qu'il conduisait, il téléphonait.", "a": ["Il téléphonait en conduisant.", "En conduisant, il téléphonait."], "h": "用副动词改写，保留 il téléphonait", "z": "他边开车边打电话。", "y": "主语相同的同时动作可用副动词：en conduisant", "g": "r1"}
   ],
   "double-pronoms": [
@@ -164,7 +164,7 @@
    {"k": "t", "s": "Ce projet [doit être validé] avant vendredi.", "a": [], "h": "devoir + valider（被动不定式，现在时）", "z": "这个项目必须在周五前获批。", "y": "doit être validé：情态动词 + 被动不定式", "g": "t4"},
    {"k": "t", "s": "La décision [a été prise] à l'unanimité.", "a": [], "h": "prendre（被动，复合过去时，配合）", "z": "该决定获得一致通过。", "y": "a été prise：分词与阴性主语配合", "g": "t0"},
    {"k": "f", "s": "{J'ai été dit} que la réunion était annulée.", "r": ["On m'a dit"], "z": "有人告诉我会议取消了。", "y": "dire à qqn 的间宾不能作被动主语：On m'a dit", "g": "t1"},
-   {"k": "f", "s": "{Ce gâteau a été fait par moi}.", "r": ["C'est moi qui ai fait ce gâteau"], "z": "这个蛋糕是我做的。", "y": "施动者为人称代词时不用被动，改用强调句：C'est moi qui ai fait…", "g": "t3"},
+   {"k": "f", "s": "{Ce gâteau a été fait par moi}.", "r": ["C'est moi qui ai fait ce gâteau", "J'ai fait ce gâteau"], "z": "这个蛋糕是我做的。", "y": "施动者为人称代词时不用被动，改用强调句 C'est moi qui ai fait… 或主动句 J'ai fait…", "g": "t3"},
    {"k": "f", "s": "Les maisons {ont été construites} en 1950.", "r": [], "z": "这些房子建于1950年。", "y": "被动复合过去时，分词与阴性复数主语配合，原句正确", "g": "t0"},
    {"k": "f", "s": "Elle {est invitée} chaque année à ce festival.", "r": [], "z": "她每年都受邀参加这个节日。", "y": "est invitée 是现在时被动（不是 être 助动词的复合过去时），原句正确", "g": "t2"},
    {"k": "x", "q": "La police a arrêté deux suspects.", "a": ["Deux suspects ont été arrêtés par la police."], "h": "改写为被动语态", "z": "两名嫌疑人被警方逮捕。", "y": "主动复合过去时 → ont été + 过去分词（配合），施动者用 par", "g": "r0"},
@@ -292,7 +292,7 @@
    {"s": "[Désormais], les réunions auront lieu le lundi.", "x": [["Depuis", "depuis 需要时长或起点，不能单用"], ["Il y a", "il y a 后需要时长"], ["Dans", "dans 后需要时长"]], "h": "从今以后", "z": "从今以后，会议改在周一举行。", "y": "désormais / dorénavant = 从今以后", "g": "t6"},
    {"s": "Elle a déposé son dossier lundi et elle a reçu la réponse trois jours [plus tard].", "x": [["dans", "dans 只从现在算起；从过去某时算起要用 plus tard / après"], ["il y a", "il y a 从现在往前算"], ["depuis", "depuis 表示持续至今"]], "h": "从过去某时算起的“……之后”", "z": "她周一递交了材料，三天后收到了答复。", "y": "从另一个时间点算起用 plus tard / après，不用 dans", "g": "t4"},
    {"k": "t", "s": "Ça fait déjà vingt minutes [que] nous attendons le serveur.", "a": [], "h": "ça fait + 时长 + ___", "z": "我们等服务员已经二十分钟了。", "y": "ça fait / il y a + 时长 + que + 现在时 = depuis", "g": "r0"},
-   {"k": "t", "s": "Hier soir, j'ai regardé la télévision [pendant] trois heures.", "a": [], "h": "持续时长（介词）", "z": "昨晚我看了三个小时电视。", "y": "pendant + 时长：动作持续的时间", "g": "r2"},
+   {"k": "t", "s": "Hier soir, j'ai regardé la télévision [pendant] trois heures.", "a": ["durant"], "h": "持续时长（介词）", "z": "昨晚我看了三个小时电视。", "y": "pendant / durant + 时长：动作持续的时间", "g": "r2"},
    {"k": "t", "s": "Nous habitons dans ce quartier [depuis] 2015.", "a": [], "h": "从某起点至今", "z": "我们从2015年起就住在这个街区。", "y": "depuis + 起点 + 现在时（不用复合过去时）", "g": "t0"},
    {"k": "f", "s": "J'attends le bus {il y a} vingt minutes.", "r": ["depuis"], "z": "我等公交车已经二十分钟了。", "y": "持续至今用 depuis + 现在时", "g": "t0"},
    {"k": "f", "s": "Ils ont construit leur maison {en} six mois.", "r": [], "z": "他们用六个月建好了房子。", "y": "en + 时长：完成所需时间，原句正确", "g": "r3"},
@@ -328,9 +328,9 @@
    {"s": "J'ai pris un taxi [car] j'étais très en retard.", "x": [["comme", "comme 表原因只能放在句首"], ["donc", "donc 表结果，因果关系颠倒"], ["malgré", "malgré 后接名词且表让步"]], "h": "后半句的原因", "z": "我打了车，因为我已经迟到很久了。", "y": "car 引出原因，放在后半句", "g": "r0"},
    {"s": "Je parle lentement [pour que] tu comprennes bien.", "x": [["pour", "主语不同（je / tu），要用 pour que + 虚拟式"], ["parce que", "parce que 表原因，后接直陈式"], ["afin de", "主语不同不能用 afin de"]], "h": "主语不同的目的", "z": "我说慢一点，好让你听明白。", "y": "主语不同：pour que + 虚拟式（comprennes）", "g": "r3"},
    {"k": "t", "s": "[Bien que] le projet soit ambitieux, il reste réalisable.", "a": ["Quoique"], "h": "让步连词（+ 虚拟式，两个词）", "z": "尽管项目很宏大，但仍可实现。", "y": "bien que / quoique + 虚拟式", "g": "r2"},
-   {"k": "t", "s": "Le magasin était fermé ; [c'est pourquoi] nous sommes rentrés.", "a": ["c'est pour ça que"], "h": "表结果的连接短语（c'est …）", "z": "商店关门了，所以我们回家了。", "y": "c'est pourquoi（因此）引出结果", "g": "r1"},
+   {"k": "t", "s": "Le magasin était fermé ; [c'est pourquoi] nous sommes rentrés.", "a": ["c'est pour ça que", "c'est pour cela que"], "h": "表结果的连接短语（c'est …）", "z": "商店关门了，所以我们回家了。", "y": "c'est pourquoi / c'est pour cela que（因此）引出结果", "g": "r1"},
    {"k": "t", "s": "Le vol a été annulé [à cause de] la tempête.", "a": ["en raison de"], "h": "不好的原因 + 名词", "z": "航班因暴风雨取消了。", "y": "à cause de + 名词（不好的结果）", "g": "t2"},
-   {"k": "f", "s": "{Car} il était malade, il n'est pas venu.", "r": ["Comme"], "z": "因为他病了，所以没来。", "y": "car 不能放在句首，句首表原因用 comme", "g": "t1"},
+   {"k": "f", "s": "{Car il} était malade, il n'est pas venu.", "r": ["Comme il", "Puisqu'il", "Parce qu'il", "Étant donné qu'il"], "z": "因为他病了，所以没来。", "y": "car 不能放在句首，句首表原因常用 comme（或 puisque / parce que / étant donné que）", "g": "t1"},
    {"k": "f", "s": "{Malgré qu'il} pleuve, nous sortirons.", "r": ["Bien qu'il", "Quoiqu'il"], "z": "尽管下雨，我们还是会出去。", "y": "malgré 后接名词，接句子要用 bien que / quoique + 虚拟式", "g": "t0"},
    {"k": "f", "s": "Je travaille dur {pour réussir} mes examens.", "r": [], "z": "我努力学习是为了通过考试。", "y": "主语相同用 pour + 不定式，原句正确", "g": "t3"},
    {"k": "x", "q": "Il était fatigué. Il est allé se coucher tôt.", "a": ["Comme il était fatigué, il est allé se coucher tôt."], "h": "用 comme 合并为一句", "z": "他累了，所以早早睡了。", "y": "comme 引出原因，放在句首", "g": "r0"}
@@ -370,10 +370,10 @@
    {"k": "t", "s": "Il a raté son train [parce qu']il s'est levé trop tard.", "a": [], "h": "回答 pourquoi 的原因连词（元音前省音）", "z": "他没赶上火车，因为起得太晚了。", "y": "parce que + 句子，元音前写 parce qu'", "g": "r0"},
    {"k": "t", "s": "Il travaille [tellement] qu'il n'a plus de vie sociale.", "a": ["tant"], "h": "动词 + 程度副词 + que", "z": "他工作得太多，已经没有社交生活了。", "y": "动词 + tellement / tant + que", "g": "r3"},
    {"k": "t", "s": "Il a démissionné [sous prétexte qu']il était surmené.", "a": [], "h": "以……为借口（元音前省音）", "z": "他以过劳为借口辞职了。", "y": "sous prétexte que：所说的原因被认为是借口", "g": "r4"},
-   {"k": "f", "s": "{Car} il faisait froid, nous sommes restés à l'intérieur.", "r": ["Comme"], "z": "因为天冷，我们待在室内。", "y": "car 不能放在句首；句首表原因用 comme", "g": "t1"},
-   {"k": "f", "s": "Il est parti tôt {à cause qu'}il était fatigué.", "r": ["parce qu'"], "z": "他早早走了，因为累了。", "y": "à cause de 后接名词；接句子要用 parce que", "g": "t0"},
+   {"k": "f", "s": "{Car il} faisait froid, nous sommes restés à l'intérieur.", "r": ["Comme il", "Puisqu'il", "Parce qu'il", "Étant donné qu'il"], "z": "因为天冷，我们待在室内。", "y": "car 不能放在句首；句首表原因常用 comme（或 puisque / parce que / étant donné que）", "g": "t1"},
+   {"k": "f", "s": "Il est parti tôt {à cause qu'}il était fatigué.", "r": ["parce qu'", "car", "puisqu'"], "z": "他早早走了，因为累了。", "y": "à cause de 后接名词；接句子要用 parce que / car / puisque", "g": "t0"},
    {"k": "f", "s": "Il avait tellement faim {qu'}il a tout mangé.", "r": [], "z": "他饿得把东西全吃光了。", "y": "tellement + 名词短语 avoir faim + que，原句正确", "g": "r3"},
-   {"k": "x", "q": "Il a beaucoup neigé. Les routes sont fermées.", "a": ["Il a beaucoup neigé, si bien que les routes sont fermées."], "h": "用 si bien que 合并", "z": "雪下得很大，以致道路封闭。", "y": "si bien que + 直陈式：引出结果", "g": "r2"}
+   {"k": "x", "q": "Il a beaucoup neigé. Les routes sont fermées.", "a": ["Il a beaucoup neigé, si bien que les routes sont fermées.", "Il a beaucoup neigé si bien que les routes sont fermées."], "h": "用 si bien que 合并", "z": "雪下得很大，以致道路封闭。", "y": "si bien que + 直陈式：引出结果", "g": "r2"}
   ],
   "but": [
    {"s": "Je travaille le soir [pour] payer mes études.", "x": [["pour que", "主语相同时必须用不定式，不用 pour que"], ["parce que", "parce que 表原因"], ["afin que", "主语相同不用 afin que"]], "h": "主语相同的目的", "z": "我晚上打工来支付学费。", "y": "主语相同：pour + 不定式", "g": "t0"},
@@ -387,12 +387,12 @@
    {"s": "Nous ferons en sorte que le dossier [soit] prêt à temps.", "x": [["sera", "faire en sorte que 要求虚拟式"], ["est", "faire en sorte que 要求虚拟式"], ["serait", "faire en sorte que 不接条件式"]], "h": "faire en sorte que + ?", "z": "我们会设法让材料按时准备好。", "y": "faire en sorte que + 虚拟式（设法使）", "g": "r4"},
    {"s": "Il est venu uniquement [pour] le plaisir de te voir.", "x": [["pour que", "pour que 后要接从句"], ["afin que", "afin que 后要接从句"], ["parce que", "parce que 后要接从句"]], "h": "目的 + 名词", "z": "他来只是为了见你的乐趣。", "y": "pour + 名词也可表目的：pour le plaisir", "g": "t2"},
    {"k": "t", "s": "Je vous explique la règle [afin que] vous ne fassiez plus d'erreurs.", "a": ["pour que"], "h": "目的连词（正式，两个词）+ 虚拟式", "z": "我给你们讲这条规则，是为了让你们不再出错。", "y": "afin que + 虚拟式（主语不同）", "g": "r1"},
-   {"k": "t", "s": "Parlez lentement [de manière à] être bien compris.", "a": ["de façon à"], "h": "以便（de manière ___ + 不定式）", "z": "说慢一点，以便让人听懂。", "y": "de manière à / de façon à + 不定式", "g": "r3"},
+   {"k": "t", "s": "Parlez lentement [de manière à] être bien compris.", "a": ["de façon à"], "h": "以便（de manière à / de façon à + 不定式）", "z": "说慢一点，以便让人听懂。", "y": "de manière à / de façon à + 不定式", "g": "r3"},
    {"k": "t", "s": "Elle économise chaque mois [pour] s'acheter une voiture.", "a": ["afin de"], "h": "主语相同的目的介词", "z": "她每月存钱，为了给自己买辆车。", "y": "pour + 不定式（主语相同）", "g": "r0"},
-   {"k": "f", "s": "Je fais du sport {pour que je reste} en forme.", "r": ["pour rester"], "z": "我做运动是为了保持身材。", "y": "主语相同不能用 pour que，要用 pour + 不定式", "g": "t0"},
+   {"k": "f", "s": "Je fais du sport {pour que je reste} en forme.", "r": ["pour rester", "afin de rester"], "z": "我做运动是为了保持身材。", "y": "主语相同不能用 pour que，要用 pour / afin de + 不定式", "g": "t0"},
    {"k": "f", "s": "J'ai fermé la porte {de peur que} le chat ne sorte.", "r": [], "z": "我关上门，免得猫跑出去。", "y": "de peur que + 赘词 ne + 虚拟式，原句正确", "g": "r2"},
-   {"k": "x", "q": "Il prend des notes. Il veut se souvenir de tout.", "a": ["Il prend des notes afin de se souvenir de tout."], "h": "用 afin de 合并", "z": "他做笔记，以便记住一切。", "y": "主语相同：afin de + 不定式", "g": "r0"},
-   {"k": "x", "q": "Le professeur répète la consigne. Il veut que les élèves comprennent.", "a": ["Le professeur répète la consigne pour que les élèves comprennent."], "h": "用 pour que 合并", "z": "老师重复指令，好让学生们理解。", "y": "主语不同：pour que + 虚拟式", "g": "r1"}
+   {"k": "x", "q": "Il prend des notes. Il veut se souvenir de tout.", "a": ["Il prend des notes afin de se souvenir de tout.", "Afin de se souvenir de tout, il prend des notes."], "h": "用 afin de 合并", "z": "他做笔记，以便记住一切。", "y": "主语相同：afin de + 不定式", "g": "r0"},
+   {"k": "x", "q": "Le professeur répète la consigne. Il veut que les élèves comprennent.", "a": ["Le professeur répète la consigne pour que les élèves comprennent.", "Pour que les élèves comprennent, le professeur répète la consigne."], "h": "用 pour que 合并", "z": "老师重复指令，好让学生们理解。", "y": "主语不同：pour que + 虚拟式", "g": "r1"}
   ],
   "participe-present": [
    {"s": "On recherche un vendeur [parlant] couramment l'anglais.", "x": [["parlants", "后面带宾语 l'anglais 的是现在分词，永远不变形，不加 -s"], ["parlante", "现在分词不随名词变阴性；vendeur 本身也是阳性"], ["en parlant", "副动词的主语是主句主语 on，不修饰 vendeur"]], "h": "带补语的现在分词", "z": "招聘一名英语流利的售货员。", "y": "后面带宾语或状语的是现在分词，不变形：parlant couramment l'anglais", "g": "t1"},

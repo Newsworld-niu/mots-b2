@@ -238,6 +238,16 @@ test("a focused round keeps a not-yet-due card where it was when all right, and 
   const dueCard = { ...card, due: now - 1000 };
   const p3 = applyPointRound({ ...p0, gram: { fake: dueCard } }, "fake", [{ g: "r0", ok: true }], "focused", now);
   assert.equal(p3.gram?.fake, dueCard);
+
+  // a nearly-due mature card (1s before due) must not be pushed days out by a Hard focused round
+  let mature = review(undefined, Rating.Good, now - 20 * 86_400_000);
+  mature = review(mature, Rating.Good, mature.due);
+  mature = review(mature, Rating.Good, mature.due);
+  const nearlyDueNow = mature.due - 1000;
+  const eightWithOneWrong = Array.from({ length: 8 }, (_, k) => ({ g: "r0", ok: k > 0 }));
+  const p4 = applyPointRound({ ...p0, gram: { fake: mature } }, "fake", eightWithOneWrong, "focused", nearlyDueNow);
+  assert.equal(p4.gram?.fake, mature, "Hard focused round right before due keeps the earlier due date");
+  assert.deepEqual(p4.gramTags?.[tagKey("fake", "r0")], { n: 8, w: 1 });
 });
 
 test("a retry round records nothing", () => {

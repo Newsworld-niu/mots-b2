@@ -578,8 +578,8 @@ export function tagsOf(p: Pick<GrammarPoint, "rules" | "traps">) {
 export function tagLabel(p: Pick<GrammarPoint, "rules" | "traps">, tag: string | undefined) {
   if (!tag) return "";
   const n = Number(tag.slice(1));
-  if (tag[0] === "r") return p.rules[n]?.h ?? "";
-  const t = p.traps[n] ?? "";
+  if (tag[0] === "r") return stripGrammarMarks(p.rules[n]?.h ?? "");
+  const t = stripGrammarMarks(p.traps[n] ?? "");
   const cut = t.search(/[：:；;，,。]/);
   const head = cut > 0 ? t.slice(0, cut) : t;
   return head.length > 28 ? head.slice(0, 27) + "…" : head;

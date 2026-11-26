@@ -253,4 +253,11 @@ test("grammar marks: strip, parse (affix vs whole word) and validate", () => {
   assert.match(validateGrammarMarks("{v:  }") ?? "", /empty/);
   assert.match(validateGrammarMarks("{v:a{p:b}}") ?? "", /nested/);
   assert.match(validateGrammarMarks("{foo}") ?? "", /kind/);
+
+  const markedPt = {
+    rules: [{ h: "{p:de} + 不定式", text: "", ex: [] }],
+    traps: ["别漏掉 {c:en}：数量词后保留代词"],
+  };
+  assert.equal(tagLabel(markedPt, "r0"), "de + 不定式");
+  assert.equal(tagLabel(markedPt, "t0"), "别漏掉 en");
 });

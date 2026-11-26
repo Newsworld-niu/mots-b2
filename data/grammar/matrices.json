@@ -330,7 +330,7 @@
               "{k:même si}",
               "即使",
               "直陈式",
-              "{k:même si} il {v:pleut}"
+              "{k:même s'}il {v:pleut}"
             ],
             [
               "{k:à condition que} / {k:pourvu que}",
@@ -1098,9 +1098,9 @@
           "why": "间接问句里 qu'est-ce que 变成 ce que。"
         },
         {
-          "wrong": "Elle a dit qu'elle partira demain.",
-          "right": "Elle a dit qu'elle {v:partirait} le lendemain.",
-          "why": "主句过去时：将来时 → 条件式；demain → le lendemain。"
+          "wrong": "Elle m'avait dit la semaine dernière qu'elle partira le lendemain.",
+          "right": "Elle m'avait dit la semaine dernière qu'elle {v:partirait} le lendemain.",
+          "why": "主句过去时且所指将来已过：将来时 → 条件式 partirait；demain → le lendemain。"
         }
       ]
     },

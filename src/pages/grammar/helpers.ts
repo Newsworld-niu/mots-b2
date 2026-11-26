@@ -26,6 +26,7 @@ export interface Pending {
   value: string;
   aiNote?: string;
   orthographyHint?: string | null;
+  accentCleared?: boolean;
 }
 
 export interface Graded {
@@ -41,6 +42,8 @@ export interface RunSpec {
   mode: SessionMode;
   /** What the round trains, shown above it (例：“规则 02 专项”). */
   label?: string;
+  /** Original non-retry mode & label preserved across retry rounds so 再来一轮 restores it. */
+  origin?: { mode: Exclude<SessionMode, "retry">; label?: string };
   /** Draw a fresh round with the same point and filters (再来一轮). */
   again?: () => Step[];
 }
@@ -73,10 +76,10 @@ export function tagNumber(tag: string) {
 export const KIND_LABEL: Record<Drill["k"], string> = { c: "选择", t: "填空", f: "改错", x: "改写", o: "语序" };
 export const KIND_ORDER: Drill["k"][] = ["c", "t", "f", "x", "o"];
 
-/** Enter and space go on once answered (the text box is read-only by then). */
+/** Enter and space go on once answered (and once any required accent retype has been completed). */
 export function useNextKeys(pending: Pending | null, onNext: () => void) {
   const keys: Record<string, () => void> = {};
-  if (pending) {
+  if (pending && (pending.result !== "accent" || pending.accentCleared)) {
     keys.Enter = onNext;
     keys[" "] = onNext;
   }

@@ -375,7 +375,7 @@ try {
     await pageG.goto(BASE + "#/grammar", { waitUntil: "networkidle" });
     await pageG.waitForSelector(".gram-card");
     const totalCards = await pageG.locator(".gram-card").count();
-    assertCheck("Suite D: grammar overview renders 66 points", totalCards >= 20, `visibleCards=${totalCards}`);
+    assertCheck("Suite D: grammar overview renders all 66 points", totalCards === 66, `visibleCards=${totalCards}`);
 
     // Open comparison matrices hub (#/grammar?sheet=1)
     await pageG.goto(BASE + "#/grammar?sheet=1", { waitUntil: "networkidle" });
@@ -400,23 +400,38 @@ try {
       JSON.stringify(hasRich),
     );
 
-    // Focused choice round -> deliberately miss >=1 item -> check inline rule card -> finish -> Summary -> Retry Missed without extra FSRS reps
+    // Deterministically answer 1st ChoiceDrill wrong & rest right -> verify inline .gram-glance auto-opens -> Summary -> Retry Missed -> 再来一轮 restores focused mode
+    const causatifChoices = await pageG.evaluate(async (u) => {
+      const g = await (await fetch(u)).json();
+      return g.points.find((p) => p.id === "causatif").drills.filter((d) => d.k === "c");
+    }, BASE + "atlas/grammar.json");
     await pageG.locator(".gram-kind-filter button", { hasText: "选择" }).click();
     await pageG.locator(".gram-practice-go").click();
     await pageG.waitForSelector(".gram-run");
-    let sawRuleCard = false;
+    let sawAutoOpenGlance = false;
     for (let step = 0; step < 12; step++) {
       if (!(await pageG.locator(".gram-run").count())) break;
       const opts = pageG.locator(".gram-run .option:not([disabled])");
-      if (await opts.count()) {
-        await opts.first().click();
-        await pageG.waitForTimeout(120);
-        if (await pageG.locator(".conj-feedback .gram-rule-glance, .conj-feedback details").count()) sawRuleCard = true;
+      const optCount = await opts.count();
+      if (optCount > 0) {
+        const texts = await pageG.locator(".gram-run .option span[lang='fr']").allInnerTexts();
+        const key = [...texts].sort().join("\0");
+        const matched = causatifChoices.find((d) => [...d.o].sort().join("\0") === key);
+        const rightAns = matched ? matched.s.slice(matched.b[0], matched.b[1]) : null;
+        const targetIdx = rightAns
+          ? texts.findIndex((t) => (step === 0 ? t !== rightAns : t === rightAns))
+          : 0;
+        await opts.nth(targetIdx >= 0 ? targetIdx : 0).click();
+        await pageG.waitForTimeout(100);
+        if (step === 0) {
+          const openCount = await pageG.locator(".conj-feedback.is-wrong .gram-glance.is-open button[aria-expanded='true']").count();
+          if (openCount === 1) sawAutoOpenGlance = true;
+        }
       }
       const nextBtn = pageG.getByRole("button", { name: /^继续/ });
       if (await nextBtn.count()) {
         await nextBtn.click();
-        await pageG.waitForTimeout(120);
+        await pageG.waitForTimeout(100);
       }
     }
     await pageG.waitForSelector(".typing-done");
@@ -425,13 +440,16 @@ try {
       const p = JSON.parse(localStorage.getItem(k) || "{}");
       return p.gram?.causatif?.reps ?? 0;
     }, DATASET_KEY);
-    assertCheck("Suite D: focused round shows inline rule card and records initial FSRS state", sawRuleCard && repsAfterRound === 1, `sawRuleCard=${sawRuleCard} reps=${repsAfterRound}`);
+    assertCheck("Suite D: focused round auto-opens .gram-glance on wrong answer and records initial FSRS state", sawAutoOpenGlance && repsAfterRound === 1, `sawAutoOpenGlance=${sawAutoOpenGlance} reps=${repsAfterRound}`);
 
     const retryBtn = pageG.getByRole("button", { name: /重练本轮错题/ });
-    if (await retryBtn.count()) {
+    const hasRetryBtn = (await retryBtn.count()) === 1;
+    let repsAfterRetry = -1;
+    let restoredModeBanner = "";
+    if (hasRetryBtn) {
       await retryBtn.click();
       await pageG.waitForSelector(".gram-run-mode.is-retry");
-      for (let step = 0; step < 12; step++) {
+      for (let step = 0; step < 4; step++) {
         if (!(await pageG.locator(".gram-run").count())) break;
         const opts = pageG.locator(".gram-run .option:not([disabled])");
         if (await opts.count()) {
@@ -446,19 +464,29 @@ try {
       }
       await pageG.waitForSelector(".typing-done");
       await pageG.waitForTimeout(350);
-      const repsAfterRetry = await pageG.evaluate((k) => {
+      repsAfterRetry = await pageG.evaluate((k) => {
         const p = JSON.parse(localStorage.getItem(k) || "{}");
         return p.gram?.causatif?.reps ?? 0;
       }, DATASET_KEY);
-      assertCheck("Suite D: retry round preserves original FSRS reps without double-counting", repsAfterRetry === repsAfterRound, `before=${repsAfterRound} after=${repsAfterRetry}`);
+      const againBtn = pageG.getByRole("button", { name: /再来一轮/ });
+      await againBtn.click();
+      await pageG.waitForSelector(".gram-run-mode.is-focused");
+      restoredModeBanner = await pageG.locator(".gram-run-mode").innerText();
     }
+    assertCheck(
+      "Suite D: retry round preserves FSRS reps and 再来一轮 restores original focused mode & label",
+      hasRetryBtn && repsAfterRetry === repsAfterRound && restoredModeBanner.includes("专项 · 选择题") && !restoredModeBanner.includes("错题重练"),
+      `hasRetry=${hasRetryBtn} before=${repsAfterRound} after=${repsAfterRetry} banner=${restoredModeBanner}`,
+    );
 
     // Offline reload of grammar deep link + mobile 390px overflow gate across matrices & ALL 66 grammar points
+    await pageG.goto(BASE + "#/grammar?p=double-pronoms&section=r1", { waitUntil: "networkidle" });
+    await pageG.evaluate(() => navigator.serviceWorker?.ready);
     await ctxGram.setOffline(true);
-    await pageG.goto(BASE + "#/grammar?p=double-pronoms&section=r1", { waitUntil: "domcontentloaded" });
+    await pageG.reload({ waitUntil: "domcontentloaded" });
     await pageG.waitForSelector("#gram-sec-r1", { timeout: 10000 });
     const offlineTitle = await pageG.locator("h1.gram-title").innerText();
-    assertCheck("Suite D: offline reload of #/grammar?p=double-pronoms&section=r1 succeeds from SW cache", offlineTitle.includes("两个宾语代词"), offlineTitle);
+    assertCheck("Suite D: offline full reload of #/grammar?p=double-pronoms&section=r1 succeeds from SW cache", offlineTitle.includes("两个宾语代词"), offlineTitle);
     await ctxGram.setOffline(false);
 
     await pageG.setViewportSize({ width: 390, height: 844 });

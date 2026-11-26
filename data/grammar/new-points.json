@@ -696,7 +696,7 @@
       "rules": [
         {
           "h": "句首情态 / 逻辑副词触发倒装",
-          "text": "书面语里，下列副词放在句首、后面不带 que 时，代词主语要和动词倒装：Peut-être（也许）、Sans doute（大概）、Aussi（因此，≠ 也）、À peine（刚刚）、Encore（不过，前提是）、Ainsi（这样）、Du moins、Tout au plus（至多）。其中 Peut-être、Sans doute 句首必须倒装；Ainsi、Du moins 倒装可有可无。不想倒装有两种办法：① 加 que：{k:Peut-être que} il viendra（日常语体）；② 把副词移到动词后：Il viendra peut-être（中性）。",
+          "text": "书面语里，下列副词放在句首、后面不带 que 时，代词主语要和动词倒装：Peut-être（也许）、Sans doute（大概）、Aussi（因此，≠ 也）、À peine（刚刚）、Encore（不过，前提是）、Ainsi（这样）、Du moins、Tout au plus（至多）。其中 Peut-être、Sans doute 句首必须倒装；Ainsi、Du moins 倒装可有可无。不想倒装有两种办法：① 加 que：{k:Peut-être qu'}il viendra（日常语体）；② 把副词移到动词后：Il viendra peut-être（中性）。",
           "formula": [
             "{k:Peut-être} / {k:Sans doute} / {k:Aussi} + 动词-代词主语 …",
             "{k:Peut-être que} / {k:Sans doute que} + 主语 + 动词（不倒装）",
