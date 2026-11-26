@@ -1,5 +1,5 @@
 /**
- * Curated 84-item timed French grammar & lexical-structure question bank for:
+ * Curated 108-item (18 per difficulty band) timed French grammar & lexical-structure question bank for:
  * - TCF Structure de la langue (18 QCM · 15:00 · progressive difficulty 1→6 · 100–699)
  * - TEF Lexique et structure (40 QCM · 30:00 · post-Dec-2023 unified 0–699 & NCLC)
  */
@@ -18,6 +18,8 @@ export interface GrammarSprintItem {
   options: readonly [string, string, string, string];
   answer: 0 | 1 | 2 | 3;
   why: string;
+  /** Optional per-option rationale aligned with `options` (A/B/C/D): why each one is right or wrong. */
+  optionWhy?: readonly [string, string, string, string];
 }
 
 export const SPRINT_SPEC: Record<
@@ -68,7 +70,7 @@ export const CATEGORY_LABEL: Record<SprintCategory, string> = {
 };
 
 export const GRAMMAR_SPRINT_BANK: readonly GrammarSprintItem[] = [
-  // ==================== DIFFICULTY 1 (A1 · 14 items: 8 structure, 4 lexique, 2 error) ====================
+  // ==================== DIFFICULTY 1 (A1 · 14 core items: 8 structure, 4 lexique, 2 error; +4 in EXPANSION below) ====================
   {
     id: "gs-01",
     category: "structure",
@@ -224,7 +226,7 @@ export const GRAMMAR_SPRINT_BANK: readonly GrammarSprintItem[] = [
     why: "城市名前统一用介词 à（à Tokyo），en 用于阴性国名或元音开头的国名。",
   },
 
-  // ==================== DIFFICULTY 2 (A2 · 14 items: 8 structure, 4 lexique, 2 error) ====================
+  // ==================== DIFFICULTY 2 (A2 · 14 core items: 8 structure, 4 lexique, 2 error; +4 in EXPANSION below) ====================
   {
     id: "gs-15",
     category: "structure",
@@ -380,7 +382,7 @@ export const GRAMMAR_SPRINT_BANK: readonly GrammarSprintItem[] = [
     why: "形容词 bon 的优等比较级为不规则形式 meilleur，法语严禁说 plus bon。",
   },
 
-  // ==================== DIFFICULTY 3 (B1 · 14 items: 8 structure, 4 lexique, 2 error) ====================
+  // ==================== DIFFICULTY 3 (B1 · 14 core items: 8 structure, 4 lexique, 2 error; +4 in EXPANSION below) ====================
   {
     id: "gs-29",
     category: "structure",
@@ -536,7 +538,7 @@ export const GRAMMAR_SPRINT_BANK: readonly GrammarSprintItem[] = [
     why: "间接问句（m'indiquer où se trouve...）中严禁夹入疑问标记 est-ce que。",
   },
 
-  // ==================== DIFFICULTY 4 (B2- · 14 items: 8 structure, 4 lexique, 2 error) ====================
+  // ==================== DIFFICULTY 4 (B2- · 14 core items: 8 structure, 4 lexique, 2 error; +4 in EXPANSION below) ====================
   {
     id: "gs-43",
     category: "structure",
@@ -692,7 +694,7 @@ export const GRAMMAR_SPRINT_BANK: readonly GrammarSprintItem[] = [
     why: "当主从句主语完全相同时（组织者希望自己能接待），法语必须直接用不定式 souhaitent pouvoir accueillir，不能用 que 从句。",
   },
 
-  // ==================== DIFFICULTY 5 (B2+ · 14 items: 8 structure, 4 lexique, 2 error) ====================
+  // ==================== DIFFICULTY 5 (B2+ · 14 core items: 8 structure, 4 lexique, 2 error; +4 in EXPANSION below) ====================
   {
     id: "gs-57",
     category: "structure",
@@ -848,7 +850,7 @@ export const GRAMMAR_SPRINT_BANK: readonly GrammarSprintItem[] = [
     why: "成比例句式 Plus ..., plus ... 两个分句之间直接用逗号衔接，规范书面语法中不在第二个 plus 前加连词 et。",
   },
 
-  // ==================== DIFFICULTY 6 (C1 · 14 items: 8 structure, 4 lexique, 2 error) ====================
+  // ==================== DIFFICULTY 6 (C1 · 14 core items: 8 structure, 4 lexique, 2 error; +4 in EXPANSION below) ====================
   {
     id: "gs-71",
     category: "structure",
@@ -1002,6 +1004,422 @@ export const GRAMMAR_SPRINT_BANK: readonly GrammarSprintItem[] = [
     options: ["[A] Après s'être", "[B] longuement concerté,", "[C] les deux délégations", "[D] ont publié un communiqué."],
     answer: 1,
     why: "代动词完成不定式（Après s'être...）同样遵循过去分词配合规则：se 作直接宾语指代阴性复数 les deux délégations，须配合为 concertées。",
+  },
+
+  // ==================== EXPANSION (+4 per band: 2 structure, 1 lexique, 1 error · all with optionWhy) ====================
+  // ---------- DIFFICULTY 1 (A1) ----------
+  {
+    id: "gs-85",
+    category: "structure",
+    difficulty: 1,
+    point: "art-gender",
+    tag: "r0",
+    prompt: "Pour mon anniversaire, mes parents m'ont offert ____ montre très élégante.",
+    options: ["un", "une", "le", "des"],
+    answer: 1,
+    why: "montre（手表）是阴性单数名词，第一次提到用不定冠词 une。",
+    optionWhy: [
+      "✗ un 用于阳性单数名词，montre 是阴性。",
+      "✓ 阴性单数 + 首次提及 → 不定冠词 une。",
+      "✗ le 是阳性定冠词，且首次提及的东西用不定冠词。",
+      "✗ des 是复数，montre 是单数。",
+    ],
+  },
+  {
+    id: "gs-86",
+    category: "structure",
+    difficulty: 1,
+    point: "negation",
+    tag: "t0",
+    prompt: "Désolé, je n'ai pas ____ voiture, je viens toujours en bus.",
+    options: ["une", "de", "la", "du"],
+    answer: 1,
+    why: "否定句 ne … pas 后，直接宾语前的不定冠词 une 变为 de。",
+    optionWhy: [
+      "✗ 否定句中直接宾语前的 un / une 要变成 de。",
+      "✓ ne … pas + de + 名词：je n'ai pas de voiture。",
+      "✗ 定冠词 la 指特定的车，与“我没有车”的泛指意思不符。",
+      "✗ du 是阳性部分冠词，voiture 是可数的阴性名词，且否定后也要变 de。",
+    ],
+  },
+  {
+    id: "gs-87",
+    category: "lexique",
+    difficulty: 1,
+    point: "mots-confondus",
+    tag: "r0",
+    prompt: "En hiver, mes enfants ____ toujours froid aux mains.",
+    options: ["sont", "ont", "font", "sentent"],
+    answer: 1,
+    why: "表达“感到冷”用 avoir froid，不用 être。",
+    optionWhy: [
+      "✗ 冷、热、饿、渴等感觉用 avoir，不说 être froid。",
+      "✓ avoir froid aux mains：手冷。",
+      "✗ faire froid 只用于无人称的天气表达（il fait froid）。",
+      "✗ sentir 后要接名词（sentir le froid），不能直接接 froid。",
+    ],
+  },
+  {
+    id: "gs-88",
+    category: "error",
+    difficulty: 1,
+    point: "passe-compose",
+    tag: "r1",
+    prompt: "找出有语法错误的一项：[A] Hier soir, [B] nous avons allés [C] au cinéma [D] avec des amis.",
+    options: ["[A] Hier soir,", "[B] nous avons allés", "[C] au cinéma", "[D] avec des amis."],
+    answer: 1,
+    why: "aller 的复合过去时用助动词 être：nous sommes allés。",
+    optionWhy: [
+      "✓ 正确：时间状语 Hier soir 放句首没有问题。",
+      "✗ 错误：aller 属于用 être 的位移动词，应为 nous sommes allés。",
+      "✓ 正确：aller au cinéma（à + le 缩合为 au）。",
+      "✓ 正确：avec des amis 搭配无误。",
+    ],
+  },
+  // ---------- DIFFICULTY 2 (A2) ----------
+  {
+    id: "gs-89",
+    category: "structure",
+    difficulty: 2,
+    point: "partitif",
+    tag: "r1",
+    prompt: "Il a acheté beaucoup ____ fruits au marché ce matin.",
+    options: ["des", "de", "du", "les"],
+    answer: 1,
+    why: "数量副词 beaucoup 后面用 de + 无冠词名词。",
+    optionWhy: [
+      "✗ beaucoup 后不保留不定冠词 des。",
+      "✓ beaucoup de + 名词：beaucoup de fruits。",
+      "✗ du 是阳性单数部分冠词，且数量词后要用 de。",
+      "✗ 定冠词 les 指特定的水果，与数量表达不搭配。",
+    ],
+  },
+  {
+    id: "gs-90",
+    category: "structure",
+    difficulty: 2,
+    point: "y-en",
+    tag: "t5",
+    prompt: "— Tu as un vélo ? — Oui, j'____ ai un.",
+    options: ["y", "en", "le", "lui"],
+    answer: 1,
+    why: "带数词 un / une 的名词用 en 替代，并在句末保留 un。",
+    optionWhy: [
+      "✗ y 替代地点或 à + 事物，不替代数量。",
+      "✓ en 替代被计数的名词，保留数词：j'en ai un。",
+      "✗ le 替代确指的直宾，不能与数词 un 同时出现。",
+      "✗ lui 是指人的间接宾语代词。",
+    ],
+  },
+  {
+    id: "gs-91",
+    category: "lexique",
+    difficulty: 2,
+    point: "comparatif",
+    tag: "t5",
+    prompt: "Il ____ mieux réserver ta place à l'avance pendant les vacances.",
+    options: ["faut", "vaut", "fait", "doit"],
+    answer: 1,
+    why: "“最好……”的固定说法是 il vaut mieux + 不定式。",
+    optionWhy: [
+      "✗ il faut mieux 是常见误用，规范说法是 il vaut mieux。",
+      "✓ il vaut mieux + 不定式：最好……",
+      "✗ il fait mieux 不构成固定表达。",
+      "✗ il doit mieux 不成立，devoir 不与 mieux 构成此义。",
+    ],
+  },
+  {
+    id: "gs-92",
+    category: "error",
+    difficulty: 2,
+    point: "pronoms-objet",
+    tag: "r1",
+    prompt: "找出有语法错误的一项：[A] J'ai vu tes parents [B] hier et [C] je les ai [D] parlé de ton projet.",
+    options: ["[A] J'ai vu tes parents", "[B] hier et", "[C] je les ai", "[D] parlé de ton projet."],
+    answer: 2,
+    why: "parler à qqn 接间接宾语，复数用 leur：je leur ai parlé。",
+    optionWhy: [
+      "✓ 正确：voir qqn 直接接宾语。",
+      "✓ 正确：时间状语与连词无误。",
+      "✗ 错误：parler à qqn 要用间宾代词 leur，不用直宾 les。",
+      "✓ 正确：parler de qqch 搭配无误（间宾不引起配合，parlé 不变）。",
+    ],
+  },
+  // ---------- DIFFICULTY 3 (B1) ----------
+  {
+    id: "gs-93",
+    category: "structure",
+    difficulty: 3,
+    point: "subjonctif",
+    tag: "r1",
+    prompt: "Il faut que tu ____ à la pharmacie avant 19 heures.",
+    options: ["vas", "ailles", "iras", "allais"],
+    answer: 1,
+    why: "il faut que 要求虚拟式；aller 的虚拟式不规则：que tu ailles。",
+    optionWhy: [
+      "✗ vas 是直陈式现在时，il faut que 后要用虚拟式。",
+      "✓ aller 的虚拟式现在时：que tu ailles。",
+      "✗ 将来时不能用于 il faut que 之后。",
+      "✗ 未完成过去时是直陈式，不符合 il faut que 的要求。",
+    ],
+  },
+  {
+    id: "gs-94",
+    category: "structure",
+    difficulty: 3,
+    point: "relatifs",
+    tag: "r2",
+    prompt: "Voici l'outil ____ tu auras besoin pour réparer ton vélo.",
+    options: ["que", "dont", "où", "qui"],
+    answer: 1,
+    why: "avoir besoin de qqch 带介词 de，关系代词用 dont。",
+    optionWhy: [
+      "✗ que 作直宾，但 avoir besoin 要求 de。",
+      "✓ avoir besoin de + 先行词 → dont。",
+      "✗ où 只用于地点或时间。",
+      "✗ qui 作从句主语，但从句已有主语 tu。",
+    ],
+  },
+  {
+    id: "gs-95",
+    category: "lexique",
+    difficulty: 3,
+    point: "verbes-prep",
+    tag: "t2",
+    prompt: "Les ouvriers ont fini ____ repeindre la façade hier soir.",
+    options: ["à", "de", "par", "pour"],
+    answer: 1,
+    why: "finir de + 不定式（做完某事），与 commencer à 相对。",
+    optionWhy: [
+      "✗ commencer 才接 à；finir 接 de。",
+      "✓ finir de + 不定式：做完某事。",
+      "✗ finir par + 不定式意为“最终……”，与“刷完外墙”语义不符。",
+      "✗ finir pour 不是固定搭配。",
+    ],
+  },
+  {
+    id: "gs-96",
+    category: "error",
+    difficulty: 3,
+    point: "gerondif",
+    tag: "t1",
+    prompt: "找出有语法错误的一项：[A] Elle s'est cassé le bras [B] en tomber [C] de son vélo [D] dimanche dernier.",
+    options: ["[A] Elle s'est cassé le bras", "[B] en tomber", "[C] de son vélo", "[D] dimanche dernier."],
+    answer: 1,
+    why: "副动词是 en + 现在分词：en tombant，不能用不定式。",
+    optionWhy: [
+      "✓ 正确：后有直宾 le bras，cassé 不配合。",
+      "✗ 错误：en 后面要接现在分词 tombant。",
+      "✓ 正确：tomber de son vélo 搭配无误。",
+      "✓ 正确：时间状语无误。",
+    ],
+  },
+  // ---------- DIFFICULTY 4 (B2-) ----------
+  {
+    id: "gs-97",
+    category: "structure",
+    difficulty: 4,
+    point: "causatif",
+    tag: "r0",
+    prompt: "Le directeur a fait réécrire tout le rapport ____ son stagiaire.",
+    options: ["à", "de", "avec", "pour"],
+    answer: 0,
+    why: "faire + 不定式已带直宾 tout le rapport 时，执行者由 à（或 par）引出。",
+    optionWhy: [
+      "✓ faire faire qqch à qqn：执行者用 à 引出，避免双直宾。",
+      "✗ de 不能引出使役结构的执行者。",
+      "✗ avec 表示“和……一起”，不能表示执行者。",
+      "✗ pour 表示受益者（为实习生重写），不是执行者。",
+    ],
+  },
+  {
+    id: "gs-98",
+    category: "structure",
+    difficulty: 4,
+    point: "hypothese-systeme",
+    tag: "t1",
+    prompt: "Prenez un pull au cas où il ____ froid ce soir.",
+    options: ["fasse", "ferait", "fera", "fait"],
+    answer: 1,
+    why: "au cas où（万一）后接条件式：au cas où il ferait froid。",
+    optionWhy: [
+      "✗ 虚拟式是常见误用：au cas où 不接虚拟式。",
+      "✓ au cas où + 条件式现在时。",
+      "✗ au cas où 后不用简单将来时。",
+      "✗ 规范书面语中 au cas où 后不用直陈式现在时。",
+    ],
+  },
+  {
+    id: "gs-99",
+    category: "lexique",
+    difficulty: 4,
+    point: "impersonnel",
+    tag: "t0",
+    prompt: "Dans ce roman, ____ d'une famille déchirée par la guerre.",
+    options: ["il s'agit", "ce s'agit", "il agit", "on s'agit"],
+    answer: 0,
+    why: "s'agir de 只能以无人称 il 作主语：il s'agit de…",
+    optionWhy: [
+      "✓ il s'agit de + 名词：讲的是……",
+      "✗ s'agir 的主语只能是 il，不能是 ce。",
+      "✗ agir（行动）不带 se 时意思完全不同。",
+      "✗ s'agir 的主语只能是无人称 il，不能是 on。",
+    ],
+  },
+  {
+    id: "gs-100",
+    category: "error",
+    difficulty: 4,
+    point: "accord-pp",
+    tag: "r1",
+    prompt: "找出有语法错误的一项：[A] Les photos [B] que tu m'as envoyé [C] hier soir [D] sont superbes.",
+    options: ["[A] Les photos", "[B] que tu m'as envoyé", "[C] hier soir", "[D] sont superbes."],
+    answer: 1,
+    why: "前置直宾 que（les photos，阴性复数）要求配合：que tu m'as envoyées。",
+    optionWhy: [
+      "✓ 正确：主语无误。",
+      "✗ 错误：avoir + 前置直宾 que → envoyées。",
+      "✓ 正确：时间状语无误。",
+      "✓ 正确：表语形容词 superbes 与 les photos 配合。",
+    ],
+  },
+  // ---------- DIFFICULTY 5 (B2+) ----------
+  {
+    id: "gs-101",
+    category: "structure",
+    difficulty: 5,
+    point: "registre-inversion",
+    tag: "r1",
+    prompt: "Sans doute le ministre ____ sa réforme devant le Parlement.",
+    options: ["défendra-t-il", "défendra-il", "il défendra", "défendra-t-elle"],
+    answer: 0,
+    why: "句首 Sans doute 触发名词主语复合倒装：le ministre défendra-t-il（元音相遇加 -t-）。",
+    optionWhy: [
+      "✓ 复合倒装 + 补音 -t-：défendra-t-il。",
+      "✗ défendra 以元音结尾，与 il 之间必须加 -t-。",
+      "✗ 名词主语后再放主语代词 il 不成立；书面语要求复合倒装。",
+      "✗ 复指代词要与 le ministre（阳性单数）一致，应为 il。",
+    ],
+  },
+  {
+    id: "gs-102",
+    category: "structure",
+    difficulty: 5,
+    point: "subj-indicatif",
+    tag: "t1",
+    prompt: "Après que les résultats ____ publiés, les candidats pourront consulter leurs copies.",
+    options: ["soient", "auront été", "aient été", "seraient"],
+    answer: 1,
+    why: "après que 接直陈式；动作先于将来的主句，用先将来时被动 auront été publiés。",
+    optionWhy: [
+      "✗ après que 规范用法不接虚拟式（这是常见误用）。",
+      "✓ 直陈式先将来时：auront été publiés。",
+      "✗ 虚拟式过去时同样违反 après que + 直陈式的规则。",
+      "✗ 条件式不表示将来先完成的动作。",
+    ],
+  },
+  {
+    id: "gs-103",
+    category: "lexique",
+    difficulty: 5,
+    point: "opposition-concession",
+    tag: "r4",
+    prompt: "Les chiffres sont encourageants ; ____ la prudence reste de mise.",
+    options: ["il n'empêche que", "bien que", "malgré que", "en dépit de"],
+    answer: 0,
+    why: "il n'empêche que（尽管如此）+ 直陈式，连接两个独立分句。",
+    optionWhy: [
+      "✓ il n'empêche que + 直陈式：尽管如此，……",
+      "✗ bien que 要求虚拟式且引导从句，不能放在分号后接独立句。",
+      "✗ malgré que 不规范，且要求虚拟式。",
+      "✗ en dépit de 后面接名词，不接句子。",
+    ],
+  },
+  {
+    id: "gs-104",
+    category: "error",
+    difficulty: 5,
+    point: "causatif",
+    tag: "t0",
+    prompt: "找出有语法错误的一项：[A] Les deux candidates [B] que le jury a faites [C] attendre [D] ont fini par partir.",
+    options: ["[A] Les deux candidates", "[B] que le jury a faites", "[C] attendre", "[D] ont fini par partir."],
+    answer: 1,
+    why: "fait + 不定式恒不配合：que le jury a fait attendre。",
+    optionWhy: [
+      "✓ 正确：主语无误。",
+      "✗ 错误：使役结构中 fait 紧接不定式，永远不配合。",
+      "✓ 正确：不定式 attendre 紧跟 fait。",
+      "✓ 正确：finir par + 不定式表示“最终……”。",
+    ],
+  },
+  // ---------- DIFFICULTY 6 (C1) ----------
+  {
+    id: "gs-105",
+    category: "structure",
+    difficulty: 6,
+    point: "hypothese-systeme",
+    tag: "t2",
+    prompt: "Le contrat sera signé demain, à moins que l'une des parties ne ____ au dernier moment.",
+    options: ["se rétracte", "se rétracte pas", "se rétractera", "se rétracterait"],
+    answer: 0,
+    why: "à moins que + 虚拟式，ne 为赘词，不能再加 pas。",
+    optionWhy: [
+      "✓ à moins que + 赘词 ne + 虚拟式：ne se rétracte。",
+      "✗ 加 pas 会变成“除非某一方不反悔”，意思完全相反。",
+      "✗ à moins que 不接将来时。",
+      "✗ à moins que 不接条件式。",
+    ],
+  },
+  {
+    id: "gs-106",
+    category: "structure",
+    difficulty: 6,
+    point: "registre-inversion",
+    tag: "r2",
+    prompt: "Ce compromis paraît équilibré ; encore ____ que les syndicats l'acceptent.",
+    options: ["faut-il", "il faut", "faut-t-il", "fallait-il"],
+    answer: 0,
+    why: "分句首的 encore（但还须）要求倒装：encore faut-il que + 虚拟式。",
+    optionWhy: [
+      "✓ 固定倒装 encore faut-il que。",
+      "✗ 句首 encore 表“还须”时必须倒装。",
+      "✗ faut 以 t 结尾，倒装时不加补音 -t-。",
+      "✗ 主句 paraît 为现在时，此处应用现在时 faut-il。",
+    ],
+  },
+  {
+    id: "gs-107",
+    category: "lexique",
+    difficulty: 6,
+    point: "relatifs-composes",
+    tag: "r3",
+    prompt: "Il a fini par tout avouer, ____ personne ne s'attendait.",
+    options: ["ce à quoi", "ce que", "ce dont", "à quoi"],
+    answer: 0,
+    why: "s'attendre à qqch，复指前面整句：ce à quoi。",
+    optionWhy: [
+      "✓ s'attendre à + 复指整句 → ce à quoi。",
+      "✗ ce que 用于直宾，s'attendre 要求介词 à。",
+      "✗ ce dont 对应介词 de，s'attendre 接 à。",
+      "✗ 复指整句时 quoi 前要有 ce。",
+    ],
+  },
+  {
+    id: "gs-108",
+    category: "error",
+    difficulty: 6,
+    point: "hypothese-systeme",
+    tag: "t1",
+    prompt: "找出有语法错误的一项：[A] Au cas où [B] la livraison soit retardée, [C] nous vous en informerons [D] par courriel.",
+    options: ["[A] Au cas où", "[B] la livraison soit retardée,", "[C] nous vous en informerons", "[D] par courriel."],
+    answer: 1,
+    why: "au cas où 后接条件式：au cas où la livraison serait retardée。",
+    optionWhy: [
+      "✓ 正确：au cas où 引出“万一”的假设。",
+      "✗ 错误：au cas où 不接虚拟式，应为 serait retardée。",
+      "✓ 正确：informer qqn de qqch → vous en informerons。",
+      "✓ 正确：par courriel（通过电子邮件）。",
+    ],
   },
 ];
 
