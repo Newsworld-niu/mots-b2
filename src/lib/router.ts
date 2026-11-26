@@ -50,6 +50,16 @@ export interface Location {
   word: string | null;
 }
 
+/** decodeURIComponent that returns the raw segment instead of throwing on a malformed % escape. */
+function safeDecode(segment: string | undefined): string | undefined {
+  if (segment === undefined) return undefined;
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
+}
+
 export function parseHash(hash: string): Location {
   const [path, query = ""] = hash.replace(/^#/, "").split("?");
   const params = new URLSearchParams(query);
@@ -61,7 +71,7 @@ export function parseHash(hash: string): Location {
     return {
       route: {
         page: "dict",
-        w: params.get("w") || undefined,
+        w: params.get("w") || safeDecode(seg[1]) || undefined,
         q: params.get("q") || undefined,
         ...(isDictTab(tab) && tab !== "zh" ? { tab } : {}),
       },
@@ -78,7 +88,7 @@ export function parseHash(hash: string): Location {
   else if (seg[0] === "grammar") {
     const rawSprint = params.get("sprint");
     const sprint = rawSprint === "tcf" || rawSprint === "tef" ? rawSprint : undefined;
-    route = { page: "grammar", p: params.get("p") || undefined, sheet: params.get("sheet") || undefined, sprint, section: params.get("section") || undefined };
+    route = { page: "grammar", p: params.get("p") || safeDecode(seg[1]) || undefined, sheet: params.get("sheet") || undefined, sprint, section: params.get("section") || undefined };
   }
   else if (seg[0] === "compare") route = { page: "compare", g: params.get("g") || undefined };
   else if (seg[0] === "me") route = { page: "me" };
@@ -94,7 +104,7 @@ export function parseHash(hash: string): Location {
       ch: params.get("ch") || undefined,
     };
   }
-  else if (seg[0] === "w" && seg[1]) return { route: { page: "atlas" }, word: decodeURIComponent(seg[1]) };
+  else if (seg[0] === "w" && seg[1]) return { route: { page: "atlas" }, word: safeDecode(seg[1]) ?? null };
   return { route, word };
 }
 
@@ -130,6 +140,69 @@ export function href(route: Route, word?: string | null) {
   if (word && route.page !== "dict") params.set("w", word);
   const q = params.toString();
   return `#/${route.page === "today" ? "" : route.page}${q ? `?${q}` : ""}`;
+}
+
+/** First path segments that are app pages; the Cloudflare Worker serves index.html for the same set. */
+const PATH_ROUTE_ROOTS = new Set([
+  "dict",
+  "atlas",
+  "learn",
+  "practice",
+  "mock",
+  "speak",
+  "listen",
+  "examread",
+  "essay",
+  "real",
+  "drill",
+  "expr",
+  "reflow",
+  "read",
+  "conj",
+  "grammar",
+  "compare",
+  "me",
+  "about",
+  "decks",
+  "lounge",
+  "w",
+]);
+/** Pages that take a second path segment: /grammar/<id>, /dict/<word>, /w/<word>. */
+const PATH_ROUTE_DEEP = new Set(["dict", "grammar", "w"]);
+const STATIC_ASSET_RE =
+  /\.(?:js|mjs|css|json|png|jpg|jpeg|webp|svg|ico|mp3|m4a|aac|ogg|oga|wav|mp4|webm|m4v|webmanifest|txt|vtt|map|woff2?)$/i;
+
+/**
+ * Translate a history-style deep link (/grammar/causatif, /dict/prendre?tab=conj, /atlas?level=B2) into the
+ * canonical hash route ("#/grammar?p=causatif"). Returns null for the app root, static files and unknown paths.
+ */
+export function resolvePathnameToHash(pathname: string, search = "", baseUrl = "/"): string | null {
+  const base = (baseUrl || "/").replace(/\/?$/, "/");
+  let rest: string;
+  if (pathname.startsWith(base)) rest = pathname.slice(base.length);
+  else if (`${pathname}/` === base) rest = "";
+  else return null;
+  rest = rest.replace(/\/+$/, "");
+  if (!rest || rest === "/") return null;
+  if (STATIC_ASSET_RE.test(rest)) return null;
+  const seg = rest.split("/");
+  if (seg.some((s) => !s) || !PATH_ROUTE_ROOTS.has(seg[0]) || seg.length > 2) return null;
+  if (seg.length === 2 && !PATH_ROUTE_DEEP.has(seg[0])) return null;
+  if (seg[0] === "w" && seg.length !== 2) return null;
+  const query = search.replace(/^\?/, "");
+  const parsed = parseHash(`#/${seg.join("/")}${query ? `?${query}` : ""}`);
+  return href(parsed.route, parsed.word);
+}
+
+// A deep link served by the Worker (/grammar/causatif) becomes its hash route before the first render.
+if (typeof window !== "undefined" && (!window.location.hash || window.location.hash === "#")) {
+  try {
+    const baseUrl = (typeof import.meta !== "undefined" && import.meta.env?.BASE_URL) || "/";
+    const h = resolvePathnameToHash(window.location.pathname, window.location.search, baseUrl);
+    if (h) window.history.replaceState(null, "", `${baseUrl.replace(/\/?$/, "/")}${h}`);
+  } catch {
+    /* leave the address as it is */
+  }
 }
 
 let loc: Location = typeof window !== "undefined" ? parseHash(window.location.hash) : { route: { page: "today" }, word: null };

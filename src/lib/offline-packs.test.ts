@@ -116,11 +116,11 @@ test("inspectOfflinePacks, downloadOfflinePack dedupe, abort, removeOfflinePack,
 
   // clearAllOfflineMedia only wipes OFFLINE_MEDIA_CACHE & SW_MEDIA_CACHE
   await (await cs.open(SW_MEDIA_CACHE)).put("https://app.test/atlas/audio/f/a.mp3", new Response("ok"));
-  await (await cs.open("atlas-v6-shell")).put("https://app.test/index.html", new Response("ok"));
+  await (await cs.open("atlas-v7-shell")).put("https://app.test/index.html", new Response("ok"));
   await clearAllOfflineMedia(cs);
   assert.equal(cs.stores.has(OFFLINE_MEDIA_CACHE), false);
   assert.equal(cs.stores.has(SW_MEDIA_CACHE), false);
-  assert.equal(cs.stores.has("atlas-v6-shell"), true);
+  assert.equal(cs.stores.has("atlas-v7-shell"), true);
 });
 
 test("getOfflinePacks gathers 25 CO URLs and 18 RFI URLs cleanly", async () => {
@@ -130,4 +130,14 @@ test("getOfflinePacks gathers 25 CO URLs and 18 RFI URLs cleanly", async () => {
   assert.equal(packs[0].urls.length, 25);
   assert.equal(packs[1].id, "rfi-real");
   assert.equal(packs[1].urls.length, 18); // 6 * (.mp3 + .txt + .segments.json)
+});
+
+test("cache names track the service worker version while offline packs keep their stable cache", async () => {
+  const { readFileSync } = await import("node:fs");
+  const swSource = readFileSync(new URL("../../public/sw.js", import.meta.url), "utf8");
+  const version = /const VERSION = "([^"]+)"/.exec(swSource)?.[1];
+  assert.equal(version, "atlas-v7");
+  assert.equal(SW_MEDIA_CACHE, `${version}-media`);
+  assert.equal(OFFLINE_MEDIA_CACHE, "atlas-offline-media");
+  assert.match(swSource, /const OFFLINE_MEDIA = "atlas-offline-media";/);
 });

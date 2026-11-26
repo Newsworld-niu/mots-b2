@@ -7,10 +7,10 @@
     "dev": "vite --host 127.0.0.1 --port 5190",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5191",
-    "lint": "eslint src server/src",
+    "lint": "eslint src server/src worker",
     "css:check": "tsx scripts/check-css-tokens.ts",
     "bundle:check": "tsx scripts/check-bundle-budget.ts",
-    "test": "node --import tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.ts\"",
+    "test": "node --import tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.ts\" \"worker/**/*.test.ts\"",
     "test:ui": "node --import tsx --test \"src/**/*.test.tsx\"",
     "lexicon:import": "tsx scripts/import-lexicon.ts",
     "lexicon:freq": "python3 scripts/build-frequency.py",
@@ -36,7 +36,11 @@
     "lexdb:session": "tsx scripts/lexdb/session-batch.ts",
     "co:audio": "tsx scripts/build-co-audio.ts",
     "rfi:segments": "tsx scripts/build-rfi-segments.ts",
-    "media:sync": "bash scripts/sync-media-blob.sh"
+    "media:sync": "bash scripts/sync-media-blob.sh",
+    "media:sync:r2": "node scripts/sync-media-r2.mjs",
+    "cf:build": "VITE_MEDIA_BASE_URL=/media VITE_OFFLOAD_LEXDB=1 npm run build",
+    "cf:dev": "wrangler dev",
+    "cf:deploy": "VITE_MEDIA_BASE_URL=/media VITE_OFFLOAD_LEXDB=1 npm run build && wrangler deploy"
   },
   "dependencies": {
     "@fontsource-variable/fraunces": "^5.3.0",
@@ -48,6 +52,7 @@
     "ts-fsrs": "^5.4.2"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261125.1",
     "@eslint/js": "^10.0.1",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
@@ -64,7 +69,8 @@
     "tsx": "^4.23.15",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.73.0",
-    "vite": "^6.4.1"
+    "vite": "^6.4.1",
+    "wrangler": "^4.168.0"
   },
   "private": true,
   "license": "MIT"

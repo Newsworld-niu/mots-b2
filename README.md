@@ -4,7 +4,7 @@
 
 以 [Word Atlas](https://github.com/designfuchen/word-atlas) 为原型改造的法语版本，打开网页就能用，也可以安装成 PWA。
 
-**在线使用 →** [newsworld-niu.github.io/mots-b2](https://newsworld-niu.github.io/mots-b2/)
+**在线使用 →** [mots-b2.motb2.workers.dev](https://mots-b2.motb2.workers.dev)
 
 ![法语词光 · 从零开始，直抵 B2](docs/banner.jpg)
 
@@ -83,11 +83,12 @@
 
 ## ☁️ 云同步（可选）
 
-默认所有数据仅保存在本机。如配置了云同步服务端，可以在「**我的 → 云同步**」按需开启多设备同步：
+默认所有数据仅保存在本机。线上版本的云同步服务与网页同域（`/api/*`，由 Cloudflare Workers 提供），可以在「**我的 → 云同步**」按需开启多设备同步：
 
 - **邀请码开通与配对**：通过一次性**邀请码**创建个人**同步码**（`mb2_...`），在其他设备输入或扫码即可配对。请妥善保存同步码，**丢失后无法找回云端数据**。
 - **同步范围**：单词记忆、卡组与自建词、自定义配图、作文与草稿、阅读文本、语法与变位记录、模考题库及学习设置（云端自动保留最近 20 个历史版本，可按版本恢复，也可随时一键删除云端数据）。
-- **隐私与加密说明**：**AI 接口 Key 与 Azure 语音 Key 永远不会写进备份或上传到云端**；其余学习数据以**明文 JSON** 存储在作者部署于 **Azure 日本东部（东京 / Japan East）** 的存储上。
+- **隐私与加密说明**：**AI 接口 Key 与 Azure 语音 Key 永远不会写进备份或上传到云端**；其余学习数据在浏览器里用由同步码派生的密钥做**端到端加密**（HKDF-SHA256 + AES-GCM-256）后才上传，经 **Cloudflare Workers** 存入作者账号下的 **Cloudflare R2** 存储（亚太区域）。服务端只保存密文和同步码的 SHA-256 摘要，看不到学习内容，也无法替你找回同步码。
+- **从旧域名迁移学习记录**：浏览器本地数据按域名隔离；若此前在旧版 GitHub Pages 页面存有进度，可在旧页面「**我的 → 导出备份**」下载 JSON 文件，再在新地址「**我的 → 导入备份**」恢复。
 
 ---
 
@@ -107,7 +108,7 @@
 
 ### 网页
 
-直接打开 [newsworld-niu.github.io/mots-b2](https://newsworld-niu.github.io/mots-b2/)。
+直接打开 [mots-b2.motb2.workers.dev](https://mots-b2.motb2.workers.dev)。
 
 ### 本地运行
 
@@ -122,6 +123,32 @@ npm run dev        # http://127.0.0.1:5190
 
 > [!TIP]
 > 本地运行时法语助手查词和所有 AI 服务都通过开发服务器转发，比纯静态网页更稳定。
+> 本地开发服务器没有 `/api`，要在本地试云同步，请用 `VITE_SYNC_URL=https://mots-b2.motb2.workers.dev npm run dev` 指向线上服务（或下面的 `npm run cf:dev`）。
+
+### 部署到 Cloudflare Workers（维护者）
+
+网站、云同步 API 和音视频都跑在一个 Cloudflare Worker 上（配置见 [`wrangler.jsonc`](wrangler.jsonc)，入口 [`worker/index.ts`](worker/index.ts)）：
+
+- **静态资源**：`dist/` 通过 Workers Static Assets 发布；`/grammar/causatif`、`/dict/prendre` 这类路径会回到应用并自动转成对应的 `#/` 页面。
+- **云同步**：`/api/*` 由 Worker 处理，数据存在 R2 存储桶 `mots-b2-sync`。
+- **音视频与离线词典分片**：`public/atlas/audio/`、`public/materials/` 音视频及 `public/lexdb/` 词典分片不打入 `dist/`，存放在 R2 存储桶 `mots-b2-media`，由 Worker 以 `/media/*` 和 `/lexdb/*`（支持 Range、ETag 和边缘缓存）分发。
+- **查词**：`/dictionary-proxy` 在线上同样可用（仅限同源调用，按 IP 限速）；线上不提供 AI 转发，浏览器会直接调用各 AI 服务。
+
+```bash
+# 凭据只从环境变量读取，不要写进任何文件
+export CLOUDFLARE_ACCOUNT_ID=...   CLOUDFLARE_API_TOKEN=...
+
+npm run media:sync:r2 -- --setup --dry-run   # 查看本地音视频清单和计划（不改动任何东西）
+npm run media:sync:r2 -- --setup             # 建好两个 R2 存储桶（亚太）并上传新增或变化的音视频
+npx wrangler secret put ADMIN_KEY            # 设置签发邀请码用的管理密钥（只需一次）
+npm run cf:deploy                            # 构建（VITE_MEDIA_BASE_URL=/media）并部署
+npm run cf:dev                               # 先 npm run cf:build，再在本地用 wrangler 跑完整 Worker
+
+# 签发邀请码
+SYNC_URL=https://mots-b2.motb2.workers.dev ADMIN_KEY=... npm --prefix server run invite
+```
+
+推送到 `main` 后，GitHub Actions（[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)）会跑完全部检查和 E2E，再自动 `wrangler deploy`。需要在仓库的 **Settings → Secrets and variables → Actions** 里添加两个 Secret：`CLOUDFLARE_API_TOKEN`（含 Workers Scripts 和 R2 编辑权限）和 `CLOUDFLARE_ACCOUNT_ID`。`ADMIN_KEY` 是 Worker 自己的 Secret，用上面的 `wrangler secret put` 设置，不放在 GitHub 里。
 
 ## 💬 发现 bug？
 

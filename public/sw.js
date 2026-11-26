@@ -1,6 +1,7 @@
 /* Word Atlas offline cache: app shell / grammar / lexdb network-first, static media cache-first, plus Range 206 support for cached media. */
 // v6: adds precache-manifest.json precaching so React.lazy route JS/CSS chunks work offline without hitting ErrorBoundary.
-const VERSION = "atlas-v6";
+// v7: Cloudflare Workers deployment; never intercepts the same-origin sync API, proxies or authorized requests.
+const VERSION = "atlas-v7";
 const SHELL = `${VERSION}-shell`;
 const MEDIA = `${VERSION}-media`;
 const LEXDB = `${VERSION}-lexdb`;
@@ -174,8 +175,11 @@ async function trim(name, max) {
 
 self.addEventListener("fetch", (event) => {
   const req = event.request;
-  if (req.method !== "GET") return;
+  // Credentials and private endpoints always go straight to the network, before any cache logic (Range included).
+  if (req.headers.has("authorization")) return;
   const url = new URL(req.url);
+  if (/(?:^|\/)api(?:\/|$)/.test(url.pathname) || url.pathname.includes("/dictionary-proxy") || url.pathname.includes("/ai-proxy")) return;
+  if (req.method !== "GET") return;
   const isBlobMedia =
     url.origin !== self.location.origin &&
     /\.blob\.core\.windows\.net$/i.test(url.hostname) &&
@@ -183,7 +187,6 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin && !isBlobMedia) return;
   // a request that asks for the server's current copy (the new-version check) or hits local proxies is not answered from a cache
   if (req.cache === "no-store") return;
-  if (url.pathname.includes("/dictionary-proxy") || url.pathname.includes("/ai-proxy")) return;
 
   if (req.headers.has("range")) {
     event.respondWith(

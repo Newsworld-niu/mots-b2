@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { beforeEach, describe, it } from "node:test";
 import { readBodyWithLimit } from "./body-limit.js";
-import { clientIpKey, handleRequest, MAX_CONTROL_BYTES, MAX_RATE_BUCKETS, rateBucketCountForTest, resetRateLimits, type HandlerEnv } from "./handlers.js";
+import { buildBaseHeaders, clientIpKey, handleRequest, MAX_CONTROL_BYTES, MAX_RATE_BUCKETS, rateBucketCountForTest, resetRateLimits, type HandlerEnv } from "./handlers.js";
 import { MemoryObjStore, PreconditionFailedError } from "./store.js";
 
 const ENV: HandlerEnv = {
@@ -967,5 +967,241 @@ describe("sync handlers", () => {
       ENV,
     );
     assert.equal(putViaV2.status, 200);
+  });
+});
+
+describe("sync handlers: Cloudflare migration hardening", () => {
+  beforeEach(() => {
+    resetRateLimits();
+  });
+
+  async function mintInvite(store: MemoryObjStore): Promise<string> {
+    const res = await handleRequest(
+      {
+        method: "POST",
+        path: "/api/invites",
+        headers: { "x-admin-key": ENV.ADMIN_KEY },
+        body: JSON.stringify({ count: 1 }),
+      },
+      store,
+      ENV,
+    );
+    assert.equal(res.status, 201);
+    return (JSON.parse(res.body!) as { invites: string[] }).invites[0];
+  }
+
+  const register = (store: MemoryObjStore, body: Record<string, unknown>) =>
+    handleRequest({ method: "POST", path: "/api/register", body: JSON.stringify(body) }, store, {
+      ...ENV,
+      RATE_LIMIT_DISABLED: "1",
+    });
+
+  it("rejects a nonexistent invite with 403 and never creates a user", async () => {
+    const store = new MemoryObjStore();
+    const res = await register(store, { inviteCode: "inv_never_minted" });
+    assert.equal(res.status, 403);
+    assert.deepEqual(JSON.parse(res.body!), { error: "invalid_invite" });
+    assert.equal((await store.list("users/")).length, 0);
+  });
+
+  it("lets exactly one of many concurrent redemptions of the same invite succeed", async () => {
+    const store = new MemoryObjStore();
+    const inviteCode = await mintInvite(store);
+    const results = await Promise.all(
+      Array.from({ length: 8 }, (_, i) =>
+        register(
+          store,
+          i % 2 === 0
+            ? { inviteCode }
+            : { inviteCode, authToken: `mb2a_${String(i).repeat(40).slice(0, 40)}` },
+        ),
+      ),
+    );
+    const statuses = results.map((r) => r.status).sort((a, b) => a - b);
+    assert.deepEqual(statuses, [201, 403, 403, 403, 403, 403, 403, 403]);
+    // Exactly one user namespace exists, and the invite records who claimed it.
+    const metas = (await store.list("users/")).filter((i) => i.key.endsWith("/meta.json"));
+    assert.equal(metas.length, 1);
+    const inviteKey = `invites/${createHash("sha256").update(inviteCode, "utf8").digest("hex")}`;
+    const inv = await store.get(inviteKey);
+    assert.ok(inv && inv !== "not-modified");
+    const parsed = JSON.parse(inv.body) as { status: string; claimedBy: string; claimedAt: string };
+    assert.equal(parsed.status, "claimed");
+    assert.equal(metas[0].key, `users/${parsed.claimedBy}/meta.json`);
+    assert.ok(!Number.isNaN(Date.parse(parsed.claimedAt)));
+  });
+
+  it("lets the claimant retry with the same authToken when meta.json failed after the claim", async () => {
+    const base = new MemoryObjStore();
+    const inviteCode = await mintInvite(base);
+    const authToken = "mb2a_" + "r".repeat(43);
+    const ns = createHash("sha256").update(authToken, "utf8").digest("hex");
+
+    // First attempt: the invite claim lands, then the meta.json write fails (transient storage error).
+    const flaky: MemoryObjStore = Object.create(base);
+    flaky.put = async (key, body, cond) => {
+      if (key.endsWith("/meta.json")) throw new Error("transient storage failure");
+      return base.put(key, body, cond);
+    };
+    await assert.rejects(
+      handleRequest({ method: "POST", path: "/api/register", body: JSON.stringify({ inviteCode, authToken }) }, flaky, ENV),
+      /transient storage failure/,
+    );
+    assert.equal(await base.exists(`users/${ns}/meta.json`), false);
+
+    // A different client cannot use the claimed invite.
+    const thief = await register(base, { inviteCode, authToken: "mb2a_" + "t".repeat(43) });
+    assert.equal(thief.status, 403);
+    const v1Thief = await register(base, { inviteCode });
+    assert.equal(v1Thief.status, 403);
+
+    // The claimant's retry recovers and creates meta.json; a further retry is idempotent.
+    const retry = await register(base, { inviteCode, authToken });
+    assert.equal(retry.status, 201);
+    assert.deepEqual(JSON.parse(retry.body!), { authVersion: 2 });
+    assert.equal(await base.exists(`users/${ns}/meta.json`), true);
+    const again = await register(base, { inviteCode, authToken });
+    assert.equal(again.status, 201);
+
+    // The recovered token is a working bearer credential.
+    const put = await handleRequest(
+      {
+        method: "PUT",
+        path: `/api/sync/${DATASET_ID}`,
+        headers: { Authorization: `Bearer ${authToken}`, "If-None-Match": "*" },
+        body: makeBackup(DATASET_ID, 1),
+      },
+      base,
+      ENV,
+    );
+    assert.equal(put.status, 200);
+
+    // Deleting the account revokes the claimed invite so it cannot resurrect the deleted account.
+    const wiped = await handleRequest(
+      { method: "DELETE", path: "/api/account", headers: { Authorization: `Bearer ${authToken}` } },
+      base,
+      ENV,
+    );
+    assert.equal(wiped.status, 204);
+    const resurrect = await register(base, { inviteCode, authToken });
+    assert.equal(resurrect.status, 403);
+  });
+
+  it("keeps the winner's history snapshot when two PUTs race on the same revision", async () => {
+    const store = new MemoryObjStore();
+    const { syncCode } = await createInviteAndRegister(store);
+    const auth = { Authorization: `Bearer ${syncCode}` };
+    const ns = createHash("sha256").update(syncCode, "utf8").digest("hex");
+    const first = makeBackup(DATASET_ID, 1);
+    const p1 = await handleRequest(
+      { method: "PUT", path: `/api/sync/${DATASET_ID}`, headers: { ...auth, "If-None-Match": "*" }, body: first },
+      store,
+      ENV,
+    );
+    const etag1 = JSON.parse(p1.body!).etag as string;
+
+    const histKeys: string[] = [];
+    const spy: MemoryObjStore = Object.create(store);
+    spy.put = async (key, body, cond) => {
+      if (key.includes("/history/")) histKeys.push(key);
+      return store.put(key, body, cond);
+    };
+    const [a, b] = await Promise.all(
+      [2, 3].map((n) =>
+        handleRequest(
+          { method: "PUT", path: `/api/sync/${DATASET_ID}`, headers: { ...auth, "If-Match": etag1 }, body: makeBackup(DATASET_ID, n) },
+          spy,
+          ENV,
+        ),
+      ),
+    );
+    assert.deepEqual([a.status, b.status].sort((x, y) => x - y), [200, 412]);
+    assert.equal(histKeys.length, 2);
+    assert.notEqual(histKeys[0], histKeys[1]);
+    for (const k of histKeys) assert.match(k, /\/history\/\d{4}-\d{2}-\d{2}T\d{9}Z-[A-Za-z0-9]{1,8}-[0-9a-f]{8}\.json$/);
+
+    const history = await store.list(`users/${ns}/${DATASET_ID}/history/`);
+    assert.equal(history.length, 1);
+    const snap = await store.get(history[0].key);
+    assert.ok(snap && snap !== "not-modified");
+    assert.equal(snap.body, first);
+
+    const listed = await handleRequest({ method: "GET", path: `/api/sync/${DATASET_ID}/history`, headers: auth }, store, ENV);
+    const items = JSON.parse(listed.body!) as { id: string; at: string }[];
+    assert.equal(items.length, 1);
+    assert.ok(!Number.isNaN(Date.parse(items[0].at)));
+    const item = await handleRequest(
+      { method: "GET", path: `/api/sync/${DATASET_ID}/history/${items[0].id}`, headers: auth },
+      store,
+      ENV,
+    );
+    assert.equal(item.status, 200);
+    assert.equal(item.body, first);
+  });
+
+  it("prefers adapter-supplied clientIp and never trusts a raw CF-Connecting-IP header on non-CF hosts", () => {
+    assert.equal(
+      clientIpKey({ clientIp: "203.0.113.7", headers: { "x-azure-clientip": "198.51.100.1", "x-forwarded-for": "10.0.0.1, 192.0.2.9" } }),
+      "203.0.113.7",
+    );
+    assert.equal(
+      clientIpKey({ headers: { "CF-Connecting-IP": "203.0.113.99", "x-azure-clientip": "198.51.100.1" } }),
+      "198.51.100.1",
+    );
+    assert.equal(clientIpKey({ headers: { "x-azure-clientip": "198.51.100.1", "x-forwarded-for": "10.0.0.1" } }), "198.51.100.1");
+    assert.equal(clientIpKey({ headers: { "x-forwarded-for": "10.0.0.1, 192.0.2.9" } }), "192.0.2.9");
+    assert.equal(clientIpKey({ headers: {} }), "unknown");
+  });
+
+  it("allows SELF_ORIGIN for CORS alongside ALLOWED_ORIGINS without wildcarding other workers.dev hosts", async () => {
+    const env: HandlerEnv = { ...ENV, SELF_ORIGIN: "https://mots-b2.motb2.workers.dev" };
+    const self = buildBaseHeaders({ headers: { Origin: "https://mots-b2.motb2.workers.dev" } }, env);
+    assert.equal(self["Access-Control-Allow-Origin"], "https://mots-b2.motb2.workers.dev");
+    assert.equal(self.Vary, "Origin");
+    assert.equal(self["Access-Control-Expose-Headers"], "ETag");
+
+    const listed = buildBaseHeaders({ headers: { Origin: "http://localhost:5190" } }, env);
+    assert.equal(listed["Access-Control-Allow-Origin"], "http://localhost:5190");
+
+    const other = buildBaseHeaders({ headers: { Origin: "https://evil.motb2.workers.dev" } }, env);
+    assert.equal(other["Access-Control-Allow-Origin"], undefined);
+
+    const noSelf = buildBaseHeaders({ headers: { Origin: "https://mots-b2.motb2.workers.dev" } }, ENV);
+    assert.equal(noSelf["Access-Control-Allow-Origin"], undefined);
+
+    const blankSelf = buildBaseHeaders({ headers: { Origin: "https://mots-b2.motb2.workers.dev" } }, { ...ENV, SELF_ORIGIN: "  " });
+    assert.equal(blankSelf["Access-Control-Allow-Origin"], undefined);
+
+    // Preflight and originless CLI requests behave as before.
+    const store = new MemoryObjStore();
+    const pre = await handleRequest(
+      { method: "OPTIONS", path: `/api/sync/${DATASET_ID}`, headers: { Origin: "https://mots-b2.motb2.workers.dev" } },
+      store,
+      env,
+    );
+    assert.equal(pre.status, 204);
+    assert.equal(pre.headers["Access-Control-Allow-Origin"], "https://mots-b2.motb2.workers.dev");
+    const cli = await handleRequest({ method: "GET", path: "/api/health" }, store, env);
+    assert.equal(cli.status, 200);
+    assert.equal(cli.headers["Access-Control-Allow-Origin"], undefined);
+  });
+
+  it("decodes Uint8Array request bodies as UTF-8", async () => {
+    const store = new MemoryObjStore();
+    const { syncCode } = await createInviteAndRegister(store);
+    const body = makeBackup(DATASET_ID, 1).replace('"exported"', '"note":"élève — 学习","exported"');
+    const res = await handleRequest(
+      {
+        method: "PUT",
+        path: `/api/sync/${DATASET_ID}`,
+        headers: { Authorization: `Bearer ${syncCode}`, "If-None-Match": "*" },
+        readBody: async () => ({ ok: true, body: new TextEncoder().encode(body) }),
+      },
+      store,
+      ENV,
+    );
+    assert.equal(res.status, 200);
+    const got = await handleRequest({ method: "GET", path: `/api/sync/${DATASET_ID}`, headers: { Authorization: `Bearer ${syncCode}` } }, store, ENV);
+    assert.equal(got.body, body);
   });
 });

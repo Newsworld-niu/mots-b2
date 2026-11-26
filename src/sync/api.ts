@@ -74,7 +74,8 @@ async function fetchWithTimeout(
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
-    return await fetch(url, { ...init, signal: ctrl.signal });
+    // Sync responses carry ETags for conditional requests; never let the HTTP cache or the service worker answer.
+    return await fetch(url, { cache: "no-store", ...init, signal: ctrl.signal });
   } catch (err) {
     throw new SyncNetworkError("网络不可用，稍后自动重试", err);
   } finally {
