@@ -12,7 +12,7 @@ import { Illustration } from "./Illustration";
 import { Speak, SpeakBoth } from "./Speak";
 import { shareWord } from "./share";
 import { closeWord, href, openWord } from "../lib/router";
-import { addToDeck, createDeck, dropMainSense, hideExample, hideSense, isCustomId, ownParts, removeFromCard, removeFromDeck, restoreExamples, restoreSenses } from "../store/decks";
+import { addToDeck, createDeck, dropMainSense, findExact, hideExample, hideSense, isCustomId, ownParts, removeFromCard, removeFromDeck, restoreExamples, restoreSenses } from "../store/decks";
 import { WordForm } from "./WordForm";
 import { AiExplain } from "./AiExplain";
 import { ready, useAiConfig } from "../ai/config";
@@ -79,6 +79,28 @@ function ExampleSpeak({ entry, index, text }: { entry: Entry; index: number; tex
   );
 }
 
+const CJK_RE = /[\u3400-\u9fff]/;
+const POS_TAG_RE = /^(?:n\.(?:\s*(?:m\.|f\.|m\.\/f\.))?|v\.(?:\s*(?:t\.|i\.|pr\.))?|adj\.|adv\.|prép\.|conj\.|pron\.|interj\.|loc\.(?:\s*[a-zé]+\.)?)$/i;
+
+/**
+ * A related-word label as stored on a card: "bonheur｜幸福", "réception (接待)", "ostracisme (n.m.)" or plain "accueillir".
+ * A trailing parenthetical is taken as the hint when it contains CJK or a POS tag ("s'asseoir (pronominal)" stays French).
+ */
+export function parseRelLabel(label: string): { fr: string; zh: string } {
+  const [head = "", ...rest] = label.split(/[｜|]/);
+  let fr = head.trim();
+  let zh = rest.join("｜").trim();
+  if (!zh) {
+    const m = fr.match(/^(.*?)\s*[（(]([^()（）]*)[)）]\s*$/);
+    const note = m?.[2]?.trim() ?? "";
+    if (m && m[1].trim() && (CJK_RE.test(note) || POS_TAG_RE.test(note))) {
+      fr = m[1].trim();
+      zh = note;
+    }
+  }
+  return { fr, zh };
+}
+
 export function EntryView({ entry, mode = "detail", eager = true }: { entry: Entry; mode?: "detail" | "intro" | "reveal"; eager?: boolean }) {
   const atlas = useAtlas();
   const ref = atlas.byId.get(entry.id);
@@ -86,12 +108,15 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
   const saved = useStore((s) => s.progress.bookmarks.includes(entry.id));
   const topicIdx = atlas.topics.findIndex((t) => t[0] === entry.topic);
   const topic = atlas.topics[topicIdx];
-  // a related word links to its entry only when it is in the lexicon itself
+  // a related word opens its atlas card when the exact accented headword is in the lexicon, otherwise its dictionary entry (#/dict?w=…)
   const toLinks = (list: string[]) =>
-    list.map((f) => {
-      const w = f.replace(/\s*\(.*\)\s*$/, "").trim().toLowerCase();
-      const hit = atlas.words.find((x) => x.word.toLowerCase() === w);
-      return { label: f, id: hit?.id };
+    list.map((label) => {
+      const { fr, zh } = parseRelLabel(label);
+      const bare = fr.replace(/\s*\([^)]*\)\s*$/, "").trim();
+      const hit =
+        (fr ? findExact(atlas, fr)[0] : undefined) ??
+        (bare && bare !== fr ? findExact(atlas, bare)[0] : undefined);
+      return { label, fr, zh, id: hit?.id };
     });
   const famLinks = toLinks(entry.fam);
   const synLinks = toLinks(entry.syn);
@@ -140,19 +165,35 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
     if (isCustomId(entry.id)) return x(() => dropMainSense(entry.id), "去掉这个意思，下一个意思排到第一");
     return x(() => hideSense(entry.id, s.n ?? i), "词库原有的意思：从卡片上去掉（可以恢复）");
   };
-  const linkList = (links: { label: string; id?: string }[], k: "fam" | "syn" | "ant") =>
-    links.map((f) => (
-      <span key={f.label} className="rel-item">
-        {f.id && mode === "detail" ? (
-          <button className="link" onClick={() => openWord(f.id!)}>
-            {f.label}
-          </button>
-        ) : (
-          <span>{f.label}</span>
-        )}
-        {rm({ [k]: f.label })}
-      </span>
-    ));
+  const linkList = (links: { label: string; fr: string; zh: string; id?: string }[], k: "fam" | "syn" | "ant") =>
+    links.map((f) => {
+      const text = f.fr ? (
+        <>
+          <span lang="fr">{f.fr}</span>
+          {f.zh && <small className="rel-zh">{f.zh}</small>}
+        </>
+      ) : (
+        f.label
+      );
+      return (
+        <span key={f.label} className="rel-item">
+          {mode !== "detail" ? (
+            <span>{text}</span>
+          ) : f.id ? (
+            <button className="link" onClick={() => openWord(f.id!)}>
+              {text}
+            </button>
+          ) : f.fr ? (
+            <a className="link" href={href({ page: "dict", w: f.fr })} title={`查看「${f.fr}」词条`}>
+              {text}
+            </a>
+          ) : (
+            <span>{text}</span>
+          )}
+          {rm({ [k]: f.label })}
+        </span>
+      );
+    });
   const lines = (t: string) => t.split("\n").map((x) => x.trim()).filter(Boolean);
   // the rest of the 注意点 is the atlas's own (an own word has none besides the learner's)
   const atlasTip = own.tip && entry.tip.startsWith(own.tip) ? entry.tip.slice(own.tip.length).trim() : own.tip ? "" : entry.tip;
@@ -313,7 +354,9 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
           </p>
         )}
 
-        {mode === "detail" && entry.senses[0]?.pos === "v." && <VerbConjugation id={entry.id} />}
+        {mode === "detail" && entry.senses.some((s) => s.pos === "v.") && (
+          <VerbConjugation id={entry.id} word={entry.w} />
+        )}
 
         {entry.col.length > 0 && (
           <section className="block">
@@ -460,7 +503,7 @@ function ConfusableBlock({ id }: { id: string }) {
 /** The forms a learner cannot guess: irregular plural, adjective feminine, where the adjective goes, a verb's auxiliary. */
 function Inflections({ entry }: { entry: Entry }) {
   const i = entry.infl;
-  const verb = entry.senses[0]?.pos === "v.";
+  const verb = entry.senses.some((s) => s.pos === "v.");
   const items: [string, string][] = [];
   if (i?.pl) items.push(["复数", i.pl]);
   if (i?.fem) items.push(["阴性", i.fem]);

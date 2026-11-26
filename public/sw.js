@@ -213,7 +213,8 @@ self.addEventListener("fetch", (event) => {
     url.pathname.includes("/atlas/entries/") ||
     url.pathname.endsWith("/atlas/grammar.json") ||
     url.pathname.endsWith("/atlas/conj.json") ||
-    url.pathname.endsWith("/atlas/confusables.json");
+    url.pathname.endsWith("/atlas/confusables.json") ||
+    url.pathname.endsWith("/atlas/families.json");
 
   if (isShell) {
     event.respondWith(

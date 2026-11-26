@@ -8,6 +8,9 @@ export type SourceId =
   | "omw"
   | "tatoeba"
   | "lexique"
+  | "morphynet"
+  | "cnrtl"
+  | "frdic"
   | "ai"
   | "ai-reviewed"
   | "user";
@@ -85,12 +88,17 @@ export interface LexMeta {
   suggestShards?: boolean;
   /** 1-letter suggest prefixes split into 2-letter shards under suggest/. */
   suggestSplits?: string[];
+  /** True when compact related-word hints are published under hints/<bucket>.json (see hintBucket). */
+  hintsShards?: boolean;
   counts: {
     lemmas: number;
     withZh: number;
     top15kComplete?: number;
     pilot?: number;
     phrases?: number;
+    withDerived?: number;
+    withSyn?: number;
+    withAnt?: number;
     conf?: Record<string, number>;
   };
 }
@@ -117,6 +125,19 @@ export function lexdbKey(folded: string, splits?: ReadonlySet<string> | readonly
     key = (letters + "___").slice(0, key.length + 1);
   }
   return key;
+}
+
+/** [pos, shortZh] compact hint for a related word chip. */
+export type LexHintTuple = [pos: string, shortZh: string];
+/** hints/<bucket>.json: lower-cased NFC headword -> [pos, shortZh]. */
+export type LexHintsShard = Record<string, LexHintTuple>;
+
+/** 1-letter bucket for hints/<bucket>.json ("_" when the word does not start with a letter). */
+export function hintBucket(word: string): string {
+  const folded = lexdbFold(word);
+  const letters = folded.replace(/[^a-z]/g, "");
+  if (!letters || !/^\p{L}/u.test(folded)) return "_";
+  return letters[0];
 }
 
 /** Shard bucket (0..63) for Chinese reverse lookup terms. */

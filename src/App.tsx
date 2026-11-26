@@ -1,5 +1,5 @@
 import { migrateCoreDeck } from "./store/decks";
-import { BookA, ChevronLeft, ChevronRight, Compass, Github, Keyboard, Layers, Moon, Search, Sun, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, Github, Moon, Search, Sun } from "lucide-react";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { AtlasContext, useAtlas, useEntry } from "./atlas/context";
 import { loadOpenAtlas } from "./atlas/data";
@@ -7,13 +7,15 @@ import { withUserData } from "./atlas/merge";
 import { loadImages, useImages } from "./store/images";
 import type { Atlas } from "./atlas/types";
 import { REPO_URL } from "./config";
-import { closeWord, currentLocation, go, openWord, useLocation, type Route } from "./lib/router";
+import { closeWord, currentLocation, go, openWord, useLocation } from "./lib/router";
 import { Today } from "./pages/Today";
 import { cue } from "./lib/sound";
 import { downloadBackupFile } from "./lib/backup";
 import { store, useStore } from "./store/store";
 import { useSyncState } from "./sync/state";
 import { AmbienceController, AmbiencePicker } from "./ui/Ambience";
+import { MAIN_NAV, navOn } from "./ui/nav";
+import { Sidebar } from "./ui/Sidebar";
 
 const Onboarding = lazy(() => import("./pages/Onboarding").then((m) => ({ default: m.Onboarding })));
 const EntryView = lazy(() => import("./ui/EntryView").then((m) => ({ default: m.EntryView })));
@@ -47,25 +49,6 @@ const ExprStudio = lazy(() => import("./pages/Expressions").then((m) => ({ defau
 const MistakeReflow = lazy(() => import("./pages/MistakeReflow").then((m) => ({ default: m.MistakeReflow })));
 const Lounge = lazy(() => import("./pages/Lounge").then((m) => ({ default: m.Lounge })));
 
-const MAIN_NAV: { page: Route["page"]; label: string; icon: typeof Compass }[] = [
-  { page: "today", label: "今日", icon: Compass },
-  { page: "practice", label: "应试", icon: Keyboard },
-  { page: "dict", label: "词库", icon: BookA },
-  { page: "grammar", label: "语法", icon: Layers },
-  { page: "me", label: "我的", icon: User },
-];
-
-const STUDIO_ROUTES = new Set<Route["page"]>(["mock", "speak", "listen", "examread", "essay", "real", "drill", "expr", "reflow", "read"]);
-
-/** Five unified pillars across desktop & mobile: 今日 / 应试 / 词库 / 语法 / 我的. */
-const navOn = (current: Route["page"], tab: Route["page"]) =>
-  current === tab ||
-  (tab === "today" && (current === "learn" || current === "lounge")) ||
-  (tab === "practice" && STUDIO_ROUTES.has(current)) ||
-  (tab === "dict" && (current === "atlas" || current === "decks" || current === "compare")) ||
-  (tab === "grammar" && current === "conj") ||
-  (tab === "me" && current === "about");
-
 function useTheme() {
   const theme = useStore((s) => s.settings.theme);
   useEffect(() => {
@@ -73,7 +56,7 @@ function useTheme() {
     if (theme === "system") root.removeAttribute("data-theme");
     else root.setAttribute("data-theme", theme);
     const dark = theme === "dark" || (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0D1120" : "#F6F1E7");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", dark ? "#0F1115" : "#F5F3EF");
   }, [theme]);
   return theme;
 }
@@ -191,15 +174,16 @@ function Shell() {
   const dark = theme === "dark" || (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches);
 
   return (
-    <div className={`app ${focus ? "is-focus" : ""} ${immersiveLounge ? "is-lounge-item" : ""}`}>
+    <div className={`app ${focus ? "is-focus" : ""} ${immersiveLounge ? "is-lounge-item" : ""} ${!focus && !immersiveLounge ? "has-sidebar" : ""}`}>
+      {!focus && !immersiveLounge && <Sidebar page={route.page} dark={dark} onSearch={() => setPalette(true)} />}
       {!focus && (
         <header className="topbar">
           <a className="topbar-logo" href="#/" aria-label="法语词光首页">
             <Logo />
           </a>
           <nav className="topnav" aria-label="主导航">
-            {MAIN_NAV.map(({ page, label }) => (
-              <a key={page} href={page === "today" ? "#/" : `#/${page}`} className={navOn(route.page, page) ? "is-on" : ""} aria-current={navOn(route.page, page) ? "page" : undefined}>
+            {MAIN_NAV.map(({ page, label, href }) => (
+              <a key={page} href={href} className={navOn(route.page, page) ? "is-on" : ""} aria-current={navOn(route.page, page) ? "page" : undefined}>
                 {label}
               </a>
             ))}
@@ -239,7 +223,7 @@ function Shell() {
         }>
           {route.page === "today" && <Today />}
           {route.page === "atlas" && <AtlasPage route={route} />}
-          {route.page === "dict" && <Dict word={route.w} query={route.q} />}
+          {route.page === "dict" && <Dict word={route.w} query={route.q} tab={route.tab} />}
           {route.page === "learn" && <Learn />}
           {route.page === "practice" && <Practice />}
           {route.page === "mock" && <MockExam onExit={() => go({ page: "practice" })} />}
@@ -277,8 +261,8 @@ function Shell() {
 
       {!focus && !immersiveLounge && (
         <nav className="tabbar" aria-label="底部主导航">
-          {MAIN_NAV.map(({ page, label, icon: Icon }) => (
-            <a key={page} href={page === "today" ? "#/" : `#/${page}`} className={navOn(route.page, page) ? "is-on" : ""} aria-current={navOn(route.page, page) ? "page" : undefined}>
+          {MAIN_NAV.map(({ page, label, href, icon: Icon }) => (
+            <a key={page} href={href} className={navOn(route.page, page) ? "is-on" : ""} aria-current={navOn(route.page, page) ? "page" : undefined}>
               <Icon size={22} strokeWidth={navOn(route.page, page) ? 2.1 : 1.7} />
               <span>{label}</span>
             </a>

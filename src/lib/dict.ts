@@ -24,6 +24,18 @@ export interface DictEntry {
   ipa?: string;
   zh?: DictGloss[];
   ex?: DictExample[];
+  /** Grammatical gender of this part of speech (nouns). */
+  g?: "m" | "f" | "mf";
+  /** Lemma-wide fields below are only set on the first hit of a LexEntry, so multi-POS words never repeat them. */
+  forms?: { f?: string; pl?: string; fpl?: string };
+  /** The verb has a conjugation table (#/dict?w=…&tab=conj). */
+  conj?: boolean;
+  /** [French phrase, Chinese]. */
+  phrases?: [string, string][];
+  /** [French derived word, short hint or ""]. */
+  derived?: [string, string][];
+  syn?: string[];
+  ant?: string[];
 }
 
 export interface DictHit extends DictEntry {
@@ -59,6 +71,34 @@ function findHighlightSpan(sentence: string, word: string): [number, number] {
   return idx >= 0 ? [idx, idx + word.length] : [0, 0];
 }
 
+const words = (list: readonly unknown[] | undefined): string[] =>
+  [...new Set((list ?? []).filter((x): x is string => typeof x === "string").map((x) => x.trim()).filter(Boolean))];
+
+/** Fields that belong to the lemma rather than to one part of speech (attached to the first hit only). */
+function lemmaFields(entry: LexEntry): Partial<DictEntry> {
+  const out: Partial<DictEntry> = {};
+  const forms = entry.forms;
+  if (forms && (forms.f || forms.pl || forms.fpl)) {
+    out.forms = {
+      ...(forms.f ? { f: forms.f } : {}),
+      ...(forms.pl ? { pl: forms.pl } : {}),
+      ...(forms.fpl ? { fpl: forms.fpl } : {}),
+    };
+  }
+  if (entry.conj) out.conj = true;
+  const phrases = (entry.phrases ?? [])
+    .filter((p) => p && typeof p.fr === "string" && p.fr.trim())
+    .map((p): [string, string] => [p.fr.trim(), (p.zh ?? "").trim()]);
+  if (phrases.length) out.phrases = phrases;
+  const derived = words(entry.derived).map((w): [string, string] => [w, ""]);
+  if (derived.length) out.derived = derived;
+  const syn = words(entry.syn);
+  if (syn.length) out.syn = syn;
+  const ant = words(entry.ant);
+  if (ant.length) out.ant = ant;
+  return out;
+}
+
 export function lexEntryToDictHits(entry: LexEntry, form?: string): DictHit[] {
   const blocks = entry.pos.length ? entry.pos : [{ p: "", senses: [] }];
   const hits: DictHit[] = [];
@@ -91,7 +131,9 @@ export function lexEntryToDictHits(entry: LexEntry, form?: string): DictHit[] {
       ...(entry.ipa ? { ipa: entry.ipa } : {}),
       ...(zh.length ? { zh } : {}),
       ...(ex.length ? { ex } : {}),
+      ...("g" in pb && pb.g ? { g: pb.g } : {}),
       ...(form ? { form } : {}),
+      ...(hits.length === 0 ? lemmaFields(entry) : {}),
     });
   }
   return hits;

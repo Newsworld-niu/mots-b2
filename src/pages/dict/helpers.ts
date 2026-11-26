@@ -1,8 +1,18 @@
+import type { Atlas } from "../../atlas/types";
 import { damerauLevenshtein, type ZhHit } from "../../lib/lexdb/search";
-import { lexdbFold, type Conf, type LexEntry, type LexExample, type LexSuggestRow, type SourceId } from "../../lib/lexdb/types";
-import { LEXDB_FIXTURES } from "../../ui/WordPopup";
+import {
+  lexdbFold,
+  type Conf,
+  type LexEntry,
+  type LexExample,
+  type LexHintTuple,
+  type LexSuggestRow,
+  type SourceId,
+} from "../../lib/lexdb/types";
+import { exactHeadwordKey, findExact } from "../../store/decks";
+import { LEXDB_FIXTURES } from "../../lib/lexdb/fixtures";
 
-export type DictTab = "zh" | "conj" | "phrases" | "examples" | "relations" | "fr" | "etym" | "notes";
+export type { DictTab } from "../../lib/router";
 
 export const DICT_DECK = "阅读生词";
 export const SAMPLE_WORDS = ["prendre", "beau", "accueil", "être", "faire", "temps"];
@@ -10,6 +20,7 @@ export const SAMPLE_WORDS = ["prendre", "beau", "accueil", "être", "faire", "te
 export const POS_ZH: Record<string, string> = {
   "n.m.": "阳性名词",
   "n.f.": "阴性名词",
+  "n.m./f.": "阴阳同形名词",
   "n.": "名词",
   "v.": "动词",
   "adj.": "形容词",
@@ -29,6 +40,9 @@ export const SOURCE_LABEL: Record<SourceId, string> = {
   omw: "OMW",
   tatoeba: "Tatoeba",
   lexique: "Lexique",
+  morphynet: "MorphyNet",
+  cnrtl: "CNRTL",
+  frdic: "法语助手",
   ai: "AI",
   "ai-reviewed": "AI 复核",
   user: "用户",
@@ -125,4 +139,22 @@ export function fixtureDidYouMean(q: string, limit = 5): LexSuggestRow[] {
     .sort((a, b) => a.dist - b.dist || a.row[2] - b.row[2])
     .slice(0, limit)
     .map((x) => x.row);
+}
+
+/** [pos, shortZh] for a related word from what is already in memory (exact-accent atlas match, then LexDB fixtures). */
+export function memoryHint(atlas: Atlas | null, w: string): LexHintTuple | null {
+  const ref = atlas ? findExact(atlas, w)[0] : undefined;
+  if (ref?.zh) return [ref.pos?.[0] ?? "", ref.zh.slice(0, 16)];
+  const ek = exactHeadwordKey(w);
+  const fx = LEXDB_FIXTURES.find((e) => exactHeadwordKey(e.w) === ek || e.id === ek);
+  if (fx) {
+    const zh = fx.pos[0]?.senses[0]?.zh ?? "";
+    if (zh || fx.pos[0]?.p) return [fx.pos[0]?.p ?? "", zh.slice(0, 16)];
+  }
+  return null;
+}
+
+/** Unique related words of an entry, in display order (派生, 近义, 反义). */
+export function relationWords(entry: Pick<LexEntry, "derived" | "syn" | "ant">): string[] {
+  return [...new Set([...(entry.derived ?? []), ...(entry.syn ?? []), ...(entry.ant ?? [])])];
 }

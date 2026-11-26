@@ -66,16 +66,9 @@
     { "fr": "à tout prendre", "zh": "总而言之；权衡起来", "src": "wikt-fr", "conf": 1 },
     { "fr": "se prendre pour", "zh": "自以为是……", "src": "wikt-fr", "conf": 1 }
   ],
-  "syn": ["emprunter", "attraper", "saisir"],
-  "derived": [
-    "apprendre",
-    "comprendre",
-    "entreprendre",
-    "reprendre",
-    "surprendre",
-    "à prendre ou à laisser",
-    "à tout prendre"
-  ],
+  "syn": ["saisir", "attraper", "emprunter"],
+  "ant": ["laisser", "lâcher", "rendre"],
+  "derived": ["prise", "preneur", "apprendre", "comprendre", "reprendre", "surprendre", "entreprendre"],
   "frDefs": [
     {
       "p": "v.",

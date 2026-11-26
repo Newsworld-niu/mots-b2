@@ -1,0 +1,2237 @@
+{
+  "generated": "2026-11-25",
+  "method": "scripts/lexdb/enrich-relations.py over the shipped public/lexdb baseline (ids, senses, examples, phrases, frDefs, zh/, suggest/ unchanged)",
+  "coverage_before": {
+    "all": {
+      "n": 41077,
+      "derived": 19187,
+      "derived_pct": 46.71,
+      "derived_items": 64302,
+      "derived_resolved_pct": 13.85,
+      "derived_multiword_pct": 51.64,
+      "syn": 13532,
+      "syn_pct": 32.94,
+      "syn_items": 31949,
+      "syn_resolved_pct": 59.07,
+      "ant": 3771,
+      "ant_pct": 9.18,
+      "ant_items": 6327,
+      "ant_resolved_pct": 72.86
+    },
+    "atlas_linked": {
+      "n": 7228,
+      "derived": 4837,
+      "derived_pct": 66.92,
+      "derived_items": 22539,
+      "derived_resolved_pct": 14.49,
+      "derived_multiword_pct": 59.91,
+      "syn": 3108,
+      "syn_pct": 43.0,
+      "syn_items": 9138,
+      "syn_resolved_pct": 67.09,
+      "ant": 1072,
+      "ant_pct": 14.83,
+      "ant_items": 2197,
+      "ant_resolved_pct": 83.25
+    },
+    "b2": {
+      "n": 3254,
+      "derived": 1555,
+      "derived_pct": 47.79,
+      "derived_items": 6049,
+      "derived_resolved_pct": 16.94,
+      "derived_multiword_pct": 51.02,
+      "syn": 1056,
+      "syn_pct": 32.45,
+      "syn_items": 2695,
+      "syn_resolved_pct": 65.79,
+      "ant": 367,
+      "ant_pct": 11.28,
+      "ant_items": 675,
+      "ant_resolved_pct": 76.0
+    },
+    "resolution_pct_all_relations": 31.57
+  },
+  "coverage_after": {
+    "all": {
+      "n": 41077,
+      "derived": 24595,
+      "derived_pct": 59.88,
+      "derived_items": 86790,
+      "derived_resolved_pct": 100.0,
+      "derived_multiword_pct": 0.0,
+      "syn": 16327,
+      "syn_pct": 39.75,
+      "syn_items": 40598,
+      "syn_resolved_pct": 100.0,
+      "ant": 3571,
+      "ant_pct": 8.69,
+      "ant_items": 7137,
+      "ant_resolved_pct": 100.0
+    },
+    "atlas_linked": {
+      "n": 7228,
+      "derived": 5040,
+      "derived_pct": 69.73,
+      "derived_items": 24586,
+      "derived_resolved_pct": 100.0,
+      "derived_multiword_pct": 0.0,
+      "syn": 5350,
+      "syn_pct": 74.02,
+      "syn_items": 18540,
+      "syn_resolved_pct": 100.0,
+      "ant": 1485,
+      "ant_pct": 20.55,
+      "ant_items": 4051,
+      "ant_resolved_pct": 100.0
+    },
+    "b2": {
+      "n": 3254,
+      "derived": 1779,
+      "derived_pct": 54.67,
+      "derived_items": 7763,
+      "derived_resolved_pct": 100.0,
+      "derived_multiword_pct": 0.0,
+      "syn": 2587,
+      "syn_pct": 79.5,
+      "syn_items": 8759,
+      "syn_resolved_pct": 100.0,
+      "ant": 578,
+      "ant_pct": 17.76,
+      "ant_items": 1629,
+      "ant_resolved_pct": 100.0
+    },
+    "resolution_pct_all_relations": 100.0
+  },
+  "atlas_cards_before": {
+    "n": 7376,
+    "fam": 76,
+    "syn": 3282,
+    "ant": 34,
+    "fam_items": 138,
+    "syn_items": 6410,
+    "ant_items": 35
+  },
+  "atlas_cards_after": {
+    "n": 7376,
+    "fam": 5030,
+    "syn": 4531,
+    "ant": 893,
+    "fam_items": 16336,
+    "syn_items": 11065,
+    "ant_items": 2631
+  },
+  "atlas_propagation": {
+    "syn_cards": 1837,
+    "syn_items": 4655,
+    "fam_cards": 5010,
+    "fam_items": 16198,
+    "ant_cards": 860,
+    "ant_items": 2596
+  },
+  "crawl_status": {
+    "cnrtl": {
+      "ok": 758,
+      "empty": 25,
+      "miss": 7
+    },
+    "frdic": {
+      "ok": 22
+    }
+  },
+  "lineage_contributions": {
+    "ant:atlas": 32,
+    "ant:cnrtl": 2164,
+    "ant:frdic": 109,
+    "ant:omw": 975,
+    "ant:wikt:kaikki": 1102,
+    "ant:wikt:shipped": 4534,
+    "derived:atlas": 2939,
+    "derived:atlas:peer": 1740,
+    "derived:cnrtl": 15655,
+    "derived:frdic": 226,
+    "derived:wikt:kaikki": 56217,
+    "derived:wikt:morphynet": 62891,
+    "derived:wikt:shipped": 30947,
+    "syn:atlas": 4224,
+    "syn:cnrtl": 5251,
+    "syn:frdic": 164,
+    "syn:omw": 16108,
+    "syn:wikt:kaikki": 5543,
+    "syn:wikt:shipped": 18428
+  },
+  "hints_words": 29635,
+  "size": {
+    "public_lexdb_bytes": 74615409,
+    "public_lexdb_mib": 71.16,
+    "max_shard": {
+      "path": "suggest/f.json",
+      "bytes": 401013
+    },
+    "max_hints_shard_bytes": 159844
+  },
+  "spot_check": {
+    "heureux": {
+      "w": "heureux",
+      "derived": [
+        {
+          "w": "malheureux",
+          "lineages": [
+            "atlas",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "heureusement",
+          "lineages": [
+            "frdic",
+            "wikt:kaikki",
+            "wikt:morphynet",
+            "wikt:shipped"
+          ],
+          "direct": true
+        },
+        {
+          "w": "heur",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet",
+            "wikt:shipped"
+          ],
+          "direct": true
+        },
+        {
+          "w": "bonheur",
+          "lineages": [
+            "wikt:kaikki",
+            "wikt:shipped"
+          ],
+          "direct": true
+        },
+        {
+          "w": "bienheureux",
+          "lineages": [
+            "wikt:kaikki"
+          ],
+          "direct": true
+        },
+        {
+          "w": "malheur",
+          "lineages": [
+            "wikt:morphynet"
+          ],
+          "direct": false
+        },
+        {
+          "w": "malheureusement",
+          "lineages": [
+            "wikt:kaikki",
+            "wikt:morphynet",
+            "wikt:shipped"
+          ],
+          "direct": false
+        },
+        {
+          "w": "bienheureusement",
+          "lineages": [
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": false
+        }
+      ],
+      "syn": [
+        {
+          "w": "content",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:kaikki",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "bienheureux",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "bon",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:kaikki"
+          ]
+        },
+        {
+          "w": "enchanté",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "ravi",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "radieux",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "satisfait",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "joyeux",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ],
+      "ant": [
+        {
+          "w": "malheureux",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:kaikki",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "triste",
+          "lineages": [
+            "cnrtl",
+            "omw",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "chagrin",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "amer",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "désespéré",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "fatal",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ]
+    },
+    "bonheur": {
+      "w": "bonheur",
+      "derived": [
+        {
+          "w": "bon",
+          "lineages": [
+            "atlas",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "heureux",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet",
+            "wikt:shipped"
+          ],
+          "direct": true
+        },
+        {
+          "w": "heureusement",
+          "lineages": [
+            "frdic",
+            "wikt:kaikki",
+            "wikt:morphynet",
+            "wikt:shipped"
+          ],
+          "direct": false
+        },
+        {
+          "w": "heur",
+          "lineages": [
+            "wikt:shipped"
+          ],
+          "direct": true
+        },
+        {
+          "w": "malheur",
+          "lineages": [
+            "wikt:morphynet"
+          ],
+          "direct": false
+        },
+        {
+          "w": "malheureux",
+          "lineages": [
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": false
+        },
+        {
+          "w": "bienheureux",
+          "lineages": [
+            "wikt:kaikki"
+          ],
+          "direct": false
+        }
+      ],
+      "syn": [
+        {
+          "w": "béatitude",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "bien-être",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "prospérité",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "euphorie",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "joie",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "félicité",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "plaisir",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "chance",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ],
+      "ant": [
+        {
+          "w": "malheur",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:kaikki",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "malchance",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "adversité",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "mal",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "peine",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "douleur",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ]
+    },
+    "accueil": {
+      "w": "accueil",
+      "derived": [
+        {
+          "w": "accueillir",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki"
+          ],
+          "direct": true
+        },
+        {
+          "w": "accueillant",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:shipped"
+          ],
+          "direct": true
+        }
+      ],
+      "syn": [
+        {
+          "w": "réception",
+          "lineages": [
+            "atlas",
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "abord",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "hospitalité",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "entrée",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "hébergement",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "bienvenue",
+          "lineages": [
+            "atlas",
+            "cnrtl"
+          ]
+        },
+        {
+          "w": "accès",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "traitement",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ],
+      "ant": [
+        {
+          "w": "expulsion",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "ostracisme",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "bannissement",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ]
+    },
+    "beau": {
+      "w": "beau",
+      "derived": [
+        {
+          "w": "beauté",
+          "lineages": [
+            "atlas",
+            "cnrtl",
+            "frdic",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "beaucoup",
+          "lineages": [
+            "atlas",
+            "wikt:kaikki"
+          ],
+          "direct": true
+        },
+        {
+          "w": "embellir",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki"
+          ],
+          "direct": true
+        },
+        {
+          "w": "belette",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki"
+          ],
+          "direct": true
+        },
+        {
+          "w": "embellie",
+          "lineages": [
+            "cnrtl",
+            "wikt:shipped"
+          ],
+          "direct": false
+        },
+        {
+          "w": "embellissement",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet",
+            "wikt:shipped"
+          ],
+          "direct": false
+        },
+        {
+          "w": "beau-père",
+          "lineages": [
+            "frdic"
+          ],
+          "direct": true
+        },
+        {
+          "w": "beau-frère",
+          "lineages": [
+            "frdic"
+          ],
+          "direct": true
+        },
+        {
+          "w": "belle-mère",
+          "lineages": [
+            "frdic"
+          ],
+          "direct": true
+        },
+        {
+          "w": "belle-sœur",
+          "lineages": [
+            "frdic"
+          ],
+          "direct": true
+        }
+      ],
+      "syn": [
+        {
+          "w": "élégant",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "grand",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "joli",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "admirable",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "bien",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "distingué",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "superbe",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "plaisant",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ],
+      "ant": [
+        {
+          "w": "laid",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "affreux",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "atroce",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "hideux",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "moche",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "mauvais",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ]
+    },
+    "prendre": {
+      "w": "prendre",
+      "derived": [
+        {
+          "w": "prise",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "reprendre",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "preneur",
+          "lineages": [
+            "cnrtl",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "déprendre",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "désapprendre",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "prenable",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "surprise",
+          "lineages": [
+            "cnrtl",
+            "wikt:shipped"
+          ],
+          "direct": false
+        },
+        {
+          "w": "reprise",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": false
+        },
+        {
+          "w": "surpris",
+          "lineages": [
+            "cnrtl",
+            "wikt:shipped"
+          ],
+          "direct": false
+        },
+        {
+          "w": "surprenant",
+          "lineages": [
+            "cnrtl",
+            "wikt:shipped"
+          ],
+          "direct": false
+        }
+      ],
+      "syn": [
+        {
+          "w": "emprunter",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "attraper",
+          "lineages": [
+            "cnrtl",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "enlever",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "dérober",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "emporter",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "absorber",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "occuper",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "adopter",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        }
+      ],
+      "ant": [
+        {
+          "w": "donner",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "laisser",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "perdre",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "quitter",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "jeter",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "abandonner",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ]
+    },
+    "triste": {
+      "w": "triste",
+      "derived": [
+        {
+          "w": "tristesse",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "attristant",
+          "lineages": [
+            "cnrtl",
+            "wikt:shipped"
+          ],
+          "direct": false
+        },
+        {
+          "w": "attrister",
+          "lineages": [
+            "cnrtl"
+          ],
+          "direct": true
+        },
+        {
+          "w": "tristement",
+          "lineages": [
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "tristounet",
+          "lineages": [
+            "cnrtl"
+          ],
+          "direct": true
+        },
+        {
+          "w": "tristouille",
+          "lineages": [
+            "cnrtl"
+          ],
+          "direct": true
+        },
+        {
+          "w": "attristé",
+          "lineages": [
+            "cnrtl"
+          ],
+          "direct": false
+        },
+        {
+          "w": "tristouillard",
+          "lineages": [
+            "cnrtl"
+          ],
+          "direct": false
+        }
+      ],
+      "syn": [
+        {
+          "w": "malheureux",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:kaikki"
+          ]
+        },
+        {
+          "w": "chagrin",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "lamentable",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "sombre",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "sinistre",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "morne",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "déplorable",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "navrant",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ],
+      "ant": [
+        {
+          "w": "heureux",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:kaikki"
+          ]
+        },
+        {
+          "w": "content",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:kaikki",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "joyeux",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:kaikki"
+          ]
+        },
+        {
+          "w": "gai",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:kaikki",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "réjoui",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:kaikki"
+          ]
+        },
+        {
+          "w": "drôle",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ]
+    },
+    "grand": {
+      "w": "grand",
+      "derived": [
+        {
+          "w": "agrandissement",
+          "lineages": [
+            "atlas",
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet",
+            "wikt:shipped"
+          ],
+          "direct": true
+        },
+        {
+          "w": "grandeur",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "grandir",
+          "lineages": [
+            "atlas",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "agrandir",
+          "lineages": [
+            "atlas",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "grandet",
+          "lineages": [
+            "cnrtl",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "grandissime",
+          "lineages": [
+            "cnrtl",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "agrandisseur",
+          "lineages": [
+            "cnrtl",
+            "wikt:morphynet",
+            "wikt:shipped"
+          ],
+          "direct": false
+        },
+        {
+          "w": "grand-père",
+          "lineages": [
+            "frdic"
+          ],
+          "direct": true
+        },
+        {
+          "w": "grand-mère",
+          "lineages": [
+            "frdic"
+          ],
+          "direct": true
+        },
+        {
+          "w": "grands-parents",
+          "lineages": [
+            "frdic"
+          ],
+          "direct": true
+        }
+      ],
+      "syn": [
+        {
+          "w": "considérable",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "ample",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "étendu",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "gros",
+          "lineages": [
+            "cnrtl",
+            "omw",
+            "wikt:kaikki",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "beau",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "fort",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "abondant",
+          "lineages": [
+            "cnrtl",
+            "omw",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "énorme",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ],
+      "ant": [
+        {
+          "w": "court",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "faible",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "bref",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "médiocre",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "exigu",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "minime",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        }
+      ]
+    },
+    "tache": {
+      "w": "tache",
+      "derived": [
+        {
+          "w": "entacher",
+          "lineages": [
+            "cnrtl",
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "tachiste",
+          "lineages": [
+            "cnrtl",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "tacheter",
+          "lineages": [
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "détachant",
+          "lineages": [
+            "cnrtl"
+          ],
+          "direct": false
+        },
+        {
+          "w": "entaché",
+          "lineages": [
+            "cnrtl"
+          ],
+          "direct": false
+        },
+        {
+          "w": "détacheur",
+          "lineages": [
+            "cnrtl"
+          ],
+          "direct": false
+        }
+      ],
+      "syn": [
+        {
+          "w": "salissure",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "souillure",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "flétrissure",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "faute",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "bavure",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "moucheture",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "marque",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "macule",
+          "lineages": [
+            "cnrtl",
+            "omw"
+          ]
+        }
+      ],
+      "ant": []
+    },
+    "tache#2": {
+      "w": "tâche",
+      "derived": [
+        {
+          "w": "tâcheron",
+          "lineages": [
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        },
+        {
+          "w": "multitâche",
+          "lineages": [
+            "wikt:kaikki",
+            "wikt:morphynet"
+          ],
+          "direct": true
+        }
+      ],
+      "syn": [
+        {
+          "w": "travail",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "mission",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw",
+            "wikt:shipped"
+          ]
+        },
+        {
+          "w": "devoir",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "occupation",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "fonction",
+          "lineages": [
+            "cnrtl",
+            "frdic",
+            "omw"
+          ]
+        },
+        {
+          "w": "besogne",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "corvée",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        },
+        {
+          "w": "labeur",
+          "lineages": [
+            "cnrtl",
+            "frdic"
+          ]
+        }
+      ],
+      "ant": [
+        {
+          "w": "repos",
+          "lineages": [
+            "frdic"
+          ]
+        }
+      ]
+    }
+  },
+  "quality_eval": {
+    "method": "Stratified 30-word sample (md5(id) order): 10 Atlas A1/A2 single words, 10 B2-level, 10 non-Atlas rank > 15,000. Every derived/syn/ant item judged by hand (Claude review) as wrong/misleading for a learner or acceptable.",
+    "items": 217,
+    "judged_wrong": 19,
+    "precision_pct": 91.2,
+    "main_error_types": [
+      "homograph stems in morphological graphs (bras ~ brasser, arriver ~ river, tache ~ attacher)",
+      "WordNet antonym projections across senses (comptable ~ massif)",
+      "obsolete/regional Wiktionary synonyms when nothing better exists (bras ~ brandillon)"
+    ],
+    "strata": {
+      "atlas_A1A2": {
+        "items": 115,
+        "judged_wrong": 14,
+        "precision_pct": 87.8,
+        "empty_entries": 1,
+        "words": [
+          {
+            "w": "pitié",
+            "rank": 1040,
+            "derived": [
+              "pitoyable",
+              "apitoyer",
+              "impitoyable",
+              "apitoiement",
+              "pitoyablement"
+            ],
+            "syn": [
+              "miséricorde",
+              "compassion",
+              "merci",
+              "humanité",
+              "indulgence",
+              "sensibilité",
+              "commisération",
+              "charité"
+            ],
+            "ant": [
+              "cruauté",
+              "dureté",
+              "inhumanité"
+            ],
+            "judged_wrong": {}
+          },
+          {
+            "w": "technique",
+            "rank": 3540,
+            "derived": [
+              "technicien",
+              "technologie",
+              "polytechnique",
+              "techniquement",
+              "technicité",
+              "psychotechnique",
+              "biotechnique",
+              "technologique",
+              "polytechnicien",
+              "nanotechnologie"
+            ],
+            "syn": [
+              "méthode",
+              "technologie",
+              "compétence",
+              "technologique",
+              "ingénierie"
+            ],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "scolaire",
+            "rank": 4244,
+            "derived": [
+              "scolarité",
+              "scolarisation",
+              "parascolaire",
+              "scolairement",
+              "préscolaire"
+            ],
+            "syn": [],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "bras",
+            "rank": 260,
+            "derived": [
+              "embrasser",
+              "brasser",
+              "brassière",
+              "embrasse",
+              "embrassade",
+              "embrassement",
+              "brassage",
+              "brasseur",
+              "embrasseur",
+              "bracelet"
+            ],
+            "syn": [
+              "brandillon",
+              "bradillon"
+            ],
+            "ant": [],
+            "judged_wrong": {
+              "derived": [
+                "brasser",
+                "brassage",
+                "brasseur"
+              ],
+              "syn": [
+                "brandillon",
+                "bradillon"
+              ]
+            },
+            "note": "brasser/brassage/brasseur belong to the homograph stem brasser (to brew, < brais), not bras; brandillon/bradillon are obsolete Wiktionary synonyms"
+          },
+          {
+            "w": "accompagner",
+            "rank": 686,
+            "derived": [
+              "raccompagner",
+              "accompagnement",
+              "accompagnateur",
+              "compagnie",
+              "accompagnant"
+            ],
+            "syn": [
+              "escorter",
+              "chaperonner",
+              "convoyer",
+              "suivre",
+              "surveiller",
+              "conduire",
+              "protéger",
+              "assister"
+            ],
+            "ant": [
+              "quitter",
+              "abandonner",
+              "précéder",
+              "succéder"
+            ],
+            "judged_wrong": {
+              "syn": [
+                "surveiller"
+              ],
+              "ant": [
+                "succéder"
+              ]
+            }
+          },
+          {
+            "w": "dos",
+            "rank": 475,
+            "derived": [
+              "dossier",
+              "adosser",
+              "parados",
+              "dossard",
+              "intrados",
+              "adossé",
+              "dosseret"
+            ],
+            "syn": [
+              "dossier"
+            ],
+            "ant": [
+              "devant",
+              "face",
+              "ventre"
+            ],
+            "judged_wrong": {
+              "syn": [
+                "dossier"
+              ]
+            }
+          },
+          {
+            "w": "généreux",
+            "rank": 2489,
+            "derived": [
+              "généreusement"
+            ],
+            "syn": [
+              "bon",
+              "noble",
+              "copieux",
+              "ample",
+              "abondant",
+              "beau"
+            ],
+            "ant": [
+              "égoïste",
+              "avare",
+              "radin",
+              "mesquin"
+            ],
+            "judged_wrong": {
+              "syn": [
+                "beau",
+                "copieux"
+              ]
+            }
+          },
+          {
+            "w": "s'asseoir",
+            "rank": 232,
+            "derived": [],
+            "syn": [],
+            "ant": [],
+            "judged_wrong": {},
+            "note": "no relation reaches an exact headword (pronominal lemma) — coverage gap"
+          },
+          {
+            "w": "comptable",
+            "rank": 6280,
+            "derived": [
+              "compter",
+              "comptabilité",
+              "compteur",
+              "comptabiliser",
+              "recompter",
+              "décompter",
+              "comptage",
+              "comptabilisation",
+              "acompte",
+              "comptant"
+            ],
+            "syn": [
+              "responsable",
+              "contrôleur",
+              "comptabilité",
+              "correspondant"
+            ],
+            "ant": [
+              "massif"
+            ],
+            "judged_wrong": {
+              "syn": [
+                "comptabilité"
+              ],
+              "ant": [
+                "massif"
+              ]
+            },
+            "note": "massif comes from a WordNet antonym projection (accountable vs massive sense); comptabilité is a noun offered as an adjective synonym"
+          },
+          {
+            "w": "arriver",
+            "rank": 87,
+            "derived": [
+              "arrivée",
+              "arrivage",
+              "arriviste",
+              "arrivisme",
+              "arrivé",
+              "rive",
+              "river",
+              "arrivant",
+              "rivage",
+              "dériver"
+            ],
+            "syn": [
+              "réussir",
+              "atteindre",
+              "parvenir"
+            ],
+            "ant": [],
+            "judged_wrong": {
+              "derived": [
+                "river",
+                "dériver"
+              ]
+            },
+            "note": "rive/rivage are the true etymological base (ad ripam) but river (to rivet) and dériver are homograph leaks"
+          }
+        ]
+      },
+      "b2": {
+        "items": 82,
+        "judged_wrong": 4,
+        "precision_pct": 95.1,
+        "empty_entries": 1,
+        "words": [
+          {
+            "w": "couronnement",
+            "rank": 10816,
+            "derived": [
+              "couronner",
+              "couronne",
+              "couronné"
+            ],
+            "syn": [
+              "sacre",
+              "apogée",
+              "consécration",
+              "intronisation",
+              "parachèvement",
+              "couronne"
+            ],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "terreau",
+            "rank": 11569,
+            "derived": [
+              "terrain",
+              "terre",
+              "terreux",
+              "terrien",
+              "terrier",
+              "terrasse",
+              "atterrir",
+              "terroir",
+              "parterre",
+              "terrer"
+            ],
+            "syn": [
+              "humus",
+              "substrat",
+              "pisé"
+            ],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "recoller",
+            "rank": 9648,
+            "derived": [
+              "coller",
+              "collage",
+              "colleur",
+              "décoller",
+              "recollage",
+              "collant",
+              "copier-coller",
+              "collation",
+              "décollement",
+              "encoller"
+            ],
+            "syn": [
+              "réassembler"
+            ],
+            "ant": [],
+            "judged_wrong": {
+              "derived": [
+                "collation"
+              ]
+            },
+            "note": "collation is not from coller (CNRTL family neighbour)"
+          },
+          {
+            "w": "judaïsme",
+            "rank": 17349,
+            "derived": [],
+            "syn": [],
+            "ant": [],
+            "judged_wrong": {},
+            "note": "no source lists a headword-level relation"
+          },
+          {
+            "w": "entêté",
+            "rank": 17044,
+            "derived": [
+              "entêtement"
+            ],
+            "syn": [
+              "têtu",
+              "obstiné"
+            ],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "capitulation",
+            "rank": 7466,
+            "derived": [
+              "capituler",
+              "récapituler",
+              "récapitulatif"
+            ],
+            "syn": [
+              "reddition",
+              "abandon",
+              "démission"
+            ],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "scier",
+            "rank": 5276,
+            "derived": [
+              "scie",
+              "scieur",
+              "sciage",
+              "sciure",
+              "scierie",
+              "couteau-scie"
+            ],
+            "syn": [
+              "découper",
+              "couper",
+              "tronçonner",
+              "estomaquer",
+              "fendre",
+              "débiter"
+            ],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "irriter",
+            "rank": 3258,
+            "derived": [
+              "irritation",
+              "irritant",
+              "irritable",
+              "irritabilité"
+            ],
+            "syn": [
+              "agacer",
+              "exaspérer",
+              "exciter",
+              "turlupiner",
+              "fâcher",
+              "attiser",
+              "indisposer",
+              "énerver"
+            ],
+            "ant": [
+              "calmer",
+              "apaiser",
+              "diminuer",
+              "adoucir",
+              "attendrir",
+              "amortir"
+            ],
+            "judged_wrong": {
+              "ant": [
+                "diminuer",
+                "amortir"
+              ]
+            }
+          },
+          {
+            "w": "trouillard",
+            "rank": 10473,
+            "derived": [
+              "trouille",
+              "trouillomètre"
+            ],
+            "syn": [
+              "peureux",
+              "lâche",
+              "froussard",
+              "pétochard"
+            ],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "circonférence",
+            "rank": 17936,
+            "derived": [],
+            "syn": [
+              "périmètre",
+              "tour",
+              "révolution",
+              "contour"
+            ],
+            "ant": [],
+            "judged_wrong": {
+              "syn": [
+                "révolution"
+              ]
+            }
+          }
+        ]
+      },
+      "rare_gt15k": {
+        "items": 20,
+        "judged_wrong": 1,
+        "precision_pct": 95.0,
+        "empty_entries": 2,
+        "words": [
+          {
+            "w": "grappillage",
+            "rank": 37173,
+            "derived": [
+              "grappiller"
+            ],
+            "syn": [
+              "glanage"
+            ],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "insecticide",
+            "rank": 17335,
+            "derived": [
+              "insecte",
+              "désinsectisation"
+            ],
+            "syn": [],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "recommencement",
+            "rank": 21448,
+            "derived": [
+              "recommencer",
+              "commencement"
+            ],
+            "syn": [],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "logarithme",
+            "rank": 25967,
+            "derived": [],
+            "syn": [],
+            "ant": [],
+            "judged_wrong": {},
+            "note": "no source lists a headword-level relation"
+          },
+          {
+            "w": "khédival",
+            "rank": 37481,
+            "derived": [
+              "khédive"
+            ],
+            "syn": [],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "larder",
+            "rank": 18386,
+            "derived": [
+              "lard",
+              "entrelarder",
+              "lardon",
+              "entrelardé",
+              "lardeux"
+            ],
+            "syn": [
+              "piquer"
+            ],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "dalmatien",
+            "rank": 24773,
+            "derived": [],
+            "syn": [
+              "dalmate"
+            ],
+            "ant": [],
+            "judged_wrong": {
+              "syn": [
+                "dalmate"
+              ]
+            }
+          },
+          {
+            "w": "revaloriser",
+            "rank": 26951,
+            "derived": [
+              "valoriser",
+              "revalorisation",
+              "dévaloriser",
+              "dévalorisation"
+            ],
+            "syn": [],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "snack-bar",
+            "rank": 21832,
+            "derived": [
+              "snack"
+            ],
+            "syn": [
+              "casse-croûte"
+            ],
+            "ant": [],
+            "judged_wrong": {}
+          },
+          {
+            "w": "rassasiant",
+            "rank": 35584,
+            "derived": [],
+            "syn": [],
+            "ant": [],
+            "judged_wrong": {},
+            "note": "no source lists a headword-level relation"
+          }
+        ]
+      }
+    }
+  }
+}

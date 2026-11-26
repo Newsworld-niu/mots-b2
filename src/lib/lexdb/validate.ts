@@ -1,6 +1,7 @@
 import type {
   LexEntry,
   LexFormsShard,
+  LexHintsShard,
   LexMeta,
   LexPos,
   LexSense,
@@ -42,6 +43,7 @@ export function validateLexMeta(x: unknown): LexMeta | null {
   if (!isObj(x.counts) || !isFiniteNum(x.counts.lemmas) || !isFiniteNum(x.counts.withZh)) return null;
   if (x.suggestShards !== undefined && typeof x.suggestShards !== "boolean") return null;
   if (x.suggestSplits !== undefined && (!Array.isArray(x.suggestSplits) || !x.suggestSplits.every(isStr))) return null;
+  if (x.hintsShards !== undefined && typeof x.hintsShards !== "boolean") return null;
   return x as unknown as LexMeta;
 }
 
@@ -68,7 +70,53 @@ export function validateLexEntry(x: unknown): LexEntry | null {
   if (x.rank !== undefined && !isFiniteNum(x.rank)) return null;
   if (x.ipa !== undefined && !isStr(x.ipa)) return null;
   if (x.phrases !== undefined && !Array.isArray(x.phrases)) return null;
-  return x as unknown as LexEntry;
+  const out = x as unknown as LexEntry;
+  // Related-word lists are rendered as chips everywhere: keep only clean non-empty strings, drop malformed lists.
+  let copy: LexEntry | null = null;
+  for (const k of RELATION_KEYS) {
+    const raw = x[k];
+    if (raw === undefined) continue;
+    const clean = cleanWordList(raw);
+    if (Array.isArray(raw) && clean.length === raw.length && raw.every((v, i) => v === clean[i])) continue;
+    copy ??= { ...out };
+    if (clean.length) copy[k] = clean;
+    else delete copy[k];
+  }
+  return copy ?? out;
+}
+
+const RELATION_KEYS = ["syn", "ant", "derived"] as const;
+
+/** Unique trimmed non-empty strings of a relation list; anything that is not an array yields []. */
+export function cleanWordList(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const v of raw) {
+    if (!isStr(v)) continue;
+    const t = v.trim();
+    if (!t || seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+  return out;
+}
+
+/** Validate a related-word hints shard (`hints/<bucket>.json`: word -> [pos, shortZh]). */
+export function validateHintsShard(x: unknown): LexHintsShard | null {
+  if (!isObj(x)) return null;
+  const keys = Object.keys(x);
+  const out: LexHintsShard = {};
+  let kept = 0;
+  for (const k of keys) {
+    if (!k) continue;
+    const raw = x[k];
+    if (!Array.isArray(raw) || raw.length < 2 || !isStr(raw[0]) || !isStr(raw[1])) continue;
+    out[k] = [raw[0], raw[1]];
+    kept++;
+  }
+  if (keys.length > 0 && kept === 0) return null;
+  return out;
 }
 
 /** Validate a lexdb entry shard (`e/<key>.json`), dropping malformed entries cleanly. */

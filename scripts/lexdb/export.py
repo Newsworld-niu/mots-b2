@@ -4,8 +4,13 @@
 Strictly adheres to docs/dictionary/ENTRY_SCHEMA.md and src/lib/lexdb/types.ts.
 Splits 2-letter prefixes into 3-letter shards whenever e/<k2>.json or forms/<k2>.json > 400 KB.
 
+Relation lists written here are only a first pass (single-word `derived`, headword-free caps). Run
+scripts/lexdb/enrich-relations.py afterwards: it re-ranks syn/ant/derived from Wiktionary/MorphyNet, CNRTL, Frdic,
+Atlas and OMW, keeps only exact LexDB/Atlas headwords, re-shards, and refreshes hints/ + meta.json.
+
 Usage:
   python3 scripts/lexdb/export.py [--db data/lexdb/lexdb.sqlite] [--out public/lexdb]
+  python3 scripts/lexdb/enrich-relations.py
 """
 from __future__ import annotations
 
@@ -23,8 +28,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (
     ROOT,
+    SOURCE_DESCRIPTIONS,
+    SOURCE_LICENSES,
     VALID_LEVELS,
     VALID_SOURCES,
+    build_hint_shards,
+    write_hint_shards,
     lexdb_base_key,
     lexdb_fold,
     lexdb_key,
@@ -386,10 +395,11 @@ def main():
             used_sources.add("wikt-fr")
 
         rels = rels_by_lemma.get(lid, {})
-        rel_cap = 6 if rank <= 15000 else 4
-        syn_list = rels.get("syn", [])[:rel_cap]
-        ant_list = rels.get("ant", [])[:rel_cap]
-        derived_list = rels.get("derived", [])[:rel_cap]
+        is_core = rank <= 15000 or bool(lrec["atlas_id"]) or lrec["level"] == "B2"
+        syn_list = list(dict.fromkeys(rels.get("syn", [])))[: 8 if is_core else 5]
+        ant_list = [a for a in dict.fromkeys(rels.get("ant", [])) if a not in syn_list][: 6 if is_core else 4]
+        # derived = single words / lexicalized hyphenated words only; multi-word idioms belong in phrases
+        derived_list = [d for d in dict.fromkeys(rels.get("derived", [])) if " " not in d.strip()][: 10 if is_core else 6]
         confusable_list = rels.get("confusable", [])[:6]
 
         entry: dict = {
@@ -545,25 +555,27 @@ def main():
     top_rows = [list(r) for r in suggest_rows[:3000]]
     (sug_dir / "top.json").write_bytes(compact_json(top_rows))
 
+    # 13b) Write hints/<bucket>.json (relation-target previews; enrich-relations.py rewrites them after re-ranking)
+    fam_words: list[str] = []
+    fam_path = ROOT / "public/atlas/families.json"
+    if fam_path.exists():
+        for g in json.loads(fam_path.read_text(encoding="utf-8")):
+            fam_words += [g.get("name") or ""] + list(g.get("examples") or [])
+    atlas_cards = []
+    if DEFAULT_LEXICON.exists():
+        atlas_cards = [c for c in json.loads(DEFAULT_LEXICON.read_text(encoding="utf-8"))["entries"] if not c.get("aliasOf")]
+    write_hint_shards(out_dir, build_hint_shards(entries, fam_words, atlas_cards))
+
     # 14) Write meta.json
     meta = {
         "version": 1,
         "generated": date.today().isoformat(),
-        "sources": {
-            "atlas": "Mots B2 Atlas (data/lexicon.json)",
-            "lexique": "Lexique 3.83 (CC BY-SA 4.0)",
-            "wikt-fr": "Wiktionnaire fr via wiktextract (CC BY-SA 4.0)",
-            "wikt-zh": "Wiktionary zh / fr-zh (CC BY-SA 4.0)",
-            "cfdict": "CFDICT (CC BY-SA 3.0)",
-            "omw": "WOLF (OMW-fr, CeCILL-C V1) x Chinese Open Wordnet (OMW-cmn)",
-            "tatoeba": "Tatoeba fra-cmn (CC BY 2.0 FR)",
-            "ai": "OpenRouter LLM generation",
-            "ai-reviewed": "OpenRouter cross-model review",
-        },
-        "licenses": ["CC BY-SA 4.0", "CC BY 2.0 FR", "CC BY-SA 3.0", "CeCILL-C V1", "WordNet License"],
+        "sources": dict(SOURCE_DESCRIPTIONS),
+        "licenses": list(SOURCE_LICENSES),
         "splits": splits,
         "suggestShards": True,
         "suggestSplits": suggest_splits,
+        "hintsShards": True,
         "counts": {
             "lemmas": len(entries),
             "withZh": with_zh,
@@ -571,6 +583,9 @@ def main():
             "pilot": len(pilot_ids),
             "phrases": total_phrases,
             "conf": conf_counts,
+            "withDerived": sum(1 for e in entries.values() if e.get("derived")),
+            "withSyn": sum(1 for e in entries.values() if e.get("syn")),
+            "withAnt": sum(1 for e in entries.values() if e.get("ant")),
         },
     }
     (out_dir / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

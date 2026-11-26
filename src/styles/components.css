@@ -545,6 +545,14 @@
   display: inline-flex;
   align-items: center;
 }
+.rel-item .rel-zh {
+  margin-inline-start: 4px;
+  font: 400 12.5px/1.4 var(--sans);
+  color: var(--ink-3);
+}
+.relations a.link {
+  text-decoration: none;
+}
 .memory-note {
   margin-top: 18px;
   font-size: 12.5px;

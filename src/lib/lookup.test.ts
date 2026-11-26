@@ -41,3 +41,36 @@ test("dictionary items become picks in order", () => {
   const picks = frdicPicks([{ kind: "sense", fr: "", zh: "牛油果", pos: "n.m." }, { kind: "syn", fr: "x", zh: "", pos: "" }]);
   assert.deepEqual(picks.map((p) => p.key), ["frdic|0", "frdic|1"]);
 });
+
+test("dictionary phrases, derived, synonyms and antonyms become picks once, with stable keys", async () => {
+  const { lexEntryToDictHits } = await import("./dict.ts");
+  const hits = lexEntryToDictHits({
+    id: "beau",
+    w: "beau",
+    pos: [
+      { p: "adj.", senses: [{ zh: "美丽的", src: ["atlas"], conf: 3 }] },
+      { p: "n.m.", g: "m", senses: [{ zh: "美", src: ["wikt-fr"], conf: 1 }] },
+    ],
+    phrases: [{ fr: "avoir beau", zh: "徒然", src: "wikt-fr", conf: 1 }],
+    derived: ["beauté", "embellir"],
+    syn: ["joli", "joli"],
+    ant: ["laid"],
+    sources: ["atlas"],
+  });
+  const picks = dictPicks(hits);
+  const keys = picks.map((p) => p.key);
+  assert.equal(new Set(keys).size, keys.length);
+  assert.deepEqual(
+    picks.filter((p) => p.kind !== "sense").map((p) => [p.kind, p.key]),
+    [
+      ["phrase", "dict|0|phrase|avoir beau"],
+      ["family", "dict|0|family|beauté"],
+      ["family", "dict|0|family|embellir"],
+      ["syn", "dict|0|syn|joli"],
+      ["ant", "dict|0|ant|laid"],
+    ],
+  );
+  assert.deepEqual(picks.find((p) => p.kind === "phrase")?.zh, "徒然");
+  const seed = buildSeed("beau", picks.filter((p) => p.kind !== "sense"));
+  assert.deepEqual([seed.col, seed.fam, seed.syn, seed.ant], [["avoir beau｜徒然"], ["beauté", "embellir"], ["joli"], ["laid"]]);
+});

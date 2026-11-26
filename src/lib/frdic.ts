@@ -128,15 +128,52 @@ function lineItems(root: Node): FrdicItem[] {
 }
 
 const HEAD = (n: Node) => squash(plainText(n)).replace(/[：:\s]/g, "");
+/**
+ * Which relation a 近义、反义与派生 heading introduces. Headings may contain picture characters (GAP), e.g. 近□词,
+ * 反□词, □容词变化. Inflection rows (形容词变化 / 名词变化) stay "family" like derivations, as before; 联想词 is never a relation.
+ */
+export function relationKind(label: string): FrdicKind | "" {
+  if (!label || /联想/.test(label)) return "";
+  if (/^近[义□]?词$/.test(label) || /近义/.test(label)) return "syn";
+  if (/^反[义□]?词$/.test(label) || /反义/.test(label)) return "ant";
+  if (/派生|同根|衍生|变化|副[词□]?变化|[形□]容词变化|名词变化/.test(label)) return "family";
+  return "";
+}
+/** Plain-text related words between links ("triste, chagrinant、morose"): Latin words only, no Chinese. */
+function plainWords(text: string): string[] {
+  return text
+    .split(/[,，、;；/|]|\u00a0+|\s{2,}/)
+    .map((t) => t.replace(/^[\s.·•-]+|[\s.·•]+$/g, "").trim())
+    .filter((t) => t.length > 1 && t.length <= 60 && LATIN.test(t) && !CJK.test(t) && !/^(?:etc|cf|v|n|adj|adv)$/i.test(t));
+}
 /** 近义、反义与派生: related words, usage patterns and the mnemonic. */
 function relatedItems(root: Node): FrdicItem[] {
   const out: FrdicItem[] = [];
   let label = "";
+  /** Where the current heading sits: loose text words are read only beside it, up to the next block. */
+  let labelParent: Node | null = null;
+  let textOpen = false;
   const walk = (n: Node) => {
+    if (n.nodeType === 3) {
+      const kind = relationKind(label);
+      if (textOpen && (kind === "syn" || kind === "ant") && n.parentNode === labelParent) {
+        for (const fr of plainWords(n.nodeValue ?? "")) out.push({ kind, fr, zh: "", pos: "" });
+      }
+      return;
+    }
     if (n.nodeType !== 1) return;
     const tag = tagOf(n);
     if (dropped.has(tag) || classesOf(n).includes("eudic_wordtype_cont")) return;
-    if (tag === "h5") { label = HEAD(n); return; }
+    if (tag === "h5") {
+      label = HEAD(n);
+      labelParent = n.parentNode;
+      textOpen = true;
+      return;
+    }
+    if (tag === "div" || tag === "ul" || tag === "ol" || tag === "p") {
+      // a new block ends the loose words of the heading before it
+      if (n.parentNode === labelParent) textOpen = false;
+    }
     if (tag === "div") {
       const h = kids(n).find((k) => tagOf(k) === "h5");
       const own = h ? HEAD(h) : "";
@@ -151,7 +188,7 @@ function relatedItems(root: Node): FrdicItem[] {
       if (/用法/.test(label)) {
         const [fr, zh] = splitFrZh(text);
         if (fr) out.push({ kind: "phrase", fr, zh, pos: "" });
-      } else if (/派生|变化|同根|衍生/.test(label)) {
+      } else if (relationKind(label) === "family") {
         const link = kids(n).find((k) => tagOf(k) === "a");
         const fr = link ? squash(plainText(link)) : splitFrZh(text)[0];
         if (fr) out.push({ kind: "family", fr, zh: squash(text.replace(fr, "")), pos: "" });
@@ -160,7 +197,7 @@ function relatedItems(root: Node): FrdicItem[] {
     }
     if (tag === "a" && ((n as Element).getAttribute("href") ?? "").startsWith("/dicts/fr/")) {
       const fr = squash(plainText(n));
-      const kind: FrdicKind | "" = /近义/.test(label) ? "syn" : /反义/.test(label) ? "ant" : /派生|变化|同根|衍生/.test(label) ? "family" : "";
+      const kind = relationKind(label);
       if (fr && kind) out.push({ kind, fr, zh: "", pos: "" });
       return;
     }
@@ -254,7 +291,7 @@ export function parseFrdic(html: string, word: string, parse = (text: string) =>
 }
 const cache = new Map<string, { at: number; data: FrdicResult }>();
 // Looked-up pages are kept on this device: 法语助手 limits anonymous lookups, so a word seen once is never asked twice.
-const STORE_KEY = "frdic-pages-v2";
+const STORE_KEY = "frdic-pages-v3";
 const KEEP = 60;
 const KEEP_MS = 30 * 86400000;
 type Saved = Record<string, { at: number; data: FrdicResult }>;
