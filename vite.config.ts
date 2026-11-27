@@ -123,7 +123,8 @@ function stripOffloadedMedia(): Plugin {
     },
     closeBundle() {
       const mediaBase = process.env.VITE_MEDIA_BASE_URL?.trim();
-      if (!mediaBase) return;
+      const offloadLexdb = process.env.VITE_OFFLOAD_LEXDB === "1";
+      if (!mediaBase && !offloadLexdb) return;
       let removedFiles = 0;
       let removedBytes = 0;
       const walkRemove = (dir: string, filter: (full: string) => boolean) => {
@@ -138,14 +139,21 @@ function stripOffloadedMedia(): Plugin {
           }
         }
       };
-      const audioDir = path.join(outDirAbs, "atlas", "audio");
-      walkRemove(audioDir, () => true);
-      fs.rmSync(audioDir, { recursive: true, force: true });
-      const matDir = path.join(outDirAbs, "materials");
-      walkRemove(matDir, (full) => /\.(?:mp3|m4a|aac|ogg|oga|wav|mp4|webm|m4v)$/i.test(full));
+      if (mediaBase) {
+        const audioDir = path.join(outDirAbs, "atlas", "audio");
+        walkRemove(audioDir, () => true);
+        fs.rmSync(audioDir, { recursive: true, force: true });
+        const matDir = path.join(outDirAbs, "materials");
+        walkRemove(matDir, (full) => /\.(?:mp3|m4a|aac|ogg|oga|wav|mp4|webm|m4v)$/i.test(full));
+      }
+      if (offloadLexdb) {
+        const lexdbDir = path.join(outDirAbs, "lexdb");
+        walkRemove(lexdbDir, () => true);
+        fs.rmSync(lexdbDir, { recursive: true, force: true });
+      }
       const mb = (removedBytes / (1024 * 1024)).toFixed(1);
       console.log(
-        `[strip-offloaded-media] VITE_MEDIA_BASE_URL=${mediaBase} -> stripped ${removedFiles} media files (${mb} MB) from ${path.relative(process.cwd(), outDirAbs)}`,
+        `[strip-offloaded-media] VITE_MEDIA_BASE_URL=${mediaBase ?? ""} VITE_OFFLOAD_LEXDB=${offloadLexdb ? "1" : "0"} -> stripped ${removedFiles} files (${mb} MB) from ${path.relative(process.cwd(), outDirAbs)}`,
       );
     },
   };

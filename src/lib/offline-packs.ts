@@ -3,7 +3,7 @@ import { MEDIA } from "../atlas/types";
 import { resolveMediaUrl } from "./media";
 
 export const OFFLINE_MEDIA_CACHE = "atlas-offline-media";
-export const SW_MEDIA_CACHE = "atlas-v6-media";
+export const SW_MEDIA_CACHE = "atlas-v7-media";
 
 export type OfflinePackId = "co-audio" | "rfi-real" | "b2-core-audio";
 

@@ -1,10 +1,13 @@
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
-import { PreconditionFailedError, type ObjStore } from "./store.js";
+// Import the SDK-free store contract (not ./store.js) so the Cloudflare Worker never bundles @azure/storage-blob.
+import { PreconditionFailedError, type ObjStore } from "./store-types.js";
 
 export interface HttpRequestInput {
   method: string;
   path: string;
   headers?: Record<string, string | undefined> | Headers;
+  /** Platform-verified client IP injected by the hosting adapter (e.g. Cloudflare CF-Connecting-IP). */
+  clientIp?: string;
   body?: string | Buffer | Uint8Array | null;
   /** Optional lazy reader used in Azure Functions so bodies are read only after auth & rate-limit checks. */
   readBody?: (maxBytes: number) => Promise<{ ok: true; body: Uint8Array } | { ok: false; status: 413 }>;
@@ -20,6 +23,11 @@ export interface HandlerEnv {
   ADMIN_KEY?: string;
   ALLOWED_ORIGINS?: string;
   RATE_LIMIT_DISABLED?: string;
+  /**
+   * The deployment's own origin (e.g. https://mots-b2.motb2.workers.dev), set by the Cloudflare Worker from the
+   * request URL. Allowed for CORS in addition to ALLOWED_ORIGINS so same-origin pages always work.
+   */
+  SELF_ORIGIN?: string;
 }
 
 export const MAX_SYNC_BYTES = 30 * 1024 * 1024;
@@ -71,7 +79,9 @@ function checkRateLimit(
   return { ok: true };
 }
 
-export function clientIpKey(req: Pick<HttpRequestInput, "headers">): string {
+export function clientIpKey(req: Pick<HttpRequestInput, "headers" | "clientIp">): string {
+  const direct = req.clientIp?.trim();
+  if (direct) return direct;
   const azureIp = getHeader(req.headers, "x-azure-clientip")?.trim();
   if (azureIp) return azureIp;
   const xff = getHeader(req.headers, "x-forwarded-for");
@@ -150,6 +160,8 @@ export function buildBaseHeaders(
       .map((s) => s.trim())
       .filter(Boolean),
   );
+  const selfOrigin = env.SELF_ORIGIN?.trim();
+  if (selfOrigin) allowed.add(selfOrigin);
   const origin = getHeader(req.headers, "origin")?.trim();
   const headers: Record<string, string> = {
     Vary: "Origin",
@@ -183,6 +195,8 @@ function jsonResponse(
   };
 }
 
+const utf8Decoder = new TextDecoder("utf-8");
+
 function readBodyBytes(body: HttpRequestInput["body"], maxBytes: number): {
   bytes: number;
   text: string;
@@ -199,7 +213,7 @@ function readBodyBytes(body: HttpRequestInput["body"], maxBytes: number): {
   }
   return {
     bytes: body.byteLength,
-    text: Buffer.from(body.buffer, body.byteOffset, body.byteLength).toString("utf8"),
+    text: utf8Decoder.decode(body),
   };
 }
 
@@ -213,7 +227,7 @@ async function loadRequestBody(
     return {
       ok: true,
       bytes: res.body.byteLength,
-      text: Buffer.from(res.body).toString("utf8"),
+      text: utf8Decoder.decode(res.body),
     };
   }
   const { bytes, text } = readBodyBytes(req.body, maxBytes);
@@ -300,30 +314,71 @@ async function handleRegister(
     suppliedAuthToken = parsed.authToken.trim();
   }
 
+  // The namespace is fixed before the invite is touched so the claim records who redeemed it.
+  const syncCode = suppliedAuthToken ? null : "mb2_" + randomBytes(32).toString("base64url");
+  const ns = sha256hex(suppliedAuthToken ?? (syncCode as string));
   const inviteKey = `invites/${sha256hex(inviteCode)}`;
-  if (!(await store.delete(inviteKey))) {
+
+  // Redeem with a conditional (ETag) transition instead of head()+delete(): object stores such as R2 report
+  // success for deleting a missing key, so only a compare-and-swap guarantees a single winner.
+  const inv = await store.get(inviteKey);
+  if (inv === null || inv === "not-modified") {
+    return jsonResponse(baseHeaders, 403, { error: "invalid_invite" });
+  }
+  let invite: { created?: string; status?: string; claimedBy?: string; claimedAt?: string };
+  try {
+    const raw = JSON.parse(inv.body) as unknown;
+    if (!isRecord(raw)) throw new Error("invite is not an object");
+    invite = raw as typeof invite;
+  } catch {
     return jsonResponse(baseHeaders, 403, { error: "invalid_invite" });
   }
 
-  if (suppliedAuthToken) {
-    const ns = sha256hex(suppliedAuthToken);
-    await store.put(
-      `users/${ns}/meta.json`,
-      JSON.stringify({ created: new Date().toISOString(), authVersion: 2 }),
-      { ifNoneMatchStar: true },
-    );
-    return jsonResponse(baseHeaders, 201, { authVersion: 2 });
+  if (invite.status === "claimed") {
+    // Recovery: the same v2 client retrying within 10 minutes after its claim landed but meta.json or response failed.
+    const claimedMs = invite.claimedAt ? Date.parse(invite.claimedAt) : Number.NaN;
+    const withinWindow = Number.isFinite(claimedMs) && Date.now() - claimedMs <= 10 * 60 * 1000;
+    if (suppliedAuthToken && invite.claimedBy === ns && withinWindow) {
+      await createUserMeta(store, ns, true, inviteKey);
+      return jsonResponse(baseHeaders, 201, { authVersion: 2 });
+    }
+    return jsonResponse(baseHeaders, 403, { error: "invalid_invite" });
   }
 
-  const syncCode = "mb2_" + randomBytes(32).toString("base64url");
-  const ns = sha256hex(syncCode);
-  await store.put(
-    `users/${ns}/meta.json`,
-    JSON.stringify({ created: new Date().toISOString() }),
-    { ifNoneMatchStar: true },
-  );
+  try {
+    await store.put(
+      inviteKey,
+      JSON.stringify({ ...invite, status: "claimed", claimedBy: ns, claimedAt: new Date().toISOString() }),
+      { ifMatch: inv.etag },
+    );
+  } catch (err) {
+    if (err instanceof PreconditionFailedError) {
+      return jsonResponse(baseHeaders, 403, { error: "invalid_invite" });
+    }
+    throw err;
+  }
 
+  if (suppliedAuthToken) {
+    await createUserMeta(store, ns, true, inviteKey);
+    return jsonResponse(baseHeaders, 201, { authVersion: 2 });
+  }
+  await createUserMeta(store, ns, false, inviteKey);
   return jsonResponse(baseHeaders, 201, { syncCode });
+}
+
+/** Create users/<ns>/meta.json once; for v2 auth tokens an existing meta.json means a retried registration. */
+async function createUserMeta(store: ObjStore, ns: string, authV2: boolean, inviteKey?: string): Promise<void> {
+  const meta = {
+    created: new Date().toISOString(),
+    ...(authV2 ? { authVersion: 2 } : {}),
+    ...(inviteKey ? { inviteKey } : {}),
+  };
+  try {
+    await store.put(`users/${ns}/meta.json`, JSON.stringify(meta), { ifNoneMatchStar: true });
+  } catch (err) {
+    if (authV2 && err instanceof PreconditionFailedError) return;
+    throw err;
+  }
 }
 
 async function handleAuthUpgrade(
@@ -523,7 +578,9 @@ async function handlePutSync(
   const historyPrefix = `users/${ns}/${datasetId}/history/`;
   const ts = nextIsoTimestamp().replace(/[:.]/g, "");
   const etagShort = current.etag.replace(/[^A-Za-z0-9]/g, "").slice(-8) || "0";
-  const histKey = `${historyPrefix}${ts}-${etagShort}.json`;
+  // The random suffix keeps two isolates racing on the same revision in the same millisecond from sharing a key,
+  // so the loser's 412 cleanup can never delete the winner's snapshot.
+  const histKey = `${historyPrefix}${ts}-${etagShort}-${randomBytes(4).toString("hex")}.json`;
 
   // Write history snapshot first so an overwritten state is never lost.
   await store.put(histKey, current.body);
@@ -677,9 +734,24 @@ export async function handleRequest(
     if (!auth) {
       return jsonResponse(baseHeaders, 401, { error: "unauthorized" });
     }
+    const metaObj = await store.get(`users/${auth.ns}/meta.json`);
+    let claimedInviteKey: string | null = null;
+    if (metaObj && metaObj !== "not-modified") {
+      try {
+        const meta = JSON.parse(metaObj.body) as unknown;
+        if (isRecord(meta) && typeof meta.inviteKey === "string" && /^invites\/[a-f0-9]{64}$/.test(meta.inviteKey)) {
+          claimedInviteKey = meta.inviteKey;
+        }
+      } catch {
+        /* ignore malformed meta */
+      }
+    }
     const items = await store.list(`users/${auth.ns}/`);
     await Promise.all(items.map((item) => store.delete(item.key)));
     await store.delete(`users/${auth.ns}/meta.json`);
+    if (claimedInviteKey) {
+      await store.delete(claimedInviteKey);
+    }
     if (auth.tokenHash !== auth.ns) {
       await store.delete(`aliases/${auth.tokenHash}.json`);
     }

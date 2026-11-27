@@ -1,0 +1,94 @@
+# Verifies, tests E2E, and deploys the site + sync API to Cloudflare Workers (static assets + R2) on every push to main.
+# Required repository secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID. The Worker secret ADMIN_KEY is set once
+# with `npx wrangler secret put ADMIN_KEY` and is not needed here. Media is uploaded separately (npm run media:sync:r2).
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-cloudflare
+  cancel-in-progress: false
+
+jobs:
+  verify-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: npm ci
+      - run: npm --prefix server ci
+      - run: npx tsc --noEmit
+      - name: Type-check the Worker (Workers runtime types, no DOM)
+        run: npx tsc -p tsconfig.worker.json --noEmit
+      - run: npm run lint
+      - run: npm run css:check
+      - run: npm test
+      - run: npm run test:ui
+      - run: npm --prefix server test
+      - run: npm --prefix server run build
+      - run: npm run lexicon:check
+      - run: npm run lexicon:ids
+      - run: npm run lexdb:check
+      - run: npm run lexicon:enrich-b2 -- --dry-run
+
+      # Full local bundle (media included, root base) for cross-platform Playwright Chromium E2E.
+      - run: npm run build
+      - run: npm run bundle:check
+      - run: npx playwright install --with-deps chromium
+      - name: Run Playwright E2E against vite preview
+        run: |
+          npx vite preview --host 127.0.0.1 --port 5191 &
+          PREVIEW_PID=$!
+          trap "kill $PREVIEW_PID 2>/dev/null || true" EXIT
+          TARGET_URL="http://127.0.0.1:5191/"
+          for i in $(seq 1 30); do
+            if curl -fsS "$TARGET_URL" >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          FR_URL="$TARGET_URL" npm run e2e
+          FR_URL="$TARGET_URL" npm run e2e:lexdb
+          FR_URL="$TARGET_URL" npm run e2e:gates
+
+      # Production bundle: offloaded audio/video is stripped from dist/ and served from R2 under /media/.
+      - name: Build Cloudflare bundle
+        run: npm run cf:build
+      - run: npm run bundle:check
+      - name: Check Workers static asset limits
+        run: |
+          COUNT=$(find dist -type f | wc -l)
+          LARGEST=$(find dist -type f -printf '%s\n' | sort -n | tail -1)
+          echo "dist files: $COUNT, largest file: $LARGEST bytes"
+          if [ "$COUNT" -ge 20000 ]; then
+            echo "::error::dist has $COUNT files (Workers static assets limit is 20,000)"
+            exit 1
+          fi
+          if [ "$LARGEST" -ge 26214400 ]; then
+            echo "::error::dist has a file of $LARGEST bytes (Workers static assets limit is 25 MiB)"
+            exit 1
+          fi
+      - name: Sync offloaded media and LexDB shards to Cloudflare R2
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: npm run media:sync:r2 -- --setup
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Deploy to Cloudflare Workers
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

@@ -46,3 +46,8 @@ data/lexdb/lexdb.sqlite
 data/lexdb/lexdb.sqlite-*
 data/lexdb/ai-cache/
 data/lexdb/session/
+
+# Cloudflare Workers local state and local secrets (wrangler dev reads .dev.vars)
+.wrangler/
+.dev.vars
+.dev.vars.*

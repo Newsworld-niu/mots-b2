@@ -4,6 +4,7 @@ import { subscribeImages } from "../store/images";
 import { exportBackupAsync, importBackupAsync, store } from "../store/store";
 import { toast } from "../ui/Toast";
 import {
+  SyncApiError,
   SyncAuthError,
   SyncConflictError,
   SyncNetworkError,
@@ -480,13 +481,63 @@ export async function restoreHistoryVersion(id: string): Promise<boolean> {
   });
 }
 
+const PENDING_INVITE_KEY = "word-atlas:sync:pending-invite";
+const PENDING_INVITE_TTL_MS = 10 * 60_000;
+
+function loadPendingInviteCode(invite: string): string | null {
+  try {
+    if (typeof localStorage === "undefined") return null;
+    const raw = localStorage.getItem(PENDING_INVITE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { invite?: unknown; code?: unknown; at?: unknown };
+    if (
+      parsed.invite === invite &&
+      typeof parsed.code === "string" &&
+      SYNC_CODE_RE.test(parsed.code) &&
+      typeof parsed.at === "number" &&
+      Date.now() - parsed.at <= PENDING_INVITE_TTL_MS
+    ) {
+      return parsed.code;
+    }
+  } catch {
+    /* ignore storage errors */
+  }
+  return null;
+}
+
+function savePendingInviteCode(invite: string, code: string): void {
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(PENDING_INVITE_KEY, JSON.stringify({ invite, code, at: Date.now() }));
+    }
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
+function clearPendingInviteCode(): void {
+  try {
+    if (typeof localStorage !== "undefined") localStorage.removeItem(PENDING_INVITE_KEY);
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
 export async function registerWithInvite(inviteCode: string): Promise<string> {
   const trimmed = inviteCode.trim();
   if (!trimmed) throw new Error("请输入邀请码");
   return runExclusive(async () => {
-    const localCode = generateSyncCode();
+    const localCode = loadPendingInviteCode(trimmed) ?? generateSyncCode();
+    savePendingInviteCode(trimmed, localCode);
     const authToken = await deriveSyncAuthToken(localCode);
-    const res = await registerInvite(trimmed, apiBaseUrl, undefined, authToken);
+    let res: { syncCode?: string; authVersion?: 1 | 2 };
+    try {
+      res = await registerInvite(trimmed, apiBaseUrl, undefined, authToken);
+    } catch (err) {
+      if (err instanceof SyncApiError && err.status === 403) clearPendingInviteCode();
+      throw err;
+    }
+    clearPendingInviteCode();
     const syncCode = res.syncCode ?? localCode;
     const authVersion: 1 | 2 = res.authVersion === 2 ? 2 : 1;
     setSyncState({

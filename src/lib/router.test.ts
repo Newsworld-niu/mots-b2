@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { href, parseHash } from "./router";
+import { href, parseHash, resolvePathnameToHash } from "./router";
 
 test("dict route opens and closes WordSheet via ?card= without clobbering ?w= dictionary entry", () => {
   const openUrl = href({ page: "dict", w: "etre" }, "etre");
@@ -88,4 +88,68 @@ test("dict tab deep link round-trips, and the default 法汉释义 tab is never 
   // unknown tabs are dropped rather than trusted
   assert.deepEqual(parseHash("#/dict?w=accueil&tab=evil"), { route: { page: "dict", w: "accueil", q: undefined }, word: null });
   assert.equal(href({ page: "dict", w: "beau", tab: "relations" }, "beau"), "#/dict?w=beau&tab=relations&card=beau");
+});
+
+test("hash path segments open grammar points, dictionary entries and words, and never throw on bad escapes", () => {
+  assert.deepEqual(parseHash("#/grammar/causatif").route, { page: "grammar", p: "causatif", sheet: undefined, sprint: undefined, section: undefined });
+  assert.equal((parseHash("#/grammar/causatif?p=subjonctif").route as { p?: string }).p, "subjonctif");
+  assert.equal((parseHash("#/grammar/causatif?sheet=s1&sprint=tef").route as { sheet?: string }).sheet, "s1");
+  assert.equal((parseHash("#/grammar").route as { p?: string }).p, undefined);
+
+  assert.deepEqual(parseHash("#/dict/prendre"), { route: { page: "dict", w: "prendre", q: undefined }, word: null });
+  assert.equal((parseHash("#/dict/%C3%AAtre").route as { w?: string }).w, "être");
+  assert.equal((parseHash("#/dict/prendre?w=mettre").route as { w?: string }).w, "mettre");
+  assert.deepEqual(parseHash("#/dict/prendre?tab=conj&card=prendre"), {
+    route: { page: "dict", w: "prendre", q: undefined, tab: "conj" },
+    word: "prendre",
+  });
+
+  // Malformed % sequences fall back to the raw text instead of throwing URIError.
+  assert.doesNotThrow(() => parseHash("#/dict/%E0%A4%A"));
+  assert.equal((parseHash("#/dict/%E0%A4%A").route as { w?: string }).w, "%E0%A4%A");
+  assert.equal((parseHash("#/grammar/100%").route as { p?: string }).p, "100%");
+  assert.deepEqual(parseHash("#/w/%ZZ"), { route: { page: "atlas" }, word: "%ZZ" });
+  assert.deepEqual(parseHash("#/w/%C3%A9t%C3%A9"), { route: { page: "atlas" }, word: "été" });
+});
+
+test("resolvePathnameToHash turns history-style deep links into canonical hash routes", () => {
+  assert.equal(resolvePathnameToHash("/grammar/causatif"), "#/grammar?p=causatif");
+  assert.equal(resolvePathnameToHash("/grammar/causatif", "?sheet=s2&section=forms"), "#/grammar?p=causatif&sheet=s2&section=forms");
+  assert.equal(resolvePathnameToHash("/grammar"), "#/grammar");
+  assert.equal(resolvePathnameToHash("/grammar/"), "#/grammar");
+  assert.equal(resolvePathnameToHash("/dict/prendre"), "#/dict?w=prendre");
+  assert.equal(resolvePathnameToHash("/dict/%C3%AAtre", "?tab=conj"), `#/dict?w=${encodeURIComponent("être")}&tab=conj`);
+  assert.equal(resolvePathnameToHash("/dict", "?q=pren"), "#/dict?q=pren");
+  assert.equal(resolvePathnameToHash("/atlas", "?level=B2&w=nuancer"), "#/atlas?level=B2&w=nuancer");
+  assert.equal(resolvePathnameToHash("/w/nuancer"), "#/atlas?w=nuancer");
+  assert.equal(resolvePathnameToHash("/me"), "#/me");
+  assert.equal(resolvePathnameToHash("/lounge", "?shelf=books&item=b1"), "#/lounge?shelf=books&item=b1");
+  for (const page of ["learn", "practice", "mock", "speak", "listen", "examread", "essay", "real", "drill", "expr", "reflow", "read", "conj", "compare", "about", "decks"]) {
+    assert.equal(resolvePathnameToHash(`/${page}`), `#/${page}`, page);
+  }
+
+  // Not deep links: the root, static files, unknown pages, extra segments.
+  assert.equal(resolvePathnameToHash("/"), null);
+  assert.equal(resolvePathnameToHash(""), null);
+  assert.equal(resolvePathnameToHash("/index.html"), null);
+  assert.equal(resolvePathnameToHash("/atlas/index.json"), null);
+  assert.equal(resolvePathnameToHash("/atlas/audio/f/rue.mp3"), null);
+  assert.equal(resolvePathnameToHash("/dict/prendre.json"), null);
+  assert.equal(resolvePathnameToHash("/assets/index-abc.js"), null);
+  assert.equal(resolvePathnameToHash("/sw.js"), null);
+  assert.equal(resolvePathnameToHash("/manifest.webmanifest"), null);
+  assert.equal(resolvePathnameToHash("/unknown"), null);
+  assert.equal(resolvePathnameToHash("/me/extra"), null);
+  assert.equal(resolvePathnameToHash("/grammar/a/b"), null);
+  assert.equal(resolvePathnameToHash("/w"), null);
+  assert.equal(resolvePathnameToHash("/w/"), null);
+
+  // Sub-path deployments strip the Vite base first.
+  assert.equal(resolvePathnameToHash("/mots-b2/grammar/causatif", "", "/mots-b2/"), "#/grammar?p=causatif");
+  assert.equal(resolvePathnameToHash("/mots-b2/", "", "/mots-b2/"), null);
+  assert.equal(resolvePathnameToHash("/mots-b2", "", "/mots-b2/"), null);
+  assert.equal(resolvePathnameToHash("/grammar/causatif", "", "/mots-b2/"), null);
+
+  // Malformed escapes never throw.
+  assert.doesNotThrow(() => resolvePathnameToHash("/dict/%E0%A4%A"));
 });

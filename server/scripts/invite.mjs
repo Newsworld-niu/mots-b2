@@ -1,3 +1,14 @@
+/**
+ * Mint one-time sync invite codes (POST /api/invites with the x-admin-key header).
+ *
+ * Cloudflare Workers deployment (the ADMIN_KEY Worker secret, set with `npx wrangler secret put ADMIN_KEY`):
+ *   SYNC_URL=https://mots-b2.motb2.workers.dev ADMIN_KEY=... npm --prefix server run invite
+ *   SYNC_URL=https://mots-b2.motb2.workers.dev ADMIN_KEY=... npm --prefix server run invite -- 5
+ *
+ * Local development: SYNC_URL defaults to the Azure Functions emulator (http://127.0.0.1:7071); use
+ * SYNC_URL=http://127.0.0.1:8787 against `npm run cf:dev`. ADMIN_KEY may also come from server/.admin-key or
+ * server/local.settings.json. The admin key is sent only as a request header and is never printed.
+ */
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -59,7 +70,7 @@ function resolveCount() {
   if (arg === undefined) return 1;
   const n = Number(arg);
   if (!Number.isInteger(n) || n < 1 || n > 20) {
-    console.error("Usage: node scripts/invite.mjs [count (1..20)]");
+    console.error("Usage: SYNC_URL=https://mots-b2.motb2.workers.dev ADMIN_KEY=... npm --prefix server run invite [-- count (1..20)]");
     process.exit(1);
   }
   return n;
