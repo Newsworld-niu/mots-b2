@@ -1,20 +1,157 @@
 import { createElement, useEffect, useMemo, useRef, useState } from "react";
-import { BookOpen, Check, ExternalLink, Plus, Search, Sparkles, X } from "lucide-react";
+import { ArrowRight, BookOpen, Check, ExternalLink, Layers, Plus, Search, Sparkles, X, Zap } from "lucide-react";
 import { ready, useAiConfig } from "../ai/config";
-import { completeGaps } from "../ai/tasks";
 import { useAtlas } from "../atlas/context";
-import { lookupDict, type DictHit } from "../lib/dict";
+import type { Atlas, WordRef } from "../atlas/types";
+import type { DictHit } from "../lib/dict";
 import { canAutoFetchFrdic, frdicUrl, GAP, loadFrdic, type DictionaryNode, type FrdicResult } from "../lib/frdic";
+import type { LexEntry } from "../lib/lexdb/types";
 import { buildSeed, CAPACITY, dictPicks, frdicPicks, hasGap, KIND_LABEL, KINDS, tooLong, withZh, type Pick, type Seed } from "../lib/lookup";
 import { isNative } from "../lib/native";
 import { href, openWord } from "../lib/router";
-import { addToDeck, createDeck, findExact, findSame } from "../store/decks";
-import { store, useStore } from "../store/store";
+import { addToDeck, createCustomWord, createDeck, exactHeadwordKey, findExact, findSame, isCustomId } from "../store/decks";
+import { CORE_DECK, store, useStore, type Progress } from "../store/store";
 import { Sheet } from "./Sheet";
+import { Speak } from "./Speak";
 import { toast } from "./Toast";
 import { WordForm } from "./WordForm";
 
 const TARGET_DECK = "阅读生词";
+
+/* ---------- 1-click 加入复习, shared with the dictionary page and 卡组 ---------- */
+
+/** The deck quick-added words go to. */
+export const REVIEW_DECK = TARGET_DECK;
+
+/** The id of the 阅读生词 deck, made the first time. */
+export function reviewDeckId(): string {
+  const decks = store.get().progress.decks ?? [];
+  return decks.find((d) => d.name === REVIEW_DECK)?.id ?? createDeck(REVIEW_DECK);
+}
+
+/** The card a headword already has: its atlas word (by LexDB link or exact accented spelling) or a word the learner made. */
+export function cardFor(atlas: Atlas, w: string, atlasId?: string): WordRef | undefined {
+  return (atlasId ? atlas.byId.get(atlasId) : undefined) ?? findExact(atlas, w)[0];
+}
+
+/** First learner-owned deck (excluding 初始词本 CORE_DECK) containing `id`. */
+export function userDeckFor(decks: Progress["decks"], id: string) {
+  return (decks ?? []).find((d) => d.id !== CORE_DECK && d.words.includes(id));
+}
+
+/**
+ * Whether a word is actively in review: either placed in a learner deck (excluding CORE_DECK), or already has an FSRS
+ * record and has not been paused by removing it from every deck. Unseen CORE_DECK words stay eligible for 1-click add.
+ */
+export function inReview(
+  p: { cards: Progress["cards"]; decks?: Progress["decks"]; hidden?: Progress["hidden"]; coreMigrated?: Progress["coreMigrated"] },
+  id: string,
+): boolean {
+  if (userDeckFor(p.decks, id)) return true;
+  if (!p.cards[id]) return false;
+  if (p.coreMigrated) return (p.decks ?? []).some((d) => d.id === CORE_DECK && d.words.includes(id));
+  return !isCustomId(id) && !(p.hidden ?? []).includes(id);
+}
+
+export interface QuickAddResult {
+  status: "added" | "exists";
+  wordId: string;
+  deckId: string;
+  deckName: string;
+}
+
+/**
+ * Add a dictionary word to 阅读生词 without a form: the atlas word when there is one, else a new word of the
+ * learner's own filled from the dictionary (自动填写·待核对). Never adds the same word twice, even in batch loops.
+ */
+export function quickAddToReview(atlas: Atlas, w: string, seed: () => Seed, atlasId?: string): QuickAddResult {
+  const p = store.get().progress;
+  const ref = cardFor(atlas, w, atlasId);
+  const targetKey = exactHeadwordKey(w);
+  const liveCustomId = !ref
+    ? Object.entries(p.custom ?? {}).find(([, c]) => exactHeadwordKey(c.w) === targetKey)?.[0]
+    : undefined;
+  const existingId = ref?.id ?? liveCustomId;
+  if (existingId && inReview(p, existingId)) {
+    const deck = userDeckFor(p.decks, existingId) ?? (p.decks ?? []).find((d) => d.words.includes(existingId));
+    return { status: "exists", wordId: existingId, deckId: deck?.id ?? "", deckName: deck?.name ?? "复习" };
+  }
+  const deckId = reviewDeckId();
+  let wordId: string;
+  if (existingId) {
+    addToDeck(deckId, existingId);
+    wordId = existingId;
+  } else {
+    const sd = seed();
+    wordId = createCustomWord(
+      { w: sd.w || w, pos: sd.pos, zh: sd.zh, ipa: sd.ipa, ex: sd.ex, note: sd.note, col: sd.col, senses: sd.senses, fam: sd.fam, syn: sd.syn, ant: sd.ant, auto: true },
+      deckId,
+    );
+  }
+  const deckName = store.get().progress.decks?.find((d) => d.id === deckId)?.name ?? REVIEW_DECK;
+  return { status: "added", wordId, deckId, deckName };
+}
+
+/* ---------- instant LexDB lookup, loaded on the first focus or keystroke ---------- */
+
+type LexBundle = { search: typeof import("../lib/lexdb/search"); load: typeof import("../lib/lexdb/load") };
+let lexSearch: Promise<LexBundle> | null = null;
+/** The dictionary engine is fetched only once the learner reaches for the search box (never on mount). */
+function loadLexSearch(): Promise<LexBundle> {
+  if (!lexSearch)
+    lexSearch = Promise.all([import("../lib/lexdb/search"), import("../lib/lexdb/load")])
+      .then(([search, load]) => ({ search, load }))
+      .catch((e) => {
+        lexSearch = null;
+        throw e;
+      });
+  return lexSearch;
+}
+
+interface Suggestion {
+  key: string;
+  w: string;
+  zh: string;
+  /** A LexDB entry id (Chinese reverse lookup), or an atlas word id (offline fallback). */
+  id?: string;
+  from: "lexdb" | "atlas";
+}
+
+const foldPlain = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .replace(/[’‘]/g, "'")
+    .toLowerCase()
+    .trim();
+const CJK = /[\u3400-\u4dbf\u4e00-\u9fff]/;
+
+/** Atlas words starting with the query (accent-folded) or whose gloss has the Chinese query: works offline. */
+function atlasSuggestions(atlas: Atlas, q: string, limit: number): Suggestion[] {
+  const out: Suggestion[] = [];
+  const cjk = CJK.test(q);
+  const f = foldPlain(q);
+  if (!f) return out;
+  for (const w of [...atlas.words, ...(atlas.custom ?? [])]) {
+    if (cjk ? w.zh.includes(q) : foldPlain(w.word).startsWith(f)) out.push({ key: `a:${w.id}`, w: w.word, zh: w.zh, id: w.id, from: "atlas" });
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+const posLabel = (e: LexEntry) =>
+  [...new Set(e.pos.map((b) => (b.g === "m" ? `${b.p} 阳性` : b.g === "f" ? `${b.p} 阴性` : b.g === "mf" ? `${b.p} 阴阳同形` : b.p)).filter(Boolean))].slice(0, 3);
+const topGlosses = (e: LexEntry, n = 3) =>
+  e.pos
+    .flatMap((b) => b.senses.map((s) => s.zh.trim()))
+    .filter(Boolean)
+    .slice(0, n);
+
+type Preview =
+  | { kind: "lexdb"; entry: LexEntry; via: string; query: string }
+  | { kind: "atlas"; ref: WordRef; query: string }
+  | { kind: "none"; query: string };
+
 
 function Content({ nodes }: { nodes: DictionaryNode[] }) {
   return <>{nodes.map((node, i) => {
@@ -79,7 +216,11 @@ function Picks({ picks, chosen, toggle }: { picks: Pick[]; chosen: Pick[]; toggl
 export function HomeDictionary() {
   const atlas = useAtlas();
   const ai = useAiConfig();
-  const decks = useStore((s) => s.progress.decks) ?? [];
+  const storedDecks = useStore((s) => s.progress.decks);
+  const decks = useMemo(() => storedDecks ?? [], [storedDecks]);
+  const cards = useStore((s) => s.progress.cards);
+  const hidden = useStore((s) => s.progress.hidden);
+  const coreMigrated = useStore((s) => s.progress.coreMigrated);
   const readDeck = useStore((s) => s.settings.readDeck);
   const [query, setQuery] = useState("");
   const [term, setTerm] = useState("");
@@ -93,6 +234,137 @@ export function HomeDictionary() {
   const input = useRef<HTMLInputElement>(null);
   const job = useRef<AbortController | null>(null);
   useEffect(() => () => job.current?.abort(), []);
+
+  /* instant lookup state */
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [listOpen, setListOpen] = useState(false);
+  const [active, setActive] = useState(-1);
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const [previewBusy, setPreviewBusy] = useState(false);
+  const [lexDown, setLexDown] = useState(false);
+  const [manualOpen, setManualOpen] = useState(false);
+  const acReq = useRef(0);
+  const lookReq = useRef(0);
+  const acTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(acTimer.current), []);
+
+  const warm = () => {
+    void loadLexSearch()
+      .then(({ load }) => load.loadMeta())
+      .then((m) => setLexDown(m === null))
+      .catch(() => setLexDown(true));
+  };
+
+  const runSuggest = (raw: string) => {
+    const q = raw.trim();
+    const req = ++acReq.current;
+    window.clearTimeout(acTimer.current);
+    setActive(-1);
+    if (!q) {
+      setSuggestions([]);
+      setListOpen(false);
+      return;
+    }
+    acTimer.current = window.setTimeout(async () => {
+      const local = atlasSuggestions(atlas, q, 8);
+      let rows: Suggestion[] = [];
+      try {
+        const { search: lex, load } = await loadLexSearch();
+        const meta = await load.loadMeta();
+        if (req === acReq.current) setLexDown(meta === null);
+        if (meta !== null) {
+          if (CJK.test(q)) {
+            const hits = await lex.zhLookup(q, 8);
+            rows = hits.map((h) => ({ key: `z:${h.id}`, w: h.w ?? h.id.replace(/#\d+$/, ""), zh: h.shortZh || h.term, id: h.id, from: "lexdb" as const }));
+          } else {
+            const hits = await lex.suggest(q, 8);
+            rows = hits.map((r) => ({ key: `s:${r[1]}`, w: r[1], zh: r[3], from: "lexdb" as const }));
+          }
+        }
+      } catch {
+        if (req === acReq.current) setLexDown(true);
+      }
+      if (req !== acReq.current) return;
+      const seen = new Set(rows.map((r) => foldPlain(r.w)));
+      const merged = [...rows, ...local.filter((l) => !seen.has(foldPlain(l.w)))].slice(0, 8);
+      setSuggestions(merged);
+      setActive(-1);
+      setListOpen(true);
+    }, 110);
+  };
+
+  /** Show the compact entry for a word: LexDB first, the atlas when the dictionary is out of reach. */
+  const lookUp = async (raw: string, pick?: Suggestion) => {
+    const q = (pick?.w ?? raw).trim();
+    if (!q) return;
+    const req = ++lookReq.current;
+    ++acReq.current;
+    window.clearTimeout(acTimer.current);
+    setActive(-1);
+    setListOpen(false);
+    setPreviewBusy(true);
+    const atlasHit = () => {
+      if (pick?.from === "atlas" && pick.id) return atlas.byId.get(pick.id);
+      return findExact(atlas, q)[0] ?? findSame(atlas, q)[0];
+    };
+    try {
+      const { search: lex, load } = await loadLexSearch();
+      const meta = await load.loadMeta();
+      if (req === lookReq.current) setLexDown(meta === null);
+      if (meta !== null) {
+        const res = await lex.resolve(q);
+        if (req !== lookReq.current) return;
+        const entry = (pick?.id && res.entries.find((e) => e.id === pick.id)) || res.entries[0];
+        if (entry) {
+          setPreview({ kind: "lexdb", entry, via: res.matchedVia === "form" ? "变化形式" : res.matchedVia === "phrase" ? "短语" : "", query: q });
+          return;
+        }
+      }
+      if (req !== lookReq.current) return;
+      const ref = atlasHit();
+      setPreview(ref ? { kind: "atlas", ref, query: q } : { kind: "none", query: q });
+    } catch {
+      if (req !== lookReq.current) return;
+      setLexDown(true);
+      const ref = atlasHit();
+      setPreview(ref ? { kind: "atlas", ref, query: q } : { kind: "none", query: q });
+    } finally {
+      if (req === lookReq.current) setPreviewBusy(false);
+    }
+  };
+
+  const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown" && suggestions.length) {
+      e.preventDefault();
+      setListOpen(true);
+      setActive((i) => (i + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp" && suggestions.length) {
+      e.preventDefault();
+      setListOpen(true);
+      setActive((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
+    } else if (e.key === "Escape") {
+      ++acReq.current;
+      window.clearTimeout(acTimer.current);
+      setActive(-1);
+      if (listOpen) {
+        e.preventDefault();
+        setListOpen(false);
+      } else if (preview) {
+        e.preventDefault();
+        setPreview(null);
+      }
+    }
+  };
+
+  const quickAdd = async (entry: LexEntry) => {
+    try {
+      const { search: lex } = await loadLexSearch();
+      const res = quickAddToReview(atlas, entry.w, () => lex.entryToSeed(entry), entry.atlasId);
+      toast(res.status === "added" ? `已加入「${res.deckName}」卡组` : `「${entry.w}」已在词卡里`, res.status === "added" ? "ok" : "info");
+    } catch {
+      toast("离线大词典暂不可用，可展开「手动/补充制卡」自己做卡", "warn");
+    }
+  };
 
   // 派生词 picks get a short Chinese hint from the atlas already in memory (exact accent match; no families.json request on the home page)
   const picks = useMemo(() => {
@@ -122,7 +394,9 @@ export function HomeDictionary() {
     const c = new AbortController(); job.current = c;
     setTerm(word); setError(""); setResult(null); setHits(null); setChosen([]);
     // the offline dictionary (LexDB) always runs locally; 法语助手 auto-fetches only when native or local proxy is available
-    void lookupDict(word).then((h) => { if (!c.signal.aborted) setHits(h); }, () => { if (!c.signal.aborted) setHits([]); });
+    void import("../lib/dict")
+      .then((m) => m.lookupDict(word))
+      .then((h) => { if (!c.signal.aborted) setHits(h); }, () => { if (!c.signal.aborted) setHits([]); });
     if (canAutoFetchFrdic()) {
       await fetchFrdic(word, c);
     } else {
@@ -150,6 +424,7 @@ export function HomeDictionary() {
       setMaking(true);
       try {
         const first = use.find((p) => p.kind === "sense");
+        const { completeGaps } = await import("../ai/tasks");
         const fixed = await completeGaps({ word: term, pos: first?.pos ?? "", items: gaps.map((p, id) => ({ id, kind: p.kind, fr: p.fr, zh: p.zh })) });
         use = use.map((p) => { const i = gaps.indexOf(p); return i >= 0 && fixed.has(i) ? withZh(p, fixed.get(i)!) : p; });
         const left = use.filter(hasGap).length;
@@ -181,12 +456,171 @@ export function HomeDictionary() {
   const frdicOnly = picks.filter((p) => p.origin === "frdic");
 
   return <section className="home-dictionary" aria-label="查词">
-    <form className="home-dictionary-search" onSubmit={e => { e.preventDefault(); void search(); }}>
-      <Search size={21} aria-hidden="true" />
-      <input ref={input} aria-label="搜索法语或中文" placeholder="查词：输入法语单词或短语，选好内容直接做成卡片…" value={query} onChange={e => setQuery(e.target.value)} maxLength={80} autoComplete="off" spellCheck={false} />
-      <button type="submit" className="btn btn-primary btn-sm" disabled={!query.trim()}>查词</button>
-    </form>
-    <p className="home-dictionary-caption"><BookOpen size={14} /> 我的词库 · 离线词典 · 法语助手</p>
+    <div className="home-dict-combo">
+      <form className="home-dictionary-search" role="search" onSubmit={e => {
+        e.preventDefault();
+        const pick = listOpen && active >= 0 ? suggestions[active] : undefined;
+        if (pick) setQuery(pick.w);
+        void lookUp(query, pick);
+      }}>
+        <Search size={21} aria-hidden="true" />
+        <input
+          ref={input}
+          role="combobox"
+          aria-label="搜索法语或中文"
+          aria-autocomplete="list"
+          aria-expanded={listOpen && suggestions.length > 0}
+          aria-controls="home-dict-ac"
+          aria-activedescendant={listOpen && active >= 0 ? `home-dict-ac-${active}` : undefined}
+          placeholder="查词：法语（可不打重音）或中文，回车看释义…"
+          value={query}
+          onFocus={() => {
+            warm();
+            if (suggestions.length) setListOpen(true);
+          }}
+          onChange={e => {
+            warm();
+            setQuery(e.target.value);
+            runSuggest(e.target.value);
+          }}
+          onKeyDown={onKey}
+          onBlur={() => window.setTimeout(() => setListOpen(false), 120)}
+          maxLength={80}
+          autoComplete="off"
+          spellCheck={false}
+        />
+        {query && (
+          <button type="button" className="icon-btn home-dict-clear" aria-label="清空" onClick={() => {
+            ++acReq.current;
+            ++lookReq.current;
+            setQuery("");
+            setSuggestions([]);
+            setPreview(null);
+            setPreviewBusy(false);
+            input.current?.focus();
+          }}>
+            <X size={16} />
+          </button>
+        )}
+        <button type="submit" className="btn btn-primary btn-sm" disabled={!query.trim()}>查词</button>
+      </form>
+      {listOpen && suggestions.length > 0 && (
+        <ul className="home-dict-ac" id="home-dict-ac" role="listbox" aria-label="查词建议">
+          {suggestions.map((sg, i) => (
+            <li
+              key={sg.key}
+              id={`home-dict-ac-${i}`}
+              role="option"
+              aria-selected={i === active}
+              className={i === active ? "is-active" : ""}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                setQuery(sg.w);
+                void lookUp(sg.w, sg);
+              }}
+            >
+              <b lang="fr">{sg.w}</b>
+              <span>{sg.zh}</span>
+              {sg.from === "atlas" && <small className="chip">词库</small>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+    <p className="home-dictionary-caption"><BookOpen size={14} /> 41k 离线法汉词典 · 我的词库{lexDown ? " · 离线词典暂不可用，已改用词库" : ""}</p>
+
+    {(preview || previewBusy) && (
+      <div className="home-dict-preview" aria-live="polite" aria-busy={previewBusy}>
+        {previewBusy && !preview && <p className="lookup-empty">正在查询…</p>}
+        {preview?.kind === "lexdb" && (() => {
+          const e = preview.entry;
+          const ref = cardFor(atlas, e.w, e.atlasId);
+          const reviewing = !!ref && inReview({ cards, decks, hidden, coreMigrated }, ref.id);
+          const reviewDeck = ref ? userDeckFor(decks, ref.id) : undefined;
+          const glosses = topGlosses(e);
+          return (
+            <>
+              <header className="home-dict-preview-head">
+                <div>
+                  <h2 lang="fr">{e.w}</h2>
+                  <p className="home-dict-preview-meta">
+                    {e.ipa && <span className="ipa">/{e.ipa}/</span>}
+                    {posLabel(e).map((p) => <span key={p} className="pos">{p}</span>)}
+                    {e.level && <span className={`chip chip-level lv-${e.level}`}>{e.level}</span>}
+                    {preview.via && <span className="muted small">「{preview.query}」的{preview.via}</span>}
+                  </p>
+                </div>
+                <Speak url={ref ? atlas.audio(ref, "uk") : null} text={e.w} size="sm" ariaLabel={`朗读 ${e.w}`} />
+              </header>
+              {glosses.length > 0 && (
+                <ol className="home-dict-glosses">
+                  {glosses.map((g, i) => <li key={i}>{g}</li>)}
+                </ol>
+              )}
+              <div className="home-dict-preview-actions">
+                {reviewing ? (
+                  <>
+                    <span className="reader-in-deck"><Check size={14} /> 已在词卡</span>
+                    {reviewDeck ? (
+                      <a className="btn btn-ghost btn-sm" href={href({ page: "decks", d: reviewDeck.id })}><Layers size={14} /> 去卡组查看</a>
+                    ) : (
+                      ref && <button type="button" className="btn btn-ghost btn-sm" onClick={() => openWord(ref.id)}><Layers size={14} /> 打开词卡</button>
+                    )}
+                  </>
+                ) : (
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => void quickAdd(e)}>
+                    <Zap size={14} /> 加入复习
+                  </button>
+                )}
+                <a className="btn btn-ghost btn-sm" href={href({ page: "dict", w: e.w })}>完整词典详情 <ArrowRight size={14} /></a>
+              </div>
+            </>
+          );
+        })()}
+        {preview?.kind === "atlas" && (
+          <>
+            <header className="home-dict-preview-head">
+              <div>
+                <h2 lang="fr">{preview.ref.word}</h2>
+                <p className="home-dict-preview-meta"><span className="muted small">来自我的词库{lexDown ? "（离线大词典暂不可用）" : ""}</span></p>
+              </div>
+              <Speak url={atlas.audio(preview.ref, "uk")} text={preview.ref.word} size="sm" ariaLabel={`朗读 ${preview.ref.word}`} />
+            </header>
+            <p className="home-dict-glosses-plain">{[preview.ref.zh, ...(preview.ref.more ?? [])].slice(0, 3).join("；")}</p>
+            <div className="home-dict-preview-actions">
+              {inReview({ cards, decks, hidden, coreMigrated }, preview.ref.id) ? (
+                <span className="reader-in-deck"><Check size={14} /> 已在词卡</span>
+              ) : (
+                <button type="button" className="btn btn-primary btn-sm" onClick={() => {
+                  const res = quickAddToReview(atlas, preview.ref.word, () => buildSeed(preview.ref.word, []), preview.ref.id);
+                  toast(res.status === "added" ? `已加入「${res.deckName}」卡组` : `「${preview.ref.word}」已在词卡里`, res.status === "added" ? "ok" : "info");
+                }}>
+                  <Zap size={14} /> 加入复习
+                </button>
+              )}
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => openWord(preview.ref.id)}>打开词卡</button>
+              <a className="btn btn-ghost btn-sm" href={href({ page: "dict", w: preview.ref.word })}>完整词典详情 <ArrowRight size={14} /></a>
+            </div>
+          </>
+        )}
+        {preview?.kind === "none" && (
+          <p className="lookup-empty">
+            没有找到「<span lang="fr">{preview.query}</span>」。可以试试 <a className="link" href={href({ page: "dict", q: preview.query })}>完整词典搜索</a>，或在下方「手动/补充制卡」里自己做一张卡。
+          </p>
+        )}
+      </div>
+    )}
+
+    <details className="home-dict-manual" open={manualOpen || !!term} onToggle={(e) => setManualOpen(e.currentTarget.open)}>
+      <summary>手动/补充制卡 <small>法语助手 · 勾选释义与例句做成自己的卡片</small></summary>
+      {!term && (
+        <div className="home-dict-manual-body">
+          <p className="muted small">把输入框里的词送去离线词典与法语助手，挑选内容后新建卡片；也可以不选，直接新建。</p>
+          <button type="button" className="btn btn-ghost btn-sm" disabled={!query.trim()} onClick={() => void search()}>
+            <Plus size={14} /> {query.trim() ? `用「${query.trim()}」做卡片` : "先在上方输入一个词"}
+          </button>
+        </div>
+      )}
     {term && <div className="home-dictionary-result" aria-busy={busy || dictBusy}>
       <header><div><h2 lang="fr">{term}</h2><a className="link" href={result?.source ?? frdicUrl(term)} target={isNative() ? "_self" : "_blank"} rel="noopener noreferrer">法语助手原文 <ExternalLink size={13} /></a></div><button className="icon-btn" aria-label="收起查词结果" onClick={close}><X size={20} /></button></header>
 
@@ -259,6 +693,7 @@ export function HomeDictionary() {
         </div>
       </footer>
     </div>}
+    </details>
 
     <Sheet open={form !== null} onClose={() => setForm(null)} label="新建卡片">
       <h2 className="sheet-title">新建卡片 · 加入「{decks.find((d) => d.id === form?.deckId)?.name ?? deckName}」</h2>

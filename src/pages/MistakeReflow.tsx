@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, BookMarked, Check, Headphones, Layers, MessageSquareQuote, RotateCcw, Trash2 } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ready } from "../ai/config";
 import { checkGrammarEquivalence } from "../ai/tasks/writing";
 import { useAtlas } from "../atlas/context";
@@ -85,12 +85,16 @@ export function MistakeReflow({ onExit }: { onExit: () => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const transferRef = useRef<HTMLInputElement>(null);
   const compRef = useRef<HTMLInputElement>(null);
+  /** Bumped by every transfer check and every card switch: an AI answer that comes back late is dropped. */
+  const transferReqRef = useRef(0);
 
   const resetCardInputs = () => {
+    transferReqRef.current++;
     setRevealed(false);
     setTyped("");
     setTransferText("");
     setTransferResult(null);
+    setTransferChecking(false);
     setRePicked(undefined);
     setReTyped("");
   };
@@ -106,6 +110,19 @@ export function MistakeReflow({ onExit }: { onExit: () => void }) {
     [summary.items, queueKind],
   );
   const current: ReflowItem | undefined = pool[0];
+  // What the async transfer check compares against when its answer lands.
+  const currentKeyRef = useRef<string | undefined>(current?.key);
+  const transferTextRef = useRef(transferText);
+  useEffect(() => {
+    currentKeyRef.current = current?.key;
+    transferTextRef.current = transferText;
+  });
+  const currentKey = current?.key;
+  useEffect(() => {
+    // A new card (graded, removed, or the queue moved on) cancels a check still in flight.
+    transferReqRef.current++;
+    setTransferChecking(false);
+  }, [currentKey]);
   const intervals = useMemo(
     () => (current ? preview(current.card, Date.now(), settings.retention) : null),
     [current, settings.retention],
@@ -150,13 +167,42 @@ export function MistakeReflow({ onExit }: { onExit: () => void }) {
     toast("已移出错句本");
   };
 
-  const practiceWrongWords = () => {
-    try {
-      localStorage.setItem("word-atlas:practice:source", "mistakes");
-    } catch {
-      /* optional preference */
+  // The pool rides on the link for this visit only; the learner's saved practice source is left as it was.
+  const practiceWrongWords = () => go({ page: "practice", src: "mistakes", autostart: "1" });
+
+  /** 新语境造句: the offline check first, then the AI check, ignored if the card or the sentence changed meanwhile. */
+  const checkTransfer = async () => {
+    if (!current || current.kind !== "essay") return;
+    const note = current.note;
+    const cardKey = current.key;
+    const submitted = transferText;
+    const base = checkTransferSentence(submitted, note.right, note.wrong);
+    const reqId = ++transferReqRef.current;
+    if (!base.ok || !ready.text()) {
+      setTransferChecking(false);
+      return setTransferResult(base);
     }
-    go({ page: "practice" });
+    setTransferChecking(true);
+    const stale = () => transferReqRef.current !== reqId || currentKeyRef.current !== cardKey || transferTextRef.current !== submitted;
+    try {
+      const eq = await checkGrammarEquivalence({
+        kind: "sentence",
+        pointTitle: note.point || undefined,
+        prompt: `运用目标表达「${note.right}」造一个语法与搭配完全正确的法语新句`,
+        expected: [note.right],
+        answer: submitted,
+      });
+      if (stale()) return;
+      setTransferResult(
+        eq.equivalent
+          ? { ...base, ok: true, tip: `✓ 迁移通过（AI 核验：${eq.why || "语法与搭配自然"}）` }
+          : { ...base, ok: false, tip: `语法/搭配尚需微调：${eq.why}${eq.corrected ? `（建议：${eq.corrected}）` : ""}` },
+      );
+    } catch {
+      if (!stale()) setTransferResult(base);
+    } finally {
+      if (transferReqRef.current === reqId) setTransferChecking(false);
+    }
   };
 
   return (
@@ -422,6 +468,8 @@ export function MistakeReflow({ onExit }: { onExit: () => void }) {
                             lang="fr"
                             value={transferText}
                             onChange={(e) => {
+                              transferReqRef.current++;
+                              setTransferChecking(false);
                               setTransferText(e.target.value);
                               setTransferResult(null);
                             }}
@@ -431,29 +479,7 @@ export function MistakeReflow({ onExit }: { onExit: () => void }) {
                             onKeyDown={(e) => {
                               if (e.key === "Enter") {
                                 e.preventDefault();
-                                void (async () => {
-                                  const base = checkTransferSentence(transferText, current.note.right, current.note.wrong);
-                                  if (!base.ok || !ready.text()) return setTransferResult(base);
-                                  setTransferChecking(true);
-                                  try {
-                                    const eq = await checkGrammarEquivalence({
-                                      kind: "sentence",
-                                      pointTitle: current.note.point || undefined,
-                                      prompt: `运用目标表达「${current.note.right}」造一个语法与搭配完全正确的法语新句`,
-                                      expected: [current.note.right],
-                                      answer: transferText,
-                                    });
-                                    setTransferResult(
-                                      eq.equivalent
-                                        ? { ...base, ok: true, tip: `✓ 迁移通过（AI 核验：${eq.why || "语法与搭配自然"}）` }
-                                        : { ...base, ok: false, tip: `语法/搭配尚需微调：${eq.why}${eq.corrected ? `（建议：${eq.corrected}）` : ""}` },
-                                    );
-                                  } catch {
-                                    setTransferResult(base);
-                                  } finally {
-                                    setTransferChecking(false);
-                                  }
-                                })();
+                                void checkTransfer();
                               }
                             }}
                           />
@@ -461,31 +487,7 @@ export function MistakeReflow({ onExit }: { onExit: () => void }) {
                             type="button"
                             className="btn btn-ghost btn-sm"
                             disabled={transferChecking}
-                            onClick={() =>
-                              void (async () => {
-                                const base = checkTransferSentence(transferText, current.note.right, current.note.wrong);
-                                if (!base.ok || !ready.text()) return setTransferResult(base);
-                                setTransferChecking(true);
-                                try {
-                                  const eq = await checkGrammarEquivalence({
-                                    kind: "sentence",
-                                    pointTitle: current.note.point || undefined,
-                                    prompt: `运用目标表达「${current.note.right}」造一个语法与搭配完全正确的法语新句`,
-                                    expected: [current.note.right],
-                                    answer: transferText,
-                                  });
-                                  setTransferResult(
-                                    eq.equivalent
-                                      ? { ...base, ok: true, tip: `✓ 迁移通过（AI 核验：${eq.why || "语法与搭配自然"}）` }
-                                      : { ...base, ok: false, tip: `语法/搭配尚需微调：${eq.why}${eq.corrected ? `（建议：${eq.corrected}）` : ""}` },
-                                  );
-                                } catch {
-                                  setTransferResult(base);
-                                } finally {
-                                  setTransferChecking(false);
-                                }
-                              })()
-                            }
+                            onClick={() => void checkTransfer()}
                           >
                             {transferChecking ? "核验中…" : "检查新句"}
                           </button>
@@ -494,6 +496,8 @@ export function MistakeReflow({ onExit }: { onExit: () => void }) {
                           input={transferRef}
                           value={transferText}
                           onChange={(v) => {
+                            transferReqRef.current++;
+                            setTransferChecking(false);
                             setTransferText(v);
                             setTransferResult(null);
                           }}

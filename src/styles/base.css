@@ -802,7 +802,7 @@ ul.chips {
   font-variant-numeric: tabular-nums;
 }
 .mini-stats dd small {
-  font: 500 11px var(--sans);
+  font: 500 12px var(--sans);
   color: var(--ink-3);
   margin-left: 3px;
 }

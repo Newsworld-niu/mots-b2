@@ -1,6 +1,7 @@
 import { resetTestDom } from "../../test-dom";
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, test } from "node:test";
+import { useMemo } from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { AtlasContext } from "../../atlas/context";
 import { setConfusablesForTest } from "../../atlas/confusables";
@@ -12,7 +13,9 @@ import { setLexdbFetcher } from "../../lib/lexdb/load";
 import { href } from "../../lib/router";
 import type { LexEntry, LexMeta } from "../../lib/lexdb/types";
 import prendreFixture from "../../lib/lexdb/fixtures/prendre.json";
-import { resetProgress, store } from "../../store/store";
+import { resetProgress, store, useStore } from "../../store/store";
+import { withUserData } from "../../atlas/merge";
+import { quickAddToReview } from "../../ui/HomeDictionary";
 import { DictEntryView } from "./DictEntryView";
 
 const ref = (id: string, word: string, zh: string, pos: string[]): WordRef => ({
@@ -377,4 +380,107 @@ test("accent-distinct headwords do not cross-bind in DictEntryView or EntryView"
   const surButtons = [...document.querySelectorAll<HTMLButtonElement>(".relations button.link")];
   assert.equal(surButtons.length, 1);
   assert.ok(surButtons[0].textContent?.includes("sûr"));
+});
+
+/** The app's atlas includes the learner's own words (App.tsx WithUserData); the quick-add dedupe relies on it. */
+function LiveAtlas({ entry }: { entry: LexEntry }) {
+  const custom = useStore((s) => s.progress.custom);
+  const edits = useStore((s) => s.progress.edits);
+  const atlas = useMemo(() => withUserData(ATLAS, custom, edits), [custom, edits]);
+  return (
+    <AtlasContext.Provider value={atlas}>
+      <DictEntryView entry={entry} />
+    </AtlasContext.Provider>
+  );
+}
+
+test("闪电入卡组 adds a dictionary-only word to 阅读生词 in one click and never twice", async () => {
+  render(<LiveAtlas entry={BARE} />);
+  await settle();
+  // the form-based 加入复习 stays the only button with that name (e2e opens .sheet .word-form with it)
+  assert.equal(screen.getAllByRole("button", { name: /加入复习/ }).length, 1);
+  act(() => {
+    fireEvent.click(screen.getByRole("button", { name: /闪电入卡组/ }));
+  });
+  const p = store.get().progress;
+  const custom = Object.entries(p.custom ?? {}).filter(([, c]) => c.w === "quelconque");
+  assert.equal(custom.length, 1, "one custom word made from the entry");
+  assert.equal(custom[0][1].zh, "任何的");
+  assert.equal(custom[0][1].auto, true);
+  const deck = p.decks?.find((d) => d.name === "阅读生词");
+  assert.ok(deck?.words.includes(custom[0][0]));
+  assert.ok(!screen.queryByRole("button", { name: /闪电入卡组/ }), "the button turns into the added state");
+  assert.ok(screen.getByText(/已在词卡/));
+  assert.ok(screen.getByRole("link", { name: "去卡组查看" }).getAttribute("href")?.startsWith("#/decks?d="));
+  // adding again (another surface, same word) is a no-op
+  const again = quickAddToReview(withUserData(ATLAS, store.get().progress.custom, undefined), "quelconque", () => {
+    throw new Error("must not build a second card");
+  });
+  assert.equal(again.status, "exists");
+  assert.equal(Object.values(store.get().progress.custom ?? {}).filter((c) => c.w === "quelconque").length, 1);
+});
+
+test("闪电入卡组 links an atlas headword instead of creating a duplicate custom word", async () => {
+  const bonheur: LexEntry = { id: "bonheur", w: "bonheur", pos: [{ p: "n.m.", g: "m", senses: [{ zh: "幸福", src: ["wikt-zh"], conf: 2 }] }], sources: ["wikt-zh"] };
+  renderEntry(bonheur);
+  await settle();
+  act(() => {
+    fireEvent.click(screen.getByRole("button", { name: /闪电入卡组/ }));
+  });
+  const p = store.get().progress;
+  assert.equal(Object.keys(p.custom ?? {}).length, 0);
+  assert.deepEqual(p.decks?.find((d) => d.name === "阅读生词")?.words, ["bonheur"]);
+});
+
+test("闪电入卡组 works after migrateCoreDeck, preserves accent minimal pairs (péché ≠ pêche), and unpauses removed custom words", async () => {
+  const { migrateCoreDeck, removeFromDeck } = await import("../../store/decks");
+  const pairAtlas = fakeAtlas([
+    ref("bonheur", "bonheur", "幸福", ["n.m."]),
+    ref("peche", "pêche", "桃子；捕鱼", ["n.f."]),
+  ]);
+  // Simulate app startup migration putting all main-lexicon words into CORE_DECK
+  migrateCoreDeck(pairAtlas);
+  assert.equal(store.get().progress.coreMigrated, true);
+
+  // 1) Unseen main-lexicon word in CORE_DECK still shows 闪电入卡组 and links to 阅读生词 (not CORE_DECK)
+  const bonheur: LexEntry = { id: "bonheur", w: "bonheur", pos: [{ p: "n.m.", g: "m", senses: [{ zh: "幸福", src: ["wikt-zh"], conf: 2 }] }], sources: ["wikt-zh"] };
+  const { unmount: u1 } = render(
+    <AtlasContext.Provider value={pairAtlas}>
+      <DictEntryView entry={bonheur} />
+    </AtlasContext.Provider>,
+  );
+  await settle();
+  const quickBtn = screen.getByRole("button", { name: /闪电入卡组/ });
+  act(() => {
+    fireEvent.click(quickBtn);
+  });
+  const readDeck = store.get().progress.decks?.find((d) => d.name === "阅读生词");
+  assert.ok(readDeck?.words.includes("bonheur"));
+  assert.equal(screen.getByRole("link", { name: "去卡组查看" }).getAttribute("href"), `#/decks?d=${readDeck?.id}`);
+  u1();
+
+  // 2) Accent minimal pair péché must NOT bind to pêche; batch quickAddToReview with stale atlas does not duplicate
+  const pecheSin: LexEntry = { id: "peche#2", w: "péché", pos: [{ p: "n.m.", g: "m", senses: [{ zh: "罪恶", src: ["wikt-zh"], conf: 2 }] }], sources: ["wikt-zh"] };
+  const r1 = quickAddToReview(pairAtlas, pecheSin.w, () => ({ w: "péché", pos: "n.m.", zh: "罪恶", ipa: "", senses: [], ex: [], col: [], fam: [], syn: [], ant: [], note: "" }));
+  const r2 = quickAddToReview(pairAtlas, pecheSin.w, () => {
+    throw new Error("stale atlas must still dedupe against live store.custom");
+  });
+  assert.equal(r1.status, "added");
+  assert.equal(r2.status, "exists");
+  assert.equal(r1.wordId, r2.wordId);
+  assert.notEqual(r1.wordId, "peche");
+
+  // 3) Paused custom word (has FSRS card, removed from all decks) can be re-added via quickAddToReview keeping its FSRS card
+  store.progress((p) => ({
+    ...p,
+    cards: { ...p.cards, [r1.wordId]: { due: 1000, s: 5, d: 5, el: 0, sd: 1, ls: 0, reps: 2, lapses: 0, st: 2, seen: 500 } },
+  }));
+  removeFromDeck(r1.deckId, r1.wordId);
+  const liveAtlas = withUserData(pairAtlas, store.get().progress.custom, undefined);
+  const unpaused = quickAddToReview(liveAtlas, "péché", () => {
+    throw new Error("must reuse existing paused custom word");
+  });
+  assert.equal(unpaused.status, "added");
+  assert.equal(unpaused.wordId, r1.wordId);
+  assert.equal(store.get().progress.cards[r1.wordId]?.reps, 2);
 });

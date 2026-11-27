@@ -1,5 +1,6 @@
-/** Upstream the interface is adapted from (MIT code, CC BY 4.0 content). */
-export const REPO_URL = "https://github.com/designfuchen/word-atlas";
+/** This project's repository, and the upstream Word Atlas interface it is adapted from (MIT code, CC BY 4.0 brand/sfx). */
+export const REPO_URL = "https://github.com/Newsworld-niu/mots-b2";
+export const UPSTREAM_REPO_URL = "https://github.com/designfuchen/word-atlas";
 
 /** Language of the text being learned; used for the speech synthesis voice. */
 export const TARGET_LANG = "fr-FR";

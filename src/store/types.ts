@@ -331,6 +331,11 @@ export interface Settings {
   loungeMode: LoungeMode;
   /** Active exam track ("delf" = DELF B2, "tcf" = TCF TP/Canada, "tef" = TEF post-Dec 2023). */
   examTrack: "delf" | "tcf" | "tef";
+  /**
+   * Learning mode: "everyday" (日常进阶, A1–B2 step by step: a calm daily list, no exam countdown) or "exam"
+   * (备考冲刺: DELF B2 / TCF / TEF countdown, score targets and elimination warnings).
+   */
+  goal?: "everyday" | "exam";
 }
 
 export interface State {
@@ -368,6 +373,7 @@ export const defaultSettings: Settings = {
   lastBackupAt: null,
   loungeMode: "chill",
   examTrack: "delf",
+  goal: "everyday",
 };
 
 export const SETTINGS_KEY = "word-atlas:settings";

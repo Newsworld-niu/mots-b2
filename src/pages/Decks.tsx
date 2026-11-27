@@ -1,14 +1,16 @@
-import { Bookmark, BookmarkCheck, ArrowLeft, Check, ChevronDown, GraduationCap, Pencil, Plus, ScanText, Search, Trash2, X } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { Bookmark, BookmarkCheck, ArrowLeft, Check, ChevronDown, GraduationCap, Pencil, Plus, ScanText, Search, Star, Trash2, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAtlas } from "../atlas/context";
 import type { Atlas, WordRef } from "../atlas/types";
-import { go, openWord } from "../lib/router";
+import type { LexEntry } from "../lib/lexdb/types";
+import { go, href, openWord } from "../lib/router";
 import { searchAtlas } from "../lib/search";
 import {
   addToDeck,
   createDeck,
   deckWords,
   deleteDeck,
+  findExact,
   orphanCustomWords,
   pausedIds,
   removeFromDeck,
@@ -27,6 +29,7 @@ import { Sheet } from "../ui/Sheet";
 import { toast } from "../ui/Toast";
 import { WordForm } from "../ui/WordForm";
 import { ExtractWords } from "../ui/ExtractWords";
+import { cardFor, inReview, quickAddToReview, REVIEW_DECK } from "../ui/HomeDictionary";
 import { LexiconTabs } from "../ui/LexiconTabs";
 import { useWindowRange } from "../ui/useWindowRange";
 
@@ -78,7 +81,7 @@ export function Decks({ deckId }: { deckId?: string }) {
 function DeckList({ atlas, progress }: { atlas: Atlas; progress: DeckProgressSlice }) {
   const studyDecks = useStore((s) => s.settings.studyDecks);
   const [name, setName] = useState("");
-  const decks = progress.decks ?? [];
+  const decks = useMemo(() => progress.decks ?? [], [progress.decks]);
   const allIds = decks.map((d) => d.id);
   const range = studyRange(progress, { studyDecks });
   const paused = useMemo(() => pausedIds(atlas, progress), [atlas, progress]);
@@ -157,12 +160,166 @@ function DeckList({ atlas, progress }: { atlas: Atlas; progress: DeckProgressSli
         </li>
       </ul>
 
+      <DictFavs atlas={atlas} />
+
       {paused.length > 0 && (
         <button className="paused-note" onClick={() => go({ page: "decks", d: PAUSED })}>
           有 {paused.length} 个学过的词不在任何卡组里，已暂停复习。<span className="link">查看</span>
         </button>
       )}
     </div>
+  );
+}
+
+/* ---------- 词典收藏: the dictionary's favourites, one step from review ---------- */
+
+const FAVS_SHOWN = 24;
+/** A LexDB id is the folded lemma, plus "#2" for homographs. */
+const lemmaOf = (id: string) => id.replace(/#\d+$/, "");
+
+/**
+ * The words starred in the dictionary (progress.dictFavs, stored as LexDB ids) shown next to the decks, with a
+ * link back to each entry and a one-click move into 阅读生词. Read-only over dictFavs: favourites stay favourites.
+ */
+function DictFavs({ atlas }: { atlas: Atlas }) {
+  const stored = useStore((s) => s.progress.dictFavs);
+  const favs = useMemo(() => stored ?? [], [stored]);
+  const cards = useStore((s) => s.progress.cards);
+  const decks = useStore((s) => s.progress.decks);
+  const hidden = useStore((s) => s.progress.hidden);
+  const coreMigrated = useStore((s) => s.progress.coreMigrated);
+  const [entries, setEntries] = useState<Record<string, LexEntry | null>>({});
+  const [all, setAll] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [pendingIds, setPendingIds] = useState<Set<string>>(() => new Set());
+  const shown = all ? favs : favs.slice(0, FAVS_SHOWN);
+  const atlasFor = (id: string) => {
+    const e = entries[id];
+    if (e) return cardFor(atlas, e.w, e.atlasId);
+    // Never match homographs ("cote#2" = côte) or accent-minimal pairs by folded slug: only exact unaccented ids match offline.
+    return id.includes("#") ? undefined : findExact(atlas, id)[0];
+  };
+
+  // Always load real LexDB entries for displayed favourites so accented lemmas & #N homographs resolve accurately.
+  const missing = shown.filter((id) => !(id in entries)).join("\n");
+  useEffect(() => {
+    if (!missing) return;
+    let live = true;
+    void import("../lib/lexdb/load")
+      .then(async ({ getEntryById }) => {
+        const ids = missing.split("\n");
+        const got = await Promise.all(ids.map((id) => getEntryById(id).catch(() => null)));
+        if (live) setEntries((prev) => ({ ...prev, ...Object.fromEntries(ids.map((id, i) => [id, got[i]])) }));
+      })
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [missing]);
+
+  if (!favs.length) return null;
+
+  const addOne = async (id: string): Promise<"added" | "exists" | "skipped"> => {
+    let entry = entries[id] ?? null;
+    if (!(id in entries) || entry === null) {
+      const { getEntryById } = await import("../lib/lexdb/load");
+      entry = await getEntryById(id).catch(() => null);
+      if (entry) setEntries((prev) => ({ ...prev, [id]: entry }));
+    }
+    const ref = entry ? cardFor(atlas, entry.w, entry.atlasId) : id.includes("#") ? undefined : findExact(atlas, id)[0];
+    const w = entry?.w ?? ref?.word;
+    if (!w) return "skipped";
+    const lex = entry ? await import("../lib/lexdb/search") : null;
+    const res = quickAddToReview(atlas, w, () => (entry && lex ? lex.entryToSeed(entry) : { w, pos: "", zh: ref?.zh ?? "", ipa: "", senses: [], ex: [], col: [], fam: [], syn: [], ant: [], note: "" }), entry?.atlasId ?? ref?.id);
+    return res.status;
+  };
+  const moveOne = async (id: string) => {
+    if (busy || pendingIds.has(id)) return;
+    setPendingIds((prev) => new Set(prev).add(id));
+    try {
+      const st = await addOne(id);
+      toast(st === "added" ? `已加入「${REVIEW_DECK}」卡组` : st === "exists" ? "这个词已在复习里" : "离线词典暂时打不开这个词，请联网后再试", st === "skipped" ? "warn" : "ok");
+    } finally {
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+  const moveAll = async () => {
+    setBusy(true);
+    let added = 0;
+    let skipped = 0;
+    try {
+      for (const id of favs) {
+        const st = await addOne(id);
+        if (st === "added") added++;
+        else if (st === "skipped") skipped++;
+      }
+    } finally {
+      setBusy(false);
+    }
+    if (added > 0) {
+      toast(`已把 ${added} 个收藏词加入「${REVIEW_DECK}」${skipped ? `，${skipped} 个离线暂未读取` : ""}`, skipped ? "warn" : "ok");
+    } else if (skipped > 0) {
+      toast(`离线词典暂不可用，${skipped} 个收藏词未能读取，请联网后重试`, "warn");
+    } else {
+      toast("收藏的词都已在复习里", "info");
+    }
+  };
+  const pending = favs.filter((id) => {
+    const ref = atlasFor(id);
+    return !ref || !inReview({ cards, decks, hidden, coreMigrated }, ref.id);
+  }).length;
+
+  return (
+    <section className="panel dict-favs" aria-label="词典收藏">
+      <div className="panel-head">
+        <div>
+          <h2 className="eyebrow">
+            <Star size={13} /> 词典收藏 · {favs.length} 词
+          </h2>
+          <p className="muted small">在词典里点过「收藏」的词。收藏只是书签，转入卡组后才会按记忆曲线复习。</p>
+        </div>
+        {pending > 0 && (
+          <button type="button" className="btn btn-primary btn-sm" disabled={busy} onClick={() => void moveAll()}>
+            <Plus size={14} /> {busy ? "正在加入…" : `全部加入复习卡组（${pending}）`}
+          </button>
+        )}
+      </div>
+      <ul className="dict-favs-list">
+        {shown.map((id) => {
+          const entry = entries[id];
+          const ref = atlasFor(id);
+          const word = entry?.w ?? ref?.word ?? lemmaOf(id);
+          const zh = entry?.pos[0]?.senses[0]?.zh ?? ref?.zh ?? "";
+          const reviewing = !!ref && inReview({ cards, decks, hidden, coreMigrated }, ref.id);
+          return (
+            <li key={id}>
+              <a className="dict-favs-word" href={href({ page: "dict", w: entry ? entry.id : ref ? ref.word : id })} lang="fr">
+                {word}
+              </a>
+              {zh && <span className="dict-favs-zh">{zh}</span>}
+              {reviewing ? (
+                <span className="dict-favs-state">
+                  <Check size={13} /> 已在复习
+                </span>
+              ) : (
+                <button type="button" className="btn btn-ghost btn-sm" disabled={busy || pendingIds.has(id)} onClick={() => void moveOne(id)}>
+                  转入复习卡组
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {favs.length > FAVS_SHOWN && (
+        <button type="button" className="link small" onClick={() => setAll((v) => !v)}>
+          {all ? "收起" : `显示全部 ${favs.length} 个`}
+        </button>
+      )}
+    </section>
   );
 }
 

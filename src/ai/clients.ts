@@ -6,7 +6,7 @@
  *  - Google Gemini: its native REST protocol (gemini.ts, loaded on demand)
  *  - Azure AI Speech: text to speech (SSML) and the voice list
  */
-import { DEFAULT_MODELS, getAiConfig, type AiConfig, type TextProvider } from "./config";
+import { DEFAULT_MODELS, getAiConfig, setAiConfig, type AiConfig, type TextProvider } from "./config";
 import { AiError, aiFetch, errorFrom, fetchWithTimeout, normalizeGeminiModel, parseJsonAnswer, proxyAvailable, proxyUrl, resolveOpenAiEndpoint } from "./proxy";
 import { buildVoiceSsml, type SsmlOptions } from "./ssml";
 import { recordAiUsage } from "./usage";
@@ -429,9 +429,62 @@ async function anthropicJson(model: string, req: JsonRequest, c: AiConfig = getA
   return anthropicJsonWith(model, req, { apiKey: key("anthropic", c) });
 }
 
+/**
+ * Whether a Gemini request on `model` may move to another model when Google answers that it is retired for this
+ * project: the built-in default, the model last verified for this key, and the older generations (2.5 / 2.0 / 1.5),
+ * which new projects can no longer use. A model the learner typed on purpose (`gemini-3-pro-…`, a relay alias) keeps
+ * its 404.
+ */
+export function geminiCanSelfHeal(model: string, cfg: AiConfig = getAiConfig()): boolean {
+  const clean = normalizeGeminiModel(model);
+  const lastGood = cfg.lastGoodModel?.gemini ? normalizeGeminiModel(cfg.lastGoodModel.gemini) : "";
+  return clean === DEFAULT_MODELS.gemini || (!!lastGood && clean === lastGood) || /^gemini-(?:2\.5|2\.0|1\.5)-/i.test(clean);
+}
+
+/**
+ * Save the model that answered in place of a retired one: it becomes the key's last good Gemini model, and the jobs
+ * (文本 / 识图) still set to the retired model move to it, so later calls go there at once.
+ */
+export function persistHealedGeminiModel(
+  fromModel: string,
+  toModel: string,
+  expected?: { apiKey: string; baseUrl: string; allowEmptySavedKey?: boolean },
+): void {
+  const from = normalizeGeminiModel(fromModel);
+  const to = normalizeGeminiModel(toModel);
+  if (!to || to === from) return;
+  const matchesGuard = (cfg: AiConfig) => {
+    if (!expected) return true;
+    const savedKey = (cfg.keys.gemini ?? "").trim();
+    const keyOk = savedKey === expected.apiKey.trim() || (Boolean(expected.allowEmptySavedKey) && !savedKey);
+    return keyOk && (cfg.geminiBaseUrl ?? "") === (expected.baseUrl ?? "");
+  };
+  const cur = getAiConfig();
+  if (!matchesGuard(cur)) return;
+  const moves = (job: { provider: string; model: string }) => job.provider === "gemini" && normalizeGeminiModel(job.model) === from;
+  if (cur.lastGoodModel?.gemini === to && !moves(cur.text) && !moves(cur.vision)) return;
+  setAiConfig((c) => {
+    if (!matchesGuard(c)) return c;
+    return {
+      ...c,
+      lastGoodModel: { ...c.lastGoodModel, gemini: to },
+      text: moves(c.text) ? { ...c.text, model: to } : c.text,
+      vision: moves(c.vision) ? { ...c.vision, model: to } : c.vision,
+    };
+  });
+}
+
 async function geminiJson(model: string, req: JsonRequest, c: AiConfig = getAiConfig()) {
   const { geminiJsonWith } = await import("./gemini");
-  return geminiJsonWith(model, req, { apiKey: key("gemini", c), geminiBaseUrl: c.geminiBaseUrl });
+  const clean = normalizeGeminiModel(model);
+  const apiKey = key("gemini", c);
+  const baseUrl = c.geminiBaseUrl;
+  return geminiJsonWith(clean, req, {
+    apiKey,
+    geminiBaseUrl: baseUrl,
+    allowModelFallback: geminiCanSelfHeal(clean, c),
+    onModelHealed: (from, to) => persistHealedGeminiModel(from, to, { apiKey, baseUrl }),
+  });
 }
 
 /** A JSON answer from one text service with the given settings. */
@@ -486,7 +539,7 @@ export async function listModels(provider: TextProvider, cfg?: AiConfig): Promis
 export async function testTextProvider(
   provider: TextProvider,
   cfgOverride?: AiConfig,
-): Promise<{ models: string[]; probeOk: boolean; compatMode?: string; model: string }> {
+): Promise<{ models: string[]; probeOk: boolean; compatMode?: string; model: string; requestedModel: string }> {
   await needProxy();
   const c = cfgOverride ?? getAiConfig();
   const customBase = (provider === "openai" && !!c.openaiBaseUrl) || (provider === "gemini" && !!c.geminiBaseUrl);
@@ -499,18 +552,18 @@ export async function testTextProvider(
     listErr = e;
   }
   const activeModel = c.text.provider === provider ? c.text.model : c.vision.provider === provider ? c.vision.model : "";
+  const { rankGeminiTextModels } = provider === "gemini" ? await import("./gemini") : { rankGeminiTextModels: null };
   const pickCatalogModel = (list: string[], preferred: string) => {
     if (!list.length || list.includes(preferred)) return preferred;
-    if (provider === "gemini") {
-      const preset = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3.5-flash-lite", "gemini-3.8-flash"].find((m) => list.includes(m));
-      if (preset) return preset;
-    }
-    return list.find((m) => !/-image\b|^imagen-|tts|whisper|embed/i.test(m)) ?? list[0];
+    if (rankGeminiTextModels) return rankGeminiTextModels(list)[0] ?? preferred;
+    const usable = list.find((m) => !/image|^imagen-|dall-e|tts|whisper|transcribe|embed|moderation|realtime|audio/i.test(m));
+    if (usable) return usable;
+    throw new AiError(`${NAMES[provider]} 的模型列表里没有可用于文本生成的模型（只有图片 / 语音 / 向量模型），请检查 Key 所属账户或在下方手动填写模型名`);
   };
   const rawTarget = activeModel.trim() || DEFAULT_MODELS[provider];
   // When probing an inactive service or a fresh 1-step wizard default, prefer a model actually present in its catalog
   const canAdaptModel = !activeModel.trim() || (Boolean(cfgOverride) && rawTarget === DEFAULT_MODELS[provider]);
-  const targetModel = canAdaptModel ? pickCatalogModel(models, rawTarget) : rawTarget;
+  let targetModel = canAdaptModel ? pickCatalogModel(models, rawTarget) : rawTarget;
   const probeReq: JsonRequest = {
     system: "Return JSON only.",
     text: 'Reply with {"ok":true}',
@@ -519,14 +572,33 @@ export async function testTextProvider(
     // reasoning models (OpenAI gpt-5 / o-series, OpenRouter's thinking models) spend part of the budget thinking
     maxTokens: provider === "openai" || provider === "openrouter" ? 1024 : 64,
   };
-  const res = await providerJson(provider, targetModel, probeReq, c);
+  let res: unknown;
+  if (provider === "gemini") {
+    // New Google projects answer 404 on gemini-2.5-* although models.list still names them: being listed proves
+    // nothing, so the probe itself may move to the model the error suggests or the best text model of the catalog.
+    const { geminiJsonWith } = await import("./gemini");
+    targetModel = normalizeGeminiModel(targetModel);
+    let healedTo = "";
+    res = await geminiJsonWith(targetModel, probeReq, {
+      apiKey: key("gemini", c),
+      geminiBaseUrl: c.geminiBaseUrl,
+      allowModelFallback: canAdaptModel || geminiCanSelfHeal(targetModel, c),
+      knownModels: models,
+      onModelHealed: (_from, to) => {
+        healedTo = to;
+      },
+    });
+    if (healedTo) targetModel = healedTo;
+  } else {
+    res = await providerJson(provider, targetModel, probeReq, c);
+  }
   if ((res as { ok?: unknown } | null)?.ok !== true) {
     throw new AiError(`${NAMES[provider]} 能连上，但模型 ${targetModel} 没有按要求返回 {"ok":true}，请换一个支持结构化 JSON 输出的模型`);
   }
   let compatMode: string | undefined;
   if (provider === "gemini") compatMode = (await import("./gemini")).geminiCompatModeFor(c.geminiBaseUrl, targetModel, probeReq.schemaName);
   else if (provider !== "anthropic") compatMode = compatModeCache.get(`${provider}|${c.openaiBaseUrl ?? ""}|${targetModel}`);
-  return { models: listErr ? [] : models, probeOk: true, compatMode, model: targetModel };
+  return { models: listErr ? [] : models, probeOk: true, compatMode, model: targetModel, requestedModel: provider === "gemini" ? normalizeGeminiModel(rawTarget) : rawTarget };
 }
 
 const bytesOf = (b64: string) => {
@@ -686,13 +758,14 @@ function jobAudioRoute(cfg: AiConfig, job: { provider: string; model: string }):
 
 /**
  * Where recorded speech goes for native audio transcription: the service chosen for 文本, then for 识图 (when it can
- * listen), and only then a Gemini key that is filled in but not chosen for either job (its default model).
+ * listen), and only then a Gemini key that is filled in but not chosen for either job (its last verified model, else
+ * the default; a retired default heals itself on the first 404).
  */
 function resolveMultimodalAudioRoute(cfg: AiConfig): MultimodalAudioRoute | null {
   const route = jobAudioRoute(cfg, cfg.text) ?? jobAudioRoute(cfg, cfg.vision);
   if (route) return route;
   const geminiKey = (cfg.keys.gemini ?? "").trim();
-  return geminiKey ? { kind: "gemini", apiKey: geminiKey, model: DEFAULT_MODELS.gemini } : null;
+  return geminiKey ? { kind: "gemini", apiKey: geminiKey, model: normalizeGeminiModel(cfg.lastGoodModel?.gemini || DEFAULT_MODELS.gemini) } : null;
 }
 
 /** True when Gemini (`keys.gemini`) or an audio-capable OpenRouter/OpenAI model is configured for native audio STT. */
@@ -823,7 +896,15 @@ export async function transcribeViaMultimodalAudio(
       route.model,
       { mimeType, data: b64 },
       { system: MULTIMODAL_AUDIO_STT_SYSTEM, text: userInstruction },
-      { apiKey: route.apiKey, geminiBaseUrl: cfg.geminiBaseUrl, fetcher: opts?.fetcher, signal },
+      {
+        apiKey: route.apiKey,
+        geminiBaseUrl: cfg.geminiBaseUrl,
+        fetcher: opts?.fetcher,
+        signal,
+        allowModelFallback: geminiCanSelfHeal(route.model, cfg),
+        onModelHealed: (from, to) =>
+          persistHealedGeminiModel(from, to, { apiKey: route.apiKey, baseUrl: cfg.geminiBaseUrl, allowEmptySavedKey: Boolean(opts?.cfg) }),
+      },
     );
     const extracted = extractMultimodalTranscriptPayload(rawOut);
     return {

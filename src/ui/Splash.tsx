@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { duck, playFile, preloadFiles } from "../lib/sound";
 import { store } from "../store/store";
 
+/** Mirrored in App.tsx (shouldShowSplash), which decides before this lazy chunk loads. */
 const SEEN_KEY = "word-atlas:splash";
 const PALETTE: [string, number][] = [
   ["243,236,223", 0.58],
@@ -11,17 +12,6 @@ const PALETTE: [string, number][] = [
   ["143,178,204", 0.06],
 ];
 
-/** Show animated door splash on first visit only (unless disabled or deep-linked). */
-export function shouldShowSplash() {
-  if (!store.get().settings.splash) return false;
-  const h = location.hash.replace(/^#\/?/, "");
-  if (h && !h.startsWith("?")) return false; // deep links go straight to content
-  try {
-    return !localStorage.getItem(SEEN_KEY);
-  } catch {
-    return true;
-  }
-}
 
 interface P {
   x: number;
@@ -107,6 +97,11 @@ export function Splash({ onDone }: { onDone: () => void }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const [phase, setPhase] = useState<"gather" | "ready" | "open">("gather");
   const opening = useRef(false);
+  // The latest onDone for the effects below, which run once per motion preference.
+  const done = useRef(onDone);
+  useEffect(() => {
+    done.current = onDone;
+  });
   const reduce = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   useEffect(() => {
@@ -132,7 +127,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
     try {
       layout = targets(w, h, N);
     } catch {
-      onDone(); // canvas unavailable (privacy mode, headless): skip the intro rather than strand the user
+      done.current(); // canvas unavailable (privacy mode, headless): skip the intro rather than strand the user
       return;
     }
     const { pts, wordTop } = layout;
@@ -242,7 +237,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
       window.setTimeout(() => duck(false), 3200);
     }
     setPhase("open");
-    window.setTimeout(onDone, reduce ? 300 : 1900);
+    window.setTimeout(() => done.current(), reduce ? 300 : 1900);
   };
 
   useEffect(() => {
@@ -254,7 +249,7 @@ export function Splash({ onDone }: { onDone: () => void }) {
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }); // eslint-disable-line react-hooks/exhaustive-deps
+  });
 
   return (
     <div className={`splash is-${phase} ${reduce ? "is-reduced" : ""}`} onClick={() => open()} role="dialog" aria-label="欢迎打开法语词光，点击进入">

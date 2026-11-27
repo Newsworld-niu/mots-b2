@@ -153,3 +153,18 @@ test("resolvePathnameToHash turns history-style deep links into canonical hash r
   // Malformed escapes never throw.
   assert.doesNotThrow(() => resolvePathnameToHash("/dict/%E0%A4%A"));
 });
+
+test("practice links carry an optional word pool and autostart, and stay bare without them", () => {
+  assert.deepEqual(parseHash("#/practice").route, { page: "practice" });
+  assert.equal(href({ page: "practice" }), "#/practice");
+  assert.deepEqual(parseHash("#/practice?src=mistakes&autostart=1").route, { page: "practice", src: "mistakes", autostart: "1" });
+  assert.equal(href({ page: "practice", src: "mistakes", autostart: "1" }), "#/practice?src=mistakes&autostart=1");
+  assert.equal(href({ page: "practice", src: "due" }), "#/practice?src=due");
+  for (const src of ["due", "mistakes", "bookmarks", "all"] as const) {
+    assert.deepEqual(parseHash(href({ page: "practice", src })).route, { page: "practice", src });
+  }
+  // Unknown values are dropped rather than trusted.
+  assert.deepEqual(parseHash("#/practice?src=evil&autostart=yes").route, { page: "practice" });
+  assert.equal(resolvePathnameToHash("/practice", "?src=mistakes&autostart=1"), "#/practice?src=mistakes&autostart=1");
+  assert.equal(resolvePathnameToHash("/practice", "?src=nope"), "#/practice");
+});

@@ -21,7 +21,7 @@ import {
   type SttProvider,
   type TextProvider,
 } from "../ai/config";
-import { proxyAvailable } from "../ai/proxy";
+import { normalizeGeminiModel, proxyAvailable } from "../ai/proxy";
 import { clearTtsCache, ttsCacheSize } from "../ai/tts";
 import { resetAiUsage, useAiUsage } from "../ai/usage";
 import { toast } from "./Toast";
@@ -111,16 +111,21 @@ function useModels() {
   );
 
   /** Test a service (with the saved settings, or `cfg` before saving). Never throws; the toast reports. */
-  const test = async (p: TextProvider, cfg?: AiConfig, quiet = false): Promise<{ ok: true; note: string; model: string } | { ok: false; error: string }> => {
+  const test = async (
+    p: TextProvider,
+    cfg?: AiConfig,
+    quiet = false,
+  ): Promise<{ ok: true; note: string; model: string; requestedModel: string } | { ok: false; error: string }> => {
     setTesting(p);
     const c = cfg ?? getAiConfig();
     try {
       const res = await testTextProvider(p, cfg);
       if (res.models.length) store(p, listSig(p, c), res.models, c);
       const modeHint = res.compatMode && res.compatMode !== "strict" && res.compatMode !== "json_schema" ? ` · 已自动适配 ${res.compatMode} 兼容协议` : "";
-      const note = `${res.models.length ? `读取 ${res.models.length} 个模型` : "结构化 JSON 探活通过"}${modeHint}`;
+      const adapted = res.model && res.requestedModel && res.model !== res.requestedModel ? ` · 已自动匹配可用模型 ${res.model}` : "";
+      const note = `${res.models.length ? `读取 ${res.models.length} 个模型` : "结构化 JSON 探活通过"}${modeHint}${adapted}`;
       if (!quiet) toast(`${TITLE[p]} 连接成功（${note}）`, "ok");
-      return { ok: true, note, model: res.model };
+      return { ok: true, note, model: res.model, requestedModel: res.requestedModel };
     } catch (e) {
       const error = (e as Error).message || "连接失败";
       if (!quiet) toast(error, "warn");
@@ -285,7 +290,14 @@ export function AiSettings() {
   const c = useAiConfig();
   const usage = useAiUsage();
   const set = (patch: Partial<AiConfig>) => setAiConfig(patch);
-  const setKey = (k: keyof AiConfig["keys"], v: string) => setAiConfig((x) => ({ ...x, keys: { ...x.keys, [k]: v } }));
+  const setKey = (k: keyof AiConfig["keys"], v: string) =>
+    setAiConfig((x) => {
+      const nextLast = { ...x.lastGoodModel };
+      if ((TEXT_PROVIDERS as readonly string[]).includes(k) && (x.keys[k] ?? "").trim() !== v.trim()) {
+        delete nextLast[k as TextProvider];
+      }
+      return { ...x, keys: { ...x.keys, [k]: v }, lastGoodModel: nextLast };
+    });
   const { listOf, imageListOf, isLoading, testing, test, ensure } = useModels();
   const [proxy, setProxy] = useState<boolean | null>(null);
   const [voices, setVoices] = useState<AzureVoice[] | null>(null);
@@ -386,6 +398,7 @@ export function AiSettings() {
       const next: AiConfig = {
         ...cur,
         keys: { ...cur.keys, [provider]: trimmed },
+        ...(resolvedModel ? { lastGoodModel: { ...cur.lastGoodModel, [provider]: resolvedModel } } : {}),
         ...(provider === "openai" ? { openaiBaseUrl: cleanBase } : {}),
         ...(provider === "gemini" ? { geminiBaseUrl: cleanBase } : {}),
         text: { provider, model: chosenModel },
@@ -486,11 +499,39 @@ export function AiSettings() {
         return;
       }
       const latest = sanitizeAiConfig({ ...getAiConfig(), [urlField]: committed });
-      void test(p, latest);
+      void test(p, latest).then(keepTestedModel(p, latest));
       return;
     }
-    void test(p);
+    void test(p).then(keepTestedModel(p, getAiConfig()));
   };
+
+  /**
+   * After a passing 测试连接, remember the model that really answered, and move the jobs still set to the model that
+   * was asked for (when the probe had to adapt, e.g. a retired gemini-2.5-flash on a new Google project) to it, so
+   * that real requests do not keep failing where the test passed. Jobs edited while the test ran are left alone.
+   */
+  const keepTestedModel =
+    (p: TextProvider, snapshot: AiConfig) =>
+    (res: Awaited<ReturnType<typeof test>>): void => {
+      if (!res.ok || !res.model) return;
+      const model = res.model;
+      const asked = res.requestedModel.trim();
+      const sameModel = (a: string, b: string) =>
+        p === "gemini" ? normalizeGeminiModel(a) === normalizeGeminiModel(b) : a.trim() === b.trim();
+      const follows = (now: { provider: string; model: string }, before: { provider: string; model: string }) =>
+        now.provider === p && before.provider === p && sameModel(now.model, before.model) && sameModel(now.model, asked);
+      setAiConfig((cur) => {
+        if ((cur.keys[p] ?? "").trim() !== (snapshot.keys[p] ?? "").trim() || savedBase(p, cur) !== savedBase(p, snapshot)) {
+          return cur;
+        }
+        return {
+          ...cur,
+          lastGoodModel: { ...cur.lastGoodModel, [p]: model },
+          text: follows(cur.text, snapshot.text) ? { ...cur.text, model } : cur.text,
+          vision: p !== "deepseek" && follows(cur.vision, snapshot.vision) ? { ...cur.vision, model } : cur.vision,
+        };
+      });
+    };
 
   const testBtn = (p: TextProvider) => (
     <button type="button" className="btn btn-ghost btn-sm" onClick={() => runAdvancedTest(p)} disabled={!c.keys[p] || testing !== null} aria-label={`测试 ${TITLE[p]} 连接`}>
@@ -634,7 +675,7 @@ export function AiSettings() {
         <small>读照片、扫描件和 PDF。DeepSeek 不能看图；Gemini 可直接看图和 PDF；用 OpenRouter 时要选一个能看图的模型。</small>
         <div className="segmented">
           {VISION_PROVIDERS.map((p) => (
-            <button key={p} className={c.vision.provider === p ? "is-on" : ""} onClick={() => set({ vision: { provider: p, model: DEFAULT_MODELS[p] } })}>
+            <button key={p} className={c.vision.provider === p ? "is-on" : ""} onClick={() => set({ vision: { provider: p, model: (p !== "openrouter" && c.lastGoodModel?.[p]) || DEFAULT_MODELS[p] } })}>
               {LABEL[p]}
             </button>
           ))}
@@ -646,7 +687,7 @@ export function AiSettings() {
         <small>用于生成词条讲解、写作与口语批改、语法与阅读出题。</small>
         <div className="segmented">
           {TEXT_PROVIDERS.map((p) => (
-            <button key={p} className={c.text.provider === p ? "is-on" : ""} onClick={() => set({ text: { provider: p, model: DEFAULT_MODELS[p] } })}>
+            <button key={p} className={c.text.provider === p ? "is-on" : ""} onClick={() => set({ text: { provider: p, model: c.lastGoodModel?.[p] || DEFAULT_MODELS[p] } })}>
               {LABEL[p]}
             </button>
           ))}

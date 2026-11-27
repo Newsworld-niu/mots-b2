@@ -7,10 +7,13 @@
  *  - `streamGenerateContent?alt=sse` (default) or `generateContent`; single object or chunk-array JSON answers too
  *  - thinking parts are never shown; usage is counted once from the last chunk that carries it
  *  - model list and native image generation
+ *  - retired-model self-healing: newly created Google projects get HTTP 404 ("no longer available to new users") on
+ *    `gemini-2.5-*` even while `models.list` still names them; with `allowModelFallback` the request moves to the
+ *    model the error suggests, or the best text model of the key's catalog, and reports it through `onModelHealed`
  * The key travels in the `x-goog-api-key` header only, never in the URL.
  */
 import type { Attachment, JsonRequest } from "./clients";
-import { GEMINI_IMAGE_MODELS, GEMINI_PRESET_MODELS, sanitizeBaseUrl } from "./config";
+import { GEMINI_PRESET_MODELS, sanitizeBaseUrl } from "./config";
 import { AiError, aiFetch, createRequestDeadline, normalizeGeminiModel, parseJsonAnswer, redactSecrets, resolveGeminiEndpoint } from "./proxy";
 import { recordAiUsage } from "./usage";
 
@@ -29,10 +32,14 @@ const compatCache = new Map<string, GeminiCompatMode>();
 /** Custom bases whose `:streamGenerateContent` is not forwarded (404 / 405 / 501): they get `:generateContent`. */
 const noStreamBases = new Set<string>();
 
-/** Clear the in-memory compatibility and streaming caches (used in tests). */
+/** Retired models already healed in this visit: `base|model` → the model that answered instead. */
+const healedModels = new Map<string, string>();
+
+/** Clear the in-memory compatibility, streaming and model-healing caches (used in tests). */
 export function clearGeminiCompatCache(): void {
   compatCache.clear();
   noStreamBases.clear();
+  healedModels.clear();
 }
 
 /** The mode a request would start with (what 测试连接 reports). */
@@ -147,7 +154,7 @@ export function buildGeminiBody(model: string, req: JsonRequest, mode: GeminiCom
 
 /* ---------- errors ---------- */
 
-interface GeminiErrorInfo {
+export interface GeminiErrorInfo {
   message: string;
   status: string;
   reasons: string[];
@@ -193,7 +200,76 @@ const isSchemaIssue = (i: GeminiErrorInfo) =>
   /responseJsonSchema|response_json_schema|responseSchema|response_schema|generation_config|generationConfig|Unknown name|Invalid JSON payload|schema|response_mime_type|responseMimeType/i.test(`${i.message} ${i.raw}`);
 const detailOf = (i: GeminiErrorInfo, secret?: string) => redactSecrets(String(i.message || i.raw || "").replace(/\s+/g, " ").trim(), secret).slice(0, 200);
 
+const MODEL_GONE = /no longer available|not found|is not supported for generateContent|retired|deprecated|shut ?down|discontinued/i;
+
+/**
+ * True when a 404 says the model itself is unavailable to this key / project (retired for new users, not found for
+ * this API version, not usable with generateContent). A relay whose own address is wrong answers an HTML page or a
+ * bare "404 page not found" that never names a model: that is an address problem, not a model problem.
+ */
+export function isGeminiModelUnavailable(status: number, info: GeminiErrorInfo): boolean {
+  if (status !== 404) return false;
+  const text = `${info.message} ${info.raw}`;
+  if (/<!doctype|<html|<body|<head/i.test(text)) return false;
+  if (!/\bmodels?\b|gemini-/i.test(text)) return false;
+  return MODEL_GONE.test(text);
+}
+
+/** The model a Google error message tells the caller to use instead ("…please use models/gemini-…"), if any. */
+export function extractSuggestedGeminiModel(info: GeminiErrorInfo, failing?: string): string | null {
+  const text = `${info.message} ${info.raw}`;
+  const failed = failing ? normalizeGeminiModel(failing) : "";
+  const found: string[] = [];
+  const use = /\b(?:use|try|switch to|migrate to|upgrade to)\s+(?:the\s+)?(?:model\s+)?[`'"]?(?:models\/)?(gemini-[\w.-]+)/gi;
+  for (const m of text.matchAll(use)) found.push(m[1]);
+  for (const m of text.matchAll(/models\/(gemini-[\w.-]+)/gi)) found.push(m[1]);
+  for (const raw of found) {
+    const id = normalizeGeminiModel(raw.replace(/[.-]+$/, ""));
+    if (id && id !== failed && /^gemini-/i.test(id)) return id;
+  }
+  return null;
+}
+
+/** Models that cannot answer a JSON text request: pictures, speech, embeddings, video, music, live audio, agents. */
+const NOT_TEXT = /image|imagen|tts|embed|aqa|veo|lyria|live|native-audio|robotics|learnlm|computer-use/i;
+
+/**
+ * The text models of a catalog, best first: newest generation first (3 / 3.1 together, then 2.5, then 2.0); inside
+ * one generation general Flash, then Pro,
+ * then Flash-Lite; then the newer version; a stable release before a `-preview` / `-exp` of the same version; the
+ * shorter (undated) name first. Image / speech / embedding models are never offered, even when nothing else is left.
+ */
+export function rankGeminiTextModels(models: readonly string[], exclude?: ReadonlySet<string>): string[] {
+  const skip = new Set([...(exclude ?? [])].map((m) => normalizeGeminiModel(m)));
+  const ids = [...new Set(models.map((m) => (m ? normalizeGeminiModel(m) : "")))].filter((m) => /^gemini-/i.test(m) && !NOT_TEXT.test(m) && !skip.has(m));
+  const score = (m: string) => {
+    const v = /^gemini-(\d+)(?:\.(\d+))?/i.exec(m);
+    const version = v ? Number(v[1]) + Number(`0.${v[2] ?? 0}`) : 0;
+    // one generation per half version: 3 and 3.1 together, 2.5 apart from 2.0
+    const major = Math.floor(version * 2) / 2;
+    const lite = /flash-lite|-lite\b/i.test(m);
+    const tier = /flash/i.test(m) && !lite ? 3 : /pro/i.test(m) ? 2 : lite ? 1 : 0;
+    const stable = /preview|exp|experimental/i.test(m) ? 0 : 1;
+    return [major, tier, version, stable];
+  };
+  return ids.sort((a, b) => {
+    const sa = score(a);
+    const sb = score(b);
+    for (let i = 0; i < sa.length; i++) if (sa[i] !== sb[i]) return sb[i] - sa[i];
+    return a.length - b.length || a.localeCompare(b);
+  });
+}
+
+/** HTTP status and error body of a thrown Gemini AiError (for the retired-model fallback). */
+const httpFailure = new WeakMap<object, { status: number; info: GeminiErrorInfo }>();
+
 function geminiError(status: number, info: GeminiErrorInfo, model: string, secret?: string): AiError {
+  const err = geminiErrorOf(status, info, model, secret);
+  httpFailure.set(err, { status, info });
+  return err;
+}
+
+function geminiErrorOf(status: number, info: GeminiErrorInfo, model: string, secret?: string): AiError {
   if (isKeyInvalid(info)) return new AiError(`Google Gemini 返回 ${status || 400}（API Key 无效，请检查 Key 是否正确）`);
   const detail = detailOf(info, secret);
   if ((status === 403 || status === 400) && isRegion(info))
@@ -202,6 +278,10 @@ function geminiError(status: number, info: GeminiErrorInfo, model: string, secre
   if (status === 403) {
     return new AiError(`Google Gemini 返回 403（没有权限或 Key 受限）${detail ? `：${detail}` : ""}`);
   }
+  if (status === 404 && isGeminiModelUnavailable(404, info) && /no longer available to new users|not available to new (?:users|projects)/i.test(`${info.message} ${info.raw}`))
+    return new AiError(
+      `Google Gemini 返回 404（模型 ${normalizeGeminiModel(model)} 对当前项目不可用，新创建的项目请改用 gemini-3-flash-preview 等新一代模型，或在 AI 设置中点「测试连接」自动匹配）`,
+    );
   if (status === 404) return new AiError(`Google Gemini 返回 404（模型名或接口地址不对：${normalizeGeminiModel(model)}）`);
   if (status === 429) return new AiError("Google Gemini 返回 429（请求太频繁或免费/付费额度用完，请稍后再试）");
   if ([500, 502, 503, 504].includes(status)) return new AiError(`Google Gemini 服务暂时不可用（HTTP ${status}），请稍后重试`);
@@ -394,12 +474,124 @@ export interface GeminiOptions {
   /** `streamGenerateContent?alt=sse` (default) or `generateContent`. */
   stream?: boolean;
   onDelta?: (chunk: string) => void;
+  /**
+   * When the model answers 404 because it is retired / unavailable for this project, retry once on the model the
+   * error suggests or the best text models of the key's catalog (at most 3, never recursively). Off by default: a
+   * model the learner typed on purpose reports its 404 as it is.
+   */
+  allowModelFallback?: boolean;
+  /** The catalog already read (testTextProvider), so a fallback need not read `/models` again. */
+  knownModels?: readonly string[];
+  /** Called once a fallback model answered in place of `fromModel` (persist it so later calls go there directly). */
+  onModelHealed?: (fromModel: string, toModel: string) => void;
+}
+
+/** At most this many replacement models are tried after a retired-model 404. */
+const MAX_HEAL_CANDIDATES = 3;
+
+const isAbort = (e: unknown) => (e as Error)?.name === "AbortError";
+
+/** The status and error body of a Gemini HTTP failure that says the model itself is unavailable. */
+function unavailableInfo(e: unknown): GeminiErrorInfo | null {
+  const f = e && typeof e === "object" ? httpFailure.get(e) : undefined;
+  return f && isGeminiModelUnavailable(f.status, f.info) ? f.info : null;
+}
+
+/**
+ * Run `once` on `model`; if it is retired for this project (and `allowModelFallback`), on the replacement models in
+ * turn: first the one already healed in this visit, then the error's suggestion, then the ranked catalog. The first
+ * that answers is remembered for the visit and reported through `onModelHealed`. When none answers, the original
+ * error is thrown, unless a replacement failed for another reason than a 404 (quota, permission), which is more useful.
+ */
+/** Short non-reversible fingerprint of an API key so in-memory healed-model caches never leak across accounts/keys. */
+function keyFingerprint(apiKey: string): string {
+  const s = apiKey.trim();
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return `${s.length}:${(h >>> 0).toString(36)}`;
+}
+
+async function withModelHealing<T>(model: string, opts: GeminiOptions, signal: AbortSignal | undefined, once: (m: string) => Promise<T>): Promise<T> {
+  const clean = normalizeGeminiModel(model);
+  const healKey = `${keyFingerprint(opts.apiKey)}|${baseKey(opts.geminiBaseUrl)}|${clean}`;
+  const healed = opts.allowModelFallback ? healedModels.get(healKey) : undefined;
+  const tried = new Set<string>([clean]);
+  if (healed) {
+    try {
+      const out = await once(healed);
+      opts.onModelHealed?.(clean, healed);
+      return out;
+    } catch (e) {
+      if (!unavailableInfo(e)) throw e;
+      healedModels.delete(healKey);
+      tried.add(healed);
+    }
+  }
+  let original: unknown;
+  let info: GeminiErrorInfo | null;
+  try {
+    return await once(clean);
+  } catch (e) {
+    info = opts.allowModelFallback ? unavailableInfo(e) : null;
+    if (!info) throw e;
+    original = e;
+  }
+
+  const queue: string[] = [];
+  const suggested = extractSuggestedGeminiModel(info, clean);
+  if (suggested) queue.push(...rankGeminiTextModels([suggested], tried));
+  let catalogRead = false;
+  const readCatalog = async () => {
+    catalogRead = true;
+    let catalog: readonly string[] = opts.knownModels ?? [];
+    if (!catalog.length) {
+      try {
+        catalog = await listGeminiModels({ ...opts, signal });
+      } catch (e) {
+        if (isAbort(e)) throw e;
+        catalog = [];
+      }
+    }
+    // a relay without /models: the current generation is still worth a try
+    if (!catalog.length) catalog = GEMINI_PRESET_MODELS;
+    for (const m of rankGeminiTextModels(catalog, tried)) if (!queue.includes(m)) queue.push(m);
+  };
+  if (!queue.length) await readCatalog();
+
+  let other: unknown = null;
+  for (let attempts = 0; attempts < MAX_HEAL_CANDIDATES; attempts++) {
+    if (!queue.length && !catalogRead) await readCatalog();
+    const next = queue.shift();
+    if (!next) break;
+    tried.add(next);
+    try {
+      const out = await once(next);
+      healedModels.set(healKey, next);
+      opts.onModelHealed?.(clean, next);
+      return out;
+    } catch (e) {
+      if (isAbort(e) || signal?.aborted) throw e;
+      const f = e && typeof e === "object" ? httpFailure.get(e) : undefined;
+      if (!f || f.status !== 404) other ??= e;
+    }
+  }
+  throw other ?? original;
 }
 
 const endpoint = (opts: GeminiOptions, path: string) => resolveGeminiEndpoint(opts.geminiBaseUrl ?? "", path, { forceDirect: Boolean(opts.fetcher) });
 
-/** A JSON answer from a Gemini model, with the schema-compatibility fallback described above. */
+/**
+ * A JSON answer from a Gemini model, with the schema-compatibility fallback described above and, with
+ * `allowModelFallback`, the retired-model self-healing.
+ */
 export async function geminiJsonWith(model: string, req: JsonRequest, opts: GeminiOptions): Promise<unknown> {
+  return withModelHealing(model, opts, req.signal, (m) => geminiJsonOnce(m, req, opts));
+}
+
+async function geminiJsonOnce(model: string, req: JsonRequest, opts: GeminiOptions): Promise<unknown> {
   const clean = normalizeGeminiModel(model);
   const base = baseKey(opts.geminiBaseUrl);
   const custom = base !== "official";
@@ -489,7 +681,6 @@ export async function listGeminiModels(opts: GeminiOptions & { signal?: AbortSig
   }
   const all = new Set(found.filter(Boolean));
   const preset: string[] = [...GEMINI_PRESET_MODELS].filter((m) => all.has(m));
-  void GEMINI_IMAGE_MODELS;
   return [...preset, ...[...all].filter((m) => !preset.includes(m)).sort()];
 }
 
@@ -546,8 +737,20 @@ export async function geminiGenerateImage(model: string, prompt: string, opts: G
   throw new AiError("Google Gemini 没有返回图片，请稍后重试或换一个图片模型");
 }
 
-/** Verbatim French audio transcription via Gemini `:generateContent`, with full read-deadline and safety/truncation checks. */
+/**
+ * Verbatim French audio transcription via Gemini `:generateContent`, with full read-deadline and safety/truncation
+ * checks, and (with `allowModelFallback`) the retired-model self-healing.
+ */
 export async function geminiTranscribeAudio(
+  model: string,
+  audio: { mimeType: string; data: string },
+  prompts: { system: string; text: string },
+  opts: GeminiOptions & { signal?: AbortSignal },
+): Promise<string> {
+  return withModelHealing(model, opts, opts.signal, (m) => geminiTranscribeOnce(m, audio, prompts, opts));
+}
+
+async function geminiTranscribeOnce(
   model: string,
   audio: { mimeType: string; data: string },
   prompts: { system: string; text: string },

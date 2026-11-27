@@ -274,7 +274,7 @@
   font-variant-numeric: tabular-nums;
 }
 .ring-body small {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--ink-3);
   margin-top: 4px;
 }
@@ -307,7 +307,7 @@
   background: linear-gradient(180deg, var(--terra), color-mix(in oklab, var(--terra) 70%, var(--ochre)));
 }
 .week li small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-3);
 }
 .week li.is-today small {
@@ -1499,7 +1499,7 @@
   text-overflow: ellipsis;
 }
 .summary-words small {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--ink-3);
   white-space: nowrap;
   overflow: hidden;
@@ -1819,7 +1819,7 @@
   font-variant-numeric: tabular-nums;
 }
 .forecast small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-3);
 }
 .field {
@@ -2060,6 +2060,33 @@
 .choice.is-on {
   border-color: var(--ink);
   box-shadow: var(--shadow);
+}
+.onboard-mode-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+.onboard-mode-choice {
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: center;
+}
+.onboard-mode-choice svg {
+  grid-row: span 2;
+  color: var(--terra);
+}
+.onboard-mode-choice b,
+.onboard-mode-choice small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.onboard-tracks {
+  flex-wrap: wrap;
+}
+@media (min-width: 560px) {
+  .onboard-mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .onboard .btn-xl {
   width: 100%;

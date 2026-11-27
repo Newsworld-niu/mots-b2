@@ -36,6 +36,15 @@
   margin: 0;
   color: var(--ink-2);
 }
+/* why another card of the same function does not fit this gap */
+.expr-mismatch {
+  margin: 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--terra);
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.6;
+}
 .expr-answer b {
   font: 600 18px var(--serif);
   color: var(--ink);

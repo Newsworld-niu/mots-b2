@@ -166,15 +166,6 @@
   gap: 8px;
   align-items: center;
 }
-.chip.is-pass {
-  border-color: var(--sage);
-  color: var(--sage-ink);
-}
-.chip.is-danger {
-  border-color: var(--terra);
-  color: var(--terra-ink);
-  background: color-mix(in srgb, var(--terra) 14%, var(--card));
-}
 .exam-alert {
   display: flex;
   gap: 10px;

@@ -446,7 +446,11 @@ function VirtualList({
             onClick={() => openWord(w.id)}
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => e.key === "Enter" && openWord(w.id)}
+            onKeyDown={(e) => {
+              if (e.target !== e.currentTarget || (e.key !== "Enter" && e.key !== " ")) return;
+              e.preventDefault();
+              openWord(w.id);
+            }}
           >
             <Illustration
               src={atlas.img(w, "thumb")}

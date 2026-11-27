@@ -9,7 +9,7 @@ export interface NavItem {
 
 export interface NavGroup extends NavItem {
   icon: typeof Compass;
-  /** Second-level destinations shown in the desktop sidebar. */
+  /** Second-level destinations shown in the desktop sidebar under the active pillar. */
   sub: NavItem[];
 }
 
@@ -33,6 +33,8 @@ export const MAIN_NAV: NavGroup[] = [
       { page: "examread", label: "阅读理解", href: "#/examread" },
       { page: "essay", label: "书面表达", href: "#/essay" },
       { page: "speak", label: "口语表达", href: "#/speak" },
+      { page: "drill", label: "一分钟口语", href: "#/drill" },
+      { page: "expr", label: "高频表达", href: "#/expr" },
       { page: "real", label: "真实电台", href: "#/real" },
       { page: "reflow", label: "错题中心", href: "#/reflow" },
     ],
@@ -45,6 +47,7 @@ export const MAIN_NAV: NavGroup[] = [
     sub: [
       { page: "atlas", label: "图鉴", href: "#/atlas" },
       { page: "decks", label: "卡组", href: "#/decks" },
+      { page: "read", label: "报刊精读", href: "#/read" },
       { page: "compare", label: "易混词辨析", href: "#/compare" },
     ],
   },
@@ -58,13 +61,29 @@ export const MAIN_NAV: NavGroup[] = [
   { page: "me", label: "我的", href: "#/me", icon: User, sub: [] },
 ];
 
-const STUDIO_ROUTES = new Set<Route["page"]>(["mock", "speak", "listen", "examread", "essay", "real", "drill", "expr", "reflow", "read"]);
+const STUDIO_ROUTES = new Set<Route["page"]>(["mock", "speak", "listen", "examread", "essay", "real", "drill", "expr", "reflow"]);
+/** 阅读 (报刊精读) colours every word by how well it is known: it lives with the word tools. */
+const LEXICON_ROUTES = new Set<Route["page"]>(["atlas", "decks", "compare", "read"]);
 
 /** Whether `tab` (a pillar) should light up while `current` is shown. */
 export const navOn = (current: Route["page"], tab: Route["page"]) =>
   current === tab ||
   (tab === "today" && (current === "learn" || current === "lounge")) ||
   (tab === "practice" && STUDIO_ROUTES.has(current)) ||
-  (tab === "dict" && (current === "atlas" || current === "decks" || current === "compare")) ||
+  (tab === "dict" && LEXICON_ROUTES.has(current)) ||
   (tab === "grammar" && current === "conj") ||
   (tab === "me" && current === "about");
+
+/** The pillar `current` belongs to (today when none claims it). */
+export const activePillar = (current: Route["page"]): Route["page"] => MAIN_NAV.find((g) => navOn(current, g.page))?.page ?? "today";
+
+/** Apple keyboards show ⌘, the others Ctrl. */
+export const isApplePlatform = () => {
+  if (typeof navigator === "undefined") return false;
+  const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+  const platform = nav.userAgentData?.platform || nav.platform || nav.userAgent || "";
+  return /mac|iphone|ipad|ipod/i.test(platform);
+};
+
+/** "⌘K" on Apple platforms, "Ctrl K" elsewhere. */
+export const searchShortcutLabel = () => (isApplePlatform() ? "⌘K" : "Ctrl K");

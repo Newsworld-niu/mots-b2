@@ -88,16 +88,18 @@ export function AiExplain({ entry }: { entry: Entry }) {
   const custom = useStore((s) => s.progress.custom);
   const edits = useStore((s) => s.progress.edits);
   const mine = ownParts({ custom, edits }, entry.id);
+  // the saved explanation belongs to this word and spelling: reload it when they change
+  const savedKey = key(entry);
 
   useEffect(() => {
     let live = true;
     setSaved(undefined);
-    void cacheGet<Saved>(key(entry)).then((x) => live && setSaved(x ?? null));
+    void cacheGet<Saved>(savedKey).then((x) => live && setSaved(x ?? null));
     return () => {
       live = false;
       ctrl.current?.abort();
     };
-  }, [entry.id, entry.w]);
+  }, [savedKey]);
 
   const run = async () => {
     const c = new AbortController();

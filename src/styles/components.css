@@ -812,3 +812,103 @@
     opacity: 0;
   }
 }
+
+/* ---------- shared chip states (used on Today, 应试 and 我的 alike) ---------- */
+
+.chip.is-pass {
+  border-color: var(--sage);
+  color: var(--sage-ink);
+}
+.chip.is-danger {
+  border-color: var(--terra);
+  color: var(--terra-ink);
+  background: color-mix(in srgb, var(--terra) 14%, var(--card));
+}
+
+/* ---------- numbers line up: counters, stats and badges ---------- */
+
+.mini-stats dd,
+.greet-stats dd,
+.ring-body b,
+.side-badge,
+.week li small,
+.forecast b,
+.deck-count,
+.reflow-badge,
+.practice-reflow-banner b {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- focus: fields that hide the outline show it on their wrapper ---------- */
+
+.dict-search-bar:has(input:focus-visible),
+.gram-search:has(input:focus-visible),
+.compare-search:has(input:focus-visible),
+.search:has(input:focus-visible),
+.palette-input:has(input:focus-visible),
+.home-dictionary-search:has(input:focus-visible) {
+  outline: 2px solid var(--terra);
+  outline-offset: 2px;
+}
+.count-custom:has(input:focus-visible),
+.journey-more input:focus-visible,
+.galaxy canvas:focus-visible,
+button.pron-word-btn:focus-visible {
+  outline: 2px solid var(--terra);
+  outline-offset: 2px;
+}
+
+/* ---------- keyboard shortcuts sheet ---------- */
+
+.shortcuts-sheet {
+  max-width: 520px;
+}
+.shortcuts-lede {
+  margin: 4px 0 14px;
+  color: var(--ink-3);
+  font-size: 13px;
+}
+.shortcuts-group + .shortcuts-group {
+  margin-top: 16px;
+}
+.shortcuts-group h3 {
+  margin: 0 0 6px;
+  color: var(--ink-3);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.shortcuts-group dl {
+  margin: 0;
+  display: grid;
+  gap: 2px;
+}
+.shortcuts-row {
+  display: grid;
+  grid-template-columns: minmax(0, 11em) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+.shortcuts-row dt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+.shortcuts-row dd {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+.shortcuts-combo {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.shortcuts-or {
+  margin: 0 4px 0 2px;
+  color: var(--ink-4);
+  font-size: 12px;
+}

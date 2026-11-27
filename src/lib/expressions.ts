@@ -1,9 +1,12 @@
 /**
  * 表达: connectors by function, argument frames, topic collocations, register (语域) and formal-letter formulas,
  * as reviewable cards. Review is productive: the learner sees the Chinese, the function and a sentence with a
- * gap, and types the French. The content is written for this site (待核对).
+ * gap, and types the French. The content is written for this site.
  *
- * In an example, `[…]` marks the gap; its text is the expected answer (`alt`: other accepted wordings).
+ * In an example, `[…]` marks the gap; its text is the expected answer (`alt`: other wordings of the same answer,
+ * accepted as correct; `syn`: other expressions that make an equally grammatical and natural sentence in that exact
+ * gap, accepted as a near miss). Another card of the same function that is not in `syn` does NOT fit the gap
+ * (grâce à in "retardé [en raison de] la grève", si bien que in "nous irons [donc] mardi") and is graded wrong.
  * Card ids come from the group and the French, so they stay stable while the wording of a card does not change.
  */
 import { foldAccents, spellingVerdict } from "./accent";
@@ -41,8 +44,13 @@ export interface Expression {
   exZh: string;
   /** Construction or usage note: "+ 虚拟式". */
   note?: string;
-  /** Other accepted answers for the gap. */
+  /** Other accepted answers for the gap (same expression: gender, spelling, contraction). */
   alt?: string[];
+  /**
+   * Slot-compatible synonyms: other expressions that make a grammatical, natural sentence with the same meaning in
+   * this exact gap (toutefois for "[Cependant], …"). Accepted as a near miss ("synonym").
+   */
+  syn?: string[];
   reg?: Register;
   /** Pure-French clue / explanation (used when Chinese translation is hidden before answering). */
   frDef?: string;
@@ -53,7 +61,7 @@ export interface Expression {
 }
 
 /** A card as written in the data files: [French, Chinese, example with gap, Chinese of the example, extras]. */
-export type RawExpr = [fr: string, zh: string, ex: string, exZh: string, more?: Pick<Expression, "note" | "alt" | "reg" | "frDef" | "reformFrom">];
+export type RawExpr = [fr: string, zh: string, ex: string, exZh: string, more?: Pick<Expression, "note" | "alt" | "syn" | "reg" | "frDef" | "reformFrom">];
 
 export const exprSlug = (s: string) =>
   foldAccents(s)
@@ -112,19 +120,33 @@ export const filledEx = (ex: string) => ex.replace(/\[([^\]]+)\]/, "$1");
 /** Leading / trailing punctuation does not count ("Cependant," = "cependant"). */
 const trimPunct = (s: string) => s.replace(/^[\s,;:.!?«»"]+|[\s,;:.!?…«»"]+$/g, "");
 
+/** An elided word written out too ("parce qu'" → "parce que", "en raison d'" → "en raison de"). */
+const withFullForms = (list: string[]) => {
+  const out = new Set(list);
+  for (const a of list) if (/\p{L}['’]$/u.test(a)) out.add(a.replace(/['’]$/, "e"));
+  return [...out];
+};
+
 /** Accepted answers: the gap, the alternatives, and an elided word written out ("parce qu'" → "parce que"). */
 export function answersOf(e: Expression): string[] {
-  const base = [gapOf(e.ex).answer, ...(e.alt ?? [])].map(trimPunct).filter(Boolean);
-  const out = new Set(base);
-  for (const a of base) if (/\p{L}['’]$/u.test(a)) out.add(a.replace(/['’]$/, "e"));
-  return [...out];
+  return withFullForms([gapOf(e.ex).answer, ...(e.alt ?? [])].map(trimPunct).filter(Boolean));
+}
+
+/** The slot-compatible synonyms of a card (see `syn`), elided words written out too. */
+export function synonymsOf(e: Expression): string[] {
+  return withFullForms((e.syn ?? []).map(trimPunct).filter(Boolean));
 }
 
 export type ExprVerdict = "exact" | "accent" | "synonym" | "wrong";
 
+const matches = (typed: string, list: readonly string[]) => list.some((a) => spellingVerdict(typed, trimPunct(a)) !== "wrong");
+
 /**
- * "exact": an accepted answer. "accent": right letters, wrong accents. "synonym": another connector or frame of
- * the same function (it fits the same slot: pourtant for cependant); `other` is that card. "wrong": anything else.
+ * "exact": an accepted answer. "accent": right letters, wrong accents. "synonym": an expression listed in the
+ * card's `syn`, which fits this very gap (toutefois for "[Cependant], …"); `other` is its card when it has one.
+ * "wrong": anything else; when what was typed is another card of the same function, `other` is that card, so the
+ * learner can be told why it does not fit here (wrong construction, elision or contraction, or a different nuance:
+ * grâce à is for a good cause, faute de for a lack).
  */
 export function checkExpr(typed: string, e: Expression, all: readonly Expression[] = EXPRESSIONS): { verdict: ExprVerdict; other?: Expression } {
   const t = trimPunct(typed);
@@ -136,9 +158,11 @@ export function checkExpr(typed: string, e: Expression, all: readonly Expression
     if (v === "accent") best = "accent";
   }
   if (best === "accent") return { verdict: "accent" };
-  if (e.group !== "conn" && e.group !== "arg") return { verdict: "wrong" };
-  const other = all.find((o) => o.id !== e.id && o.group === e.group && o.fn === e.fn && [o.fr, ...answersOf(o)].some((a) => spellingVerdict(t, trimPunct(a)) !== "wrong"));
-  return other ? { verdict: "synonym", other } : { verdict: "wrong" };
+  const cardOf = (sameFn: boolean) =>
+    all.find((o) => o.id !== e.id && (!sameFn || (o.group === e.group && o.fn === e.fn)) && matches(t, [o.fr, ...answersOf(o)]));
+  if (matches(t, synonymsOf(e))) return { verdict: "synonym", other: cardOf(true) ?? cardOf(false) };
+  const other = e.group === "conn" || e.group === "arg" || e.group === "reform" ? cardOf(true) : undefined;
+  return other ? { verdict: "wrong", other } : { verdict: "wrong" };
 }
 
 /** A hint: the first letter of each word, the other letters hidden ("en revanche" → "e_ r_______"). */

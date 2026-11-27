@@ -1165,7 +1165,7 @@
         {
           "wrong": "Malgré qu'il fasse froid, il est sorti en t-shirt.",
           "right": "{k:Bien qu'}il {v:fasse} froid, il est sorti en t-shirt.",
-          "why": "malgré que 在口语里能听到，但规范语法不接受。malgré 只接名词（malgré le froid）；接句子用 bien que。",
+          "why": "malgré que + 虚拟式在口语中常见，但传统规范语法不认可（只保留文学固定说法 malgré qu'il en ait「不管他愿不愿意」）；正式书面与考试（DELF / TCF）中应避免。接句子改用 bien que + 虚拟式，接名词用 malgré（malgré le froid）。",
           "tag": "t0"
         },
         {

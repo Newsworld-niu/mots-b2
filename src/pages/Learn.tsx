@@ -135,7 +135,7 @@ function Intro({ step }: { step: Extract<Step, { kind: "intro" }> }) {
     [elapsed, step.id],
   );
   // how far away 完全认识 puts the word
-  const easy = useMemo(() => formatInterval(preview(undefined, Date.now(), settings.retention)[Rating.Easy]), [settings.retention, step.id]);
+  const easy = useMemo(() => formatInterval(preview(undefined, Date.now(), settings.retention)[Rating.Easy]), [settings.retention]);
   useKeys({ Enter: () => next("known"), " ": () => next("known"), "1": () => next("unknown"), "2": () => next("known"), "3": () => next("mastered") });
   if (!entry) return <span className="spinner" />;
   return (

@@ -10,6 +10,7 @@ import {
   NotebookPen,
   Plus,
   Volume2,
+  Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useConfusables } from "../../atlas/confusables";
@@ -29,6 +30,7 @@ import { href, openWord } from "../../lib/router";
 import { addToDeck, createDeck, exactHeadwordKey, findExact } from "../../store/decks";
 import { store, useStore } from "../../store/store";
 import { AUX_NOTE, ConjTable } from "../../ui/ConjTable";
+import { cardFor, inReview, quickAddToReview, userDeckFor } from "../../ui/HomeDictionary";
 import { Highlight } from "../../ui/EntryView";
 import { Sheet } from "../../ui/Sheet";
 import { toast } from "../../ui/Toast";
@@ -94,7 +96,9 @@ export function DictEntryView({
   const { data: conjData } = useConj();
   const { data: confusables } = useConfusables();
   const { favs, notes } = useDictStore();
-  const decks = useStore((s) => s.progress.decks) ?? [];
+  const storedDecks = useStore((s) => s.progress.decks);
+  const decks = useMemo(() => storedDecks ?? [], [storedDecks]);
+  const cards = useStore((s) => s.progress.cards);
   const readDeck = useStore((s) => s.settings.readDeck);
 
   const [tab, setTabState] = useState<DictTab>(initialTab ?? "zh");
@@ -269,6 +273,17 @@ export function DictEntryView({
   if (entry.forms?.pl) formsList.push(["pl.", entry.forms.pl]);
   if (entry.forms?.fpl) formsList.push(["f.pl.", entry.forms.fpl]);
 
+  const hidden = useStore((s) => s.progress.hidden);
+  const coreMigrated = useStore((s) => s.progress.coreMigrated);
+  // 闪电入卡组: one click, no form; dedupes against the atlas word or a word the learner already made.
+  const quickCard = cardFor(atlas, entry.w, entry.atlasId);
+  const quickReviewing = !!quickCard && inReview({ cards, decks, hidden, coreMigrated }, quickCard.id);
+  const quickDeck = quickCard ? userDeckFor(decks, quickCard.id) : undefined;
+  const quickAdd = () => {
+    const res = quickAddToReview(atlas, entry.w, () => entryToSeed(entry), entry.atlasId);
+    toast(res.status === "added" ? `已加入「${res.deckName}」卡组` : `「${entry.w}」已在词卡里`, res.status === "added" ? "ok" : "info");
+  };
+
   const openReviewForm = () => {
     const did = ensureTargetDeck();
     setSelectedDeckId(did);
@@ -367,6 +382,21 @@ export function DictEntryView({
             <button type="button" className="btn btn-primary dict-action-btn" onClick={openReviewForm}>
               <Plus size={15} /> 加入复习
             </button>
+
+            {quickReviewing ? (
+              <span className="dict-quick-state" role="status">
+                <Check size={14} /> 已在词卡
+                {quickDeck && (
+                  <a className="link small" href={href({ page: "decks", d: quickDeck.id })}>
+                    去卡组查看
+                  </a>
+                )}
+              </span>
+            ) : (
+              <button type="button" className="btn btn-ghost dict-action-btn" onClick={quickAdd} title="不填表，直接加入「阅读生词」卡组">
+                <Zap size={15} /> 闪电入卡组
+              </button>
+            )}
 
             {atlasRef && (
               <button type="button" className="btn btn-ghost dict-action-btn" onClick={() => openWord(atlasRef.id)}>
