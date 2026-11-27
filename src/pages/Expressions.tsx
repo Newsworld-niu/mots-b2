@@ -112,7 +112,6 @@ export function ExprStudio({ onExit, exitLabel = "返回练习" }: { onExit: () 
             {due ? "开始复习" : fresh ? "学新表达" : "这一类都学完了"} <ArrowRight size={18} />
           </button>
         </div>
-        <p className="muted small">内容为本站编写，待核对。</p>
       </section>
     </div>
   );
@@ -248,8 +247,13 @@ function ExprRound({ ids, onExit, onAgain }: { ids: string[]; onExit: () => void
       : shown.verdict === "accent"
         ? "字母对了，注意重音"
         : shown.verdict === "synonym"
-          ? `「${shown.other?.fr}」也表达${e.fn.split(" · ")[0]}，这里要的是另一个`
+          ? `「${shown.other?.fr ?? value.trim()}」放在这里也通顺，本题练的是「${gap.answer}」`
           : "没写对";
+  // another card of the same function that does not fit this gap: say why it is wrong here
+  const mismatch =
+    shown && shown.verdict === "wrong" && shown.other
+      ? `「${shown.other.fr}」（${shown.other.zh}）虽同属「${e.fn}」，但在此句空位语法接续或正负语境不匹配；此处应填：${gap.answer}`
+      : "";
 
   return (
     <div className="page practice typing">
@@ -358,6 +362,7 @@ function ExprRound({ ids, onExit, onAgain }: { ids: string[]; onExit: () => void
             <p className="writing-verdict">
               {ok ? <Check size={18} /> : <X size={18} />} {label}
             </p>
+            {mismatch && <p className="expr-mismatch">{mismatch}</p>}
             <p className="writing-line" lang="fr">
               {filledEx(e.ex)}
               <Speak url={null} text={filledEx(e.ex)} size="sm" />
@@ -426,7 +431,7 @@ function ExprSheet({ group, onExit }: { group: ExprGroup | null; onExit: () => v
         </button>
         <p className="eyebrow">表达 · 速查表</p>
         <h1 className="display">{group ? groupName(group) : "全部表达"}</h1>
-        <p className="lede">写作和口语时对照着用。内容为本站编写，待核对。</p>
+        <p className="lede">写作和口语时对照着用。</p>
       </header>
       {groups.map(([g, name, desc]) => {
         const cards = EXPRESSIONS.filter((e) => e.group === g);

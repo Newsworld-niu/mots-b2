@@ -1,10 +1,14 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
-import { defaultAiConfig, sanitizeAiConfig, type AiConfig } from "./config.ts";
-import { canTranscribeMultimodalAudio, testTextProvider, transcribeViaMultimodalAudio, type JsonRequest } from "./clients.ts";
+import { DEFAULT_MODELS, GEMINI_PRESET_MODELS, defaultAiConfig, getAiConfig, sanitizeAiConfig, setAiConfig, type AiConfig } from "./config.ts";
+import { aiJson, canTranscribeMultimodalAudio, geminiCanSelfHeal, testTextProvider, transcribeViaMultimodalAudio, type JsonRequest } from "./clients.ts";
 import {
   buildGeminiBody,
   clearGeminiCompatCache,
+  extractSuggestedGeminiModel,
+  geminiTranscribeAudio,
+  isGeminiModelUnavailable,
+  rankGeminiTextModels,
   geminiGenerateImage,
   geminiJsonWith,
   geminiMaxOutputTokens,
@@ -601,4 +605,303 @@ test("Gemini pricing: exact names before the generic rate", () => {
   assert.equal(rate("gemini-2.5-flash"), 2.8);
   assert.equal(rate("gemini-3.8-flash"), 2.8);
   assert.equal(rate("google/gemini-2.5-flash"), 2.8);
+});
+
+/* ---------- retired-model 404 self-healing (new Google projects) ---------- */
+
+const RETIRED = (m = "gemini-2.5-flash", suggest = "") =>
+  json(
+    {
+      error: {
+        code: 404,
+        status: "NOT_FOUND",
+        message: `models/${m} is no longer available to new users.${suggest ? ` Please update your code to use models/${suggest}.` : ""}`,
+      },
+    },
+    404,
+  );
+const NOT_FOUND = (m: string) => json({ error: { code: 404, status: "NOT_FOUND", message: `models/${m} is not found for API version v1beta, or is not supported for generateContent.` } }, 404);
+const catalogOf = (...ids: string[]) => json({ models: ids.map((id) => ({ name: `models/${id}`, supportedGenerationMethods: ["generateContent"] })) });
+const info = (message: string, raw = "") => ({ message, status: "", reasons: [], raw });
+
+test("isGeminiModelUnavailable: retired / not-found model 404s count; relay HTML or bare 404 pages and other statuses do not", () => {
+  assert.equal(isGeminiModelUnavailable(404, info("models/gemini-2.5-flash is no longer available to new users.")), true);
+  assert.equal(isGeminiModelUnavailable(404, info("models/gemini-2.5-flash is not found for API version v1beta, or is not supported for generateContent.")), true);
+  assert.equal(isGeminiModelUnavailable(404, info("Model gemini-1.5-pro has been retired")), true);
+  assert.equal(isGeminiModelUnavailable(400, info("models/gemini-2.5-flash is no longer available to new users.")), false);
+  assert.equal(isGeminiModelUnavailable(404, info("<!DOCTYPE html><html><body>404 Not Found models</body></html>")), false);
+  assert.equal(isGeminiModelUnavailable(404, info("404 page not found")), false);
+  assert.equal(isGeminiModelUnavailable(404, info("", "{}")), false);
+});
+
+test("extractSuggestedGeminiModel reads Google's replacement hint and never returns the failing model", () => {
+  assert.equal(extractSuggestedGeminiModel(info("models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3-flash-preview."), "gemini-2.5-flash"), "gemini-3-flash-preview");
+  assert.equal(extractSuggestedGeminiModel(info("Please use gemini-3.1-pro-preview instead"), "gemini-2.5-pro"), "gemini-3.1-pro-preview");
+  assert.equal(extractSuggestedGeminiModel(info("models/gemini-2.5-flash is not found for API version v1beta"), "gemini-2.5-flash"), null);
+  assert.equal(extractSuggestedGeminiModel(info("no hint here"), "gemini-2.5-flash"), null);
+});
+
+test("rankGeminiTextModels: newest generation, Flash > Pro > Flash-Lite, stable before preview; never image / TTS / embedding models", () => {
+  const catalog = [
+    "gemini-2.0-flash",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-image",
+    "gemini-2.5-flash-preview-tts",
+    "gemini-2.5-pro",
+    "gemini-2.5-flash-lite",
+    "gemini-3-flash-preview",
+    "gemini-3.1-pro-preview",
+    "gemini-3.1-flash-lite-preview",
+    "gemini-3-pro-image-preview",
+    "gemini-embedding-001",
+    "gemini-2.5-flash-native-audio-preview-09-2025",
+    "gemini-live-2.5-flash-preview",
+    "gemini-robotics-er-1.5-preview",
+    "gemini-2.5-computer-use-preview-10-2025",
+    "imagen-4.0-generate-001",
+    "veo-3.0-generate-001",
+    "gemma-3-27b-it",
+  ];
+  assert.deepEqual(rankGeminiTextModels(catalog, new Set(["gemini-2.5-flash"])), [
+    "gemini-3-flash-preview",
+    "gemini-3.1-pro-preview",
+    "gemini-3.1-flash-lite-preview",
+    "gemini-2.5-pro",
+    "gemini-2.5-flash-lite",
+    "gemini-2.0-flash",
+  ]);
+  // a stable release beats a preview of the same version; a newer Flash beats an older one
+  assert.deepEqual(rankGeminiTextModels(["gemini-3-flash-preview", "gemini-3-flash", "gemini-3.5-flash"]), ["gemini-3.5-flash", "gemini-3-flash", "gemini-3-flash-preview"]);
+  assert.deepEqual(rankGeminiTextModels(["models/gemini-2.5-flash-image", "imagen-3.0", "gemini-embedding-001", "gemini-2.5-flash-preview-tts"]), []);
+});
+
+test("geminiJsonWith heals a retired model through Google's suggestion, records usage for it, and goes straight there next time", async () => {
+  const { getAiUsage, resetAiUsage } = await import("./usage.ts");
+  resetAiUsage();
+  const urls: string[] = [];
+  const healed: Array<[string, string]> = [];
+  const fetcher: typeof fetch = async (u) => {
+    const url = String(u);
+    urls.push(url);
+    if (url.includes("/models/gemini-2.5-flash:")) return RETIRED("gemini-2.5-flash", "gemini-3-flash-preview");
+    if (url.includes("/models/gemini-3-flash-preview:")) return streamOf([sse([answer('{"ok":true}', { usageMetadata: { promptTokenCount: 4, candidatesTokenCount: 2 } })])]);
+    return new Response("unexpected", { status: 500 });
+  };
+  const opts = { apiKey: KEY, fetcher, allowModelFallback: true, onModelHealed: (f: string, t: string) => healed.push([f, t]) };
+  assert.deepEqual(await geminiJsonWith("gemini-2.5-flash", req(), opts), { ok: true });
+  assert.deepEqual(
+    urls.map((u) => u.replace("https://generativelanguage.googleapis.com/v1beta", "")),
+    ["/models/gemini-2.5-flash:streamGenerateContent?alt=sse", "/models/gemini-3-flash-preview:streamGenerateContent?alt=sse"],
+  );
+  assert.deepEqual(healed, [["gemini-2.5-flash", "gemini-3-flash-preview"]]);
+  assert.equal(getAiUsage().calls, 1);
+  assert.equal(getAiUsage().promptTokens, 4);
+  urls.length = 0;
+  assert.deepEqual(await geminiJsonWith("gemini-2.5-flash", req(), opts), { ok: true });
+  assert.deepEqual(urls.length, 1);
+  assert.match(urls[0], /gemini-3-flash-preview:streamGenerateContent/);
+});
+
+test("geminiJsonWith heals through the /models catalog when the 404 names no replacement (never an image model)", async () => {
+  const urls: string[] = [];
+  const fetcher: typeof fetch = async (u) => {
+    const url = String(u);
+    urls.push(url);
+    if (url.includes("/models?pageSize")) return catalogOf("gemini-2.5-flash", "gemini-2.5-flash-image", "gemini-3-flash-preview");
+    if (url.includes("/models/gemini-2.5-flash:")) return NOT_FOUND("gemini-2.5-flash");
+    if (url.includes("/models/gemini-3-flash-preview:")) return json(answer('{"ok":true}'));
+    return new Response("unexpected", { status: 500 });
+  };
+  let healedTo = "";
+  const out = await geminiJsonWith("gemini-2.5-flash", req(), { apiKey: KEY, fetcher, stream: false, allowModelFallback: true, onModelHealed: (_f, t) => (healedTo = t) });
+  assert.deepEqual(out, { ok: true });
+  assert.equal(healedTo, "gemini-3-flash-preview");
+  assert.ok(!urls.some((u) => u.includes("-image:")));
+});
+
+test("without allowModelFallback a retired model reports a clear Chinese 404 once; a typo / relay page 404 never loops", async () => {
+  let calls = 0;
+  await assert.rejects(
+    () => geminiJsonWith("gemini-2.5-flash", req(), { apiKey: KEY, fetcher: async () => (calls++, RETIRED()) }),
+    /404（模型 gemini-2\.5-flash 对当前项目不可用，新创建的项目请改用 gemini-3-flash-preview 等新一代模型，或在 AI 设置中点「测试连接」自动匹配）/,
+  );
+  assert.equal(calls, 1);
+
+  // a relay whose own address is wrong: HTML 404 on both endpoints, no model fallback, no /models read
+  const urls: string[] = [];
+  await assert.rejects(
+    () =>
+      geminiJsonWith("gemini-2.5-flash", req(), {
+        apiKey: KEY,
+        geminiBaseUrl: "https://wrong-relay.example.com",
+        allowModelFallback: true,
+        fetcher: async (u) => (urls.push(String(u)), new Response("<!DOCTYPE html><html><body><h1>404 Not Found</h1>nginx</body></html>", { status: 404, headers: { "Content-Type": "text/html" } })),
+      }),
+    /404（模型名或接口地址不对：gemini-2\.5-flash）/,
+  );
+  assert.equal(urls.length, 2);
+  assert.ok(urls.every((u) => !u.includes("/models?")));
+
+  // a typo'd model that is not found anywhere: the candidates are tried at most 3 times, then the original error
+  urls.length = 0;
+  await assert.rejects(
+    () =>
+      geminiJsonWith("gemini-2.5-flsh", req(), {
+        apiKey: KEY,
+        stream: false,
+        allowModelFallback: true,
+        fetcher: async (u) => {
+          const url = String(u);
+          urls.push(url);
+          if (url.includes("/models?pageSize")) return catalogOf("gemini-a-flash", "gemini-b-flash", "gemini-c-flash", "gemini-d-flash");
+          return NOT_FOUND(url.split("/models/")[1].split(":")[0]);
+        },
+      }),
+    /404（模型名或接口地址不对：gemini-2\.5-flsh）/,
+  );
+  assert.equal(urls.filter((u) => u.includes(":generateContent")).length, 1 + 3);
+  assert.equal(urls.filter((u) => u.includes("/models?")).length, 1);
+});
+
+test("a replacement that fails for another reason (quota) is the error reported", async () => {
+  await assert.rejects(
+    () =>
+      geminiJsonWith("gemini-2.5-flash", req(), {
+        apiKey: KEY,
+        stream: false,
+        allowModelFallback: true,
+        fetcher: async (u) => (String(u).includes("gemini-2.5-flash:") ? RETIRED("gemini-2.5-flash", "gemini-3-flash-preview") : json({ error: { code: 429, message: "quota" } }, 429)),
+      }),
+    /429（请求太频繁或免费\/付费额度用完/,
+  );
+});
+
+test("geminiTranscribeAudio heals a retired model too", async () => {
+  const urls: string[] = [];
+  const text = await geminiTranscribeAudio(
+    "gemini-2.5-flash",
+    { mimeType: "audio/webm", data: "AAA" },
+    { system: "s", text: "t" },
+    {
+      apiKey: KEY,
+      allowModelFallback: true,
+      fetcher: async (u) => {
+        urls.push(String(u));
+        if (String(u).includes("gemini-2.5-flash:")) return RETIRED();
+        if (String(u).includes("/models?pageSize")) return catalogOf("gemini-2.5-flash", "gemini-3-flash-preview");
+        return json(answer('{"text":"bonjour"}'));
+      },
+    },
+  );
+  assert.equal(text, '{"text":"bonjour"}');
+  assert.match(urls.at(-1) ?? "", /gemini-3-flash-preview:generateContent$/);
+});
+
+/** Fake Google services for the high-level calls (global fetch): no forwarder, a catalog, and per-model answers. */
+function fakeGoogle(catalog: string[], answerFor: (model: string) => Response) {
+  const urls: string[] = [];
+  globalThis.fetch = (async (u: RequestInfo | URL) => {
+    const url = String(u);
+    urls.push(url);
+    if (url.endsWith("/ai-proxy/ping")) return new Response("nope", { status: 404 });
+    if (url.includes("/models?pageSize")) return catalogOf(...catalog);
+    const m = /\/models\/([^:/?]+):/.exec(url)?.[1] ?? "";
+    return answerFor(m);
+  }) as typeof fetch;
+  return urls;
+}
+const newProject = (m: string) => (m.startsWith("gemini-2.5") ? RETIRED(m) : json(answer('{"ok":true}')));
+
+test("测试连接 on a new Google project: models.list names gemini-2.5-flash but it 404s → adapts to gemini-3-flash-preview (wizard and saved settings)", async () => {
+  const urls = fakeGoogle(["gemini-2.5-flash", "gemini-3-flash-preview", "gemini-2.5-flash-image"], newProject);
+  // the 1 步 wizard (unsaved settings, default model)
+  const wizard = await testTextProvider("gemini", geminiCfg());
+  assert.equal(wizard.model, "gemini-3-flash-preview");
+  assert.equal(wizard.requestedModel, "gemini-2.5-flash");
+  assert.ok(!urls.some((u) => u.includes("-image:")));
+  assert.equal(urls.filter((u) => u.includes("/models?")).length, 1, "the probe reuses the catalog it already read");
+
+  // the advanced 测试连接 with the saved default
+  clearGeminiCompatCache();
+  setAiConfig(geminiCfg());
+  const advanced = await testTextProvider("gemini");
+  assert.equal(advanced.model, "gemini-3-flash-preview");
+  setAiConfig(defaultAiConfig());
+});
+
+test("测试连接 on a classic project (e2e Check 12): gemini-2.5-flash answers on the first probe", async () => {
+  const urls = fakeGoogle(["gemini-2.5-flash", "gemini-2.5-pro"], () => streamOf([sse([answer('{"ok":true}')])]));
+  const res = await testTextProvider("gemini", geminiCfg());
+  assert.equal(res.model, "gemini-2.5-flash");
+  const probes = urls.filter((u) => u.includes(":streamGenerateContent") || u.includes(":generateContent"));
+  assert.deepEqual(probes, ["https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse"]);
+});
+
+test("a model typed on purpose keeps its 404 in 测试连接; only defaults, the last good model and older generations self-heal", async () => {
+  fakeGoogle(["gemini-3-flash-preview"], (m) => (m === "gemini-3-flash-preview" ? json(answer('{"ok":true}')) : NOT_FOUND(m)));
+  await assert.rejects(
+    () => testTextProvider("gemini", geminiCfg({ text: { provider: "gemini", model: "gemini-exp-custom-0901" } })),
+    /404（模型名或接口地址不对：gemini-exp-custom-0901）/,
+  );
+  const cfg = geminiCfg({ lastGoodModel: { gemini: "gemini-3-flash-preview" } });
+  assert.equal(geminiCanSelfHeal(DEFAULT_MODELS.gemini, cfg), true);
+  assert.equal(geminiCanSelfHeal("models/gemini-2.5-pro", cfg), true);
+  assert.equal(geminiCanSelfHeal("gemini-2.0-flash", cfg), true);
+  assert.equal(geminiCanSelfHeal("gemini-3-flash-preview", cfg), true);
+  assert.equal(geminiCanSelfHeal("gemini-exp-custom-0901", cfg), false);
+  assert.equal(geminiCanSelfHeal("gemini-3.1-pro-preview", cfg), false);
+});
+
+test("runtime requests heal a retired default once and persist the working model into 文本 / 识图 and lastGoodModel", async () => {
+  const urls = fakeGoogle(["gemini-2.5-flash", "gemini-3-flash-preview"], newProject);
+  setAiConfig(geminiCfg({ vision: { provider: "gemini", model: "gemini-2.5-flash" } }));
+  assert.deepEqual(await aiJson("text", req()), { ok: true });
+  const c = getAiConfig();
+  assert.deepEqual(c.text, { provider: "gemini", model: "gemini-3-flash-preview" });
+  assert.deepEqual(c.vision, { provider: "gemini", model: "gemini-3-flash-preview" });
+  assert.equal(c.lastGoodModel?.gemini, "gemini-3-flash-preview");
+  // the next call goes straight to the healed model
+  urls.length = 0;
+  assert.deepEqual(await aiJson("vision", req()), { ok: true });
+  assert.deepEqual(
+    urls.filter((u) => u.includes("/models/")),
+    ["https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:streamGenerateContent?alt=sse"],
+  );
+  setAiConfig(defaultAiConfig());
+});
+
+test("spare-key audio transcription heals a retired gemini-2.5-flash on a new project and starts from the last good model afterwards", async () => {
+  setAiConfig(defaultAiConfig());
+  const cfg = sanitizeAiConfig({ ...defaultAiConfig(), keys: { ...defaultAiConfig().keys, deepseek: "sk-ds", gemini: KEY } });
+  const urls: string[] = [];
+  const fetcher: typeof fetch = async (u) => {
+    const url = String(u);
+    urls.push(url);
+    if (url.includes("/models?pageSize")) return catalogOf("gemini-2.5-flash", "gemini-2.5-flash-image", "gemini-3-flash-preview");
+    if (url.includes("gemini-2.5-flash:")) return RETIRED();
+    return json(answer('{"text":"je pense que"}'));
+  };
+  const blob = new Blob([new Uint8Array([1, 2, 3])], { type: "audio/webm" });
+  const out = await transcribeViaMultimodalAudio(blob, undefined, { cfg, fetcher, durationSec: 1 });
+  assert.equal(out.text, "je pense que");
+  assert.match(urls[0], /gemini-2\.5-flash:generateContent$/);
+  assert.match(urls.at(-1) ?? "", /gemini-3-flash-preview:generateContent$/);
+  assert.equal(getAiConfig().lastGoodModel?.gemini, "gemini-3-flash-preview");
+
+  // a later visit (fresh caches) starts from the saved last good model
+  clearGeminiCompatCache();
+  urls.length = 0;
+  await transcribeViaMultimodalAudio(blob, undefined, { cfg: { ...cfg, lastGoodModel: getAiConfig().lastGoodModel }, fetcher, durationSec: 1 });
+  assert.deepEqual(urls, ["https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent"]);
+  setAiConfig(defaultAiConfig());
+});
+
+test("config: lastGoodModel is sanitized, defaults to {} and the presets are real Gemini ids", () => {
+  assert.deepEqual(defaultAiConfig().lastGoodModel, {});
+  assert.deepEqual(sanitizeAiConfig({}).lastGoodModel, {});
+  const c = sanitizeAiConfig({ lastGoodModel: { gemini: ` gemini-3-flash-preview `, openai: 42, bogus: "x", deepseek: "d".repeat(200) } });
+  assert.deepEqual(c.lastGoodModel, { gemini: "gemini-3-flash-preview", deepseek: "d".repeat(80) });
+  assert.equal(DEFAULT_MODELS.gemini, "gemini-2.5-flash");
+  assert.ok(GEMINI_PRESET_MODELS.includes("gemini-3-flash-preview"));
+  assert.ok(!GEMINI_PRESET_MODELS.some((m) => /3\.5-flash-lite|3\.8-flash/.test(m)));
 });

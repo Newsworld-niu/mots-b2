@@ -39,6 +39,11 @@ export interface AiConfig {
   vision: { provider: VisionProvider; model: string };
   text: { provider: TextProvider; model: string };
   image: { provider: ImageProvider; model: string };
+  /**
+   * The model each service last answered with for real (测试连接, the 1 步 wizard, or a runtime self-heal after a
+   * retired-model 404). Switching a job back to that service starts from it instead of the built-in default.
+   */
+  lastGoodModel?: Partial<Record<TextProvider, string>>;
 }
 
 /** Defaults; every model can be changed in the settings. */
@@ -57,7 +62,20 @@ export const GRADING_RECOMMENDED_MODELS = {
   deepseek: ["deepseek-chat"],
   gemini: ["gemini-2.5-flash", "gemini-2.5-pro"],
 } as const;
-export const GEMINI_PRESET_MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-3.5-flash-lite", "gemini-3.8-flash"] as const;
+/**
+ * Text models offered before the key's own list is read. `gemini-2.5-*` still answers on existing projects but is
+ * closed to newly created ones (HTTP 404 "no longer available to new users"), so the newer generation is listed too;
+ * requests on the 2.5 defaults heal themselves to an available model (see gemini.ts).
+ */
+export const GEMINI_PRESET_MODELS = [
+  "gemini-2.5-flash",
+  "gemini-2.5-pro",
+  "gemini-2.5-flash-lite",
+  "gemini-3-flash-preview",
+  "gemini-3.1-pro-preview",
+  "gemini-3.1-flash-lite-preview",
+  "gemini-2.0-flash",
+] as const;
 export const GEMINI_IMAGE_MODELS = ["gemini-2.5-flash-image", "gemini-3.1-flash-lite-image"] as const;
 export const DEFAULT_IMAGE_MODELS: Record<ImageProvider, string> = { openai: "gpt-image-1", gemini: GEMINI_IMAGE_MODELS[0], openrouter: "openai/gpt-image-1-mini" };
 
@@ -89,6 +107,7 @@ export const defaultAiConfig = (): AiConfig => ({
   vision: { provider: "openai", model: DEFAULT_MODELS.openai },
   text: { provider: "deepseek", model: DEFAULT_MODELS.deepseek },
   image: { provider: "openai", model: DEFAULT_IMAGE_MODELS.openai },
+  lastGoodModel: {},
 });
 
 const KEY = "word-atlas:ai:v1";
@@ -97,13 +116,23 @@ const str = (v: unknown, max = 300) => (typeof v === "string" ? v.trim().slice(0
 export function sanitizeAiConfig(v: unknown): AiConfig {
   const d = defaultAiConfig();
   if (!v || typeof v !== "object") return d;
-  const o = v as Record<string, any>;
-  const keys = o.keys ?? {};
-  const vp: VisionProvider = VISION_PROVIDERS.includes(o.vision?.provider) ? o.vision.provider : d.vision.provider;
-  const tp: TextProvider = TEXT_PROVIDERS.includes(o.text?.provider) ? o.text.provider : d.text.provider;
-  const ip: ImageProvider = IMAGE_PROVIDERS.includes(o.image?.provider) ? o.image.provider : d.image.provider;
-  const sttRaw = o.stt && typeof o.stt === "object" ? o.stt : {};
-  const sp: SttProvider = STT_PROVIDERS.includes(sttRaw.provider) ? sttRaw.provider : d.stt.provider;
+  const o = v as Record<string, unknown>;
+  const obj = (x: unknown): Record<string, unknown> => (x && typeof x === "object" && !Array.isArray(x) ? (x as Record<string, unknown>) : {});
+  const keys = obj(o.keys);
+  const vision = obj(o.vision);
+  const text = obj(o.text);
+  const image = obj(o.image);
+  const vp: VisionProvider = VISION_PROVIDERS.includes(vision.provider as VisionProvider) ? (vision.provider as VisionProvider) : d.vision.provider;
+  const tp: TextProvider = TEXT_PROVIDERS.includes(text.provider as TextProvider) ? (text.provider as TextProvider) : d.text.provider;
+  const ip: ImageProvider = IMAGE_PROVIDERS.includes(image.provider as ImageProvider) ? (image.provider as ImageProvider) : d.image.provider;
+  const sttRaw = obj(o.stt);
+  const sp: SttProvider = STT_PROVIDERS.includes(sttRaw.provider as SttProvider) ? (sttRaw.provider as SttProvider) : d.stt.provider;
+  const goodRaw = obj(o.lastGoodModel);
+  const lastGoodModel: Partial<Record<TextProvider, string>> = {};
+  for (const p of TEXT_PROVIDERS) {
+    const m = str(goodRaw[p], 80);
+    if (m) lastGoodModel[p] = m;
+  }
   return {
     keys: { openai: str(keys.openai), deepseek: str(keys.deepseek), anthropic: str(keys.anthropic), gemini: str(keys.gemini), openrouter: str(keys.openrouter), azure: str(keys.azure) },
     openaiBaseUrl: sanitizeBaseUrl(o.openaiBaseUrl),
@@ -118,9 +147,10 @@ export function sanitizeAiConfig(v: unknown): AiConfig {
     azureVoice: str(o.azureVoice, 80) || d.azureVoice,
     azureVoiceMale: str(o.azureVoiceMale, 80) || d.azureVoiceMale,
     tts: o.tts === true,
-    vision: { provider: vp, model: str(o.vision?.model, 80) || DEFAULT_MODELS[vp] },
-    text: { provider: tp, model: str(o.text?.model, 80) || DEFAULT_MODELS[tp] },
-    image: { provider: ip, model: str(o.image?.model, 80) || DEFAULT_IMAGE_MODELS[ip] },
+    vision: { provider: vp, model: str(vision.model, 80) || DEFAULT_MODELS[vp] },
+    text: { provider: tp, model: str(text.model, 80) || DEFAULT_MODELS[tp] },
+    image: { provider: ip, model: str(image.model, 80) || DEFAULT_IMAGE_MODELS[ip] },
+    lastGoodModel,
   };
 }
 

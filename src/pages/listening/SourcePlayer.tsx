@@ -154,12 +154,14 @@ export function Player({
     void m.play().catch(() => {});
   }, [seekRequest, examMode, src.start, src.end]);
 
+  // a recording kept in this browser (IndexedDB) is loaded by its key; any other source needs no object URL
+  const idbKey = p.kind === "idb" ? p.key : null;
   useEffect(() => {
     let alive = true;
     let objUrl: string | null = null;
     setIdbMissing(false);
-    if (p.kind === "idb") {
-      void getRealMedia(p.key).then((rec) => {
+    if (idbKey !== null) {
+      void getRealMedia(idbKey).then((rec) => {
         if (!alive) return;
         if (!rec) {
           setIdbMissing(true);
@@ -175,7 +177,7 @@ export function Player({
       alive = false;
       if (objUrl) URL.revokeObjectURL(objUrl);
     };
-  }, [p.kind === "idb" ? p.key : src.url]);
+  }, [idbKey]);
 
   useEffect(() => () => void (localFallback && URL.revokeObjectURL(localFallback)), [localFallback]);
 

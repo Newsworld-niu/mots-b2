@@ -150,7 +150,15 @@ test("高级配置: Gemini key, base URL check, preset models without a key and 
   const model = textJob.querySelector('input[role="combobox"]') as HTMLInputElement;
   fireEvent.focus(model);
   const options = Array.from(textJob.querySelectorAll('[role="option"]')).map((o) => o.textContent);
-  assert.deepEqual(options, ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-3.5-flash-lite", "gemini-3.8-flash"]);
+  assert.deepEqual(options, [
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gemini-2.5-flash-lite",
+    "gemini-3-flash-preview",
+    "gemini-3.1-pro-preview",
+    "gemini-3.1-flash-lite-preview",
+    "gemini-2.0-flash",
+  ]);
   fireEvent.mouseDown(Array.from(textJob.querySelectorAll('[role="option"]')).find((o) => o.textContent === "gemini-2.5-pro")!);
   assert.equal(getAiConfig().text.model, "gemini-2.5-pro");
   fireEvent.change(model, { target: { value: "gemini-exp-custom-0901" } });
@@ -173,4 +181,88 @@ test("高级配置: Gemini key, base URL check, preset models without a key and 
   });
   await waitFor(() => assert.ok(calls.some((x) => x.url === "https://gm.example.com/v1beta/models/gemini-exp-custom-0901:streamGenerateContent?alt=sse")));
   await waitFor(() => assert.equal((screen.getByRole("button", { name: "测试 Google Gemini 连接" }) as HTMLButtonElement).disabled, false));
+});
+
+/* ---------- new Google projects: gemini-2.5-* listed by models.list but answering 404 ---------- */
+
+/** A new project: the catalog names gemini-2.5-flash (and an image model), but only gemini-3-flash-preview answers. */
+function mockNewGoogleProject() {
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input);
+    calls.push({ url, headers: (init?.headers ?? {}) as Record<string, string> });
+    if (url.endsWith("/ai-proxy/ping")) return new Response("no forwarder", { status: 404 });
+    if (url.includes("/models?pageSize"))
+      return json({
+        models: ["gemini-2.5-flash", "gemini-3-flash-preview", "gemini-2.5-flash-image"].map((m) => ({ name: `models/${m}`, supportedGenerationMethods: ["generateContent"] })),
+      });
+    if (url.includes("/models/gemini-3-flash-preview:")) return sseOk();
+    if (url.includes(":streamGenerateContent") || url.includes(":generateContent"))
+      return json({ error: { code: 404, status: "NOT_FOUND", message: "models/gemini-2.5-flash is no longer available to new users." } }, 404);
+    return json({ data: [] });
+  }) as typeof fetch;
+}
+
+test("1 步向导 · Gemini on a new Google project: adapts to gemini-3-flash-preview (never the image model) and saves it", async () => {
+  setAiConfig(working());
+  mockNewGoogleProject();
+  render(<AiSettings />);
+
+  fireEvent.click(screen.getByRole("button", { name: /Google Gemini.*官方直连/ }));
+  fireEvent.change(wizardKeyInput(), { target: { value: GEMINI_KEY } });
+  fireEvent.click(screen.getByRole("button", { name: /保存并自动配齐/ }));
+  await waitFor(() => assert.match(screen.getByRole("status").textContent ?? "", /连接成功 · 已自动配齐 Google Gemini 默认模型/));
+  assert.match(screen.getByRole("status").textContent ?? "", /已自动匹配可用模型 gemini-3-flash-preview/);
+
+  const c = getAiConfig();
+  assert.deepEqual(c.text, { provider: "gemini", model: "gemini-3-flash-preview" });
+  assert.deepEqual(c.vision, { provider: "gemini", model: "gemini-3-flash-preview" });
+  assert.equal(c.lastGoodModel?.gemini, "gemini-3-flash-preview");
+  assert.ok(!calls.some((x) => x.url.includes("gemini-2.5-flash-image:")));
+  const saved = JSON.parse(localStorage.getItem("word-atlas:ai:v1") ?? "{}");
+  assert.equal(saved.text.model, "gemini-3-flash-preview");
+});
+
+test("高级配置 · 测试连接 on a new Google project moves 文本 / 识图 off the retired default and remembers it for the service buttons", async () => {
+  setAiConfig({
+    ...working(),
+    keys: { ...working().keys, gemini: GEMINI_KEY },
+    text: { provider: "gemini", model: "gemini-2.5-flash" },
+    vision: { provider: "gemini", model: "gemini-2.5-flash" },
+  });
+  mockNewGoogleProject();
+  render(<AiSettings />);
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "测试 Google Gemini 连接" }));
+  });
+  await waitFor(() => assert.equal(getAiConfig().text.model, "gemini-3-flash-preview"));
+  const c = getAiConfig();
+  assert.deepEqual(c.vision, { provider: "gemini", model: "gemini-3-flash-preview" });
+  assert.equal(c.lastGoodModel?.gemini, "gemini-3-flash-preview");
+  assert.ok(!calls.some((x) => x.url.includes("gemini-2.5-flash-image:")));
+  await waitFor(() => assert.equal((screen.getByRole("button", { name: "测试 Google Gemini 连接" }) as HTMLButtonElement).disabled, false));
+
+  // switching 文本 away and back starts from the verified model, not the retired built-in default
+  const textJob = screen.getByText("生成与批改 · 文本").closest(".ai-job") as HTMLElement;
+  const btn = (label: string) => Array.from(textJob.querySelectorAll(".segmented button")).find((b) => b.textContent === label)!;
+  fireEvent.click(btn("DeepSeek"));
+  assert.deepEqual(getAiConfig().text, { provider: "deepseek", model: "deepseek-chat" });
+  fireEvent.click(btn("Gemini"));
+  assert.deepEqual(getAiConfig().text, { provider: "gemini", model: "gemini-3-flash-preview" });
+});
+
+test("高级配置 · 测试连接 keeps a model typed on purpose when it fails, and does not touch it", async () => {
+  setAiConfig({
+    ...working(),
+    keys: { ...working().keys, gemini: GEMINI_KEY },
+    text: { provider: "gemini", model: "gemini-exp-typo" },
+  });
+  mockNewGoogleProject();
+  render(<AiSettings />);
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "测试 Google Gemini 连接" }));
+  });
+  await waitFor(() => assert.equal((screen.getByRole("button", { name: "测试 Google Gemini 连接" }) as HTMLButtonElement).disabled, false));
+  assert.equal(getAiConfig().text.model, "gemini-exp-typo");
+  assert.equal(getAiConfig().lastGoodModel?.gemini, undefined);
 });
