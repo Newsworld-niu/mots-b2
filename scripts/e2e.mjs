@@ -272,26 +272,81 @@ const MOCK = {
   }),
   debate_question: (k) => ({ question: k === 0 ? "Vous dites que les enfants dorment moins : avez-vous un exemple concret ?" : "Certains diraient que l'école doit utiliser les écrans. Qu'en pensez-vous ?" }),
   speaking_assessment: () => marks({ monologue: 3, interaction: 3, lexique: 3, morpho: 1 }, [{ wrong: "ils bougent moins", right: "ils bougent moins", type: "other", why: "", point: "" }], "Je suis convaincu que…"),
+  ping: () => ({ ok: true }),
+  gemini_models: () => ({ ok: true }),
+  models_list: () => ({ ok: true }),
+};
+/** Which task a Gemini request is (it names no schema): told by the answer's schema, wherever the request carries it. */
+const geminiTask = (body) => {
+  const g = body.generationConfig ?? {};
+  let schema = g.responseJsonSchema ?? g.responseSchema;
+  if (!schema) {
+    const sys = (body.systemInstruction?.parts ?? []).map((p) => p.text ?? "").join("\n");
+    const at = sys.indexOf("following this JSON schema exactly:\n");
+    try { schema = JSON.parse(sys.slice(at + "following this JSON schema exactly:\n".length)); } catch {}
+  }
+  const props = schema?.properties ?? {};
+  const scores = props.scores?.properties ?? {};
+  if ("consigne" in props) return "essay_task";
+  if ("patterns" in props) return "essay_model";
+  if ("docs" in props) return "comprehension";
+  if ("items" in props) return "comprehension_blind_solver";
+  if ("monologue" in scores) return "speaking_assessment";
+  if ("coherence" in scores) return "essay_marking";
+  if ("question" in props) return "debate_question";
+  if ("ok" in props) return "ping";
+  return "?";
 };
 const answerAi = async (route) => {
   const req = route.request();
   if (/\/ping$/.test(req.url())) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: false }) });
+  const gemini = /generativelanguage\.googleapis\.com|\/ai-proxy\/gemini\//.test(req.url());
+  if (req.method() === "GET" && /\/models(?:\?|$)/.test(req.url())) {
+    if (gemini) {
+      aiCalls.push({ name: "gemini_models", input: {}, auth: req.headers().authorization, gemini: true, googKey: req.headers()["x-goog-api-key"], url: req.url() });
+      return route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({
+          models: [
+            { name: "models/gemini-2.5-flash", supportedGenerationMethods: ["generateContent"] },
+            { name: "models/gemini-2.5-pro", supportedGenerationMethods: ["generateContent"] },
+          ],
+        }),
+      });
+    }
+    aiCalls.push({ name: "models_list", input: {}, auth: req.headers().authorization, gemini: false, url: req.url() });
+    return route.fulfill({ contentType: "application/json", body: JSON.stringify({ data: [{ id: "gpt-5-mini" }] }) });
+  }
   let body = {};
   try { body = JSON.parse(req.postData() || "{}"); } catch {}
-  const name = body.response_format?.json_schema?.name ?? "?";
-  const user = body.messages?.[1]?.content;
-  let input = {};
-  try { input = JSON.parse(Array.isArray(user) ? user[0].text : user); } catch {}
+  let name, input = {};
+  if (gemini) {
+    name = geminiTask(body);
+    const lastUser = [...(body.contents ?? [])].reverse().find((c) => c.role === "user");
+    const text = (lastUser?.parts ?? []).filter((p) => typeof p.text === "string").map((p) => p.text).join("");
+    try { input = JSON.parse(text); } catch {}
+  } else {
+    name = body.response_format?.json_schema?.name ?? "?";
+    const user = body.messages?.[1]?.content;
+    try { input = JSON.parse(Array.isArray(user) ? user[0].text : user); } catch {}
+  }
   const k = aiCalls.filter((c) => c.name === name).length;
-  aiCalls.push({ name, input, auth: req.headers().authorization });
+  aiCalls.push({ name, input, auth: req.headers().authorization, gemini, googKey: req.headers()["x-goog-api-key"], url: req.url() });
   const make = MOCK[name];
   if (!make) return route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ error: { message: `no mock for ${name}` } }) });
   await new Promise((r) => setTimeout(r, 150));
-  return route.fulfill({ contentType: "application/json", body: JSON.stringify({ choices: [{ message: { content: JSON.stringify(make(k, input)) }, finish_reason: "stop" }] }) });
+  if (!gemini) return route.fulfill({ contentType: "application/json", body: JSON.stringify({ choices: [{ message: { content: JSON.stringify(make(k, input)) }, finish_reason: "stop" }] }) });
+  // Gemini's native answer: streamed over SSE in two pieces, or one GenerateContentResponse
+  const text = JSON.stringify(make(k, input));
+  const cut = Math.floor(text.length / 2);
+  const chunk = (t, done) => ({ candidates: [{ content: { role: "model", parts: [{ text: t }] }, ...(done ? { finishReason: "STOP" } : {}) }], usageMetadata: { promptTokenCount: 40, candidatesTokenCount: done ? 80 : 30, thoughtsTokenCount: 12 } });
+  if (/:streamGenerateContent/.test(req.url()))
+    return route.fulfill({ contentType: "text/event-stream", body: [chunk(text.slice(0, cut), false), chunk(text.slice(cut), true)].map((c) => `data: ${JSON.stringify(c)}\r\n\r\n`).join("") });
+  return route.fulfill({ contentType: "application/json", body: JSON.stringify(chunk(text, true)) });
 };
 // the local forwarder is refused (404 on its ping), so requests go to the service itself, where the test answers
 await ctx3.route(/\/ai-proxy\//, answerAi);
-for (const host of ["https://api.openai.com/**", "https://api.deepseek.com/**", "https://api.anthropic.com/**", "https://openrouter.ai/**"]) await ctx3.route(host, answerAi);
+for (const host of ["https://api.openai.com/**", "https://api.deepseek.com/**", "https://api.anthropic.com/**", "https://openrouter.ai/**", "https://generativelanguage.googleapis.com/**"]) await ctx3.route(host, answerAi);
 
 // 9) 篇章写作 with AI: marked on the grid, a correction kept in the 错句本, a second draft compared, a model text, a new task
 await openStudio(p3, "篇章写作");
@@ -392,6 +447,39 @@ check("口语 adds the self-rated pronunciation (6/25)", (await p3.locator(".ess
 await settle(p3, 400); // progress is saved 250 ms after a change
 check("口语 updates examLog score out of 25 with typed marker", (await progressOf(p3))?.examLog?.some((r) => r.part === "speak" && r.score === 6 && r.total === 25 && r.typed === true));
 await p3.screenshot({ path: "output/e2e/speaking-result.png", fullPage: true });
+
+// 12) Google Gemini native protocol: configured via 我的 → AI 接口 1-step wizard, then used in 篇章写作 (x-goog-api-key, never in URL)
+await p3.goto(BASE + "#/me", { waitUntil: "networkidle" });
+await p3.getByRole("button", { name: /设置 AI 接口/ }).click();
+await p3.getByRole("button", { name: /Google Gemini/ }).click();
+await p3.getByLabel("Google Gemini API Key").fill("AIzaSy-e2e-key");
+const usageBefore = await p3.evaluate(() => JSON.parse(localStorage.getItem("word-atlas:ai-usage:v1") || '{"promptTokens":0,"completionTokens":0}'));
+await p3.getByRole("button", { name: /保存并自动配齐/ }).click();
+await p3.waitForFunction(() => /连接成功/.test(document.querySelector('[role="status"]')?.textContent ?? ""), null, { timeout: 10000 }).catch(() => {});
+check(
+  "Gemini: 1-step wizard probes and saves Gemini without leaking the key in any URL",
+  await p3.evaluate(() => {
+    const ai = JSON.parse(localStorage.getItem("word-atlas:ai:v1") || "{}");
+    return ai.keys?.gemini === "AIzaSy-e2e-key" && ai.text?.provider === "gemini" && ai.vision?.provider === "gemini";
+  }),
+);
+const beforeGemini = aiCalls.length;
+await openStudio(p3, "篇章写作");
+await p3.getByRole("button", { name: /出题并开始写/ }).click();
+await p3.waitForSelector(".essay-title", { timeout: 10000 }).catch(() => {});
+await settle(p3, 400);
+const gCall = aiCalls.slice(beforeGemini).find((c) => c.gemini && c.name === "essay_task");
+check(
+  "Gemini: the new task is asked of Gemini natively with x-goog-api-key, the key never in the URL",
+  gCall?.name === "essay_task" && gCall.googKey === "AIzaSy-e2e-key" && !gCall.auth && /\/v1beta\/models\/gemini-2\.5-flash:streamGenerateContent\?alt=sse$/.test(gCall.url) && !/AIza|key=/.test(gCall.url),
+  `${gCall?.name} ${gCall?.url}`,
+);
+check("Gemini: the streamed answer is shown as the new task", (await p3.locator(".essay-title").innerText().catch(() => "")) === "邀请同学参加读书会" && Array.isArray(gCall?.input?.avoid));
+check("Gemini: usage is counted once per call (2 calls × [prompt 40, output 80 + thoughts 12] = +80 / +184)", await p3.evaluate((prev) => {
+  const u = JSON.parse(localStorage.getItem("word-atlas:ai-usage:v1") || "{}");
+  return u.promptTokens - (prev.promptTokens || 0) === 80 && u.completionTokens - (prev.completionTokens || 0) === 184;
+}, usageBefore));
+
 check("AI studios never reached a real AI service", aiCalls.length > 0 && aiCalls.every((c) => MOCK[c.name]), aiCalls.map((c) => c.name).join(","));
 await ctx3.close();
 

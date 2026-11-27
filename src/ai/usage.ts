@@ -20,7 +20,12 @@ export function estimateUsd(provider: string, model: string, promptTokens: numbe
   const m = model.toLowerCase();
   let rate: [number, number] = [0.5, 1.5];
   if (m.includes("deepseek")) rate = [0.28, 0.42];
-  else if (m.includes("gemini-2.5-flash") || m.includes("gemini-flash")) rate = [0.15, 0.6];
+  // Gemini: the most specific names first (image & lite & pro & legacy 2.0 before standard 2.5/3.x flash)
+  else if (/flash-lite-image|flash-image/.test(m)) rate = [0.3, 2.5];
+  else if (/gemini-(?:2\.5|3\.1|3\.5)-flash-lite/.test(m)) rate = [0.1, 0.4];
+  else if (/gemini-(?:2\.5|3\.1)-pro|gemini-pro/.test(m)) rate = [1.25, 10.0];
+  else if (/gemini-(?:2\.0|1\.5)-flash/.test(m)) rate = [0.15, 0.6];
+  else if (m.includes("gemini")) rate = [0.3, 2.5];
   else if (m.includes("gpt-4o-mini")) rate = [0.15, 0.6];
   else if (m.includes("gpt-5-mini")) rate = [0.25, 2.0];
   else if (provider === "anthropic" || m.includes("claude")) rate = [3.0, 15.0];

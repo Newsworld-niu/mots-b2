@@ -12,6 +12,8 @@ const UPSTREAM: Record<string, (rest: string) => string | null> = {
   deepseek: (rest) => `https://api.deepseek.com/${rest}`,
   anthropic: (rest) => `https://api.anthropic.com/${rest}`,
   openrouter: (rest) => `https://openrouter.ai/${rest}`,
+  // /ai-proxy/gemini/v1beta/models/<model>:streamGenerateContent?alt=sse (the key travels in x-goog-api-key)
+  gemini: (rest) => `https://generativelanguage.googleapis.com/${rest}`,
   // /ai-proxy/azure/<region>/<path> → https://<region>.tts.speech.microsoft.com/<path>
   azure: (rest) => {
     const m = rest.match(/^([a-z0-9]{2,30})\/(.*)$/);
@@ -101,7 +103,11 @@ export async function aiProxy(req: IncomingMessage, res: ServerResponse, next: (
     }
     res.end();
   } catch (e) {
-    if (res.headersSent) return res.end();
+    // a stream cut off midway must not look like a complete 200 answer: drop the socket without emitting an unhandled 'error' event
+    if (res.headersSent) {
+      if (!res.destroyed) res.destroy();
+      return;
+    }
     res.statusCode = 502;
     res.setHeader("Content-Type", "application/json");
     res.end(JSON.stringify({ error: { message: `转发失败：${(e as Error).message}` } }));

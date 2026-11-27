@@ -695,7 +695,7 @@ function DelfSpeakingStudio({
       });
 
       if (!resolved.transcript.trim()) {
-        toast("未能获取独白文字，请先配置 Azure/Whisper 语音接口或在陪练模式补充独白内容", "warn");
+        toast("未能获取独白文字，请先配置 Azure / Whisper / Gemini 语音接口或在陪练模式补充独白内容", "warn");
         setPhase(latestTurns.length ? "debate" : "review");
         return;
       }
@@ -950,7 +950,7 @@ function DelfSpeakingStudio({
             strictMode={strictMode}
             noAuxMode={noAuxMode}
             hasAi={hasAi}
-            sttReady={whisperReady}
+            sttReady={neuralSttReady}
             dictation={dictation}
             listening={listening}
             interim={interim}

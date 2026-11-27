@@ -8,7 +8,7 @@ import type { Take } from "../../lib/recorder";
 import type { speakingPresetOf } from "../../lib/speaking-presets";
 import { AccentKeys } from "../../ui/AccentKeys";
 import { Marking } from "../../ui/Marking";
-import { AssessHint, AssessStatus, PronReport, TakePlayer, type useAssess, type useRecorder } from "../../ui/Recording";
+import { AssessHint, AssessStatus, PronReport, sttName, TakePlayer, type useAssess, type useRecorder } from "../../ui/Recording";
 import { resolveMockPoTyped, rubricComplete, rubricSum, shouldShowDebateTurn1Recovery } from "../mock-exam-helpers";
 import { toStrictCueCards } from "../speaking/helpers";
 import type { MockState } from "./state";
@@ -295,7 +295,7 @@ export function MockSpeaking({
               {(!dictation || poDebateSpeechFailed) && (
                 <p className="muted small">
                   {pron.available || sttReady
-                    ? `当前使用麦克风录音 + ${pron.available ? "Azure" : "Whisper"} 自动转写；点停止或下一问后自动填入。`
+                    ? `当前使用麦克风录音 + ${pron.azureAvailable ? "Azure" : sttName()} 自动转写；点停止或下一问后自动填入。`
                     : "当前浏览器不支持语音识别：已启用本地录音，停止后可回放录音并手动补充文字。"}
                 </p>
               )}

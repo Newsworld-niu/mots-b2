@@ -1,6 +1,6 @@
 import { ArrowLeft, ArrowRight, Check, Mic, Shuffle, Sparkles, Square } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { transcribeAudio } from "../ai/clients";
+import { canTranscribeMultimodalAudio, transcribeAudio } from "../ai/clients";
 import { ready, useAiConfig } from "../ai/config";
 import { canAssess as canAssessNow } from "../ai/pronunciation";
 import { canCompleteDrill, drillFeedback, MIN_DRILL_WORDS, type DrillFeedback } from "../ai/speaking-drill";
@@ -409,7 +409,7 @@ export function DrillTeaser({ onOpen }: { onOpen: () => void }) {
     <section className={`panel drill-teaser ${done ? "is-done" : ""}`} onClick={onOpen} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && onOpen()} aria-label="今日一分钟口语">
       <p className="eyebrow">今日一分钟口语</p>
       <h3>想 15 秒，说 60 秒：一个观点，两个理由。</h3>
-      <p>录下来回放{canAssessNow(ai) ? "，Azure 给发音打分" : ready.stt(ai) ? "，Whisper 转写与语速分析" : ""}。每天开口一次，比一周练一次长的更管用。</p>
+      <p>录下来回放{canAssessNow(ai) ? "，Azure 给发音打分" : ready.stt(ai) ? "，Whisper 转写与语速分析" : canTranscribeMultimodalAudio(ai) ? "，Gemini / 多模态逐词原话转写与语速分析" : ""}。每天开口一次，比一周练一次长的更管用。</p>
       <span className="drill-teaser-go">{done ? <><Check size={16} /> 今天已完成{done > 1 ? ` ${done} 次` : ""} · 再来一次</> : <>开始 <ArrowRight size={16} /></>}</span>
     </section>
   );

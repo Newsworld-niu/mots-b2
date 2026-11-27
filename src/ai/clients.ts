@@ -3,10 +3,11 @@
  * static deployment and in the Android app (see proxy.ts):
  *  - OpenAI, DeepSeek and OpenRouter: chat completions (OpenAI-format JSON); OpenAI and OpenRouter also images
  *  - Anthropic: the official SDK, structured JSON output
+ *  - Google Gemini: its native REST protocol (gemini.ts, loaded on demand)
  *  - Azure AI Speech: text to speech (SSML) and the voice list
  */
-import { getAiConfig, type AiConfig, type TextProvider } from "./config";
-import { AiError, aiFetch, errorFrom, fetchWithTimeout, proxyAvailable, proxyUrl, resolveOpenAiEndpoint } from "./proxy";
+import { DEFAULT_MODELS, getAiConfig, type AiConfig, type TextProvider } from "./config";
+import { AiError, aiFetch, errorFrom, fetchWithTimeout, normalizeGeminiModel, parseJsonAnswer, proxyAvailable, proxyUrl, resolveOpenAiEndpoint } from "./proxy";
 import { buildVoiceSsml, type SsmlOptions } from "./ssml";
 import { recordAiUsage } from "./usage";
 
@@ -29,6 +30,10 @@ export interface JsonRequest {
   maxTokens?: number;
   /** Sampling temperature; defaults to 0 on non-reasoning models and is omitted on reasoning models. */
   temperature?: number;
+  /** Earlier turns of a conversation (Gemini): `text` follows them as the last user turn. */
+  messages?: Array<{ role: "user" | "assistant" | "model"; text: string }>;
+  /** Visible answer text as it streams in (Gemini). */
+  onDelta?: (chunk: string) => void;
 }
 
 const NAMES: Record<string, string> = {
@@ -56,29 +61,13 @@ async function needProxy() {
   await proxyAvailable();
 }
 
-function key(service: keyof ReturnType<typeof getAiConfig>["keys"]) {
-  const k = getAiConfig().keys[service];
+function key(service: keyof AiConfig["keys"], cfg: AiConfig = getAiConfig()) {
+  const k = cfg.keys[service].trim();
   if (!k) throw new AiError(`还没有填 ${NAMES[service]} 的 Key（在「我的 → AI 接口」里填）`);
   return k;
 }
 
-function parseJson(text: string, service: string) {
-  const t = text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
-  try {
-    return JSON.parse(t);
-  } catch {
-    const a = t.indexOf("{");
-    const b = t.lastIndexOf("}");
-    if (a >= 0 && b > a) {
-      try {
-        return JSON.parse(t.slice(a, b + 1));
-      } catch {
-        /* fall through */
-      }
-    }
-    throw new AiError(`${service} 返回的不是有效的 JSON（可能输出太长被截断，试试少放一些内容）`);
-  }
-}
+const parseJson = parseJsonAnswer;
 
 /* ---------- OpenAI / DeepSeek / OpenRouter ---------- */
 
@@ -103,7 +92,7 @@ export function buildOpenAiChatBody(
 ): Record<string, unknown> {
   const parts: unknown[] = [{ type: "text", text: req.text }];
   for (const a of req.attachments ?? []) {
-    if (provider === "deepseek") throw new AiError("DeepSeek 不能看图片或 PDF，请在设置里把「识图」换成 OpenAI 或 Anthropic");
+    if (provider === "deepseek") throw new AiError("DeepSeek 不能看图片或 PDF，请在设置里把「识图」换成 OpenAI、Gemini 或 Anthropic");
     if (a.mime === "application/pdf") parts.push({ type: "file", file: { filename: a.name || "document.pdf", file_data: `data:application/pdf;base64,${a.data}` } });
     else parts.push({ type: "image_url", image_url: { url: `data:${a.mime};base64,${a.data}`, detail: "high" } });
   }
@@ -276,9 +265,8 @@ export async function openaiJsonWith(
   return parseJson(choice?.message?.content ?? "", NAMES[provider]);
 }
 
-async function openaiJson(provider: ChatProvider, model: string, req: JsonRequest) {
-  const c = getAiConfig();
-  return openaiJsonWith(provider, model, req, { apiKey: key(provider), openaiBaseUrl: c.openaiBaseUrl });
+async function openaiJson(provider: ChatProvider, model: string, req: JsonRequest, c: AiConfig = getAiConfig()) {
+  return openaiJsonWith(provider, model, req, { apiKey: key(provider, c), openaiBaseUrl: c.openaiBaseUrl });
 }
 
 /* ---------- Anthropic (direct fetch + SSE, zero SDK bundle overhead) ---------- */
@@ -437,8 +425,20 @@ export async function anthropicJsonWith(
   return parseJson(parsed.text, "Anthropic");
 }
 
-async function anthropicJson(model: string, req: JsonRequest) {
-  return anthropicJsonWith(model, req, { apiKey: key("anthropic") });
+async function anthropicJson(model: string, req: JsonRequest, c: AiConfig = getAiConfig()) {
+  return anthropicJsonWith(model, req, { apiKey: key("anthropic", c) });
+}
+
+async function geminiJson(model: string, req: JsonRequest, c: AiConfig = getAiConfig()) {
+  const { geminiJsonWith } = await import("./gemini");
+  return geminiJsonWith(model, req, { apiKey: key("gemini", c), geminiBaseUrl: c.geminiBaseUrl });
+}
+
+/** A JSON answer from one text service with the given settings. */
+function providerJson(provider: TextProvider, model: string, req: JsonRequest, c: AiConfig = getAiConfig()) {
+  if (provider === "anthropic") return anthropicJson(model, req, c);
+  if (provider === "gemini") return geminiJson(model, req, c);
+  return openaiJson(provider, model, req, c);
 }
 
 /* ---------- jobs ---------- */
@@ -448,16 +448,17 @@ export async function aiJson<T>(job: "vision" | "text", req: JsonRequest): Promi
   await needProxy();
   const c = getAiConfig();
   const { provider, model } = c[job];
-  return (provider === "anthropic" ? anthropicJson(model, req) : openaiJson(provider, model, req)) as Promise<T>;
+  return providerJson(provider, model, req, c) as Promise<T>;
 }
 
 /** Model ids a service offers (for the model field's suggestions). */
-export async function listModels(provider: TextProvider): Promise<string[]> {
+export async function listModels(provider: TextProvider, cfg?: AiConfig): Promise<string[]> {
   await needProxy();
+  const c = cfg ?? getAiConfig();
   if (provider === "anthropic") {
     const r = await fetchWithTimeout(
       proxyUrl("anthropic", "/v1/models?limit=100"),
-      { headers: anthropicHeaders(key("anthropic")) },
+      { headers: anthropicHeaders(key("anthropic", c)) },
       30_000,
       "Anthropic",
     );
@@ -465,55 +466,67 @@ export async function listModels(provider: TextProvider): Promise<string[]> {
     const j = (await r.json()) as { data?: Array<{ id: string }> };
     return (j.data ?? []).map((m) => m.id).sort();
   }
-  const c = getAiConfig();
+  if (provider === "gemini") {
+    const { listGeminiModels } = await import("./gemini");
+    return listGeminiModels({ apiKey: key("gemini", c), geminiBaseUrl: c.geminiBaseUrl });
+  }
   const url = provider === "openai" ? resolveOpenAiEndpoint(c.openaiBaseUrl, "/models") : proxyUrl(provider, `${CHAT_BASE[provider]}/models`);
-  const r = await fetchWithTimeout(url, { headers: { Authorization: `Bearer ${key(provider)}` } }, 30_000, NAMES[provider]);
+  const r = await fetchWithTimeout(url, { headers: { Authorization: `Bearer ${key(provider, c)}` } }, 30_000, NAMES[provider]);
   if (!r.ok) throw await errorFrom(r, NAMES[provider]);
   const j = await r.json();
   return ((j.data ?? []) as { id: string }[]).map((m) => m.id).sort();
 }
 
-/** Verify connection and structured JSON output compatibility (priming OpenAI relay fallback cache if needed). */
-export async function testTextProvider(provider: TextProvider): Promise<{ models: string[]; probeOk: boolean; compatMode?: OpenAiCompatMode }> {
+/**
+ * Verify a text service for real: read its model list, then always ask the model in use (or the service's default)
+ * for `{"ok":true}` as structured JSON. Anything else is a failure and throws; a model list alone never counts.
+ * With a custom OpenAI / Gemini base URL the list may be missing (relays often do not expose `/models`): the JSON
+ * probe then decides. `cfgOverride` tests settings that are not saved yet (the 1 步 wizard).
+ */
+export async function testTextProvider(
+  provider: TextProvider,
+  cfgOverride?: AiConfig,
+): Promise<{ models: string[]; probeOk: boolean; compatMode?: string; model: string }> {
   await needProxy();
-  const c = getAiConfig();
+  const c = cfgOverride ?? getAiConfig();
+  const customBase = (provider === "openai" && !!c.openaiBaseUrl) || (provider === "gemini" && !!c.geminiBaseUrl);
   let models: string[] = [];
   let listErr: unknown = null;
   try {
-    models = await listModels(provider);
+    models = await listModels(provider, c);
   } catch (e) {
+    if (!customBase) throw e;
     listErr = e;
-    if (!(provider === "openai" && c.openaiBaseUrl)) throw e;
   }
-  const customBaseProbe = provider === "openai" && !!c.openaiBaseUrl;
-  const activeModel = c.text.provider === provider ? c.text.model : c.vision.provider === provider ? c.vision.model : undefined;
-  if (!customBaseProbe && !activeModel) {
-    return { models, probeOk: true };
+  const activeModel = c.text.provider === provider ? c.text.model : c.vision.provider === provider ? c.vision.model : "";
+  const pickCatalogModel = (list: string[], preferred: string) => {
+    if (!list.length || list.includes(preferred)) return preferred;
+    if (provider === "gemini") {
+      const preset = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-3.5-flash-lite", "gemini-3.8-flash"].find((m) => list.includes(m));
+      if (preset) return preset;
+    }
+    return list.find((m) => !/-image\b|^imagen-|tts|whisper|embed/i.test(m)) ?? list[0];
+  };
+  const rawTarget = activeModel.trim() || DEFAULT_MODELS[provider];
+  // When probing an inactive service or a fresh 1-step wizard default, prefer a model actually present in its catalog
+  const canAdaptModel = !activeModel.trim() || (Boolean(cfgOverride) && rawTarget === DEFAULT_MODELS[provider]);
+  const targetModel = canAdaptModel ? pickCatalogModel(models, rawTarget) : rawTarget;
+  const probeReq: JsonRequest = {
+    system: "Return JSON only.",
+    text: 'Reply with {"ok":true}',
+    schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"], additionalProperties: false },
+    schemaName: "ping",
+    // reasoning models (OpenAI gpt-5 / o-series, OpenRouter's thinking models) spend part of the budget thinking
+    maxTokens: provider === "openai" || provider === "openrouter" ? 1024 : 64,
+  };
+  const res = await providerJson(provider, targetModel, probeReq, c);
+  if ((res as { ok?: unknown } | null)?.ok !== true) {
+    throw new AiError(`${NAMES[provider]} 能连上，但模型 ${targetModel} 没有按要求返回 {"ok":true}，请换一个支持结构化 JSON 输出的模型`);
   }
-  const targetModel = activeModel || models[0] || "";
-  if (!targetModel) {
-    if (listErr) throw listErr;
-    return { models, probeOk: true };
-  }
-  try {
-    const probeReq: JsonRequest = {
-      system: "Return JSON only.",
-      text: 'Reply with {"ok":true}',
-      schema: { type: "object", properties: { ok: { type: "boolean" } }, required: ["ok"], additionalProperties: false },
-      schemaName: "ping",
-      maxTokens: 64,
-    };
-    const res =
-      provider === "anthropic"
-        ? await anthropicJson(targetModel, probeReq)
-        : await openaiJson(provider, targetModel, probeReq);
-    const cacheKey = `${provider}|${c.openaiBaseUrl ?? ""}|${targetModel}`;
-    return { models, probeOk: Boolean(res && typeof res === "object"), compatMode: compatModeCache.get(cacheKey) };
-  } catch (e) {
-    if (listErr) throw e;
-    if (customBaseProbe) throw e;
-    return { models, probeOk: false };
-  }
+  let compatMode: string | undefined;
+  if (provider === "gemini") compatMode = (await import("./gemini")).geminiCompatModeFor(c.geminiBaseUrl, targetModel, probeReq.schemaName);
+  else if (provider !== "anthropic") compatMode = compatModeCache.get(`${provider}|${c.openaiBaseUrl ?? ""}|${targetModel}`);
+  return { models: listErr ? [] : models, probeOk: true, compatMode, model: targetModel };
 }
 
 const bytesOf = (b64: string) => {
@@ -546,20 +559,25 @@ async function openrouterImage(model: string, prompt: string, signal?: AbortSign
 }
 
 /** Image model ids OpenRouter offers (its own list: the chat model list does not have them all). */
-export async function listImageModels(): Promise<string[]> {
+export async function listImageModels(cfg?: AiConfig): Promise<string[]> {
   await needProxy();
-  const r = await fetchWithTimeout(proxyUrl("openrouter", "/api/v1/images/models"), { headers: { Authorization: `Bearer ${key("openrouter")}` } }, 30_000, "OpenRouter");
+  const c = cfg ?? getAiConfig();
+  const r = await fetchWithTimeout(proxyUrl("openrouter", "/api/v1/images/models"), { headers: { Authorization: `Bearer ${key("openrouter", c)}` } }, 30_000, "OpenRouter");
   if (!r.ok) throw await errorFrom(r, "OpenRouter");
   const j = await r.json();
   return ((j.data ?? []) as { id: string }[]).map((m) => m.id).sort();
 }
 
-/** One picture from the service set for pictures (OpenAI images or OpenRouter); returns the image bytes as a Blob. */
+/** One picture from the service set for pictures (OpenAI images, Gemini or OpenRouter); returns the image bytes as a Blob. */
 export async function generateImage(prompt: string, signal?: AbortSignal): Promise<Blob> {
   await needProxy();
   const c = getAiConfig();
   const { provider, model } = c.image;
   if (provider === "openrouter") return openrouterImage(model, prompt, signal);
+  if (provider === "gemini") {
+    const { geminiGenerateImage } = await import("./gemini");
+    return geminiGenerateImage(model, prompt, { apiKey: key("gemini", c), geminiBaseUrl: c.geminiBaseUrl, signal });
+  }
   const body: Record<string, unknown> = { model, prompt, n: 1, size: "1024x1024" };
   if (/^gpt-image/.test(model)) body.quality = "low";
   else body.response_format = "b64_json";
@@ -652,49 +670,29 @@ export function isMultimodalAudioModel(model: string): boolean {
   return false;
 }
 
-function readGeminiKey(cfg: AiConfig): string {
-  const keysRec = cfg.keys as unknown as Record<string, unknown>;
-  return typeof keysRec.gemini === "string" ? keysRec.gemini.trim() : "";
-}
-
 type MultimodalAudioRoute =
   | { kind: "gemini"; apiKey: string; model: string }
   | { kind: "openrouter"; apiKey: string; model: string }
   | { kind: "openai"; apiKey: string; model: string; baseUrl: string };
 
-function resolveMultimodalAudioRoute(cfg: AiConfig): MultimodalAudioRoute | null {
-  const geminiKey = readGeminiKey(cfg);
-  if (geminiKey) {
-    const textCfg = cfg.text as { provider?: string; model?: string };
-    const visionCfg = cfg.vision as { provider?: string; model?: string };
-    const rawModel =
-      textCfg.provider === "gemini" && textCfg.model
-        ? textCfg.model
-        : visionCfg.provider === "gemini" && visionCfg.model
-          ? visionCfg.model
-          : "gemini-2.5-flash";
-    const cleanModel = rawModel.trim().replace(/^(?:google|models)\//i, "") || "gemini-2.5-flash";
-    return { kind: "gemini", apiKey: geminiKey, model: cleanModel };
-  }
-  const orKey = cfg.keys.openrouter.trim();
-  if (orKey) {
-    if (cfg.text.provider === "openrouter" && isMultimodalAudioModel(cfg.text.model)) {
-      return { kind: "openrouter", apiKey: orKey, model: cfg.text.model.trim() };
-    }
-    if (cfg.vision.provider === "openrouter" && isMultimodalAudioModel(cfg.vision.model)) {
-      return { kind: "openrouter", apiKey: orKey, model: cfg.vision.model.trim() };
-    }
-  }
-  const oaKey = cfg.keys.openai.trim();
-  if (oaKey) {
-    if (cfg.text.provider === "openai" && isMultimodalAudioModel(cfg.text.model)) {
-      return { kind: "openai", apiKey: oaKey, model: cfg.text.model.trim(), baseUrl: cfg.openaiBaseUrl };
-    }
-    if (cfg.vision.provider === "openai" && isMultimodalAudioModel(cfg.vision.model)) {
-      return { kind: "openai", apiKey: oaKey, model: cfg.vision.model.trim(), baseUrl: cfg.openaiBaseUrl };
-    }
-  }
+/** The audio route of one job's service, if it can listen. */
+function jobAudioRoute(cfg: AiConfig, job: { provider: string; model: string }): MultimodalAudioRoute | null {
+  const k = (p: keyof AiConfig["keys"]) => (cfg.keys[p] ?? "").trim();
+  if (job.provider === "gemini" && k("gemini")) return { kind: "gemini", apiKey: k("gemini"), model: normalizeGeminiModel(job.model) };
+  if (job.provider === "openrouter" && k("openrouter") && isMultimodalAudioModel(job.model)) return { kind: "openrouter", apiKey: k("openrouter"), model: job.model.trim() };
+  if (job.provider === "openai" && k("openai") && isMultimodalAudioModel(job.model)) return { kind: "openai", apiKey: k("openai"), model: job.model.trim(), baseUrl: cfg.openaiBaseUrl };
   return null;
+}
+
+/**
+ * Where recorded speech goes for native audio transcription: the service chosen for 文本, then for 识图 (when it can
+ * listen), and only then a Gemini key that is filled in but not chosen for either job (its default model).
+ */
+function resolveMultimodalAudioRoute(cfg: AiConfig): MultimodalAudioRoute | null {
+  const route = jobAudioRoute(cfg, cfg.text) ?? jobAudioRoute(cfg, cfg.vision);
+  if (route) return route;
+  const geminiKey = (cfg.keys.gemini ?? "").trim();
+  return geminiKey ? { kind: "gemini", apiKey: geminiKey, model: DEFAULT_MODELS.gemini } : null;
 }
 
 /** True when Gemini (`keys.gemini`) or an audio-capable OpenRouter/OpenAI model is configured for native audio STT. */
@@ -808,7 +806,7 @@ export async function transcribeViaMultimodalAudio(
   if (!route) {
     throw new AiError("尚未配置支持原生音频转写的 Gemini 或 OpenRouter 多模态模型（在「我的 → AI 接口」里设置）");
   }
-  if (!opts?.fetcher && route.kind !== "gemini") await needProxy();
+  if (!opts?.fetcher && (route.kind !== "gemini" || !cfg.geminiBaseUrl)) await needProxy();
 
   const bytes = new Uint8Array(await blob.arrayBuffer());
   const b64 = encodeBytesBase64(bytes);
@@ -820,46 +818,13 @@ export async function transcribeViaMultimodalAudio(
     "Transcris cet enregistrement oral français mot à mot, en gardant les hésitations (euh, ben) et sans corriger aucune erreur grammaticale. Réponds uniquement avec {\"text\": \"...\"}.";
 
   if (route.kind === "gemini") {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(route.model)}:generateContent`;
-    const r = await fetchWithTimeout(
-      url,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": route.apiKey,
-        },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: MULTIMODAL_AUDIO_STT_SYSTEM }] },
-          contents: [
-            {
-              role: "user",
-              parts: [{ inlineData: { mimeType, data: b64 } }, { text: userInstruction }],
-            },
-          ],
-          generationConfig: {
-            temperature: 0,
-            responseMimeType: "application/json",
-          },
-        }),
-        signal,
-      },
-      90_000,
-      NAMES.gemini,
-      fetcher,
+    const { geminiTranscribeAudio } = await import("./gemini");
+    const rawOut = await geminiTranscribeAudio(
+      route.model,
+      { mimeType, data: b64 },
+      { system: MULTIMODAL_AUDIO_STT_SYSTEM, text: userInstruction },
+      { apiKey: route.apiKey, geminiBaseUrl: cfg.geminiBaseUrl, fetcher: opts?.fetcher, signal },
     );
-    if (!r.ok) throw await errorFrom(r, NAMES.gemini);
-    const j = (await r.json()) as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-      usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
-    };
-    recordAiUsage({
-      provider: "gemini",
-      model: route.model,
-      promptTokens: j.usageMetadata?.promptTokenCount,
-      completionTokens: j.usageMetadata?.candidatesTokenCount,
-    });
-    const rawOut = (j.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");
     const extracted = extractMultimodalTranscriptPayload(rawOut);
     return {
       text: extracted.text,

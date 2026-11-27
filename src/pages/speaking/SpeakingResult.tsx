@@ -6,7 +6,7 @@ import type { PronResult } from "../../lib/pronunciation";
 import type { Take } from "../../lib/recorder";
 import type { speakingPresetOf } from "../../lib/speaking-presets";
 import { Marking } from "../../ui/Marking";
-import { AssessedTranscript, PronReport, TakePlayer } from "../../ui/Recording";
+import { AssessedTranscript, PronReport, sttName, TakePlayer } from "../../ui/Recording";
 
 function DebateTurnItem({
   index,
@@ -126,7 +126,7 @@ export function SpeakingResult({
             seekResult={talkPron ?? combinedPron}
             title={
               combinedPron.phonemeSupported === false
-                ? "语音流利度与逐词时间戳（Whisper）"
+                ? `语音流利度与逐词时间戳（${sttName()}）`
                 : turnPronCount
                   ? `发音和语调（第五项，独白 + 辩论 ${turnPronCount} 轮加权）`
                   : "发音和语调（第五项，Azure 评测）"
@@ -228,7 +228,7 @@ export function SpeakingResult({
           result={combinedPron}
           audioRef={talkTake ? monoAudioRef : undefined}
           seekResult={talkPron ?? combinedPron}
-          title={combinedPron.phonemeSupported === false ? "语音流利度与逐词时间戳（Whisper）" : "发音和语调（Azure 评测）"}
+          title={combinedPron.phonemeSupported === false ? `语音流利度与逐词时间戳（${sttName()}）` : "发音和语调（Azure 评测）"}
         />
       )}
 

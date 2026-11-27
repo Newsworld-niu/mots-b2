@@ -8,6 +8,7 @@
 import { Volume2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { ready } from "../ai/config";
+import { canTranscribeMultimodalAudio } from "../ai/clients";
 import { assessRecording, canAssess, canAssessOrTranscribe } from "../ai/pronunciation";
 import { play } from "../lib/audio";
 import { LEVEL_LABEL } from "../lib/essay";
@@ -226,7 +227,7 @@ export function useAssess() {
   }, []);
   const azureAvailable = canAssess();
   const available = canAssessOrTranscribe();
-  const tier: "azure" | "whisper" | "none" = azureAvailable ? "azure" : ready.stt() ? "whisper" : "none";
+  const tier: "azure" | "whisper" | "multimodal" | "none" = azureAvailable ? "azure" : ready.stt() ? "whisper" : canTranscribeMultimodalAudio() ? "multimodal" : "none";
   return { ...s, run, reset, available, azureAvailable, tier };
 }
 
@@ -250,11 +251,15 @@ export function TakePlayer({
   );
 }
 
+/** Transcription without Azure goes to Whisper when it is set up, otherwise to a native audio model (Gemini / multimodal). */
+const usesMultimodalStt = () => !canAssess() && !ready.stt() && canTranscribeMultimodalAudio();
+export const sttName = () => (usesMultimodalStt() ? "Gemini / 多模态" : "Whisper");
+
 /** Why there is no assessment, or how to get one. */
 export function AssessHint() {
   return (
     <p className="muted small">
-      语音评测与高保真转写：到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 填 Azure 语音 Key + 区域（完整 IPA 音素、联诵与韵律评测）或开启 Whisper 语音转写（原话逐词时间戳与语速停顿分析）。
+      语音评测与高保真转写：到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 填 Azure 语音 Key + 区域（完整 IPA 音素、联诵与韵律评测）或开启 Whisper 语音转写 / 填 Gemini Key 用多模态转写（原话逐词时间戳与语速停顿分析）。
     </p>
   );
 }
@@ -267,7 +272,9 @@ export function AssessStatus({ a }: { a: AssessState }) {
       <p className="muted small">
         {usingAzure
           ? `Azure 发音评测与逐词对齐中${a.total > 1 ? `（已完成 ${a.done}/${a.total} 段，3 路并发）` : ""}…`
-          : "Whisper 逐词原话转写与停顿分析中…"}
+          : usesMultimodalStt()
+            ? "Gemini / 多模态逐词原话转写与停顿分析中…"
+            : "Whisper 逐词原话转写与停顿分析中…"}
       </p>
     );
   }
@@ -336,7 +343,7 @@ export function AssessedTranscript({
               <span>· <b>×</b> 禁忌/嘘音 h 误联诵</span>
             </>
           ) : (
-            <span>· Whisper 逐词时间戳模式</span>
+            <span>· {sttName()} 逐词时间戳模式</span>
           )}
           <span>· <b>⏸</b> ≥1s 停顿</span>
         </p>
@@ -432,7 +439,7 @@ export function PronReport({
 }) {
   const phonoSupported = result.phonemeSupported !== false;
   const resolvedTitle =
-    title ?? (phonoSupported ? "发音评测（Azure）" : "语音流利度与逐词时间戳（Whisper）");
+    title ?? (phonoSupported ? "发音评测（Azure）" : `语音流利度与逐词时间戳（${sttName()}）`);
   const total = phonoSupported ? overall(result) : null;
   const gate = phonoGateInfo(result);
   const level = gate.level;
@@ -470,7 +477,7 @@ export function PronReport({
         </div>
       ) : (
         <p className="muted small">
-          当前为 Tier-2 Whisper 原话逐词转写模式（保留犹豫词 euh 与真实语法形态，提供逐词回放定位与语速/停顿诊断）；如需 IPA 音素准确度与联诵打分，可在 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 补充 Azure 语音服务。
+          当前为 Tier-2 {sttName()} 原话逐词转写模式（保留犹豫词 euh 与真实语法形态，提供逐词回放定位与语速/停顿诊断）；如需 IPA 音素准确度与联诵打分，可在 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 补充 Azure 语音服务。
         </p>
       )}
       {acoustics && (
@@ -551,7 +558,7 @@ export function PronReport({
       {(transcriptTarget.words.length > 0 || transcriptTarget.text) && (
         <details className="essay-fold" open={transcriptTarget.words.length > 0}>
           <summary>
-            {phonoSupported ? "逐词音素着色与原声定位回放" : "Whisper 原话逐词时间戳回放"}
+            {phonoSupported ? "逐词音素着色与原声定位回放" : `${sttName()} 原话逐词时间戳回放`}
           </summary>
           <AssessedTranscript result={transcriptTarget} audioRef={audioRef} />
         </details>

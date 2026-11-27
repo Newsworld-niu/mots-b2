@@ -1,7 +1,26 @@
 import { Check, ChevronDown, Eye, EyeOff, Sparkles, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { azureSpeak, azureVoices, listImageModels, listModels, testTextProvider, type AzureVoice } from "../ai/clients";
-import { DEFAULT_IMAGE_MODELS, DEFAULT_MODELS, GRADING_RECOMMENDED_MODELS, IMAGE_PROVIDERS, sanitizeBaseUrl, STT_PROVIDERS, TEXT_PROVIDERS, VISION_PROVIDERS, getAiConfig, setAiConfig, useAiConfig, type AiConfig, type SttProvider, type TextProvider } from "../ai/config";
+import {
+  DEFAULT_IMAGE_MODELS,
+  DEFAULT_MODELS,
+  GEMINI_IMAGE_MODELS,
+  GEMINI_PRESET_MODELS,
+  GRADING_RECOMMENDED_MODELS,
+  IMAGE_PROVIDERS,
+  ready,
+  sanitizeAiConfig,
+  sanitizeBaseUrl,
+  STT_PROVIDERS,
+  TEXT_PROVIDERS,
+  VISION_PROVIDERS,
+  getAiConfig,
+  setAiConfig,
+  useAiConfig,
+  type AiConfig,
+  type SttProvider,
+  type TextProvider,
+} from "../ai/config";
 import { proxyAvailable } from "../ai/proxy";
 import { clearTtsCache, ttsCacheSize } from "../ai/tts";
 import { resetAiUsage, useAiUsage } from "../ai/usage";
@@ -9,7 +28,12 @@ import { toast } from "./Toast";
 
 const STT_LABEL: Record<SttProvider, string> = { none: "关闭", openai: "复用 OpenAI", custom: "自定义 Whisper 接口" };
 
-const LABEL: Record<TextProvider, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic", openrouter: "OpenRouter" };
+/** Short names for the segmented buttons (they must wrap cleanly at 390 px). */
+const LABEL: Record<TextProvider, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic", gemini: "Gemini", openrouter: "OpenRouter" };
+/** Full names for titles and messages. */
+const TITLE: Record<TextProvider, string> = { ...LABEL, gemini: "Google Gemini" };
+
+const BASE_URL_HINT = "须以 https:// 开头，或本机 http://localhost / 127.0.0.1 地址";
 
 function KeyField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder: string }) {
   const [show, setShow] = useState(false);
@@ -26,70 +50,98 @@ function KeyField({ label, value, onChange, placeholder }: { label: string; valu
   );
 }
 
-type Lists = Partial<Record<TextProvider, string[]>>;
-/** Lists already read during this visit, so that reopening the settings shows them at once. */
-const known: { models: Lists; image?: string[] } = { models: {} };
+/** What a service's model list depends on: the service, its key and (OpenAI / Gemini) its custom base URL. */
+const listSig = (p: TextProvider, c: AiConfig = getAiConfig()) => `${p}|${c.keys[p]}|${p === "openai" ? c.openaiBaseUrl : p === "gemini" ? c.geminiBaseUrl : ""}`;
+
+/** Lists already read during this visit, per list signature, so that reopening the settings shows them at once. */
+const known: { models: Record<string, string[]>; image: Record<string, string[]> } = { models: {}, image: {} };
+
+/** Forget the model lists read so far (UI tests). */
+export function resetKnownModelsForTest() {
+  known.models = {};
+  known.image = {};
+}
 
 /** The models each service offers: read quietly for the services in use, and by 测试连接 (which also reports). */
 function useModels() {
-  const [models, setModels] = useState<Lists>(known.models);
-  // OpenRouter keeps its image models in a list of their own
-  const [imageModels, setImageModels] = useState<string[] | undefined>(known.image);
+  // the lists live in `known`; this only re-renders when one arrives
+  const [, setVersion] = useState(0);
+  const bump = useCallback(() => setVersion((v) => v + 1), []);
   const [testing, setTesting] = useState<TextProvider | null>(null);
-  const [loading, setLoading] = useState<TextProvider[]>([]);
-  const pending = useRef(new Set<TextProvider>());
+  const [loading, setLoading] = useState<string[]>([]);
+  const pending = useRef(new Set<string>());
 
-  const load = useCallback(async (p: TextProvider) => {
-    const list = await listModels(p);
-    known.models = { ...known.models, [p]: list };
-    setModels(known.models);
-    if (p === "openrouter")
-      void listImageModels().then(
-        (l) => {
-          known.image = l;
-          setImageModels(l);
-        },
-        () => undefined,
-      );
-    return list;
-  }, []);
+  const store = useCallback(
+    (p: TextProvider, sig: string, list: string[], cfgForImages?: AiConfig) => {
+      known.models = { ...known.models, [sig]: list };
+      bump();
+      if (p === "openrouter") {
+        const refCfg = cfgForImages ?? getAiConfig();
+        const imgSig = `openrouter|${refCfg.keys.openrouter}`;
+        void listImageModels(refCfg).then(
+          (l) => {
+            known.image = { ...known.image, [imgSig]: l };
+            bump();
+          },
+          () => undefined,
+        );
+      }
+    },
+    [bump],
+  );
 
   /** Read a service's list if it has a key and the list is not here yet; failures stay silent (测试连接 explains them). */
   const ensure = useCallback(
     (p: TextProvider) => {
-      if (known.models[p] || pending.current.has(p) || !getAiConfig().keys[p]) return;
-      pending.current.add(p);
+      const c = getAiConfig();
+      const sig = listSig(p, c);
+      if (known.models[sig] || pending.current.has(sig) || !c.keys[p]) return;
+      pending.current.add(sig);
       setLoading([...pending.current]);
-      void load(p)
+      // a late answer is kept under the signature it was asked for, so it never stands in for newer settings
+      void listModels(p, c)
+        .then((list) => store(p, sig, list, c))
         .catch(() => undefined)
         .finally(() => {
-          pending.current.delete(p);
+          pending.current.delete(sig);
           setLoading([...pending.current]);
         });
     },
-    [load],
+    [store],
   );
 
-  const test = async (p: TextProvider): Promise<boolean> => {
+  /** Test a service (with the saved settings, or `cfg` before saving). Never throws; the toast reports. */
+  const test = async (p: TextProvider, cfg?: AiConfig, quiet = false): Promise<{ ok: true; note: string; model: string } | { ok: false; error: string }> => {
     setTesting(p);
+    const c = cfg ?? getAiConfig();
     try {
-      const res = await testTextProvider(p);
-      if (res.models.length) {
-        known.models = { ...known.models, [p]: res.models };
-        setModels(known.models);
-      }
-      const modeHint = res.compatMode && res.compatMode !== "strict" ? ` · 已自动适配 ${res.compatMode} 兼容协议` : "";
-      const listNote = res.models.length ? `读取 ${res.models.length} 个模型` : "结构化 JSON 探活通过";
-      toast(`${LABEL[p]} 连接成功（${listNote}${modeHint}）`, "ok");
-      return true;
+      const res = await testTextProvider(p, cfg);
+      if (res.models.length) store(p, listSig(p, c), res.models, c);
+      const modeHint = res.compatMode && res.compatMode !== "strict" && res.compatMode !== "json_schema" ? ` · 已自动适配 ${res.compatMode} 兼容协议` : "";
+      const note = `${res.models.length ? `读取 ${res.models.length} 个模型` : "结构化 JSON 探活通过"}${modeHint}`;
+      if (!quiet) toast(`${TITLE[p]} 连接成功（${note}）`, "ok");
+      return { ok: true, note, model: res.model };
     } catch (e) {
-      toast((e as Error).message, "warn");
-      return false;
+      const error = (e as Error).message || "连接失败";
+      if (!quiet) toast(error, "warn");
+      return { ok: false, error };
     } finally {
       setTesting(null);
     }
   };
-  return { models, imageModels, testing, loading, test, ensure };
+
+  const listOf = (p: TextProvider, c: AiConfig) => known.models[listSig(p, c)];
+  const imageListOf = (c: AiConfig) => known.image[`openrouter|${c.keys.openrouter}`];
+  const isLoading = (p: TextProvider, c: AiConfig) => loading.includes(listSig(p, c));
+  return { listOf, imageListOf, isLoading, testing, test, ensure };
+}
+
+/** The suggestions of a model field: Gemini excludes incompatible Imagen / TTS models and offers presets when no list has been read. */
+function suggestions(provider: TextProvider, models: string[] | undefined, image: boolean | undefined): string[] | undefined {
+  if (provider !== "gemini") return models;
+  if (image) return [...new Set([...GEMINI_IMAGE_MODELS, ...(models ?? []).filter((m) => /image/i.test(m) && !/^imagen-/i.test(m))])];
+  const textModels = (models ?? []).filter((m) => !/-image\b|^imagen-|-tts\b|embedding/i.test(m));
+  return textModels.length ? textModels : [...GEMINI_PRESET_MODELS];
 }
 
 /** A model name: free text, with the service's own models to pick from (all of them on opening, narrowed while typing). */
@@ -111,7 +163,8 @@ function ModelField({
   hasKey: boolean;
 }) {
   const id = `ai-models-${provider}${image ? "-image" : ""}`;
-  const fallback = image && (provider === "openai" || provider === "openrouter") ? DEFAULT_IMAGE_MODELS[provider] : DEFAULT_MODELS[provider];
+  const fallback = image && (provider === "openai" || provider === "gemini" || provider === "openrouter") ? DEFAULT_IMAGE_MODELS[provider] : DEFAULT_MODELS[provider];
+  const options = suggestions(provider, models, image);
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState(false);
   const [active, setActive] = useState(-1);
@@ -122,7 +175,7 @@ function ModelField({
   const input = useRef<HTMLInputElement>(null);
   const list = useRef<HTMLUListElement>(null);
   const q = typed ? text.trim().toLowerCase() : "";
-  const shown = (models ?? []).filter((m) => !q || m.toLowerCase().includes(q));
+  const shown = (options ?? []).filter((m) => !q || m.toLowerCase().includes(q));
 
   const show = () => {
     setTyped(false);
@@ -160,8 +213,8 @@ function ModelField({
   const empty = busy
     ? "正在读取模型列表…"
     : !hasKey
-      ? `先在上面填 ${LABEL[provider]} 的 Key，这里就会列出可选的模型`
-      : !models
+      ? `先在上面填 ${TITLE[provider]} 的 Key，这里就会列出可选的模型`
+      : !options
         ? "没有读到模型列表，点上面的「测试连接」看原因"
         : "没有匹配的模型，也可以直接填模型名";
 
@@ -233,16 +286,20 @@ export function AiSettings() {
   const usage = useAiUsage();
   const set = (patch: Partial<AiConfig>) => setAiConfig(patch);
   const setKey = (k: keyof AiConfig["keys"], v: string) => setAiConfig((x) => ({ ...x, keys: { ...x.keys, [k]: v } }));
-  const { models, imageModels, testing, loading, test, ensure } = useModels();
+  const { listOf, imageListOf, isLoading, testing, test, ensure } = useModels();
   const [proxy, setProxy] = useState<boolean | null>(null);
   const [voices, setVoices] = useState<AzureVoice[] | null>(null);
   const [azBusy, setAzBusy] = useState(false);
   const [cached, setCached] = useState<number | null>(null);
   const [openAiBaseDraft, setOpenAiBaseDraft] = useState(c.openaiBaseUrl);
+  const [geminiBaseDraft, setGeminiBaseDraft] = useState(c.geminiBaseUrl);
   const [sttBaseDraft, setSttBaseDraft] = useState(c.stt.baseUrl);
   useEffect(() => {
     setOpenAiBaseDraft(c.openaiBaseUrl);
   }, [c.openaiBaseUrl]);
+  useEffect(() => {
+    setGeminiBaseDraft(c.geminiBaseUrl);
+  }, [c.geminiBaseUrl]);
   useEffect(() => {
     setSttBaseDraft(c.stt.baseUrl);
   }, [c.stt.baseUrl]);
@@ -252,65 +309,128 @@ export function AiSettings() {
   }, []);
   // The services in use get their model lists read on their own; after a key is typed, once the typing has paused.
   const inUse = [...new Set<TextProvider>([c.vision.provider, c.text.provider, c.image.provider])];
-  const inUseKeys = inUse.map((p) => `${p}:${c.keys[p]}`).join("|") + `|${c.openaiBaseUrl}`;
+  const inUseKeys = inUse.map((p) => listSig(p, c)).join("\n");
   useEffect(() => {
     const t = setTimeout(() => inUse.forEach(ensure), 600);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inUseKeys, ensure]);
-  const field = (p: TextProvider) => ({ provider: p, busy: loading.includes(p), hasKey: !!c.keys[p] });
+  const field = (p: TextProvider) => ({ provider: p, busy: isLoading(p, c), hasKey: !!c.keys[p] });
+  const geminiTarget = (() => {
+    try {
+      return c.geminiBaseUrl ? new URL(c.geminiBaseUrl).host : "";
+    } catch {
+      return "";
+    }
+  })();
 
   const WIZARD_PRESETS: { provider: TextProvider; badge: string; title: string; placeholder: string; hint: string }[] = [
     { provider: "openrouter", badge: "一站全能 · 推荐", title: "OpenRouter", placeholder: "sk-or-…", hint: "1 个 Key 同时配齐 B2 批改、拍照识图与配图" },
+    { provider: "gemini", badge: "官方直连 · 多模态", title: "Google Gemini", placeholder: "AIzaSy…", hint: "1 个 Key 配齐文本批改、拍照识图与口语多模态转写" },
     { provider: "deepseek", badge: "极低费率", title: "DeepSeek", placeholder: "sk-…", hint: "直连高性价比文本批改与出题" },
     { provider: "openai", badge: "官方 / 中转", title: "OpenAI / 兼容", placeholder: "sk-…", hint: "全功能支持 + 自定义 Base URL 中转 / Whisper" },
     { provider: "anthropic", badge: "长文精细", title: "Anthropic Claude", placeholder: "sk-ant-…", hint: "深度语法批改 + 拍照识图" },
   ];
+  const savedBase = (p: TextProvider, cfg: AiConfig = c) => (p === "openai" ? cfg.openaiBaseUrl : p === "gemini" ? cfg.geminiBaseUrl : "");
   const [wizProvider, setWizProvider] = useState<TextProvider>(() => TEXT_PROVIDERS.find((p) => c.keys[p]) ?? "openrouter");
   const [wizKey, setWizKey] = useState(() => c.keys[TEXT_PROVIDERS.find((p) => c.keys[p]) ?? "openrouter"] ?? "");
-  const [wizBase, setWizBase] = useState(() => c.openaiBaseUrl);
+  const [wizBase, setWizBase] = useState(() => savedBase(TEXT_PROVIDERS.find((p) => c.keys[p]) ?? "openrouter"));
   const [wizStatus, setWizStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  const [wizBusy, setWizBusy] = useState(false);
+  const wizDirtyRef = useRef(false);
+  const wizSeqRef = useRef(0);
   const hasMultipleKeys = Object.values(c.keys).filter(Boolean).length > 1 || Boolean(c.keys.azure);
+  const wizHasBase = wizProvider === "openai" || wizProvider === "gemini";
+  const wizBaseBad = wizHasBase && !!wizBase.trim() && !sanitizeBaseUrl(wizBase);
+
+  // Keep the wizard fields aligned with changes made under 高级配置 unless the learner is actively editing the wizard draft
+  const extWizKey = c.keys[wizProvider] ?? "";
+  const extWizBase = savedBase(wizProvider);
+  useEffect(() => {
+    if (!wizDirtyRef.current) setWizKey(extWizKey);
+  }, [extWizKey]);
+  useEffect(() => {
+    if (!wizDirtyRef.current) setWizBase(extWizBase);
+  }, [extWizBase]);
 
   const pickWizProvider = (p: TextProvider) => {
+    wizSeqRef.current++;
+    wizDirtyRef.current = false;
+    setWizBusy(false);
     setWizProvider(p);
     setWizKey(c.keys[p] ?? "");
+    setWizBase(savedBase(p));
     setWizStatus(null);
   };
 
+  /**
+   * Try the chosen service with the new key before switching to it: the settings are saved and the jobs moved only
+   * when the JSON probe answers. A failure leaves services that already work as they are.
+   */
   const applyWizard = async () => {
+    const provider = wizProvider;
     const trimmed = wizKey.trim();
     if (!trimmed) {
       toast("请先粘贴 API Key", "warn");
       return;
     }
-    const cleanBase = wizProvider === "openai" ? sanitizeBaseUrl(wizBase) : c.openaiBaseUrl;
-    if (wizProvider === "openai" && wizBase.trim() && !cleanBase) {
-      toast("兼容接口地址须以 https:// 或本机 http://localhost 开头", "warn");
+    const cleanBase = wizHasBase ? sanitizeBaseUrl(wizBase) : "";
+    if (wizBaseBad) {
+      const text = `${provider === "gemini" ? "Gemini 自定义接口地址" : "兼容接口地址"}${BASE_URL_HINT}`;
+      toast(text, "warn");
+      setWizStatus({ ok: false, text });
       return;
     }
-    const patch: Partial<AiConfig> = {
-      keys: { ...c.keys, [wizProvider]: trimmed },
-      ...(wizProvider === "openai" ? { openaiBaseUrl: cleanBase } : {}),
-      text: {
-        provider: wizProvider,
-        model: wizProvider === "openrouter" ? GRADING_RECOMMENDED_MODELS.openrouter[0] : DEFAULT_MODELS[wizProvider],
-      },
+    const buildPatch = (cur: AiConfig, resolvedModel?: string): AiConfig => {
+      const chosenModel = resolvedModel || (provider === "openrouter" ? GRADING_RECOMMENDED_MODELS.openrouter[0] : DEFAULT_MODELS[provider]);
+      const next: AiConfig = {
+        ...cur,
+        keys: { ...cur.keys, [provider]: trimmed },
+        ...(provider === "openai" ? { openaiBaseUrl: cleanBase } : {}),
+        ...(provider === "gemini" ? { geminiBaseUrl: cleanBase } : {}),
+        text: { provider, model: chosenModel },
+      };
+      if (provider === "openrouter") {
+        next.vision = { provider: "openrouter", model: DEFAULT_MODELS.openrouter };
+        next.image = { provider: "openrouter", model: DEFAULT_IMAGE_MODELS.openrouter };
+      } else if (provider === "openai") {
+        next.vision = { provider: "openai", model: DEFAULT_MODELS.openai };
+        next.image = { provider: "openai", model: DEFAULT_IMAGE_MODELS.openai };
+        if (!cleanBase) next.stt = { ...cur.stt, provider: "openai" };
+      } else if (provider === "anthropic") {
+        next.vision = { provider: "anthropic", model: DEFAULT_MODELS.anthropic };
+      } else if (provider === "gemini") {
+        // 识图 too; pictures stay with the service already chosen for them
+        next.vision = { provider: "gemini", model: chosenModel };
+      }
+      return sanitizeAiConfig(next);
     };
-    if (wizProvider === "openrouter") {
-      patch.vision = { provider: "openrouter", model: DEFAULT_MODELS.openrouter };
-      patch.image = { provider: "openrouter", model: DEFAULT_IMAGE_MODELS.openrouter };
-    } else if (wizProvider === "openai") {
-      patch.vision = { provider: "openai", model: DEFAULT_MODELS.openai };
-      patch.image = { provider: "openai", model: DEFAULT_IMAGE_MODELS.openai };
-      if (!cleanBase) patch.stt = { ...c.stt, provider: "openai" };
-    } else if (wizProvider === "anthropic") {
-      patch.vision = { provider: "anthropic", model: DEFAULT_MODELS.anthropic };
-    }
-    set(patch);
+
+    const seq = ++wizSeqRef.current;
+    const candidateCfg = buildPatch(getAiConfig());
     setWizStatus(null);
-    const ok = await test(wizProvider);
-    setWizStatus({ ok, text: ok ? `连接成功 · 已自动配齐 ${LABEL[wizProvider]} 默认模型` : "连接失败，请检查 Key 或网络地址" });
+    setWizBusy(true);
+    try {
+      const res = await test(provider, candidateCfg, true);
+      if (wizSeqRef.current !== seq) return;
+      if (res.ok) {
+        wizDirtyRef.current = false;
+        setAiConfig((cur) => buildPatch(cur, res.model));
+        const text = `连接成功 · 已自动配齐 ${TITLE[provider]} 默认模型（${res.note}）`;
+        toast(`${TITLE[provider]} ${text}`, "ok");
+        setWizStatus({ ok: true, text });
+        return;
+      }
+      const live = getAiConfig();
+      const keepWorking = ready.text(live) || ready.vision(live);
+      // nothing works yet: keep the key so that it can be corrected below; otherwise leave the working setup alone
+      if (!keepWorking) setAiConfig((cur) => buildPatch(cur));
+      const text = `连接失败：${res.error}${keepWorking ? "（原有的 AI 服务分工保持不变）" : ""}`;
+      toast(text, "warn");
+      setWizStatus({ ok: false, text });
+    } finally {
+      if (wizSeqRef.current === seq) setWizBusy(false);
+    }
   };
 
   const loadVoices = async () => {
@@ -342,8 +462,38 @@ export function AiSettings() {
     }
   };
 
+  const commitBaseDraft = (field: "openaiBaseUrl" | "geminiBaseUrl", draft: string, setDraft: (v: string) => void): string | null => {
+    if (!draft.trim()) {
+      set({ [field]: "" });
+      setDraft("");
+      return "";
+    }
+    const clean = sanitizeBaseUrl(draft);
+    if (!clean) return null;
+    set({ [field]: clean });
+    setDraft(clean);
+    return clean;
+  };
+
+  const runAdvancedTest = (p: TextProvider) => {
+    if (p === "openai" || p === "gemini") {
+      const draft = p === "openai" ? openAiBaseDraft : geminiBaseDraft;
+      const setDraft = p === "openai" ? setOpenAiBaseDraft : setGeminiBaseDraft;
+      const urlField = p === "openai" ? "openaiBaseUrl" : "geminiBaseUrl";
+      const committed = commitBaseDraft(urlField, draft, setDraft);
+      if (committed === null) {
+        toast(`${p === "gemini" ? "Gemini 自定义接口地址" : "OpenAI 兼容接口地址"}${BASE_URL_HINT}`, "warn");
+        return;
+      }
+      const latest = sanitizeAiConfig({ ...getAiConfig(), [urlField]: committed });
+      void test(p, latest);
+      return;
+    }
+    void test(p);
+  };
+
   const testBtn = (p: TextProvider) => (
-    <button type="button" className="btn btn-ghost btn-sm" onClick={() => test(p)} disabled={!c.keys[p] || testing !== null}>
+    <button type="button" className="btn btn-ghost btn-sm" onClick={() => runAdvancedTest(p)} disabled={!c.keys[p] || testing !== null} aria-label={`测试 ${TITLE[p]} 连接`}>
       {testing === p ? "测试中…" : "测试连接"}
     </button>
   );
@@ -382,26 +532,35 @@ export function AiSettings() {
         </div>
         <div className="ai-wizard-inputs">
           <KeyField
-            label={`${LABEL[wizProvider]} API Key`}
+            label={`${TITLE[wizProvider]} API Key`}
             value={wizKey}
-            onChange={setWizKey}
+            onChange={(v) => {
+              wizDirtyRef.current = true;
+              wizSeqRef.current++;
+              setWizKey(v);
+            }}
             placeholder={WIZARD_PRESETS.find((x) => x.provider === wizProvider)?.placeholder ?? "sk-…"}
           />
-          {wizProvider === "openai" && (
+          {wizHasBase && (
             <label className="wf-field">
-              <span>兼容 Base URL（选填，官网直连留空）</span>
+              <span>{wizProvider === "gemini" ? "Gemini 自定义 Base URL（选填，官方直连留空；反代 / Cloudflare AI Gateway 时填）" : "兼容 Base URL（选填，官网直连留空）"}</span>
               <input
                 value={wizBase}
-                onChange={(e) => setWizBase(e.target.value)}
-                placeholder="https://your-relay.com/v1"
+                onChange={(e) => {
+                  wizDirtyRef.current = true;
+                  wizSeqRef.current++;
+                  setWizBase(e.target.value);
+                }}
+                placeholder={wizProvider === "gemini" ? "https://your-gemini-proxy.com" : "https://your-relay.com/v1"}
                 spellCheck={false}
               />
+              {wizBaseBad && <small className="warn-text">{BASE_URL_HINT}</small>}
             </label>
           )}
         </div>
         <div className="writing-actions">
-          <button type="button" className="btn btn-primary" onClick={() => void applyWizard()} disabled={testing !== null}>
-            {testing === wizProvider ? "探活测试中…" : "保存并自动配齐 · 测试连接"}
+          <button type="button" className="btn btn-primary" onClick={() => void applyWizard()} disabled={testing !== null || wizBusy}>
+            {wizBusy ? "探活测试中…" : "保存并自动配齐 · 测试连接"}
           </button>
           {wizStatus && (
             <span className={`small ${wizStatus.ok ? "is-ok" : "warn-text"}`} role="status">
@@ -426,25 +585,34 @@ export function AiSettings() {
         <span>OpenAI 兼容接口地址 Base URL（选填，直连国内中转 / Groq / 本地 Ollama 时填）</span>
         <input
           value={openAiBaseDraft}
-          onChange={(e) => {
-            const v = e.target.value;
-            setOpenAiBaseDraft(v);
-            if (!v.trim()) set({ openaiBaseUrl: "" });
-            else {
-              const clean = sanitizeBaseUrl(v);
-              if (clean && !v.trim().endsWith("/")) set({ openaiBaseUrl: clean });
-            }
-          }}
-          onBlur={() => {
-            const clean = sanitizeBaseUrl(openAiBaseDraft);
-            set({ openaiBaseUrl: clean });
-            setOpenAiBaseDraft(clean);
-          }}
+          onChange={(e) => setOpenAiBaseDraft(e.target.value)}
+          onBlur={() => void commitBaseDraft("openaiBaseUrl", openAiBaseDraft, setOpenAiBaseDraft)}
+          onKeyDown={(e) => e.key === "Enter" && void commitBaseDraft("openaiBaseUrl", openAiBaseDraft, setOpenAiBaseDraft)}
           placeholder="留空走官方 api.openai.com；支持如 https://your-relay.com/v1"
           spellCheck={false}
         />
         {openAiBaseDraft.trim() && !sanitizeBaseUrl(openAiBaseDraft) && (
           <small className="warn-text">仅支持以 https:// 开头的域名或本机 http://localhost / 127.0.0.1 地址</small>
+        )}
+      </label>
+      <div className="ai-row">
+        <KeyField label="Google Gemini" value={c.keys.gemini} onChange={(v) => setKey("gemini", v)} placeholder="AIzaSy…" />
+        {testBtn("gemini")}
+      </div>
+      <label className="wf-field">
+        <span>Gemini 自定义接口地址 Base URL（选填，中转 / 反代 / Cloudflare AI Gateway 时填）</span>
+        <input
+          value={geminiBaseDraft}
+          onChange={(e) => setGeminiBaseDraft(e.target.value)}
+          onBlur={() => void commitBaseDraft("geminiBaseUrl", geminiBaseDraft, setGeminiBaseDraft)}
+          onKeyDown={(e) => e.key === "Enter" && void commitBaseDraft("geminiBaseUrl", geminiBaseDraft, setGeminiBaseDraft)}
+          placeholder="留空走官方 generativelanguage.googleapis.com；如 https://your-gemini-proxy.com"
+          spellCheck={false}
+        />
+        {geminiBaseDraft.trim() && !sanitizeBaseUrl(geminiBaseDraft) ? (
+          <small className="warn-text">仅支持以 https:// 开头的域名或本机 http://localhost / 127.0.0.1 地址</small>
+        ) : (
+          geminiTarget && <small className="muted">Gemini 请求将发往 {geminiTarget}</small>
         )}
       </label>
       <div className="ai-row">
@@ -463,7 +631,7 @@ export function AiSettings() {
       <h3 className="eyebrow">分工</h3>
       <div className="ai-job">
         <b>拍照识别 · 识图</b>
-        <small>读照片、扫描件和 PDF。DeepSeek 不能看图；用 OpenRouter 时要选一个能看图的模型。</small>
+        <small>读照片、扫描件和 PDF。DeepSeek 不能看图；Gemini 可直接看图和 PDF；用 OpenRouter 时要选一个能看图的模型。</small>
         <div className="segmented">
           {VISION_PROVIDERS.map((p) => (
             <button key={p} className={c.vision.provider === p ? "is-on" : ""} onClick={() => set({ vision: { provider: p, model: DEFAULT_MODELS[p] } })}>
@@ -471,7 +639,7 @@ export function AiSettings() {
             </button>
           ))}
         </div>
-        <ModelField {...field(c.vision.provider)} value={c.vision.model} onChange={(m) => set({ vision: { ...c.vision, model: m } })} models={models[c.vision.provider]} />
+        <ModelField {...field(c.vision.provider)} value={c.vision.model} onChange={(m) => set({ vision: { ...c.vision, model: m } })} models={listOf(c.vision.provider, c)} />
       </div>
       <div className="ai-job">
         <b>生成与批改 · 文本</b>
@@ -483,15 +651,16 @@ export function AiSettings() {
             </button>
           ))}
         </div>
-        <ModelField {...field(c.text.provider)} value={c.text.model} onChange={(m) => set({ text: { ...c.text, model: m } })} models={models[c.text.provider]} />
+        <ModelField {...field(c.text.provider)} value={c.text.model} onChange={(m) => set({ text: { ...c.text, model: m } })} models={listOf(c.text.provider, c)} />
         <small>
           批改推荐模型：OpenRouter 优先 <code>{GRADING_RECOMMENDED_MODELS.openrouter[0]}</code>（最稳且兼顾识图）或{" "}
-          <code>{GRADING_RECOMMENDED_MODELS.openrouter[1]}</code>（纯文本高性价比）；直连推荐 DeepSeek <code>{GRADING_RECOMMENDED_MODELS.deepseek[0]}</code>。
+          <code>{GRADING_RECOMMENDED_MODELS.openrouter[1]}</code>（纯文本高性价比）；直连推荐 DeepSeek <code>{GRADING_RECOMMENDED_MODELS.deepseek[0]}</code>，或 Google Gemini{" "}
+          <code>{GRADING_RECOMMENDED_MODELS.gemini[0]}</code> / <code>{GRADING_RECOMMENDED_MODELS.gemini[1]}</code>（兼顾识图与口语多模态转写）。
         </small>
       </div>
       <div className="ai-job">
         <b>生成图片</b>
-        <small>给词条画一张图。用上面对应服务的 Key；OpenRouter 可以选它的任何一个图片模型。</small>
+        <small>给词条画一张图。用上面对应服务的 Key；Gemini 用它的原生图片模型；OpenRouter 可以选它的任何一个图片模型。</small>
         <div className="segmented">
           {IMAGE_PROVIDERS.map((p) => (
             <button key={p} className={c.image.provider === p ? "is-on" : ""} onClick={() => set({ image: { provider: p, model: DEFAULT_IMAGE_MODELS[p] } })}>
@@ -504,7 +673,13 @@ export function AiSettings() {
           {...field(c.image.provider)}
           value={c.image.model}
           onChange={(m) => set({ image: { ...c.image, model: m } })}
-          models={c.image.provider === "openrouter" ? imageModels : models.openai?.filter((m) => /image|dall/.test(m))}
+          models={
+            c.image.provider === "openrouter"
+              ? imageListOf(c)
+              : c.image.provider === "gemini"
+                ? listOf("gemini", c)
+                : listOf("openai", c)?.filter((m) => /image|dall/.test(m))
+          }
         />
       </div>
 
