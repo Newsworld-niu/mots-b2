@@ -113,7 +113,8 @@
   gap: 8px;
   margin: 8px 0 12px;
 }
-.chip-btn {
+/* The tense picker's tile look stays inside .tense-chips; elsewhere .chip-btn is the light pill. */
+.tense-chips .chip-btn {
   display: grid;
   gap: 2px;
   height: auto;
@@ -128,15 +129,15 @@
   color: var(--ink-3);
   transition: all 0.2s var(--ease);
 }
-.chip-btn b { font: italic 500 16px var(--serif); color: inherit; }
-.chip-btn small { font-size: 12.5px; }
-.chip-btn.is-on {
+.tense-chips .chip-btn b { font: italic 500 16px var(--serif); color: inherit; }
+.tense-chips .chip-btn small { font-size: 12.5px; }
+.tense-chips .chip-btn.is-on {
   background: var(--card);
   color: var(--ink);
   border-color: var(--sage);
   box-shadow: var(--shadow-sm);
 }
-.chip-btn.is-on b { color: var(--sage-ink); }
+.tense-chips .chip-btn.is-on b { color: var(--sage-ink); }
 .conj-how { margin: 6px 0 14px; padding-left: 1.1em; display: grid; gap: 6px; color: var(--ink-2); font-size: 14.5px; }
 .muted.small { font-size: 12.5px; }
 .conj-stage { gap: 18px; }
@@ -724,7 +725,7 @@
 .chip-mine {
   height: 20px;
   padding: 0 7px;
-  font-size: 11px;
+  font-size: 12px;
   background: var(--sky-soft);
   color: var(--sky);
   font-style: normal;
@@ -842,7 +843,7 @@ button.deck-card:hover {
   position: absolute;
   top: 14px;
   right: 14px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--sage-ink);
   background: var(--sage-soft);
@@ -1907,3 +1908,19 @@ button.deck-card:hover {
   border-radius: var(--r-sm);
   border: 1px solid var(--line);
 }
+
+/* ---------- 卡组: 词典收藏 ---------- */
+.dict-favs { margin-top: 18px; display: grid; gap: 10px; }
+.dict-favs .eyebrow { display: inline-flex; align-items: center; gap: 5px; }
+.dict-favs-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.dict-favs-list li {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px;
+  padding: 8px 2px; border-bottom: 1px solid var(--line);
+}
+.dict-favs-list li:last-child { border-bottom: 0; }
+.dict-favs-word { font: 600 16px var(--serif); color: var(--ink); }
+.dict-favs-word:hover { color: var(--terra-ink); }
+.dict-favs-zh { flex: 1 1 160px; min-width: 0; color: var(--ink-2); font-size: 13.5px; overflow-wrap: anywhere; }
+.dict-favs-state { display: inline-flex; align-items: center; gap: 4px; color: var(--sage-ink); font-size: 12.5px; font-weight: 600; }
+.entry-full-dict { margin: 6px 0 0; }
+.entry-full-dict .link { display: inline-flex; align-items: center; gap: 4px; }

@@ -1,18 +1,17 @@
 import { POS_OPTIONS } from "../lib/pos";
-import { ArrowRight, BookMarked, Calendar, Compass, Download, Flame, Headphones, Keyboard, MessageSquareQuote, Mic, SlidersHorizontal, Sparkles, Target } from "lucide-react";
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { ArrowRight, BookMarked, BookOpen, Calendar, Check, Compass, Download, Flame, GraduationCap, Headphones, Keyboard, Layers, MessageSquareQuote, Mic, SlidersHorizontal, Sparkles, Sprout, Target } from "lucide-react";
+import { lazy, Suspense, useEffect, useMemo, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { prefetch, useAtlas, useEntry } from "../atlas/context";
 import { useGrammarMeta } from "../atlas/grammar";
 import { cloudSyncHealthy, downloadBackupFile, isBackupSnoozedToday, snoozeBackupToday } from "../lib/backup";
 import { DRILL_QUESTIONS_COUNT } from "../lib/drill-schema";
 import { EXPRESSIONS_COUNT } from "../lib/expr-schema";
 import { useFamilies } from "../lib/families";
-import { go, openWord } from "../lib/router";
+import { go, href, openWord } from "../lib/router";
 import { cue } from "../lib/sound";
 import { buildPrepSchedule, reconcileDailyTasks, type PrepKind } from "../lib/study-plan";
 import { hashSeed } from "../lib/text";
-import { duePoints, untouchedWithErrors } from "../store/grammar";
-import { reflowSummary } from "../store/note-review";
+import { dueGrammarCountFromMeta, untouchedGrammarErrorCount, useMistakeDue } from "../store/grammar-due";
 import { buildSession, isTaughtReady, masteredCount, todayPlan } from "../store/session";
 import { isMastered } from "../store/srs";
 import { CORE_NAME, studyRange } from "../store/decks";
@@ -35,6 +34,36 @@ const LazyCockpitInsights = lazy(() => import("../ui/CockpitInsights").then((m) 
 const BRAND = `${import.meta.env.BASE_URL}brand`;
 /** Topics without their own tile art borrow a related one. */
 const TOPIC_ART: Record<string, string> = { people: "society" };
+
+/** Enter or Space activates a card-like control (role="button"). */
+const activateOn = (fn: () => void) => (e: ReactKeyboardEvent) => {
+  if (e.target !== e.currentTarget) return;
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    fn();
+  }
+};
+
+type Goal = "everyday" | "exam";
+
+/** 日常进阶 / 备考冲刺: one click switches what the home page puts first. */
+function ModeSwitch({ goal }: { goal: Goal }) {
+  const set = (next: Goal) => {
+    if (next === goal) return;
+    store.settings({ goal: next });
+    toast(next === "exam" ? "已切换到「备考冲刺」：首页按考期安排听说读写" : "已切换到「日常进阶」：首页只保留今日学习清单", "ok");
+  };
+  return (
+    <div className="segmented today-mode" role="radiogroup" aria-label="学习模式">
+      <button type="button" role="radio" aria-checked={goal === "everyday"} className={goal === "everyday" ? "is-on" : ""} onClick={() => set("everyday")}>
+        <Sprout size={14} /> 日常进阶
+      </button>
+      <button type="button" role="radio" aria-checked={goal === "exam"} className={goal === "exam" ? "is-on" : ""} onClick={() => set("exam")}>
+        <GraduationCap size={14} /> 备考冲刺
+      </button>
+    </div>
+  );
+}
 
 /** French greeting: "bonjour" until evening, then "bonsoir". */
 const greetingFr = (h: number) => (h < 5 || h >= 18 ? "Bonsoir" : "Bonjour");
@@ -90,10 +119,15 @@ export function Today() {
     bookProgress: s.progress.bookProgress,
     mediaProgress: s.progress.mediaProgress,
     loungeDays: s.progress.loungeDays,
+    mistakes: s.progress.mistakes,
   }));
   const settings = useStore((s) => s.settings);
   const baseFamilies = useFamilies(Boolean(settings.studyFamilies?.length));
-  const plan = useMemo(() => todayPlan(atlas, progress, settings), [atlas, progress, settings, baseFamilies]);
+  // todayPlan reads the word families from their module cache; baseFamilies changes once they have loaded.
+  const plan = useMemo(() => {
+    void baseFamilies;
+    return todayPlan(atlas, progress, settings);
+  }, [atlas, progress, settings, baseFamilies]);
   // Warm the first cards of today's journey so the session opens instantly.
   const firstIds = [...plan.due.slice(0, 4), ...plan.fresh.slice(0, 6)].join(",");
   useEffect(() => {
@@ -110,7 +144,10 @@ export function Today() {
   const remaining = plan.fresh.length + Math.min(plan.due.length, 60);
   const goal = doneToday + remaining;
 
+  const goalMode: Goal = settings.goal === "exam" ? "exam" : "everyday";
+  const examMode = goalMode === "exam";
   const [more, setMore] = useState("");
+  const [emptyRange, setEmptyRange] = useState(false);
   const [placeOpen, setPlaceOpen] = useState(false);
   const [discoverOpen, setDiscoverOpen] = useState(() => !Object.keys(progress.cards).length && !settings.examDate);
   const [icebreakerDismissed, setIcebreakerDismissed] = useState(() => {
@@ -128,7 +165,13 @@ export function Today() {
     if (!active) {
       const full = store.get().progress;
       const s = buildSession(atlas, full, opts?.extra ? { ...settings, dailyNew: (today?.n ?? 0) + opts.extra } : settings, { reviewOnly: opts?.reviewOnly });
-      if (!s.steps.length) return;
+      if (!s.steps.length) {
+        // Nothing to learn or review in the current range: say so instead of doing nothing.
+        setEmptyRange(true);
+        toast("当前筛选范围内暂无待学/待复习词卡，可放宽范围或浏览词库", "warn");
+        return;
+      }
+      setEmptyRange(false);
       store.progress((p) => ({ ...p, session: s }));
     }
     if (settings.sfx) void cue("start");
@@ -136,8 +179,8 @@ export function Today() {
   };
 
   const { data: grammar } = useGrammarMeta();
-  const grammarDueCount = useMemo(() => (grammar ? duePoints(grammar, progress).length : 0), [grammar, progress]);
-  const grammarUntouchedErrors = useMemo(() => (grammar ? untouchedWithErrors(grammar, progress).length : 0), [grammar, progress]);
+  const grammarDueCount = useMemo(() => dueGrammarCountFromMeta(grammar?.points, progress), [grammar, progress]);
+  const grammarUntouchedErrors = useMemo(() => untouchedGrammarErrorCount(grammar?.points, progress), [grammar, progress]);
   const prep = useMemo(
     () =>
       buildPrepSchedule({
@@ -164,9 +207,20 @@ export function Today() {
 
   const week = unifiedWeek(progress, now);
 
+  const dailyStatus = useMemo(() => reconcileDailyTasks(prep.tasks, progress, new Date()), [prep.tasks, progress]);
+  const narrowed = Boolean(settings.studyPos?.length || settings.studyFamilies?.length || settings.focusTopic || settings.studyDecks);
+  const resetRange = () => {
+    store.settings({ studyPos: null, studyFamilies: null, focusTopic: null, studyDecks: null });
+    setEmptyRange(false);
+    toast("已恢复为全部卡组、全部词性与学习路线", "ok");
+  };
+  const dk = dayKey(now);
+  const microDone = dailyStatus.listen.done || dailyStatus.read.done || dailyStatus.speak.done || (progress.loungeDays?.[dk] ?? 0) > 0;
+
   const learned = Object.keys(progress.cards).length;
+  const beginnerIce = !examMode || settings.startLevel < 2;
   const mastered = masteredCount(progress);
-  const reflow = useMemo(() => reflowSummary(progress), [progress]);
+  const mistakeDue = useMistakeDue(progress);
   const loungeResume = useMemo(() => latestLoungeResume(progress), [progress]);
   const teaser = (active ? active.newIds : plan.fresh).slice(0, 5).map((id) => atlas.byId.get(id)!).filter(Boolean);
 
@@ -180,6 +234,7 @@ export function Today() {
           <h1 className="display">
             <span lang="fr">{greetingFr(now.getHours())}</span>，探索者。
           </h1>
+          <ModeSwitch goal={goalMode} />
         </div>
         <dl className="greet-stats">
           <div className={streak ? "is-hot" : ""}>
@@ -267,6 +322,21 @@ export function Today() {
               <RangeNote otherDue={plan.otherDue} />
             </>
           )}
+          {emptyRange && !active && (
+            <div className="journey-empty" role="status">
+              <span>当前筛选范围内暂无待学/待复习词卡。</span>
+              <div className="journey-empty-actions">
+                {narrowed && (
+                  <button type="button" className="btn btn-glass btn-sm" onClick={resetRange}>
+                    放宽到全部范围
+                  </button>
+                )}
+                <button type="button" className="btn btn-glass btn-sm" onClick={() => go({ page: "atlas" })}>
+                  浏览词库 <ArrowRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
           <details className="journey-filters">
             <summary>
               <SlidersHorizontal size={15} /> 学习范围设置
@@ -340,10 +410,10 @@ export function Today() {
       </section>
 
       {!icebreakerDismissed && learned < 5 && !(progress.examLog?.length) && (
-        <section className="panel today-icebreaker" aria-label="3 分钟快速体验 DELF B2">
+        <section className="panel today-icebreaker" aria-label={beginnerIce ? "3 分钟快速上手" : "3 分钟快速体验 DELF B2"}>
           <div className="panel-head">
             <div>
-              <p className="eyebrow">新手 3 分钟破冰 · DELF B2</p>
+              <p className="eyebrow">{beginnerIce ? "新手 3 分钟上手 · 从零开始" : "新手 3 分钟破冰 · DELF B2"}</p>
               <h2>无需配置 Key，先完成这 3 步体验闭环</h2>
             </div>
             <button
@@ -362,121 +432,221 @@ export function Today() {
             </button>
           </div>
           <div className="today-icebreaker-steps">
-            <button type="button" className="icebreaker-step" onClick={() => start({ extra: 5 })}>
-              <span className="chip">第 1 步 · 1 分钟</span>
-              <b>5 词快速热身</b>
-              <small>按 FSRS 记忆卡点亮前 5 颗核心词汇</small>
-            </button>
-            <button type="button" className="icebreaker-step" onClick={() => go({ page: "read" })}>
-              <span className="chip">第 2 步 · 1 分钟</span>
-              <b>精读一篇免 AI B2 报刊</b>
-              <small>即点即查词典与句级跟读，直接对接真题题材</small>
-            </button>
-            <button type="button" className="icebreaker-step" onClick={() => go({ page: "essay" })}>
-              <span className="chip">第 3 步 · 1 分钟</span>
-              <b>看一遍高分作文批改样张</b>
-              <small>免 Key 预览官方五项评分表与润色对照</small>
-            </button>
+            {beginnerIce ? (
+              <>
+                <button type="button" className="icebreaker-step" onClick={() => start({ extra: 5 })}>
+                  <span className="chip">第 1 步 · 1 分钟</span>
+                  <b>完成第一组核心词卡</b>
+                  <small>看图、听音、认义，点亮最常用的 5 个词</small>
+                </button>
+                <button type="button" className="icebreaker-step" onClick={() => go({ page: "conj" })}>
+                  <span className="chip">第 2 步 · 1 分钟</span>
+                  <b>查一个常见动词变位</b>
+                  <small>être、avoir、aller……现在时一张表看清</small>
+                </button>
+                <button type="button" className="icebreaker-step" onClick={() => go({ page: "lounge" })}>
+                  <span className="chip">第 3 步 · 1 分钟</span>
+                  <b>逛逛双语漫游馆微读</b>
+                  <small>短故事与短片，不计分，点词即查</small>
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="button" className="icebreaker-step" onClick={() => start({ extra: 5 })}>
+                  <span className="chip">第 1 步 · 1 分钟</span>
+                  <b>5 词快速热身</b>
+                  <small>按 FSRS 记忆卡点亮前 5 颗核心词汇</small>
+                </button>
+                <button type="button" className="icebreaker-step" onClick={() => go({ page: "read" })}>
+                  <span className="chip">第 2 步 · 1 分钟</span>
+                  <b>精读一篇免 AI B2 报刊</b>
+                  <small>即点即查词典与句级跟读，直接对接真题题材</small>
+                </button>
+                <button type="button" className="icebreaker-step" onClick={() => go({ page: "essay" })}>
+                  <span className="chip">第 3 步 · 1 分钟</span>
+                  <b>看一遍高分作文批改样张</b>
+                  <small>免 Key 预览官方五项评分表与润色对照</small>
+                </button>
+              </>
+            )}
           </div>
         </section>
       )}
 
       <div className="today-primary-grid">
-        <section className="panel prep-card" aria-label="今日备考调度">
-          <div className="prep-head">
-            <div className="prep-meta">
-              <p className="eyebrow">
-                今日备考调度 · {settings.examTrack === "tcf" ? "TCF 全科" : settings.examTrack === "tef" ? "TEF 新政" : "DELF B2"}
-              </p>
-              <div className="prep-pills">
-                <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
-                  <Calendar size={14} />
-                  {prep.daysLeft === null
-                    ? "未设考期 · 点此设定"
-                    : prep.daysLeft > 0
-                      ? `距考还有 ${prep.daysLeft} 天`
-                      : prep.daysLeft === 0
-                        ? "考试就在今天"
-                        : "已过设定考期"}
+        {!examMode ? (
+          <section className="panel prep-card today-checklist" aria-label="今日学习清单">
+            <div className="prep-head">
+              <div className="prep-meta">
+                <p className="eyebrow">今日学习清单 · 词汇记忆 · 语法精讲 · 听说微读</p>
+                <h2 className="today-checklist-title">每天三小步，稳稳往前走</h2>
+              </div>
+              <div className="prep-head-actions">
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPlaceOpen(true)}>
+                  <Compass size={15} /> {progress.placement ? `重测定级（${atlas.cefr[progress.placement.level] ?? "B1"}）` : "测测我的水平"}
                 </button>
-                <span className="prep-pill">
-                  <Target size={14} />{" "}
-                  {settings.examTrack === "tcf"
-                    ? "目标 B2 (400+ / 10+) · NCLC 7+"
-                    : settings.examTrack === "tef"
-                      ? "目标 B2 (400+) · NCLC 7+ (434+/456+)"
-                      : `目标 ${prep.targetScore}/100（均 ${prep.targetPerPart}/25）`}
-                </span>
-                <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
-                  每日预算 {prep.totalMinutes} 分钟
-                </button>
-                {prep.phase === "urgent" && (
-                  <span className="prep-pill is-urgent">考前 30 天内 · 冲刺模式</span>
-                )}
               </div>
             </div>
-            <div className="prep-head-actions">
-              <a className="btn btn-ghost btn-sm" href="#/practice">
-                <Target size={15} /> 四科实测总览
-              </a>
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPlaceOpen(true)}>
-                <Compass size={15} /> {progress.placement ? `重测定级（${atlas.cefr[progress.placement.level] ?? "B1"}）` : "摸底定级"}
-              </button>
+            <ol className="prep-tasks">
+              <li className={`prep-task is-vocab${dailyStatus.vocab.done ? " is-done" : ""}`}>
+                <span className="today-checklist-icon" aria-hidden="true">{dailyStatus.vocab.done ? <Check size={16} /> : <Sparkles size={16} />}</span>
+                <div className="prep-task-body">
+                  <div className="prep-task-top">
+                    <b>词汇记忆</b>
+                    <span className="prep-task-time">约 {plan.minutes} 分钟</span>
+                  </div>
+                  <small className="muted">
+                    {dailyStatus.vocab.done
+                      ? dailyStatus.vocab.detail
+                      : total > 0
+                        ? `复习 ${plan.due.length} · 新词 ${plan.fresh.length}，先温故再知新`
+                        : "今天的词卡都完成了，可以再认识几个新词"}
+                  </small>
+                </div>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => (active || total > 0 ? start() : start({ extra: 5 }))}>
+                  {active ? "继续" : total > 0 ? "去背词" : "再学 5 个"} <ArrowRight size={14} />
+                </button>
+              </li>
+              <li className={`prep-task is-grammar${dailyStatus.grammar.done ? " is-done" : ""}`}>
+                <span className="today-checklist-icon" aria-hidden="true">{dailyStatus.grammar.done ? <Check size={16} /> : <Layers size={16} />}</span>
+                <div className="prep-task-body">
+                  <div className="prep-task-top">
+                    <b>语法精讲</b>
+                    <span className="prep-task-time">约 8 分钟</span>
+                  </div>
+                  <small className="muted">
+                    {dailyStatus.grammar.done
+                      ? dailyStatus.grammar.detail
+                      : grammarDueCount > 0
+                        ? `${grammarDueCount} 个语法点到期，练一轮巩固`
+                        : "读一个语法点的讲解，再做 8 道小练习"}
+                  </small>
+                </div>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => go({ page: "grammar" })}>
+                  {grammarDueCount > 0 ? "去复习" : "去学语法"} <ArrowRight size={14} />
+                </button>
+              </li>
+              <li className={`prep-task is-listen${microDone ? " is-done" : ""}`}>
+                <span className="today-checklist-icon" aria-hidden="true">{microDone ? <Check size={16} /> : <BookOpen size={16} />}</span>
+                <div className="prep-task-body">
+                  <div className="prep-task-top">
+                    <b>听说微读</b>
+                    <span className="prep-task-time">约 5 分钟</span>
+                  </div>
+                  <small className="muted">{microDone ? "今天已经听过、读过或开过口了" : "漫游馆读一小段双语故事，或说一分钟口语"}</small>
+                </div>
+                <div className="today-checklist-actions">
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => go({ page: "lounge" })}>
+                    去微读 <ArrowRight size={14} />
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => go({ page: "drill" })}>
+                    <Mic size={14} /> 说一分钟
+                  </button>
+                </div>
+              </li>
+            </ol>
+          </section>
+        ) : (
+          <section className="panel prep-card" aria-label="今日备考调度">
+            <div className="prep-head">
+              <div className="prep-meta">
+                <p className="eyebrow">
+                  今日备考调度 · {settings.examTrack === "tcf" ? "TCF 全科" : settings.examTrack === "tef" ? "TEF 新政" : "DELF B2"}
+                </p>
+                <div className="prep-pills">
+                  <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
+                    <Calendar size={14} />
+                    {prep.daysLeft === null
+                      ? "未设考期 · 点此设定"
+                      : prep.daysLeft > 0
+                        ? `距考还有 ${prep.daysLeft} 天`
+                        : prep.daysLeft === 0
+                          ? "考试就在今天"
+                          : "已过设定考期"}
+                  </button>
+                  <span className="prep-pill">
+                    <Target size={14} />{" "}
+                    {settings.examTrack === "tcf"
+                      ? "CEFR B2：听读 400+ · 写说 10+"
+                      : settings.examTrack === "tef"
+                        ? "CEFR B2：各科 400+"
+                        : `目标 ${prep.targetScore}/100（均 ${prep.targetPerPart}/25）`}
+                  </span>
+                  {settings.examTrack === "tcf" && (
+                    <span className="prep-pill" title="加拿大移民 NCLC 7 与 CEFR B2 是两套标准，分数线不同">
+                      移民 NCLC 7：听 458+ · 读 453+ · 写说 10+
+                    </span>
+                  )}
+                  {settings.examTrack === "tef" && (
+                    <span className="prep-pill" title="加拿大移民 NCLC 7 与 CEFR B2 是两套标准，分数线不同">
+                      移民 NCLC 7：听读 434+ · 写说 456+
+                    </span>
+                  )}
+                  <button type="button" className="prep-pill" onClick={() => go({ page: "me" })}>
+                    每日预算 {prep.totalMinutes} 分钟
+                  </button>
+                  {prep.phase === "urgent" && (
+                    <span className="prep-pill is-urgent">考前 30 天内 · 冲刺模式</span>
+                  )}
+                </div>
+              </div>
+              <div className="prep-head-actions">
+                <a className="btn btn-ghost btn-sm" href="#/practice">
+                  <Target size={15} /> 四科实测总览
+                </a>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setPlaceOpen(true)}>
+                  <Compass size={15} /> {progress.placement ? `重测定级（${atlas.cefr[progress.placement.level] ?? "B1"}）` : "摸底定级"}
+                </button>
+              </div>
             </div>
-          </div>
 
+            {prep.vocabOverCap && (
+              <div className="prep-warn" role="status">
+                <span>
+                  {prep.phase === "urgent" ? `考前 ${prep.daysLeft} 天冲刺` : "距考不足 6 个月"}：当前背词预计 {prep.vocabRawMinutes} 分钟（占今日 {prep.vocabSharePct}%），建议控制在 ≤{prep.vocabCapPct}%（≤{prep.vocabCapMinutes} 分钟）。
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => {
+                    store.settings({ dailyNew: prep.suggestedDailyNew });
+                    toast(`已将每日新词调为 ${prep.suggestedDailyNew} 个（背词控制在 ${prep.vocabCapPct}% 以内）`, "ok");
+                  }}
+                >
+                  调为每日 {prep.suggestedDailyNew} 新词
+                </button>
+              </div>
+            )}
 
-          {prep.vocabOverCap && (
-            <div className="prep-warn" role="status">
-              <span>
-                {prep.phase === "urgent" ? `考前 ${prep.daysLeft} 天冲刺` : "距考不足 6 个月"}：当前背词预计 {prep.vocabRawMinutes} 分钟（占今日 {prep.vocabSharePct}%），建议控制在 ≤{prep.vocabCapPct}%（≤{prep.vocabCapMinutes} 分钟）。
-              </span>
-              <button
-                type="button"
-                className="btn btn-ghost btn-sm"
-                onClick={() => {
-                  store.settings({ dailyNew: prep.suggestedDailyNew });
-                  toast(`已将每日新词调为 ${prep.suggestedDailyNew} 个（背词控制在 ${prep.vocabCapPct}% 以内）`, "ok");
-                }}
-              >
-                调为每日 {prep.suggestedDailyNew} 新词
-              </button>
-            </div>
-          )}
-
-          {(() => {
-            const dailyStatus = reconcileDailyTasks(prep.tasks, progress, now);
-            return (
-              <ol className="prep-tasks">
-                {prep.tasks.map((t) => {
-                  const st = dailyStatus[t.kind];
-                  return (
-                    <li key={t.kind} className={`prep-task is-${t.kind}${st?.done ? " is-done" : ""}`}>
-                      <div className="prep-task-body">
-                        <div className="prep-task-top">
-                          <b>
-                            {st?.done ? "✓ " : ""}
-                            {t.title}
-                          </b>
-                          <span className="prep-task-time">
-                            {t.minutes} 分钟 · {t.sharePct}%
-                          </span>
-                        </div>
-                        <small className="muted">
-                          {st?.done ? `${st.detail} · ` : ""}
-                          {t.reason}
-                        </small>
+            <ol className="prep-tasks">
+              {prep.tasks.map((t) => {
+                const st = dailyStatus[t.kind];
+                return (
+                  <li key={t.kind} className={`prep-task is-${t.kind}${st?.done ? " is-done" : ""}`}>
+                    <div className="prep-task-body">
+                      <div className="prep-task-top">
+                        <b>
+                          {st?.done ? "✓ " : ""}
+                          {t.title}
+                        </b>
+                        <span className="prep-task-time">
+                          {t.minutes} 分钟 · {t.sharePct}%
+                        </span>
                       </div>
-                      <button type="button" className="btn btn-ghost btn-sm" onClick={() => launchPrepTask(t.kind)}>
-                        {st?.done ? "再练一次" : t.cta} <ArrowRight size={14} />
-                      </button>
-                    </li>
-                  );
-                })}
-              </ol>
-            );
-          })()}
-        </section>
+                      <small className="muted">
+                        {st?.done ? `${st.detail} · ` : ""}
+                        {t.reason}
+                      </small>
+                    </div>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => launchPrepTask(t.kind)}>
+                      {st?.done ? "再练一次" : t.cta} <ArrowRight size={14} />
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        )}
         <div className="today-side">
           <section className="panel streak-panel">
             <div className="panel-head">
@@ -522,7 +692,7 @@ export function Today() {
                 <Headphones size={16} /> 真实电台 RFI
               </button>
               <button type="button" className="btn btn-ghost" onClick={() => go({ page: "reflow" })}>
-                <BookMarked size={16} /> 统一错题中心{reflow.due > 0 ? ` (${reflow.due})` : ""}
+                <BookMarked size={16} /> 统一错题中心{mistakeDue.reflow ? ` (${mistakeDue.reflow})` : ""}
               </button>
               <button type="button" className="btn btn-ghost" onClick={() => go({ page: "expr" })}>
                 高频论证表达
@@ -669,12 +839,25 @@ function WordOfDay() {
   const { entry } = useEntry(pick?.id);
   if (!pick) return null;
   return (
-    <section className="panel wotd" onClick={() => openWord(pick.id)} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && openWord(pick.id)} aria-labelledby="today-wotd-word">
+    <section className="panel wotd" onClick={() => openWord(pick.id)} aria-labelledby="today-wotd-title">
       <Illustration src={atlas.img(pick)} word={pick.word} topic={pick.topic} className="wotd-art" art={entry?.art ?? plateArticle(pick)} />
       <div className="wotd-body">
-        <h2 className="eyebrow">今日一词</h2>
-        <p id="today-wotd-word" className="wotd-word" lang="fr">
-          {pick.word}
+        <h2 className="eyebrow" id="today-wotd-title">今日一词</h2>
+        {/* The word itself is the control; 发音 is a sibling button, never nested inside another button. */}
+        <p className="wotd-word" lang="fr">
+          <a
+            href={href({ page: "today" }, pick.id)}
+            className="wotd-open"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              openWord(pick.id);
+            }}
+            onKeyDown={activateOn(() => openWord(pick.id))}
+            aria-label={`打开今日一词 ${pick.word} 的词条`}
+          >
+            {pick.word}
+          </a>
         </p>
         {entry && (
           <div onClick={(e) => e.stopPropagation()}>

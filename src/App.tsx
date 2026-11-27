@@ -14,17 +14,18 @@ import { downloadBackupFile } from "./lib/backup";
 import { store, useStore } from "./store/store";
 import { useSyncState } from "./sync/state";
 import { AmbienceController, AmbiencePicker } from "./ui/Ambience";
-import { MAIN_NAV, navOn } from "./ui/nav";
+import { MAIN_NAV, navOn, searchShortcutLabel } from "./ui/nav";
 import { Sidebar } from "./ui/Sidebar";
 
 const Onboarding = lazy(() => import("./pages/Onboarding").then((m) => ({ default: m.Onboarding })));
 const EntryView = lazy(() => import("./ui/EntryView").then((m) => ({ default: m.EntryView })));
 const Palette = lazy(() => import("./ui/Palette").then((m) => ({ default: m.Palette })));
+const Splash = lazy(() => import("./ui/Splash").then((m) => ({ default: m.Splash })));
+const ShortcutsSheet = lazy(() => import("./ui/ShortcutsSheet").then((m) => ({ default: m.ShortcutsSheet })));
 const SyncConflictDialog = lazy(() => import("./ui/SyncConflictDialog").then((m) => ({ default: m.SyncConflictDialog })));
 import { ConfirmSheetHost } from "./ui/ConfirmSheet";
 import { Logo } from "./ui/Logo";
 import { Sheet } from "./ui/Sheet";
-import { shouldShowSplash, Splash } from "./ui/Splash";
 import { Toasts } from "./ui/Toast";
 import { UpdateNote } from "./ui/UpdateNote";
 
@@ -48,6 +49,28 @@ const DrillStudio = lazy(() => import("./pages/Drill").then((m) => ({ default: m
 const ExprStudio = lazy(() => import("./pages/Expressions").then((m) => ({ default: m.ExprStudio })));
 const MistakeReflow = lazy(() => import("./pages/MistakeReflow").then((m) => ({ default: m.MistakeReflow })));
 const Lounge = lazy(() => import("./pages/Lounge").then((m) => ({ default: m.Lounge })));
+
+/** Same key as ui/Splash.tsx; decided here so the splash chunk loads only when it will show. */
+const SPLASH_SEEN_KEY = "word-atlas:splash";
+
+/** Show the animated door splash on the first visit only (unless disabled or deep-linked). */
+function shouldShowSplash() {
+  if (!store.get().settings.splash) return false;
+  const h = location.hash.replace(/^#\/?/, "");
+  if (h && !h.startsWith("?")) return false; // deep links go straight to content
+  try {
+    return !localStorage.getItem(SPLASH_SEEN_KEY);
+  } catch {
+    return true;
+  }
+}
+
+/** Keys typed into a field never trigger the global shortcuts. */
+function isTypingTarget(t: EventTarget | null) {
+  const el = t as HTMLElement | null;
+  if (!el || !el.tagName) return false;
+  return el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || el.isContentEditable || !!el.closest?.("[contenteditable='true'],[contenteditable='']");
+}
 
 function useTheme() {
   const theme = useStore((s) => s.settings.theme);
@@ -142,21 +165,26 @@ function Shell() {
   const theme = useStore((s) => s.settings.theme);
   const saveError = useStore((s) => s.saveError);
   const [palette, setPalette] = useState(false);
+  const [shortcuts, setShortcuts] = useState(false);
   const [splash, setSplash] = useState(shouldShowSplash);
+  const shortcutLabel = useMemo(searchShortcutLabel, []);
   const syncConflict = useSyncState().conflict;
   const focus = route.page === "learn";
   const immersiveLounge = route.page === "lounge" && Boolean(route.item);
 
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement;
-      const typing = t.tagName === "INPUT" || t.tagName === "TEXTAREA";
+      if (e.defaultPrevented) return;
+      const typing = isTypingTarget(e.target);
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setPalette((p) => !p);
-      } else if (e.key === "/" && !typing && !focus) {
+      } else if (e.key === "/" && !typing && !focus && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
         setPalette(true);
+      } else if (e.key === "?" && !typing && !focus && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        setShortcuts(true);
       }
     };
     window.addEventListener("keydown", on);
@@ -175,7 +203,7 @@ function Shell() {
 
   return (
     <div className={`app ${focus ? "is-focus" : ""} ${immersiveLounge ? "is-lounge-item" : ""} ${!focus && !immersiveLounge ? "has-sidebar" : ""}`}>
-      {!focus && !immersiveLounge && <Sidebar page={route.page} dark={dark} onSearch={() => setPalette(true)} />}
+      {!focus && !immersiveLounge && <Sidebar page={route.page} dark={dark} onSearch={() => setPalette(true)} onShortcuts={() => setShortcuts(true)} />}
       {!focus && (
         <header className="topbar">
           <a className="topbar-logo" href="#/" aria-label="法语词光首页">
@@ -189,10 +217,10 @@ function Shell() {
             ))}
           </nav>
           <div className="topbar-tools">
-            <button className="search-pill" onClick={() => setPalette(true)} aria-label="搜索单词">
+            <button className="search-pill" onClick={() => setPalette(true)} aria-label="搜索单词" aria-keyshortcuts="Meta+K Control+K /">
               <Search size={17} />
               <span>搜索单词</span>
-              <kbd>⌘K</kbd>
+              <kbd>{shortcutLabel}</kbd>
             </button>
             <AmbiencePicker />
             <button className="icon-btn" onClick={() => store.settings({ theme: dark ? "light" : "dark" })} aria-label={dark ? "切换到浅色" : "切换到深色"}>
@@ -225,7 +253,7 @@ function Shell() {
           {route.page === "atlas" && <AtlasPage route={route} />}
           {route.page === "dict" && <Dict word={route.w} query={route.q} tab={route.tab} />}
           {route.page === "learn" && <Learn />}
-          {route.page === "practice" && <Practice />}
+          {route.page === "practice" && <Practice key={route.src ?? "hub"} src={route.src} autostart={route.autostart} />}
           {route.page === "mock" && <MockExam onExit={() => go({ page: "practice" })} />}
           {route.page === "speak" && <SpeakingStudio onExit={() => go({ page: "practice" })} />}
           {route.page === "listen" && <ComprehensionStudio key="listen" kind="listen" onExit={() => go({ page: "practice" })} />}
@@ -274,7 +302,16 @@ function Shell() {
       <ConfirmSheetHost />
       {palette && <Suspense fallback={null}><Palette open={palette} onClose={() => setPalette(false)} /></Suspense>}
       {!onboarded && route.page !== "about" && !splash && <Suspense fallback={null}><Onboarding /></Suspense>}
-      {splash && <Splash onDone={() => setSplash(false)} />}
+      {splash && (
+        <Suspense fallback={<div className="splash is-gather" aria-hidden="true" />}>
+          <Splash onDone={() => setSplash(false)} />
+        </Suspense>
+      )}
+      {shortcuts && (
+        <Suspense fallback={null}>
+          <ShortcutsSheet open={shortcuts} onClose={() => setShortcuts(false)} />
+        </Suspense>
+      )}
       <Toasts />
       {syncConflict && <Suspense fallback={null}><SyncConflictDialog /></Suspense>}
       <UpdateNote />

@@ -90,6 +90,8 @@ export function Dict({ word, query, tab }: { word?: string; query?: string; tab?
   useEffect(() => {
     const targetWord = word?.trim();
     const targetQuery = query?.trim();
+    // Bump first: clearing the search must also invalidate a lookup still in flight, or its result comes back.
+    const req = ++searchReq.current;
     if (!targetWord && !targetQuery) {
       setResult(null);
       setLoading(false);
@@ -97,7 +99,6 @@ export function Dict({ word, query, tab }: { word?: string; query?: string; tab?
     }
 
     window.scrollTo({ top: 0 });
-    const req = ++searchReq.current;
     setLoading(true);
     setSelectedIdx(0);
 
@@ -215,23 +216,23 @@ export function Dict({ word, query, tab }: { word?: string; query?: string; tab?
 
   const activeEntry = result?.entries[selectedIdx] ?? result?.entries[0] ?? null;
 
+  const activeEntryId = activeEntry?.id;
   useEffect(() => {
-    if (activeEntry) {
-      recordDictHistory(activeEntry.id);
-    }
-  }, [activeEntry?.id]);
+    if (activeEntryId) recordDictHistory(activeEntryId);
+  }, [activeEntryId]);
 
   // Live autocomplete
   const handleInputChange = (val: string) => {
     setInput(val);
     setAcSel(-1);
     const trimmed = val.trim();
+    // Bump first: an empty box drops any suggestion request still in flight.
+    const id = ++acReq.current;
     if (!trimmed) {
       setAcItems([]);
       setAcOpen(false);
       return;
     }
-    const id = ++acReq.current;
     const cjk = isCjkQuery(trimmed);
 
     const runAc = async () => {
@@ -280,6 +281,7 @@ export function Dict({ word, query, tab }: { word?: string; query?: string; tab?
   const submitQuery = (raw: string) => {
     const trimmed = raw.trim();
     if (!trimmed) return;
+    ++acReq.current; // suggestions still loading must not reopen over the result
     setAcOpen(false);
     if (isCjkQuery(trimmed)) {
       go({ page: "dict", q: trimmed });

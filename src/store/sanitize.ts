@@ -2,12 +2,12 @@ import { TENSES } from "../lib/conj-schema";
 import { EXPR_ID } from "../lib/expr-schema";
 import { sanitizeExamLog, sanitizeMockRecords, sanitizeSpeakingSessions, sanitizeWeeklyPlan } from "../lib/exam-schema";
 import { sanitizeAiTasks, sanitizeEssays, sanitizeNotes, type EssayCorrection } from "../lib/essay-schema";
-import { sanitizeMisses, sanitizeSources } from "../lib/listening";
+import { sanitizeMisses, sanitizeSources } from "../lib/listening-schema";
 import { sanitizeDrillDays } from "../lib/drill-schema";
 import type { BookProgressEntry, MediaProgressEntry, SavedLoungeClip } from "../lib/lounge-types";
 import { sanitizePlacement } from "../lib/placement-schema";
 import { POS_OPTIONS } from "../lib/pos";
-import { sanitizeTexts } from "../lib/reader";
+import { sanitizeTexts } from "../lib/reader-schema";
 import { cleanWikiSources } from "../lib/wiktionary";
 import { ERROR_TYPES, type ErrorType } from "../lib/writing";
 import type { CardState, Grade } from "./srs";
@@ -606,5 +606,8 @@ export function sanitizeSettings(v: unknown): Settings {
   if (num(v.lastBackupAt, 0)) s.lastBackupAt = v.lastBackupAt as number;
   if (v.loungeMode === "chill" || v.loungeMode === "study") s.loungeMode = v.loungeMode;
   if (v.examTrack === "delf" || v.examTrack === "tcf" || v.examTrack === "tef") s.examTrack = v.examTrack;
+  // Learners from before the mode switch: an exam date (or a TCF/TEF track) means they came to prepare an exam.
+  if (v.goal === "everyday" || v.goal === "exam") s.goal = v.goal;
+  else s.goal = s.examDate || s.examTrack !== "delf" ? "exam" : "everyday";
   return s;
 }

@@ -5,7 +5,7 @@
  * vocabulary (TOPICS in exam.ts). Words the learner created count as core: they chose to learn them.
  */
 import type { Atlas, WordRef } from "../atlas/types";
-import { TOPICS, type Topic } from "./exam";
+import { TOPICS, type Topic } from "./topics";
 
 /** How many words of the frequency-ordered learning path are core. */
 export const CORE_PATH = 1500;

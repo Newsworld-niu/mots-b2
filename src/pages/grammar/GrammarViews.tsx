@@ -13,7 +13,7 @@ import {
   Target,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { foldAccents } from "../../lib/accent";
 import { TRACK_META } from "../../lib/exam-tracks";
 import {
@@ -764,6 +764,39 @@ interface Section {
   label: string;
 }
 
+const LazyWordPopup = lazy(() => import("../../ui/WordPopup").then((m) => ({ default: m.WordPopup })));
+
+/**
+ * A rule's French examples with tap/select-to-lookup (LexDB). The popup listens on this list only: formulas,
+ * tables and the drill buttons keep their own behaviour, and the card is portaled so the layout never changes.
+ */
+function ExampleList({ examples }: { examples: GrammarPoint["rules"][number]["ex"] }) {
+  const ref = useRef<HTMLUListElement>(null);
+  return (
+    <>
+      <ul className="gram-examples" ref={ref}>
+        {examples.map((ex, k) => (
+          <li key={k}>
+            <p className="gram-ex-fr">
+              <RichGrammarText text={ex[0]} lang="fr" />
+              <Speak url={null} text={stripGrammarMarks(ex[0])} size="sm" />
+            </p>
+            <small className="gram-ex-zh">{ex[1]}</small>
+            {ex[2] && (
+              <span className="gram-ex-break">
+                <b>结构</b> <RichGrammarText text={ex[2]} />
+              </span>
+            )}
+          </li>
+        ))}
+      </ul>
+      <Suspense fallback={null}>
+        <LazyWordPopup containerRef={ref} />
+      </Suspense>
+    </>
+  );
+}
+
 export function PointView({ data, point, section, onStart }: { data: GrammarData; point: GrammarPoint; section?: string; onStart: StartRound }) {
   const progress = useStoreShallow((s) => ({
     gram: s.progress.gram,
@@ -927,24 +960,7 @@ export function PointView({ data, point, section, onStart }: { data: GrammarData
                 {tablesFor(i).map((t, k) => (
                   <GrammarTableView key={k} table={t} />
                 ))}
-                {r.ex.length > 0 && (
-                  <ul className="gram-examples">
-                    {r.ex.map((ex, k) => (
-                      <li key={k}>
-                        <p className="gram-ex-fr">
-                          <RichGrammarText text={ex[0]} lang="fr" />
-                          <Speak url={null} text={stripGrammarMarks(ex[0])} size="sm" />
-                        </p>
-                        <small className="gram-ex-zh">{ex[1]}</small>
-                        {ex[2] && (
-                          <span className="gram-ex-break">
-                            <b>结构</b> <RichGrammarText text={ex[2]} />
-                          </span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                {r.ex.length > 0 && <ExampleList examples={r.ex} />}
               </section>
             );
           })}

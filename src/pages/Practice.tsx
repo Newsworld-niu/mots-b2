@@ -9,7 +9,7 @@ import { cue } from "../lib/sound";
 import { hashSeed, shuffle } from "../lib/text";
 import { translatable } from "../lib/writing";
 import { ready, useAiConfig } from "../ai/config";
-import { go, href, type Route } from "../lib/router";
+import { go, href, type PracticeSrc, type Route } from "../lib/router";
 import { clean, correctCharacterCount, same, typingDelta, typingMetrics } from "../lib/typing";
 import { ARTICLE, ARTICLE_CHOICES, articleTone, isArticleCorrect, isSpellableHeadword } from "../lib/gender";
 import { useKeys } from "../lib/keys";
@@ -128,7 +128,10 @@ const usesSentences = (m: DrillMode) => m === "dictation" || m === "translate";
 const isProductive = (m: DrillMode) => m === "word" || isWriting(m);
 const NO_EX_AUDIO = ~(MEDIA.ex | MEDIA.exM | MEDIA.ex2 | MEDIA.ex2M);
 
-export function Practice() {
+/** The word pool a link asks for (错题中心 → 拼写练错词), mapped to the practice sources. */
+const LINK_SOURCE: Record<PracticeSrc, Source> = { due: "recent", mistakes: "mistakes", bookmarks: "saved", all: "path" };
+
+export function Practice({ src, autostart }: { src?: PracticeSrc; autostart?: "1" } = {}) {
   const atlas = useAtlas();
   const progress = useStoreShallow((s) => ({
     cards: s.progress.cards,
@@ -152,6 +155,8 @@ export function Practice() {
   const examStudios = useMemo(() => studiosForTrack(examTrack), [examTrack]);
   const [mode, setMode] = useState<DrillMode>("word");
   const [source, setSourceState] = useState<Source>(() => {
+    // A linked pool applies to this visit only; the remembered choice is not overwritten.
+    if (src && LINK_SOURCE[src]) return LINK_SOURCE[src];
     const kept = readPref("source") as Source | null;
     if (kept && SOURCES.some(([k]) => k === kept)) return kept;
     return Object.keys(progress.cards).length ? "recent" : "path";
@@ -180,7 +185,8 @@ export function Practice() {
     writePref("ai-sentences", v ? "1" : "0");
   };
   // 单词、中译法、造句: only 会用 words, or every word of the source
-  const [coreOnly, setCoreOnlyState] = useState(() => readPref("core-only") !== "0");
+  // A linked pool (e.g. every wrong word) is practised whole, not narrowed to 会用 words.
+  const [coreOnly, setCoreOnlyState] = useState(() => !src && readPref("core-only") !== "0");
   const setCoreOnly = (v: boolean) => {
     setCoreOnlyState(v);
     writePref("core-only", v ? "1" : "0");
@@ -279,6 +285,20 @@ export function Practice() {
     if (entries.length) setRound({ entries, key: Date.now() });
   };
 
+  // 错题中心 → 去练错词拼写: start the spelling round at once, then drop autostart from the address so a reload
+  // lands on the hub instead of a new round.
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (autostart !== "1" || autoStarted.current) return;
+    autoStarted.current = true;
+    if (src) go({ page: "practice", src }, null, true);
+    if (!pool.length) {
+      toast(src === "mistakes" ? "错词本里暂时没有可拼写的词，先去学几个词吧" : "这里还没有可练的词", "info");
+      return;
+    }
+    void start();
+  });
+
   if (microTrackId) {
     return (
       <Suspense fallback={<div className="page learn-loading"><span className="spinner" /></div>}>
@@ -291,6 +311,8 @@ export function Practice() {
   if (round && !isWriting(mode) && mode !== "gender") return <TypingRound key={round.key} mode={mode} entries={round.entries} onExit={() => setRound(null)} onAgain={start} />;
 
   const best = progress.typing.filter((t) => t.mode === mode).reduce((m, t) => Math.max(m, t.wpm), 0);
+  const aiReady = ready.text(ai);
+  const pendingMistakes = progress.mistakes.length + reflow.due;
   return (
     <div className="page practice">
       <header className="page-head">
@@ -300,6 +322,38 @@ export function Practice() {
           {trackMeta.scaleSummary} <span className="chip">{trackMeta.b2TargetLabel}</span>
         </p>
       </header>
+
+      {src === "mistakes" ? (
+        <aside className="practice-reflow-banner" role="status">
+          <span>这一轮来自错题中心：错词本里的 <b>{progress.mistakes.length}</b> 个词。</span>
+          <div className="practice-reflow-actions">
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => go({ page: "reflow" })}>
+              <ArrowRight size={14} /> 返回错题中心
+            </button>
+            <button type="button" className="link small" onClick={() => go({ page: "practice" })}>
+              回到应试首页
+            </button>
+          </div>
+        </aside>
+      ) : (
+        pendingMistakes > 0 && (
+          <aside className="practice-reflow-banner">
+            <span>
+              错题待回流：错词 <b>{progress.mistakes.length}</b> · 错句与错因 <b>{reflow.due}</b>
+            </span>
+            <div className="practice-reflow-actions">
+              {progress.mistakes.length > 0 && (
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => go({ page: "practice", src: "mistakes", autostart: "1" })}>
+                  拼写练错词
+                </button>
+              )}
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => go({ page: "reflow" })}>
+                <BookMarked size={14} /> 去错题中心
+              </button>
+            </div>
+          </aside>
+        )
+      )}
 
       <ExamDashboard compact onStartMock={() => go({ page: "mock" })} />
 
@@ -358,6 +412,7 @@ export function Practice() {
                 <Icon size={22} strokeWidth={1.7} />
                 <b>{name}</b>
                 <small>{desc}</small>
+                {k === "compose" && !aiReady && <span className="chip practice-ai-chip">需配置 AI</span>}
               </button>
             ))}
           </div>
@@ -400,9 +455,9 @@ export function Practice() {
                   <Sparkles size={14} /> AI 现写新句子
                 </button>
               </div>
-              {!ready.text(ai) && (
+              {!aiReady && (
                 <p className="muted small">
-                  AI 现写新句子需要先到 <a className="link" href={href({ page: "me" })}>我的 → AI 接口</a> 设置AI 文本服务。
+                  <span className="chip practice-ai-chip">需配置 AI</span> <a className="link" href={href({ page: "me" })}>去设置</a>
                 </p>
               )}
               {aiOn && <p className="muted small">每轮开始时 AI 用这些词各写一个新句子（一次请求，约 10–30 秒），句子没有录音，{ready.tts(ai) ? "由朗读服务读出，可以选女声或男声。" : "只能用设备自带的声音读，没有女/男声可选；到「我的 → AI 接口」开启朗读服务后才能选。"}</p>}

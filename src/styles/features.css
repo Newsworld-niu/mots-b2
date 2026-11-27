@@ -395,7 +395,7 @@
   justify-items: center;
 }
 .reflow-rate .btn small {
-  font-size: 11px;
+  font-size: 12px;
   opacity: 0.8;
 }
 .real-player-tools {
@@ -436,7 +436,7 @@
 }
 .palette-group {
   padding: 8px 14px 4px;
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--ink-3);

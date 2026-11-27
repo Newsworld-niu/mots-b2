@@ -271,6 +271,13 @@ export function EntryView({ entry, mode = "detail", eager = true }: { entry: Ent
         <Inflections entry={entry} />
         <Pronounce entry={entry} refw={ref ?? entry} />
         <DictionaryLinks word={entry.w} />
+        {mode !== "intro" && (
+          <p className="entry-full-dict">
+            <a className="link small" href={href({ page: "dict", w: entry.w })}>
+              完整法汉词典 · 变位与近反义 →
+            </a>
+          </p>
+        )}
         {wikiSources?.length ? <p className="wiki-attribution">导入自 Wiktionnaire（CC BY-SA）：{wikiSources.map((url,i)=><a key={url} href={url} target={isNative() ? "_self" : "_blank"} rel="noopener noreferrer">原文版本 {i+1} </a>)}</p> : null}
 
         {editing && (

@@ -42,9 +42,12 @@ export function CockpitInsights() {
     texts: s.progress.texts,
     weeklyPlan: s.progress.weeklyPlan,
     suspendedLeeches: s.progress.suspendedLeeches,
+    mockRecords: s.progress.mockRecords,
   }));
   const settings = useStore((s) => s.settings);
   const [tab, setTab] = useState<CockpitTab>("trends");
+  const [expanded, setExpanded] = useState(false);
+  const noExamData = !progress.examLog?.length && !progress.mockRecords?.length;
 
   const trends = useMemo(() => fourSkillTrends(progress.examLog), [progress.examLog]);
   const coverage = useMemo(
@@ -95,6 +98,34 @@ export function CockpitInsights() {
     saveWeeklyPlan(next);
     toast("已生成本周 7 天专项提分计划", "ok");
   };
+
+  // No exam practice yet: one calm card instead of three tabs of empty charts and elimination lines.
+  if (noExamData && !expanded) {
+    const exam = settings.goal === "exam";
+    return (
+      <section className="panel cockpit-card is-empty" aria-label="B2 备考数据驾驶舱">
+        <div className="cockpit-empty">
+          <div className="cockpit-empty-copy">
+            <p className="eyebrow">{exam ? "备考驾驶舱 · Tableau de bord" : "能力洞察 · 听说读写"}</p>
+            <p className="small">
+              {exam
+                ? "还没有测评数据。做一次听力或阅读诊断练习，这里就会出现四科趋势、主题覆盖与提分周计划。"
+                : "想知道自己听说读写到哪一步了？做一次 10 分钟的诊断练习，这里会画出你的能力曲线。"}
+            </p>
+            {risks.length > 0 && <p className="muted small">另有 {risks.length} 个已学词接近遗忘，可展开抢救复习。</p>}
+          </div>
+          <div className="cockpit-empty-actions">
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => go({ page: "listen" })}>
+              开始诊断练习 <ArrowRight size={14} />
+            </button>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setExpanded(true)} aria-expanded={false}>
+              展开驾驶舱
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const targetLineY = Math.round(108 - ((target / 4) / 25) * 92);
   const elimLineY = Math.round(108 - (5 / 25) * 92);

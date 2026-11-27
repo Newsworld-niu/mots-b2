@@ -554,7 +554,7 @@
 }
 
 .dict-tab small {
-  font-size: 11px;
+  font-size: 12px;
   opacity: 0.78;
 }
 
@@ -1218,7 +1218,8 @@
   align-items: center;
   gap: 6px;
 }
-.chip-btn.is-compact {
+.dict-page .chip-btn.is-compact,
+.dict-entry-card .chip-btn.is-compact {
   height: 28px;
   padding: 0 10px;
   font-size: 12px;
@@ -1230,7 +1231,8 @@
   border-color: var(--terra);
   background: var(--terra-soft);
 }
-.icon-btn.is-xs {
+.dict-page .icon-btn.is-xs,
+.dict-entry-card .icon-btn.is-xs {
   width: 28px;
   height: 28px;
 }
@@ -1274,4 +1276,19 @@
 .dict-shelf-ico {
   margin-right: 4px;
   vertical-align: -2px;
+}
+
+.dict-quick-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 4px;
+  color: var(--sage-ink);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.dict-quick-state .link {
+  margin-left: 4px;
+  font-weight: 500;
 }

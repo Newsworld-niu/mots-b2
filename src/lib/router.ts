@@ -8,12 +8,17 @@ export type DictTab = "zh" | "conj" | "phrases" | "examples" | "relations" | "fr
 export const DICT_TABS: readonly DictTab[] = ["zh", "conj", "phrases", "examples", "relations", "fr", "etym", "notes"];
 const isDictTab = (v: string | null): v is DictTab => !!v && (DICT_TABS as readonly string[]).includes(v);
 
+/** Word pool of a practice round opened from a link (错题中心 → 拼写练错词). */
+export type PracticeSrc = "due" | "mistakes" | "bookmarks" | "all";
+const PRACTICE_SRCS: readonly PracticeSrc[] = ["due", "mistakes", "bookmarks", "all"];
+const isPracticeSrc = (v: string | null): v is PracticeSrc => !!v && (PRACTICE_SRCS as readonly string[]).includes(v);
+
 export type Route =
   | { page: "today" }
   | { page: "atlas"; families?: string; pos?: string; d?: string; topic?: string; level?: string; q?: string; view?: string }
   | { page: "dict"; w?: string; q?: string; tab?: DictTab }
   | { page: "learn" }
-  | { page: "practice" }
+  | { page: "practice"; src?: PracticeSrc; autostart?: "1" }
   | { page: "mock" }
   | { page: "speak" }
   | { page: "listen" }
@@ -81,7 +86,14 @@ export function parseHash(hash: string): Location {
   if (seg[0] === "atlas")
     route = { page: "atlas", families: params.get("families") || undefined, pos: params.get("pos") || undefined, d: params.get("d") || undefined, topic: params.get("topic") || undefined, level: params.get("level") || undefined, q: params.get("q") || undefined, view: params.get("view") || undefined };
   else if (seg[0] === "learn") route = { page: "learn" };
-  else if (seg[0] === "practice") route = { page: "practice" };
+  else if (seg[0] === "practice") {
+    const src = params.get("src");
+    route = {
+      page: "practice",
+      ...(isPracticeSrc(src) ? { src } : {}),
+      ...(params.get("autostart") === "1" ? { autostart: "1" as const } : {}),
+    };
+  }
   else if (STUDIO_PAGES.has(seg[0] as Route["page"])) route = { page: seg[0] as Route["page"] } as Route;
   else if (seg[0] === "read") route = { page: "read", t: params.get("t") || undefined };
   else if (seg[0] === "conj") route = { page: "conj" };
@@ -124,6 +136,10 @@ export function href(route: Route, word?: string | null) {
     if (route.q) params.set("q", route.q);
     if (route.tab && route.tab !== "zh" && isDictTab(route.tab)) params.set("tab", route.tab);
     if (word) params.set("card", word);
+  }
+  if (route.page === "practice") {
+    if (route.src && isPracticeSrc(route.src)) params.set("src", route.src);
+    if (route.autostart === "1") params.set("autostart", "1");
   }
   if (route.page === "compare" && route.g) params.set("g", route.g);
   if (route.page === "decks" && route.d) params.set("d", route.d);

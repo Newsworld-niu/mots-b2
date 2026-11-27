@@ -1089,6 +1089,44 @@
 .home-dictionary-search input { flex:1; min-width:0; border:0; background:transparent; color:var(--ink); font:inherit; font-size:16px; padding:8px 0; outline:none; }
 .home-dictionary-search:focus-within { border-color:var(--terra); }
 .home-dictionary-caption { display:flex; align-items:center; gap:7px; color:var(--ink-2); font-size:12px; margin:8px 4px 0; }
+.home-dict-combo { position: relative; }
+.home-dict-clear { flex: none; width: 30px; height: 30px; }
+.home-dict-ac {
+  position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 6px);
+  list-style: none; margin: 0; padding: 6px; display: grid; gap: 2px;
+  max-height: min(360px, 60vh); overflow-y: auto;
+  background: var(--card); border: 1px solid var(--line-strong); border-radius: 16px; box-shadow: var(--shadow-lg);
+}
+.home-dict-ac li {
+  display: flex; align-items: baseline; gap: 10px; min-width: 0;
+  padding: 8px 12px; border-radius: 10px; cursor: pointer;
+}
+.home-dict-ac li b { flex: none; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 16px var(--serif); color: var(--ink); }
+.home-dict-ac li span { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-2); font-size: 13.5px; }
+.home-dict-ac li .chip { flex: none; }
+.home-dict-ac li:hover,
+.home-dict-ac li.is-active { background: color-mix(in oklab, var(--terra) 10%, transparent); }
+.home-dict-preview {
+  margin-top: 14px; padding: 18px 20px; display: grid; gap: 12px;
+  border: 1px solid var(--line); border-radius: 20px; background: var(--card); box-shadow: var(--shadow-sm);
+}
+.home-dict-preview-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.home-dict-preview-head > div { min-width: 0; }
+.home-dict-preview-head h2 { margin: 0; font: 600 28px/1.15 var(--serif); overflow-wrap: anywhere; }
+.home-dict-preview-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 6px; color: var(--ink-2); font-size: 13.5px; }
+.home-dict-preview-meta .pos { font-style: italic; }
+.home-dict-glosses { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; color: var(--ink); font-size: 15px; }
+.home-dict-glosses-plain { margin: 0; color: var(--ink); font-size: 15px; }
+.home-dict-preview-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.home-dict-manual { margin-top: 12px; }
+.home-dict-manual > summary { cursor: pointer; color: var(--ink-2); font-size: 13.5px; font-weight: 600; padding: 4px; }
+.home-dict-manual > summary small { margin-left: 8px; font-weight: 400; color: var(--ink-3); font-size: 12px; }
+.home-dict-manual-body { display: grid; justify-items: start; gap: 8px; padding: 8px 4px 0; }
+@media (max-width: 559px) {
+  .home-dict-preview { padding: 14px; }
+  .home-dict-preview-head h2 { font-size: 24px; }
+  .home-dict-manual > summary small { display: block; margin: 2px 0 0; }
+}
 .home-dictionary-result { margin-top:18px; padding:24px; border:1px solid var(--line); border-radius:20px; background:var(--card); }
 .home-dictionary-result > header { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:20px; }
 .home-dictionary-result h2 { font-size:28px; overflow-wrap:anywhere; margin:0 0 7px; }
@@ -1228,7 +1266,7 @@ button.prep-pill:hover { border-color: var(--ink-4); color: var(--ink); }
 .prep-skill span { color: var(--ink-2); }
 .prep-skill span b { font-size: 11px; font-family: var(--mono); opacity: .75; }
 .prep-skill strong { font-size: 15px; color: var(--ink); }
-.prep-skill strong small { font-size: 11.5px; font-weight: 400; color: var(--ink-3); }
+.prep-skill strong small { font-size: 12px; font-weight: 400; color: var(--ink-3); }
 .prep-warn {
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px;
   padding: 10px 14px; border-radius: 12px; font-size: 13px;
@@ -1451,3 +1489,16 @@ button.prep-pill:hover { border-color: var(--ink-4); color: var(--ink); }
 .pick-row:has(> .pick-jump) { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 4px; }
 .pick-jump { padding: 7px 8px; white-space: nowrap; text-decoration: none; }
 @media (max-width: 759px) { .home-dict-links { margin-inline-start: 0; } }
+
+/* ---------- 应试: 错题待回流 banner and the restrained AI hint ---------- */
+.practice-reflow-banner {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px;
+  margin: 0 0 16px; padding: 10px 14px; border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--terra) 30%, var(--line));
+  background: color-mix(in oklab, var(--terra) 6%, var(--card));
+  color: var(--ink-2); font-size: 14px;
+}
+.practice-reflow-banner b { color: var(--terra-ink); font-variant-numeric: tabular-nums; }
+.practice-reflow-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.practice-ai-chip { color: var(--ink-3); border-color: var(--line-strong); font-size: 12px; }
+.mode-card .practice-ai-chip { justify-self: start; margin-top: 4px; }
