@@ -1397,3 +1397,125 @@
     margin-left: 0;
   }
 }
+
+/* ---------- AI 接口跨设备同步 (shared by 我的 → 云同步 and 我的 → AI 接口) ---------- */
+.ai-sync-controls {
+  display: grid;
+  gap: 4px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--r);
+  border: 1px solid var(--line-strong);
+  background: var(--card-2);
+  min-width: 0;
+}
+.ai-sync-controls.is-settings {
+  margin-top: 0;
+}
+.ai-sync-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 10px;
+  min-width: 0;
+}
+.ai-sync-head b {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+.ai-sync-status {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.ai-sync-status.is-ok {
+  color: var(--sage-ink);
+}
+.ai-sync-status.is-busy {
+  color: var(--ink-2);
+}
+.ai-sync-status.is-error {
+  color: var(--terra-ink);
+}
+.ai-sync-controls .ai-sync-toggle {
+  padding: 10px 0;
+  gap: 12px;
+}
+.ai-sync-toggle > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ai-sync-toggle b {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.ai-sync-toggle small {
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.ai-sync-toggle input:disabled + .switch {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.ai-sync-toggle:has(input:disabled) {
+  cursor: not-allowed;
+}
+.ai-sync-note {
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--sky-soft);
+  color: var(--ink);
+  font-size: 12.5px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.ai-sync-note.is-warn {
+  background: var(--terra-soft);
+  color: var(--terra-ink);
+}
+.ai-sync-notes {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+  color: var(--ink-3);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.ai-sync-notes li {
+  overflow-wrap: anywhere;
+}
+.ai-endpoint-confirms {
+  display: grid;
+  gap: 8px;
+}
+.ai-endpoint-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  background: var(--ochre-soft);
+  border: 1px solid color-mix(in srgb, var(--ochre) 45%, var(--line));
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ai-endpoint-confirm p {
+  margin: 0;
+  flex: 1 1 220px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ai-endpoint-confirm code {
+  font-family: var(--mono);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}

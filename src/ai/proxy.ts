@@ -4,7 +4,10 @@
  *  - In a browser on a static deployment (GitHub Pages), where no forwarder exists: straight to the service.
  *    All of them accept cross-origin requests from a browser.
  */
-import { DEFAULT_MODELS, sanitizeBaseUrl } from "./config";
+import { CREDENTIAL_SLOTS, DEFAULT_MODELS, credentialOf, getAiConfig, sanitizeBaseUrl } from "./config";
+import { AiError } from "./errors";
+
+export { AiError };
 
 const BASE = (typeof import.meta !== "undefined" && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : "/").replace(/\/$/, "");
 
@@ -16,8 +19,6 @@ const UPSTREAM: Record<string, string> = {
   openrouter: "https://openrouter.ai",
   gemini: "https://generativelanguage.googleapis.com",
 };
-
-export class AiError extends Error {}
 
 /** The service's own address, for the app. Azure paths (azure: speech synthesis, azurestt: recognition) start with the region: /<region>/<path>. */
 export function directUrl(service: string, path = "") {
@@ -87,15 +88,49 @@ export function normalizeGeminiModel(model: string): string {
   return m || DEFAULT_MODELS.gemini;
 }
 
-/** Remove API keys a service may echo back (Google keys, sk-* keys, `key=` query parameters, or literal `secret`) from text shown to the learner. */
+/** Every non-empty credential saved in this browser (the 6 service keys and the Whisper key), longest first. */
+function savedSecrets(): string[] {
+  let cfg;
+  try {
+    cfg = getAiConfig();
+  } catch {
+    return [];
+  }
+  const out = new Set<string>();
+  for (const slot of CREDENTIAL_SLOTS) {
+    const v = credentialOf(cfg, slot).trim();
+    if (v.length >= 4) out.add(v);
+  }
+  return [...out].sort((a, b) => b.length - a.length);
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Remove credentials a service may echo back from text shown to the learner or kept in logs: the literal `secret`,
+ * every key saved in this browser (so Azure keys and custom keys without a fixed prefix are covered too), Google
+ * `AIza*`, `sk-*`, Groq `gsk_*`, sync codes `mb2_*` / auth tokens `mb2a_*`, `Bearer …` headers and `key=` parameters.
+ */
 export function redactSecrets(s: string, secret?: string): string {
-  let out = s
+  let out = String(s ?? "");
+  const secrets = new Set<string>(savedSecrets());
+  const trimmed = secret?.trim();
+  if (trimmed && trimmed.length >= 4) secrets.add(trimmed);
+  for (const k of [...secrets].sort((a, b) => b.length - a.length)) out = out.split(k).join("***");
+  if (trimmed && trimmed.length > 0 && trimmed.length < 4) {
+    const re = new RegExp(`(^|[^0-9A-Za-z])${escapeRegExp(trimmed)}(?=$|[^0-9A-Za-z])`, "g");
+    out = out.replace(re, "$1***");
+  }
+  return out
     .replace(/AIza[0-9A-Za-z_-]{10,}/g, "AIza***")
     .replace(/sk-[0-9A-Za-z_-]{10,}/g, "sk-***")
+    .replace(/gsk_[0-9A-Za-z_-]{10,}/g, "gsk_***")
+    .replace(/mb2a_[0-9A-Za-z_-]{16,}/g, "mb2a_***")
+    .replace(/mb2_[0-9A-Za-z_-]{16,}/g, "mb2_***")
+    .replace(/Bearer\s+[A-Za-z0-9._~+/=-]{4,}/g, "Bearer ***")
     .replace(/key=[^&\s"']+/gi, "key=***");
-  const trimmed = secret?.trim();
-  if (trimmed && trimmed.length >= 6) out = out.split(trimmed).join("***");
-  return out;
 }
 
 let ping: Promise<boolean> | null = null;
@@ -266,8 +301,8 @@ export function parseJsonAnswer(text: string, service: string) {
   }
 }
 
-/** A readable message from an error response of any of the services. */
-export async function errorFrom(r: Response, service: string) {
+/** A readable message from an error response of any of the services; credentials echoed back are redacted. */
+export async function errorFrom(r: Response, service: string, secret?: string) {
   let detail = "";
   try {
     const t = await r.text();
@@ -281,5 +316,6 @@ export async function errorFrom(r: Response, service: string) {
     /* no body */
   }
   const hint = r.status === 401 || r.status === 403 ? "（Key 不对或没有权限）" : r.status === 429 ? "（请求太频繁或额度用完）" : r.status === 404 ? "（地址或模型名不对）" : "";
-  return new AiError(`${service} 返回 ${r.status}${hint}${detail ? `：${String(detail).slice(0, 300)}` : ""}`);
+  const safe = detail ? redactSecrets(String(detail), secret) : "";
+  return new AiError(`${service} 返回 ${r.status}${hint}${safe ? `：${safe.slice(0, 300)}` : ""}`);
 }

@@ -1,8 +1,10 @@
 /**
- * AI service settings: keys and which service and model does each job. Kept in this browser only
- * (localStorage, its own key), never written into backups.
+ * AI service settings: keys and which service and model does each job. Kept in this browser (localStorage, its own
+ * key) and never written into the manual JSON backups. Cross-device sync lives in src/sync/ai-sync.ts, which imports
+ * this module (never the other way round, so the sync engine stays out of the early chunks).
  */
 import { useSyncExternalStore } from "react";
+import { AiError } from "./errors";
 
 export type TextProvider = "openai" | "deepseek" | "anthropic" | "gemini" | "openrouter";
 export type VisionProvider = "openai" | "anthropic" | "gemini" | "openrouter";
@@ -154,6 +156,95 @@ export function sanitizeAiConfig(v: unknown): AiConfig {
   };
 }
 
+/* ---------- credentials and the non-sensitive part (cross-device sync) ---------- */
+
+/** The 7 credential slots: the 6 service keys (`keys.*`) and the Whisper-compatible key (`stt.apiKey`). */
+export const CREDENTIAL_SLOTS = ["openai", "deepseek", "anthropic", "gemini", "openrouter", "azure", "stt"] as const;
+export type CredentialSlot = (typeof CREDENTIAL_SLOTS)[number];
+/** One value per credential slot ("" when empty). */
+export type SyncedAiKeys = Record<CredentialSlot, string>;
+
+/** Everything in AiConfig except the credentials: what can be synced without the API keys. */
+export interface NonSensitiveAiConfig {
+  openaiBaseUrl: string;
+  geminiBaseUrl: string;
+  stt: { provider: SttProvider; baseUrl: string; model: string };
+  azureRegion: string;
+  azureVoice: string;
+  azureVoiceMale: string;
+  tts: boolean;
+  vision: { provider: VisionProvider; model: string };
+  text: { provider: TextProvider; model: string };
+  image: { provider: ImageProvider; model: string };
+  lastGoodModel: Partial<Record<TextProvider, string>>;
+}
+
+/** A credential as it is stored (trimmed, bounded). */
+export const sanitizeCredential = (v: unknown) => str(v);
+
+/** The value of one credential slot. */
+export function credentialOf(c: AiConfig, slot: CredentialSlot): string {
+  return slot === "stt" ? (c.stt?.apiKey ?? "") : (c.keys?.[slot] ?? "");
+}
+
+/** `c` with one credential slot replaced (sanitized). */
+export function withCredential(c: AiConfig, slot: CredentialSlot, value: string): AiConfig {
+  const v = sanitizeCredential(value);
+  return slot === "stt" ? { ...c, stt: { ...c.stt, apiKey: v } } : { ...c, keys: { ...c.keys, [slot]: v } };
+}
+
+/** All 7 credential slots of `c`, in CREDENTIAL_SLOTS order. */
+export function extractSyncedKeys(c: AiConfig): SyncedAiKeys {
+  const out = {} as SyncedAiKeys;
+  for (const slot of CREDENTIAL_SLOTS) out[slot] = credentialOf(c, slot);
+  return out;
+}
+
+/** The non-sensitive part of `c`, built field by field: it never carries `keys` or `stt.apiKey`. */
+export function toNonSensitiveAiConfig(c: AiConfig): NonSensitiveAiConfig {
+  const lastGoodModel: Partial<Record<TextProvider, string>> = {};
+  for (const p of TEXT_PROVIDERS) {
+    const m = c.lastGoodModel?.[p];
+    if (m) lastGoodModel[p] = m;
+  }
+  return {
+    openaiBaseUrl: c.openaiBaseUrl,
+    geminiBaseUrl: c.geminiBaseUrl,
+    stt: { provider: c.stt.provider, baseUrl: c.stt.baseUrl, model: c.stt.model },
+    azureRegion: c.azureRegion,
+    azureVoice: c.azureVoice,
+    azureVoiceMale: c.azureVoiceMale,
+    tts: c.tts,
+    vision: { provider: c.vision.provider, model: c.vision.model },
+    text: { provider: c.text.provider, model: c.text.model },
+    image: { provider: c.image.provider, model: c.image.model },
+    lastGoodModel,
+  };
+}
+
+/** Sanitize an untrusted non-sensitive config (any credential it carries is dropped). */
+export function sanitizeNonSensitiveAiConfig(v: unknown): NonSensitiveAiConfig {
+  const o = v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
+  const stt = o.stt && typeof o.stt === "object" && !Array.isArray(o.stt) ? { ...(o.stt as Record<string, unknown>), apiKey: "" } : undefined;
+  return toNonSensitiveAiConfig(sanitizeAiConfig({ ...o, keys: undefined, stt }));
+}
+
+export function nonSensitiveAiConfigEquals(a: NonSensitiveAiConfig, b: NonSensitiveAiConfig): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/** `c` with its non-sensitive part replaced by `ns`; the 7 credential slots of `c` are kept as they are. */
+export function withNonSensitiveAiConfig(c: AiConfig, ns: NonSensitiveAiConfig): AiConfig {
+  return sanitizeAiConfig({
+    ...ns,
+    keys: { ...c.keys },
+    stt: { ...ns.stt, apiKey: c.stt.apiKey },
+    lastGoodModel: { ...ns.lastGoodModel },
+  });
+}
+
+/* ---------- state ---------- */
+
 function read(): AiConfig {
   try {
     return sanitizeAiConfig(JSON.parse(localStorage.getItem(KEY) || "null"));
@@ -162,30 +253,201 @@ function read(): AiConfig {
   }
 }
 
-let config: AiConfig = typeof localStorage === "undefined" ? defaultAiConfig() : read();
+const hasStorage = () => typeof localStorage !== "undefined";
+
+let config: AiConfig = hasStorage() ? read() : defaultAiConfig();
 const subs = new Set<() => void>();
+const notify = () =>
+  subs.forEach((f) => {
+    try {
+      f();
+    } catch {
+      /* a broken listener never blocks the others */
+    }
+  });
 
 export const getAiConfig = () => config;
 
-export function setAiConfig(patch: Partial<AiConfig> | ((c: AiConfig) => AiConfig)) {
-  config = sanitizeAiConfig(typeof patch === "function" ? patch(config) : { ...config, ...patch });
+function persist(c: AiConfig) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(config));
+    localStorage.setItem(KEY, JSON.stringify(c));
   } catch {
     /* private mode: settings last for this visit */
   }
-  subs.forEach((f) => f());
+}
+
+/** Called after a local edit (UI or a runtime self-heal), never for a config written back by cloud sync. */
+export type AiMutationListener = (prev: AiConfig, next: AiConfig) => void;
+const mutationListeners = new Set<AiMutationListener>();
+/** The config before the first edit made while no listener was registered yet (handed to the first one). */
+let bufferedPrev: AiConfig | null = null;
+
+/** Be told about local edits of the AI settings (ai-sync uses it to advance its revisions). */
+export function onLocalAiMutation(listener: AiMutationListener): () => void {
+  mutationListeners.add(listener);
+  if (bufferedPrev) {
+    const prev = bufferedPrev;
+    bufferedPrev = null;
+    if (JSON.stringify(prev) !== JSON.stringify(config)) {
+      try {
+        listener(prev, config);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+  return () => {
+    mutationListeners.delete(listener);
+  };
+}
+
+/** A local edit of the settings (UI, wizard, runtime self-heal). */
+export function setAiConfig(patch: Partial<AiConfig> | ((c: AiConfig) => AiConfig)) {
+  const prev = config;
+  config = sanitizeAiConfig(typeof patch === "function" ? patch(config) : { ...config, ...patch });
+  persist(config);
+  if (JSON.stringify(prev) !== JSON.stringify(config)) {
+    clearGuardsEditedLocally(prev, config);
+    if (mutationListeners.size) {
+      mutationListeners.forEach((f) => {
+        try {
+          f(prev, config);
+        } catch {
+          /* ignore */
+        }
+      });
+    } else {
+      bufferedPrev ??= prev;
+    }
+  }
+  notify();
+}
+
+/** Write a config received from cloud sync: refreshes the UI but is not recorded as a local edit. */
+export function applySyncedAiConfig(next: AiConfig) {
+  config = sanitizeAiConfig(next);
+  persist(config);
+  notify();
+}
+
+export function subscribeAiConfig(listener: () => void): () => void {
+  subs.add(listener);
+  return () => {
+    subs.delete(listener);
+  };
+}
+
+/** Read the settings again from localStorage (another tab, or a test that swapped localStorage). */
+export function reloadAiConfig(): AiConfig {
+  config = hasStorage() ? read() : defaultAiConfig();
+  unconfirmed = hasStorage() ? readGuard() : {};
+  bufferedPrev = null;
+  notify();
+  return config;
 }
 
 export function useAiConfig() {
-  return useSyncExternalStore(
-    (f) => {
-      subs.add(f);
-      return () => subs.delete(f);
-    },
-    () => config,
-    () => config,
+  return useSyncExternalStore(subscribeAiConfig, () => config, () => config);
+}
+
+/* ---------- custom endpoints changed by cloud sync (protects the keys of this device) ---------- */
+
+export type UnconfirmedEndpointKind = "openai" | "gemini" | "stt";
+export const UNCONFIRMED_ENDPOINT_KINDS: readonly UnconfirmedEndpointKind[] = ["openai", "gemini", "stt"];
+const GUARD_KEY = "word-atlas:ai-endpoint-guard:v1";
+const KIND_LABEL: Record<UnconfirmedEndpointKind, string> = { openai: "OpenAI 兼容", gemini: "Gemini", stt: "Whisper 语音转写" };
+
+function sanitizeGuard(v: unknown): Partial<Record<UnconfirmedEndpointKind, string>> {
+  const out: Partial<Record<UnconfirmedEndpointKind, string>> = {};
+  if (!v || typeof v !== "object" || Array.isArray(v)) return out;
+  for (const k of UNCONFIRMED_ENDPOINT_KINDS) {
+    const u = sanitizeBaseUrl((v as Record<string, unknown>)[k]);
+    if (u) out[k] = u;
+  }
+  return out;
+}
+
+function readGuard(): Partial<Record<UnconfirmedEndpointKind, string>> {
+  try {
+    return sanitizeGuard(JSON.parse(localStorage.getItem(GUARD_KEY) || "null"));
+  } catch {
+    return {};
+  }
+}
+
+let unconfirmed: Partial<Record<UnconfirmedEndpointKind, string>> = hasStorage() ? readGuard() : {};
+
+/** Custom base URLs that cloud sync changed while this device keeps its own key for them, not yet confirmed. */
+export function getUnconfirmedBaseUrls(): Partial<Record<UnconfirmedEndpointKind, string>> {
+  return unconfirmed;
+}
+
+export function setUnconfirmedBaseUrls(next: Partial<Record<UnconfirmedEndpointKind, string>>) {
+  const clean = sanitizeGuard(next);
+  if (JSON.stringify(clean) === JSON.stringify(unconfirmed)) return;
+  unconfirmed = clean;
+  try {
+    if (Object.keys(clean).length) localStorage.setItem(GUARD_KEY, JSON.stringify(clean));
+    else localStorage.removeItem(GUARD_KEY);
+  } catch {
+    /* ignore */
+  }
+  notify();
+}
+
+/**
+ * The learner trusts the synced address (信任并启用, 测试连接): requests may go there with the local key.
+ * When `expectedBaseUrl` is given, only clears the guard if it matches that exact sanitized address.
+ */
+export function confirmSyncedBaseUrl(kind: UnconfirmedEndpointKind, expectedBaseUrl?: string) {
+  const cur = unconfirmed[kind];
+  if (!cur) return;
+  if (expectedBaseUrl !== undefined && cur !== sanitizeBaseUrl(expectedBaseUrl)) return;
+  const next = { ...unconfirmed };
+  delete next[kind];
+  setUnconfirmedBaseUrls(next);
+}
+
+export function useUnconfirmedBaseUrls() {
+  return useSyncExternalStore(subscribeAiConfig, () => unconfirmed, () => unconfirmed);
+}
+
+const guardBase = (c: AiConfig, kind: UnconfirmedEndpointKind) => (kind === "openai" ? c.openaiBaseUrl : kind === "gemini" ? c.geminiBaseUrl : c.stt.baseUrl);
+const guardKey = (c: AiConfig, kind: UnconfirmedEndpointKind) => (kind === "openai" ? c.keys.openai : kind === "gemini" ? c.keys.gemini : c.stt.apiKey);
+
+/** A local edit of a base URL or its key means the learner has seen it: the mark goes. */
+function clearGuardsEditedLocally(prev: AiConfig, next: AiConfig) {
+  let changed = false;
+  const out = { ...unconfirmed };
+  for (const k of UNCONFIRMED_ENDPOINT_KINDS) {
+    if (out[k] && (guardBase(prev, k) !== guardBase(next, k) || guardKey(prev, k) !== guardKey(next, k))) {
+      delete out[k];
+      changed = true;
+    }
+  }
+  if (changed) setUnconfirmedBaseUrls(out);
+}
+
+/**
+ * Throw before any request that would send this device's own key to a custom address that cloud sync changed and
+ * the learner has not confirmed yet, so that the key never reaches it.
+ */
+export function assertEndpointTrustedForLocalKey(kind: UnconfirmedEndpointKind, currentBaseUrl: string | undefined, hasKey: boolean) {
+  const u = unconfirmed[kind];
+  if (!u || !hasKey) return;
+  if (u !== sanitizeBaseUrl(currentBaseUrl ?? "")) return;
+  throw new AiError(
+    `云同步更新了${KIND_LABEL[kind]}自定义接口地址（${u}）。为保护本机原有的 API Key，确认前不会向该地址发送请求：请前往「我的 → AI 接口」确认启用该地址，或点击「测试连接」。`,
   );
+}
+
+if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+  window.addEventListener("storage", (e: StorageEvent) => {
+    if (e.key !== KEY && e.key !== GUARD_KEY && e.key !== null) return;
+    if (e.key === KEY || e.key === null) config = read();
+    if (e.key === GUARD_KEY || e.key === null) unconfirmed = readGuard();
+    notify();
+  });
 }
 
 /** What is set up: each job needs its service's key (and Azure its region). */

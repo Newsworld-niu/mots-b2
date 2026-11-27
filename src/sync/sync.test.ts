@@ -220,7 +220,8 @@ test("engine register, pair, conflict resolution, history restore, and wipe work
     if (url.endsWith("/api/register")) {
       return new Response(JSON.stringify({ syncCode: VALID_CODE }), { status: 201 });
     }
-    if (headers.Authorization !== `Bearer ${VALID_CODE}`) {
+    const derivedValid = await deriveSyncAuthToken(VALID_CODE);
+    if (headers.Authorization !== `Bearer ${VALID_CODE}` && headers.Authorization !== `Bearer ${derivedValid}`) {
       return new Response(JSON.stringify({ error: "unauthorized" }), { status: 401 });
     }
     if (url.endsWith("/api/sync/francais-b2-lexicon")) {

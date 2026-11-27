@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { decryptSyncPayload, encryptSyncPayload, isEncryptedSyncPayload, SYNC_ENC_ALG } from "./crypto.ts";
+import { decryptSyncPayload, decryptSyncPayloadVerified, encryptSyncPayload, isEncryptedSyncPayload, SYNC_ENC_ALG } from "./crypto.ts";
 
 const CODE_A = "mb2_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijk1234";
 const CODE_B = "mb2_ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ1234";
@@ -33,4 +33,21 @@ test("decryptSyncPayload passes legacy plaintext backups through untouched", asy
   const legacy = JSON.stringify({ app: "word-atlas", version: 2, progress: { datasetId: "francais-b2-lexicon" } });
   assert.equal(isEncryptedSyncPayload(legacy), false);
   assert.equal(await decryptSyncPayload(legacy, CODE_A, "francais-b2-lexicon"), legacy);
+});
+
+test("isEncryptedSyncPayload accepts only the 6 envelope keys and decryptSyncPayloadVerified reports real encryption", async () => {
+  const plain = JSON.stringify({ app: "word-atlas", version: 2, progress: { datasetId: "francais-b2-lexicon" }, aiConfig: { version: 1 } });
+  const env = await encryptSyncPayload(plain, CODE_A, "francais-b2-lexicon");
+  assert.equal(isEncryptedSyncPayload(env, "francais-b2-lexicon"), true);
+  assert.equal(isEncryptedSyncPayload(env, "other-dataset"), false);
+  const parsed = JSON.parse(env) as Record<string, unknown>;
+  assert.equal(isEncryptedSyncPayload(JSON.stringify({ ...parsed, aiConfig: { keys: {} } })), false, "no plaintext riding along");
+  assert.equal(isEncryptedSyncPayload(JSON.stringify({ ...parsed, iv: "" })), false);
+  assert.equal(isEncryptedSyncPayload(JSON.stringify({ ...parsed, ct: 5 })), false);
+
+  assert.deepEqual(await decryptSyncPayloadVerified(env, CODE_A, "francais-b2-lexicon"), { json: plain, encrypted: true });
+  assert.deepEqual(await decryptSyncPayloadVerified(plain, CODE_A, "francais-b2-lexicon"), { json: plain, encrypted: false });
+  await assert.rejects(() => decryptSyncPayloadVerified(JSON.stringify({ ...parsed, aiConfig: {} }), CODE_A, "francais-b2-lexicon"), /格式无效/);
+  await assert.rejects(() => decryptSyncPayloadVerified(JSON.stringify({ ...parsed, enc: "none" }), CODE_A, "francais-b2-lexicon"), /格式无效/);
+  await assert.rejects(() => decryptSyncPayloadVerified(env, CODE_B, "francais-b2-lexicon"), /解密失败/);
 });

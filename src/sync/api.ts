@@ -152,6 +152,32 @@ export async function upgradeSyncAuth(
   return true;
 }
 
+/**
+ * Query whether `token` belongs to a native zero-knowledge v2 account or a legacy v1 / alias account whose raw
+ * sync code was once known to the server. Returns `null` when the server predates `/api/auth`.
+ */
+export async function checkSyncAuthStatus(
+  token: string,
+  baseUrl = SYNC_API_URL,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+): Promise<{ legacyAuth: boolean } | null> {
+  const base = requireBase(baseUrl);
+  const res = await fetchWithTimeout(
+    `${base}/api/auth`,
+    { method: "GET", headers: { Authorization: `Bearer ${token}` } },
+    timeoutMs,
+  );
+  if (res.status === 401) throw new SyncAuthError();
+  if (res.status === 404 || res.status === 405) return null;
+  if (!res.ok) return null;
+  try {
+    const data = (await res.json()) as { legacyAuth?: unknown };
+    return { legacyAuth: data?.legacyAuth === true };
+  } catch {
+    return null;
+  }
+}
+
 export async function pullSync(
   code: string,
   datasetId: string,
@@ -188,7 +214,7 @@ export async function pushSync(
   cond: { ifMatch: string } | { ifNoneMatchStar: true },
   baseUrl = SYNC_API_URL,
   timeoutMs = DEFAULT_TIMEOUT_MS,
-): Promise<{ etag: string }> {
+): Promise<{ etag: string; legacyAuth?: boolean }> {
   const base = requireBase(baseUrl);
   const headers: Record<string, string> = {
     Authorization: `Bearer ${code}`,
@@ -209,14 +235,16 @@ export async function pushSync(
   }
   const headerEtag = res.headers.get("ETag") ?? res.headers.get("etag") ?? "";
   let bodyEtag = "";
+  let legacyAuth = false;
   try {
-    const data = (await res.json()) as { etag?: unknown };
+    const data = (await res.json()) as { etag?: unknown; legacyAuth?: unknown };
     if (typeof data?.etag === "string") bodyEtag = data.etag;
+    if (data?.legacyAuth === true) legacyAuth = true;
   } catch {
     /* header ETag suffices */
   }
   const etag = headerEtag || bodyEtag;
-  return { etag };
+  return legacyAuth ? { etag, legacyAuth: true } : { etag };
 }
 
 export async function listHistory(

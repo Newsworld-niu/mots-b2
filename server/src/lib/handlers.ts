@@ -251,19 +251,30 @@ function parseTimestampFromId(id: string, fallback: Date): string {
 async function authenticate(
   req: HttpRequestInput,
   store: ObjStore,
-): Promise<{ ns: string; tokenHash: string } | null> {
+): Promise<{ ns: string; tokenHash: string; legacyAuth: boolean } | null> {
   const auth = getHeader(req.headers, "authorization");
   if (!auth) return null;
   const spaceIdx = auth.indexOf(" ");
   if (spaceIdx === -1) return null;
   const scheme = auth.slice(0, spaceIdx);
   const token = auth.slice(spaceIdx + 1).trim();
-  if (scheme.toLowerCase() !== "bearer" || (!SYNC_CODE_RE.test(token) && !AUTH_TOKEN_RE.test(token))) {
+  const isDerivedToken = AUTH_TOKEN_RE.test(token);
+  if (scheme.toLowerCase() !== "bearer" || (!SYNC_CODE_RE.test(token) && !isDerivedToken)) {
     return null;
   }
   const tokenHash = sha256hex(token);
-  if (await store.exists(`users/${tokenHash}/meta.json`)) {
-    return { ns: tokenHash, tokenHash };
+  const metaObj = await store.get(`users/${tokenHash}/meta.json`);
+  if (metaObj && metaObj !== "not-modified") {
+    let nativeV2 = false;
+    if (isDerivedToken) {
+      try {
+        const meta = JSON.parse(metaObj.body) as unknown;
+        nativeV2 = isRecord(meta) && meta.authVersion === 2;
+      } catch {
+        nativeV2 = false;
+      }
+    }
+    return { ns: tokenHash, tokenHash, legacyAuth: !nativeV2 };
   }
   const aliasObj = await store.get(`aliases/${tokenHash}.json`);
   if (aliasObj && aliasObj !== "not-modified") {
@@ -271,7 +282,7 @@ async function authenticate(
       const alias = JSON.parse(aliasObj.body) as unknown;
       if (isRecord(alias) && typeof alias.ns === "string" && /^[a-f0-9]{64}$/.test(alias.ns)) {
         if (await store.exists(`users/${alias.ns}/meta.json`)) {
-          return { ns: alias.ns, tokenHash };
+          return { ns: alias.ns, tokenHash, legacyAuth: true };
         }
       }
     } catch {
@@ -504,12 +515,16 @@ async function handleGetSync(
   };
 }
 
+/** The exact top-level keys of an E2EE envelope; an envelope carrying anything else is rejected. */
+const E2EE_ENVELOPE_KEYS: readonly string[] = ["app", "version", "enc", "datasetId", "iv", "ct"];
+
 async function handlePutSync(
   req: HttpRequestInput,
   store: ObjStore,
   ns: string,
   datasetId: string,
   baseHeaders: Record<string, string>,
+  legacyAuth = false,
 ): Promise<HttpResponseOutput> {
   const bodyRes = await loadRequestBody(req, MAX_SYNC_BYTES);
   if (!bodyRes.ok) {
@@ -523,14 +538,22 @@ async function handlePutSync(
   } catch {
     return jsonResponse(baseHeaders, 400, { error: "invalid_payload" });
   }
+  // AI settings (and possibly API keys) may only ever travel inside an E2EE envelope: plaintext uploads carrying them
+  // are refused outright.
+  if (isRecord(parsed) && "aiConfig" in parsed) {
+    return jsonResponse(baseHeaders, 400, { error: "invalid_payload" });
+  }
   const validLegacy =
     isRecord(parsed) &&
+    parsed.enc === undefined &&
     parsed.app === "word-atlas" &&
     parsed.version === 2 &&
     isRecord(parsed.progress) &&
     parsed.progress.datasetId === datasetId;
   const validE2ee =
     isRecord(parsed) &&
+    Object.keys(parsed).length === E2EE_ENVELOPE_KEYS.length &&
+    Object.keys(parsed).every((k) => E2EE_ENVELOPE_KEYS.includes(k)) &&
     parsed.app === "word-atlas" &&
     parsed.version === 2 &&
     parsed.enc === "aes-gcm-v1" &&
@@ -562,7 +585,7 @@ async function handlePutSync(
     }
     try {
       const etag = await store.put(latestKey, text, { ifNoneMatchStar: true });
-      return jsonResponse(baseHeaders, 200, { etag }, { ETag: etag });
+      return jsonResponse(baseHeaders, 200, legacyAuth ? { etag, legacyAuth: true } : { etag }, { ETag: etag });
     } catch (err) {
       if (err instanceof PreconditionFailedError) {
         return jsonResponse(baseHeaders, 412, { error: "conflict" });
@@ -604,7 +627,7 @@ async function handlePutSync(
     );
   }
 
-  return jsonResponse(baseHeaders, 200, { etag: newEtag }, { ETag: newEtag });
+  return jsonResponse(baseHeaders, 200, legacyAuth ? { etag: newEtag, legacyAuth: true } : { etag: newEtag }, { ETag: newEtag });
 }
 
 async function handleListHistory(
@@ -688,7 +711,7 @@ export async function handleRequest(
     } else if (path === "/auth/upgrade") {
       limitKey = `up:${clientIpKey(req)}`;
       maxReq = 20;
-    } else if (path === "/account" || path.startsWith("/sync")) {
+    } else if (path === "/account" || path === "/auth" || path.startsWith("/sync")) {
       const auth = getHeader(req.headers, "authorization") ?? clientIpKey(req);
       limitKey = `sync:${sha256hex(auth).slice(0, 16)}`;
       maxReq = 120;
@@ -713,6 +736,17 @@ export async function handleRequest(
       return jsonResponse(baseHeaders, 405, { error: "method_not_allowed" });
     }
     return handleAdminInvites(req, store, env, baseHeaders);
+  }
+
+  if (path === "/auth") {
+    if (method !== "GET") {
+      return jsonResponse(baseHeaders, 405, { error: "method_not_allowed" });
+    }
+    const auth = await authenticate(req, store);
+    if (!auth) {
+      return jsonResponse(baseHeaders, 401, { error: "unauthorized" });
+    }
+    return jsonResponse(baseHeaders, 200, { authVersion: 2, legacyAuth: auth.legacyAuth });
   }
 
   if (path === "/auth/upgrade") {
@@ -806,7 +840,7 @@ export async function handleRequest(
     if (method === "GET") {
       return handleGetSync(req, store, auth.ns, datasetId, baseHeaders);
     }
-    return handlePutSync(req, store, auth.ns, datasetId, baseHeaders);
+    return handlePutSync(req, store, auth.ns, datasetId, baseHeaders, auth.legacyAuth);
   }
 
   return jsonResponse(baseHeaders, 404, { error: "not_found" });

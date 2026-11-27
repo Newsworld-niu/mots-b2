@@ -15,6 +15,7 @@ import {
   wipeCloudAccount,
 } from "../sync/engine";
 import { getLocalSafetyCopy, loadLocalSafetyCopy, useSyncState, type SyncState } from "../sync/state";
+import { AiSyncControls } from "./AiSyncControls";
 import { confirmAction } from "./ConfirmSheet";
 import { toast } from "./Toast";
 
@@ -295,7 +296,7 @@ export function CloudSync() {
           <span className="sync-badge is-off">未开启</span>
         </div>
         <p className="muted">
-          使用一次性邀请码创建个人同步码，或输入已有同步码跨设备同步学习进度、卡组、作文、阅读与图片（AI Key 永不上传）。
+          使用一次性邀请码创建个人同步码，或输入已有同步码跨设备同步学习进度、卡组、作文、阅读与图片。默认仅同步非敏感 AI 配置，可选将 API Key 纳入端到端加密存档。
         </p>
 
         <div className="segmented sync-tabs" role="tablist" aria-label="云同步配对方式">
@@ -369,6 +370,8 @@ export function CloudSync() {
           </form>
         )}
 
+        <AiSyncControls variant="cloud" />
+
         <LocalSafetyCopyButton />
       </section>
     );
@@ -384,7 +387,7 @@ export function CloudSync() {
           <Cloud size={14} /> {status.text}
         </span>
       </div>
-      <p className="muted small">已启用端到端加密（E2EE）与字段级智能合并，AI Key 永不上传。</p>
+      <p className="muted small">已启用端到端加密（E2EE）与字段级智能合并。默认仅同步非敏感 AI 配置，可选将 API Key 纳入端到端加密存档。</p>
 
       {sync.conflict && (
         <div className="sync-conflict-banner" role="alert">
@@ -486,6 +489,8 @@ export function CloudSync() {
           )}
         </div>
       )}
+
+      <AiSyncControls variant="cloud" />
 
       <LocalSafetyCopyButton />
 

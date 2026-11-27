@@ -105,10 +105,26 @@ export async function deriveSyncAuthToken(syncCode: string): Promise<string> {
   return `mb2a_${toBase64Url(new Uint8Array(bits))}`;
 }
 
-export function isEncryptedSyncPayload(raw: string): boolean {
+/** The only top-level keys an encrypted envelope may have: anything else would be plaintext riding along. */
+export const ENVELOPE_KEYS = ["app", "version", "enc", "datasetId", "iv", "ct"] as const;
+
+function isStrictEnvelope(p: unknown, expectedDatasetId?: string): p is EncryptedSyncEnvelope {
+  if (!isObj(p)) return false;
+  const keys = Object.keys(p);
+  if (keys.length !== ENVELOPE_KEYS.length || !keys.every((k) => (ENVELOPE_KEYS as readonly string[]).includes(k))) return false;
+  if (p.app !== "word-atlas" || p.version !== 2 || p.enc !== SYNC_ENC_ALG) return false;
+  if (typeof p.datasetId !== "string" || !p.datasetId) return false;
+  if (expectedDatasetId !== undefined && p.datasetId !== expectedDatasetId) return false;
+  return typeof p.iv === "string" && p.iv.length > 0 && typeof p.ct === "string" && p.ct.length > 0;
+}
+
+/**
+ * True for a well-formed AES-GCM envelope: exactly the 6 envelope keys (no extra plaintext fields), non-empty `iv`
+ * and `ct`, and (when given) the expected dataset.
+ */
+export function isEncryptedSyncPayload(raw: string, expectedDatasetId?: string): boolean {
   try {
-    const p = JSON.parse(raw) as unknown;
-    return isObj(p) && p.app === "word-atlas" && p.version === 2 && p.enc === SYNC_ENC_ALG;
+    return isStrictEnvelope(JSON.parse(raw) as unknown, expectedDatasetId);
   } catch {
     return false;
   }
@@ -139,6 +155,51 @@ export async function encryptSyncPayload(
   return JSON.stringify(env);
 }
 
+/**
+ * Decrypt a cloud payload and say whether it really was end-to-end encrypted: `encrypted` is true only after the
+ * AES-GCM tag checked out. A legacy plaintext backup comes back as it is with `encrypted: false`, and callers must not
+ * trust any `aiConfig` in it. An envelope with extra top-level fields, a wrong dataset or a bad tag throws.
+ */
+export async function decryptSyncPayloadVerified(
+  raw: string,
+  syncCode: string,
+  datasetId: string,
+): Promise<{ json: string; encrypted: boolean }> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { json: raw, encrypted: false };
+  }
+  if (!isObj(parsed) || parsed.enc === undefined) {
+    return { json: raw, encrypted: false };
+  }
+  if (parsed.enc !== SYNC_ENC_ALG) {
+    throw new Error("云端加密数据格式无效");
+  }
+  if (parsed.app !== "word-atlas" || parsed.version !== 2 || parsed.datasetId !== datasetId) {
+    throw new Error("云端加密数据与当前词库不匹配");
+  }
+  if (!isStrictEnvelope(parsed, datasetId)) {
+    throw new Error("云端加密数据格式无效");
+  }
+  const key = await deriveAesKey(syncCode, datasetId, ["decrypt"]);
+  const aad = toUtf8Buffer(`word-atlas:v2:${datasetId}`);
+  try {
+    const iv = fromBase64(parsed.iv);
+    const ct = fromBase64(parsed.ct);
+    const plain = await globalThis.crypto.subtle.decrypt(
+      { name: "AES-GCM", iv, additionalData: aad },
+      key,
+      ct,
+    );
+    return { json: new TextDecoder().decode(plain), encrypted: true };
+  } catch {
+    throw new Error("云端备份解密失败：同步码不匹配或密文已被损坏");
+  }
+}
+
+/** Decrypt a cloud payload (legacy plaintext passes through unchanged). Kept for callers that only need the text. */
 export async function decryptSyncPayload(
   raw: string,
   syncCode: string,
@@ -153,24 +214,5 @@ export async function decryptSyncPayload(
   if (!isObj(parsed) || parsed.enc !== SYNC_ENC_ALG) {
     return raw;
   }
-  if (parsed.app !== "word-atlas" || parsed.version !== 2 || parsed.datasetId !== datasetId) {
-    throw new Error("云端加密数据与当前词库不匹配");
-  }
-  if (typeof parsed.iv !== "string" || typeof parsed.ct !== "string") {
-    throw new Error("云端加密数据格式无效");
-  }
-  const key = await deriveAesKey(syncCode, datasetId, ["decrypt"]);
-  const aad = toUtf8Buffer(`word-atlas:v2:${datasetId}`);
-  const iv = fromBase64(parsed.iv);
-  const ct = fromBase64(parsed.ct);
-  try {
-    const plain = await globalThis.crypto.subtle.decrypt(
-      { name: "AES-GCM", iv, additionalData: aad },
-      key,
-      ct,
-    );
-    return new TextDecoder().decode(plain);
-  } catch {
-    throw new Error("云端备份解密失败：同步码不匹配或密文已被损坏");
-  }
+  return (await decryptSyncPayloadVerified(raw, syncCode, datasetId)).json;
 }
