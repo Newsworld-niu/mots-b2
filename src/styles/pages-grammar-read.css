@@ -834,18 +834,193 @@
   border-radius: var(--r);
   text-align: center;
 }
+/* catalog groups (分组伸缩栏): a card-like disclosure button per group, the cards below it */
 .gram-group {
   display: grid;
-  gap: 4px;
+  gap: 10px;
+  scroll-margin-top: calc(var(--top) + 80px);
 }
-.gram-group-head {
+.gram-group-heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.gram-group-toggle {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) fit-content(46%);
+  align-items: center;
+  gap: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition:
+    background-color 0.18s var(--ease),
+    border-color 0.18s var(--ease),
+    box-shadow 0.18s var(--ease);
+}
+.gram-group-toggle:hover {
+  border-color: var(--line-strong);
+  background: var(--card-2);
+}
+.gram-group.is-open .gram-group-toggle {
+  background: var(--paper-2);
+  border-color: var(--line-strong);
+}
+.gram-group.is-open .gram-group-toggle:hover {
+  background: var(--paper-3);
+  border-color: var(--line-strong);
+}
+.gram-group-toggle:focus-visible {
+  outline: 2px solid var(--terra);
+  outline-offset: 2px;
+  border-radius: var(--r);
+}
+.gram-group-main {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.gram-group-title-row {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  min-width: 0;
+}
+.gram-group-title {
+  font-size: 14.5px;
+  font-weight: 650;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+.gram-group-due {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--terra-soft);
+  color: var(--terra-ink);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.gram-group-preview {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.4;
+}
+.gram-group-side {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+  min-width: 0;
+  text-align: right;
+}
+.gram-group-meta {
+  min-width: 0;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+.gram-group-chevron {
+  flex: none;
+  color: var(--ink-3);
+  transition: transform 0.2s var(--ease);
+}
+.gram-group-chevron.is-flipped {
+  transform: rotate(180deg);
 }
 .gram-list {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+}
+.gram-group .gram-list {
+  margin: 0;
+}
+/* .gram-list is a grid, which would otherwise beat the UA [hidden] rule */
+.gram-list[hidden] {
+  display: none;
+}
+.gram-catalog-aux {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  min-height: 24px;
+}
+.gram-catalog-summary {
+  margin: 0;
+}
+.gram-bulk-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.gram-bulk-btn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 2px 0;
+  border-top: 0;
+  border-inline: 0;
+  background: none;
+  font-size: 13px;
+  cursor: pointer;
+}
+.gram-bulk-btn:disabled {
+  opacity: 0.42;
+  cursor: default;
+  text-decoration: none;
+  border-color: transparent;
+}
+/* level quick-jump in the page head: A1 · A2 · B1 · B2 reachable from the first screen */
+.gram-level-jump {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.gram-level-jump-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+  margin-right: 2px;
+}
+.gram-level-jump .gram-level-jump-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: auto;
+  min-height: 34px;
+  padding: 4px 12px;
+  cursor: pointer;
+}
+.gram-level-jump-lv {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 12.5px;
+}
+.gram-level-jump-tag {
+  color: var(--terra-ink);
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.gram-level-jump-count {
+  color: var(--ink-3);
+  font-size: 11.5px;
+}
+.gram-level-jump .gram-level-jump-btn.is-priority {
+  border-color: color-mix(in oklab, var(--terra) 45%, var(--line-strong));
 }
 .gram-card {
   display: flex;
@@ -1672,7 +1847,25 @@
     display: none;
   }
 }
+@media (max-width: 759px), (pointer: coarse) {
+  .gram-level-jump .gram-level-jump-btn {
+    min-height: 44px;
+    padding: 6px 13px;
+  }
+  .gram-bulk-btn {
+    min-height: 44px;
+  }
+}
+@media (max-width: 559px), (min-width: 960px) and (max-width: 1199px) {
+  /* the sticky search + view switch wrap to two rows when .gram-catalog is narrow */
+  .gram-group {
+    scroll-margin-top: calc(var(--top) + 132px);
+  }
+}
 @media (max-width: 559px) {
+  .gram-group-toggle {
+    padding: 12px 14px;
+  }
   .gram-sec {
     padding: 16px;
     border-radius: var(--r);
@@ -1694,7 +1887,9 @@
     animation: none;
   }
   .gram-card,
-  .gram-hub-link {
+  .gram-hub-link,
+  .gram-group-toggle,
+  .gram-group-chevron {
     transition: none;
   }
 }
@@ -1702,8 +1897,14 @@
   .gram-sheet .deck-back,
   .gram-sheet .gram-sheet-tools,
   .gram-sheet .gram-sheet-tabs,
-  .gram-matrix-toggle {
+  .gram-matrix-toggle,
+  .gram-level-jump,
+  .gram-bulk-actions,
+  .gram-group-chevron {
     display: none;
+  }
+  .gram-catalog-tools {
+    position: static;
   }
   .gram-sheet-item .gram-motto {
     background: none;

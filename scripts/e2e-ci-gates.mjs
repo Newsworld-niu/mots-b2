@@ -16,6 +16,8 @@ const SETTINGS_DEFAULT = JSON.stringify({
   sfx: false,
   autoplay: false,
 });
+/** Same settings with B1 as the learner's start level (grammar catalog order: B1, B2, A1, A2). */
+const SETTINGS_START_B1 = JSON.stringify({ ...JSON.parse(SETTINGS_DEFAULT), startLevel: 2 });
 
 const results = [];
 function assertCheck(name, ok, detail = "") {
@@ -357,6 +359,75 @@ try {
     assertCheck("Suite C: 390x844 zero horizontal overflow across all 10 routes", overflows.length === 0, JSON.stringify(overflows));
     assertCheck("Suite C: zero uncaught pageerrors on 390x844 routes", mobErrors.length === 0, JSON.stringify(mobErrors));
     await ctxMob.close();
+
+    // Grammar catalog on 390px: the level quick-jump is on the first screen and opens a collapsed level in one tap
+    const ctxMobGram = await browser.newContext({ viewport: { width: 390, height: 844 }, locale: "zh-CN" });
+    await ctxMobGram.addInitScript((s) => {
+      if (!sessionStorage.getItem("seeded")) {
+        localStorage.setItem("word-atlas:settings", s);
+        sessionStorage.setItem("seeded", "1");
+      }
+    }, SETTINGS_START_B1);
+    const pageMG = await ctxMobGram.newPage();
+    const mobGramErrors = [];
+    pageMG.on("pageerror", (e) => mobGramErrors.push(e.message));
+    await pageMG.goto(BASE + "#/grammar", { waitUntil: "networkidle" });
+    await pageMG.waitForSelector(".gram-level-jump");
+    await pageMG.evaluate(() => window.scrollTo(0, 0));
+    const jumpA2 = pageMG.locator(".gram-level-jump").getByRole("button", { name: /^直达 A2/ });
+    const jumpBox = await jumpA2.boundingBox();
+    const scrollY0 = await pageMG.evaluate(() => window.scrollY);
+    assertCheck(
+      "Suite C: 390x844 grammar level quick-jump A2 is visible on the first screen",
+      scrollY0 === 0 && !!jumpBox && jumpBox.y >= 0 && jumpBox.y + jumpBox.height <= 844,
+      JSON.stringify({ scrollY0, jumpBox }),
+    );
+    await jumpA2.click();
+    await pageMG.waitForFunction(
+      () => {
+        const toggle = document.getElementById("gram-toggle-level-A2");
+        const panel = document.getElementById("gram-panel-level-A2");
+        const tools = document.querySelector(".gram-catalog-tools");
+        if (!toggle || !panel || panel.hidden || document.activeElement?.id !== "gram-toggle-level-A2") return false;
+        const tRect = toggle.getBoundingClientRect();
+        const toolsBottom = tools ? tools.getBoundingClientRect().bottom : 68;
+        return tRect.top >= toolsBottom - 2 && tRect.bottom <= window.innerHeight;
+      },
+      null,
+      { timeout: 5000 },
+    );
+    const mobJump = await pageMG.evaluate(() => {
+      const toggle = document.getElementById("gram-toggle-level-A2");
+      const panel = document.getElementById("gram-panel-level-A2");
+      const tools = document.querySelector(".gram-catalog-tools");
+      const tRect = toggle?.getBoundingClientRect();
+      return {
+        expanded: toggle?.getAttribute("aria-expanded"),
+        panelHidden: panel ? panel.hidden : null,
+        focused: document.activeElement?.id,
+        toggleTop: tRect ? Math.round(tRect.top) : null,
+        toggleBottom: tRect ? Math.round(tRect.bottom) : null,
+        toolsBottom: tools ? Math.round(tools.getBoundingClientRect().bottom) : 68,
+        sw: document.documentElement.scrollWidth,
+        cw: document.documentElement.clientWidth,
+      };
+    });
+    const panelVisible = !(await pageMG.locator("#gram-panel-level-A2").isHidden());
+    assertCheck(
+      "Suite C: 390x844 quick-jump opens A2 below the sticky header with zero horizontal overflow",
+      mobJump.expanded === "true" &&
+        mobJump.panelHidden === false &&
+        panelVisible &&
+        mobJump.focused === "gram-toggle-level-A2" &&
+        mobJump.toggleTop !== null &&
+        mobJump.toggleBottom !== null &&
+        mobJump.toggleTop >= mobJump.toolsBottom - 2 &&
+        mobJump.toggleBottom <= 844 &&
+        mobJump.sw <= mobJump.cw,
+      JSON.stringify({ ...mobJump, panelVisible }),
+    );
+    assertCheck("Suite C: zero pageerrors on 390x844 grammar quick-jump", mobGramErrors.length === 0, JSON.stringify(mobGramErrors));
+    await ctxMobGram.close();
   }
 
   // Suite D: Grammar 4-dimension upgrade E2E gate (matrices, rich point layout, 390px wide tables, focused+retry loop & offline deep link)
@@ -367,15 +438,71 @@ try {
         localStorage.setItem("word-atlas:settings", s);
         sessionStorage.setItem("seeded", "1");
       }
-    }, SETTINGS_DEFAULT);
+    }, SETTINGS_START_B1);
     const pageG = await ctxGram.newPage();
     const gramErrors = [];
     pageG.on("pageerror", (e) => gramErrors.push(e.message));
 
     await pageG.goto(BASE + "#/grammar", { waitUntil: "networkidle" });
-    await pageG.waitForSelector(".gram-card");
-    const totalCards = await pageG.locator(".gram-card").count();
-    assertCheck("Suite D: grammar overview renders all 66 points", totalCards === 66, `visibleCards=${totalCards}`);
+    await pageG.waitForSelector(".gram-group-toggle");
+    const levelToggleState = () =>
+      pageG.evaluate(() =>
+        Object.fromEntries(
+          ["A1", "A2", "B1", "B2"].map((lv) => [lv, document.getElementById(`gram-toggle-level-${lv}`)?.getAttribute("aria-expanded") ?? null]),
+        ),
+      );
+    const firstScreen = await pageG.evaluate(() =>
+      ["A1", "A2", "B1", "B2"].map((lv) => {
+        const el = document.getElementById(`gram-toggle-level-${lv}`);
+        const r = el?.getBoundingClientRect();
+        return { lv, expanded: el?.getAttribute("aria-expanded") ?? null, bottom: r ? Math.round(r.bottom) : null };
+      }),
+    );
+    assertCheck(
+      "Suite D: grammar overview shows all 4 level groups collapsed within the first 900px",
+      firstScreen.every((g) => g.expanded === "false" && g.bottom !== null && g.bottom <= 900),
+      JSON.stringify(firstScreen),
+    );
+
+    await pageG.focus("#gram-toggle-level-A2");
+    await pageG.keyboard.press("Enter");
+    await pageG.waitForTimeout(200);
+    const a2Expanded = await pageG.getAttribute("#gram-toggle-level-A2", "aria-expanded");
+    const a2Cards = await pageG.locator("#gram-panel-level-A2 .gram-card:visible").count();
+    assertCheck("Suite D: Enter on the A2 group toggle opens its 10 points", a2Expanded === "true" && a2Cards === 10, `expanded=${a2Expanded} cards=${a2Cards}`);
+
+    const searchBox = pageG.getByRole("searchbox", { name: "搜索语法点" });
+    await searchBox.fill("subjonctif");
+    await pageG.waitForTimeout(200);
+    const searchState = await levelToggleState();
+    const searchVisible = await pageG.locator(".gram-card:visible").count();
+    assertCheck(
+      "Suite D: searching auto-expands the matching level groups",
+      searchState.B1 === "true" && searchState.B2 === "true" && searchVisible > 0,
+      JSON.stringify({ ...searchState, searchVisible }),
+    );
+    await pageG.getByRole("button", { name: "清空搜索" }).click();
+    await pageG.waitForTimeout(200);
+    const afterClear = await levelToggleState();
+    assertCheck(
+      "Suite D: clearing the search restores only A2 open",
+      afterClear.A2 === "true" && afterClear.A1 === "false" && afterClear.B1 === "false" && afterClear.B2 === "false",
+      JSON.stringify(afterClear),
+    );
+
+    await pageG.reload({ waitUntil: "networkidle" });
+    await pageG.waitForSelector(".gram-group-toggle");
+    const afterReload = await levelToggleState();
+    assertCheck(
+      "Suite D: open grammar groups persist across reload",
+      afterReload.A2 === "true" && afterReload.A1 === "false" && afterReload.B1 === "false" && afterReload.B2 === "false",
+      JSON.stringify(afterReload),
+    );
+
+    await pageG.getByRole("button", { name: "全部展开" }).click();
+    await pageG.waitForTimeout(200);
+    const totalCards = await pageG.locator(".gram-card:visible").count();
+    assertCheck("Suite D: grammar overview expands all groups to render all 66 points", totalCards === 66, `visibleCards=${totalCards}`);
 
     // Open comparison matrices hub (#/grammar?sheet=1)
     await pageG.goto(BASE + "#/grammar?sheet=1", { waitUntil: "networkidle" });

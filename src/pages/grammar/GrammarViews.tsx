@@ -47,11 +47,37 @@ import {
 } from "../../store/grammar";
 import { store, useStore, useStoreShallow } from "../../store/store";
 import { Speak } from "../../ui/Speak";
-import { KIND_LABEL, KIND_ORDER, LEVELS, scrollToSection, status, tagNumber, titleOf, type StartRound } from "./helpers";
+import {
+  formatGroupPreview,
+  isCatalogGroupOpen,
+  mergeGroupOpenOverrides,
+  readGroupOpenOverrides,
+  type CatalogView,
+  type GroupOpenOverrides,
+} from "./catalog-groups";
+import { KIND_LABEL, KIND_ORDER, LEVELS, scrollAndFlash, scrollToSection, status, tagNumber, titleOf, type StartRound } from "./helpers";
 import { FormulaBlock, GrammarTableView, MarkLegend, PitfallList, pointHasMarks, RichGrammarText } from "./RichGrammar";
 
 type DiscourseFilter = "all" | "b2" | "fix" | "todo";
-type CatalogView = "level" | "category" | "todo";
+
+interface CatalogGroup {
+  key: string;
+  title: string;
+  meta: string;
+  /** Due points in the group (shown as a badge outside 待复习). */
+  dueCount: number;
+  /** First titles of the group, shown while it is collapsed. */
+  preview: string;
+  list: GrammarPoint[];
+}
+
+/** Search-only open/closed choices, valid for one `${view}\0${q}` scope. */
+interface SearchOpenState {
+  scope: string;
+  map: Record<string, boolean>;
+}
+
+const NO_SEARCH_OVERRIDES: Record<string, boolean> = {};
 
 /** Search text: no marks, no accents, one kind of apostrophe, lower case. */
 const searchNorm = (s: string) => foldAccents(stripGrammarMarks(s).replace(/[’‘`ʼ]/g, "'"));
@@ -185,13 +211,28 @@ export function Overview({
   const hay = useMemo(() => new Map(data.points.map((p) => [p.id, pointHaystack(p)])), [data]);
   const q = searchNorm(query.trim());
   const shown = useMemo(() => (q ? data.points.filter((p) => hay.get(p.id)!.includes(q)) : data.points), [q, data, hay]);
-  const groups = useMemo((): { key: string; title: string; hint?: string; list: GrammarPoint[] }[] => {
+  const dueSet = useMemo(() => new Set(due), [due]);
+  const groups = useMemo((): CatalogGroup[] => {
+    const summarize = (inGroup: (p: GrammarPoint) => boolean, list: GrammarPoint[]) => {
+      const all = data.points.filter(inGroup);
+      const startedCount = all.filter((p) => progress.gram?.[p.id]).length;
+      return {
+        meta: q ? `匹配 ${list.length} 个` : `${startedCount} / ${all.length} 已开始`,
+        dueCount: all.filter((p) => dueSet.has(p.id)).length,
+        preview: formatGroupPreview(list, 3),
+        list,
+      };
+    };
     if (view === "category") {
-      const g = GRAMMAR_CATEGORIES.map((c) => ({ key: c, title: GRAMMAR_CATEGORY_LABEL[c], list: shown.filter((p) => p.category === c) }));
-      return [...g, { key: "other", title: "其他语法点", list: shown.filter((p) => !p.category) }].filter((x) => x.list.length);
+      const keyed: { key: string; title: string; inGroup: (p: GrammarPoint) => boolean }[] = [
+        ...GRAMMAR_CATEGORIES.map((c) => ({ key: c, title: GRAMMAR_CATEGORY_LABEL[c], inGroup: (p: GrammarPoint) => p.category === c })),
+        { key: "other", title: "其他语法点", inGroup: (p: GrammarPoint) => !p.category },
+      ];
+      return keyed
+        .map(({ key, title, inGroup }) => ({ key, title, ...summarize(inGroup, shown.filter(inGroup)) }))
+        .filter((x) => x.list.length);
     }
     if (view === "todo") {
-      const dueSet = new Set(due);
       const weakPoint = (p: GrammarPoint) =>
         !!progress.gram?.[p.id] &&
         !dueSet.has(p.id) &&
@@ -200,21 +241,94 @@ export function Overview({
           const r = errRate(s);
           return r !== null && (s?.n ?? 0) >= 2 && r >= 0.4;
         });
-      return [
+      const todo: { key: string; title: string; hint?: string; list: GrammarPoint[] }[] = [
         { key: "due", title: "该复习了", hint: "到期或作文里又错了", list: shown.filter((p) => dueSet.has(p.id)) },
         { key: "weak", title: "还没掌握", hint: "有细分项错误率 ≥ 40%", list: shown.filter(weakPoint) },
         { key: "new", title: "还没开始", list: shown.filter((p) => !progress.gram?.[p.id]) },
-      ].filter((x) => x.list.length);
+      ];
+      return todo
+        .filter((x) => x.list.length)
+        .map(({ key, title, hint, list }) => {
+          const count = q ? `匹配 ${list.length} 个` : `${list.length} 个`;
+          return { key, title, meta: hint ? `${hint} · ${count}` : count, dueCount: 0, preview: formatGroupPreview(list, 3), list };
+        });
     }
     return orderedLevels
-      .map((lv) => ({
-        key: lv,
-        title: lv === priorityLevel ? `${lv} · 当前起点` : lv,
-        hint: `${data.points.filter((p) => p.level === lv && progress.gram?.[p.id]).length} / ${data.points.filter((p) => p.level === lv).length} 已开始`,
-        list: shown.filter((p) => p.level === lv),
-      }))
+      .map((lv) => {
+        const inGroup = (p: GrammarPoint) => p.level === lv;
+        return { key: lv, title: lv === priorityLevel ? `${lv} · 当前起点` : lv, ...summarize(inGroup, shown.filter(inGroup)) };
+      })
       .filter((x) => x.list.length);
-  }, [view, shown, due, progress.gram, progress.gramTags, orderedLevels, priorityLevel, data.points]);
+  }, [view, q, shown, dueSet, progress.gram, progress.gramTags, orderedLevels, priorityLevel, data.points]);
+  const matchedInView = useMemo(() => groups.reduce((n, g) => n + g.list.length, 0), [groups]);
+
+  /* catalog groups: open/closed */
+  const [overrides, setOverrides] = useState<GroupOpenOverrides>(() => readGroupOpenOverrides());
+  const [searchState, setSearchState] = useState<SearchOpenState>({ scope: "", map: {} });
+  const isSearching = q !== "";
+  const currentScope = `${view}\0${q}`;
+  const activeSearchOverrides = searchState.scope === currentScope ? searchState.map : NO_SEARCH_OVERRIDES;
+  const firstGroupKey = groups[0]?.key;
+  const openOf = (key: string) =>
+    isCatalogGroupOpen({ view, groupKey: key, firstGroupKey, isSearching, overrides, searchOverrides: activeSearchOverrides });
+  const openGroupCount = groups.filter((g) => openOf(g.key)).length;
+  const allOpen = groups.length > 0 && openGroupCount === groups.length;
+  const noneOpen = openGroupCount === 0;
+
+  /** Persist choices for a view (never while searching), merging with any concurrent tab updates. */
+  const saveOverrides = (v: CatalogView, patch: Record<string, boolean>) => {
+    setOverrides((prev) => mergeGroupOpenOverrides(prev, v, patch));
+  };
+  /** Search-only choices for one (view, q) scope; dropped as soon as the query or the view changes. */
+  const saveSearchOverrides = (scope: string, patch: Record<string, boolean>) =>
+    setSearchState((prev) => ({ scope, map: { ...(prev.scope === scope ? prev.map : {}), ...patch } }));
+  const setGroupsOpen = (patch: Record<string, boolean>) => {
+    if (isSearching) saveSearchOverrides(currentScope, patch);
+    else saveOverrides(view, patch);
+  };
+  /** Search-only choices end with their search: a new query or view starts with every match open. */
+  const changeQuery = (value: string) => {
+    setQuery(value);
+    if (searchNorm(value.trim()) !== q) setSearchState({ scope: "", map: {} });
+  };
+  const changeView = (next: CatalogView) => {
+    setView(next);
+    if (next !== view) setSearchState({ scope: "", map: {} });
+  };
+  const toggleGroup = (key: string) => setGroupsOpen({ [key]: !openOf(key) });
+  const expandAll = () => setGroupsOpen(Object.fromEntries(groups.map((g) => [g.key, true])));
+  const collapseAll = () => setGroupsOpen(Object.fromEntries(groups.map((g) => [g.key, false])));
+
+  const jumpRafRef = useRef<number | null>(null);
+  useEffect(
+    () => () => {
+      if (jumpRafRef.current !== null) cancelAnimationFrame(jumpRafRef.current);
+    },
+    [],
+  );
+
+  const levelJump = useMemo(
+    () => LEVELS.map((lv) => ({ lv, count: data.points.filter((p) => p.level === lv).length })).filter((x) => x.count > 0),
+    [data.points],
+  );
+  const jumpToLevel = (lv: string) => {
+    if (view !== "level") changeView("level");
+    const keepSearch = isSearching && shown.some((p) => p.level === lv);
+    if (keepSearch) {
+      saveSearchOverrides(`level\0${q}`, { [lv]: true });
+    } else {
+      if (query) changeQuery("");
+      saveOverrides("level", { [lv]: true });
+    }
+    if (jumpRafRef.current !== null) cancelAnimationFrame(jumpRafRef.current);
+    jumpRafRef.current = requestAnimationFrame(() => {
+      jumpRafRef.current = null;
+      const section = document.getElementById(`gram-group-level-${lv}`);
+      const toggle = document.getElementById(`gram-toggle-level-${lv}`);
+      if (section) scrollAndFlash(section, toggle ?? section);
+      toggle?.focus({ preventScroll: true });
+    });
+  };
 
   return (
     <div className="page gram gram-home">
@@ -225,6 +339,30 @@ export function Overview({
         <p className="lede">
           每个语法点都有精讲、判断顺序、规律表和正误对比；练习覆盖它的每条规则和每个易错点。一轮做错得多，就会更早回来；哪一部分常错，那一部分就出得多。
         </p>
+        {levelJump.length > 0 && (
+          <nav className="gram-level-jump" aria-label="按等级直达">
+            <span className="gram-level-jump-label">直达等级</span>
+            {levelJump.map(({ lv, count }) => (
+              <button
+                key={lv}
+                type="button"
+                className={`chip-btn gram-level-jump-btn ${lv === priorityLevel ? "is-priority" : ""}`}
+                aria-label={`直达 ${lv}${lv === priorityLevel ? "（当前起点）" : ""}，共 ${count} 项`}
+                onClick={() => jumpToLevel(lv)}
+              >
+                <span className="gram-level-jump-lv">{lv}</span>
+                {lv === priorityLevel && (
+                  <small className="gram-level-jump-tag" aria-hidden="true">
+                    起点
+                  </small>
+                )}
+                <small className="gram-level-jump-count" aria-hidden="true">
+                  {count}
+                </small>
+              </button>
+            ))}
+          </nav>
+        )}
       </header>
       <div className="gram-home-grid">
         <section className="gram-actions" aria-label="今天练什么">
@@ -405,12 +543,12 @@ export function Overview({
               <input
                 type="search"
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => changeQuery(e.target.value)}
                 placeholder="搜标题、法语术语、口诀、连词或代词…"
                 aria-label="搜索语法点"
               />
               {query && (
-                <button type="button" className="gram-search-clear" onClick={() => setQuery("")} aria-label="清空搜索">
+                <button type="button" className="gram-search-clear" onClick={() => changeQuery("")} aria-label="清空搜索">
                   <X size={14} />
                 </button>
               )}
@@ -423,33 +561,91 @@ export function Overview({
                   ["todo", "待复习"],
                 ] as const
               ).map(([k, label]) => (
-                <button key={k} type="button" className={view === k ? "is-on" : ""} aria-pressed={view === k} onClick={() => setView(k)}>
+                <button key={k} type="button" className={view === k ? "is-on" : ""} aria-pressed={view === k} onClick={() => changeView(k)}>
                   {label}
                 </button>
               ))}
             </div>
           </div>
-          {q && <p className="muted small gram-search-count">找到 {shown.length} 个语法点</p>}
+          {(groups.length > 0 || q) && (
+            <div className="gram-catalog-aux">
+              {q ? (
+                <p className="muted small gram-search-count" aria-live="polite">
+                  找到 {matchedInView} 个语法点
+                </p>
+              ) : (
+                <p className="muted small gram-catalog-summary">
+                  共 {groups.length} 组 · 已展开 {openGroupCount} 组
+                </p>
+              )}
+              {groups.length > 0 && (
+                <div className="gram-bulk-actions" role="group" aria-label="分组展开控制">
+                  <button type="button" className="link small gram-bulk-btn" disabled={allOpen} onClick={expandAll}>
+                    全部展开
+                  </button>
+                  <button type="button" className="link small gram-bulk-btn" disabled={noneOpen} onClick={collapseAll}>
+                    全部收起
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
           {groups.length === 0 && (
             <p className="muted gram-empty">
-              {q ? "没有匹配的语法点，换个关键词试试（支持不带重音输入）。" : view === "todo" ? "没有待复习或未掌握的语法点。" : "暂无语法点。"}
+              {q && view === "todo"
+                ? "待复习中没有匹配的语法点，可切到「按等级」或「按专题」查看。"
+                : q
+                  ? "没有匹配的语法点，换个关键词试试（支持不带重音输入）。"
+                  : view === "todo"
+                    ? "没有待复习或未掌握的语法点。"
+                    : "暂无语法点。"}
             </p>
           )}
-          {groups.map((g) => (
-            <section key={g.key} className="gram-group">
-              <header className="gram-group-head">
-                <h2 className="eyebrow">{g.title}</h2>
-                <small className="muted">{g.hint ?? `${g.list.length} 个`}</small>
-              </header>
-              <ul className="gram-list">
-                {g.list.map((p) => (
-                  <li key={p.id}>
-                    <PointCard point={p} card={progress.gram?.[p.id]} now={now} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+          {groups.map((g) => {
+            const isOpen = openOf(g.key);
+            const sectionId = `gram-group-${view}-${g.key}`;
+            const toggleId = `gram-toggle-${view}-${g.key}`;
+            const panelId = `gram-panel-${view}-${g.key}`;
+            return (
+              <section key={`${view}-${g.key}`} id={sectionId} className={`gram-group ${isOpen ? "is-open" : "is-collapsed"}`}>
+                <h2 className="gram-group-heading">
+                  <button
+                    type="button"
+                    id={toggleId}
+                    className="gram-group-toggle"
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    onClick={() => toggleGroup(g.key)}
+                  >
+                    <span className="gram-group-main">
+                      <span className="gram-group-title-row">
+                        <span className="gram-group-title">{g.title}</span>
+                        {view !== "todo" && !q && g.dueCount > 0 && (
+                          <span className="gram-group-due">{g.dueCount} 待复习</span>
+                        )}
+                      </span>
+                      {!isOpen && g.preview && (
+                        <span className="gram-group-preview" aria-hidden="true">
+                          {g.preview}
+                        </span>
+                      )}
+                    </span>
+                    <span className="gram-group-side">
+                      <small className="gram-group-meta">{g.meta}</small>
+                      <ChevronDown size={17} aria-hidden="true" className={`gram-group-chevron ${isOpen ? "is-flipped" : ""}`} />
+                    </span>
+                  </button>
+                </h2>
+                <ul id={panelId} className="gram-list" hidden={!isOpen}>
+                  {g.list.map((p) => (
+                    <li key={p.id}>
+                      <PointCard point={p} card={progress.gram?.[p.id]} now={now} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
         </section>
       </div>
     </div>

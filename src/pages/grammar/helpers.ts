@@ -103,11 +103,24 @@ export function scrollToSection(section: string | undefined): boolean {
     .find((x): x is HTMLElement => !!x);
   if (!el) return false;
   if (el instanceof HTMLDetailsElement) el.open = true;
-  const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  el.classList.remove("is-flash");
-  void el.offsetWidth;
-  el.classList.add("is-flash");
-  window.setTimeout(() => el.classList.remove("is-flash"), 1800);
+  scrollAndFlash(el);
   return true;
+}
+
+const flashTimers = new WeakMap<HTMLElement, number>();
+
+/** Scroll `el` to the top (smoothly unless reduced motion is asked for) and flash `flashTarget` briefly. */
+export function scrollAndFlash(el: HTMLElement, flashTarget: HTMLElement = el): void {
+  const reduce = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (typeof el.scrollIntoView === "function") el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  const prevTimer = flashTimers.get(flashTarget);
+  if (prevTimer !== undefined) window.clearTimeout(prevTimer);
+  flashTarget.classList.remove("is-flash");
+  void flashTarget.offsetWidth;
+  flashTarget.classList.add("is-flash");
+  const timer = window.setTimeout(() => {
+    flashTarget.classList.remove("is-flash");
+    flashTimers.delete(flashTarget);
+  }, 1800);
+  flashTimers.set(flashTarget, timer);
 }
