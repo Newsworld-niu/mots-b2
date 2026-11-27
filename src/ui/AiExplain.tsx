@@ -34,7 +34,7 @@ interface Saved {
   data: WordExplanation;
 }
 
-const PROVIDER: Record<string, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic", openrouter: "OpenRouter" };
+const PROVIDER: Record<string, string> = { openai: "OpenAI", deepseek: "DeepSeek", anthropic: "Anthropic", gemini: "Google Gemini", openrouter: "OpenRouter" };
 const key = (e: Entry) => `explain:${e.id}:${e.w}`;
 
 /** 加到卡片 for one item of the explanation: add it, take it off again, or say the card already has it. */

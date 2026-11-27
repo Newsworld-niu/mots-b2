@@ -4,12 +4,12 @@
  */
 import { useSyncExternalStore } from "react";
 
-export type TextProvider = "openai" | "deepseek" | "anthropic" | "openrouter";
-export type VisionProvider = "openai" | "anthropic" | "openrouter";
-export const TEXT_PROVIDERS: TextProvider[] = ["deepseek", "openai", "anthropic", "openrouter"];
-export const VISION_PROVIDERS: VisionProvider[] = ["openai", "anthropic", "openrouter"];
-export type ImageProvider = "openai" | "openrouter";
-export const IMAGE_PROVIDERS: ImageProvider[] = ["openai", "openrouter"];
+export type TextProvider = "openai" | "deepseek" | "anthropic" | "gemini" | "openrouter";
+export type VisionProvider = "openai" | "anthropic" | "gemini" | "openrouter";
+export const TEXT_PROVIDERS: TextProvider[] = ["deepseek", "gemini", "openai", "anthropic", "openrouter"];
+export const VISION_PROVIDERS: VisionProvider[] = ["openai", "gemini", "anthropic", "openrouter"];
+export type ImageProvider = "openai" | "gemini" | "openrouter";
+export const IMAGE_PROVIDERS: ImageProvider[] = ["openai", "gemini", "openrouter"];
 
 export type SttProvider = "none" | "openai" | "custom";
 export const STT_PROVIDERS: SttProvider[] = ["none", "openai", "custom"];
@@ -22,9 +22,11 @@ export interface SttConfig {
 }
 
 export interface AiConfig {
-  keys: { openai: string; deepseek: string; anthropic: string; openrouter: string; azure: string };
+  keys: { openai: string; deepseek: string; anthropic: string; gemini: string; openrouter: string; azure: string };
   /** Optional custom OpenAI-compatible base URL (relay, Groq, local Ollama, etc.). */
   openaiBaseUrl: string;
+  /** Optional custom Gemini base URL (relay, reverse proxy, Cloudflare AI Gateway). */
+  geminiBaseUrl: string;
   /** Optional Whisper-compatible Speech-to-Text fallback configuration. */
   stt: SttConfig;
   azureRegion: string;
@@ -44,6 +46,7 @@ export const DEFAULT_MODELS: Record<TextProvider, string> = {
   openai: "gpt-5-mini",
   deepseek: "deepseek-chat",
   anthropic: "claude-opus-5-5",
+  gemini: "gemini-2.5-flash",
   // OpenRouter names models <maker>/<model>; multimodal + calibrated best for DELF B2 grading
   openrouter: "google/gemini-2.5-flash",
 };
@@ -52,8 +55,11 @@ export const DEFAULT_MODELS: Record<TextProvider, string> = {
 export const GRADING_RECOMMENDED_MODELS = {
   openrouter: ["google/gemini-2.5-flash", "deepseek/deepseek-chat"],
   deepseek: ["deepseek-chat"],
+  gemini: ["gemini-2.5-flash", "gemini-2.5-pro"],
 } as const;
-export const DEFAULT_IMAGE_MODELS: Record<ImageProvider, string> = { openai: "gpt-image-1", openrouter: "openai/gpt-image-1-mini" };
+export const GEMINI_PRESET_MODELS = ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-3.5-flash-lite", "gemini-3.8-flash"] as const;
+export const GEMINI_IMAGE_MODELS = ["gemini-2.5-flash-image", "gemini-3.1-flash-lite-image"] as const;
+export const DEFAULT_IMAGE_MODELS: Record<ImageProvider, string> = { openai: "gpt-image-1", gemini: GEMINI_IMAGE_MODELS[0], openrouter: "openai/gpt-image-1-mini" };
 
 /** Accept only HTTPS endpoints or localhost/127.0.0.1 HTTP for local models; strip trailing slashes. */
 export function sanitizeBaseUrl(v: unknown): string {
@@ -72,8 +78,9 @@ export function sanitizeBaseUrl(v: unknown): string {
 }
 
 export const defaultAiConfig = (): AiConfig => ({
-  keys: { openai: "", deepseek: "", anthropic: "", openrouter: "", azure: "" },
+  keys: { openai: "", deepseek: "", anthropic: "", gemini: "", openrouter: "", azure: "" },
   openaiBaseUrl: "",
+  geminiBaseUrl: "",
   stt: { provider: "none", baseUrl: "", apiKey: "", model: "whisper-1" },
   azureRegion: "",
   azureVoice: "fr-FR-DeniseNeural",
@@ -98,8 +105,9 @@ export function sanitizeAiConfig(v: unknown): AiConfig {
   const sttRaw = o.stt && typeof o.stt === "object" ? o.stt : {};
   const sp: SttProvider = STT_PROVIDERS.includes(sttRaw.provider) ? sttRaw.provider : d.stt.provider;
   return {
-    keys: { openai: str(keys.openai), deepseek: str(keys.deepseek), anthropic: str(keys.anthropic), openrouter: str(keys.openrouter), azure: str(keys.azure) },
+    keys: { openai: str(keys.openai), deepseek: str(keys.deepseek), anthropic: str(keys.anthropic), gemini: str(keys.gemini), openrouter: str(keys.openrouter), azure: str(keys.azure) },
     openaiBaseUrl: sanitizeBaseUrl(o.openaiBaseUrl),
+    geminiBaseUrl: sanitizeBaseUrl(o.geminiBaseUrl),
     stt: {
       provider: sp,
       baseUrl: sanitizeBaseUrl(sttRaw.baseUrl),

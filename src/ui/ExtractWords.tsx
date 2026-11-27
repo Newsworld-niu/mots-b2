@@ -459,7 +459,7 @@ export function ExtractWords({ deckId, deckName, onDone }: { deckId: string; dec
         <label className="extract-opt">
           <input type="checkbox" checked={extras} onChange={(e) => setExtras(e.target.checked)} disabled={!textReady} /> AI 补全时顺便生成常用搭配和注意点（新词）
         </label>
-        {noAi && <p className="wf-hint wf-warn">读照片和 PDF 需要先在「我的 → AI 接口」设置识图服务（OpenAI 或 Anthropic）。</p>}
+        {noAi && <p className="wf-hint wf-warn">读照片和 PDF 需要先在「我的 → AI 接口」设置识图服务（OpenAI、Gemini、Anthropic 或 OpenRouter）。</p>}
         <footer className="wf-actions">
           {tab === "text" && (
             <span className="extract-count">

@@ -26,6 +26,7 @@ import {
   AssessHint,
   AssessStatus,
   PronReport,
+  sttName,
   TakePlayer,
   type useAssess,
   type useRecorder,
@@ -430,7 +431,7 @@ export function SpeakingWork({
             ? "当前模式已锁定原始语音转写：禁止在评审前通过键盘修改独白原文。"
             : dictation
               ? "已优先采用语音引擎原话转写；若有专有名词误听可微调，但不要润色语法，以免失真。"
-              : "请把刚才说的独白内容完整打出来，或配置 Azure / Whisper 自动转写。"}
+              : "请把刚才说的独白内容完整打出来，或配置 Azure / Whisper / Gemini 自动转写。"}
         </p>
         <TakePlayer take={talkTake} label="听自己的独白" audioRef={reviewAudioRef} />
         {transcribing && <p className="muted small">正在进行 Whisper 原话语音转写…</p>}
@@ -559,7 +560,7 @@ export function SpeakingWork({
               {(!dictation || speechFailed) && (
                 <p className="muted small">
                   {azureOn || sttReady
-                    ? `当前使用麦克风录音 + ${azureOn ? "Azure" : "Whisper"} 原话自动转写；停止录音后将自动填入文字。`
+                    ? `当前使用麦克风录音 + ${azureOn ? "Azure" : sttName()} 原话自动转写；停止录音后将自动填入文字。`
                     : "当前浏览器离线或不支持语音识别：已启用本地录音兜底，停止后可回放录音并对照补全文字。"}
                 </p>
               )}
@@ -592,7 +593,7 @@ export function SpeakingWork({
               {transcribing && <p className="muted small">正在进行高保真语音转写…</p>}
               {turnProns[turnIdx] && (
                 <p className="muted small">
-                  已通过 {turnProns[turnIdx].phonemeSupported === false ? "Whisper" : "Azure"} 完成本轮原话校准与声学分析。
+                  已通过 {turnProns[turnIdx].phonemeSupported === false ? sttName() : "Azure"} 完成本轮原话校准与声学分析。
                 </p>
               )}
               <TakePlayer take={curTake} label="听这一轮录音" audioRef={currentTurnAudioRef} />

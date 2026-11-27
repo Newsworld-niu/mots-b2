@@ -4,6 +4,7 @@
  *  - In a browser on a static deployment (GitHub Pages), where no forwarder exists: straight to the service.
  *    All of them accept cross-origin requests from a browser.
  */
+import { DEFAULT_MODELS, sanitizeBaseUrl } from "./config";
 
 const BASE = (typeof import.meta !== "undefined" && import.meta.env?.BASE_URL ? import.meta.env.BASE_URL : "/").replace(/\/$/, "");
 
@@ -13,6 +14,7 @@ const UPSTREAM: Record<string, string> = {
   deepseek: "https://api.deepseek.com",
   anthropic: "https://api.anthropic.com",
   openrouter: "https://openrouter.ai",
+  gemini: "https://generativelanguage.googleapis.com",
 };
 
 export class AiError extends Error {}
@@ -59,6 +61,41 @@ export function resolveOpenAiEndpoint(baseUrl: string, endpoint: "/chat/completi
   } catch {
     return proxyUrl("openai", `/v1${endpoint}`);
   }
+}
+
+/**
+ * Resolve a Gemini REST endpoint. `path` starts with `/` (e.g. `/models?pageSize=100`).
+ *  - no custom base: the forwarder (or, with `forceDirect` / no forwarder, Google itself) under `/v1beta`
+ *  - a custom base (relay, reverse proxy, Cloudflare AI Gateway `.../google-ai-studio`): `/v1beta` is appended
+ *    unless the base already ends in `/v1beta` or `/v1`
+ */
+export function resolveGeminiEndpoint(baseUrl: string, path: string, opts?: { forceDirect?: boolean }): string {
+  if (!baseUrl.trim()) return opts?.forceDirect ? directUrl("gemini", `/v1beta${path}`) : proxyUrl("gemini", `/v1beta${path}`);
+  const clean = sanitizeBaseUrl(baseUrl);
+  if (!clean) throw new AiError("Gemini 自定义接口地址须以 https:// 或本机 http://localhost / 127.0.0.1 开头");
+  return /\/v1(?:beta)?$/i.test(new URL(clean).pathname) ? `${clean}${path}` : `${clean}/v1beta${path}`;
+}
+
+/** A Gemini model id for the REST path: no `models/` or `google/` prefix, no path characters; the default when empty. */
+export function normalizeGeminiModel(model: string): string {
+  const m = String(model ?? "")
+    .trim()
+    .replace(/^(?:models|google)\//i, "")
+    .replace(/[^\w.-]/g, "")
+    .replace(/\.{2,}/g, ".")
+    .replace(/^\.+/, "");
+  return m || DEFAULT_MODELS.gemini;
+}
+
+/** Remove API keys a service may echo back (Google keys, sk-* keys, `key=` query parameters, or literal `secret`) from text shown to the learner. */
+export function redactSecrets(s: string, secret?: string): string {
+  let out = s
+    .replace(/AIza[0-9A-Za-z_-]{10,}/g, "AIza***")
+    .replace(/sk-[0-9A-Za-z_-]{10,}/g, "sk-***")
+    .replace(/key=[^&\s"']+/gi, "key=***");
+  const trimmed = secret?.trim();
+  if (trimmed && trimmed.length >= 6) out = out.split(trimmed).join("***");
+  return out;
 }
 
 let ping: Promise<boolean> | null = null;
@@ -152,6 +189,80 @@ export async function fetchWithTimeout(
   } finally {
     clearTimeout(timer);
     caller?.removeEventListener("abort", onAbort);
+  }
+}
+
+/**
+ * One deadline for a whole request: the fetch and every later read of its body or stream. Once it times out or the
+ * caller aborts, a pending `wrapRead` rejects at once (after running `onCancel`, e.g. `reader.cancel()`), with a
+ * clear timeout AiError or an AbortError. Call `cleanup()` when done.
+ */
+export function createRequestDeadline(callerSignal: AbortSignal | undefined, timeoutMs: number, serviceLabel = "AI 服务") {
+  const ctrl = new AbortController();
+  let timedOut = false;
+  const onAbort = () => ctrl.abort();
+  if (callerSignal?.aborted) ctrl.abort();
+  else callerSignal?.addEventListener("abort", onAbort, { once: true });
+  const timer = setTimeout(() => {
+    timedOut = true;
+    ctrl.abort();
+  }, timeoutMs);
+  const error = () =>
+    timedOut ? new AiError(`${serviceLabel} 请求超时（超过 ${Math.round(timeoutMs / 1000)} 秒未完成），请检查网络或切换接口`) : aborted();
+  function wrapRead<T>(promise: Promise<T>, onCancel?: () => void): Promise<T> {
+    const cancel = () => {
+      try {
+        onCancel?.();
+      } catch {
+        /* already closed */
+      }
+    };
+    if (ctrl.signal.aborted) {
+      promise.catch(() => undefined);
+      cancel();
+      return Promise.reject(error());
+    }
+    return new Promise<T>((resolve, reject) => {
+      const stop = () => {
+        cancel();
+        reject(error());
+      };
+      ctrl.signal.addEventListener("abort", stop, { once: true });
+      promise.then(
+        (v) => {
+          ctrl.signal.removeEventListener("abort", stop);
+          resolve(v);
+        },
+        (e) => {
+          ctrl.signal.removeEventListener("abort", stop);
+          reject(ctrl.signal.aborted ? error() : e);
+        },
+      );
+    });
+  }
+  const cleanup = () => {
+    clearTimeout(timer);
+    callerSignal?.removeEventListener("abort", onAbort);
+  };
+  return { signal: ctrl.signal, wrapRead, cleanup };
+}
+
+/** The JSON object in a model's answer (tolerates ``` fences and text around the object). */
+export function parseJsonAnswer(text: string, service: string) {
+  const t = text.trim().replace(/^```(?:json)?\s*|\s*```$/g, "");
+  try {
+    return JSON.parse(t);
+  } catch {
+    const a = t.indexOf("{");
+    const b = t.lastIndexOf("}");
+    if (a >= 0 && b > a) {
+      try {
+        return JSON.parse(t.slice(a, b + 1));
+      } catch {
+        /* fall through */
+      }
+    }
+    throw new AiError(`${service} 返回的不是有效的 JSON（可能输出太长被截断，试试少放一些内容）`);
   }
 }
 
