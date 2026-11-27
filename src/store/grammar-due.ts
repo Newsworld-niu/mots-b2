@@ -90,9 +90,14 @@ const whenIdle = (fn: () => void): (() => void) => {
  * null until note-review.ts has loaded in the background.
  */
 export function useMistakeDue(p: ReflowSource): { words: number; reflow: number | null; total: number } {
-  const [reflow, setReflow] = useState<number | null>(null);
+  const hasReflowItems = (p.essayNotes?.length ?? 0) > 0 || (p.compMisses?.length ?? 0) > 0;
+  const [reflow, setReflow] = useState<number | null>(hasReflowItems ? null : 0);
   const { noteCards, essayNotes, compMisses } = p;
   useEffect(() => {
+    if (!hasReflowItems) {
+      setReflow(0);
+      return;
+    }
     let live = true;
     const cancel = whenIdle(() => {
       loadReflowModule().then(
@@ -104,7 +109,7 @@ export function useMistakeDue(p: ReflowSource): { words: number; reflow: number 
       live = false;
       cancel();
     };
-  }, [noteCards, essayNotes, compMisses]);
+  }, [hasReflowItems, noteCards, essayNotes, compMisses]);
   const words = p.mistakes.length;
   return { words, reflow, total: words + (reflow ?? 0) };
 }

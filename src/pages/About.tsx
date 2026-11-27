@@ -1,6 +1,6 @@
 import { ArrowUpRight, Github, Heart } from "lucide-react";
 import { useAtlas } from "../atlas/context";
-import { REPO_URL } from "../config";
+import { REPO_URL, UPSTREAM_REPO_URL } from "../config";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -115,7 +115,15 @@ export function About() {
             </li>
           </ul>
           <p className="muted">
-            逐项来源、署名格式与例外（如 RFI 广播文稿、未开放授权的词关系列表）见本项目仓库中的 <code>CONTENT_LICENSE.md</code>。
+            界面原型基于{" "}
+            <a className="link" href={UPSTREAM_REPO_URL} target="_blank" rel="noreferrer">
+              word-atlas
+            </a>
+            ；逐项来源、署名格式与例外（如 RFI 广播文稿、未开放授权的词关系列表）见本项目仓库中的{" "}
+            <a className="link" href={`${REPO_URL}/blob/main/CONTENT_LICENSE.md`} target="_blank" rel="noreferrer">
+              <code>CONTENT_LICENSE.md</code>
+            </a>
+            。
           </p>
         </section>
 
