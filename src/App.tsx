@@ -25,7 +25,7 @@ const ShortcutsSheet = lazy(() => import("./ui/ShortcutsSheet").then((m) => ({ d
 const SyncConflictDialog = lazy(() => import("./ui/SyncConflictDialog").then((m) => ({ default: m.SyncConflictDialog })));
 import { ConfirmSheetHost } from "./ui/ConfirmSheet";
 import { Logo } from "./ui/Logo";
-import { Sheet } from "./ui/Sheet";
+import { openSheetCount, Sheet } from "./ui/Sheet";
 import { Toasts } from "./ui/Toast";
 import { UpdateNote } from "./ui/UpdateNote";
 
@@ -179,12 +179,12 @@ function Shell() {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setPalette((p) => !p);
-      } else if (e.key === "/" && !typing && !focus && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      } else if (e.key === "/" && !typing && !focus && !e.metaKey && !e.ctrlKey && !e.altKey && openSheetCount() === 0) {
         e.preventDefault();
         setPalette(true);
       } else if (e.key === "?" && !typing && !focus && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
-        setShortcuts(true);
+        setShortcuts((prev) => (prev ? false : openSheetCount() === 0 ? true : prev));
       }
     };
     window.addEventListener("keydown", on);

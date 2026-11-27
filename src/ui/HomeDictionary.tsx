@@ -9,8 +9,8 @@ import type { LexEntry } from "../lib/lexdb/types";
 import { buildSeed, CAPACITY, dictPicks, frdicPicks, hasGap, KIND_LABEL, KINDS, tooLong, withZh, type Pick, type Seed } from "../lib/lookup";
 import { isNative } from "../lib/native";
 import { href, openWord } from "../lib/router";
-import { addToDeck, createCustomWord, createDeck, findExact, findSame } from "../store/decks";
-import { store, useStore, type Progress } from "../store/store";
+import { addToDeck, createCustomWord, createDeck, exactHeadwordKey, findExact, findSame, isCustomId } from "../store/decks";
+import { CORE_DECK, store, useStore, type Progress } from "../store/store";
 import { Sheet } from "./Sheet";
 import { Speak } from "./Speak";
 import { toast } from "./Toast";
@@ -29,14 +29,28 @@ export function reviewDeckId(): string {
   return decks.find((d) => d.name === REVIEW_DECK)?.id ?? createDeck(REVIEW_DECK);
 }
 
-/** The card a headword already has: its atlas word (by LexDB link or exact spelling) or a word the learner made. */
+/** The card a headword already has: its atlas word (by LexDB link or exact accented spelling) or a word the learner made. */
 export function cardFor(atlas: Atlas, w: string, atlasId?: string): WordRef | undefined {
-  return (atlasId ? atlas.byId.get(atlasId) : undefined) ?? findExact(atlas, w)[0] ?? findSame(atlas, w)[0];
+  return (atlasId ? atlas.byId.get(atlasId) : undefined) ?? findExact(atlas, w)[0];
 }
 
-/** Whether a word is already being reviewed: it has an FSRS card or sits in one of the learner's decks. */
-export function inReview(p: { cards: Progress["cards"]; decks?: Progress["decks"] }, id: string): boolean {
-  return !!p.cards[id] || (p.decks ?? []).some((d) => d.words.includes(id));
+/** First learner-owned deck (excluding 初始词本 CORE_DECK) containing `id`. */
+export function userDeckFor(decks: Progress["decks"], id: string) {
+  return (decks ?? []).find((d) => d.id !== CORE_DECK && d.words.includes(id));
+}
+
+/**
+ * Whether a word is actively in review: either placed in a learner deck (excluding CORE_DECK), or already has an FSRS
+ * record and has not been paused by removing it from every deck. Unseen CORE_DECK words stay eligible for 1-click add.
+ */
+export function inReview(
+  p: { cards: Progress["cards"]; decks?: Progress["decks"]; hidden?: Progress["hidden"]; coreMigrated?: Progress["coreMigrated"] },
+  id: string,
+): boolean {
+  if (userDeckFor(p.decks, id)) return true;
+  if (!p.cards[id]) return false;
+  if (p.coreMigrated) return (p.decks ?? []).some((d) => d.id === CORE_DECK && d.words.includes(id));
+  return !isCustomId(id) && !(p.hidden ?? []).includes(id);
 }
 
 export interface QuickAddResult {
@@ -48,20 +62,25 @@ export interface QuickAddResult {
 
 /**
  * Add a dictionary word to 阅读生词 without a form: the atlas word when there is one, else a new word of the
- * learner's own filled from the dictionary (自动填写·待核对). Never adds the same word twice.
+ * learner's own filled from the dictionary (自动填写·待核对). Never adds the same word twice, even in batch loops.
  */
 export function quickAddToReview(atlas: Atlas, w: string, seed: () => Seed, atlasId?: string): QuickAddResult {
   const p = store.get().progress;
   const ref = cardFor(atlas, w, atlasId);
-  if (ref && inReview(p, ref.id)) {
-    const deck = (p.decks ?? []).find((d) => d.words.includes(ref.id));
-    return { status: "exists", wordId: ref.id, deckId: deck?.id ?? "", deckName: deck?.name ?? "复习" };
+  const targetKey = exactHeadwordKey(w);
+  const liveCustomId = !ref
+    ? Object.entries(p.custom ?? {}).find(([, c]) => exactHeadwordKey(c.w) === targetKey)?.[0]
+    : undefined;
+  const existingId = ref?.id ?? liveCustomId;
+  if (existingId && inReview(p, existingId)) {
+    const deck = userDeckFor(p.decks, existingId) ?? (p.decks ?? []).find((d) => d.words.includes(existingId));
+    return { status: "exists", wordId: existingId, deckId: deck?.id ?? "", deckName: deck?.name ?? "复习" };
   }
   const deckId = reviewDeckId();
   let wordId: string;
-  if (ref) {
-    addToDeck(deckId, ref.id);
-    wordId = ref.id;
+  if (existingId) {
+    addToDeck(deckId, existingId);
+    wordId = existingId;
   } else {
     const sd = seed();
     wordId = createCustomWord(
@@ -75,15 +94,17 @@ export function quickAddToReview(atlas: Atlas, w: string, seed: () => Seed, atla
 
 /* ---------- instant LexDB lookup, loaded on the first focus or keystroke ---------- */
 
-type LexSearch = typeof import("../lib/lexdb/search");
-let lexSearch: Promise<LexSearch> | null = null;
+type LexBundle = { search: typeof import("../lib/lexdb/search"); load: typeof import("../lib/lexdb/load") };
+let lexSearch: Promise<LexBundle> | null = null;
 /** The dictionary engine is fetched only once the learner reaches for the search box (never on mount). */
-function loadLexSearch(): Promise<LexSearch> {
+function loadLexSearch(): Promise<LexBundle> {
   if (!lexSearch)
-    lexSearch = import("../lib/lexdb/search").catch((e) => {
-      lexSearch = null;
-      throw e;
-    });
+    lexSearch = Promise.all([import("../lib/lexdb/search"), import("../lib/lexdb/load")])
+      .then(([search, load]) => ({ search, load }))
+      .catch((e) => {
+        lexSearch = null;
+        throw e;
+      });
   return lexSearch;
 }
 
@@ -198,6 +219,8 @@ export function HomeDictionary() {
   const storedDecks = useStore((s) => s.progress.decks);
   const decks = useMemo(() => storedDecks ?? [], [storedDecks]);
   const cards = useStore((s) => s.progress.cards);
+  const hidden = useStore((s) => s.progress.hidden);
+  const coreMigrated = useStore((s) => s.progress.coreMigrated);
   const readDeck = useStore((s) => s.settings.readDeck);
   const [query, setQuery] = useState("");
   const [term, setTerm] = useState("");
@@ -226,29 +249,37 @@ export function HomeDictionary() {
   useEffect(() => () => window.clearTimeout(acTimer.current), []);
 
   const warm = () => {
-    void loadLexSearch().catch(() => setLexDown(true));
+    void loadLexSearch()
+      .then(({ load }) => load.loadMeta())
+      .then((m) => setLexDown(m === null))
+      .catch(() => setLexDown(true));
   };
 
   const runSuggest = (raw: string) => {
     const q = raw.trim();
     const req = ++acReq.current;
     window.clearTimeout(acTimer.current);
+    setActive(-1);
     if (!q) {
       setSuggestions([]);
-      setActive(-1);
+      setListOpen(false);
       return;
     }
     acTimer.current = window.setTimeout(async () => {
       const local = atlasSuggestions(atlas, q, 8);
       let rows: Suggestion[] = [];
       try {
-        const lex = await loadLexSearch();
-        if (CJK.test(q)) {
-          const hits = await lex.zhLookup(q, 8);
-          rows = hits.map((h) => ({ key: `z:${h.id}`, w: h.w ?? h.id.replace(/#\d+$/, ""), zh: h.shortZh || h.term, id: h.id, from: "lexdb" as const }));
-        } else {
-          const hits = await lex.suggest(q, 8);
-          rows = hits.map((r) => ({ key: `s:${r[1]}`, w: r[1], zh: r[3], from: "lexdb" as const }));
+        const { search: lex, load } = await loadLexSearch();
+        const meta = await load.loadMeta();
+        if (req === acReq.current) setLexDown(meta === null);
+        if (meta !== null) {
+          if (CJK.test(q)) {
+            const hits = await lex.zhLookup(q, 8);
+            rows = hits.map((h) => ({ key: `z:${h.id}`, w: h.w ?? h.id.replace(/#\d+$/, ""), zh: h.shortZh || h.term, id: h.id, from: "lexdb" as const }));
+          } else {
+            const hits = await lex.suggest(q, 8);
+            rows = hits.map((r) => ({ key: `s:${r[1]}`, w: r[1], zh: r[3], from: "lexdb" as const }));
+          }
         }
       } catch {
         if (req === acReq.current) setLexDown(true);
@@ -269,6 +300,7 @@ export function HomeDictionary() {
     const req = ++lookReq.current;
     ++acReq.current;
     window.clearTimeout(acTimer.current);
+    setActive(-1);
     setListOpen(false);
     setPreviewBusy(true);
     const atlasHit = () => {
@@ -276,14 +308,19 @@ export function HomeDictionary() {
       return findExact(atlas, q)[0] ?? findSame(atlas, q)[0];
     };
     try {
-      const lex = await loadLexSearch();
-      const res = await lex.resolve(q);
-      if (req !== lookReq.current) return;
-      const entry = (pick?.id && res.entries.find((e) => e.id === pick.id)) || res.entries[0];
-      if (entry) {
-        setPreview({ kind: "lexdb", entry, via: res.matchedVia === "form" ? "变化形式" : res.matchedVia === "phrase" ? "短语" : "", query: q });
-        return;
+      const { search: lex, load } = await loadLexSearch();
+      const meta = await load.loadMeta();
+      if (req === lookReq.current) setLexDown(meta === null);
+      if (meta !== null) {
+        const res = await lex.resolve(q);
+        if (req !== lookReq.current) return;
+        const entry = (pick?.id && res.entries.find((e) => e.id === pick.id)) || res.entries[0];
+        if (entry) {
+          setPreview({ kind: "lexdb", entry, via: res.matchedVia === "form" ? "变化形式" : res.matchedVia === "phrase" ? "短语" : "", query: q });
+          return;
+        }
       }
+      if (req !== lookReq.current) return;
       const ref = atlasHit();
       setPreview(ref ? { kind: "atlas", ref, query: q } : { kind: "none", query: q });
     } catch {
@@ -306,6 +343,9 @@ export function HomeDictionary() {
       setListOpen(true);
       setActive((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
     } else if (e.key === "Escape") {
+      ++acReq.current;
+      window.clearTimeout(acTimer.current);
+      setActive(-1);
       if (listOpen) {
         e.preventDefault();
         setListOpen(false);
@@ -318,7 +358,7 @@ export function HomeDictionary() {
 
   const quickAdd = async (entry: LexEntry) => {
     try {
-      const lex = await loadLexSearch();
+      const { search: lex } = await loadLexSearch();
       const res = quickAddToReview(atlas, entry.w, () => lex.entryToSeed(entry), entry.atlasId);
       toast(res.status === "added" ? `已加入「${res.deckName}」卡组` : `「${entry.w}」已在词卡里`, res.status === "added" ? "ok" : "info");
     } catch {
@@ -419,7 +459,7 @@ export function HomeDictionary() {
     <div className="home-dict-combo">
       <form className="home-dictionary-search" role="search" onSubmit={e => {
         e.preventDefault();
-        const pick = active >= 0 ? suggestions[active] : undefined;
+        const pick = listOpen && active >= 0 ? suggestions[active] : undefined;
         if (pick) setQuery(pick.w);
         void lookUp(query, pick);
       }}>
@@ -495,8 +535,8 @@ export function HomeDictionary() {
         {preview?.kind === "lexdb" && (() => {
           const e = preview.entry;
           const ref = cardFor(atlas, e.w, e.atlasId);
-          const reviewing = !!ref && inReview({ cards, decks }, ref.id);
-          const reviewDeck = ref ? decks.find((d) => d.words.includes(ref.id)) : undefined;
+          const reviewing = !!ref && inReview({ cards, decks, hidden, coreMigrated }, ref.id);
+          const reviewDeck = ref ? userDeckFor(decks, ref.id) : undefined;
           const glosses = topGlosses(e);
           return (
             <>
@@ -548,7 +588,7 @@ export function HomeDictionary() {
             </header>
             <p className="home-dict-glosses-plain">{[preview.ref.zh, ...(preview.ref.more ?? [])].slice(0, 3).join("；")}</p>
             <div className="home-dict-preview-actions">
-              {inReview({ cards, decks }, preview.ref.id) ? (
+              {inReview({ cards, decks, hidden, coreMigrated }, preview.ref.id) ? (
                 <span className="reader-in-deck"><Check size={14} /> 已在词卡</span>
               ) : (
                 <button type="button" className="btn btn-primary btn-sm" onClick={() => {

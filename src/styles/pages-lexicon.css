@@ -221,8 +221,8 @@
 .conj-tabs button.is-on { background: var(--card); color: var(--ink); border-color: var(--line-strong); box-shadow: var(--shadow-sm); }
 @media (max-width: 759px) {
   .tense-chips { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .chip-btn { padding: 8px 10px; }
-  .chip-btn b { font-size: 14.5px; overflow-wrap: anywhere; }
+  .tense-chips .chip-btn { padding: 8px 10px; }
+  .tense-chips .chip-btn b { font-size: 14.5px; overflow-wrap: anywhere; }
   .conj-line { font-size: 30px; }
 }
 

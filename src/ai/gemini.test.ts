@@ -905,3 +905,35 @@ test("config: lastGoodModel is sanitized, defaults to {} and the presets are rea
   assert.ok(GEMINI_PRESET_MODELS.includes("gemini-3-flash-preview"));
   assert.ok(!GEMINI_PRESET_MODELS.some((m) => /3\.5-flash-lite|3\.8-flash/.test(m)));
 });
+
+test("healed model cache is isolated per API key, and stale async heals never overwrite a changed key", async () => {
+  clearGeminiCompatCache();
+  const calls: Array<{ key: string; url: string }> = [];
+  const fetcher: typeof fetch = async (u, init) => {
+    const url = String(u);
+    const apiKey = new Headers(init?.headers).get("x-goog-api-key") ?? "";
+    calls.push({ key: apiKey, url });
+    if (url.includes("/models?pageSize")) return catalogOf("gemini-2.5-flash", "gemini-3-flash-preview");
+    if (apiKey === "AIzaNewKeyA" && url.includes("gemini-2.5-flash:")) return RETIRED();
+    if (apiKey === "AIzaOldKeyB" && url.includes("gemini-3-flash-preview:")) {
+      return new Response(JSON.stringify({ error: { code: 403, message: "Permission denied" } }), { status: 403, headers: { "Content-Type": "application/json" } });
+    }
+    return json(answer('{"ok":true}'));
+  };
+
+  // Key A heals 2.5-flash -> 3-flash-preview
+  await geminiJsonWith("gemini-2.5-flash", req(), { apiKey: "AIzaNewKeyA", fetcher, allowModelFallback: true });
+  // Switching to Key B must NOT reuse Key A's healed 3-flash-preview (which 403s on Key B); it calls 2.5-flash directly
+  calls.length = 0;
+  assert.deepEqual(await geminiJsonWith("gemini-2.5-flash", req(), { apiKey: "AIzaOldKeyB", fetcher, allowModelFallback: true }), { ok: true });
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].url, /gemini-2\.5-flash:/);
+
+  // Stale persist guard: if user already switched keys in AiConfig, an old request's heal does not overwrite the new key's setup
+  const { persistHealedGeminiModel } = await import("./clients");
+  setAiConfig(geminiCfg({ keys: { ...defaultAiConfig().keys, gemini: "AIzaOldKeyB" } }));
+  persistHealedGeminiModel("gemini-2.5-flash", "gemini-3-flash-preview", { apiKey: "AIzaNewKeyA", baseUrl: "" });
+  assert.equal(getAiConfig().text.model, "gemini-2.5-flash");
+  assert.equal(getAiConfig().lastGoodModel?.gemini, undefined);
+  setAiConfig(defaultAiConfig());
+});

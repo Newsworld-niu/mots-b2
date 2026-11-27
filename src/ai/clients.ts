@@ -445,29 +445,45 @@ export function geminiCanSelfHeal(model: string, cfg: AiConfig = getAiConfig()):
  * Save the model that answered in place of a retired one: it becomes the key's last good Gemini model, and the jobs
  * (文本 / 识图) still set to the retired model move to it, so later calls go there at once.
  */
-export function persistHealedGeminiModel(fromModel: string, toModel: string): void {
+export function persistHealedGeminiModel(
+  fromModel: string,
+  toModel: string,
+  expected?: { apiKey: string; baseUrl: string; allowEmptySavedKey?: boolean },
+): void {
   const from = normalizeGeminiModel(fromModel);
   const to = normalizeGeminiModel(toModel);
   if (!to || to === from) return;
+  const matchesGuard = (cfg: AiConfig) => {
+    if (!expected) return true;
+    const savedKey = (cfg.keys.gemini ?? "").trim();
+    const keyOk = savedKey === expected.apiKey.trim() || (Boolean(expected.allowEmptySavedKey) && !savedKey);
+    return keyOk && (cfg.geminiBaseUrl ?? "") === (expected.baseUrl ?? "");
+  };
   const cur = getAiConfig();
+  if (!matchesGuard(cur)) return;
   const moves = (job: { provider: string; model: string }) => job.provider === "gemini" && normalizeGeminiModel(job.model) === from;
   if (cur.lastGoodModel?.gemini === to && !moves(cur.text) && !moves(cur.vision)) return;
-  setAiConfig((c) => ({
-    ...c,
-    lastGoodModel: { ...c.lastGoodModel, gemini: to },
-    text: moves(c.text) ? { ...c.text, model: to } : c.text,
-    vision: moves(c.vision) ? { ...c.vision, model: to } : c.vision,
-  }));
+  setAiConfig((c) => {
+    if (!matchesGuard(c)) return c;
+    return {
+      ...c,
+      lastGoodModel: { ...c.lastGoodModel, gemini: to },
+      text: moves(c.text) ? { ...c.text, model: to } : c.text,
+      vision: moves(c.vision) ? { ...c.vision, model: to } : c.vision,
+    };
+  });
 }
 
 async function geminiJson(model: string, req: JsonRequest, c: AiConfig = getAiConfig()) {
   const { geminiJsonWith } = await import("./gemini");
   const clean = normalizeGeminiModel(model);
+  const apiKey = key("gemini", c);
+  const baseUrl = c.geminiBaseUrl;
   return geminiJsonWith(clean, req, {
-    apiKey: key("gemini", c),
-    geminiBaseUrl: c.geminiBaseUrl,
+    apiKey,
+    geminiBaseUrl: baseUrl,
     allowModelFallback: geminiCanSelfHeal(clean, c),
-    onModelHealed: persistHealedGeminiModel,
+    onModelHealed: (from, to) => persistHealedGeminiModel(from, to, { apiKey, baseUrl }),
   });
 }
 
@@ -886,7 +902,8 @@ export async function transcribeViaMultimodalAudio(
         fetcher: opts?.fetcher,
         signal,
         allowModelFallback: geminiCanSelfHeal(route.model, cfg),
-        onModelHealed: persistHealedGeminiModel,
+        onModelHealed: (from, to) =>
+          persistHealedGeminiModel(from, to, { apiKey: route.apiKey, baseUrl: cfg.geminiBaseUrl, allowEmptySavedKey: Boolean(opts?.cfg) }),
       },
     );
     const extracted = extractMultimodalTranscriptPayload(rawOut);

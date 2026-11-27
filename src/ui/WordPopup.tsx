@@ -250,7 +250,32 @@ function extractTappedFrenchWord(
   );
   if (!hit) return null;
 
-  const token = cleanSelectionText(text.slice(start, end));
+  // Reconstruct words split across inline highlight spans (e.g. grammar `une petit<span class="gm-affix">e</span>`).
+  let rawWord = text.slice(start, end);
+  if (frParent && (start === 0 || end === text.length)) {
+    const walker = document.createTreeWalker(frParent, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => (n.parentElement?.closest("button, svg, .speak") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT),
+    });
+    let full = "";
+    let nodeStart = -1;
+    let cur: Node | null;
+    while ((cur = walker.nextNode())) {
+      const chunk = cur.textContent ?? "";
+      if (cur === textNode) nodeStart = full.length;
+      full += chunk;
+    }
+    if (nodeStart >= 0) {
+      let fStart = nodeStart + start;
+      let fEnd = nodeStart + end;
+      while (fStart > 0 && WORD_CHAR_RE.test(full[fStart - 1])) fStart--;
+      while (fEnd < full.length && WORD_CHAR_RE.test(full[fEnd])) fEnd++;
+      while (fStart < fEnd && /['’-]/.test(full[fStart])) fStart++;
+      while (fEnd > fStart && /['’-]/.test(full[fEnd - 1])) fEnd--;
+      if (fEnd > fStart) rawWord = full.slice(fStart, fEnd);
+    }
+  }
+
+  const token = cleanSelectionText(rawWord);
   if (!token || !FRENCH_LETTER_RE.test(token)) return null;
   const context = extractLoungeContext(textNode) ?? extractLoungeContext(fallbackTarget);
   return { token, context };

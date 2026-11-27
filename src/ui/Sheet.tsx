@@ -59,7 +59,7 @@ export function Sheet({
         const first = f[0];
         const last = f[f.length - 1];
         const inside = panel.current.contains(document.activeElement);
-        if (e.shiftKey && (document.activeElement === first || !inside)) {
+        if (e.shiftKey && (document.activeElement === first || document.activeElement === panel.current || !inside)) {
           e.preventDefault();
           last.focus();
         } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
@@ -74,11 +74,12 @@ export function Sheet({
     return () => {
       cancelAnimationFrame(raf);
       document.removeEventListener("keydown", onKey);
+      const wasTop = isTop(token);
       const at = openStack.indexOf(token);
       if (at >= 0) openStack.splice(at, 1);
       if (openStack.length === 0) document.documentElement.classList.remove("is-locked");
-      // Give the focus back to what opened this layer (when it is still on the page).
-      if (prev && prev.isConnected) prev.focus?.({ preventScroll: true });
+      // Give the focus back to what opened this layer only when closing the topmost sheet.
+      if (wasTop && prev && prev.isConnected) prev.focus?.({ preventScroll: true });
     };
   }, [open]);
   if (!open) return null;

@@ -25,7 +25,7 @@ const GOALS: { id: Goal; title: string; desc: string; icon: typeof Sprout }[] = 
 
 const TRACKS: { id: Track; name: string; hint: string }[] = [
   { id: "delf", name: "DELF B2", hint: "四项各 25 分，总分 ≥50 且单项 ≥5" },
-  { id: "tcf", name: "TCF / TCF Canada", hint: "0–699 分级；CEFR B2 约 400+" },
+  { id: "tcf", name: "TCF / TCF Canada", hint: "听读 100–699（CEFR B2 400+）· 写说 0–20（B2 10+）" },
   { id: "tef", name: "TEF / TEF Canada", hint: "2023.12 新政，各科 0–699" },
 ];
 
@@ -89,13 +89,12 @@ export function Onboarding() {
               </h1>
               <fieldset className="onboard-mode">
                 <legend>学习模式</legend>
-                <div className="onboard-mode-grid" role="radiogroup" aria-label="学习模式">
+                <div className="onboard-mode-grid" role="group" aria-label="学习模式">
                   {GOALS.map(({ id, title, desc, icon: Icon }) => (
                     <button
                       key={id}
                       type="button"
-                      role="radio"
-                      aria-checked={mode === id}
+                      aria-pressed={mode === id}
                       className={`choice onboard-mode-choice ${mode === id ? "is-on" : ""}`}
                       onClick={() => setMode(id)}
                     >

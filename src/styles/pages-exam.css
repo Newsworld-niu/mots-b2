@@ -1098,7 +1098,7 @@
   background: var(--card); border: 1px solid var(--line-strong); border-radius: 16px; box-shadow: var(--shadow-lg);
 }
 .home-dict-ac li {
-  display: flex; align-items: baseline; gap: 10px; min-width: 0;
+  display: flex; align-items: center; gap: 10px; min-width: 0; min-height: 44px;
   padding: 8px 12px; border-radius: 10px; cursor: pointer;
 }
 .home-dict-ac li b { flex: none; max-width: 55%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 16px var(--serif); color: var(--ink); }

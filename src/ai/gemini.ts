@@ -503,9 +503,20 @@ function unavailableInfo(e: unknown): GeminiErrorInfo | null {
  * that answers is remembered for the visit and reported through `onModelHealed`. When none answers, the original
  * error is thrown, unless a replacement failed for another reason than a 404 (quota, permission), which is more useful.
  */
+/** Short non-reversible fingerprint of an API key so in-memory healed-model caches never leak across accounts/keys. */
+function keyFingerprint(apiKey: string): string {
+  const s = apiKey.trim();
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return `${s.length}:${(h >>> 0).toString(36)}`;
+}
+
 async function withModelHealing<T>(model: string, opts: GeminiOptions, signal: AbortSignal | undefined, once: (m: string) => Promise<T>): Promise<T> {
   const clean = normalizeGeminiModel(model);
-  const healKey = `${baseKey(opts.geminiBaseUrl)}|${clean}`;
+  const healKey = `${keyFingerprint(opts.apiKey)}|${baseKey(opts.geminiBaseUrl)}|${clean}`;
   const healed = opts.allowModelFallback ? healedModels.get(healKey) : undefined;
   const tried = new Set<string>([clean]);
   if (healed) {

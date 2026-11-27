@@ -142,8 +142,13 @@ test("cards of the same function that do not fit the gap are graded wrong, namin
   // "[Comme] il pleuvait": puisque must elide; the elided and full forms are both understood
   assert.equal(checkExpr("puisqu'", card("conn-comme")).verdict, "synonym");
   assert.equal(checkExpr("puisque", card("conn-comme")).verdict, "synonym");
-  // "Votre [véhicule] est mal stationné": voiture would need stationnée
+  // "Votre [véhicule] est mal stationné": voiture would need stationnée; unrelated register word does not populate `other`
   assert.equal(checkExpr("voiture", card("reg-un-vehicule")).verdict, "wrong");
+  assert.equal(checkExpr("travailler", card("reg-un-vehicule")).other, undefined);
+  // "[En ce qui concerne] les transports": quant aux would make "quant aux les transports" (double article)
+  wrongWith("quant aux", "arg-en-ce-qui-concerne");
+  // "Il a beaucoup neigé, [si bien que]…": c'est pourquoi after comma is not accepted as slot synonym
+  wrongWith("c'est pourquoi", "conn-si-bien-que", "conn-c-est-pourquoi");
 });
 
 test("right answers: exact, accents only, interchangeable synonyms, gender and elided forms", () => {

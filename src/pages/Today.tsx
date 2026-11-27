@@ -54,11 +54,11 @@ function ModeSwitch({ goal }: { goal: Goal }) {
     toast(next === "exam" ? "已切换到「备考冲刺」：首页按考期安排听说读写" : "已切换到「日常进阶」：首页只保留今日学习清单", "ok");
   };
   return (
-    <div className="segmented today-mode" role="radiogroup" aria-label="学习模式">
-      <button type="button" role="radio" aria-checked={goal === "everyday"} className={goal === "everyday" ? "is-on" : ""} onClick={() => set("everyday")}>
+    <div className="segmented today-mode" role="group" aria-label="学习模式">
+      <button type="button" aria-pressed={goal === "everyday"} className={goal === "everyday" ? "is-on" : ""} onClick={() => set("everyday")}>
         <Sprout size={14} /> 日常进阶
       </button>
-      <button type="button" role="radio" aria-checked={goal === "exam"} className={goal === "exam" ? "is-on" : ""} onClick={() => set("exam")}>
+      <button type="button" aria-pressed={goal === "exam"} className={goal === "exam" ? "is-on" : ""} onClick={() => set("exam")}>
         <GraduationCap size={14} /> 备考冲刺
       </button>
     </div>
@@ -322,7 +322,7 @@ export function Today() {
               <RangeNote otherDue={plan.otherDue} />
             </>
           )}
-          {emptyRange && !active && (
+          {emptyRange && !active && total === 0 && (
             <div className="journey-empty" role="status">
               <span>当前筛选范围内暂无待学/待复习词卡。</span>
               <div className="journey-empty-actions">
@@ -692,7 +692,7 @@ export function Today() {
                 <Headphones size={16} /> 真实电台 RFI
               </button>
               <button type="button" className="btn btn-ghost" onClick={() => go({ page: "reflow" })}>
-                <BookMarked size={16} /> 统一错题中心{mistakeDue.reflow ? ` (${mistakeDue.reflow})` : ""}
+                <BookMarked size={16} /> 统一错题中心{mistakeDue.total > 0 ? ` (${mistakeDue.total})` : ""}
               </button>
               <button type="button" className="btn btn-ghost" onClick={() => go({ page: "expr" })}>
                 高频论证表达
@@ -721,7 +721,7 @@ export function Today() {
             <p>
               {total > 0 || active
                 ? "脑子转不动了？去翻两页法语故事或看支短片，不计分、不催复习 →"
-                : "今日备考收工 · 去漫游馆听场雨声读篇睡前法语 →"}
+                : `${examMode ? "今日备考收工" : "今日学习收工"} · 去漫游馆听场雨声读篇睡前法语 →`}
             </p>
           </div>
           <div className="backup-remind-actions">

@@ -161,7 +161,7 @@ export function checkExpr(typed: string, e: Expression, all: readonly Expression
   const cardOf = (sameFn: boolean) =>
     all.find((o) => o.id !== e.id && (!sameFn || (o.group === e.group && o.fn === e.fn)) && matches(t, [o.fr, ...answersOf(o)]));
   if (matches(t, synonymsOf(e))) return { verdict: "synonym", other: cardOf(true) ?? cardOf(false) };
-  const other = cardOf(true);
+  const other = e.group === "conn" || e.group === "arg" || e.group === "reform" ? cardOf(true) : undefined;
   return other ? { verdict: "wrong", other } : { verdict: "wrong" };
 }
 

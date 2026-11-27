@@ -1,11 +1,14 @@
 import { ArrowUpRight, Github, Heart } from "lucide-react";
+import { useMemo } from "react";
 import { useAtlas } from "../atlas/context";
 import { REPO_URL, UPSTREAM_REPO_URL } from "../config";
+import { searchShortcutLabel } from "../ui/nav";
 
 const BASE = import.meta.env.BASE_URL;
 
 export function About() {
   const atlas = useAtlas();
+  const shortcut = useMemo(searchShortcutLabel, []);
   return (
     <div className="page about">
       <header className="about-hero">
@@ -52,10 +55,15 @@ export function About() {
           <dl className="keys">
             <div>
               <dt>
-                <kbd>⌘</kbd>
-                <kbd>K</kbd> 或 <kbd>/</kbd>
+                <kbd>{shortcut}</kbd> 或 <kbd>/</kbd>
               </dt>
-              <dd>搜索任何词</dd>
+              <dd>搜索任何词与模块</dd>
+            </div>
+            <div>
+              <dt>
+                <kbd>?</kbd>
+              </dt>
+              <dd>打开快捷键一览</dd>
             </div>
             <div>
               <dt>
@@ -130,7 +138,7 @@ export function About() {
         <section className="panel">
           <h2 className="eyebrow">给开发者</h2>
           <p className="muted">
-            <code>data/lexicon.json</code> 是主词库的源文件，<code>data/grammar/</code> 是语法讲解与练习；<code>public/atlas</code> 里是网页用的分块数据。复用时请按各部分的授权：原创补充内容按 CC BY 4.0 署名，LexDB 按 CC BY-SA 4.0 署名并相同方式共享；取自教材的部分不能再发布。
+            <code>data/lexicon.json</code> 是主词库的源文件，<code>data/grammar/</code> 是语法讲解与练习；<code>public/atlas</code> 里是网页用的分块数据。复用时请按各部分的授权：原创补充内容按 CC BY 4.0 署名，LexDB 的开放部分按 CC BY-SA 4.0 及各上游条款署名并相同方式共享（未开放授权的关系列表见 <code>CONTENT_LICENSE.md</code>）；取自教材的部分再发布前须取得权利人许可。
           </p>
           <a className="link" href={`${REPO_URL}#readme`} target="_blank" rel="noreferrer">
             阅读文档 <ArrowUpRight size={14} />

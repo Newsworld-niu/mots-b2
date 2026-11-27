@@ -21,7 +21,7 @@ import {
   type SttProvider,
   type TextProvider,
 } from "../ai/config";
-import { proxyAvailable } from "../ai/proxy";
+import { normalizeGeminiModel, proxyAvailable } from "../ai/proxy";
 import { clearTtsCache, ttsCacheSize } from "../ai/tts";
 import { resetAiUsage, useAiUsage } from "../ai/usage";
 import { toast } from "./Toast";
@@ -290,7 +290,14 @@ export function AiSettings() {
   const c = useAiConfig();
   const usage = useAiUsage();
   const set = (patch: Partial<AiConfig>) => setAiConfig(patch);
-  const setKey = (k: keyof AiConfig["keys"], v: string) => setAiConfig((x) => ({ ...x, keys: { ...x.keys, [k]: v } }));
+  const setKey = (k: keyof AiConfig["keys"], v: string) =>
+    setAiConfig((x) => {
+      const nextLast = { ...x.lastGoodModel };
+      if ((TEXT_PROVIDERS as readonly string[]).includes(k) && (x.keys[k] ?? "").trim() !== v.trim()) {
+        delete nextLast[k as TextProvider];
+      }
+      return { ...x, keys: { ...x.keys, [k]: v }, lastGoodModel: nextLast };
+    });
   const { listOf, imageListOf, isLoading, testing, test, ensure } = useModels();
   const [proxy, setProxy] = useState<boolean | null>(null);
   const [voices, setVoices] = useState<AzureVoice[] | null>(null);
@@ -509,14 +516,21 @@ export function AiSettings() {
       if (!res.ok || !res.model) return;
       const model = res.model;
       const asked = res.requestedModel.trim();
+      const sameModel = (a: string, b: string) =>
+        p === "gemini" ? normalizeGeminiModel(a) === normalizeGeminiModel(b) : a.trim() === b.trim();
       const follows = (now: { provider: string; model: string }, before: { provider: string; model: string }) =>
-        now.provider === p && before.provider === p && now.model === before.model && now.model.trim() === asked;
-      setAiConfig((cur) => ({
-        ...cur,
-        lastGoodModel: { ...cur.lastGoodModel, [p]: model },
-        text: follows(cur.text, snapshot.text) ? { ...cur.text, model } : cur.text,
-        vision: p !== "deepseek" && follows(cur.vision, snapshot.vision) ? { ...cur.vision, model } : cur.vision,
-      }));
+        now.provider === p && before.provider === p && sameModel(now.model, before.model) && sameModel(now.model, asked);
+      setAiConfig((cur) => {
+        if ((cur.keys[p] ?? "").trim() !== (snapshot.keys[p] ?? "").trim() || savedBase(p, cur) !== savedBase(p, snapshot)) {
+          return cur;
+        }
+        return {
+          ...cur,
+          lastGoodModel: { ...cur.lastGoodModel, [p]: model },
+          text: follows(cur.text, snapshot.text) ? { ...cur.text, model } : cur.text,
+          vision: p !== "deepseek" && follows(cur.vision, snapshot.vision) ? { ...cur.vision, model } : cur.vision,
+        };
+      });
     };
 
   const testBtn = (p: TextProvider) => (

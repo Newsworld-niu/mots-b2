@@ -291,7 +291,7 @@ export function Practice({ src, autostart }: { src?: PracticeSrc; autostart?: "1
   useEffect(() => {
     if (autostart !== "1" || autoStarted.current) return;
     autoStarted.current = true;
-    if (src) go({ page: "practice", src }, null, true);
+    go(src ? { page: "practice", src } : { page: "practice" }, null, true);
     if (!pool.length) {
       toast(src === "mistakes" ? "错词本里暂时没有可拼写的词，先去学几个词吧" : "这里还没有可练的词", "info");
       return;
@@ -323,7 +323,7 @@ export function Practice({ src, autostart }: { src?: PracticeSrc; autostart?: "1
         </p>
       </header>
 
-      {src === "mistakes" ? (
+      {src === "mistakes" && source === "mistakes" ? (
         <aside className="practice-reflow-banner" role="status">
           <span>这一轮来自错题中心：错词本里的 <b>{progress.mistakes.length}</b> 个词。</span>
           <div className="practice-reflow-actions">
@@ -364,7 +364,7 @@ export function Practice({ src, autostart }: { src?: PracticeSrc; autostart?: "1
         </div>
         <div className="practice-exam-grid">
           {examStudios.map(({ key, route, title, desc, tag, icon: Icon, featured }) => {
-            const badge = route.page === "reflow" ? (reflow.due > 0 ? `${reflow.due} 待复习` : tag) : tag;
+            const badge = route.page === "reflow" ? (pendingMistakes > 0 ? `${pendingMistakes} 待复习` : tag) : tag;
             return (
               <button key={key} type="button" className={`mode-card practice-exam-card ${featured ? "is-featured" : ""}`} onClick={() => go(route)}>
                 <div className="practice-exam-top">

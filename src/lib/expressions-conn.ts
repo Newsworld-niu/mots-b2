@@ -60,7 +60,7 @@ export const CONNECTORS: [fn: string, RawExpr[]][] = [
   ["结果", [
     ["par conséquent", "因此", "Le nombre d'élèves a augmenté ; [par conséquent], il faut ouvrir une classe.", "学生人数增加了；因此需要开一个新班。", { syn: ["en conséquence", "ainsi", "de ce fait"] }],
     ["c'est pourquoi", "这就是为什么", "Les loyers sont trop élevés ; [c'est pourquoi] beaucoup de jeunes vivent en colocation.", "房租太高；这就是为什么很多年轻人合租。", { note: "后面不加逗号", syn: ["c'est la raison pour laquelle", "voilà pourquoi"] }],
-    ["si bien que", "以至于", "Il a beaucoup neigé, [si bien que] les écoles ont fermé.", "雪下得很大，以至于学校都关了。", { note: "+ 直陈式", syn: ["de sorte que", "c'est pourquoi", "donc"] }],
+    ["si bien que", "以至于", "Il a beaucoup neigé, [si bien que] les écoles ont fermé.", "雪下得很大，以至于学校都关了。", { note: "+ 直陈式", syn: ["de sorte que", "à tel point que"] }],
     ["ainsi", "因此、这样", "Les bus sont gratuits ; [ainsi], moins de gens prennent la voiture.", "公交免费；这样，开车的人就少了。", { syn: ["par conséquent", "de ce fait"] }],
     ["donc", "所以", "Le musée est fermé le lundi ; nous irons [donc] mardi.", "博物馆周一闭馆；所以我们周二去。", { note: "可放在动词后面：nous irons donc mardi" }],
   ]],
@@ -105,7 +105,7 @@ export const FRAMES: [fn: string, RawExpr[]][] = [
     ["il est regrettable que", "遗憾的是", "[Il est regrettable que] les transports soient si chers.", "遗憾的是交通这么贵。", { note: "+ 虚拟式", syn: ["il est dommage que", "il est déplorable que"] }],
   ]],
   ["引出话题", [
-    ["en ce qui concerne", "至于、关于", "[En ce qui concerne] les transports, la ville a fait des progrès.", "关于交通，这座城市有了进步。", { syn: ["concernant", "pour ce qui concerne", "quant aux"] }],
+    ["en ce qui concerne", "至于、关于", "[En ce qui concerne] les transports, la ville a fait des progrès.", "关于交通，这座城市有了进步。", { syn: ["concernant", "pour ce qui concerne"] }],
     ["quant à", "至于", "Mes parents prennent l'avion ; [quant à] moi, je préfère le train.", "我父母坐飞机；至于我，我更喜欢火车。", { note: "à + le / les 要缩合：quant au, quant aux" }],
     ["il s'agit de", "问题在于、涉及", "Dans ce débat, [il s'agit de] savoir qui doit payer.", "在这场辩论中，问题在于谁该付钱。", { syn: ["il est question de"] }],
     ["il convient de", "应当", "[Il convient de] distinguer deux situations.", "应当区分两种情况。", { note: "+ 不定式", syn: ["il faut", "il importe de"] }],

@@ -10,7 +10,7 @@ import {
   createDeck,
   deckWords,
   deleteDeck,
-  findSame,
+  findExact,
   orphanCustomWords,
   pausedIds,
   removeFromDeck,
@@ -186,17 +186,22 @@ function DictFavs({ atlas }: { atlas: Atlas }) {
   const favs = useMemo(() => stored ?? [], [stored]);
   const cards = useStore((s) => s.progress.cards);
   const decks = useStore((s) => s.progress.decks);
+  const hidden = useStore((s) => s.progress.hidden);
+  const coreMigrated = useStore((s) => s.progress.coreMigrated);
   const [entries, setEntries] = useState<Record<string, LexEntry | null>>({});
   const [all, setAll] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [pendingIds, setPendingIds] = useState<Set<string>>(() => new Set());
   const shown = all ? favs : favs.slice(0, FAVS_SHOWN);
   const atlasFor = (id: string) => {
     const e = entries[id];
-    return e ? cardFor(atlas, e.w, e.atlasId) : findSame(atlas, lemmaOf(id))[0];
+    if (e) return cardFor(atlas, e.w, e.atlasId);
+    // Never match homographs ("cote#2" = côte) or accent-minimal pairs by folded slug: only exact unaccented ids match offline.
+    return id.includes("#") ? undefined : findExact(atlas, id)[0];
   };
 
-  // Entries the atlas cannot name (accents, glosses) are read from the dictionary shards, only for the rows shown.
-  const missing = shown.filter((id) => !(id in entries) && !findSame(atlas, lemmaOf(id))[0]).join("\n");
+  // Always load real LexDB entries for displayed favourites so accented lemmas & #N homographs resolve accurately.
+  const missing = shown.filter((id) => !(id in entries)).join("\n");
   useEffect(() => {
     if (!missing) return;
     let live = true;
@@ -215,12 +220,13 @@ function DictFavs({ atlas }: { atlas: Atlas }) {
   if (!favs.length) return null;
 
   const addOne = async (id: string): Promise<"added" | "exists" | "skipped"> => {
-    const ref = atlasFor(id);
     let entry = entries[id] ?? null;
-    if (!ref && !entry) {
+    if (!(id in entries) || entry === null) {
       const { getEntryById } = await import("../lib/lexdb/load");
       entry = await getEntryById(id).catch(() => null);
+      if (entry) setEntries((prev) => ({ ...prev, [id]: entry }));
     }
+    const ref = entry ? cardFor(atlas, entry.w, entry.atlasId) : id.includes("#") ? undefined : findExact(atlas, id)[0];
     const w = entry?.w ?? ref?.word;
     if (!w) return "skipped";
     const lex = entry ? await import("../lib/lexdb/search") : null;
@@ -228,8 +234,18 @@ function DictFavs({ atlas }: { atlas: Atlas }) {
     return res.status;
   };
   const moveOne = async (id: string) => {
-    const st = await addOne(id);
-    toast(st === "added" ? `已加入「${REVIEW_DECK}」卡组` : st === "exists" ? "这个词已在复习里" : "词典暂时打不开这个词，稍后再试", st === "skipped" ? "warn" : "ok");
+    if (busy || pendingIds.has(id)) return;
+    setPendingIds((prev) => new Set(prev).add(id));
+    try {
+      const st = await addOne(id);
+      toast(st === "added" ? `已加入「${REVIEW_DECK}」卡组` : st === "exists" ? "这个词已在复习里" : "离线词典暂时打不开这个词，请联网后再试", st === "skipped" ? "warn" : "ok");
+    } finally {
+      setPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
   };
   const moveAll = async () => {
     setBusy(true);
@@ -244,11 +260,17 @@ function DictFavs({ atlas }: { atlas: Atlas }) {
     } finally {
       setBusy(false);
     }
-    toast(added ? `已把 ${added} 个收藏词加入「${REVIEW_DECK}」${skipped ? `，${skipped} 个暂时打不开` : ""}` : "收藏的词都已在复习里", added ? "ok" : "info");
+    if (added > 0) {
+      toast(`已把 ${added} 个收藏词加入「${REVIEW_DECK}」${skipped ? `，${skipped} 个离线暂未读取` : ""}`, skipped ? "warn" : "ok");
+    } else if (skipped > 0) {
+      toast(`离线词典暂不可用，${skipped} 个收藏词未能读取，请联网后重试`, "warn");
+    } else {
+      toast("收藏的词都已在复习里", "info");
+    }
   };
   const pending = favs.filter((id) => {
     const ref = atlasFor(id);
-    return !ref || !inReview({ cards, decks }, ref.id);
+    return !ref || !inReview({ cards, decks, hidden, coreMigrated }, ref.id);
   }).length;
 
   return (
@@ -272,10 +294,10 @@ function DictFavs({ atlas }: { atlas: Atlas }) {
           const ref = atlasFor(id);
           const word = entry?.w ?? ref?.word ?? lemmaOf(id);
           const zh = entry?.pos[0]?.senses[0]?.zh ?? ref?.zh ?? "";
-          const reviewing = !!ref && inReview({ cards, decks }, ref.id);
+          const reviewing = !!ref && inReview({ cards, decks, hidden, coreMigrated }, ref.id);
           return (
             <li key={id}>
-              <a className="dict-favs-word" href={href({ page: "dict", w: entry || ref ? word : id })} lang="fr">
+              <a className="dict-favs-word" href={href({ page: "dict", w: entry ? entry.id : ref ? ref.word : id })} lang="fr">
                 {word}
               </a>
               {zh && <span className="dict-favs-zh">{zh}</span>}
@@ -284,7 +306,7 @@ function DictFavs({ atlas }: { atlas: Atlas }) {
                   <Check size={13} /> 已在复习
                 </span>
               ) : (
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => void moveOne(id)}>
+                <button type="button" className="btn btn-ghost btn-sm" disabled={busy || pendingIds.has(id)} onClick={() => void moveOne(id)}>
                   转入复习卡组
                 </button>
               )}
