@@ -14,9 +14,9 @@ export function About() {
           <p className="eyebrow">关于法语词光</p>
           <h1 className="display">DELF B2 全科备考，一词一个来历。</h1>
           <p className="lede">
-            这是一份法语词图：界面与交互沿用 word-atlas，词条来自可追溯的教材索引与 DELF 词表。目前收录 {atlas.count.toLocaleString()} 个可见词条，每个词条标注来源文件与页码。没有来源的释义与例句单独标为「补充」，词条等级是按所在教材和词频推定的（显示为「推定」），没有逐词核实。释义与译文多为补充翻译，状态为「待核对」，整库尚未逐条人工核实。
+            这是一份法语词图：界面与交互沿用 word-atlas，主词库来自四本法语词汇教材（A1 到 B2/C1.1）的索引与 DELF B2 词表，目前收录 {atlas.count.toLocaleString()} 个可见词条，每个词条标注来源文件与页码。没有教材来源的释义与例句单独标为「补充」；词条等级按所在教材和词频推定（显示为「推定」），没有逐词核实。补充释义与译文由 AI 辅助生成并经自动校验，尚未逐条人工审校。
           </p>
-          <p className="lede">它免费、开源、无需注册。代码用 MIT，词库用 CC BY 4.0，谁都可以拿去用。</p>
+          <p className="lede">它免费、开源，无需注册账号。各部分授权不同，复用前请看下方「授权」一节。</p>
           <div className="about-actions">
             <a className="btn btn-primary" href={REPO_URL} target="_blank" rel="noreferrer">
               <Github size={18} /> 在 GitHub 上查看
@@ -42,7 +42,7 @@ export function About() {
               <b>分数诚实。</b>只算第一次作答。答错的词会换个题型再见一面，但不会抬高正确率。
             </li>
             <li>
-              <b>进度只属于你。</b>没有账号，没有服务器，数据存在你的浏览器里，随时能导出。
+              <b>进度只属于你。</b>无需注册账号，学习记录默认保存在本地浏览器，随时可以导出 JSON 备份。可选开启端到端加密（E2EE）云同步：数据在浏览器里加密后才上传，云端只存储加密密文；AI 与语音 Key 永远不会上传。
             </li>
           </ul>
         </section>
@@ -92,13 +92,37 @@ export function About() {
           <p className="muted">
             自己加词时的离线词典：原形、词性、阴阳性与读音来自 Lexique 3.83（lexique.org，CC BY-SA 4.0）；中文翻译来自法语维基词典（Wiktionnaire，经 wiktextract / kaikki.org 提取，CC BY-SA 4.0）；例句来自 Tatoeba（tatoeba.org，CC BY 2.0 FR）。自动填写的内容未经人工核对。
           </p>
-          <p className="muted">本站不是官方 DELF/DALF 词表，也不承诺通过考试。基础到 A2 的内容目前只有补充词条，尚未有教材来源，见「我的」页与仓库中的导入报告。</p>
+          <p className="muted">
+            几部分怎样配合：主词库的 {atlas.count.toLocaleString()} 个词条覆盖 A1 到 B2（来自 A1、A2–B1、B2/C1.1 三本 Vocabulaire progressif 与 DELF B2 3000 mots），是背词与复习的主体；查词时，主词库之外的词由 41,000+ 词的扩展法汉词典（LexDB）兜底；66 个语法点从 A1 讲到 B2，每点配有练习；「漫游」里的书影音馆收录法美双重公有领域的法语经典与本站原创的双语微读。
+          </p>
+          <p className="muted">本站不是官方 DELF/DALF、TCF 或 TEF 词表与真题，与 France Éducation international 及 CCI Paris Île-de-France 无关，也不承诺通过考试。</p>
+        </section>
+
+        <section className="panel">
+          <h2 className="eyebrow">授权</h2>
+          <ul className="feature-list">
+            <li>
+              <b>源代码与界面：</b>MIT 许可。
+            </li>
+            <li>
+              <b>教材内容：</b>词头的选取与顺序、页码及教材原句，版权归原作者与出版方所有，仅供个人学习，不在开源再授权范围内。
+            </li>
+            <li>
+              <b>本站原创补充：</b>补充释义、例句与译文，66 个语法精讲与练习题，采用 CC BY 4.0。
+            </li>
+            <li>
+              <b>扩展法汉词典（LexDB，41,000+ 词）：</b>整合 Lexique 3.83、Wiktionnaire、Tatoeba、CFDICT、WOLF 等开放来源，开源部分遵循 CC BY-SA 4.0 及各上游的署名协议。
+            </li>
+          </ul>
+          <p className="muted">
+            逐项来源、署名格式与例外（如 RFI 广播文稿、未开放授权的词关系列表）见本项目仓库中的 <code>CONTENT_LICENSE.md</code>。
+          </p>
         </section>
 
         <section className="panel">
           <h2 className="eyebrow">给开发者</h2>
           <p className="muted">
-            <code>data/word-atlas.json</code> 和 <code>.csv</code> 是完整词库；<code>public/atlas</code> 里是网页用的分块数据、插画和音频。拿去做 Anki 牌组、背词小程序、浏览器插件，或者 AI 应用的评测集，署名即可。
+            <code>data/lexicon.json</code> 是主词库的源文件，<code>data/grammar/</code> 是语法讲解与练习；<code>public/atlas</code> 里是网页用的分块数据。复用时请按各部分的授权：原创补充内容按 CC BY 4.0 署名，LexDB 按 CC BY-SA 4.0 署名并相同方式共享；取自教材的部分不能再发布。
           </p>
           <a className="link" href={`${REPO_URL}#readme`} target="_blank" rel="noreferrer">
             阅读文档 <ArrowUpRight size={14} />

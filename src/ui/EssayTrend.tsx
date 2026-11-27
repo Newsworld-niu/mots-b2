@@ -13,8 +13,8 @@ const avg = (xs: number[]) => xs.reduce((n, v) => n + v, 0) / xs.length;
  * curve and the per-criterion breakdown.
  */
 export function EssayTrend({ essays, tasks }: { essays: SavedEssay[]; tasks?: EssayTask[] }) {
-  const aiTasks = useStore((s) => s.progress.essayTasks) ?? [];
-  const allTasks = useMemo(() => [...ESSAY_TASKS, ...(tasks ?? aiTasks)], [tasks, aiTasks]);
+  const aiTasks = useStore((s) => s.progress.essayTasks);
+  const allTasks = useMemo(() => [...ESSAY_TASKS, ...(tasks ?? aiTasks ?? [])], [tasks, aiTasks]);
   const { b1, b2 } = useMemo(() => splitEssaysByLevel(essays, allTasks), [essays, allTasks]);
   const [level, setLevel] = useState<"B2" | "B1">(() => (b2.length > 0 || b1.length === 0 ? "B2" : "B1"));
 
