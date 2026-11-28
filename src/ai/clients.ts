@@ -6,8 +6,8 @@
  *  - Google Gemini: its native REST protocol (gemini.ts, loaded on demand)
  *  - Azure AI Speech: text to speech (SSML) and the voice list
  */
-import { DEFAULT_MODELS, getAiConfig, setAiConfig, type AiConfig, type TextProvider } from "./config";
-import { AiError, aiFetch, errorFrom, fetchWithTimeout, normalizeGeminiModel, parseJsonAnswer, proxyAvailable, proxyUrl, resolveOpenAiEndpoint } from "./proxy";
+import { DEFAULT_MODELS, assertEndpointTrustedForLocalKey, getAiConfig, setAiConfig, type AiConfig, type TextProvider } from "./config";
+import { AiError, aiFetch, errorFrom, fetchWithTimeout, normalizeGeminiModel, parseJsonAnswer, proxyAvailable, proxyUrl, redactSecrets, resolveOpenAiEndpoint } from "./proxy";
 import { buildVoiceSsml, type SsmlOptions } from "./ssml";
 import { recordAiUsage } from "./usage";
 
@@ -194,8 +194,10 @@ export async function openaiJsonWith(
     apiKey: string;
     openaiBaseUrl?: string;
     fetcher?: typeof fetch;
+    trustBaseUrl?: boolean;
   },
 ) {
+  if (provider === "openai" && !opts.trustBaseUrl) assertEndpointTrustedForLocalKey("openai", opts.openaiBaseUrl ?? "", !!opts.apiKey?.trim());
   const customBase = provider === "openai" && !!opts.openaiBaseUrl?.trim();
   const url = provider === "openai" ? resolveOpenAiEndpoint(opts.openaiBaseUrl ?? "", "/chat/completions") : proxyUrl(provider, `${CHAT_BASE[provider]}/chat/completions`);
   const cacheKey = `${provider}|${opts.openaiBaseUrl ?? ""}|${model}`;
@@ -238,7 +240,7 @@ export async function openaiJsonWith(
     );
     if (!r.ok) {
       if ((r.status === 400 || r.status === 422) && i < chain.length - 1) continue;
-      throw await errorFrom(r, NAMES[provider]);
+      throw await errorFrom(r, NAMES[provider], opts.apiKey);
     }
     j = await r.json();
     // OpenRouter can answer 200 with an upstream 400/422 error when a model rejects json_schema
@@ -248,7 +250,7 @@ export async function openaiJsonWith(
       if ((code === 400 || code === 422 || /json_schema|response_format|structured/i.test(String(failed.message ?? ""))) && i < chain.length - 1) {
         continue;
       }
-      throw new AiError(`${NAMES[provider]} 返回错误：${String(failed.message ?? failed.code ?? "未知错误").slice(0, 300)}`);
+      throw new AiError(`${NAMES[provider]} 返回错误：${redactSecrets(String(failed.message ?? failed.code ?? "未知错误"), opts.apiKey).slice(0, 300)}`);
     }
     if (chain.length > 1) compatModeCache.set(cacheKey, mode);
     break;
@@ -260,13 +262,13 @@ export async function openaiJsonWith(
     completionTokens: j.usage?.completion_tokens,
   });
   const choice = j.choices?.[0];
-  if (choice?.message?.refusal) throw new AiError(`${NAMES[provider]} 拒绝了这个请求：${choice.message.refusal}`);
+  if (choice?.message?.refusal) throw new AiError(`${NAMES[provider]} 拒绝了这个请求：${redactSecrets(String(choice.message.refusal), opts.apiKey).slice(0, 300)}`);
   if (choice?.finish_reason === "length") throw new AiError(`${NAMES[provider]} 的输出太长被截断了，试试少放一些内容`);
   return parseJson(choice?.message?.content ?? "", NAMES[provider]);
 }
 
-async function openaiJson(provider: ChatProvider, model: string, req: JsonRequest, c: AiConfig = getAiConfig()) {
-  return openaiJsonWith(provider, model, req, { apiKey: key(provider, c), openaiBaseUrl: c.openaiBaseUrl });
+async function openaiJson(provider: ChatProvider, model: string, req: JsonRequest, c: AiConfig = getAiConfig(), opts?: { trustBaseUrl?: boolean }) {
+  return openaiJsonWith(provider, model, req, { apiKey: key(provider, c), openaiBaseUrl: c.openaiBaseUrl, trustBaseUrl: opts?.trustBaseUrl });
 }
 
 /* ---------- Anthropic (direct fetch + SSE, zero SDK bundle overhead) ---------- */
@@ -290,12 +292,12 @@ function anthropicHeaders(apiKey: string, betas?: string[]): Record<string, stri
   return h;
 }
 
-async function mapAnthropicHttpError(r: Response, model?: string): Promise<AiError> {
+async function mapAnthropicHttpError(r: Response, model?: string, secret?: string): Promise<AiError> {
   if (r.status === 401) return new AiError("Anthropic 返回 401（Key 不对）");
   if (r.status === 403) return new AiError("Anthropic 返回 403（没有权限）");
   if (r.status === 404) return new AiError(`Anthropic 返回 404（模型名不对？${model ?? ""}）`);
   if (r.status === 429) return new AiError("Anthropic 返回 429（请求太频繁或额度用完）");
-  return errorFrom(r, "Anthropic");
+  return errorFrom(r, "Anthropic", secret);
 }
 
 export function buildAnthropicBody(model: string, req: JsonRequest, opts?: { omitOutputConfig?: boolean }) {
@@ -320,7 +322,7 @@ export function buildAnthropicBody(model: string, req: JsonRequest, opts?: { omi
   };
 }
 
-async function consumeAnthropicStream(res: Response): Promise<{
+async function consumeAnthropicStream(res: Response, secret?: string): Promise<{
   text: string;
   stopReason: string | null;
   inputTokens?: number;
@@ -363,7 +365,7 @@ async function consumeAnthropicStream(res: Response): Promise<{
     const kind = ev.type || currentEvent;
     if (kind === "error" || ev.error) {
       const m = ev.error?.message || (typeof ev.message === "string" ? ev.message : "") || "流式响应错误";
-      throw new AiError(`Anthropic 返回错误：${String(m).slice(0, 300)}`);
+      throw new AiError(`Anthropic 返回错误：${redactSecrets(String(m), secret).slice(0, 300)}`);
     }
     if (kind === "message_start" && typeof ev.message === "object" && ev.message?.usage) {
       inputTokens = ev.message.usage.input_tokens;
@@ -416,9 +418,9 @@ export async function anthropicJsonWith(
     );
     if (r.ok) break;
     if ((r.status === 400 || r.status === 422) && i === 0) continue;
-    throw await mapAnthropicHttpError(r, model);
+    throw await mapAnthropicHttpError(r, model, opts.apiKey);
   }
-  const parsed = await consumeAnthropicStream(r);
+  const parsed = await consumeAnthropicStream(r, opts.apiKey);
   recordAiUsage({ provider: "anthropic", model, promptTokens: parsed.inputTokens, completionTokens: parsed.outputTokens });
   if (parsed.stopReason === "refusal") throw new AiError("Anthropic 拒绝了这个请求");
   if (parsed.stopReason === "max_tokens") throw new AiError("Anthropic 的输出太长被截断了，试试少放一些内容");
@@ -488,10 +490,10 @@ async function geminiJson(model: string, req: JsonRequest, c: AiConfig = getAiCo
 }
 
 /** A JSON answer from one text service with the given settings. */
-function providerJson(provider: TextProvider, model: string, req: JsonRequest, c: AiConfig = getAiConfig()) {
+function providerJson(provider: TextProvider, model: string, req: JsonRequest, c: AiConfig = getAiConfig(), opts?: { trustBaseUrl?: boolean }) {
   if (provider === "anthropic") return anthropicJson(model, req, c);
   if (provider === "gemini") return geminiJson(model, req, c);
-  return openaiJson(provider, model, req, c);
+  return openaiJson(provider, model, req, c, opts);
 }
 
 /* ---------- jobs ---------- */
@@ -505,27 +507,30 @@ export async function aiJson<T>(job: "vision" | "text", req: JsonRequest): Promi
 }
 
 /** Model ids a service offers (for the model field's suggestions). */
-export async function listModels(provider: TextProvider, cfg?: AiConfig): Promise<string[]> {
+export async function listModels(provider: TextProvider, cfg?: AiConfig, opts?: { trustBaseUrl?: boolean }): Promise<string[]> {
   await needProxy();
   const c = cfg ?? getAiConfig();
   if (provider === "anthropic") {
+    const apiKey = key("anthropic", c);
     const r = await fetchWithTimeout(
       proxyUrl("anthropic", "/v1/models?limit=100"),
-      { headers: anthropicHeaders(key("anthropic", c)) },
+      { headers: anthropicHeaders(apiKey) },
       30_000,
       "Anthropic",
     );
-    if (!r.ok) throw await mapAnthropicHttpError(r);
+    if (!r.ok) throw await mapAnthropicHttpError(r, undefined, apiKey);
     const j = (await r.json()) as { data?: Array<{ id: string }> };
     return (j.data ?? []).map((m) => m.id).sort();
   }
   if (provider === "gemini") {
     const { listGeminiModels } = await import("./gemini");
-    return listGeminiModels({ apiKey: key("gemini", c), geminiBaseUrl: c.geminiBaseUrl });
+    return listGeminiModels({ apiKey: key("gemini", c), geminiBaseUrl: c.geminiBaseUrl, trustBaseUrl: opts?.trustBaseUrl });
   }
+  const apiKey = key(provider, c);
+  if (provider === "openai" && !opts?.trustBaseUrl) assertEndpointTrustedForLocalKey("openai", c.openaiBaseUrl, !!apiKey);
   const url = provider === "openai" ? resolveOpenAiEndpoint(c.openaiBaseUrl, "/models") : proxyUrl(provider, `${CHAT_BASE[provider]}/models`);
-  const r = await fetchWithTimeout(url, { headers: { Authorization: `Bearer ${key(provider, c)}` } }, 30_000, NAMES[provider]);
-  if (!r.ok) throw await errorFrom(r, NAMES[provider]);
+  const r = await fetchWithTimeout(url, { headers: { Authorization: `Bearer ${apiKey}` } }, 30_000, NAMES[provider]);
+  if (!r.ok) throw await errorFrom(r, NAMES[provider], apiKey);
   const j = await r.json();
   return ((j.data ?? []) as { id: string }[]).map((m) => m.id).sort();
 }
@@ -539,6 +544,7 @@ export async function listModels(provider: TextProvider, cfg?: AiConfig): Promis
 export async function testTextProvider(
   provider: TextProvider,
   cfgOverride?: AiConfig,
+  opts?: { trustBaseUrl?: boolean },
 ): Promise<{ models: string[]; probeOk: boolean; compatMode?: string; model: string; requestedModel: string }> {
   await needProxy();
   const c = cfgOverride ?? getAiConfig();
@@ -546,7 +552,7 @@ export async function testTextProvider(
   let models: string[] = [];
   let listErr: unknown = null;
   try {
-    models = await listModels(provider, c);
+    models = await listModels(provider, c, opts);
   } catch (e) {
     if (!customBase) throw e;
     listErr = e;
@@ -582,6 +588,7 @@ export async function testTextProvider(
     res = await geminiJsonWith(targetModel, probeReq, {
       apiKey: key("gemini", c),
       geminiBaseUrl: c.geminiBaseUrl,
+      trustBaseUrl: opts?.trustBaseUrl,
       allowModelFallback: canAdaptModel || geminiCanSelfHeal(targetModel, c),
       knownModels: models,
       onModelHealed: (_from, to) => {
@@ -590,7 +597,7 @@ export async function testTextProvider(
     });
     if (healedTo) targetModel = healedTo;
   } else {
-    res = await providerJson(provider, targetModel, probeReq, c);
+    res = await providerJson(provider, targetModel, probeReq, c, opts);
   }
   if ((res as { ok?: unknown } | null)?.ok !== true) {
     throw new AiError(`${NAMES[provider]} 能连上，但模型 ${targetModel} 没有按要求返回 {"ok":true}，请换一个支持结构化 JSON 输出的模型`);
@@ -610,11 +617,12 @@ const bytesOf = (b64: string) => {
 
 /** One square picture from OpenRouter's image API (any of its image models); the answer names its own format. */
 async function openrouterImage(model: string, prompt: string, signal?: AbortSignal): Promise<Blob> {
+  const apiKey = key("openrouter");
   const r = await fetchWithTimeout(
     proxyUrl("openrouter", "/api/v1/images"),
     {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key("openrouter")}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       // quality is ignored by the models that have no such setting
       body: JSON.stringify({ model, prompt, n: 1, aspect_ratio: "1:1", quality: "low" }),
       signal,
@@ -622,9 +630,9 @@ async function openrouterImage(model: string, prompt: string, signal?: AbortSign
     90_000,
     "OpenRouter 图片",
   );
-  if (!r.ok) throw await errorFrom(r, "OpenRouter 图片");
+  if (!r.ok) throw await errorFrom(r, "OpenRouter 图片", apiKey);
   const j = await r.json();
-  if (j.error) throw new AiError(`OpenRouter 图片返回错误：${String(j.error.message ?? j.error.code ?? "未知错误").slice(0, 300)}`);
+  if (j.error) throw new AiError(`OpenRouter 图片返回错误：${redactSecrets(String(j.error.message ?? j.error.code ?? "未知错误"), apiKey).slice(0, 300)}`);
   const img = j.data?.[0];
   if (!img?.b64_json) throw new AiError("OpenRouter 没有返回图片");
   return new Blob([bytesOf(img.b64_json)], { type: img.media_type || "image/png" });
@@ -634,8 +642,9 @@ async function openrouterImage(model: string, prompt: string, signal?: AbortSign
 export async function listImageModels(cfg?: AiConfig): Promise<string[]> {
   await needProxy();
   const c = cfg ?? getAiConfig();
-  const r = await fetchWithTimeout(proxyUrl("openrouter", "/api/v1/images/models"), { headers: { Authorization: `Bearer ${key("openrouter", c)}` } }, 30_000, "OpenRouter");
-  if (!r.ok) throw await errorFrom(r, "OpenRouter");
+  const apiKey = key("openrouter", c);
+  const r = await fetchWithTimeout(proxyUrl("openrouter", "/api/v1/images/models"), { headers: { Authorization: `Bearer ${apiKey}` } }, 30_000, "OpenRouter");
+  if (!r.ok) throw await errorFrom(r, "OpenRouter", apiKey);
   const j = await r.json();
   return ((j.data ?? []) as { id: string }[]).map((m) => m.id).sort();
 }
@@ -653,18 +662,20 @@ export async function generateImage(prompt: string, signal?: AbortSignal): Promi
   const body: Record<string, unknown> = { model, prompt, n: 1, size: "1024x1024" };
   if (/^gpt-image/.test(model)) body.quality = "low";
   else body.response_format = "b64_json";
+  const openaiKey = key("openai", c);
+  assertEndpointTrustedForLocalKey("openai", c.openaiBaseUrl, !!openaiKey);
   const r = await fetchWithTimeout(
     resolveOpenAiEndpoint(c.openaiBaseUrl, "/images/generations"),
     {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key("openai")}` },
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${openaiKey}` },
       body: JSON.stringify(body),
       signal,
     },
     90_000,
     "OpenAI 图片",
   );
-  if (!r.ok) throw await errorFrom(r, "OpenAI 图片");
+  if (!r.ok) throw await errorFrom(r, "OpenAI 图片", openaiKey);
   const j = await r.json();
   const b64 = j.data?.[0]?.b64_json;
   if (!b64) throw new AiError("OpenAI 没有返回图片");
@@ -694,12 +705,14 @@ export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise
   let apiKey: string;
   const model = c.stt.model || "whisper-1";
   if (c.stt.provider === "openai") {
-    apiKey = key("openai");
+    apiKey = key("openai", c);
+    assertEndpointTrustedForLocalKey("openai", c.openaiBaseUrl, !!apiKey);
     url = resolveOpenAiEndpoint(c.openaiBaseUrl, "/audio/transcriptions");
   } else if (c.stt.provider === "custom") {
     if (!c.stt.baseUrl) throw new AiError("还没有填 Whisper 接口地址");
     if (!c.stt.apiKey) throw new AiError("还没有填 Whisper 接口 Key");
     apiKey = c.stt.apiKey;
+    assertEndpointTrustedForLocalKey("stt", c.stt.baseUrl, !!apiKey);
     url = resolveOpenAiEndpoint(c.stt.baseUrl, "/audio/transcriptions");
   } else {
     throw new AiError("还没有开启 Whisper 语音转写服务（在「我的 → AI 接口」里设置）");
@@ -721,7 +734,7 @@ export async function transcribeAudio(blob: Blob, signal?: AbortSignal): Promise
     60_000,
     "Whisper 语音转写",
   );
-  if (!r.ok) throw await errorFrom(r, "Whisper 语音转写");
+  if (!r.ok) throw await errorFrom(r, "Whisper 语音转写", apiKey);
   const j = (await r.json()) as { text?: unknown };
   recordAiUsage({ provider: "whisper", model });
   return typeof j?.text === "string" ? j.text.trim() : "";
@@ -913,6 +926,7 @@ export async function transcribeViaMultimodalAudio(
     };
   }
 
+  if (route.kind === "openai") assertEndpointTrustedForLocalKey("openai", route.baseUrl, !!route.apiKey);
   const endpointUrl =
     route.kind === "openai"
       ? resolveOpenAiEndpoint(route.baseUrl, "/chat/completions")
@@ -946,14 +960,14 @@ export async function transcribeViaMultimodalAudio(
     serviceLabel,
     fetcher,
   );
-  if (!r.ok) throw await errorFrom(r, serviceLabel);
+  if (!r.ok) throw await errorFrom(r, serviceLabel, route.apiKey);
   const j = (await r.json()) as {
     error?: { message?: string; code?: string | number };
     usage?: { prompt_tokens?: number; completion_tokens?: number };
     choices?: Array<{ message?: { content?: string } }>;
   };
   if (j.error) {
-    throw new AiError(`${serviceLabel} 音频转写返回错误：${String(j.error.message ?? j.error.code ?? "未知错误").slice(0, 300)}`);
+    throw new AiError(`${serviceLabel} 音频转写返回错误：${redactSecrets(String(j.error.message ?? j.error.code ?? "未知错误"), route.apiKey).slice(0, 300)}`);
   }
   recordAiUsage({
     provider: route.kind,
@@ -975,12 +989,13 @@ export async function azureSpeakSsml(ssml: string, signal?: AbortSignal): Promis
   await needProxy();
   const c = getAiConfig();
   if (!c.azureRegion) throw new AiError("还没有填 Azure 语音服务的区域");
+  const azureKey = key("azure", c);
   const r = await fetchWithTimeout(
     proxyUrl("azure", `/${c.azureRegion}/cognitiveservices/v1`),
     {
       method: "POST",
       headers: {
-        "Ocp-Apim-Subscription-Key": key("azure"),
+        "Ocp-Apim-Subscription-Key": azureKey,
         "Content-Type": "application/ssml+xml",
         "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3",
       },
@@ -990,7 +1005,7 @@ export async function azureSpeakSsml(ssml: string, signal?: AbortSignal): Promis
     45_000,
     "Azure 语音",
   );
-  if (!r.ok) throw await errorFrom(r, "Azure 语音");
+  if (!r.ok) throw await errorFrom(r, "Azure 语音", azureKey);
   return new Blob([await r.arrayBuffer()], { type: "audio/mpeg" });
 }
 
@@ -1011,8 +1026,9 @@ export async function azureVoices(): Promise<AzureVoice[]> {
   await needProxy();
   const c = getAiConfig();
   if (!c.azureRegion) throw new AiError("还没有填 Azure 语音服务的区域");
-  const r = await fetchWithTimeout(proxyUrl("azure", `/${c.azureRegion}/cognitiveservices/voices/list`), { headers: { "Ocp-Apim-Subscription-Key": key("azure") } }, 30_000, "Azure 语音");
-  if (!r.ok) throw await errorFrom(r, "Azure 语音");
+  const azureKey = key("azure", c);
+  const r = await fetchWithTimeout(proxyUrl("azure", `/${c.azureRegion}/cognitiveservices/voices/list`), { headers: { "Ocp-Apim-Subscription-Key": azureKey } }, 30_000, "Azure 语音");
+  if (!r.ok) throw await errorFrom(r, "Azure 语音", azureKey);
   const all = (await r.json()) as (AzureVoice & { SecondaryLocaleList?: string[] })[];
   return all.filter((v) => v.Locale.startsWith("fr-") || (v.SecondaryLocaleList ?? []).some((l) => l.startsWith("fr-")));
 }

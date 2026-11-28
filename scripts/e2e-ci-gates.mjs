@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import { existsSync } from "node:fs";
+import { webcrypto } from "node:crypto";
 
 const require = createRequire(process.cwd() + "/package.json");
 const { chromium } = require("playwright");
@@ -18,6 +19,37 @@ const SETTINGS_DEFAULT = JSON.stringify({
 });
 /** Same settings with B1 as the learner's start level (grammar catalog order: B1, B2, A1, A2). */
 const SETTINGS_START_B1 = JSON.stringify({ ...JSON.parse(SETTINGS_DEFAULT), startLevel: 2 });
+
+/** Decrypt an uploaded E2EE envelope the way the app does (HKDF-SHA256 → AES-GCM-256), to inspect what the cloud holds. */
+async function decryptWire(raw, syncCode, datasetId = "francais-b2-lexicon") {
+  const env = JSON.parse(raw);
+  const enc = new TextEncoder();
+  const subtle = webcrypto.subtle;
+  const ikm = await subtle.importKey("raw", enc.encode(syncCode), "HKDF", false, ["deriveKey"]);
+  const key = await subtle.deriveKey(
+    { name: "HKDF", hash: "SHA-256", salt: enc.encode("mots-b2-sync-e2ee-salt-v1"), info: enc.encode(`mots-b2-aes-gcm-256-v1:${datasetId}`) },
+    ikm,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["decrypt"],
+  );
+  const plain = await subtle.decrypt(
+    { name: "AES-GCM", iv: Buffer.from(env.iv, "base64"), additionalData: enc.encode(`word-atlas:v2:${datasetId}`) },
+    key,
+    Buffer.from(env.ct, "base64"),
+  );
+  return JSON.parse(new TextDecoder().decode(plain));
+}
+
+const ENVELOPE_KEYS = JSON.stringify(["app", "ct", "datasetId", "enc", "iv", "version"]);
+const isStrictEnvelope = (raw) => {
+  try {
+    const p = JSON.parse(raw);
+    return JSON.stringify(Object.keys(p).sort()) === ENVELOPE_KEYS && p.enc === "aes-gcm-v1";
+  } catch {
+    return false;
+  }
+};
 
 const results = [];
 function assertCheck(name, ok, detail = "") {
@@ -325,6 +357,174 @@ try {
     assertCheck("Suite B: Device B pairs and merges both devices cards, bookmarks & dictFavs cleanly", mergeOk, JSON.stringify({ bookmarks: merged.bookmarks, cards: Object.keys(merged.cards || {}), dictFavs: merged.dictFavs, uploads: wireUploads.length }));
     assertCheck("Suite B: zero pageerrors during E2EE register, pair & merge", syncErrors.length === 0, JSON.stringify(syncErrors));
     await ctxB.close();
+
+    // Suite B (AI): AI settings + API keys travel only inside the E2EE payload; switching key sync off removes them from the cloud
+    {
+      const SECRETS = {
+        openai: "sk-e2e-openai-SECRET-0123456789",
+        gemini: "AIzaSyE2E-gemini-SECRET-0123456",
+        azure: "e2eazureSECRETkey0123456789abcd",
+      };
+      const RELAY = "https://relay-e2e.example.com/v1";
+      const aiSeed = JSON.stringify({
+        keys: { openai: SECRETS.openai, gemini: SECRETS.gemini, azure: SECRETS.azure },
+        openaiBaseUrl: RELAY,
+        azureRegion: "westeurope",
+        azureVoice: "fr-FR-VivienneMultilingualNeural",
+        text: { provider: "openai", model: "gpt-5-mini" },
+      });
+      const aiErrors = [];
+      const leaks = (raw) => Object.values(SECRETS).some((k) => raw.includes(k)) || raw.includes(RELAY);
+      const keySwitchLabel = (page) => page.locator(".cloud-sync .ai-sync-toggle", { hasText: "将 API Key" });
+      const uploadsBefore = wireUploads.length;
+
+      const ctxA3 = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "zh-CN" });
+      await installMockSyncApi(ctxA3);
+      await ctxA3.addInitScript(
+        ({ settings, prog, key, ai }) => {
+          if (!sessionStorage.getItem("seeded")) {
+            localStorage.setItem("word-atlas:settings", settings);
+            localStorage.setItem(key, prog);
+            localStorage.setItem("word-atlas:ai:v1", ai);
+            sessionStorage.setItem("seeded", "1");
+          }
+        },
+        { settings: SETTINGS_DEFAULT, prog: makeSeed("n-ami", "chat", 3), key: DATASET_KEY, ai: aiSeed },
+      );
+      const pageA3 = await ctxA3.newPage();
+      pageA3.on("pageerror", (e) => aiErrors.push(`A:${e.message}`));
+      await pageA3.goto(BASE + "#/me", { waitUntil: "networkidle" });
+      // preset before pairing: include the API keys in the encrypted sync
+      await keySwitchLabel(pageA3).click();
+      const presetOn = await pageA3.locator(".cloud-sync").getByRole("switch", { name: "将 API Key 一并纳入端到端加密同步" }).isChecked();
+      await pageA3.getByPlaceholder("输入邀请码（如 inv_...）").fill("inv_ci_ai");
+      await pageA3.getByRole("button", { name: "注册并生成同步码" }).click();
+      await pageA3.waitForSelector(".sync-code-text", { timeout: 10000 });
+      const aiCode = (await pageA3.locator(".sync-code-text").innerText()).trim();
+      await pageA3.waitForSelector(".sync-badge.is-ok", { timeout: 10000 });
+      const aUploads = wireUploads.slice(uploadsBefore);
+      const aPlain = aUploads.length ? await decryptWire(aUploads[aUploads.length - 1], aiCode) : {};
+      assertCheck(
+        "Suite B (AI): Device A uploads AI config + API keys only as AES-GCM ciphertext (no key / base URL / code on the wire)",
+        presetOn &&
+          aUploads.length >= 1 &&
+          aUploads.every((raw) => isStrictEnvelope(raw) && !leaks(raw) && !raw.includes(aiCode)) &&
+          aPlain.aiConfig?.includeKeys === true &&
+          aPlain.aiConfig?.keys?.openai === SECRETS.openai &&
+          aPlain.aiConfig?.config?.openaiBaseUrl === RELAY,
+        JSON.stringify({ presetOn, uploads: aUploads.length, includeKeys: aPlain.aiConfig?.includeKeys }),
+      );
+      await ctxA3.close();
+
+      const ctxB3 = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "zh-CN" });
+      await installMockSyncApi(ctxB3);
+      await ctxB3.addInitScript((settings) => {
+        if (!sessionStorage.getItem("seeded")) {
+          localStorage.setItem("word-atlas:settings", settings);
+          sessionStorage.setItem("seeded", "1");
+        }
+      }, SETTINGS_DEFAULT);
+      const pageB3 = await ctxB3.newPage();
+      pageB3.on("pageerror", (e) => aiErrors.push(`B:${e.message}`));
+      await pageB3.goto(BASE + "#/me", { waitUntil: "networkidle" });
+      await pageB3.getByRole("tab", { name: "已有同步码" }).click();
+      await pageB3.getByPlaceholder("输入已有同步码（mb2_...）").fill(aiCode);
+      await pageB3.getByRole("button", { name: "配对并同步" }).click();
+      await pageB3.waitForSelector(".sync-badge.is-ok", { timeout: 10000 });
+      await pageB3.waitForTimeout(300);
+      const readAi = () => pageB3.evaluate(() => JSON.parse(localStorage.getItem("word-atlas:ai:v1") || "{}"));
+      const restored = await readAi();
+      await pageB3.getByRole("button", { name: "设置 AI 接口" }).click();
+      const dialog = pageB3.getByRole("dialog", { name: "AI 接口" });
+      await dialog.waitFor();
+      const dialogKeySwitchOn = await dialog.getByRole("switch", { name: "将 API Key 一并纳入端到端加密同步" }).isChecked();
+      const dialogStatus = await dialog.locator(".ai-sync-status").innerText();
+      await pageB3.keyboard.press("Escape");
+      await dialog.waitFor({ state: "hidden" });
+      assertCheck(
+        "Suite B (AI): Device B pairs, decrypts and restores AI config + keys, and both panels show key sync on",
+        restored.keys?.openai === SECRETS.openai &&
+          restored.keys?.gemini === SECRETS.gemini &&
+          restored.keys?.azure === SECRETS.azure &&
+          restored.openaiBaseUrl === RELAY &&
+          restored.azureVoice === "fr-FR-VivienneMultilingualNeural" &&
+          dialogKeySwitchOn,
+        JSON.stringify({ baseUrl: restored.openaiBaseUrl, dialogKeySwitchOn, dialogStatus }),
+      );
+
+      const beforeOff = wireUploads.length;
+      await keySwitchLabel(pageB3).click();
+      const deadline = Date.now() + 10000;
+      while (wireUploads.length === beforeOff && Date.now() < deadline) await pageB3.waitForTimeout(100);
+      const offRaw = wireUploads[wireUploads.length - 1] || "";
+      const offPlain = wireUploads.length > beforeOff ? await decryptWire(offRaw, aiCode) : {};
+      const keptLocal = await readAi();
+      assertCheck(
+        "Suite B (AI): switching 同步 API Key off uploads at once; the latest ciphertext holds no key while B keeps its keys",
+        wireUploads.length > beforeOff &&
+          isStrictEnvelope(offRaw) &&
+          !leaks(offRaw) &&
+          offPlain.aiConfig?.includeKeys === false &&
+          !("keys" in (offPlain.aiConfig ?? {})) &&
+          !JSON.stringify(offPlain).includes(SECRETS.openai) &&
+          keptLocal.keys?.openai === SECRETS.openai &&
+          keptLocal.keys?.azure === SECRETS.azure,
+        JSON.stringify({
+          uploads: wireUploads.length - beforeOff,
+          includeKeys: offPlain.aiConfig?.includeKeys,
+          lastError: await pageB3.evaluate(() => JSON.parse(localStorage.getItem("fb2.sync") || "{}").lastError ?? null),
+          keyPolicy: await pageB3.evaluate(() => JSON.parse(localStorage.getItem("word-atlas:ai-sync:v1") || "{}").keyPolicy ?? null),
+        }),
+      );
+      assertCheck("Suite B (AI): zero pageerrors during AI config E2EE sync", aiErrors.length === 0, JSON.stringify(aiErrors));
+      await ctxB3.close();
+
+      // Reverse path: default non-key sync preserves Device D's local private key & requires endpoint confirmation
+      const PRIVATE_KEY_D = "sk-e2e-private-local-D-999999";
+      const ctxD = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "zh-CN" });
+      await installMockSyncApi(ctxD);
+      await ctxD.addInitScript(
+        ({ settings, ai }) => {
+          if (!sessionStorage.getItem("seeded")) {
+            localStorage.setItem("word-atlas:settings", settings);
+            localStorage.setItem("word-atlas:ai:v1", ai);
+            sessionStorage.setItem("seeded", "1");
+          }
+        },
+        { settings: SETTINGS_DEFAULT, ai: JSON.stringify({ keys: { openai: PRIVATE_KEY_D } }) },
+      );
+      const pageD = await ctxD.newPage();
+      pageD.on("pageerror", (e) => aiErrors.push(`D:${e.message}`));
+      await pageD.goto(BASE + "#/me", { waitUntil: "networkidle" });
+      await pageD.getByRole("tab", { name: "已有同步码" }).click();
+      await pageD.getByPlaceholder("输入已有同步码（mb2_...）").fill(aiCode);
+      await pageD.getByRole("button", { name: "配对并同步" }).click();
+      await pageD.waitForSelector(".sync-badge.is-ok", { timeout: 10000 });
+      await pageD.waitForTimeout(250);
+
+      const dAfterPair = await pageD.evaluate(() => JSON.parse(localStorage.getItem("word-atlas:ai:v1") || "{}"));
+      await pageD.getByRole("button", { name: "设置 AI 接口" }).click();
+      const dialogD = pageD.getByRole("dialog", { name: "AI 接口" });
+      await dialogD.waitFor();
+      const confirmBannerVisible = (await dialogD.locator(".ai-endpoint-confirm").count()) === 1;
+      if (confirmBannerVisible) {
+        await dialogD.getByRole("button", { name: "信任并启用" }).click();
+      }
+      const confirmCleared = (await dialogD.locator(".ai-endpoint-confirm").count()) === 0;
+      const dGuardAfter = await pageD.evaluate(() => localStorage.getItem("word-atlas:ai-endpoint-guard:v1"));
+      assertCheck(
+        "Suite B (AI): non-key sync updates Base URL & voice while keeping Device D's local key and guarding unconfirmed endpoint",
+        dAfterPair.keys?.openai === PRIVATE_KEY_D &&
+          dAfterPair.openaiBaseUrl === RELAY &&
+          dAfterPair.azureVoice === "fr-FR-VivienneMultilingualNeural" &&
+          confirmBannerVisible &&
+          confirmCleared &&
+          dGuardAfter === null &&
+          !wireUploads.some((raw) => raw.includes(PRIVATE_KEY_D)),
+        JSON.stringify({ keyKept: dAfterPair.keys?.openai === PRIVATE_KEY_D, baseUrl: dAfterPair.openaiBaseUrl, confirmBannerVisible, confirmCleared }),
+      );
+      await ctxD.close();
+    }
   }
 
   // Suite C: 390x844 mobile layout & 5-tab nav gate
@@ -357,6 +557,53 @@ try {
       if (ov.sw > ov.cw) overflows.push({ route: r, ...ov });
     }
     assertCheck("Suite C: 390x844 zero horizontal overflow across all 10 routes", overflows.length === 0, JSON.stringify(overflows));
+
+    // 我的 → 云同步 and 我的 → AI 接口 (both carry the AI sync switches) stay within 390 px
+    await pageMob.goto(BASE + "#/me", { waitUntil: "networkidle" });
+    await pageMob.locator(".cloud-sync .ai-sync-controls").scrollIntoViewIfNeeded();
+    const cloudPanel = await pageMob.evaluate(() => {
+      const el = document.querySelector(".cloud-sync .ai-sync-controls");
+      const r = el?.getBoundingClientRect();
+      return {
+        found: Boolean(el),
+        sw: document.documentElement.scrollWidth,
+        cw: document.documentElement.clientWidth,
+        inner: el ? el.scrollWidth <= el.clientWidth : false,
+        right: r ? Math.round(r.right) : 0,
+      };
+    });
+    await pageMob.getByRole("button", { name: "设置 AI 接口" }).click();
+    const mobDialog = pageMob.getByRole("dialog", { name: "AI 接口" });
+    await mobDialog.waitFor();
+    await mobDialog.locator(".ai-sync-controls").waitFor();
+    const sheetPanel = await pageMob.evaluate(() => {
+      const sheet = document.querySelector(".sheet[aria-label='AI 接口']");
+      const ctl = sheet?.querySelector(".ai-sync-controls");
+      const switches = [...(sheet?.querySelectorAll(".ai-sync-toggle .switch") ?? [])].map((s) => Math.round(s.getBoundingClientRect().width));
+      return {
+        found: Boolean(ctl),
+        sw: document.documentElement.scrollWidth,
+        cw: document.documentElement.clientWidth,
+        sheet: sheet ? sheet.scrollWidth <= sheet.clientWidth : false,
+        inner: ctl ? ctl.scrollWidth <= ctl.clientWidth : false,
+        switches,
+      };
+    });
+    await pageMob.keyboard.press("Escape");
+    assertCheck(
+      "Suite C: 390x844 云同步 panel and AI 接口 sheet show the AI sync switches without overflow or squeezed switches",
+      cloudPanel.found &&
+        cloudPanel.inner &&
+        cloudPanel.sw <= cloudPanel.cw &&
+        cloudPanel.right <= cloudPanel.cw &&
+        sheetPanel.found &&
+        sheetPanel.sheet &&
+        sheetPanel.inner &&
+        sheetPanel.sw <= sheetPanel.cw &&
+        sheetPanel.switches.length === 2 &&
+        sheetPanel.switches.every((w) => w === 48),
+      JSON.stringify({ cloudPanel, sheetPanel }),
+    );
     assertCheck("Suite C: zero uncaught pageerrors on 390x844 routes", mobErrors.length === 0, JSON.stringify(mobErrors));
     await ctxMob.close();
 

@@ -20,6 +20,7 @@ import {
 } from "../store/store";
 import type { CardState } from "../store/srs";
 import { MAX_BANK, sanitizeAttempts, sanitizePaper, type Attempt, type BankPaper } from "../store/exam-bank";
+import { mergeAiSyncPayloads, parseAiSyncPayload } from "./ai-sync";
 import { summarizeBackup } from "./decide";
 import type { BackupSummary } from "./state";
 
@@ -623,6 +624,10 @@ export function mergeBackups(
     }
   }
 
+  // AI settings: policy by policyRev, config by configRev, keys slot by slot. A side whose aiConfig is missing or not
+  // understood contributes nothing (the caller strips aiConfig from untrusted plaintext before merging).
+  const aiConfig = mergeAiSyncPayloads(parseAiSyncPayload(rawLocal.aiConfig), parseAiSyncPayload(rawRemote.aiConfig));
+
   const out = {
     app: "word-atlas",
     version: 2,
@@ -633,6 +638,7 @@ export function mergeBackups(
     ...(essayDrafts && Object.keys(essayDrafts).length ? { essayDrafts } : {}),
     ...(essayDraftsAt && Object.keys(essayDraftsAt).length ? { essayDraftsAt } : {}),
     ...(examBank ? { examBank } : {}),
+    ...(aiConfig ? { aiConfig } : {}),
   };
 
   const json = JSON.stringify(out, null, 1);

@@ -23,6 +23,11 @@ export interface SyncConflict {
 export interface PersistedSyncState {
   code: string | null;
   authVersion?: 1 | 2;
+  /**
+   * Set only once the raw sync code has really been sent to the server (legacy v1 auth, or the raw-code fallback):
+   * the server could then decrypt the archive, so API keys are never uploaded on this connection.
+   */
+  legacyAuth?: true;
   baseEtag: string | null;
   lastSyncedHash: string | null;
   lastOkAt: number | null;
@@ -49,6 +54,7 @@ function sanitizePersisted(raw: unknown): PersistedSyncState {
   if (typeof o.code === "string" && o.code.trim()) {
     base.code = o.code.trim();
     base.authVersion = o.authVersion === 2 ? 2 : 1;
+    if (o.legacyAuth === true) base.legacyAuth = true;
   }
   if (typeof o.baseEtag === "string" && o.baseEtag) base.baseEtag = o.baseEtag;
   if (typeof o.lastSyncedHash === "string" && o.lastSyncedHash) base.lastSyncedHash = o.lastSyncedHash;
@@ -77,6 +83,7 @@ function writePersisted(s: PersistedSyncState): void {
     const payload: PersistedSyncState = {
       code: s.code,
       ...(s.code ? { authVersion: s.authVersion === 2 ? 2 : 1 } : {}),
+      ...(s.code && s.legacyAuth ? { legacyAuth: true as const } : {}),
       baseEtag: s.baseEtag,
       lastSyncedHash: s.lastSyncedHash,
       lastOkAt: s.lastOkAt,
@@ -113,6 +120,7 @@ export function setSyncState(patch: Partial<SyncState> | ((prev: SyncState) => S
   const persistedChanged =
     prev.code !== next.code ||
     prev.authVersion !== next.authVersion ||
+    prev.legacyAuth !== next.legacyAuth ||
     prev.baseEtag !== next.baseEtag ||
     prev.lastSyncedHash !== next.lastSyncedHash ||
     prev.lastOkAt !== next.lastOkAt ||

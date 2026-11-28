@@ -14,16 +14,21 @@ import {
   STT_PROVIDERS,
   TEXT_PROVIDERS,
   VISION_PROVIDERS,
+  confirmSyncedBaseUrl,
   getAiConfig,
   setAiConfig,
   useAiConfig,
+  useUnconfirmedBaseUrls,
   type AiConfig,
+  type UnconfirmedEndpointKind,
   type SttProvider,
   type TextProvider,
 } from "../ai/config";
 import { normalizeGeminiModel, proxyAvailable } from "../ai/proxy";
 import { clearTtsCache, ttsCacheSize } from "../ai/tts";
 import { resetAiUsage, useAiUsage } from "../ai/usage";
+import { isSyncConfigured } from "../sync/api";
+import { AiSyncControls } from "./AiSyncControls";
 import { toast } from "./Toast";
 
 const STT_LABEL: Record<SttProvider, string> = { none: "关闭", openai: "复用 OpenAI", custom: "自定义 Whisper 接口" };
@@ -34,6 +39,40 @@ const LABEL: Record<TextProvider, string> = { openai: "OpenAI", deepseek: "DeepS
 const TITLE: Record<TextProvider, string> = { ...LABEL, gemini: "Google Gemini" };
 
 const BASE_URL_HINT = "须以 https:// 开头，或本机 http://localhost / 127.0.0.1 地址";
+
+const ENDPOINT_LABEL: Record<UnconfirmedEndpointKind, string> = { openai: "OpenAI 兼容接口", gemini: "Gemini 接口", stt: "Whisper 语音转写接口" };
+
+/**
+ * Cloud sync changed a custom base URL while this device keeps its own key for it: nothing is sent there with that
+ * key until the learner trusts the address here (or runs 测试连接 / edits the address or key).
+ */
+function UnconfirmedEndpoints({ c }: { c: AiConfig }) {
+  const pending = useUnconfirmedBaseUrls();
+  const current: Record<UnconfirmedEndpointKind, string> = { openai: c.openaiBaseUrl, gemini: c.geminiBaseUrl, stt: c.stt.baseUrl };
+  const items = (Object.keys(pending) as UnconfirmedEndpointKind[]).filter((k) => pending[k] && pending[k] === current[k]);
+  if (!items.length) return null;
+  return (
+    <div className="ai-endpoint-confirms">
+      {items.map((kind) => (
+        <div className="ai-endpoint-confirm" role="alert" key={kind}>
+          <p>
+            云同步更新了{ENDPOINT_LABEL[kind]}的自定义地址（<code>{pending[kind]}</code>），为保护本机原有 Key，确认无误后请点击启用。
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            onClick={() => {
+              confirmSyncedBaseUrl(kind);
+              toast("已信任并启用该接口地址", "ok");
+            }}
+          >
+            信任并启用
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function KeyField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder: string }) {
   const [show, setShow] = useState(false);
@@ -115,11 +154,18 @@ function useModels() {
     p: TextProvider,
     cfg?: AiConfig,
     quiet = false,
+    opts?: { candidateOnly?: boolean },
   ): Promise<{ ok: true; note: string; model: string; requestedModel: string } | { ok: false; error: string }> => {
     setTesting(p);
     const c = cfg ?? getAiConfig();
+    // 测试连接 in 高级配置 confirms the exact saved address being tested; an unsaved wizard candidate only probes itself
+    // without unlocking an unrelated saved unconfirmed address if the probe fails.
+    if (!opts?.candidateOnly) {
+      if (p === "openai") confirmSyncedBaseUrl("openai", c.openaiBaseUrl);
+      if (p === "gemini") confirmSyncedBaseUrl("gemini", c.geminiBaseUrl);
+    }
     try {
-      const res = await testTextProvider(p, cfg);
+      const res = await testTextProvider(p, cfg, { trustBaseUrl: opts?.candidateOnly });
       if (res.models.length) store(p, listSig(p, c), res.models, c);
       const modeHint = res.compatMode && res.compatMode !== "strict" && res.compatMode !== "json_schema" ? ` · 已自动适配 ${res.compatMode} 兼容协议` : "";
       const adapted = res.model && res.requestedModel && res.model !== res.requestedModel ? ` · 已自动匹配可用模型 ${res.model}` : "";
@@ -424,11 +470,13 @@ export function AiSettings() {
     setWizStatus(null);
     setWizBusy(true);
     try {
-      const res = await test(provider, candidateCfg, true);
+      const res = await test(provider, candidateCfg, true, { candidateOnly: true });
       if (wizSeqRef.current !== seq) return;
       if (res.ok) {
         wizDirtyRef.current = false;
         setAiConfig((cur) => buildPatch(cur, res.model));
+        if (provider === "openai") confirmSyncedBaseUrl("openai", cleanBase);
+        if (provider === "gemini") confirmSyncedBaseUrl("gemini", cleanBase);
         const text = `连接成功 · 已自动配齐 ${TITLE[provider]} 默认模型（${res.note}）`;
         toast(`${TITLE[provider]} ${text}`, "ok");
         setWizStatus({ ok: true, text });
@@ -541,7 +589,14 @@ export function AiSettings() {
 
   return (
     <div className="ai-settings">
-      <p className="wf-hint">Key 只保存在这台设备上，不会写进备份。{proxy ? "请求经本机的开发服务转发到各家接口。" : "请求由这台设备直接发给各家接口。"}</p>
+      <p className="wf-hint">
+        手动导出的 JSON 备份永不含 Key；如需跨设备同步，可在下方选择将配置或 API Key 纳入端到端加密云同步。
+        {proxy ? "请求经本机的开发服务转发到各家接口。" : "请求由这台设备直接发给各家接口。"}
+      </p>
+
+      <UnconfirmedEndpoints c={c} />
+
+      {isSyncConfigured() && <AiSyncControls variant="settings" />}
 
       <section className="ai-wizard" aria-label="1 步快速开通 AI">
         <div className="ai-wizard-head">

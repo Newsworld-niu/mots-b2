@@ -13,7 +13,7 @@
  * The key travels in the `x-goog-api-key` header only, never in the URL.
  */
 import type { Attachment, JsonRequest } from "./clients";
-import { GEMINI_PRESET_MODELS, sanitizeBaseUrl } from "./config";
+import { GEMINI_PRESET_MODELS, assertEndpointTrustedForLocalKey, sanitizeBaseUrl } from "./config";
 import { AiError, aiFetch, createRequestDeadline, normalizeGeminiModel, parseJsonAnswer, redactSecrets, resolveGeminiEndpoint } from "./proxy";
 import { recordAiUsage } from "./usage";
 
@@ -484,6 +484,8 @@ export interface GeminiOptions {
   knownModels?: readonly string[];
   /** Called once a fallback model answered in place of `fromModel` (persist it so later calls go there directly). */
   onModelHealed?: (fromModel: string, toModel: string) => void;
+  /** Single-request probe override (1 步 wizard testing a candidate address without unlocking the saved guard). */
+  trustBaseUrl?: boolean;
 }
 
 /** At most this many replacement models are tried after a retired-model 404. */
@@ -583,6 +585,11 @@ async function withModelHealing<T>(model: string, opts: GeminiOptions, signal: A
 
 const endpoint = (opts: GeminiOptions, path: string) => resolveGeminiEndpoint(opts.geminiBaseUrl ?? "", path, { forceDirect: Boolean(opts.fetcher) });
 
+/** Never send this device's own Gemini key to a custom address cloud sync changed until the learner confirms it. */
+const guardEndpoint = (opts: GeminiOptions) => {
+  if (!opts.trustBaseUrl) assertEndpointTrustedForLocalKey("gemini", opts.geminiBaseUrl ?? "", !!opts.apiKey?.trim());
+};
+
 /**
  * A JSON answer from a Gemini model, with the schema-compatibility fallback described above and, with
  * `allowModelFallback`, the retired-model self-healing.
@@ -592,6 +599,7 @@ export async function geminiJsonWith(model: string, req: JsonRequest, opts: Gemi
 }
 
 async function geminiJsonOnce(model: string, req: JsonRequest, opts: GeminiOptions): Promise<unknown> {
+  guardEndpoint(opts);
   const clean = normalizeGeminiModel(model);
   const base = baseKey(opts.geminiBaseUrl);
   const custom = base !== "official";
@@ -649,6 +657,7 @@ async function geminiJsonOnce(model: string, req: JsonRequest, opts: GeminiOptio
 
 /** Model ids the key can use for generateContent; the recommended text presets first, then the rest alphabetically. */
 export async function listGeminiModels(opts: GeminiOptions & { signal?: AbortSignal }): Promise<string[]> {
+  guardEndpoint(opts);
   const fetcher = opts.fetcher ?? aiFetch;
   const found: string[] = [];
   let token = "";
@@ -693,6 +702,7 @@ const bytesOf = (b64: string) => {
 
 /** One picture from a Gemini image model (`responseModalities: TEXT + IMAGE`), skipping intermediate thought drafts. */
 export async function geminiGenerateImage(model: string, prompt: string, opts: GeminiOptions & { signal?: AbortSignal }): Promise<Blob> {
+  guardEndpoint(opts);
   const clean = normalizeGeminiModel(model);
   const fetcher = opts.fetcher ?? aiFetch;
   const dl = createRequestDeadline(opts.signal, IMAGE_TIMEOUT_MS, `${NAME} 图片`);
@@ -756,6 +766,7 @@ async function geminiTranscribeOnce(
   prompts: { system: string; text: string },
   opts: GeminiOptions & { signal?: AbortSignal },
 ): Promise<string> {
+  guardEndpoint(opts);
   const clean = normalizeGeminiModel(model);
   const fetcher = opts.fetcher ?? aiFetch;
   const temp = geminiTemperature(clean, 0);

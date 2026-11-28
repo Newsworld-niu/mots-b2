@@ -1,4 +1,5 @@
 import { hasAnyProgress, type Progress } from "../store/store";
+import { aiPayloadCountsAsProgress } from "./ai-sync";
 import type { BackupSummary } from "./state";
 
 export type PullDecision = "push-create" | "push" | "apply-remote" | "conflict" | "merged" | "noop";
@@ -61,12 +62,16 @@ export function summarizeBackup(json: string): BackupSummary {
   }
 }
 
+/**
+ * Whether a backup holds anything worth keeping: learning progress, or AI settings that were really chosen (a
+ * switched-off policy, shared keys, a changed config). A device with only private, unshared keys has none.
+ */
 export function hasBackupProgress(json: string): boolean {
   try {
     const data = JSON.parse(json) as Record<string, unknown>;
     if (!data || typeof data !== "object" || Array.isArray(data)) return false;
-    if (!data.progress || typeof data.progress !== "object" || Array.isArray(data.progress)) return false;
-    return hasAnyProgress(data.progress as Progress);
+    if (data.progress && typeof data.progress === "object" && !Array.isArray(data.progress) && hasAnyProgress(data.progress as Progress)) return true;
+    return "aiConfig" in data && aiPayloadCountsAsProgress(data.aiConfig);
   } catch {
     return false;
   }

@@ -29,8 +29,31 @@ export function snoozeBackupToday(): void {
   }
 }
 
+/**
+ * Make a JSON text safe to save as a file: a top-level `aiConfig` (the cloud sync payload, which may carry API keys)
+ * is removed. Arrays (e.g. the dictionary reports export) and objects without it pass through as they are. Text
+ * that mentions `aiConfig` but cannot be parsed is refused (null) rather than written out unchecked.
+ */
+export function sanitizeBackupJsonForDownload(json: string): string | null {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(json);
+  } catch {
+    return json.includes("aiConfig") ? null : json;
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || !("aiConfig" in parsed)) return json;
+  const { aiConfig: _drop, ...rest } = parsed as Record<string, unknown>;
+  void _drop;
+  return JSON.stringify(rest, null, 1);
+}
+
 export async function downloadRawBackupFile(json: string, name: string, successToast = "已导出备份文件"): Promise<void> {
-  const blob = new Blob([json], { type: "application/json" });
+  const safe = sanitizeBackupJsonForDownload(json);
+  if (safe === null) {
+    toast("这份数据格式异常，为保护 API Key 已取消导出", "warn");
+    return;
+  }
+  const blob = new Blob([safe], { type: "application/json" });
   if (isNative()) {
     try {
       await shareFileNative(blob, name, "学习备份");

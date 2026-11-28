@@ -11,7 +11,7 @@ import { aggregate, assessmentHeader, parseAssessment, parseWhisperVerbose, type
 import { decodeSpeech } from "../lib/recorder";
 import { encodeWav, isSilent, splitSegments, SPEECH_RATE } from "../lib/wav";
 import { canTranscribeMultimodalAudio, transcribeViaMultimodalAudio } from "./clients";
-import { getAiConfig, ready, type AiConfig } from "./config";
+import { assertEndpointTrustedForLocalKey, getAiConfig, ready, type AiConfig } from "./config";
 import { AiError, aiFetch, directUrl, errorFrom, fetchWithTimeout, proxyAvailable, proxyUrl, resolveOpenAiEndpoint } from "./proxy";
 import { recordAiUsage } from "./usage";
 
@@ -137,7 +137,7 @@ async function assessPiece(
           await sleepAbortable(350, signal);
           continue;
         }
-        throw await errorFrom(r, "Azure 语音评测");
+        throw await errorFrom(r, "Azure 语音评测", c.keys.azure);
       }
       return parseAssessment(await r.json(), { offsetMs, referenceText });
     } catch (err) {
@@ -211,11 +211,13 @@ export async function assessViaWhisperVerbose(
   if (c.stt.provider === "openai") {
     apiKey = c.keys.openai;
     if (!apiKey) throw new AiError("还没有填 OpenAI 的 Key（在「我的 → AI 接口」里填）");
+    assertEndpointTrustedForLocalKey("openai", c.openaiBaseUrl, !!apiKey);
     url = resolveOpenAiEndpoint(c.openaiBaseUrl, "/audio/transcriptions");
   } else if (c.stt.provider === "custom") {
     if (!c.stt.baseUrl) throw new AiError("还没有填 Whisper 接口地址");
     if (!c.stt.apiKey) throw new AiError("还没有填 Whisper 接口 Key");
     apiKey = c.stt.apiKey;
+    assertEndpointTrustedForLocalKey("stt", c.stt.baseUrl, !!apiKey);
     url = resolveOpenAiEndpoint(c.stt.baseUrl, "/audio/transcriptions");
   } else {
     throw new AiError("还没有开启 Whisper 语音转写服务（在「我的 → AI 接口」里设置）");
@@ -254,7 +256,7 @@ export async function assessViaWhisperVerbose(
       useFetch,
     );
   }
-  if (!r.ok) throw await errorFrom(r, "Whisper 语音转写");
+  if (!r.ok) throw await errorFrom(r, "Whisper 语音转写", apiKey);
   const json = await r.json();
   recordAiUsage({ provider: "whisper", model });
   return parseWhisperVerbose(json, opts?.fallbackSeconds ?? 0);

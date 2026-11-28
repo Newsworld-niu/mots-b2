@@ -732,6 +732,33 @@ describe("sync handlers", () => {
     assert.equal(mismatch.status, 400);
   });
 
+  it("refuses plaintext uploads carrying aiConfig and E2EE envelopes with extra plaintext fields", async () => {
+    const store = new MemoryObjStore();
+    const { syncCode } = await createInviteAndRegister(store);
+    const auth = { Authorization: `Bearer ${syncCode}` };
+    const put = (body: string, headers: Record<string, string> = { "If-None-Match": "*" }) =>
+      handleRequest({ method: "PUT", path: `/api/sync/${DATASET_ID}`, headers: { ...auth, ...headers }, body }, store, ENV);
+
+    const legacy = JSON.parse(makeBackup()) as Record<string, unknown>;
+    const withAi = JSON.stringify({ ...legacy, aiConfig: { version: 1, enabled: true, includeKeys: true, keys: { openai: "sk-plain-leak-123456" } } });
+    const r1 = await put(withAi);
+    assert.equal(r1.status, 400);
+    assert.equal(JSON.parse(r1.body!).error, "invalid_payload");
+    assert.equal(await store.get(`users/${createHash("sha256").update(syncCode).digest("hex")}/${DATASET_ID}/latest.json`), null);
+
+    const disabledOnly = JSON.stringify({ ...legacy, aiConfig: { version: 1, enabled: false, includeKeys: false, policyRev: 1 } });
+    assert.equal((await put(disabledOnly)).status, 400, "any plaintext aiConfig, even a tombstone, is refused");
+
+    const envelope = { app: "word-atlas", version: 2, enc: "aes-gcm-v1", datasetId: DATASET_ID, iv: "AAAAAAAAAAAAAAAA", ct: "BBBBBBBBBBBBBBBBBBBBBBBB" };
+    assert.equal((await put(JSON.stringify({ ...envelope, aiConfig: { version: 1 } }))).status, 400, "no aiConfig beside the ciphertext");
+    assert.equal((await put(JSON.stringify({ ...envelope, progress: { datasetId: DATASET_ID } }))).status, 400, "no plaintext progress beside the ciphertext");
+    assert.equal((await put(JSON.stringify({ ...envelope, note: "x" }))).status, 400, "no unknown extra field");
+    const ok = await put(JSON.stringify(envelope));
+    assert.equal(ok.status, 200, "a strict envelope is accepted");
+    const legacyOk = await put(makeBackup(), { "If-Match": JSON.parse(ok.body!).etag });
+    assert.equal(legacyOk.status, 200, "legacy plaintext learning backups without aiConfig still work");
+  });
+
   it("enforces rate limiting with 429 and Retry-After on registration burst", async () => {
     const store = new MemoryObjStore();
     const headers = { "x-forwarded-for": "203.0.113.9" };
@@ -1203,5 +1230,74 @@ describe("sync handlers: Cloudflare migration hardening", () => {
     assert.equal(res.status, 200);
     const got = await handleRequest({ method: "GET", path: `/api/sync/${DATASET_ID}`, headers: { Authorization: `Bearer ${syncCode}` } }, store, ENV);
     assert.equal(got.body, body);
+  });
+
+  it("reports legacyAuth=false for native v2 accounts and legacyAuth=true for v1 and upgraded v1 aliases", async () => {
+    const store = new MemoryObjStore();
+    // 1. Legacy v1 registration (server-generated syncCode) + upgrade to mb2a_ alias
+    const { syncCode: v1Code } = await createInviteAndRegister(store);
+    const v1StatusRaw = await handleRequest({ method: "GET", path: "/api/auth", headers: { Authorization: `Bearer ${v1Code}` } }, store, ENV);
+    assert.equal(v1StatusRaw.status, 200);
+    assert.deepEqual(JSON.parse(v1StatusRaw.body!), { authVersion: 2, legacyAuth: true });
+
+    const aliasToken = "mb2a_" + "A".repeat(43);
+    const up = await handleRequest(
+      {
+        method: "POST",
+        path: "/api/auth/upgrade",
+        headers: { Authorization: `Bearer ${v1Code}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ newAuthToken: aliasToken }),
+      },
+      store,
+      ENV,
+    );
+    assert.equal(up.status, 200);
+    const aliasStatus = await handleRequest({ method: "GET", path: "/api/auth", headers: { Authorization: `Bearer ${aliasToken}` } }, store, ENV);
+    assert.equal(aliasStatus.status, 200);
+    assert.deepEqual(JSON.parse(aliasStatus.body!), { authVersion: 2, legacyAuth: true });
+
+    const putLegacy = await handleRequest(
+      {
+        method: "PUT",
+        path: `/api/sync/${DATASET_ID}`,
+        headers: { Authorization: `Bearer ${aliasToken}`, "If-None-Match": "*" },
+        body: makeBackup(DATASET_ID, 1),
+      },
+      store,
+      ENV,
+    );
+    assert.equal(putLegacy.status, 200);
+    assert.equal((JSON.parse(putLegacy.body!) as { legacyAuth?: boolean }).legacyAuth, true);
+
+    // 2. Native v2 registration (client supplies derived mb2a_ token; server never saw syncCode)
+    const invRes = await handleRequest(
+      { method: "POST", path: "/api/invites", headers: { "x-admin-key": ENV.ADMIN_KEY }, body: JSON.stringify({ count: 1 }) },
+      store,
+      ENV,
+    );
+    const inviteCode = (JSON.parse(invRes.body!) as { invites: string[] }).invites[0];
+    const nativeToken = "mb2a_" + "B".repeat(43);
+    const regV2 = await handleRequest(
+      { method: "POST", path: "/api/register", body: JSON.stringify({ inviteCode, authToken: nativeToken }) },
+      store,
+      ENV,
+    );
+    assert.equal(regV2.status, 201);
+    const nativeStatus = await handleRequest({ method: "GET", path: "/api/auth", headers: { Authorization: `Bearer ${nativeToken}` } }, store, ENV);
+    assert.equal(nativeStatus.status, 200);
+    assert.deepEqual(JSON.parse(nativeStatus.body!), { authVersion: 2, legacyAuth: false });
+
+    const putNative = await handleRequest(
+      {
+        method: "PUT",
+        path: `/api/sync/${DATASET_ID}`,
+        headers: { Authorization: `Bearer ${nativeToken}`, "If-None-Match": "*" },
+        body: makeBackup(DATASET_ID, 2),
+      },
+      store,
+      ENV,
+    );
+    assert.equal(putNative.status, 200);
+    assert.equal((JSON.parse(putNative.body!) as { legacyAuth?: boolean }).legacyAuth, undefined);
   });
 });
